@@ -1,0 +1,28 @@
+# Arquitectura
+
+## Capas
+
+> Personaliza esta sección al proyecto concreto. El esqueleto recomendado:
+
+- **{{LAYER_1}}** (`{{SRC_DIR}}/persistence.{{EXT}}` o equivalente): persistencia,
+  acceso a disco/red, sin lógica de negocio.
+- **{{LAYER_2}}** (`{{SRC_DIR}}/domain.{{EXT}}`): modelos, reglas de negocio,
+  excepciones de dominio. No depende de la capa de UI.
+- **{{LAYER_3}}** (`{{SRC_DIR}}/ui.{{EXT}}` — CLI, HTTP handler, etc.): entrada
+  del usuario. Captura excepciones de dominio y traduce a códigos de
+  salida/respuestas.
+
+## Principios
+
+- **Sin dependencias externas no documentadas.** Si añades una, justifica en
+  esta sección.
+- **Errores explícitos.** Excepciones tipadas en la capa de dominio
+  (`{{LAYER_2}}Error`, `NotFoundError`, ...).
+- **Inmutabilidad por defecto** en estructuras de datos del dominio.
+- **Atomicidad** en operaciones de persistencia (write-then-rename, transacciones).
+
+## Prohibiciones
+
+- ❌ Lógica de negocio en la capa de UI.
+- ❌ I/O de disco en la capa de dominio.
+- ❌ `print` / `console.log` en producción — usar logger o stderr explícito.

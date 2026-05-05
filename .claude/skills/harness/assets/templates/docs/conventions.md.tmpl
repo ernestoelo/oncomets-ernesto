@@ -1,0 +1,27 @@
+# Convenciones
+
+## Estilo
+
+- **Formateador**: {{FORMATTER}} (no debate, ejecuta antes de commit).
+- **Linter**: {{LINTER}}.
+- **Naming**: {{NAMING_RULE}} (snake_case / camelCase / etc. según runtime).
+- **Strings**: comillas {{QUOTE_STYLE}}.
+
+## Estructura de errores
+
+- Excepciones del dominio en {{LAYER_2}} con sufijo `Error`.
+- La capa de UI captura, imprime a `stderr`, sale con exit code != 0.
+- No uses excepciones para flujo de control normal.
+
+## Comentarios
+
+- Default: **no comentes**. El nombre del símbolo debe explicar.
+- Solo comenta el **porqué** no obvio: invariantes, workarounds, restricciones.
+- No comentes el **qué** (eso lo dice el código).
+
+## Tests
+
+- Un archivo de test por módulo de {{SRC_DIR}}.
+- Tests **independientes** (no orden de ejecución).
+- Tests **rápidos** (un test = un caso = un assert claro).
+- Tests usan **archivos temporales reales** ({{TEMP_FIXTURE}}), no mocks de fs.

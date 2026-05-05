@@ -1,0 +1,33 @@
+# Verificación
+
+## Niveles
+
+1. **Unitarios**: cada módulo de {{SRC_DIR}} tiene tests en {{TESTS_DIR}}.
+2. **Integración**: tests que ejercitan la UI ({{RUN_CMD}}) end-to-end con
+   archivos temporales reales.
+3. **Smoke manual**: un comando concreto, salida esperada, antes de marcar
+   `done` la primera vez que tocas la feature.
+
+## Cómo ejecutar
+
+```bash
+{{TEST_CMD}}        # Tests
+./init.sh            # Gate completo (incluye tests + estructura)
+```
+
+## Anti-patrones (rechazo automático del reviewer)
+
+- ❌ "Debería funcionar" sin test que lo demuestre.
+- ❌ Mocks del filesystem cuando se podría usar {{TEMP_FIXTURE}}.
+- ❌ Marcar feature como `done` sin que `./init.sh` pase.
+- ❌ Tests que dependen del orden de ejecución (estado compartido).
+- ❌ Asserts vagos (`assert result`) en lugar de específicos
+  (`assert result.id == 1`).
+
+## Checklist antes de declarar `done`
+
+- [ ] Tests verdes en {{TEST_CMD}}.
+- [ ] `./init.sh` exit 0.
+- [ ] Reviewer aprobó (`progress/review_<feature>.md` con `APPROVED`).
+- [ ] Feature en `feature_list.json` cumple todos los `acceptance`.
+- [ ] `progress/current.md` documenta la sesión.

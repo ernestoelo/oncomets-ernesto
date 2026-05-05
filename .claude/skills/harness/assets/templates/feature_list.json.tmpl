@@ -1,0 +1,22 @@
+{
+  "schema": "harness/feature_list@1",
+  "project": "{{PROJECT_NAME}}",
+  "rules": [
+    "Solo UNA feature puede estar en in_progress.",
+    "Status válidos: pending | in_progress | done | blocked.",
+    "Para pasar a done: tests verdes + reviewer aprueba."
+  ],
+  "features": [
+    {
+      "id": 1,
+      "name": "{{FEATURE_1_NAME}}",
+      "status": "pending",
+      "acceptance": [
+        "Criterio verificable 1 (ejemplo: `{{TEST_CMD}}` pasa para módulo X)",
+        "Criterio verificable 2 (ejemplo: comando `{{RUN_CMD}} --flag` produce salida Y)",
+        "Criterio verificable 3 (ejemplo: archivo Z se crea con campos esperados)"
+      ],
+      "depends_on": []
+    }
+  ]
+}

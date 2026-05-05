@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# init.sh — gate de sanidad. Termina con exit 0 si el repo está sano.
+# Generado por @harness para runtime: {{RUNTIME}}
+set -euo pipefail
+
+cd "$(dirname "$0")"
+
+fail() { echo "[init] ✗ $1" >&2; exit 1; }
+ok()   { echo "[init] ✓ $1"; }
+
+# 1. Archivos base del harness
+for f in AGENTS.md CHECKPOINTS.md feature_list.json progress/current.md \
+         docs/architecture.md docs/conventions.md docs/verification.md; do
+    [ -f "$f" ] || fail "Falta archivo base: $f"
+done
+ok "archivos base presentes"
+
+# 2. feature_list.json: máximo 1 in_progress
+in_progress=$(python3 -c "
+import json
+with open('feature_list.json') as f:
+    data = json.load(f)
+print(sum(1 for x in data['features'] if x['status'] == 'in_progress'))
+")
+[ "$in_progress" -le 1 ] || fail "Más de una feature en in_progress: $in_progress"
+ok "feature_list coherente (in_progress=$in_progress)"
+
+# 3. Runtime checks + tests
+{{RUNTIME_CHECKS}}
+
+ok "init.sh OK"

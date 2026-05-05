@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(md5sum:*)",
+      "Bash(nvidia-smi:*)",
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(pip:*)",
+      "Bash(./scripts/*.sh:*)",
+      "Bash(./scripts/*.py:*)",
+      "Bash(bash scripts/*.sh:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Read(/mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM/**)",
+      "Read(/mnt/disco_duro/datasets/**)",
+      "Read(/mnt/disco_duro/onco/datasets/**)",
+      "Write(./sprints/**)",
+      "Write(./progress/**)",
+      "Write(./docs/**)",
+      "Write(./scripts/**)",
+      "Bash(./scripts/sync_skills_from_local.sh *)",
+      "Bash(sudo *)",
+      "Bash(git init *)",
+      "Bash(git remote *)"
+    ],
+    "deny": [
+      "Write(/mnt/disco_duro/onco/sebastianDonoso/**)",
+      "Bash(rm -rf /mnt/disco_duro/**)",
+      "Bash(git push --force:*)"
+    ]
+  }
+}

@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+
+# Datos pesados — referencia, no versionar
+sprints/*/objetivo_2_entrenamiento/logs/*.pt
+sprints/*/objetivo_2_entrenamiento/logs/*.pth
+sprints/*/objetivo_2_entrenamiento/logs/*.h5
+sprints/*/objetivo_2_entrenamiento/logs/checkpoints/
+
+# Pero SÍ versionar curvas y métricas de texto
+!sprints/*/objetivo_2_entrenamiento/logs/*.csv
+!sprints/*/objetivo_2_entrenamiento/logs/*.log
+!sprints/*/objetivo_2_entrenamiento/logs/*.json
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Claude Code local state
+.claude/projects/
+.claude/todos/
+.claude/cache/
+
+# Secretos
+*.env
+.env.local
+conf.env
