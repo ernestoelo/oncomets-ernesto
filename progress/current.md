@@ -66,27 +66,42 @@ Los siguientes paths/líneas/argumentos del scaffold inicial estaban
 
 ---
 
-## Sesión 1 — Primera ejecución en Werner _(pendiente)_
+## Sesión 1 — 5 mayo 2026 PM, entorno validado en Werner
 
-### Setup
+### Setup confirmado
 
-- [ ] `git clone` del repo en Werner exitoso.
-- [ ] `verify_clam_access.sh` confirma:
-  - paths reales OK
-  - PyTorch + CUDA OK
-  - import de CLAM_MB OK (con o sin workaround)
-- [ ] `nvidia-smi` muestra 4 GPUs disponibles.
+- [x] Repo clonado en
+  `/mnt/disco_duro/onco/oncologiaEnviron/ernestogamero/oncomets-ernesto/`
+  (commit `0e836ae` en `main`).
+- [x] Conda env de trabajo: **`memoriaSebaDonoso`** (no `base`; `base` no
+  tiene torch). Profile en `/home/onco/miniconda3/`.
+- [x] Stack real: PyTorch **2.10.0+cu128**, CUDA runtime 12.8, 4× TITAN RTX.
+  La memoria del proyecto decía `2.11+cu130` — corregida hoy.
+- [x] Import directo `from models.model_clam import CLAM_MB` **funciona**
+  en `memoriaSebaDonoso`. El workaround `importlib.util` queda marcado
+  como fallback histórico, no se usa.
+- [x] Paths de Sebastián accesibles read-only en
+  `/mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM/`. `docs/codebase_map.md`
+  ya refleja la realidad del codebase.
+- [x] El repo padre `/mnt/disco_duro/onco/oncologiaEnviron/` es un git del
+  equipo cuyo `.gitignore` excluye toda mi carpeta `ernestogamero/` — mi
+  trabajo no contamina el repo del equipo.
 
 ### Decisiones tomadas
 
-_(vacío)_
+- Default de `CONDA_ENV` en `scripts/bootstrap_werner.sh` cambiado de `base`
+  a `memoriaSebaDonoso` (override con `ONCOMETS_CONDA_ENV` preservado).
+- `docs/werner_environment.md` actualizado con stack real + bitácora.
+- `docs/workarounds.md` §1 marcado como **NO necesario** en este env.
 
 ### Bloqueos
 
-_(vacío)_
+_(ninguno por ahora)_
 
-### Próxima sesión arranca con
+### Próximo paso
 
-_(vacío)_
+Fase B: auditar `run_all_splits.sh`, `run_all_training.sh`,
+`dataset_csv/`, `TASK_CONFIGS` y features `.pt` disponibles. Decidir
+una task viable para el primer entrenamiento end-to-end.
 
 ---

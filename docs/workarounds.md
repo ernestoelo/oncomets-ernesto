@@ -2,22 +2,22 @@
 
 ## 1. Importar `CLAM_MB` desde mi workspace
 
-**Estado**: ⚠️ **a re-validar al primer uso (5 mayo 2026)**.
+**Estado**: ✅ **NO necesario en el env `memoriaSebaDonoso`** (validado
+5 mayo 2026). El import directo
+`from models.model_clam import CLAM_MB` funciona sin parches.
 
-**Síntoma histórico** (sprints anteriores): hacer
-`from models.model_clam import CLAM_MB` desde mi workspace fallaba porque
-el `__init__.py` del fork de Sebastián importaba `timm`, y `timm` no estaba
-siempre instalado en el env de trabajo.
+**Síntoma histórico** (sprints anteriores): hacer ese import desde mi
+workspace fallaba porque el `__init__.py` del fork de Sebastián importaba
+`timm`, y `timm` no estaba siempre instalado en el env de trabajo.
 
 **Estado actual del archivo**:
-- `models/__init__.py` existe pero su contenido no fue verificado al
-  re-armar este repo.
-- `models/timm_wrapper.py` existe — sospechoso, sigue habiendo dependencia
-  de timm en el package.
+- `models/__init__.py` existe; en `memoriaSebaDonoso` su carga no rompe.
+- `models/timm_wrapper.py` existe pero `timm` está instalado en el env, así
+  que la dependencia se resuelve.
 
 ### Procedimiento de import — intentar en orden
 
-**Paso 1 — Import directo simple** (intentar primero):
+**Paso 1 — Import directo simple** (esto es lo que se usa hoy):
 
 ```python
 import sys
@@ -27,9 +27,11 @@ from models.model_clam import CLAM_MB
 print("import OK")
 ```
 
-Si esto funciona, no hay workaround necesario.
+Si esto funciona, no hay workaround necesario. **(En `memoriaSebaDonoso`
+funciona — validado 5 mayo 2026.)**
 
-**Paso 2 — Workaround con `importlib.util`** (fallback si Paso 1 falla):
+**Paso 2 — Workaround con `importlib.util`** (fallback histórico, sólo si
+en un env distinto el Paso 1 vuelve a fallar):
 
 ```python
 import importlib.util

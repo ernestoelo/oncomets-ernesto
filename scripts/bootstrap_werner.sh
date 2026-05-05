@@ -25,11 +25,11 @@ CLAM_PATH="/mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM"
 WORKSPACE="/mnt/disco_duro/onco/oncologiaEnviron/ernestogamero"
 REPO_DIR="${WORKSPACE}/oncomets-ernesto"
 
-# Default conda env. The shared user 'onco' has 'base' active by default at
-# login, but the env with PyTorch 2.11+cu130 may have a different name.
+# Default conda env. Validated 2026-05-05: the env with torch 2.10.0+cu128
+# and all CLAM deps is `memoriaSebaDonoso`. `base` does NOT have torch.
 # Override via ONCOMETS_CONDA_ENV when launching:
-#     ONCOMETS_CONDA_ENV=clam-mb ssh environbio
-CONDA_ENV="${ONCOMETS_CONDA_ENV:-base}"
+#     ONCOMETS_CONDA_ENV=other-env ssh environbio
+CONDA_ENV="${ONCOMETS_CONDA_ENV:-memoriaSebaDonoso}"
 
 # ---------------------------------------------------------------------------
 # Helpers
