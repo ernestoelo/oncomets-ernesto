@@ -1,0 +1,684 @@
+[train] run_id=20260505_160216_B3_sprint3_20260505_1602
+[train] log_dir=/mnt/disco_duro/onco/oncologiaEnviron/ernestogamero/oncomets-ernesto/sprints/B3_sprint3/objetivo_2_entrenamiento/logs/20260505_160216_B3_sprint3_20260505_1602
+
+Load Dataset
+
+============================================================
+AUTO-GENERATED LABEL DICTIONARY
+============================================================
+CSV Path: environ/csv/dataset_tipo_histologico_label.csv
+Label Column: label
+Number of Classes: 2
+
+Label Mapping (alphabetically sorted):
+  'carcinoma invasivo de tipo no específico (ductal)': 0
+  'carcinoma lobulillar invasivo': 1
+============================================================
+
+NOTE: Overriding existing label_dict for task 'tipo_histologico'
+Original had 18 classes, auto-generated has 2 classes
+
+label column: label
+label dictionary: {'carcinoma invasivo de tipo no específico (ductal)': 0, 'carcinoma lobulillar invasivo': 1}
+number of classes: 2
+slide-level counts:  
+ label
+0    37
+1     4
+Name: count, dtype: int64
+Patient-LVL; Number of samples registered in class 0: 29
+Slide-LVL; Number of samples registered in class 0: 37
+Patient-LVL; Number of samples registered in class 1: 3
+Slide-LVL; Number of samples registered in class 1: 4
+split_dir:  /mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM/environ/splits/tipo_histologico_100
+################# Settings ###################
+num_splits:  1
+k_start:  -1
+k_end:  -1
+task:  tipo_histologico
+max_epochs:  30
+results_dir:  /mnt/disco_duro/onco/oncologiaEnviron/ernestogamero/oncomets-ernesto/sprints/B3_sprint3/objetivo_2_entrenamiento/logs/20260505_160216_B3_sprint3_20260505_1602
+lr:  0.0002
+experiment:  B3_sprint3_20260505_1602
+reg:  1e-05
+label_frac:  1.0
+bag_loss:  ce
+seed:  1
+model_type:  clam_mb
+model_size:  small
+use_drop_out:  0.25
+weighted_sample:  True
+opt:  adam
+bag_weight:  0.7
+inst_loss:  svm
+B:  8
+split_dir:  /mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM/environ/splits/tipo_histologico_100
+
+Training Fold 0!
+
+Init train/val/test splits... 
+Done!
+Training on 34 samples
+Validating on 3 samples
+Testing on 4 samples
+
+Init loss function... Done!
+
+Init Model... Setting tau to 1.0
+Done!
+CLAM_MB(
+  (attention_net): Sequential(
+    (0): Linear(in_features=1024, out_features=512, bias=True)
+    (1): ReLU()
+    (2): Dropout(p=0.25, inplace=False)
+    (3): Attn_Net_Gated(
+      (attention_a): Sequential(
+        (0): Linear(in_features=512, out_features=256, bias=True)
+        (1): Tanh()
+        (2): Dropout(p=0.25, inplace=False)
+      )
+      (attention_b): Sequential(
+        (0): Linear(in_features=512, out_features=256, bias=True)
+        (1): Sigmoid()
+        (2): Dropout(p=0.25, inplace=False)
+      )
+      (attention_c): Linear(in_features=256, out_features=2, bias=True)
+    )
+  )
+  (classifiers): ModuleList(
+    (0-1): 2 x Linear(in_features=512, out_features=1, bias=True)
+  )
+  (instance_classifiers): ModuleList(
+    (0-1): 2 x Linear(in_features=512, out_features=2, bias=True)
+  )
+  (instance_loss_fn): SmoothTop1SVM()
+)
+Total number of parameters: 791048
+Total number of trainable parameters: 791048
+
+Init optimizer ... Done!
+
+Init Loaders... Done!
+
+Setup EarlyStopping... Done!
+
+
+batch 19, loss: 0.7294, instance_loss: 1.3079, weighted_loss: 0.9030, label: 0, bag_size: 5060
+
+
+class 0 clustering acc 0.8897058823529411: correct 242/272
+class 1 clustering acc 0.16544117647058823: correct 45/272
+Epoch: 0, train_loss: 0.7012, train_clustering_loss:  1.3098, train_error: 0.5882
+class 0: acc 0.23529411764705882, correct 4/17
+class 1: acc 0.5882352941176471, correct 10/17
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.7114, val_error: 1.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 0.0: correct 0/24
+class 0: acc 0.0, correct 0/3
+class 1: acc None, correct 0/0
+Validation loss decreased (inf --> 0.711414).  Saving model ...
+
+
+batch 19, loss: 0.7982, instance_loss: 1.2838, weighted_loss: 0.9439, label: 1, bag_size: 1963
+
+
+class 0 clustering acc 0.9889705882352942: correct 269/272
+class 1 clustering acc 0.5: correct 136/272
+Epoch: 1, train_loss: 0.7053, train_clustering_loss:  1.2844, train_error: 0.5882
+class 0: acc 0.8235294117647058, correct 14/17
+class 1: acc 0.0, correct 0/17
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.6461, val_error: 0.0000, auc: nan
+class 0 clustering acc 0.9583333333333334: correct 23/24
+class 1 clustering acc 0.125: correct 3/24
+class 0: acc 1.0, correct 3/3
+class 1: acc None, correct 0/0
+Validation loss decreased (0.711414 --> 0.646133).  Saving model ...
+
+
+batch 19, loss: 0.7490, instance_loss: 1.3013, weighted_loss: 0.9147, label: 0, bag_size: 6647
+
+
+class 0 clustering acc 0.8382352941176471: correct 228/272
+class 1 clustering acc 0.8161764705882353: correct 222/272
+Epoch: 2, train_loss: 0.6919, train_clustering_loss:  1.1871, train_error: 0.5000
+class 0: acc 0.06666666666666667, correct 1/15
+class 1: acc 0.8421052631578947, correct 16/19
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.7197, val_error: 1.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 0.875: correct 21/24
+class 0: acc 0.0, correct 0/3
+class 1: acc None, correct 0/0
+EarlyStopping counter: 1 out of 20
+
+
+batch 19, loss: 0.6527, instance_loss: 0.7867, weighted_loss: 0.6929, label: 1, bag_size: 12787
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 0.9963235294117647: correct 271/272
+Epoch: 3, train_loss: 0.6871, train_clustering_loss:  0.9931, train_error: 0.5294
+class 0: acc 0.3333333333333333, correct 6/18
+class 1: acc 0.625, correct 10/16
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.6380, val_error: 0.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 1.0, correct 3/3
+class 1: acc None, correct 0/0
+Validation loss decreased (0.646133 --> 0.638003).  Saving model ...
+
+
+batch 19, loss: 0.5919, instance_loss: 0.4531, weighted_loss: 0.5502, label: 1, bag_size: 7122
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 1.0: correct 272/272
+Epoch: 4, train_loss: 0.6830, train_clustering_loss:  0.6999, train_error: 0.4706
+class 0: acc 0.2777777777777778, correct 5/18
+class 1: acc 0.8125, correct 13/16
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.6059, val_error: 0.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 1.0, correct 3/3
+class 1: acc None, correct 0/0
+Validation loss decreased (0.638003 --> 0.605910).  Saving model ...
+
+
+batch 19, loss: 0.7591, instance_loss: 0.2422, weighted_loss: 0.6040, label: 1, bag_size: 7122
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 1.0: correct 272/272
+Epoch: 5, train_loss: 0.6871, train_clustering_loss:  0.3995, train_error: 0.4706
+class 0: acc 0.7058823529411765, correct 12/17
+class 1: acc 0.35294117647058826, correct 6/17
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.6908, val_error: 0.3333, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 0.6666666666666666, correct 2/3
+class 1: acc None, correct 0/0
+EarlyStopping counter: 1 out of 20
+
+
+batch 19, loss: 0.6940, instance_loss: 0.3154, weighted_loss: 0.5804, label: 0, bag_size: 11183
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 1.0: correct 272/272
+Epoch: 6, train_loss: 0.6551, train_clustering_loss:  0.2448, train_error: 0.2353
+class 0: acc 0.5, correct 8/16
+class 1: acc 1.0, correct 18/18
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.6421, val_error: 0.3333, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 0.6666666666666666, correct 2/3
+class 1: acc None, correct 0/0
+EarlyStopping counter: 2 out of 20
+
+
+batch 19, loss: 0.5892, instance_loss: 0.0720, weighted_loss: 0.4341, label: 1, bag_size: 12787
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 1.0: correct 272/272
+Epoch: 7, train_loss: 0.6471, train_clustering_loss:  0.1508, train_error: 0.2353
+class 0: acc 0.4166666666666667, correct 5/12
+class 1: acc 0.9545454545454546, correct 21/22
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.9242, val_error: 1.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 0.0, correct 0/3
+class 1: acc None, correct 0/0
+EarlyStopping counter: 3 out of 20
+
+
+batch 19, loss: 0.4688, instance_loss: 0.0805, weighted_loss: 0.3523, label: 1, bag_size: 1963
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 1.0: correct 272/272
+Epoch: 8, train_loss: 0.6560, train_clustering_loss:  0.1134, train_error: 0.4706
+class 0: acc 0.0, correct 0/16
+class 1: acc 1.0, correct 18/18
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.6740, val_error: 0.3333, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 0.6666666666666666, correct 2/3
+class 1: acc None, correct 0/0
+EarlyStopping counter: 4 out of 20
+
+
+batch 19, loss: 0.4999, instance_loss: 0.0221, weighted_loss: 0.3565, label: 1, bag_size: 7122
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 1.0: correct 272/272
+Epoch: 9, train_loss: 0.6351, train_clustering_loss:  0.0694, train_error: 0.2941
+class 0: acc 0.2857142857142857, correct 4/14
+class 1: acc 1.0, correct 20/20
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.6980, val_error: 0.3333, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 0.6666666666666666, correct 2/3
+class 1: acc None, correct 0/0
+EarlyStopping counter: 5 out of 20
+
+
+batch 19, loss: 0.5794, instance_loss: 0.1172, weighted_loss: 0.4407, label: 0, bag_size: 4488
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 1.0: correct 272/272
+Epoch: 10, train_loss: 0.6301, train_clustering_loss:  0.0662, train_error: 0.4118
+class 0: acc 0.3157894736842105, correct 6/19
+class 1: acc 0.9333333333333333, correct 14/15
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.3708, val_error: 0.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 1.0, correct 3/3
+class 1: acc None, correct 0/0
+Validation loss decreased (0.605910 --> 0.370779).  Saving model ...
+
+
+batch 19, loss: 0.4759, instance_loss: 0.0588, weighted_loss: 0.3507, label: 0, bag_size: 8751
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 1.0: correct 272/272
+Epoch: 11, train_loss: 0.6058, train_clustering_loss:  0.0497, train_error: 0.3529
+class 0: acc 1.0, correct 15/15
+class 1: acc 0.3684210526315789, correct 7/19
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.6185, val_error: 0.3333, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 0.6666666666666666, correct 2/3
+class 1: acc None, correct 0/0
+EarlyStopping counter: 1 out of 20
+
+
+batch 19, loss: 0.5145, instance_loss: 0.0597, weighted_loss: 0.3780, label: 1, bag_size: 12401
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 1.0: correct 272/272
+Epoch: 12, train_loss: 0.5996, train_clustering_loss:  0.0587, train_error: 0.2941
+class 0: acc 0.5, correct 9/18
+class 1: acc 0.9375, correct 15/16
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.3724, val_error: 0.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 1.0, correct 3/3
+class 1: acc None, correct 0/0
+EarlyStopping counter: 2 out of 20
+
+
+batch 19, loss: 0.5819, instance_loss: 0.0281, weighted_loss: 0.4157, label: 1, bag_size: 12787
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 1.0: correct 272/272
+Epoch: 13, train_loss: 0.4928, train_clustering_loss:  0.0717, train_error: 0.1471
+class 0: acc 0.9411764705882353, correct 16/17
+class 1: acc 0.7647058823529411, correct 13/17
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.5489, val_error: 0.3333, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 0.6666666666666666, correct 2/3
+class 1: acc None, correct 0/0
+EarlyStopping counter: 3 out of 20
+
+
+batch 19, loss: 0.3954, instance_loss: 0.1323, weighted_loss: 0.3165, label: 1, bag_size: 12401
+
+
+class 0 clustering acc 0.9963235294117647: correct 271/272
+class 1 clustering acc 1.0: correct 272/272
+Epoch: 14, train_loss: 0.5049, train_clustering_loss:  0.1145, train_error: 0.2353
+class 0: acc 0.7647058823529411, correct 13/17
+class 1: acc 0.7647058823529411, correct 13/17
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.3286, val_error: 0.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 1.0, correct 3/3
+class 1: acc None, correct 0/0
+Validation loss decreased (0.370779 --> 0.328578).  Saving model ...
+
+
+batch 19, loss: 0.5677, instance_loss: 0.2473, weighted_loss: 0.4716, label: 0, bag_size: 1842
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 1.0: correct 272/272
+Epoch: 15, train_loss: 0.4215, train_clustering_loss:  0.1207, train_error: 0.0294
+class 0: acc 0.9230769230769231, correct 12/13
+class 1: acc 1.0, correct 21/21
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.2615, val_error: 0.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 1.0, correct 3/3
+class 1: acc None, correct 0/0
+Validation loss decreased (0.328578 --> 0.261453).  Saving model ...
+
+
+batch 19, loss: 0.1302, instance_loss: 1.6482, weighted_loss: 0.5856, label: 0, bag_size: 5683
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 0.9375: correct 255/272
+Epoch: 16, train_loss: 0.3563, train_clustering_loss:  0.3414, train_error: 0.0588
+class 0: acc 0.95, correct 19/20
+class 1: acc 0.9285714285714286, correct 13/14
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.1738, val_error: 0.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 1.0, correct 3/3
+class 1: acc None, correct 0/0
+Validation loss decreased (0.261453 --> 0.173837).  Saving model ...
+
+
+batch 19, loss: 0.4235, instance_loss: 0.1488, weighted_loss: 0.3411, label: 1, bag_size: 1963
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 0.9742647058823529: correct 265/272
+Epoch: 17, train_loss: 0.4836, train_clustering_loss:  0.2090, train_error: 0.1765
+class 0: acc 0.625, correct 10/16
+class 1: acc 1.0, correct 18/18
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.4101, val_error: 0.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 1.0, correct 3/3
+class 1: acc None, correct 0/0
+EarlyStopping counter: 1 out of 20
+
+
+batch 19, loss: 0.2378, instance_loss: 0.0545, weighted_loss: 0.1828, label: 1, bag_size: 12787
+
+
+class 0 clustering acc 0.9963235294117647: correct 271/272
+class 1 clustering acc 0.9595588235294118: correct 261/272
+Epoch: 18, train_loss: 0.3860, train_clustering_loss:  0.2727, train_error: 0.1765
+class 0: acc 0.8, correct 16/20
+class 1: acc 0.8571428571428571, correct 12/14
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.4218, val_error: 0.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 1.0, correct 3/3
+class 1: acc None, correct 0/0
+EarlyStopping counter: 2 out of 20
+
+
+batch 19, loss: 0.1461, instance_loss: 0.0613, weighted_loss: 0.1207, label: 1, bag_size: 12401
+
+
+class 0 clustering acc 0.9963235294117647: correct 271/272
+class 1 clustering acc 1.0: correct 272/272
+Epoch: 19, train_loss: 0.3174, train_clustering_loss:  0.1231, train_error: 0.0882
+class 0: acc 0.8666666666666667, correct 13/15
+class 1: acc 0.9473684210526315, correct 18/19
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.0593, val_error: 0.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 1.0, correct 3/3
+class 1: acc None, correct 0/0
+Validation loss decreased (0.173837 --> 0.059328).  Saving model ...
+
+
+batch 19, loss: 0.0704, instance_loss: 0.2622, weighted_loss: 0.1279, label: 0, bag_size: 11696
+
+
+class 0 clustering acc 0.9963235294117647: correct 271/272
+class 1 clustering acc 0.9117647058823529: correct 248/272
+Epoch: 20, train_loss: 0.2610, train_clustering_loss:  0.4050, train_error: 0.1176
+class 0: acc 0.9047619047619048, correct 19/21
+class 1: acc 0.8461538461538461, correct 11/13
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.1289, val_error: 0.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 1.0, correct 3/3
+class 1: acc None, correct 0/0
+EarlyStopping counter: 1 out of 20
+
+
+batch 19, loss: 0.1288, instance_loss: 0.0886, weighted_loss: 0.1167, label: 1, bag_size: 12401
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 0.9963235294117647: correct 271/272
+Epoch: 21, train_loss: 0.3344, train_clustering_loss:  0.1287, train_error: 0.1471
+class 0: acc 0.8235294117647058, correct 14/17
+class 1: acc 0.8823529411764706, correct 15/17
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.1106, val_error: 0.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 1.0, correct 3/3
+class 1: acc None, correct 0/0
+EarlyStopping counter: 2 out of 20
+
+
+batch 19, loss: 0.0509, instance_loss: 2.4994, weighted_loss: 0.7854, label: 0, bag_size: 5188
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 0.8970588235294118: correct 244/272
+Epoch: 22, train_loss: 0.1625, train_clustering_loss:  0.3702, train_error: 0.0000
+class 0: acc 1.0, correct 17/17
+class 1: acc 1.0, correct 17/17
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.1087, val_error: 0.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 1.0, correct 3/3
+class 1: acc None, correct 0/0
+EarlyStopping counter: 3 out of 20
+
+
+batch 19, loss: 0.1499, instance_loss: 0.0802, weighted_loss: 0.1290, label: 1, bag_size: 1963
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 1.0: correct 272/272
+Epoch: 23, train_loss: 0.2579, train_clustering_loss:  0.1044, train_error: 0.0588
+class 0: acc 0.8333333333333334, correct 10/12
+class 1: acc 1.0, correct 22/22
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.0508, val_error: 0.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 1.0, correct 3/3
+class 1: acc None, correct 0/0
+Validation loss decreased (0.059328 --> 0.050814).  Saving model ...
+
+
+batch 19, loss: 0.0664, instance_loss: 0.0922, weighted_loss: 0.0742, label: 1, bag_size: 12401
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 0.9117647058823529: correct 248/272
+Epoch: 24, train_loss: 0.0909, train_clustering_loss:  0.4554, train_error: 0.0294
+class 0: acc 0.9333333333333333, correct 14/15
+class 1: acc 1.0, correct 19/19
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.0527, val_error: 0.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 1.0, correct 3/3
+class 1: acc None, correct 0/0
+EarlyStopping counter: 1 out of 20
+
+
+batch 19, loss: 0.0520, instance_loss: 0.0738, weighted_loss: 0.0586, label: 1, bag_size: 12401
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 0.9558823529411765: correct 260/272
+Epoch: 25, train_loss: 0.3447, train_clustering_loss:  0.2336, train_error: 0.1471
+class 0: acc 0.7333333333333333, correct 11/15
+class 1: acc 0.9473684210526315, correct 18/19
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.0935, val_error: 0.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 1.0, correct 3/3
+class 1: acc None, correct 0/0
+EarlyStopping counter: 2 out of 20
+
+
+batch 19, loss: 0.0227, instance_loss: 0.1529, weighted_loss: 0.0617, label: 0, bag_size: 1842
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 0.9632352941176471: correct 262/272
+Epoch: 26, train_loss: 0.3556, train_clustering_loss:  0.1766, train_error: 0.1765
+class 0: acc 0.7222222222222222, correct 13/18
+class 1: acc 0.9375, correct 15/16
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.0126, val_error: 0.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 1.0, correct 3/3
+class 1: acc None, correct 0/0
+Validation loss decreased (0.050814 --> 0.012627).  Saving model ...
+
+
+batch 19, loss: 0.0937, instance_loss: 0.0326, weighted_loss: 0.0753, label: 1, bag_size: 12401
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 1.0: correct 272/272
+Epoch: 27, train_loss: 0.1643, train_clustering_loss:  0.0747, train_error: 0.0294
+class 0: acc 0.9444444444444444, correct 17/18
+class 1: acc 1.0, correct 16/16
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.0303, val_error: 0.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 1.0, correct 3/3
+class 1: acc None, correct 0/0
+EarlyStopping counter: 1 out of 20
+
+
+batch 19, loss: 0.1782, instance_loss: 0.1044, weighted_loss: 0.1561, label: 1, bag_size: 1963
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 0.9926470588235294: correct 270/272
+Epoch: 28, train_loss: 0.0976, train_clustering_loss:  0.1102, train_error: 0.0000
+class 0: acc 1.0, correct 20/20
+class 1: acc 1.0, correct 14/14
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.0142, val_error: 0.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 1.0, correct 3/3
+class 1: acc None, correct 0/0
+EarlyStopping counter: 2 out of 20
+
+
+batch 19, loss: 0.0092, instance_loss: 0.1366, weighted_loss: 0.0475, label: 0, bag_size: 2374
+
+
+class 0 clustering acc 1.0: correct 272/272
+class 1 clustering acc 0.9705882352941176: correct 264/272
+Epoch: 29, train_loss: 0.0854, train_clustering_loss:  0.1223, train_error: 0.0000
+class 0: acc 1.0, correct 12/12
+class 1: acc 1.0, correct 22/22
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+
+Val Set, val_loss: 0.0179, val_error: 0.0000, auc: nan
+class 0 clustering acc 1.0: correct 24/24
+class 1 clustering acc 1.0: correct 24/24
+class 0: acc 1.0, correct 3/3
+class 1: acc None, correct 0/0
+EarlyStopping counter: 3 out of 20
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+Val error: 0.0000, ROC AUC: nan
+/home/onco/miniconda3/envs/memoriaSebaDonoso/lib/python3.11/site-packages/sklearn/metrics/_ranking.py:442: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+Test error: 0.0000, ROC AUC: nan
+class 0: acc 1.0, correct 4/4
+class 1: acc None, correct 0/0
+finished!
+end script
+[train] done. logs at /mnt/disco_duro/onco/oncologiaEnviron/ernestogamero/oncomets-ernesto/sprints/B3_sprint3/objetivo_2_entrenamiento/logs/20260505_160216_B3_sprint3_20260505_1602

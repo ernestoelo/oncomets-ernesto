@@ -167,3 +167,33 @@ falla, aplicar el workaround. Ver `docs/workarounds.md`.
 - `index_CAP_environ.md`
 - `openslide_solution.md` — explica el build local de openslide en
   `openslide/`. Si hay problemas con WSI loading, leer este.
+
+## Hallazgos al 5 mayo 2026
+
+Acumulados durante el bring-up del entrenamiento end-to-end (Sprint 3 B3,
+Entregable 2). Validar contra el código real si pasa tiempo.
+
+### `splits_0_descriptor.csv` puede estar desactualizado vs `splits_0.csv`
+
+- **Caso confirmado**: bajo
+  `environ/splits/grado_histologico_grado_general_100/`, el descriptor
+  reporta para val/test counts que **NO matchean** el join
+  `splits_0.csv ⨯ dataset_grado_histologico_score_total_label.csv`. Train
+  counts sí matchean.
+- **Caso opuesto**: bajo `environ/splits/tipo_histologico_100/`, el
+  descriptor SÍ está en sync.
+- **Causa probable**: re-etiquetado de slides en el CSV de labels después
+  de generar el descriptor — `splits_0.csv` (que guarda solo `slide_id`)
+  sobrevive, descriptor (que guarda labels) queda stale.
+- **Verdad de campo**: hacer el join programático
+  `splits_0.csv ⨯ dataset_*_label.csv`. **No confiar en el descriptor**
+  para reportes/decisiones de splits.
+
+### Bug en `invasion_linfatica_vascular_100`
+
+- El descriptor lista tres clases: `'no identificada'` (femenino),
+  `'no identificado'` (masculino), `'presente'`.
+- `--auto-label-dict` las trata como **clases distintas** porque difieren
+  en un carácter.
+- Probable bug de etiquetado en el CSV fuente (typo de género).
+- **Acción**: hablar con Sebastián, NO incluir en entregables del sprint.

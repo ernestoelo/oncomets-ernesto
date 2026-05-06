@@ -1,0 +1,14 @@
+run_id:        20260505_155936_B3_sprint3_20260505_1559
+timestamp:     2026-05-05T15:59:36-04:00
+split_dir:     /mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM/environ/splits/tipo_histologico_100
+data_root:     /mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM/environ
+task:          tipo_histologico
+exp_code:      B3_sprint3_20260505_1559
+clam_path:     /mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM
+clam_commit:   4e86931aeb68939cc2360de6d0b0e8c6109667a7
+extra_args:    --drop_out 0.25 --lr 2e-4 --bag_loss ce --inst_loss svm --model_type clam_mb --embed_dim 1024 --k 1 --max_epochs 30 --early_stopping --weighted_sample --auto-label-dict
+python:        Python 3.11.15
+torch:         2.10.0+cu128
+cuda:          12.8
+gpus:          4
+hostname:      jenny2-System-Product-Name

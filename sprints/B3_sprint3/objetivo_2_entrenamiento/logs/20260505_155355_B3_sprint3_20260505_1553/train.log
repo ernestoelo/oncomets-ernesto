@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM/main.py", line 9, in <module>
+    from utils.file_utils import save_pkl, load_pkl
+  File "/mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM/utils/file_utils.py", line 2, in <module>
+    import h5py
+ModuleNotFoundError: No module named 'h5py'

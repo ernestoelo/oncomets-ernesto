@@ -105,3 +105,63 @@ Fase B: auditar `run_all_splits.sh`, `run_all_training.sh`,
 una task viable para el primer entrenamiento end-to-end.
 
 ---
+
+## Sesión 1 — Cierre (5 mayo 2026 noche)
+
+### Logros por fase
+
+- **Fase A**: docs sincronizadas con la realidad del entorno
+  (`docs/werner_environment.md`, `docs/workarounds.md`, `progress/current.md`,
+  `scripts/bootstrap_werner.sh`). Commit local hecho;
+  push pendiente.
+- **Fase B**: workflow de Sebastián entendido (`run_all_*.sh`),
+  `TASK_CONFIGS` con 10 tasks Environ + 2 dummy, splits y features
+  catalogados, `csv_format.md` redactado.
+- **Fase C**: 2 entrenamientos end-to-end completados con métricas reales.
+  Ver `sprints/B3_sprint3/objetivo_2_entrenamiento/reporte.md` para
+  detalle.
+
+### Decisiones tomadas
+
+- **Dataset**: Environ (privado) por disponibilidad inmediata; TCGA-BRCA
+  público requería extra setup que no entró en la ventana del sprint.
+- **Tasks elegidas**: `tipo_histologico` (caso edge de imbalance extremo)
+  y `grado_histologico_grado_general` (validación con métricas defendibles
+  sobre `grado 2` vs `grado 3` — re-defendido al detectar descriptor stale).
+- **Args**: idénticos a `run_all_training.sh` de Sebastián, salvo
+  `--max_epochs 30` (vs default 200) por presupuesto de tiempo.
+- **GPU**: 1 (libre durante toda la sesión; 2 y 3 ocupadas por jenny2).
+
+### Bloqueos resueltos en sesión
+
+- **SSH agent forwarding**: VS Code Remote SSH no propaga el agente a la
+  terminal integrada. Workaround: push desde terminal SSH directa de la
+  laptop (no desde VS Code).
+- **`h5py` faltante**: instalado vía pip en `memoriaSebaDonoso`.
+- **`smooth-topk` faltante** (módulo `topk`): instalado vía pip
+  (`git+https://github.com/oval-group/smooth-topk.git`) + dep transitiva
+  `future`.
+- **`pandas==3.0.1` rompiendo `dataset_generic.py:120`**: downgrade a
+  `pandas==2.3.3`.
+
+### Hallazgos metodológicos (para entregables)
+
+- `splits_0_descriptor.csv` puede estar stale (caso confirmado en
+  `grado_histologico_grado_general_100`). Documentado en
+  `docs/codebase_map.md` y `reporte.md`.
+- Clases minoritarias quedan enteras en train con val_frac/test_frac
+  defaults — motivación para propuesta de mejora #4 (k-fold estratificado).
+- Bug colateral en `invasion_linfatica_vascular_100` (`'no identificada'`
+  vs `'no identificado'`) — para conversar con Sebastián, NO en
+  entregables.
+
+### Pendiente para próxima sesión
+
+- Push de los commits locales desde la laptop (con SSH directo +
+  agent forwarding activo).
+- Redactar `reporte.md` final sobre el borrador estructurado.
+- Preparar slides según `Modelo_OncoMets_Spatial_V1.pdf` /
+  `Plantilla.pdf`.
+- Avanzar entregables 1, 3 y 4 (independientes del entrenamiento).
+
+---

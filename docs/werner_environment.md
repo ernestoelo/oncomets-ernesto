@@ -62,12 +62,34 @@ en la tabla "Bitácora" al final.
 > del equipo, pero su `.gitignore` excluye toda la carpeta `ernestogamero/`.
 > Mi trabajo bajo `ernestogamero/oncomets-ernesto/` no afecta al repo padre.
 
-## Dependencias clave del env (capturar al primer setup)
+## Dependencias clave del env `memoriaSebaDonoso`
+
+Output filtrado de `pip list` (5 mayo 2026, post fixes del Sprint 3 B3):
 
 ```
-# pendiente: pegar acá output de `pip list` o `conda list -n memoriaSebaDonoso`
-# en próxima sesión
+future                        1.0.0
+h5py                          3.16.0
+numpy                         2.4.3
+openslide-bin                 4.0.0.12
+openslide-python              1.4.3
+pandas                        2.3.3
+pillow                        12.0.0
+scikit-learn                  1.8.0
+tensorboardX                  2.6.5
+timm                          1.0.25
+topk                          1.0
+torch                         2.10.0+cu128
+tqdm                          4.67.3
 ```
+
+> **Nota — instalaciones del Sprint 3 B3 (5 mayo 2026)**: `h5py`,
+> `tensorboardX` y `smooth-topk` (módulo `topk`) fueron instaladas en este
+> env vía `pip` durante el bring-up del entrenamiento end-to-end de CLAM
+> (eran deps del `env.yml` de Sebastián que no estaban presentes). `future`
+> se agregó como dep transitiva de `topk`. **`pandas` se downgradeó de
+> 3.0.1 a 2.3.3** porque pandas 3.x rechaza asignar `int` a columnas con
+> dtype `str`, lo que rompía `dataset_modules/dataset_generic.py:120`. El
+> resto de las deps ya estaban.
 
 ## Bitácora de divergencias
 
