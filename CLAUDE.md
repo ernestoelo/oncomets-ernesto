@@ -1,3 +1,4 @@
+
 # CLAUDE.md — Control center OncoMets / Ernesto
 
 > Este archivo es lo primero que Claude Code lee al lanzarse en este repo.
@@ -18,16 +19,18 @@ contiene el código de CLAM — ese es de Sebastián Donoso y es read-only.
 
 ## Stack y paths críticos
 
-**Servidor**: Werner — 4× NVIDIA TITAN RTX, Python 3.11, PyTorch 2.11+cu130.
+**Servidor**: Werner — 4× NVIDIA TITAN RTX, Python 3.11.15, PyTorch 2.10.0+cu128
+sobre CUDA driver 13.0.
+
 - Hostname real del equipo: `jenny2-System-Product-Name`.
 - Alias SSH desde mi laptop: `environbio` (configurado en `~/.ssh/config`).
 - IP: `200.1.17.169`.
 - Usuario en Werner: `onco` (compartido entre el equipo, no personal).
 - `$HOME` allá: `/home/onco/` (compartido), pero **mi workspace de trabajo
   vive bajo `/mnt/disco_duro/onco/oncologiaEnviron/ernestogamero/`**.
-- Conda activo por default: `(base)`. El env con PyTorch 2.11+cu130 puede ser
-  `base` u otro — confirmar con `conda env list` la primera vez y documentarlo
-  en `docs/werner_environment.md`.
+- **Env conda activo: `memoriaSebaDonoso`** (no `base` — `base` no tiene
+  torch). Profile en `/home/onco/miniconda3/etc/profile.d/conda.sh`. Activar
+  con `source <profile> && conda activate memoriaSebaDonoso`.
 
 **Codebase de Sebastián Donoso (READ-ONLY, no tocar)**:
 
@@ -98,21 +101,64 @@ contiene el código de CLAM — ese es de Sebastián Donoso y es read-only.
 WSI → patches → CONCH features (512/1024-dim) → CLAM_MB → 10 clases clínicas
 ```
 
-## Sprint actual: B3 / Sprint 3
+## Sprint actual: B4 / Sprint 4 (por definir)
 
-**Deadline: miércoles 6 de mayo de 2026.**
+**Estado**: Sprint 3 cerrado en lo técnico el 5 mayo 2026. Presentación
+final pendiente de fecha de reunión con Sebastián. Sprint 4 por definir
+en esa reunión.
 
-Detalle exhaustivo en `Objetivo_Especifico_B3_Sprint3__EG.xlsx` (hoja
-"Ernesto Gamero"). Resumen de los 4 entregables:
+Hipótesis preliminares para Sprint 4 (pendientes de confirmación):
 
-| # | Foco | Entregable |
-|---|---|---|
-| 1 | Estudio profundo de `L_instance` y su acoplamiento con pseudo-etiquetas | Diagrama `attention → top-B/bottom-B → pseudo-labels → SmoothTop1SVM → L_instance` + tabla de hiperparámetros |
-| 2 | Entrenamiento end-to-end de CLAM en Werner con dataset público | Reporte con config, dataset, curvas loss/acc, observaciones |
-| 3 | Pipeline de entrenamiento + formato de los `.csv` | Diagrama del pipeline + esquemas de CSVs input/output |
-| 4 | ≥2 propuestas de mejora algorítmica (estudio teórico, sin implementar) | Una de ellas es aumentar top-B/bottom-B; la otra abierta |
+- Implementar (no solo proponer) una de las mejoras del Entregable 4
+  del Sprint 3: aumentar `B`, k-fold estratificado, o derivación
+  programática de splits.
+- Posible expansión a TCGA-BRCA público (features CONCH 512-dim ya
+  extraídas en `/mnt/disco_duro/wsi_tcga/features_conch/pt_files/`,
+  falta CSV de labels y entrada en `TASK_CONFIGS`).
+- Posible primer contacto con CAMELYON16 raw (en
+  `/mnt/disco_duro/wsi_tcga/CAMELYON16/`, sin features extraídas).
+
+Detalle exhaustivo cuando se confirme: `Excel_Objetivo_Especifico_B4_Sprint4__EG.xlsx`
+(a generar tras la reunión).
+
+## Sprints completados
+
+- **B1 — Sprint 1**: configuración de entorno y auditoría de datos en Werner;
+  estudio teórico CLAM + CONCH; mapeo del código fuente.
+- **B2 — Sprint 2**: estudio inicial de pseudo-etiquetas (§2.2 paper CLAM);
+  diagrama `attention → pseudo-labels`; primera propuesta de mejoras.
+  Reunión cierre 22 abril 2026. Entregado en `CLAM_Sprint_B2_Presentacion_1.pdf`.
+- **B3 — Sprint 3** (5 mayo 2026): estudio profundo `L_instance` con diagrama
+  completo; 2 runs CLAM end-to-end exitosos en Werner (`tipo_histologico`,
+  `grado_histologico_grado_general`); documentación del pipeline + CSVs;
+  ≥ 2 propuestas de mejora teóricas. Hallazgos metodológicos del sprint en
+  `docs/codebase_map.md`.
 
 **Estado vivo**: ver `progress/current.md`.
+
+## Hallazgos del Sprint 3 (relevantes para sprints futuros)
+
+1. **`splits_0_descriptor.csv` puede estar desincronizado con `splits_0.csv`.**
+   Caso confirmado: `grado_histologico_grado_general_100`. Causa probable:
+   re-etiquetado del CSV de labels sin regenerar el descriptor. Verdad de
+   campo = join programático `splits_0.csv ⨯ dataset_<task>_label.csv`.
+   **NO confiar en el descriptor sin verificación.**
+2. **Bug en `invasion_linfatica_vascular_100`**: el descriptor lista
+   `'no identificada'` (femenino) y `'no identificado'` (masculino) como
+   clases distintas. Bug de etiquetado en el CSV fuente que `--auto-label-dict`
+   propaga. **No usar esta task hasta que Sebastián resuelva el typo.**
+3. **Clases minoritarias quedan enteras en train.** En todas las tasks de
+   Environ con `seed=1`, `val_frac=test_frac=0.1`, al menos una clase con
+   <10 slides queda 100% en train. Para AUC computable, evaluar sólo el
+   subset binario efectivo, o regenerar splits con stratification.
+4. **Bag loss puede no converger en datasets pequeños** cuando
+   `--auto-label-dict` registra clases que el modelo nunca ve en val/test
+   (caso `grado_general`). El instance loss SmoothTop1SVM sí converge en
+   esos casos. Síntoma de fragilidad del slide-level classifier, no del
+   mecanismo de pseudo-etiquetado.
+5. **Identidad git en Werner**: el `git config --global` del user `onco`
+   apunta a Sebastián Donoso. Para commits desde Werner, **siempre setear
+   `git config --local user.name/user.email`** dentro del repo, no global.
 
 ## Reglas operativas no negociables
 
@@ -130,6 +176,8 @@ Detalle exhaustivo en `Objetivo_Especifico_B3_Sprint3__EG.xlsx` (hoja
    logs, decirlo.
 5. **No instalar paquetes con `pip --user`** ni dejar archivos en `/home/onco/`
    — es home compartido. Todo bajo `oncologiaEnviron/ernestogamero/`.
+6. **Antes de confiar en `splits_0_descriptor.csv`**, hacer cross-check con
+   join `splits_0.csv ⨯ dataset_<task>_label.csv`. Ver Hallazgo 1 arriba.
 
 ## Hechos validados contra el código real (5 mayo 2026)
 
@@ -170,27 +218,28 @@ Sebastián en Werner. Si Sebastián edita los archivos, hay que re-validar.
 
 ### `main.py` — argumentos relevantes (L299–345)
 
-| Argumento | Default | Notas |
-|---|---|---|
-| `--data_root_dir` | `None` | path a features `.pt` |
-| `--embed_dim` | `1024` | CONCH 512 (TCGA) o 1024 (Environ) |
-| `--max_epochs` | `200` | |
-| `--lr` | `1e-4` | |
-| `--results_dir` | `./results` | |
-| `--split_dir` | `None` | **NO `--csv_path`** — usa `--split_dir` |
-| `--early_stopping` | `False` | flag |
-| `--opt` | `adam` | `adam` o `sgd` |
-| `--drop_out` | `0.25` | |
-| `--bag_loss` | `ce` | `svm` o `ce` |
-| `--model_type` | `clam_sb` | usar `clam_mb` para OncoMets |
-| `--model_size` | `small` | `small` o `big` |
-| `--task` | requerido | task name from TASK_CONFIGS |
-| `--inst_loss` | `None` | `svm`, `ce` o `None` |
-| `--subtyping` | `False` | flag — activar para mutual exclusivity |
-| `--bag_weight` | `0.7` | |
-| `--B` | `8` | top-B/bottom-B sample count |
-| `--exp_code` | requerido | nombre del experimento |
-| `--auto-label-dict` | `False` | flag |
+| Argumento             | Default       | Notas                                                |
+| --------------------- | ------------- | ---------------------------------------------------- |
+| `--data_root_dir`   | `None`      | path a features `.pt`                              |
+| `--embed_dim`       | `1024`      | CONCH 512 (TCGA) o 1024 (Environ)                    |
+| `--max_epochs`      | `200`       |                                                      |
+| `--lr`              | `1e-4`      |                                                      |
+| `--results_dir`     | `./results` |                                                      |
+| `--split_dir`       | `None`      | **NO `--csv_path`** — usa `--split_dir`   |
+| `--early_stopping`  | `False`     | flag                                                 |
+| `--opt`             | `adam`      | `adam` o `sgd`                                   |
+| `--drop_out`        | `0.25`      |                                                      |
+| `--bag_loss`        | `ce`        | `svm` o `ce`                                     |
+| `--model_type`      | `clam_sb`   | usar `clam_mb` para OncoMets                       |
+| `--model_size`      | `small`     | `small` o `big`                                  |
+| `--task`            | requerido     | task name from TASK_CONFIGS                          |
+| `--inst_loss`       | `None`      | `svm`, `ce` o `None`                           |
+| `--subtyping`       | `False`     | flag — activar para mutual exclusivity              |
+| `--bag_weight`      | `0.7`       |                                                      |
+| `--B`               | `8`         | top-B/bottom-B sample count                          |
+| `--exp_code`        | requerido     | nombre del experimento                               |
+| `--auto-label-dict` | `False`     | flag                                                 |
+| `--weighted_sample` | `False`     | flag — siempre activar para datasets desbalanceados |
 
 **Important**: el modelo NO toma un `--csv_path`. Toma `--split_dir`.
 Los splits se generan con `create_splits_seq.py` y van a `dataset_csv/`.
@@ -203,12 +252,12 @@ Los splits se generan con `create_splits_seq.py` y van a `dataset_csv/`.
 Ver esos scripts antes de armar nuestro propio wrapper para entender
 exactamente qué args usa Sebastián.
 
-### Sobre el "workaround importlib"
+### Sobre el "workaround importlib" (validado innecesario en `memoriaSebaDonoso`)
 
-En sprints anteriores había un workaround para importar CLAM_MB porque
-`__init__.py` cargaba `timm` y rompía. **NO está confirmado que siga siendo
-necesario** — el `models/__init__.py` real puede haber cambiado. Validar
-intentando primero un import directo simple:
+En sprints anteriores se documentó un workaround `importlib.util` para
+importar `CLAM_MB` evitando el `__init__.py` que cargaba `timm`. **Validado
+el 5 mayo 2026: NO es necesario en el env `memoriaSebaDonoso`**. El import
+directo funciona:
 
 ```python
 import sys
@@ -216,8 +265,29 @@ sys.path.insert(0, "/mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM")
 from models.model_clam import CLAM_MB
 ```
 
-Si falla con error de timm, aplicar `importlib.util` como fallback.
-Documentar el resultado en `docs/workarounds.md`.
+Si en una sesión futura aparece error de timm, aplicar `importlib.util`
+como fallback y documentar la causa en `docs/workarounds.md`.
+
+## Dependencias instaladas en `memoriaSebaDonoso` durante Sprint 3 B3
+
+Las siguientes deps se instalaron al ejecutar el primer training end-to-end
+(5 mayo 2026). Si la sesión de Claude Code se ejecuta en un env que NO
+tiene estas, hay que instalarlas:
+
+| Acción             | Paquete                | Versión final | Motivo                                                                     |
+| ------------------- | ---------------------- | -------------- | -------------------------------------------------------------------------- |
+| install             | `h5py`               | 3.16.0         | bloqueaba `utils/file_utils.py:2`                                        |
+| install             | `tensorboardX`       | 2.6.5          | dep declarada en `env.yml`                                               |
+| install             | `topk` (smooth-topk) | 1.0            | requerido por `--inst_loss svm` (SmoothTop1SVM)                          |
+| install             | `future`             | 1.0.0          | dep transitiva de `topk`                                                 |
+| **downgrade** | `pandas`             | 3.0.1 → 2.3.3 | pandas 3.x rechaza `int` en columna `str` (`dataset_generic.py:120`) |
+
+Comando de install (con conda env activo):
+
+```bash
+pip install h5py tensorboardX 'pandas>=2.0,<3.0' future
+pip install 'git+https://github.com/oval-group/smooth-topk.git'
+```
 
 ## Formato de entregables (regla de oro)
 
@@ -226,6 +296,7 @@ plano. Estilo visual: ver `Modelo_OncoMets_Spatial_V1.pdf` en project files.
 Estructura de presentación: ver `Plantilla.pdf`.
 
 **Speaker notes (formato fijado en B2)**:
+
 - Bloques `BLOQUE N — Título`
 - Sub-items con `-> `
 - Fórmulas inline sin LaTeX render (ej. `h_k = ReLU(W₁·z_k)`)
@@ -235,8 +306,8 @@ Estructura de presentación: ver `Plantilla.pdf`.
 
 ## Subagentes disponibles
 
-| Agente | Foco | Cuándo invocarlo |
-|---|---|---|
+| Agente      | Foco                                            | Cuándo invocarlo                                                                           |
+| ----------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | `trainer` | Entregable 2: ejecutar entrenamiento end-to-end | Cualquier tarea que toque `main.py`, `create_splits_seq.py`, splits, lanzamiento en GPU |
 
 (Sólo `trainer` por ahora. Setup minimal pre-deadline. Post-cierre se
