@@ -101,22 +101,40 @@ sobre CUDA driver 13.0.
 WSI → patches → CONCH features (512/1024-dim) → CLAM_MB → 10 clases clínicas
 ```
 
-## Sprint actual: B4 / Sprint 4 (por definir)
+## Sprint actual: B4 / Sprint 4 (abierto el 12 mayo 2026)
 
-**Estado**: Sprint 3 cerrado en lo técnico el 5 mayo 2026. Presentación
-final pendiente de fecha de reunión con Sebastián. Sprint 4 por definir
-en esa reunión.
+**Estado**: scaffolding inicial post-presentación a Benjamín. Dataset
+compartido, splits canónicos y división de trabajo Ernesto/Eduardo
+**pendientes** de reunión con Sebastián + Eduardo (esta semana, fecha
+sin confirmar).
 
-Hipótesis preliminares para Sprint 4 (pendientes de confirmación):
+**Dirección del sprint** (de Benjamín, 12 mayo 2026): pasar de
+propuestas teóricas a **implementación con argumento clínico /
+arquitectónico explícito**. No probar por probar. Una ablation cuenta
+como argumento solo si la hipótesis está enunciada de antemano y la
+métrica de éxito está predefinida (regla operativa nueva — ver más
+abajo).
 
-- Implementar (no solo proponer) una de las mejoras del Entregable 4
-  del Sprint 3: aumentar `B`, k-fold estratificado, o derivación
-  programática de splits.
-- Posible expansión a TCGA-BRCA público (features CONCH 512-dim ya
-  extraídas en `/mnt/disco_duro/wsi_tcga/features_conch/pt_files/`,
-  falta CSV de labels y entrada en `TASK_CONFIGS`).
-- Posible primer contacto con CAMELYON16 raw (en
-  `/mnt/disco_duro/wsi_tcga/CAMELYON16/`, sin features extraídas).
+**4 hilos del sprint** (detalle en `sprints/B4_sprint4/`):
+
+1. **Baseline CLAM reproducible** sobre dataset compartido — con args
+   bendecidos por Sebastián. Punto de partida para los otros 3 hilos.
+2. **Ablation cuantitativa `B=8` vs `B=16`** sobre tareas prioritarias.
+3. **Implementar DSMIL** (Li et al., CVPR 2021) como módulo MIL
+   alternativo — wrapper-only que reemplaza el `attention_net` de CLAM.
+4. **Heatmaps cualitativos lado-a-lado** (baseline + B=16 + DSMIL);
+   upgrade a cuantitativo (IoU/Dice) si Sebastián confirma anotaciones
+   de patólogo.
+
+**Tareas prioritarias candidatas** (AUC test < 0.65 en
+`Environ_OncoMets_Metricas_V4.pdf`, pendiente confirmación en reunión):
+
+| Tarea | AUC test | AUC val | Gap | n |
+|---|---|---|---|---|
+| MicroCalcificaciones | 0.55 | 0.82 | 0.27 | 548 |
+| C.D.I. Grado Nuclear | 0.60 | — | — | 508 |
+| C.D.I. Necrosis | 0.61 | — | — | 508 |
+| G.H. Diferenciación Tubular | 0.65 | 0.81 | 0.16 | 934 |
 
 Detalle exhaustivo cuando se confirme: `Excel_Objetivo_Especifico_B4_Sprint4__EG.xlsx`
 (a generar tras la reunión).
@@ -128,11 +146,14 @@ Detalle exhaustivo cuando se confirme: `Excel_Objetivo_Especifico_B4_Sprint4__EG
 - **B2 — Sprint 2**: estudio inicial de pseudo-etiquetas (§2.2 paper CLAM);
   diagrama `attention → pseudo-labels`; primera propuesta de mejoras.
   Reunión cierre 22 abril 2026. Entregado en `CLAM_Sprint_B2_Presentacion_1.pdf`.
-- **B3 — Sprint 3** (5 mayo 2026): estudio profundo `L_instance` con diagrama
+- **B3 — Sprint 3** (cerrado técnicamente el 5 mayo 2026; presentado al
+  equipo el 12 mayo 2026): estudio profundo `L_instance` con diagrama
   completo; 2 runs CLAM end-to-end exitosos en Werner (`tipo_histologico`,
   `grado_histologico_grado_general`); documentación del pipeline + CSVs;
-  ≥ 2 propuestas de mejora teóricas. Hallazgos metodológicos del sprint en
-  `docs/codebase_map.md`.
+  ≥ 2 propuestas de mejora teóricas. Resumen final + métricas en
+  `sprints/B3_sprint3/README.md`. Hallazgos metodológicos consolidados
+  acá abajo y en `docs/codebase_map.md`. PDF final
+  (`CLAM_Sprint_B3.pdf`) en project files de claude.ai.
 
 **Estado vivo**: ver `progress/current.md`.
 
@@ -178,6 +199,57 @@ Detalle exhaustivo cuando se confirme: `Excel_Objetivo_Especifico_B4_Sprint4__EG
    — es home compartido. Todo bajo `oncologiaEnviron/ernestogamero/`.
 6. **Antes de confiar en `splits_0_descriptor.csv`**, hacer cross-check con
    join `splits_0.csv ⨯ dataset_<task>_label.csv`. Ver Hallazgo 1 arriba.
+7. **Argumento antes de código** (regla nueva, Sprint 4, derivada del
+   feedback de Benjamín 12 mayo 2026). Toda propuesta de implementación
+   o módulo nuevo viene con justificación **clínica o arquitectónica
+   explícita** ANTES de tocar código. Una ablation cuantitativa cuenta
+   como argumento sólido **solo si**:
+
+   - La **hipótesis** está enunciada de antemano (qué se espera observar
+     y por qué, en términos del mecanismo del modelo o del fenómeno
+     clínico).
+   - La **métrica de éxito** está predefinida (qué número, sobre qué
+     subset, con qué dirección de cambio).
+
+   Si un cambio toca `model_*.py`, `core_utils.py` o el training
+   wrapper sin cumplir esto, el agente `reviewer` bloquea el commit.
+
+## Pedagogía de CSVs
+
+Cualquier CSV / artefacto tabular que entra o sale del pipeline se
+documenta con este formato fijo. Aplica para introducción de un CSV
+nuevo (especialmente con el dataset compartido del Sprint 4) y para
+auditar uno existente. Skill asociada: `@csv-audit` (en
+`.claude/skills/csv-audit/`).
+
+```
+CSV: <nombre exacto del archivo>
+Path en Werner: <absoluto>
+Schema (columnas y tipos):
+  - col_1: tipo, ejemplo, qué representa
+  - col_2: ...
+Filas: <cuántas hay o se esperan>
+Producido por: <script o paso>
+Consumido por: <script o paso>
+Ejemplo (head -3): ...
+Trampas conocidas: <ej. descriptor stale, label_dict bugs>
+```
+
+**Práctica complementaria**: descargar snapshot del CSV al workspace
+local del sprint para cross-checkear contra el archivo físico — la
+copia versionada en `sprints/<sprint>/<objetivo>/` es la verdad de
+referencia durante el sprint, el archivo en Werner puede mutar.
+
+### CSVs canónicos del pipeline OncoMets
+
+| CSV | Productor | Consumidor | Sirve para |
+|---|---|---|---|
+| `dataset_<task>_label.csv` | manual (equipo) | `main.py` vía `Generic_MIL_Dataset` | mapear `slide_id` → label por task |
+| `splits_0.csv` | `create_splits_seq.py` | `main.py` | partición train/val/test por fold (**verdad de campo**) |
+| `splits_0_bool.csv` | `create_splits_seq.py` | exploración manual | versión booleana del split |
+| `splits_0_descriptor.csv` | `create_splits_seq.py` | nadie de confianza (puede estar **stale**) | conteo por clase del split |
+| `summary.csv` | `core_utils.py` (fin del entrenamiento) | análisis post-hoc | métricas finales (test_auc/acc, val_auc/acc) por fold |
+| `split_0_results.pkl` | `core_utils.py` | análisis post-hoc | predicciones por slide en val/test |
 
 ## Hechos validados contra el código real (5 mayo 2026)
 
@@ -308,15 +380,20 @@ Estructura de presentación: ver `Plantilla.pdf`.
 
 | Agente      | Foco                                            | Cuándo invocarlo                                                                           |
 | ----------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `trainer` | Entregable 2: ejecutar entrenamiento end-to-end | Cualquier tarea que toque `main.py`, `create_splits_seq.py`, splits, lanzamiento en GPU |
+| `trainer`  | Ejecutar entrenamiento end-to-end de CLAM (y wrappers, ej. DSMIL) | Cualquier tarea que toque `main.py`, `create_splits_seq.py`, splits, lanzamiento en GPU |
+| `reviewer` | Validar propuestas de cambio a modelo / training contra "Argumento antes de código" | **Antes** de cualquier commit que toque `model_*.py`, `core_utils.py`, scripts de training o config. Bloquea si no hay hipótesis + métrica de éxito predefinidas |
 
-(Sólo `trainer` por ahora. Setup minimal pre-deadline. Post-cierre se
-escalará a leader/implementer/reviewer con `@harness`.)
+Setup minimal por ahora. Post-Sprint 4 se evaluará escalar a
+leader/implementer/reviewer formal con `@harness`.
 
 ## Skills cargadas en este repo
 
 - `@dev-workflow` — estructura del repo, Gitflow, validación.
 - `@harness` — referencia para escalado post-sprint.
+- `@csv-audit` — formato pedagógico de CSVs y práctica de cross-check
+  contra el archivo físico. Triggers: discusión de un paso del pipeline
+  que produce/consume CSV, introducción de un CSV nuevo, sospecha de
+  metadata stale.
 
 (`@architect` y `@sys-env` no aplican a este repo — la primera es para
 crear skills, la segunda es de mi laptop personal Arch+Hyprland.)

@@ -11,6 +11,49 @@ Soy un subagente especializado en correr CLAM end-to-end en Werner. Lanzo
 training, monitoreo, parseo logs y dejo trazabilidad completa en disco
 bajo el directorio del sprint actual.
 
+## Contexto del Sprint actual (B4 / Sprint 4 — abierto 12 mayo 2026)
+
+> Actualizar esta sección al abrir cada sprint nuevo.
+
+**Tareas prioritarias candidatas** (AUC test < 0.65 en
+`Environ_OncoMets_Metricas_V4.pdf`; pendientes confirmar en reunión
+Sebastián + Eduardo):
+
+- `MicroCalcificaciones` (AUC 0.55, gap val/test 0.27, n=548)
+- `C.D.I. Grado Nuclear` (AUC 0.60, n=508)
+- `C.D.I. Necrosis` (AUC 0.61, n=508)
+- `G.H. Diferenciación Tubular` (AUC 0.65, gap 0.16, n=934)
+
+**4 hilos del sprint** (detalle en `sprints/B4_sprint4/`):
+
+1. Baseline CLAM reproducible (args bendecidos).
+2. Ablation `B=8` vs `B=16`.
+3. Implementar DSMIL (wrapper-only sobre CLAM, no duplicar codebase
+   de Sebastián).
+4. Heatmaps cualitativos lado-a-lado (upgrade a IoU/Dice si hay
+   anotaciones de patólogo).
+
+**Pendiente de reunión**: composición exacta del dataset compartido,
+splits canónicos, división de trabajo Ernesto/Eduardo.
+
+## Regla operativa nueva — Argumento antes de código
+
+Derivada del feedback de Benjamín del 12 mayo 2026. **Antes de
+ejecutar cualquier run** que toque el modelo o el training:
+
+1. **Hipótesis enunciada de antemano**: qué se espera observar y por
+   qué (en términos del mecanismo del modelo o del fenómeno clínico).
+2. **Métrica de éxito predefinida**: qué número, sobre qué subset, con
+   qué dirección de cambio.
+
+Si lanzo un run sin estos dos campos visibles en el
+`objetivo_*/README.md` del sprint, **paro y reporto al usuario**. No
+es "probar por probar".
+
+**Antes de commitear** cambios a modelo/training, invocar el agente
+`reviewer` (definido en `.claude/agents/reviewer.md`). El reviewer
+bloquea si la regla no se cumple.
+
 ## Contexto que NO debo perder
 
 - Codebase de Sebastián Donoso vive en
