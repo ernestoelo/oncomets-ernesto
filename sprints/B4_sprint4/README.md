@@ -77,6 +77,14 @@ para un subset; pendiente confirmar alcance).
 | 3 | **División de trabajo** Ernesto / Eduardo (¿quién toma qué tarea, qué hilo?) | Plan de ejecución del sprint |
 | 4 | **Anotaciones de patólogo**: existencia, formato, % de slides cubiertas | Upgrade Objetivo 4 a cuantitativo |
 | 5 | **Confirmación de las 4 tareas prioritarias** (¿se mantienen, se añade, se quita alguna?) | Objetivos 1, 2 |
+| 6 | **Módulo MIL alternativo (Objetivo 3)**: propuesta = **DSMIL**, pero **sujeta a confirmación** (¿DSMIL, TransMIL, otro?) | Objetivo 3 |
+| 7 | **`embed_dim` y dataset definitivos**: confirmar **512 (CONCH)** y si las pruebas finales van sobre los splits `_pth_100` (priv+TCGA+HistAI, ~2935 slides) | Objetivos 1–4 |
+
+> **Actualización del entorno (19 may 2026)**: el trabajo migró al servidor
+> Environ (`administrador-PowerEdge-R740xd`, 1× RTX A6000, SLURM partición
+> `debug`, env `clam_latest`). Codebase y datos en `clam_environ/`
+> (read-only). Reconocimiento completo: `reconocimiento_entorno.md`.
+> Toda carga GPU va por `sbatch` (skill `@slurm-submission`).
 
 Una vez confirmadas, actualizar este README y los READMEs de cada
 objetivo con: dataset path, split path, tarea(s) asignada(s).

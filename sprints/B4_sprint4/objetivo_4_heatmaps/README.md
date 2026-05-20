@@ -51,7 +51,7 @@ Predicción cualitativa:
 ## Generación de heatmaps
 
 Sebastián tiene `create_heatmaps.py` en su codebase
-(`/mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM/create_heatmaps.py`).
+(`/media/administrador/Storage1/sdonoso/clam_environ/create_heatmaps.py`).
 **Reusar ese script** vía wrapper, no reimplementar.
 
 Atención: el script usa el **attention map del slide-level classifier**,

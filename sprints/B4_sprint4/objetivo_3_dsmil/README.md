@@ -1,13 +1,19 @@
-# Objetivo 3 — Implementar DSMIL como módulo MIL alternativo
+# Objetivo 3 — Módulo MIL alternativo (propuesta: DSMIL)
 
 > Sprint B4. **Implementación con argumento arquitectónico explícito**
 > (regla "Argumento antes de código"). Wrapper-only sobre el codebase de
-> Sebastián — no duplicar su código.
+> Sebastián (`clam_environ/`) — no duplicar su código.
+>
+> ⚠ **DSMIL es la propuesta, NO una decisión cerrada.** La elección del
+> módulo MIL alternativo queda **sujeta a confirmación en la reunión con
+> Sebastián y Eduardo** (ver `../README.md`, decisiones pendientes). Lo que
+> sigue enuncia y justifica la propuesta DSMIL; si la reunión elige otro
+> aggregator, este README se reescribe.
 
 ## Hipótesis
 
 El **attention pooling lineal** de CLAM (`M = torch.mm(A, h)` en
-`models/model_clam.py:170` para CLAM_SB y `:237` para CLAM_MB) calcula la
+`models/model_clam.py:172` para CLAM_SB y `:239` para CLAM_MB) calcula la
 representación del bag como **combinación lineal de embeddings de parche
 ponderada por attention scores escalares**. Bajo esta formulación:
 
@@ -73,7 +79,7 @@ parche crítico, mientras que `α_i` puede dispersarse.
 
 > **NOTA — archivos planificados, no presentes**: los archivos listados
 > abajo (`src/dsmil_aggregator.py`, `src/clam_dsmil_wrapper.py`,
-> `main_dsmil.py`, `scripts/train_dsmil.sh`) **NO existen todavía** en
+> `main_dsmil.py`, `scripts/train_dsmil.slurm`) **NO existen todavía** en
 > el repo. Crearlos es el **trabajo central de este objetivo del
 > sprint**, no parte del scaffolding inicial. Antes de cualquier commit
 > que los introduzca, pasa por el agente `reviewer` (regla "Argumento
@@ -92,12 +98,12 @@ parche crítico, mientras que `α_i` puede dispersarse.
     `inst_eval_out`, sin tocar `--B`).
   - CSVs de entrada y salida (mismo `dataset_<task>_label.csv`,
     `splits_0.csv`, `summary.csv`).
-- **Wrapper de training**: `scripts/train_dsmil.sh` (a crear),
+- **Wrapper de training**: `scripts/train_dsmil.slurm` (a crear),
   paralelo a `train_clam.sh`. Llama a un `main_dsmil.py` local (a
   crear) que importa `main.py` de Sebastián y solo intercambia la clase
   de modelo.
 
-**Restricción**: `/mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM/`
+**Restricción**: `/media/administrador/Storage1/sdonoso/clam_environ/`
 queda intacto. Solo se importa.
 
 ## Dependencias
