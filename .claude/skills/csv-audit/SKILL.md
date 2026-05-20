@@ -47,7 +47,7 @@ Toda documentación de un CSV en este repo usa este formato exacto:
 
 ```
 CSV: <nombre exacto del archivo>
-Path en Werner: <absoluto, ej. /mnt/disco_duro/.../dataset_X_label.csv>
+Path en server: <absoluto, ej. /media/administrador/Storage1/sdonoso/clam_environ/environ/csv/dataset_X_label.csv>
 Schema (columnas y tipos):
   - col_1: tipo, ejemplo, qué representa
   - col_2: ...
@@ -60,8 +60,8 @@ Trampas conocidas: <ej. descriptor stale, label_dict bugs, encoding>
 
 Donde:
 
-- **Path en Werner**: absoluto. Si el CSV también vive snapshoteado en
-  el repo del control center, añadir un segundo path.
+- **Path en server**: absoluto (bajo `clam_environ/environ/...`). Si el CSV
+  también vive snapshoteado en el repo del control center, añadir un segundo path.
 - **Schema**: una línea por columna. Tipo (string / int / float),
   ejemplo concreto (real, copiado del archivo), descripción semántica.
   Para columnas que parecen booleanas pero en disco son strings
@@ -80,20 +80,20 @@ Donde:
 
 ## Práctica complementaria — snapshot local
 
-Cuando el CSV vive en Werner y el sprint depende de él:
+Cuando el CSV vive en `clam_environ/` (read-only) y el sprint depende de él:
 
 1. **Copiar el CSV al workspace local del sprint**:
    `sprints/<sprint>/<objetivo>/csv_snapshots/<nombre>.csv`.
 2. **Anotar la fecha y el path original** en el documento del objetivo:
    ```
-   Snapshot: 2026-05-12 14:23 UTC-4
-   Origen:   /mnt/disco_duro/onco/sebastianDonoso/.../<archivo>.csv
+   Snapshot: 2026-05-19 UTC-4
+   Origen:   /media/administrador/Storage1/sdonoso/clam_environ/environ/csv/<archivo>.csv
    ```
-3. **El snapshot es la verdad de referencia** durante el sprint. El
-   archivo en Werner puede mutar (re-etiquetado, regeneración de splits)
-   sin que el sprint se entere.
+3. **El snapshot es la verdad de referencia** durante el sprint. El archivo
+   en el server puede mutar (re-etiquetado, regeneración de splits) sin que
+   el sprint se entere.
 4. Al cerrar el sprint, **revisar si el snapshot se desincronizó** del
-   archivo en Werner y dejar nota en `progress/history.md`.
+   archivo en el server y dejar nota en `progress/history.md`.
 
 ## Cross-check programático (anti-stale)
 

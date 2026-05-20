@@ -3,8 +3,11 @@
 # Copies @dev-workflow and @harness from ~/.claude/skills/ on the LAPTOP
 # into this repo's .claude/skills/. Run on laptop, then commit and push.
 #
-# Why: skills are bundled in the repo so Werner has them without needing
+# Why: skills are bundled in the repo so the server has them without needing
 # the laptop's full ~/.claude/skills/ tree.
+# NOTE: slurm-submission, environ-server and csv-audit are repo-native skills
+# (live only here), NOT synced from the laptop. This script only mirrors
+# dev-workflow and harness.
 
 set -euo pipefail
 

@@ -1,28 +1,33 @@
 #!/usr/bin/env bash
-# train_clam.sh
-# Wrapper around Sebastián's main.py. Does NOT modify the original code.
-# Logs everything to sprints/B3_sprint3/objetivo_2_entrenamiento/logs/<run_id>/
+# train_clam.sh  — LEGACY (direct python launch, used on Werner via nohup).
 #
-# IMPORTANT — args reales de main.py (validados 5 mayo 2026):
+# On the Environ server, GPU launches MUST go through SLURM:
+#     sbatch scripts/train_clam.slurm
+# This script is kept for reference / CPU-only debug and for the config
+# snapshot logic. Do NOT use it to launch on GPU outside SLURM.
+#
+# Wrapper around Sebastián's main.py. Does NOT modify the original code.
+#
+# IMPORTANT — args reales de main.py (validados 19 may 2026):
 #   --split_dir (NO --csv_path)
 #   --data_root_dir, --task, --exp_code, --model_type, --model_size,
 #   --bag_loss, --inst_loss, --B, --bag_weight, --subtyping (flag),
 #   --max_epochs, --lr, --early_stopping (flag), --opt, --drop_out,
 #   --embed_dim, --results_dir, --k, --k_start, --k_end
 #
-# Usage:
+# Usage (CPU/debug only — for GPU use sbatch scripts/train_clam.slurm):
 #   ./scripts/train_clam.sh \
-#       --split-dir /mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM/dataset_csv/<task>_100/ \
-#       --data-root /mnt/disco_duro/.../features_conch \
+#       --split-dir /media/administrador/Storage1/sdonoso/clam_environ/environ/splits/<task>_100 \
+#       --data-root /media/administrador/Storage1/sdonoso/clam_environ/environ \
 #       --task <task_from_TASK_CONFIGS> \
 #       --exp-code <my_exp_name> \
-#       --extra "--model_type clam_mb --inst_loss svm --B 8 --bag_weight 0.7 --subtyping --embed_dim 1024 --max_epochs 50 --early_stopping"
+#       --extra "--model_type clam_mb --inst_loss svm --B 8 --bag_weight 0.7 --embed_dim 512 --max_epochs 30 --early_stopping --weighted_sample --auto-label-dict"
 
 set -euo pipefail
 
-CLAM_PATH="${CLAM_PATH:-/mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM}"
+CLAM_PATH="${CLAM_PATH:-/media/administrador/Storage1/sdonoso/clam_environ}"
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-LOG_BASE="${REPO_ROOT}/sprints/B3_sprint3/objetivo_2_entrenamiento/logs"
+LOG_BASE="${LOG_BASE:-${REPO_ROOT}/logs}"
 
 # ---------------------------------------------------------------------------
 # Parse args

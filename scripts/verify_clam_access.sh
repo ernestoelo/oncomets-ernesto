@@ -7,7 +7,7 @@
 
 set -euo pipefail
 
-CLAM_PATH="${CLAM_PATH:-/mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM}"
+CLAM_PATH="${CLAM_PATH:-/media/administrador/Storage1/sdonoso/clam_environ}"
 
 log() { printf '\033[1;34m[verify]\033[0m %s\n' "$*"; }
 err() { printf '\033[1;31m[verify ERROR]\033[0m %s\n' "$*" >&2; }
