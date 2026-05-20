@@ -34,6 +34,22 @@ submódulo.** Solo lectura/consulta.
   Sebastián puede diferir — verificar compatibilidad del checkpoint antes de
   generar heatmaps.
 
+## Heatmaps para el Objetivo 4 — qué script usar
+
+Hay DOS `create_heatmaps.py`:
+1. **`clam_environ/create_heatmaps.py`** (de Sebastián, ~31 KB) — **preferido**:
+   produce checkpoints con la misma API/estructura que entrenamos (`CLAM_MB`,
+   `embed_dim 512`, `--auto-label-dict`). Usarlo para que el checkpoint del
+   baseline/B16 cargue sin fricción. Leer su docstring/args antes de invocar.
+2. `CLAM_official_reference/create_heatmaps.py` (Mahmood Lab) — fallback /
+   referencia de la config YAML (`heatmaps/configs/config_template.yaml`).
+
+**Ambos necesitan los WSI originales** (`.svs`/`.bif`) + coords (h5), no solo los
+`.pt`. WSI del proyecto (read-only): `/media/administrador/Storage1/sdonoso/{wsi,
+wsi-2,wsi_histai,wsi_biomarker}`. Confirmar que las slides elegidas para heatmaps
+tienen su WSI + h5 antes de la Fase 7. Como microcalcificaciones_pth incluye
+HistAI, varias slides del test set serán `histai_*` → verificar sus WSI/h5.
+
 ## Estructura general
 
 ```
