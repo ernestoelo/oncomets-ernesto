@@ -327,6 +327,76 @@ De `run_all_training.sh` / `train_task.slurm` / `run.slurm` (reales):
 
 ---
 
+## 8b. Entorno verificado (`clam_latest`) — 20 may 2026
+
+Activado el env y verificadas deps (sin instalar nada — todo presente):
+
+| Componente | Valor |
+|---|---|
+| Python | **3.10.12** (no 3.11 como Werner) |
+| torch | **2.8.0+cu128** — `cuda.is_available()=True`, `device_count()=1` |
+| CUDA runtime | 12.8 |
+| h5py | 3.14.0 |
+| tensorboardX | 2.6.4 |
+| topk (smooth-topk) | OK (requerido por `--inst_loss svm`) |
+| pandas | 2.3.2 (**<3** ✓, evita el bug de `dataset_generic.py`) |
+| numpy / sklearn / openslide / timm | 2.2.6 / 1.7.2 / 1.4.2 / 0.9.8 |
+
+**Hallazgo operativo (PATH):** `conda activate clam_latest` setea `CONDA_PREFIX`
+correctamente, pero algo del entorno interactivo (`~/.bashrc`/`.local`) re-prepende
+ADFRsuite al PATH → **`python` resuelve al binario ROTO** (py2.7). En cambio
+**`python3` sí resuelve al env**. Para robustez en los `.slurm` usar el binario
+absoluto `$CONDA_PREFIX/bin/python` (o `python3`), no `python` a secas. (Los
+`.slurm` de Sebastián usan `python` y funcionan porque en modo batch SLURM no
+se sourcea el `.bashrc` interactivo; aun así, preferimos el path absoluto.)
+
+## 8c. Split elegido para el baseline del Sprint 4 (20 may 2026)
+
+**Decisión: `microcalcificaciones_pth`** (priv+TCGA+HistAI), NO el privado de 533.
+Razón: dataset compartido unificado del sprint; más datos diluyen el desbalance
+→ AUC multiclase más estable. El n=548 del PDF V4 (parecido al privado) es
+referencia histórica, no el blanco de reproducción.
+
+| Campo | Valor |
+|---|---|
+| task | `microcalcificaciones_pth` |
+| csv labels | `environ/csv/dataset_microcalcificaciones_label.csv` (3072 filas) |
+| split_dir | `environ/splits/microcalcificaciones_pth_100` |
+| split sizes | train **2438** / val **319** / test **315** (= 3072) |
+| descriptor vs join | **MATCH** (sin diffs) |
+| embed_dim | 512 (CONCH) |
+
+**Distribución global de clases (8 clases):**
+
+| Clase | n |
+|---|---|
+| no_identificado | 2739 |
+| en_tejido_no_neoplasico | 161 |
+| en_cdis | 89 |
+| en_carcinoma_invasivo | 38 |
+| en_cdis-en_tejido_no_neoplasico | 15 |
+| en_carcinoma_invasivo-en_tejido_no_neoplasico | 13 |
+| en_carcinoma_invasivo-en_cdis | 11 |
+| en_carcinoma_invasivo-en_cdis-en_tejido_no_neoplasico | 6 |
+
+**Por clase × partición (val/test ya no tienen clases en 0, pero las compuestas
+quedan con 1):** `en_cdis` val 8/test 8; `en_carcinoma_invasivo` val 4/test 4;
+`en_tejido_no_neoplasico` val 16/test 17; compuestas raras val 1/test 1;
+`no_identificado` val 287/test 282. → AUC computable sobre el subset efectivo;
+las clases compuestas con 1 ej. en val/test no aportan AUC estable (reportar
+explícito, no forzar).
+
+**Cobertura de features `.pt` (al 20 may 2026, con `conch_fe` aún corriendo):**
+128 slides del split sin `.pt`, **todas `histai_*`** (las que `conch_fe` extrae):
+- train: 83 sin .pt (82 histai) → efectivo 2355
+- val: 28 sin .pt (todas histai) → efectivo 291
+- test: 17 sin .pt (todas histai) → efectivo 298
+
+El loader (`dataset_generic.py:340`) salta los `.pt` ausentes (warning + None).
+Como el baseline queda **detrás de `conch_fe`** en la cola, lo más probable es
+que esas features ya existan al arrancar. El reporte de resultados registrará el
+**N efectivo real** observado en los logs.
+
 ## 9. Qué se encontró vs qué se esperaba (resumen de sorpresas)
 
 | Esperado (misión / doc Werner) | Realidad (server actual) |

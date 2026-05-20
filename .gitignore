@@ -22,6 +22,16 @@ sprints/*/objetivo_2_entrenamiento/logs/checkpoints/
 logs/*
 !logs/.gitkeep
 
+# Resultados de entrenamiento (containment: viven bajo results/), pero los
+# artefactos pesados NO se versionan. Sí se versiona texto/métricas.
+results/**/*.pt
+results/**/*.pth
+results/**/*.h5
+results/**/*.pkl
+results/**/checkpoints/
+results/**/events.out.tfevents.*
+!results/.gitkeep
+
 # Editor / OS
 .vscode/
 .idea/
