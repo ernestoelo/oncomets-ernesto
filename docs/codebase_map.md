@@ -10,6 +10,30 @@ lógica es idéntica).
 **Reglas**: ningún archivo bajo este path se modifica. Si algo necesita
 cambiar, se hace en este repo (vía wrapper o copia local).
 
+## CLAM oficial (Mahmood Lab) — REFERENCE ONLY
+
+**Path**: `/media/administrador/Storage1/sdonoso/clam_testing2/CLAM_official_reference/`
+**Origen**: `https://github.com/mahmoodlab/CLAM.git`
+**HEAD**: `53e2409d4a8189c682c173382964a85f114f923c` ("Update README.md") — clonado
+19 may 2026. Incluye soporte CONCH v1.5.
+
+**Uso**: referencia y fuente de `create_heatmaps.py`. **NO se agrega al
+PYTHONPATH, NO se importa cruzado con el codebase de Sebastián, NO es
+submódulo.** Solo lectura/consulta.
+
+**Hallazgos relevantes (heatmaps, para el Objetivo 4)**:
+- `create_heatmaps.py` (raíz) + `vis_utils/heatmap_utils.py` + config en
+  `heatmaps/configs/config_template.yaml`.
+- Demo: `heatmaps/demo/{ckpts/s_0_checkpoint.pt, slides/*.svs}` +
+  `heatmaps/process_lists/heatmap_demo_dataset.csv`.
+- **Necesita los WSI originales** (`.svs`/etc.): usa `initialize_wsi` y
+  `compute_from_patches` (no basta con los `.pt` de features). Los WSI del
+  proyecto están en `/media/administrador/Storage1/sdonoso/{wsi,wsi_histai,...}`
+  (read-only) — confirmar disponibilidad/coords h5 antes de la Fase 7.
+- Importa `from models import get_encoder` (API más nueva); el codebase de
+  Sebastián puede diferir — verificar compatibilidad del checkpoint antes de
+  generar heatmaps.
+
 ## Estructura general
 
 ```

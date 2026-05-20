@@ -48,13 +48,43 @@ Acceso: **VPN oficial Environ + SSH**. Stack registrado el 19 may 2026
 ├── clam_environ/        ← CODEBASE CLAM de Sebastián. READ-ONLY. No tocar.
 │   └── environ/         ← DATOS del proyecto (features .pt, CSVs, splits). READ-ONLY.
 ├── clam_testing/        ← workspace de OTRA persona. NO entrar a escribir.
-└── clam_testing2/       ← MI workspace
-    └── oncomets-ernesto/  ← este repo
+└── clam_testing2/       ← MI workspace (todo lo mío vive acá; ver "Workspace containment")
+    ├── oncomets-ernesto/        ← este repo
+    └── CLAM_official_reference/ ← CLAM oficial Mahmood Lab (REFERENCE ONLY — not in PYTHONPATH)
 ```
 
 - **Codebase compartido (READ-ONLY)**: `/media/administrador/Storage1/sdonoso/clam_environ/`
 - **Datos compartidos (READ-ONLY)**: `/media/administrador/Storage1/sdonoso/clam_environ/environ/`
 - **Mi workspace**: `/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/`
+- **CLAM oficial (REFERENCE ONLY)**: `/media/administrador/Storage1/sdonoso/clam_testing2/CLAM_official_reference/`
+  — repo Mahmood Lab clonado como referencia y fuente de `create_heatmaps.py`.
+  HEAD `53e2409` (19 may 2026). **NO se agrega al PYTHONPATH, NO se mezcla ni
+  se importa cruzado con el codebase de Sebastián.** Solo lectura/consulta.
+
+## Workspace containment (regla dura — Sprint 4 en adelante)
+
+**TODO lo que descarguemos, clonemos, generemos o produzcamos vive bajo
+`clam_testing2/`. Sin excepción.** Jamás en `/home/`, `/tmp/` persistente, ni
+`clam_environ/`.
+
+- Repos clonados (CLAM oficial; futuros DSMIL, etc.) → `clam_testing2/<nombre>/`.
+- Resultados de entrenamiento → `clam_testing2/oncomets-ernesto/results/`.
+- Logs SLURM (`.out`, `.err`) → `clam_testing2/oncomets-ernesto/logs/`.
+- Checkpoints, modelos, `summary.csv`, `*_results.pkl` → idem `results/`.
+- Heatmaps y figuras → `clam_testing2/oncomets-ernesto/sprints/<sprint>/`.
+- Temporales, cache, env personal si hace falta → bajo `clam_testing2/`.
+
+**Implicación para los `.slurm`**:
+- `--output`, `--error`, `--chdir` → siempre **paths absolutos dentro de
+  `clam_testing2/`**.
+- `--results_dir` de `main.py` → siempre **absoluto dentro del repo personal**.
+- Si al auditar `main.py` aparecen outputs a paths relativos al CWD (logs
+  extra, plots, tensorboard, wandb local), **reportarlo antes de lanzar** —
+  preferir `--chdir` al repo personal u overrides explícitos antes que confiar
+  en defaults. (Nota: `--chdir` al repo personal puede romper paths relativos
+  de `main.py` como `environ/...`; si es el caso, usar paths absolutos en los
+  args y `--chdir` al codebase, pero mandar TODO output a `clam_testing2/` vía
+  args absolutos. Resolver caso por caso y documentar.)
 
 ### Estructura del codebase de Sebastián (`clam_environ/`, READ-ONLY)
 
