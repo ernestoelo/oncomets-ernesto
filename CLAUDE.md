@@ -4,6 +4,10 @@
 > Este archivo es lo primero que Claude Code lee al lanzarse en este repo.
 > Contiene contexto persistente del proyecto y reglas operativas.
 > Estado en evolución (sprint actual, hallazgos): ver `progress/current.md`.
+>
+> **Migrado el 19 may 2026** desde el servidor antiguo (Werner / jenny2) al
+> **servidor Environ actual**. Detalle del reconocimiento del entorno nuevo:
+> `sprints/B4_sprint4/reconocimiento_entorno.md`.
 
 ---
 
@@ -14,217 +18,226 @@ Soy Ernesto Gamero, estudiante de último año de Ingeniería Civil Electrónica
 **OncoMets** (IA para diagnóstico oncológico), 20 hrs/sem. Supervisor:
 Sebastián Gaete. Senior: Benjamín. Colaborador: Eduardo.
 
-Este repo (`oncomets-ernesto`) es mi **control center** sobre Werner. NO
-contiene el código de CLAM — ese es de Sebastián Donoso y es read-only.
+Este repo (`oncomets-ernesto`) es mi **control center** sobre el servidor
+Environ. NO contiene el código de CLAM — ese es de Sebastián Donoso
+(`clam_environ/`) y es **read-only**.
 
-## Stack y paths críticos
+## Entorno actual (servidor Environ)
 
-**Servidor**: Werner — 4× NVIDIA TITAN RTX, Python 3.11.15, PyTorch 2.10.0+cu128
-sobre CUDA driver 13.0.
+Acceso: **VPN oficial Environ + SSH**. Stack registrado el 19 may 2026
+(`sprints/B4_sprint4/reconocimiento_entorno.md`):
 
-- Hostname real del equipo: `jenny2-System-Product-Name`.
-- Alias SSH desde mi laptop: `environbio` (configurado en `~/.ssh/config`).
-- IP: `200.1.17.169`.
-- Usuario en Werner: `onco` (compartido entre el equipo, no personal).
-- `$HOME` allá: `/home/onco/` (compartido), pero **mi workspace de trabajo
-  vive bajo `/mnt/disco_duro/onco/oncologiaEnviron/ernestogamero/`**.
-- **Env conda activo: `memoriaSebaDonoso`** (no `base` — `base` no tiene
-  torch). Profile en `/home/onco/miniconda3/etc/profile.d/conda.sh`. Activar
-  con `source <profile> && conda activate memoriaSebaDonoso`.
+| Campo | Valor |
+|---|---|
+| Hostname | `administrador-PowerEdge-R740xd` (Dell PowerEdge R740xd) |
+| Usuario | `sdonoso` (uid 1008) — **compartido**, no personal |
+| OS / kernel | Ubuntu 22.04 / `6.8.0-101-generic` x86_64 |
+| GPU | **1× NVIDIA RTX A6000 (49 GB)** |
+| Driver / CUDA | 570.211.01 / CUDA 12.8 |
+| SLURM | slurm-wlm 21.08.5 — **1 partición `debug` (default), 1 nodo (este host)** |
+| Conda env de CLAM | **`clam_latest`** (NO `base`, NO `memoriaSebaDonoso`) |
 
-**Codebase de Sebastián Donoso (READ-ONLY, no tocar)**:
+> **`which python` está ROTO** en el PATH base (apunta a un ADFRsuite
+> python2.7 sin libpython). **Siempre** `conda activate clam_latest` antes
+> de correr cualquier cosa, o usar el binario del env directo.
+
+### Paths críticos
 
 ```
-/mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM/
-├── main.py                      # entrypoint del training
-├── eval.py                      # evaluación
+/media/administrador/Storage1/sdonoso/
+├── clam_environ/        ← CODEBASE CLAM de Sebastián. READ-ONLY. No tocar.
+│   └── environ/         ← DATOS del proyecto (features .pt, CSVs, splits). READ-ONLY.
+├── clam_testing/        ← workspace de OTRA persona. NO entrar a escribir.
+└── clam_testing2/       ← MI workspace
+    └── oncomets-ernesto/  ← este repo
+```
+
+- **Codebase compartido (READ-ONLY)**: `/media/administrador/Storage1/sdonoso/clam_environ/`
+- **Datos compartidos (READ-ONLY)**: `/media/administrador/Storage1/sdonoso/clam_environ/environ/`
+- **Mi workspace**: `/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/`
+
+### Estructura del codebase de Sebastián (`clam_environ/`, READ-ONLY)
+
+```
+clam_environ/
+├── main.py                      # entrypoint training (TASK_CONFIGS con 38 tasks, --auto-label-dict)
+├── eval.py                      # evaluación de checkpoints
 ├── create_splits_seq.py         # ← genera splits (no los crees a mano)
-├── run_all_splits.sh            # ← script que Sebastián usa para splits
-├── run_all_training.sh          # ← script que Sebastián usa para training
-├── extract_features.py          # extracción de features (CONCH-style)
-├── extract_features_fp.py       # variante feature pyramid
-├── create_patches.py            # tessellation de WSI
-├── create_patches_fp.py         # variante feature pyramid
-├── create_heatmaps.py           # visualizaciones de attention
-├── obtener_parches_relevantes.py  # selección de patches
-├── data_augmentation_environ.py
-├── environ_utils.py             # utilidades específicas Environ
-├── build_preset.py
-├── env.yml / environment.yml    # specs del conda env
-├── readme_environ.md / index_CAP_environ.md / openslide_solution.md
+├── extract_features_fp.py       # ← extracción de features CONCH (job conch_fe)
+├── extract_features.py / extract_supervised_features.py
+├── create_patches_fp.py / create_patches.py   # tessellation de WSI
+├── create_heatmaps.py           # heatmaps de attention
+├── obtener_parches_relevantes.py
+├── environ_utils.py             # genera CSVs de labels desde JSON de WSIs
+├── run_all_training.sh          # ← loop de training de Sebastián (embed_dim 512)
+├── run_training.slurm / train_task.slurm / run.slurm / run_main.slurm
+├── run_extract_features.slurm   # ← CONCH feature extraction
+├── run_eval_comparative.slurm   # ← eval privado vs combined
+├── create_splits_new_tasks.slurm
+├── environment.yml / readme_environ.md / index_CAP_environ.md / openslide_solution.md
 ├── models/
 │   ├── model_clam.py            # ← CLAM_SB y CLAM_MB
-│   ├── model_mil.py
-│   ├── builder.py
-│   ├── resnet_custom_dep.py
-│   ├── timm_wrapper.py          # ← contiene timm
-│   └── __init__.py
+│   ├── model_mil.py, builder.py, resnet_custom_dep.py, timm_wrapper.py
 ├── utils/
 │   ├── core_utils.py            # ← train loop con instance loss
-│   ├── eval_utils.py
-│   ├── transform_utils.py
-│   ├── file_utils.py
-│   ├── constants.py
-│   └── utils.py
-├── dataset_modules/
-│   ├── dataset_generic.py
-│   ├── dataset_h5.py
-│   └── wsi_dataset.py
-├── wsi_core/
-│   ├── WholeSlideImage.py
-│   ├── batch_process_utils.py
-│   └── ...
-├── vis_utils/
-├── extractor_caracteristicas/
-├── openslide/                   # build local de openslide (Sebastián tuvo problemas — ver openslide_solution.md)
-├── presets/                     # presets de tessellation
-├── dataset_csv/                 # CSVs de splits (los que Sebastián ya usó)
-├── environ/                     # datos del proyecto Environ (probablemente WSI o features)
-├── heatmaps/
-└── temp_processing/
+│   ├── eval_utils.py, file_utils.py, constants.py, transform_utils.py, utils.py
+├── dataset_modules/             # dataset_generic.py, dataset_h5.py, wsi_dataset.py
+├── wsi_core/                    # WholeSlideImage.py, batch_process_utils.py, ...
+├── vis_utils/, extractor_caracteristicas/, openslide/, presets/
+├── dataset_csv/                 # CSVs dummy genéricos
+└── environ/                     # ← DATOS del proyecto (ver abajo)
 ```
 
-**Mi workspace en Werner**:
+### Estructura de datos (`clam_environ/environ/`, READ-ONLY)
 
 ```
-/mnt/disco_duro/onco/oncologiaEnviron/ernestogamero/
-└── oncomets-ernesto/      # ← este repo, clonado acá
+environ/
+├── features/pt_files/        ← 2935 slides, features CONCH v1, [N_parches, 512] float32
+├── features/h5_files/        ← coords/patches (h5), 2935
+├── features_resnet/pt_files/ ← 344 slides, ResNet50, [N, 1024]  (LEGACY)
+├── features_256/pt_files/    ← 344 slides, CONCH @ patch 256, [N, 512]
+├── csv_privado/              ← labels solo Environn (~533 slides)
+├── csv_tcga/ / csv_histai/   ← labels solo TCGA / solo HistAI
+├── csv/                      ← labels COMBINADO (~3072), usado por tasks _combined y _pth
+├── splits/<task>_100/        ← splits PRIVADO (_100 = label_frac 100%)
+├── splits/<task>_combined_100/   ← splits priv+TCGA
+├── splits/<task>_pth_100/    ← splits priv+TCGA+HistAI (conjunto GRANDE para pruebas finales)
+└── results_modelo*/ results_eval*/   ← checkpoints, summary.csv, .pkl
 ```
 
-> El home `/home/onco/` es **compartido** con el equipo. No instalar deps
-> personales con `pip install --user` ni dejar archivos personales ahí.
-> Todo lo mío vive bajo `oncologiaEnviron/ernestogamero/`.
+> **No existen archivos `.pth`**. El sufijo `_pth` en tasks/splits significa
+> **"privado + TCGA + HistAI"** (la unión grande), NO un archivo `.pth`.
+> Las features son `.pt` individuales por slide.
 
 ## Pipeline OncoMets (referencia rápida)
 
 ```
-WSI → patches → CONCH features (512/1024-dim) → CLAM_MB → 10 clases clínicas
+WSI → patches → CONCH features (512-dim) → CLAM_MB → N clases clínicas
 ```
 
-## Sprint actual: B4 / Sprint 4 (abierto el 12 mayo 2026)
+> **CONCH = 512-dim** para todas las slides (Environ + TCGA + HistAI). El
+> 1024-dim corresponde a las features ResNet legacy. **Usar `--embed_dim 512`.**
 
-**Estado**: scaffolding inicial post-presentación a Benjamín. Dataset
-compartido, splits canónicos y división de trabajo Ernesto/Eduardo
-**pendientes** de reunión con Sebastián + Eduardo (esta semana, fecha
-sin confirmar).
+## Workflow operativo SLURM
 
-**Dirección del sprint** (de Benjamín, 12 mayo 2026): pasar de
-propuestas teóricas a **implementación con argumento clínico /
-arquitectónico explícito**. No probar por probar. Una ablation cuenta
-como argumento solo si la hipótesis está enunciada de antemano y la
-métrica de éxito está predefinida (regla operativa nueva — ver más
-abajo).
+Toda submission que use GPU va por **`sbatch <archivo>.slurm`**, **nunca**
+`python` directo en GPU. (En recon read-only ni siquiera eso — solo lectura.)
 
-**4 hilos del sprint** (detalle en `sprints/B4_sprint4/`):
+### Antes de cada `sbatch` (regla de cortesía)
 
-1. **Baseline CLAM reproducible** sobre dataset compartido — con args
-   bendecidos por Sebastián. Punto de partida para los otros 3 hilos.
-2. **Ablation cuantitativa `B=8` vs `B=16`** sobre tareas prioritarias.
-3. **Implementar DSMIL** (Li et al., CVPR 2021) como módulo MIL
-   alternativo — wrapper-only que reemplaza el `attention_net` de CLAM.
-4. **Heatmaps cualitativos lado-a-lado** (baseline + B=16 + DSMIL);
-   upgrade a cuantitativo (IoU/Dice) si Sebastián confirma anotaciones
-   de patólogo.
+GPU **única** (RTX A6000) y partición **única** (`debug`). No hay GPU de
+respaldo como en Werner. Antes de enviar un job grande:
 
-**Tareas prioritarias candidatas** (AUC test < 0.65 en
-`Environ_OncoMets_Metricas_V4.pdf`, pendiente confirmación en reunión):
+```bash
+squeue                  # ¿hay jobs de otros (o el conch_fe de Sebastián) pendientes?
+squeue -u $USER         # ¿tengo algo ya en cola?
+sinfo                   # estado del nodo
+```
 
-| Tarea | AUC test | AUC val | Gap | n |
-|---|---|---|---|---|
-| MicroCalcificaciones | 0.55 | 0.82 | 0.27 | 548 |
-| C.D.I. Grado Nuclear | 0.60 | — | — | 508 |
-| C.D.I. Necrosis | 0.61 | — | — | 508 |
-| G.H. Diferenciación Tubular | 0.65 | 0.81 | 0.16 | 934 |
+Si hay jobs ajenos pendientes por `Resources`, **no monopolizar** — esperar
+o coordinar.
 
-Detalle exhaustivo cuando se confirme: `Excel_Objetivo_Especifico_B4_Sprint4__EG.xlsx`
-(a generar tras la reunión).
+### Plantilla mínima `.slurm` (espejo de `run_training.slurm`, con MIS paths)
 
-## Sprints completados
+```bash
+#!/bin/bash
+#SBATCH --job-name=eg_train
+#SBATCH --output=/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/logs/%x_%j.out
+#SBATCH --error=/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/logs/%x_%j.err
+#SBATCH --chdir=/media/administrador/Storage1/sdonoso/clam_environ
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=16
+#SBATCH --mem=32G
+#SBATCH --time=48:00:00
+# (sin --partition → usa la default 'debug')
 
-- **B1 — Sprint 1**: configuración de entorno y auditoría de datos en Werner;
-  estudio teórico CLAM + CONCH; mapeo del código fuente.
-- **B2 — Sprint 2**: estudio inicial de pseudo-etiquetas (§2.2 paper CLAM);
-  diagrama `attention → pseudo-labels`; primera propuesta de mejoras.
-  Reunión cierre 22 abril 2026. Entregado en `CLAM_Sprint_B2_Presentacion_1.pdf`.
-- **B3 — Sprint 3** (cerrado técnicamente el 5 mayo 2026; presentado al
-  equipo el 12 mayo 2026): estudio profundo `L_instance` con diagrama
-  completo; 2 runs CLAM end-to-end exitosos en Werner (`tipo_histologico`,
-  `grado_histologico_grado_general`); documentación del pipeline + CSVs;
-  ≥ 2 propuestas de mejora teóricas. Resumen final + métricas en
-  `sprints/B3_sprint3/README.md`. Hallazgos metodológicos consolidados
-  acá abajo y en `docs/codebase_map.md`. PDF final
-  (`CLAM_Sprint_B3.pdf`) en project files de claude.ai.
+source $(conda info --base)/etc/profile.d/conda.sh
+conda activate clam_latest
 
-**Estado vivo**: ver `progress/current.md`.
+CUDA_VISIBLE_DEVICES=0 python main.py \
+    --task <task> --exp_code <exp> \
+    --split_dir environ/splits/<task>_100 \
+    --data_root_dir environ/ --results_dir environ/results_modelo \
+    --drop_out 0.25 --lr 2e-4 --bag_loss ce --inst_loss svm \
+    --model_type clam_mb --embed_dim 512 --k 1 \
+    --early_stopping --weighted_sample --auto-label-dict --log_data
+```
 
-## Hallazgos del Sprint 3 (relevantes para sprints futuros)
+> Skill asociada: `@slurm-submission` (`.claude/skills/slurm-submission/`).
 
-1. **`splits_0_descriptor.csv` puede estar desincronizado con `splits_0.csv`.**
-   Caso confirmado: `grado_histologico_grado_general_100`. Causa probable:
-   re-etiquetado del CSV de labels sin regenerar el descriptor. Verdad de
-   campo = join programático `splits_0.csv ⨯ dataset_<task>_label.csv`.
-   **NO confiar en el descriptor sin verificación.**
-2. **Bug en `invasion_linfatica_vascular_100`**: el descriptor lista
-   `'no identificada'` (femenino) y `'no identificado'` (masculino) como
-   clases distintas. Bug de etiquetado en el CSV fuente que `--auto-label-dict`
-   propaga. **No usar esta task hasta que Sebastián resuelva el typo.**
-3. **Clases minoritarias quedan enteras en train.** En todas las tasks de
-   Environ con `seed=1`, `val_frac=test_frac=0.1`, al menos una clase con
-   <10 slides queda 100% en train. Para AUC computable, evaluar sólo el
-   subset binario efectivo, o regenerar splits con stratification.
-4. **Bag loss puede no converger en datasets pequeños** cuando
-   `--auto-label-dict` registra clases que el modelo nunca ve en val/test
-   (caso `grado_general`). El instance loss SmoothTop1SVM sí converge en
-   esos casos. Síntoma de fragilidad del slide-level classifier, no del
-   mecanismo de pseudo-etiquetado.
-5. **Identidad git en Werner**: el `git config --global` del user `onco`
-   apunta a Sebastián Donoso. Para commits desde Werner, **siempre setear
-   `git config --local user.name/user.email`** dentro del repo, no global.
+### Monitoreo / cancelación
+
+```bash
+squeue -j <jobid>
+tail -f logs/<job>_<jobid>.out
+scancel <jobid>          # cancelación segura de MIS jobs
+```
 
 ## Reglas operativas no negociables
 
-1. **NO modificar** ningún archivo bajo `/mnt/disco_duro/onco/sebastianDonoso/`.
-   Si necesito cambiar comportamiento, lo hago via wrapper o copia local en
-   mi workspace.
-2. **Validación factual**: toda afirmación técnica se valida contra
-   (a) paper original (`CLAM_Data_Efficient_and_Weakly_Supervised__Paper.pdf`)
-   y/o (b) código real en Werner. Si no está en ninguno: decir "no encontrado",
-   no inventar.
-3. **Referenciar líneas exactas** del código: formato
-   `models/model_clam.py:107–125`. Si la línea cambió desde un sprint anterior,
-   actualizar `docs/codebase_map.md`.
-4. **No inventar resultados experimentales**. Si una métrica no está en los
+1. **NO `sbatch` / `srun` / GPU** en sesiones de recon o exploración. Cero
+   entrenamientos sin que Ernesto lo pida explícitamente.
+2. **NO modificar** nada bajo `clam_environ/` — codebase y datos de
+   Sebastián, **read-only absoluto**. Cambios de comportamiento → wrapper o
+   copia local en mi workspace.
+3. **NO entrar a escribir** en `clam_testing/` — workspace de otra persona.
+4. **NO escribir/mover/borrar fuera** de
+   `clam_testing2/oncomets-ernesto/`.
+5. **Validación factual**: toda afirmación técnica se valida contra el paper
+   original y/o el código real en `clam_environ/`. Si no está en ninguno:
+   "no encontrado", no inventar.
+6. **Referenciar líneas exactas** (`models/model_clam.py:107`). Si la línea
+   cambió, actualizar `docs/codebase_map.md`.
+7. **No inventar resultados experimentales**. Si una métrica no está en los
    logs, decirlo.
-5. **No instalar paquetes con `pip --user`** ni dejar archivos en `/home/onco/`
-   — es home compartido. Todo bajo `oncologiaEnviron/ernestogamero/`.
-6. **Antes de confiar en `splits_0_descriptor.csv`**, hacer cross-check con
-   join `splits_0.csv ⨯ dataset_<task>_label.csv`. Ver Hallazgo 1 arriba.
-7. **Argumento antes de código** (regla nueva, Sprint 4, derivada del
-   feedback de Benjamín 12 mayo 2026). Toda propuesta de implementación
-   o módulo nuevo viene con justificación **clínica o arquitectónica
-   explícita** ANTES de tocar código. Una ablation cuantitativa cuenta
-   como argumento sólido **solo si**:
+8. **Git config LOCAL, nunca global.** El `git config --global` del usuario
+   compartido `sdonoso` apunta a **Seba Donoso** (`ssebastiandonoso@gmail.com`).
+   Mi identidad va **local** en el repo:
+   - `user.name = "Ernesto Gamero"`
+   - `user.email = "ernesto.gamero@sansano.usm.cl"`
+9. **Argumento antes de código** (regla nueva, Sprint 4, feedback de Benjamín
+   12 may 2026). Toda propuesta de implementación o módulo nuevo viene con
+   justificación **clínica o arquitectónica explícita** ANTES de tocar
+   código. Una ablation cuenta como argumento sólido **solo si**:
+   - La **hipótesis** está enunciada de antemano (qué se espera observar y
+     por qué, en términos del mecanismo del modelo o del fenómeno clínico).
+   - La **métrica de éxito** está predefinida (qué número, sobre qué subset,
+     con qué dirección de cambio).
 
-   - La **hipótesis** está enunciada de antemano (qué se espera observar
-     y por qué, en términos del mecanismo del modelo o del fenómeno
-     clínico).
-   - La **métrica de éxito** está predefinida (qué número, sobre qué
-     subset, con qué dirección de cambio).
+   Si un cambio toca `model_*.py`, `core_utils.py` o el training wrapper sin
+   cumplir esto, el agente `reviewer` bloquea el commit.
 
-   Si un cambio toca `model_*.py`, `core_utils.py` o el training
-   wrapper sin cumplir esto, el agente `reviewer` bloquea el commit.
+10. **Antes de confiar en `splits_0_descriptor.csv`**, cross-check con el
+    join `splits_0.csv ⨯ dataset_<task>_label.csv` (ver Hallazgos).
+
+## Args bendecidos por Sebastián (de `run_all_training.sh` real)
+
+```
+--drop_out 0.25
+--lr 2e-4
+--bag_loss ce
+--inst_loss svm
+--model_type clam_mb
+--embed_dim 512              # CONCH (1024 era ResNet legacy)
+--k 1                        # un solo fold
+--early_stopping
+--weighted_sample            # corrige desbalance de clases
+--auto-label-dict            # genera label_dict desde el CSV de labels
+--log_data
+```
+
+`--bag_weight` (default 0.7) y `--B` (default 8) no se pasan explícitos. Si
+un sprint los varía, especificarlos.
 
 ## Pedagogía de CSVs
 
-Cualquier CSV / artefacto tabular que entra o sale del pipeline se
-documenta con este formato fijo. Aplica para introducción de un CSV
-nuevo (especialmente con el dataset compartido del Sprint 4) y para
-auditar uno existente. Skill asociada: `@csv-audit` (en
-`.claude/skills/csv-audit/`).
+Cualquier CSV / artefacto tabular que entra o sale del pipeline se documenta
+con este formato fijo. Aplica al introducir un CSV nuevo y para auditar uno
+existente. Skill asociada: `@csv-audit`.
 
 ```
 CSV: <nombre exacto del archivo>
-Path en Werner: <absoluto>
+Path en server: <absoluto, bajo clam_environ/environ/...>
 Schema (columnas y tipos):
   - col_1: tipo, ejemplo, qué representa
   - col_2: ...
@@ -235,168 +248,134 @@ Ejemplo (head -3): ...
 Trampas conocidas: <ej. descriptor stale, label_dict bugs>
 ```
 
-**Práctica complementaria**: descargar snapshot del CSV al workspace
-local del sprint para cross-checkear contra el archivo físico — la
-copia versionada en `sprints/<sprint>/<objetivo>/` es la verdad de
-referencia durante el sprint, el archivo en Werner puede mutar.
+**Práctica complementaria**: snapshot del CSV al workspace local del sprint
+(`sprints/<sprint>/<objetivo>/csv_snapshots/`) — el archivo en el server
+puede mutar; el snapshot versionado es la verdad de referencia durante el
+sprint.
 
 ### CSVs canónicos del pipeline OncoMets
 
 | CSV | Productor | Consumidor | Sirve para |
 |---|---|---|---|
-| `dataset_<task>_label.csv` | manual (equipo) | `main.py` vía `Generic_MIL_Dataset` | mapear `slide_id` → label por task |
-| `splits_0.csv` | `create_splits_seq.py` | `main.py` | partición train/val/test por fold (**verdad de campo**) |
+| `dataset_<task>_label.csv` | `environ_utils.py` / equipo | `main.py` vía `Generic_MIL_Dataset` | mapear `slide_id` → label por task |
+| `splits_0.csv` | `create_splits_seq.py` | `main.py` | partición train/val/test (**verdad de campo**) |
 | `splits_0_bool.csv` | `create_splits_seq.py` | exploración manual | versión booleana del split |
-| `splits_0_descriptor.csv` | `create_splits_seq.py` | nadie de confianza (puede estar **stale**) | conteo por clase del split |
-| `summary.csv` | `core_utils.py` (fin del entrenamiento) | análisis post-hoc | métricas finales (test_auc/acc, val_auc/acc) por fold |
-| `split_0_results.pkl` | `core_utils.py` | análisis post-hoc | predicciones por slide en val/test |
+| `splits_0_descriptor.csv` | `create_splits_seq.py` | reporte (puede estar **stale**) | conteo por clase del split |
+| `summary.csv` | `core_utils.py` (fin) | post-hoc | `test_auc/acc`, `val_auc/acc` por fold |
+| `split_0_results.pkl` | `core_utils.py` | post-hoc | predicciones por slide |
 
-## Hechos validados contra el código real (5 mayo 2026)
+## Hechos validados contra el código real (19 may 2026, server Environ)
 
-Todos los números de línea referencian la versión actual del codebase de
-Sebastián en Werner. Si Sebastián edita los archivos, hay que re-validar.
+Números de línea del codebase actual en `clam_environ/`. Si Sebastián edita,
+re-validar y actualizar `docs/codebase_map.md`.
 
 ### `models/model_clam.py`
 
-- **Existen DOS clases en este archivo**: `CLAM_SB` (single-branch) y
-  `CLAM_MB` (multi-branch). El proyecto OncoMets usa `CLAM_MB`.
-- `inst_eval` y `inst_eval_out`: **definidos en L107 y L126** respectivamente.
-  Son métodos compartidos por ambas clases (probablemente vía herencia o
-  duplicación; verificar al primer uso).
-- `self.subtyping = subtyping`: **L96** (CLAM_SB) y **L203** (CLAM_MB).
-- Bloques `if self.subtyping:` que activan mutual exclusivity:
-  - CLAM_SB: L159, L167
-  - CLAM_MB: L226, L234
-- **Attention pooling** `M = torch.mm(A, h)`: **L170 (CLAM_SB)** y **L237
-  (CLAM_MB)**. Opera sobre todos los N parches. La selección top-B/bottom-B
-  NO interviene acá — es solo del instance classifier path.
+- **Dos clases**: `CLAM_SB` y `CLAM_MB`. OncoMets usa `CLAM_MB`.
+- `self.subtyping = subtyping`: **L96** (CLAM_SB), **L205** (CLAM_MB).
+- `inst_eval`: **L107**; `inst_eval_out`: **L128**. Operan sobre el subset
+  top-B/bottom-B de parches, NO sobre los N totales.
+- Attention pooling `M = torch.mm(A, h)`: **L172** (CLAM_SB), **L239**
+  (CLAM_MB). Usa **todos los N parches**.
 
 ### `utils/core_utils.py`
 
-- `train_loop_clam`: **L226** — entry point del training loop con instance
-  loss.
-- Cómputo de instance loss en el loop: **L246–251**.
-  - L246: `instance_loss = instance_dict['instance_loss']`
-  - L251: `total_loss = bag_weight * loss + (1-bag_weight) * instance_loss`
-- `bag_weight` es el hiperparámetro que combina bag-level (slide) loss e
-  instance loss. **Default: 0.7** (en `main.py` L340).
-- `inst_loss` es la elección de loss function: `svm` (SmoothTop1SVM) o `ce`
-  (CrossEntropyLoss). Default: `None`. **Para experimentos del paper original:
-  `svm`**.
-- Si `inst_loss == 'svm'`: `instance_loss_fn = SmoothTop1SVM(n_classes=2)`
-  (L142–144). El `n_classes=2` es porque la instance loss es binaria por
-  clase (in vs out), independientemente del número de clases del slide-level
-  classifier.
+- `train_loop_clam`: **L241**.
+- `instance_loss = instance_dict['instance_loss']`: **L266**.
+- `total_loss = bag_weight * loss + (1-bag_weight) * instance_loss`: **L271**.
+- `bag_weight` default 0.7 (slide-level 70% / instance 30%).
+- "clustering loss" en prints == instance loss.
 
-### `main.py` — argumentos relevantes (L299–345)
+### `main.py`
 
-| Argumento             | Default       | Notas                                                |
-| --------------------- | ------------- | ---------------------------------------------------- |
-| `--data_root_dir`   | `None`      | path a features `.pt`                              |
-| `--embed_dim`       | `1024`      | CONCH 512 (TCGA) o 1024 (Environ)                    |
-| `--max_epochs`      | `200`       |                                                      |
-| `--lr`              | `1e-4`      |                                                      |
-| `--results_dir`     | `./results` |                                                      |
-| `--split_dir`       | `None`      | **NO `--csv_path`** — usa `--split_dir`   |
-| `--early_stopping`  | `False`     | flag                                                 |
-| `--opt`             | `adam`      | `adam` o `sgd`                                   |
-| `--drop_out`        | `0.25`      |                                                      |
-| `--bag_loss`        | `ce`        | `svm` o `ce`                                     |
-| `--model_type`      | `clam_sb`   | usar `clam_mb` para OncoMets                       |
-| `--model_size`      | `small`     | `small` o `big`                                  |
-| `--task`            | requerido     | task name from TASK_CONFIGS                          |
-| `--inst_loss`       | `None`      | `svm`, `ce` o `None`                           |
-| `--subtyping`       | `False`     | flag — activar para mutual exclusivity              |
-| `--bag_weight`      | `0.7`       |                                                      |
-| `--B`               | `8`         | top-B/bottom-B sample count                          |
-| `--exp_code`        | requerido     | nombre del experimento                               |
-| `--auto-label-dict` | `False`     | flag                                                 |
-| `--weighted_sample` | `False`     | flag — siempre activar para datasets desbalanceados |
+- Parser de args desde **L446**. Defaults: `embed_dim=1024`, `lr=1e-4`,
+  `max_epochs=200`, `bag_weight=0.7`, `B=8`, `model_type=clam_sb`, `k=10`.
+  (Los `.slurm`/`.sh` reales sobre-escriben con los args bendecidos.)
+- Toma **`--split_dir`**, NO `--csv_path`.
+- `TASK_CONFIGS`: 38 tasks. Variantes `_combined` (priv+TCGA) y `_pth`
+  (priv+TCGA+HistAI) con `label_dict={}` → requieren `--auto-label-dict`.
+- `--auto-label-dict` genera el `label_dict` ordenando alfabéticamente los
+  labels únicos del CSV → **sobre-escribe** los `label_dict` hardcoded (que
+  están stale respecto a los CSVs reales).
+- `--pretrain_path`: warm-start desde un checkpoint CLAM (capas con nombre y
+  shape compatibles se transfieren).
 
-**Important**: el modelo NO toma un `--csv_path`. Toma `--split_dir`.
-Los splits se generan con `create_splits_seq.py` y van a `dataset_csv/`.
+## Hallazgos vigentes (relevantes para sprints)
 
-### Workflow de Sebastián (inferido de `run_all_splits.sh` y `run_all_training.sh`)
+1. **`splits_0_descriptor.csv` puede estar stale.** Regla: verdad de campo =
+   join `splits_0.csv ⨯ dataset_<task>_label.csv`. **En las 4 tareas
+   prioritarias del Sprint 4 el descriptor está en sync** (verificado
+   19 may 2026) — el caso stale del Sprint 3 (`grado_general`) no se
+   reproduce; probablemente regeneraron los splits.
+2. **Bug `invasion_linfatica_vascular` RESUELTO.** Labels ahora limpias
+   `{ausente, no_identificado, presente}`. El typo `'no identificada'` vs
+   `'no identificado'` del Sprint 3 ya no está. La task vuelve a ser usable.
+3. **Clases minoritarias quedan enteras en train** con `val_frac=test_frac=0.1`.
+   Genera AUC vacíos/`nan`. Evaluar sobre el subset binario efectivo o
+   regenerar con stratification.
+4. **Bag loss puede no converger en datasets pequeños** cuando
+   `--auto-label-dict` registra clases que el modelo nunca ve en val/test.
+   El instance loss SmoothTop1SVM sí converge. Fragilidad del slide-level
+   classifier, no del pseudo-etiquetado.
+5. **Severo desbalance** en las prioritarias (ej. `gh_dif_tubular` score_1=4
+   en train; `cdi_necrosis` presente_focal=1) — probable causa del AUC bajo.
 
-1. Genera splits con `create_splits_seq.py` → CSVs en `dataset_csv/`.
-2. Lanza training con `main.py --split_dir <dataset_csv/...>` etc.
+## Entorno conda — deps esperadas
 
-Ver esos scripts antes de armar nuestro propio wrapper para entender
-exactamente qué args usa Sebastián.
+El env de CLAM es **`clam_latest`**. Las deps del Sprint 3 (validadas en
+Werner sobre `memoriaSebaDonoso`) que `main.py` necesita: `h5py`,
+`tensorboardX`, `topk` (smooth-topk) — requerido por `--inst_loss svm`,
+`future`, `pandas>=2,<3` (pandas 3.x rompe `dataset_generic.py`).
 
-### Sobre el "workaround importlib" (validado innecesario en `memoriaSebaDonoso`)
+> **No se verificó `pip list` de `clam_latest`** en esta sesión read-only (no
+> se activó el env). Confirmar deps al primer uso real. Si faltan:
+> ```bash
+> conda activate clam_latest
+> pip install h5py tensorboardX 'pandas>=2.0,<3.0' future
+> pip install 'git+https://github.com/oval-group/smooth-topk.git'
+> ```
 
-En sprints anteriores se documentó un workaround `importlib.util` para
-importar `CLAM_MB` evitando el `__init__.py` que cargaba `timm`. **Validado
-el 5 mayo 2026: NO es necesario en el env `memoriaSebaDonoso`**. El import
-directo funciona:
+## Importar `CLAM_MB` desde un script propio
+
+Import directo (validado en Werner; re-validar en `clam_latest`):
 
 ```python
 import sys
-sys.path.insert(0, "/mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM")
+sys.path.insert(0, "/media/administrador/Storage1/sdonoso/clam_environ")
 from models.model_clam import CLAM_MB
 ```
 
-Si en una sesión futura aparece error de timm, aplicar `importlib.util`
-como fallback y documentar la causa en `docs/workarounds.md`.
-
-## Dependencias instaladas en `memoriaSebaDonoso` durante Sprint 3 B3
-
-Las siguientes deps se instalaron al ejecutar el primer training end-to-end
-(5 mayo 2026). Si la sesión de Claude Code se ejecuta en un env que NO
-tiene estas, hay que instalarlas:
-
-| Acción             | Paquete                | Versión final | Motivo                                                                     |
-| ------------------- | ---------------------- | -------------- | -------------------------------------------------------------------------- |
-| install             | `h5py`               | 3.16.0         | bloqueaba `utils/file_utils.py:2`                                        |
-| install             | `tensorboardX`       | 2.6.5          | dep declarada en `env.yml`                                               |
-| install             | `topk` (smooth-topk) | 1.0            | requerido por `--inst_loss svm` (SmoothTop1SVM)                          |
-| install             | `future`             | 1.0.0          | dep transitiva de `topk`                                                 |
-| **downgrade** | `pandas`             | 3.0.1 → 2.3.3 | pandas 3.x rechaza `int` en columna `str` (`dataset_generic.py:120`) |
-
-Comando de install (con conda env activo):
-
-```bash
-pip install h5py tensorboardX 'pandas>=2.0,<3.0' future
-pip install 'git+https://github.com/oval-group/smooth-topk.git'
-```
+Si falla por `timm` en `models/__init__.py`, aplicar fallback `importlib.util`
+(ver `docs/workarounds.md`). NO hace falta para correr `main.py` directo.
 
 ## Formato de entregables (regla de oro)
 
 **Diagramas > texto plano. Siempre.** Sebastián rechaza informes de texto
-plano. Estilo visual: ver `Modelo_OncoMets_Spatial_V1.pdf` en project files.
-Estructura de presentación: ver `Plantilla.pdf`.
+plano. Estilo visual: `Modelo_OncoMets_Spatial_V1.pdf`. Estructura:
+`Plantilla.pdf`.
 
-**Speaker notes (formato fijado en B2)**:
-
-- Bloques `BLOQUE N — Título`
-- Sub-items con `-> `
-- Fórmulas inline sin LaTeX render (ej. `h_k = ReLU(W₁·z_k)`)
-- Sin emojis ni corchetes de gesto
-- Destacados en línea propia: `Punto clave:` / `Detalle crítico:`
-- Ultra-minimalista, listo para copy-paste a OnlyOffice
+**Speaker notes (formato fijado en B2)**: bloques `BLOQUE N — Título`,
+sub-items con `-> `, fórmulas inline sin LaTeX (`h_k = ReLU(W₁·z_k)`), sin
+emojis ni corchetes de gesto, destacados en línea propia (`Punto clave:` /
+`Detalle crítico:`), ultra-minimalista para copy-paste a OnlyOffice.
 
 ## Subagentes disponibles
 
-| Agente      | Foco                                            | Cuándo invocarlo                                                                           |
-| ----------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `trainer`  | Ejecutar entrenamiento end-to-end de CLAM (y wrappers, ej. DSMIL) | Cualquier tarea que toque `main.py`, `create_splits_seq.py`, splits, lanzamiento en GPU |
-| `reviewer` | Validar propuestas de cambio a modelo / training contra "Argumento antes de código" | **Antes** de cualquier commit que toque `model_*.py`, `core_utils.py`, scripts de training o config. Bloquea si no hay hipótesis + métrica de éxito predefinidas |
-
-Setup minimal por ahora. Post-Sprint 4 se evaluará escalar a
-leader/implementer/reviewer formal con `@harness`.
+| Agente | Foco | Cuándo invocarlo |
+|---|---|---|
+| `trainer` | Entrenamiento end-to-end de CLAM **vía SLURM** (y wrappers, ej. DSMIL) | Tareas que tocan `main.py`, `create_splits_seq.py`, splits, lanzamiento GPU |
+| `reviewer` | Validar propuestas de cambio a modelo/training contra "Argumento antes de código" | **Antes** de cualquier commit que toque `model_*.py`, `core_utils.py`, scripts de training o config. Bloquea si falta hipótesis + métrica |
 
 ## Skills cargadas en este repo
 
+- `@slurm-submission` — plantilla `.slurm`, recursos típicos, monitoreo y la
+  prohibición de python directo en GPU.
+- `@environ-server` — inventario del servidor: scripts de `clam_environ/`,
+  features CONCH, CSVs, splits, reglas read-only y de cortesía.
+- `@csv-audit` — formato pedagógico de CSVs y cross-check contra el archivo
+  físico.
 - `@dev-workflow` — estructura del repo, Gitflow, validación.
 - `@harness` — referencia para escalado post-sprint.
-- `@csv-audit` — formato pedagógico de CSVs y práctica de cross-check
-  contra el archivo físico. Triggers: discusión de un paso del pipeline
-  que produce/consume CSV, introducción de un CSV nuevo, sospecha de
-  metadata stale.
-
-(`@architect` y `@sys-env` no aplican a este repo — la primera es para
-crear skills, la segunda es de mi laptop personal Arch+Hyprland.)
 
 ## Contexto del usuario para sesiones rápidas
 

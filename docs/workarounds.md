@@ -2,8 +2,8 @@
 
 ## 1. Importar `CLAM_MB` desde mi workspace
 
-**Estado**: ✅ **NO necesario en el env `memoriaSebaDonoso`** (validado
-5 mayo 2026). El import directo
+**Estado**: ✅ **NO necesario** (validado en Werner/`memoriaSebaDonoso` el
+5 mayo 2026; re-validar en `clam_latest` al primer uso). El import directo
 `from models.model_clam import CLAM_MB` funciona sin parches.
 
 **Síntoma histórico** (sprints anteriores): hacer ese import desde mi
@@ -21,7 +21,7 @@ workspace fallaba porque el `__init__.py` del fork de Sebastián importaba
 
 ```python
 import sys
-sys.path.insert(0, "/mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM")
+sys.path.insert(0, "/media/administrador/Storage1/sdonoso/clam_environ")
 
 from models.model_clam import CLAM_MB
 print("import OK")
@@ -38,7 +38,7 @@ import importlib.util
 import sys
 from pathlib import Path
 
-CLAM_PATH = Path("/mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM")
+CLAM_PATH = Path("/media/administrador/Storage1/sdonoso/clam_environ")
 
 spec = importlib.util.spec_from_file_location(
     "model_clam",
@@ -73,9 +73,9 @@ un script propio en mi workspace.
 
 **Estado**: solo aplica si encuentro problemas leyendo WSI. Sebastián tuvo
 problemas con openslide en este server y armó un build local en
-`/mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM/openslide/`.
+`/media/administrador/Storage1/sdonoso/clam_environ/openslide/`.
 
 **Lectura obligatoria si aparecen errores de openslide**:
-`/mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM/openslide_solution.md`.
+`/media/administrador/Storage1/sdonoso/clam_environ/openslide_solution.md`.
 
 ## 3. (espacio para más workarounds según vayan apareciendo)

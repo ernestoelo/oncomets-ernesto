@@ -23,7 +23,7 @@ Antes de cualquier commit que toque alguno de estos:
   arquitectura (ej. `src/dsmil_aggregator.py`,
   `src/clam_dsmil_wrapper.py`).
 - `utils/core_utils.py` o re-implementaciones del train loop.
-- Scripts de entrenamiento (`scripts/train_clam.sh`, `train_dsmil.sh`,
+- Scripts de entrenamiento (`scripts/train_clam.slurm`, `train_dsmil.slurm`,
   `main_dsmil.py` local).
 - Configuración de hiperparámetros que se **desvíe** de los args
   bendecidos por Sebastián (ej. cambiar `--lr`, `--bag_loss`, `--B` sin
@@ -65,11 +65,11 @@ por probar".
 
 ### 3. Restricciones no negociables del repo (de `CLAUDE.md`)
 
-- ¿El diff modifica algo bajo
-  `/mnt/disco_duro/onco/sebastianDonoso/`? → **bloquear**.
+- ¿El diff modifica algo bajo `clam_environ/` (codebase/datos de Sebastián)
+  o dentro de `clam_testing/`? → **bloquear**.
+- ¿Corre `python` en GPU fuera de SLURM (sin `sbatch`)? → **bloquear**.
 - ¿Reporta métricas que no estén en logs reales? → **bloquear**.
 - ¿Modifica `git config --global`? → **bloquear**.
-- ¿Instala paquetes con `pip --user`? → **bloquear**.
 
 ### 4. Args de training (si aplica)
 
@@ -83,7 +83,7 @@ por probar".
   --weighted_sample --auto-label-dict
   ```
 
-- `--embed_dim`: 512 (CONCH-TCGA) o 1024 (Environ/UNI) según dataset.
+- `--embed_dim`: **512 (CONCH)**. 1024 solo si features ResNet legacy.
 - `--B`: default 8. Si el commit lo cambia, debe estar referenciado en
   el README como variable bajo ablation.
 
@@ -108,7 +108,7 @@ Checklist:
   [PASS|FAIL]  Hipótesis explícita en README del objetivo
   [PASS|FAIL]  Métrica de éxito predefinida
   [PASS|FAIL]  Coherencia código ↔ objetivo declarado
-  [PASS|FAIL]  Sin modificación de /mnt/disco_duro/onco/sebastianDonoso/
+  [PASS|FAIL]  Sin modificación de clam_environ/ ; sin python en GPU fuera de SLURM
   [PASS|FAIL]  Args de training intactos o desviación justificada
   [PASS|FAIL]  Reproducibilidad (seed, exp_code, results_dir)
 

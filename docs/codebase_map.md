@@ -1,9 +1,11 @@
 # Codebase map — código de Sebastián Donoso
 
 Mapa de archivos y líneas clave del CLAM fork de Sebastián. Validado contra
-el código real en Werner el **5 de mayo de 2026**.
+el código real en el **servidor Environ el 19 de mayo de 2026** (re-validado
+tras la migración desde Werner; los números de línea se desplazaron, la
+lógica es idéntica).
 
-**Path raíz**: `/mnt/disco_duro/onco/sebastianDonoso/testMIL/CLAM/`
+**Path raíz**: `/media/administrador/Storage1/sdonoso/clam_environ/`
 
 **Reglas**: ningún archivo bajo este path se modifica. Si algo necesita
 cambiar, se hace en este repo (vía wrapper o copia local).
@@ -46,28 +48,25 @@ CLAM/
 **Dos clases**: `CLAM_SB` (single-branch) y `CLAM_MB` (multi-branch).
 **OncoMets usa `CLAM_MB`**.
 
-### CLAM_SB (líneas aproximadas 60–180)
+> **Líneas validadas 19 may 2026 (server Environ).** Entre paréntesis la
+> línea antigua de Werner (5 may 2026) cuando difiere — desplazamiento ≈+2.
+
+### CLAM_SB
 
 | Línea | Símbolo | Notas |
 |---|---|---|
-| L75 | docstring `subtyping` | "whether it's a subtyping problem" |
-| L79 | `__init__` signature | con `subtyping=False, embed_dim=1024` |
 | L96 | `self.subtyping = subtyping` | flag almacenado |
-| L107 | `def inst_eval(self, A, h, classifier)` | **rama in-class del instance classifier**. Comentario en código: "h corresponde a la lista con todos los features." |
-| L126 | `def inst_eval_out(self, A, h, classifier)` | **rama out-of-class** del instance classifier |
-| L159 | `if self.subtyping:` | activa exclusividad mutua dentro de inst_eval (probablemente) |
-| L167 | `if self.subtyping:` | otro check de subtyping |
-| L170 | `M = torch.mm(A, h)` | **attention pooling**. Comentario: "M representa el feature que representa a la slide completa por clase (K_classes x feature_dim)" |
+| L107 | `def inst_eval(self, A, h, classifier)` | **rama in-class del instance classifier**. Comentario: "h corresponde a la lista con todos los features." |
+| L128 (Werner L126) | `def inst_eval_out(self, A, h, classifier)` | **rama out-of-class** del instance classifier |
+| L172 (Werner L170) | `M = torch.mm(A, h)` | **attention pooling**. Comentario: "M representa el feature que representa a la slide completa por clase (K_classes x feature_dim)" |
 
-### CLAM_MB (líneas aproximadas 180–250+)
+### CLAM_MB
 
 | Línea | Símbolo | Notas |
 |---|---|---|
 | L185 | `__init__` signature | con `subtyping=False, embed_dim=1024` |
-| L203 | `self.subtyping = subtyping` | |
-| L226 | `if self.subtyping:` | |
-| L234 | `if self.subtyping:` | |
-| L237 | `M = torch.mm(A, h)` | **attention pooling de CLAM_MB**. Sin comentario explícito. |
+| L205 (Werner L203) | `self.subtyping = subtyping` | |
+| L239 (Werner L237) | `M = torch.mm(A, h)` | **attention pooling de CLAM_MB**. |
 
 ### Hechos clave
 
@@ -90,14 +89,12 @@ CLAM/
 | L148 | `instance_loss_fn = nn.CrossEntropyLoss()` | fallback si `inst_loss != 'svm'` |
 | L151–153 | construcción del modelo | CLAM_SB o CLAM_MB con `instance_loss_fn` inyectada |
 | L187–188 | llamada a `train_loop_clam` y `validate_clam` | entry point del entrenamiento con instance loss |
-| L226 | `def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, ...)` | **train loop completo** |
-| L229–230 | `Accuracy_Logger` para acc y instance acc | |
-| L246 | `instance_loss = instance_dict['instance_loss']` | extracción de la instance loss del dict que devuelve el modelo |
-| L248–249 | `instance_loss_value`, `train_inst_loss +=` | logging |
-| L251 | `total_loss = bag_weight * loss + (1-bag_weight) * instance_loss` | **combinación final** — esto es lo que se backpropaga |
-| L259 | print formateado por batch | "loss, instance_loss, weighted_loss" |
-| L276 | `train_inst_loss /= inst_count` | normalización al final del epoch |
-| L282 | print fin de epoch | "train_loss, train_clustering_loss, train_error" |
+| L241 (Werner L226) | `def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, ...)` | **train loop completo** |
+| L266 (Werner L246) | `instance_loss = instance_dict['instance_loss']` | extracción de la instance loss del dict que devuelve el modelo |
+| L271 (Werner L251) | `total_loss = bag_weight * loss + (1-bag_weight) * instance_loss` | **combinación final** — esto es lo que se backpropaga |
+
+> El resto del loop (logging por batch, normalización, print de fin de epoch)
+> mantiene la misma estructura; offsets análogos respecto a Werner.
 
 ### Hechos clave
 
@@ -112,12 +109,15 @@ CLAM/
 
 ## main.py — argumentos relevantes
 
-Línea 299 en adelante. **Default values entre paréntesis**.
+Parser desde **L446** (server Environ; Werner ~L299). **Default entre
+paréntesis.** `TASK_CONFIGS` ahora tiene **38 tasks** (incluye variantes
+`_combined`, `_pth` y tasks nuevas de microcalcificaciones/patrones CDIS).
+Nuevo arg `--pretrain_path` (warm-start desde checkpoint).
 
 | Argumento | Default | Uso para OncoMets |
 |---|---|---|
 | `--data_root_dir` | `None` (req) | path a features `.pt` |
-| `--embed_dim` | `1024` | **CONCH 512 (TCGA) o 1024 (Environ)** |
+| `--embed_dim` | `1024` | **usar 512 (CONCH); 1024 = ResNet legacy** |
 | `--max_epochs` | `200` | |
 | `--lr` | `1e-4` | |
 | `--label_frac` | `1.0` | |
@@ -127,7 +127,7 @@ Línea 299 en adelante. **Default values entre paréntesis**.
 | `--k_start` | `-1` | |
 | `--k_end` | `-1` | |
 | `--results_dir` | `./results` | |
-| `--split_dir` | `None` (req) | **NO es `--csv_path`** — apunta a `dataset_csv/<task>/` |
+| `--split_dir` | `None` (req) | **NO es `--csv_path`** — apunta a `environ/splits/<task>_100/` |
 | `--log_data` | flag | tensorboard |
 | `--testing` | flag | debug |
 | `--early_stopping` | flag | |

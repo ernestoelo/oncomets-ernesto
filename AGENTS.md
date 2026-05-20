@@ -9,25 +9,26 @@ evaluará escalar a leader/implementer/reviewer formal con `@harness`.
 **Definición**: `.claude/agents/trainer.md`
 
 **Foco**: Entrenamiento end-to-end de CLAM (y wrappers — ej. DSMIL en
-Sprint 4) en Werner. Cualquier sprint que requiera lanzar runs, generar
-splits, parsear logs.
+Sprint 4) en el servidor Environ, **vía SLURM (`sbatch`)**. Cualquier sprint
+que requiera lanzar runs, generar splits, parsear logs.
 
 **Lo que SÍ hace**:
 
-- Audita datasets WSI ya presentes en Werner (Camelyon, TCGA, Environ).
+- Audita datasets WSI / features ya presentes (`clam_environ/environ/`).
 - Lee el código de Sebastián (`main.py`, `core_utils.py`, `model_clam.py`)
-  para entender qué CSV espera.
-- Genera splits train/val/test y los CSV de input bajo el directorio
-  del sprint actual: `sprints/<sprint>/<objetivo>/splits/`.
-- Lanza entrenamientos vía `scripts/train_clam.sh` (o wrapper análogo).
+  para entender qué CSV/split espera.
+- Genera splits train/val/test bajo el directorio del sprint actual o reusa
+  los de `clam_environ/environ/splits/`.
+- Lanza entrenamientos vía **`sbatch scripts/train_clam.slurm`** (nunca
+  `python` directo en GPU). Revisa `squeue`/`sinfo` antes (GPU única).
 - Persiste logs y métricas bajo `sprints/<sprint>/<objetivo>/logs/`.
 - Documenta config + observaciones en `sprints/<sprint>/<objetivo>/reporte.md`.
-- Cross-check programático de `splits_0_descriptor.csv` (Hallazgo 1
-  del Sprint 3 — el descriptor puede estar stale).
+- Cross-check programático de `splits_0_descriptor.csv`.
 
 **Lo que NO hace**:
 
-- No edita NADA bajo `/mnt/disco_duro/onco/sebastianDonoso/`.
+- No edita NADA bajo `clam_environ/` (codebase + datos de Sebastián).
+- No corre `python` que toque GPU fuera de SLURM.
 - No infiere métricas que no estén en logs reales.
 - No genera diagramas conceptuales ni redacción de informes
   (eso lo hago directo en chat web de claude.ai, no en Claude Code).
@@ -58,9 +59,9 @@ la regla operativa nueva del Sprint 4 — **"Argumento antes de código"**.
 - Verifica que estén presentes **hipótesis explícita** + **métrica de
   éxito predefinida** asociadas al cambio.
 - **Bloquea** (report sin commit) si falta alguno de los dos.
-- Reporta riesgos no negociables: ¿el cambio toca `/mnt/disco_duro/onco/
-  sebastianDonoso/`? ¿inventa métricas? ¿modifica configuración global
-  de git?
+- Reporta riesgos no negociables: ¿el cambio toca `clam_environ/`? ¿inventa
+  métricas? ¿modifica configuración global de git? ¿corre `python` en GPU
+  fuera de SLURM?
 
 **Lo que NO hace**:
 

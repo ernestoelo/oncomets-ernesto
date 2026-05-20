@@ -17,6 +17,11 @@ sprints/*/objetivo_2_entrenamiento/logs/checkpoints/
 !sprints/*/objetivo_2_entrenamiento/logs/*.log
 !sprints/*/objetivo_2_entrenamiento/logs/*.json
 
+# Salidas SLURM en logs/ del repo (raw .out/.err pueden ser pesados).
+# Copiar a sprints/<sprint>/<objetivo>/logs/ solo lo que valga versionar.
+logs/*
+!logs/.gitkeep
+
 # Editor / OS
 .vscode/
 .idea/

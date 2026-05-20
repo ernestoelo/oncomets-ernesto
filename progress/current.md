@@ -165,3 +165,56 @@ una task viable para el primer entrenamiento end-to-end.
 - Avanzar entregables 1, 3 y 4 (independientes del entrenamiento).
 
 ---
+
+## Sesión 2 — 19 may 2026, MIGRACIÓN DE ENTORNO (Werner → servidor Environ)
+
+> El sprint activo es **B4 / Sprint 4** (el header "Sprint 3" de arriba quedó
+> como histórico; ver `sprints/B3_sprint3/` cerrado y `sprints/B4_sprint4/`).
+
+### Contexto
+
+El codebase, datasets y workflow se movieron a un servidor nuevo accedido por
+**VPN oficial Environ**. Sesión 100% **read-only** sobre todo lo externo al
+workspace (cero `sbatch`, cero GPU). Objetivo: reconocer y documentar.
+
+### Hallazgos del reconocimiento (detalle: `sprints/B4_sprint4/reconocimiento_entorno.md`)
+
+- Servidor: `administrador-PowerEdge-R740xd` (no Werner/jenny2).
+- Usuario **compartido `sdonoso`**; git global apunta a **Seba Donoso** →
+  identidad git **local** = Ernesto (corregida: `user.name` era `ernestoelo`).
+- Conda env de CLAM = **`clam_latest`** (no `memoriaSebaDonoso`). `which python`
+  base ROTO (ADFRsuite py2.7).
+- GPU: **1× RTX A6000 49GB**, CUDA 12.8. SLURM: partición única `debug`, 1 nodo.
+  Job `conch_fe` (4072) de sdonoso PENDING — no se tocó.
+- Codebase: `clam_environ/`; datos: `clam_environ/environ/`.
+- **No existen `.pth`**; el sufijo `_pth` = "priv+TCGA+HistAI". Features CONCH =
+  `.pt` en `environ/features/pt_files/` (**2935 slides, 512-dim**). ResNet
+  legacy = 1024-dim. → `--embed_dim 512`.
+- Cross-check de descriptors en las 4 tareas prioritarias: **en sync**.
+- Bug `invasion_linfatica_vascular` (typo de género): **ya resuelto** por Sebastián.
+- Codebase idéntico en lógica a lo documentado; líneas desplazadas (model_clam
+  ≈+2, core_utils ≈+15–20). `main.py` creció (TASK_CONFIGS = 38 tasks).
+
+### Cambios al repo (commits locales, sin push)
+
+- `CLAUDE.md`, `AGENTS.md`, `.claude/agents/{trainer,reviewer}.md`, `README.md`,
+  `docs/` migrados de Werner → servidor Environ + workflow SLURM.
+- Skills nuevas: `@slurm-submission`, `@environ-server`. `@csv-audit` actualizada.
+- `scripts/`: `bootstrap_werner.sh`→`bootstrap_environ_server.sh`,
+  `werner_environment.md`→`environ_server.md`, `train_clam.slurm` nuevo,
+  `verify_clam_access.sh`/`train_clam.sh` con paths nuevos.
+- `sprints/B4_sprint4/reconocimiento_entorno.md` (entregable de la sesión).
+
+### Decisiones pendientes para la reunión (Sebastián + Eduardo)
+
+Ver `sprints/B4_sprint4/reconocimiento_entorno.md` §8 y
+`sprints/B4_sprint4/README.md` (decisiones 1–7). En corto: dataset/splits
+canónicos definitivos, `embed_dim 512`, módulo MIL (DSMIL sujeto a confirmación),
+y cortesía de GPU única (coordinar con el job `conch_fe`).
+
+### Próximo paso
+
+Ernesto revisa los commits locales y hace `git push`. Confirmar deps de
+`clam_latest` al primer uso real (no se activó el env en recon).
+
+---

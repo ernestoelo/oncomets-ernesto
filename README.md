@@ -1,75 +1,65 @@
 # oncomets-ernesto
 
-Control center de mi trabajo en OncoMets / EnvironBio. Vive en Werner.
-Wrapper alrededor del código de Sebastián Donoso (read-only, en otro path).
+Control center de mi trabajo en OncoMets / EnvironBio. Vive en el **servidor
+Environ**. Wrapper alrededor del código de Sebastián Donoso (`clam_environ/`,
+read-only, en otro path). Migrado desde el servidor antiguo (Werner) el
+19 may 2026 — ver `docs/environ_server.md` y
+`sprints/B4_sprint4/reconocimiento_entorno.md`.
 
-## Despliegue inicial
+## Entorno (servidor Environ)
 
-### 1. Desde mi laptop (una sola vez)
+| Campo | Valor |
+|---|---|
+| Host | `administrador-PowerEdge-R740xd` |
+| Acceso | VPN oficial Environ + SSH |
+| Usuario | `sdonoso` (compartido) |
+| GPU | 1× RTX A6000 (49 GB), CUDA 12.8 |
+| SLURM | partición única `debug`, 1 nodo |
+| Conda env CLAM | `clam_latest` |
+| Mi workspace | `/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/` |
+| Codebase (read-only) | `/media/administrador/Storage1/sdonoso/clam_environ/` |
 
-Sincronizar las skills relevantes desde `~/.claude/skills/` al repo:
+## Setup (ya hecho — referencia)
 
-```bash
-cd ~/Documents/EnvironBio/oncomets-ernesto
-./scripts/sync_skills_from_local.sh
-```
-
-Esto copia `dev-workflow/` y `harness/` a `.claude/skills/`. Versionar:
-
-```bash
-git init
-git remote add origin git@github.com:ernestoelo/oncomets-ernesto.git
-git add -A
-git commit -m "feat: initial scaffold for Sprint 3 B3"
-git branch -M main
-git push -u origin main
-```
-
-### 2. En Werner — vía VS Code Remote SSH (camino principal)
-
-Desde la laptop, en VS Code: `Remote-SSH: Connect to Host` → `environbio`.
-Eso abre VS Code con el filesystem de Werner. Después, en una terminal
-integrada de VS Code:
+El repo ya está clonado en el workspace. La identidad git es **local**
+(el global apunta a Seba Donoso, usuario compartido):
 
 ```bash
-cd /mnt/disco_duro/onco/oncologiaEnviron/ernestogamero/
-git clone git@github.com:ernestoelo/oncomets-ernesto.git
-cd oncomets-ernesto
-./scripts/verify_clam_access.sh    # smoke test del workaround importlib
+git config --local user.name  "Ernesto Gamero"
+git config --local user.email "ernesto.gamero@sansano.usm.cl"
 ```
 
-Después se lanza Claude Code desde la terminal integrada (`claude`) con
-el repo como cwd. Lee `CLAUDE.md` automáticamente.
+Smoke test de acceso al codebase:
 
-### 3. SSH alias (referencia)
-
-En `~/.ssh/config` de la laptop:
-
+```bash
+./scripts/verify_clam_access.sh    # lee CLAM_PATH=clam_environ por default
 ```
-Host environbio
-    HostName 200.1.17.169
-    User onco
-    # Si quieres bootstrap automático cuando hagas SSH directo (no VS Code):
-    # RemoteCommand cd /mnt/disco_duro/onco/oncologiaEnviron/ernestogamero/oncomets-ernesto && exec ./scripts/bootstrap_werner.sh
-    # RequestTTY yes
-```
-
-El `bootstrap_werner.sh` queda como referencia para sesiones SSH directas
-casuales. **No es necesario para el flujo VS Code Remote SSH** — ahí Claude
-Code lee `CLAUDE.md` directamente y arranca sin script intermedio.
 
 ## Uso diario
 
 **Camino A — VS Code Remote SSH (recomendado):**
-1. VS Code → Remote SSH a `environbio`.
-2. Abrir carpeta `/mnt/disco_duro/onco/oncologiaEnviron/ernestogamero/oncomets-ernesto/`.
-3. Terminal integrada → `claude`.
+1. VS Code → Remote SSH al servidor Environ (VPN arriba).
+2. Abrir carpeta `/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/`.
+3. Terminal integrada → `claude`. Lee `CLAUDE.md` automáticamente.
 
 **Camino B — SSH directo (rápido, casual):**
 ```bash
-ssh environbio
-cd /mnt/disco_duro/onco/oncologiaEnviron/ernestogamero/oncomets-ernesto
-./scripts/bootstrap_werner.sh
+ssh <host_environ>
+cd /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto
+./scripts/bootstrap_environ_server.sh
+```
+
+## Lanzar trabajos GPU (SLURM)
+
+**Toda carga GPU va por `sbatch`, nunca `python` directo.** Plantilla en
+`scripts/train_clam.slurm` y skill `@slurm-submission`.
+
+```bash
+mkdir -p logs
+squeue ; sinfo                       # cortesía: GPU única, no monopolizar
+sbatch scripts/train_clam.slurm      # editar TASK/EXP_CODE/SPLIT_DIR antes
+squeue -u $USER                      # monitorear
+tail -f logs/eg_train_<jobid>.out
 ```
 
 ## Estructura
@@ -80,38 +70,37 @@ oncomets-ernesto/
 ├── AGENTS.md                 # Mapa de subagentes
 ├── README.md                 # Este archivo
 ├── .claude/
-│   ├── settings.local.json   # Permisos de bash y filesystem
+│   ├── settings.local.json
 │   ├── agents/
-│   │   └── trainer.md        # Subagente único: ejecuta entrenamientos
-│   └── skills/               # dev-workflow, harness (sync desde laptop)
+│   │   ├── trainer.md        # ejecuta entrenamientos vía SLURM
+│   │   └── reviewer.md       # valida "argumento antes de código"
+│   └── skills/               # slurm-submission, environ-server, csv-audit, dev-workflow, harness
 ├── scripts/
-│   ├── bootstrap_werner.sh       # Lanzamiento SSH → Claude Code (camino B)
-│   ├── verify_clam_access.sh     # Smoke test del workaround importlib
-│   ├── train_clam.sh             # Wrapper sobre main.py de Sebastián
-│   ├── sync_skills_from_local.sh # Copia skills desde ~/.claude/skills/
-│   └── extract_metrics.py        # Parsea logs → curvas para reportes
+│   ├── bootstrap_environ_server.sh  # lanzamiento SSH → Claude Code (camino B)
+│   ├── verify_clam_access.sh        # smoke test de acceso a clam_environ
+│   ├── train_clam.slurm             # ← wrapper SLURM sobre main.py (GPU)
+│   ├── train_clam.sh                # legacy (CPU/debug; no usar en GPU fuera de SLURM)
+│   ├── sync_skills_from_local.sh
+│   └── extract_metrics.py           # parsea logs → métricas
 ├── sprints/
-│   └── B3_sprint3/           # Entregables del sprint actual
-│       ├── objetivo_1_L_instance/
-│       ├── objetivo_2_entrenamiento/
-│       ├── objetivo_3_pipeline/
-│       └── objetivo_4_propuestas/
+│   ├── B3_sprint3/           # cerrado (artefactos históricos, runs en Werner)
+│   └── B4_sprint4/           # sprint actual + reconocimiento_entorno.md
 ├── docs/
-│   ├── codebase_map.md       # Paths y líneas clave del código de Sebastián
-│   ├── werner_environment.md # Stack, hostname, conda env, paths
-│   └── workarounds.md        # importlib.util para CLAM_MB
+│   ├── codebase_map.md       # paths y líneas clave de clam_environ
+│   ├── environ_server.md     # stack, hostname, conda env, paths
+│   └── workarounds.md
+├── logs/                     # salidas SLURM (.out/.err) — gitignored salvo texto
 └── progress/
-    ├── current.md            # Sesión activa, append-only
-    └── history.md            # Bitácora cerrada
+    ├── current.md            # sesión activa, append-only
+    └── history.md            # bitácora cerrada
 ```
 
 ## Reglas críticas (resumen)
 
-- **No tocar** `/mnt/disco_duro/onco/sebastianDonoso/`.
-- **`/home/onco/` es compartido** — todo lo personal va bajo
-  `oncologiaEnviron/ernestogamero/`.
-- **Importar** `CLAM_MB` vía `importlib.util` (workaround de `timm` en el
-  `__init__.py` de Sebastián).
+- **No tocar** `clam_environ/` (codebase + datos de Sebastián, read-only).
+- **No entrar a escribir** en `clam_testing/` (otra persona).
+- **GPU solo vía SLURM** (`sbatch`), nunca `python` directo en GPU.
+- **Git config LOCAL**, nunca global (el global = Seba Donoso).
 - **Diagramas > texto plano** para entregables.
 - **Validar contra paper o código** toda afirmación técnica.
 
