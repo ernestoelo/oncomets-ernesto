@@ -16,6 +16,15 @@ exacto que se leyó (evitar drift de URL).
 | Archivo | Paper | Año | Sprint que lo introdujo |
 |---|---|---|---|
 | `dsmil_li2021.pdf` | Li, Li & Eliceiri — Dual-stream MIL for WSI | 2021 | B4 / Sprint 4 |
+| `2001.06782v4.pdf` | Yu et al. — Gradient Surgery for Multi-Task Learning (PCGrad) | 2020 | B4 (recomendado por Eduardo, 21 may) |
+| `2512.18734.pdf` | Chen & Xu — Breast Cancer Recurrence Risk Prediction Based on MIL | 2025 | B4 (recomendado por Eduardo, 21 may) |
+| `electronics-13-04445.pdf` | Liu et al. — Dual-Attention MIL Framework for Pathology WSI | 2024 | B4 (recomendado por Eduardo, 21 may) |
+
+> **Papers de Eduardo (21 may 2026)**: aportados para atacar el desbalance de
+> clases de `microcalcificaciones_pth`. Nombres de archivo conservados como
+> los subió Eduardo (no se renombraron a la convención `<autor><año>`). El
+> análisis profundo de si alguna idea aplica al problema está pendiente de
+> una sesión dedicada (ver `progress/current.md`).
 
 ## Citas
 
