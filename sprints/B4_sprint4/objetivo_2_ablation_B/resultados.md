@@ -10,7 +10,7 @@
 |---|---|---|
 | Script | `slurm/baseline_microcalc_B8.slurm` | `slurm/ablation_microcalc_B16.slurm` |
 | `--B` | 8 | 16 |
-| Job ID | 4083 | _pendiente_ |
+| Job ID | 4096 | 4097 (`--dependency=afterok:4096`) |
 | results_dir | `results/baseline_microcalc_pth_B8/` | `results/ablation_microcalc_pth_B16/` |
 | Resto de args | idénticos | idénticos |
 
