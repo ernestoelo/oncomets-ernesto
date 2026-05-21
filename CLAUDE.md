@@ -38,8 +38,10 @@ Acceso: **VPN oficial Environ + SSH**. Stack registrado el 19 may 2026
 | Conda env de CLAM | **`clam_latest`** (NO `base`, NO `memoriaSebaDonoso`) |
 
 > **`which python` está ROTO** en el PATH base (apunta a un ADFRsuite
-> python2.7 sin libpython). **Siempre** `conda activate clam_latest` antes
-> de correr cualquier cosa, o usar el binario del env directo.
+> python2.7 sin libpython), y **`conda activate clam_latest` NO lo
+> arregla** — ADFRsuite va *prepended* al PATH por delante del env conda.
+> Atención: ver Workarounds operativos del servidor Environ → Workaround B
+> para el procedimiento correcto (usar el binario absoluto del env).
 
 ### Paths críticos
 
@@ -135,10 +137,15 @@ aplicar el fix correspondiente sin investigar de nuevo.
 - **`git config --global`**: NUNCA. Solo `--local` al repo (ver regla 8).
 - **Si `push` falla con `Bad owner or permissions on ~/.ssh/config`**:
   permitido aplicar `chmod 600 ~/.ssh/config ~/.ssh/id_ed25519` como
-  **excepción quirúrgica** al containment — las claves SSH son del user
-  `sdonoso` pero las generó Ernesto el 19-may-2026, son funcionalmente
-  suyas en este server. **NO** copiar claves, **NO** modificar
-  `~/.gitconfig`, **NO** tocar nada más en `~/.ssh/`.
+  **excepción quirúrgica** al containment. **NO** copiar claves, **NO**
+  modificar `~/.gitconfig`, **NO** tocar nada más en `~/.ssh/` ni fuera
+  de `~/.ssh/` de `sdonoso`.
+  - *Por qué es legítima*: las claves `~/.ssh/id_ed25519` fueron generadas
+    por Ernesto el 19-may-2026 para su cuenta GitHub `ernestoelo`. Aunque
+    viven en el home del user compartido `sdonoso`, son funcionalmente del
+    usuario operativo (Ernesto) en este server. Por eso `chmod 600` sobre
+    *ellas específicamente* es excepción quirúrgica autorizada y no viola
+    el containment.
 - **Si `push` falla por otra razón**: detenerse y reportar a Ernesto.
 
 ## Workspace containment (regla dura — Sprint 4 en adelante)
