@@ -78,4 +78,46 @@ problemas con openslide en este server y armó un build local en
 **Lectura obligatoria si aparecen errores de openslide**:
 `/media/administrador/Storage1/sdonoso/clam_environ/openslide_solution.md`.
 
-## 3. (espacio para más workarounds según vayan apareciendo)
+## 3. Bug `topk` en `inst_eval` con slides `< k_sample` patches
+
+**Estado**: 🔧 mitigado vía split filtrado + preflight (Sprint 4). El bug
+está en el codebase de Sebastián (read-only) — no se corrige ahí.
+
+**Síntoma**: el entrenamiento crashea con
+`RuntimeError: selected index k out of range`, traza terminando en
+`models/model_clam.py:112` (la línea del `torch.topk`). El crash puede
+aparecer **tarde** (tras horas / muchas épocas).
+
+**Causa**: `inst_eval` hace `torch.topk(A, self.k_sample)` con
+`k_sample = --B`. Si una slide tiene un tensor de features `.pt` con
+`shape[0] < k_sample` (menos parches que `B`), `topk` no puede seleccionar
+`B` elementos de un tensor más chico → revienta. Con `--weighted_sample`
+(muestreo con reemplazo) la slide problemática puede no sortearse hasta una
+época avanzada → por eso el crash es tardío.
+
+**Cómo detectar**: `scripts/preflight_minpatch.py` escanea el split de train
+y reporta las slides con `< min_patches` parches **antes** de entrenar. Es
+el preflight obligatorio de los `.slurm` (ver entrada G de "Workarounds
+operativos" en `CLAUDE.md`).
+
+**Cómo mitigar**:
+1. Filtrar el split con `scripts/filter_split_by_minpatch.py` — remueve del
+   **train** las slides problemáticas (val/test intactos: el path de eval
+   `summary()` no llama `inst_eval`). Ejemplo aplicado:
+   `splits_local/microcalcificaciones_pth_100_minpatch16/README.md`.
+2. **NO** modificar `clam_environ/` (codebase read-only de Sebastián).
+3. **NO** bajar `k_sample` / `--B` — es variable de ablation en el Sprint 4.
+
+**Run de referencia**: `results/failed_runs/4096_baseline_B8_topk_bug/`
+(logs + checkpoint parcial del job 4096 que cayó por este bug).
+
+**Slides identificadas a la fecha** (ambas en el train de
+`microcalcificaciones_pth`):
+- `histai_1536_slide_H&E_0` — 6 parches (rompe B=8 y B=16).
+- `histai_1196_slide_H&E_0` — 8 parches (rompe B=16).
+
+Para la reunión queda abierta la pregunta de si son biopsias chicas
+esperables o un fallo de detección de tejido upstream (ver sección C de
+`sprints/B4_sprint4/objetivo_3_modulo_mil_alternativo/investigacion/04_riesgos_y_preguntas_reunion.md`).
+
+## 4. (espacio para más workarounds según vayan apareciendo)
