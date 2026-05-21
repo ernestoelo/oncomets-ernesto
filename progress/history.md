@@ -22,3 +22,17 @@
   dir de Obj 3 alineado en `main`.
 - **Consolidación operativa**: preflight como patrón obligatorio, bug `topk`
   y reglas de git workflow documentados (`CLAUDE.md`, `docs/workarounds.md`).
+
+### 21 may 2026 — resultados del baseline B=8 (job 4098)
+
+- **Baseline B=8 COMPLETADO** (job `4098`, ~4h 11m). Métricas: test_auc 0.81,
+  val_auc 0.69, test_acc 0.72, **balanced accuracy 0.31**. Detalle en
+  `sprints/B4_sprint4/objetivo_1_baseline/resultados.md`.
+- **Hallazgo central**: el régimen de evaluación de `microcalcificaciones_pth`
+  NO es confiable — 4 de 8 clases tienen 1 muestra en val/test → macro-AUC
+  dominado por ruido (inversión val < test). Métrica recomendada: balanced
+  accuracy + matriz de confusión.
+- **Hallazgo**: las 8 clases son un problema multi-label (3 tejidos) aplastado;
+  propuesta para la reunión = reformular como 3 binarios.
+- **B=16** (job `4099`) lanzado; mismo patrón de sobreajuste temprano.
+- Eduardo aportó 3 papers a `papers/` para atacar el desbalance.
