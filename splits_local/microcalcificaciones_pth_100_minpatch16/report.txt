@@ -1,0 +1,16 @@
+filter_split_by_minpatch.py — report
+generado:           2026-05-21T10:44:34
+canonical_split:    /media/administrador/Storage1/sdonoso/clam_environ/environ/splits/microcalcificaciones_pth_100/splits_0.csv
+features_dir:       /media/administrador/Storage1/sdonoso/clam_environ/environ/features/pt_files
+min_patches:        16
+out_dir:            /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/splits_local/microcalcificaciones_pth_100_minpatch16
+
+train: 2438 -> 2436  (removidas 2)
+val:   319 (intacto)
+test:  315 (intacto)
+
+slides removidas de train (shape[0] < min_patches):
+  histai_1536_slide_H&E_0: 6 parches
+  histai_1196_slide_H&E_0: 8 parches
+
+train slides sin .pt (se mantienen; el dataloader las salta): 50
