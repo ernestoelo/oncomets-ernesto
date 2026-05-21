@@ -16,6 +16,7 @@
 | 02 | [`02_codigo_oficial_mapeo.md`](02_codigo_oficial_mapeo.md) | Código oficial `binli123/dsmil-wsi` (HEAD `80465ed`): `dsmil.py` línea por línea, mapeo paper→código, loop de training, discrepancias paper↔código. |
 | 03 | [`03_comparacion_clam_dsmil.md`](03_comparacion_clam_dsmil.md) | Comparación arquitectónica CLAM vs DSMIL: pooling, supervisión de instancia, loss, multi-clase, memoria, punto de inserción. |
 | 04 | [`04_riesgos_y_preguntas_reunion.md`](04_riesgos_y_preguntas_reunion.md) | Supuestos rotos, riesgos técnicos con severidad, y las 9 preguntas para la reunión. |
+| 05 | [`05_papers_eduardo_desbalance.md`](05_papers_eduardo_desbalance.md) | Los 3 papers de Eduardo (PCGrad, Recurrence Risk MIL, DAMIL) leídos a fondo y evaluados contra el desbalance de `microcalcificaciones_pth`. Dirección recomendada: reformulación multi-label + PCGrad (DSMIL/DAMIL son eje ortogonal, no solución al desbalance). |
 
 Fuentes: paper en [`../../../papers/dsmil_li2021.pdf`](../../../papers/dsmil_li2021.pdf)
 (8 pp.); código DSMIL en `clam_testing2/DSMIL_official_reference/`
