@@ -153,6 +153,22 @@ aplicar el fix correspondiente sin investigar de nuevo.
 - **`git push`**: NO autónomo. Solo cuando el prompt de la sesión lo pida
   explícitamente. Default = "commits locales, push lo hace Ernesto".
 - **`git config --global`**: NUNCA. Solo `--local` al repo (ver regla 8).
+- **Verificar la rama ANTES de cada commit**: `git branch --show-current`.
+  El working tree es compartido (user `sdonoso`) y puede haber quedado en
+  otra rama por una sesión paralela. No asumir que la rama checked out es
+  la correcta.
+- **Si el prompt de la sesión NO especifica la rama destino**: PREGUNTAR
+  antes de commitear. No improvisar. (Lección Sprint 4: c1-c5 quedaron en
+  la rama equivocada y requirieron `reset` + `cherry-pick` para corregir.)
+- **Cambios estructurales** (rename de directorio, mover archivos a otro
+  path, reorganización): decidir **explícitamente** si se replican a `main`.
+  Si se replican, hacerlo en el mismo turno
+  (`git checkout main && git mv ... && git commit`). Si no, documentar la
+  divergencia como intencional. Un rename en una rama **no** se propaga
+  solo a las demás.
+- **Después de cada `cherry-pick`**: `git status` — un cherry-pick puede
+  arrastrar staged changes no intencionados; verificar que solo se movió
+  lo esperado.
 - **Si `push` falla con `Bad owner or permissions on ~/.ssh/config`**:
   permitido aplicar `chmod 600 ~/.ssh/config ~/.ssh/id_ed25519` como
   **excepción quirúrgica** al containment. **NO** copiar claves, **NO**
