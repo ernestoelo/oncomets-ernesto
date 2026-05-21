@@ -470,6 +470,21 @@ re-validar y actualizar `docs/codebase_map.md`.
    classifier, no del pseudo-etiquetado.
 5. **Severo desbalance** en las prioritarias (ej. `gh_dif_tubular` score_1=4
    en train; `cdi_necrosis` presente_focal=1) — probable causa del AUC bajo.
+6. **Régimen de evaluación roto en `microcalcificaciones_pth`** (confirmado
+   empíricamente, baseline B=8 job 4098, 21 may 2026). 8 clases; 4 con **1
+   sola muestra** en val/test → el macro-AUC (`nanmean` one-vs-rest) está
+   dominado por ruido: el job dio val_auc 0.69 < test_auc 0.81 (inversión =
+   prueba de inestabilidad). `test_acc` 0.72 cae *bajo* el baseline trivial
+   (0.89). **Métrica honesta = balanced accuracy** (job 4098: 0.31) **+ matriz
+   de confusión, siempre con el `n` por clase**. El macro-AUC solo, nunca.
+   Detalle: `sprints/B4_sprint4/objetivo_1_baseline/resultados.md`.
+7. **Las 8 clases de microcalcificaciones son un problema multi-label
+   aplastado.** Son las combinaciones de 3 tejidos {carcinoma invasivo, CDIS,
+   tejido no neoplásico} + `no_identificado`. Aplastar multi-label en
+   clases-combinación fabrica clases ultra-raras (la triple: 6 slides).
+   Propuesta para la reunión: reformular como 3 tareas binarias. Entrenar con
+   el dataset grande (`_pth`, 3072) NO ayuda al desbalance — la expansión vs
+   V4 (n=548) fue casi toda `no_identificado`; las clases raras siguen fijas.
 
 ## Entorno conda — deps esperadas
 

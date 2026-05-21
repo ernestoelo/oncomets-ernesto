@@ -189,3 +189,12 @@ dataset compartido del Sprint 4).
 4. **El `summary.csv` post-training puede tener `test_auc=∅` o `nan`**
    cuando una clase tiene < 2 ejemplos en val/test (sklearn requiere
    ≥ 2 clases en y_true). No confundir AUC vacío con AUC=0.
+5. **Auditar la distribución por clase × split ANTES de reportar una task
+   multiclase.** El join `splits_0.csv ⨯ dataset_<task>_label.csv` da la
+   verdad. Clases con **1 muestra** en val/test no hacen `nan` pero sí
+   producen un AUC one-vs-rest de puro ruido: el macro-AUC (`nanmean`) queda
+   dominado por esos términos. Síntoma confirmado (baseline B=8,
+   `microcalcificaciones_pth`, 21 may 2026): val_auc 0.69 < test_auc 0.81
+   (inversión). **Regla**: para tasks multiclase desbalanceadas, reportar
+   **balanced accuracy + matriz de confusión** desde el `split_0_results.pkl`,
+   nunca el macro-AUC solo, y siempre con el `n` por clase visible.
