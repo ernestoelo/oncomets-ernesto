@@ -32,6 +32,10 @@ results/**/checkpoints/
 results/**/events.out.tfevents.*
 !results/.gitkeep
 
+# Pero SÍ versionar los *_results.pkl (predicciones por slide, pocos KB —
+# verdad de referencia que citan los resultados.md de cada sprint).
+!results/**/*_results.pkl
+
 # Editor / OS
 .vscode/
 .idea/
