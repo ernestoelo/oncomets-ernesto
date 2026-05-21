@@ -235,6 +235,20 @@
    (RTX A6000), partición SLURM única `debug`. Hoy mismo hay jobs en
    cola (4096/4097). Sin acuerdo, los hilos se bloquean entre sí.
 
+**10. ¿Slides con < B parches tras CONCH: biopsias chicas esperables o
+   fallo de detección de tejido upstream?**
+   Las slides `histai_1536_slide_H&E_0` (6 parches CONCH) y
+   `histai_1196_slide_H&E_0` (8 parches CONCH) tienen **menos de B
+   parches** tras la extracción de features. ¿Es esperable para esos WSIs
+   específicos (biopsias muy pequeñas) o sugiere un fallo de detección de
+   tejido en el pipeline upstream? Para el Sprint 4 las filtré del train
+   para desbloquear la ablation B=8 vs B=16 (split filtrado documentado en
+   `splits_local/microcalcificaciones_pth_100_minpatch16/`).
+   — *Desbloquea*: si es un bug upstream, conviene una regla general de
+   `min_patches` en la generación de splits; si no, basta el filtro local.
+   Distinto de la pregunta 4 (esas slides **sí** tienen `.pt`, solo que
+   con muy pocos parches — no es el caso de los ~128 `.pt` ausentes).
+
 ---
 
 ## D. Síntesis de severidad
