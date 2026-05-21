@@ -1,0 +1,49 @@
+# requirements_obj3.txt — dependencias del Objetivo 3 (módulo MIL alternativo)
+# ============================================================================
+# Estado: scaffolding preparatorio. NADA se instala en esta sesión (regla 6
+# de la sesión). Este archivo solo DOCUMENTA qué haría falta.
+#
+# RESULTADO: el aggregator dual-stream de DSMIL NO agrega ninguna dependencia
+# nueva sobre el env `clam_latest`. No hay nada que instalar.
+#
+# ----------------------------------------------------------------------------
+# Cómo se determinó
+# ----------------------------------------------------------------------------
+# Validado contra el repo oficial binli123/dsmil-wsi, clonado read-only como
+# hermano del repo personal en:
+#   /media/administrador/Storage1/sdonoso/clam_testing2/DSMIL_official_reference/
+#   (HEAD 80465ed)
+#
+# 1. El modelo MIL en sí — DSMIL_official_reference/dsmil.py — importa
+#    EXCLUSIVAMENTE:
+#        torch, torch.nn, torch.nn.functional, torch.autograd.Variable
+#    Es PyTorch puro: Linear, Conv1d, ReLU, Tanh, softmax. Sin librerías
+#    externas. torch ya está en clam_latest (torch + CUDA 12.8).
+#
+# 2. El env.yml del repo oficial lista además:
+#        numpy, pandas, scikit-learn, pillow, matplotlib, scikit-image,
+#        opencv, pyyaml, jupyterlab, tqdm
+#    PERO esas deps son del PIPELINE COMPLETO de DSMIL (tessellation de WSI
+#    con deepzoom_tiler.py + extracción de features auto-supervisadas con
+#    SimCLR). En el Objetivo 3 NO se usa ese pipeline: se reutilizan las
+#    features CONCH ya extraídas (.pt). Por lo tanto esas deps NO aplican.
+#        - numpy / pandas / scikit-learn -> ya las usa main.py de CLAM.
+#        - pillow / matplotlib / scikit-image / opencv / pyyaml / jupyterlab
+#          / tqdm -> solo para tiling + SimCLR -> NO se necesitan.
+#
+# 3. La loss nativa de DSMIL (train_mil.py: 0.5*L_bag + 0.5*L_max con BCE)
+#    es nn.BCEWithLogitsLoss de torch. Si la reunión decide replicarla en
+#    vez de mantener bag_loss/inst_loss de CLAM, sigue sin requerir nada
+#    nuevo. (Default propuesto: mantener la loss de CLAM; ver propuesta_dsmil.md.)
+#
+# ----------------------------------------------------------------------------
+# Dependencias adicionales requeridas: NINGUNA
+# ----------------------------------------------------------------------------
+# (Si hubiera alguna, iría listada abajo con su versión, SIN instalar.)
+#
+# Nota: las deps base que main.py de CLAM ya necesita en clam_latest
+# (h5py, tensorboardX, smooth-topk/topk, future, pandas>=2,<3) NO se repiten
+# aquí — no son agregados del Objetivo 3. Ver CLAUDE.md "Entorno conda".
+#
+# Confirmar `pip list` de clam_latest al primer uso real (regla: el env no
+# se activó/auditó en esta sesión de scaffolding).

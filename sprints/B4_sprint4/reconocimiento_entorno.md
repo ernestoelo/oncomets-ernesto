@@ -320,7 +320,8 @@ De `run_all_training.sh` / `train_task.slurm` / `run.slurm` (reales):
    Grado Nuclear, CDI Necrosis, GH Dif. Tubular) y sobre qué split
    (`_100` privado vs `_pth_100` grande) se evalúan.
 7. **Módulo MIL alternativo (Objetivo 3)**: la propuesta es DSMIL pero queda
-   **sujeta a confirmación** en reunión (ver `objetivo_3_dsmil/README.md`).
+   **sujeta a confirmación** en reunión (ver
+   `objetivo_3_modulo_mil_alternativo/README.md`).
 8. **`which python` roto** (ADFRsuite py2.7 en PATH): cualquier `python`
    directo fuera de un env conda falla. Siempre `conda activate clam_latest`
    (o el env que aplique) antes de correr nada.

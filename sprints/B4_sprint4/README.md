@@ -46,9 +46,9 @@ instance classifier path) sobre las tareas prioritarias. **Hipótesis
 enunciada de antemano + métrica de éxito predefinida** (regla operativa
 "Argumento antes de código").
 
-### Objetivo 3 — Implementar DSMIL como módulo MIL alternativo
+### Objetivo 3 — Módulo MIL alternativo (propuesta: DSMIL)
 
-[`objetivo_3_dsmil/`](objetivo_3_dsmil/)
+[`objetivo_3_modulo_mil_alternativo/`](objetivo_3_modulo_mil_alternativo/)
 
 Wrapper que reemplaza el `attention_net` de CLAM por el aggregator
 dual-stream de DSMIL (Li et al., CVPR 2021, paper en
