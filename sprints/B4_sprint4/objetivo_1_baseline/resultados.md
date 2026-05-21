@@ -12,11 +12,16 @@
 | Args | `--drop_out 0.25 --lr 2e-4 --bag_loss ce --inst_loss svm --model_type clam_mb --embed_dim 512 --k 1 --early_stopping --weighted_sample --auto-label-dict --B 8` |
 | env | `clam_latest` (torch 2.8.0+cu128) |
 | Script | `slurm/baseline_microcalc_B8.slurm` |
-| Job ID | `4083` |
-| Encolado | 2026-05-20, ST=PD (al final de la cola, tras `conch_fe`) |
+| Job ID | `4096` (run válido) |
+| Encolado | 2026-05-20, ST=PD `(Resources)` |
 | Inicio (PD→R) | _pendiente_ |
 | Fin | _pendiente_ |
 | Duración | _pendiente_ |
+
+> **Run 4083 abortado (no entrenó nada)**: bug del wrapper `.slurm` — la línea
+> `nvidia-smi | head -20` bajo `set -euo pipefail` provocaba SIGPIPE (exit 141)
+> y `set -e` mataba el job antes de `main.py`. Corregido con `|| true`.
+> Re-encolado como **4096**.
 
 ## N efectivo (cobertura de features al ejecutar)
 
@@ -24,11 +29,14 @@
 > "Feature file not found"). Al preparar: 128 histai sin `.pt` (train 83/val 28/test 17),
 > en extracción por `conch_fe`.
 
-| Partición | Nominal | Saltadas (log) | Efectivo |
-|---|---|---|---|
-| train | 2438 | _pend_ | _pend_ |
-| val | 319 | _pend_ | _pend_ |
-| test | 315 | _pend_ | _pend_ |
+Cobertura al re-encolar 4096 (20 may, tras terminar `conch_fe`): 3013 `.pt` en
+`pt_files`; 87 slides del split aún sin `.pt` (train 50 / val 24 / test 13).
+
+| Partición | Nominal | Sin .pt (al encolar) | Efectivo esperado | Saltadas (log real) |
+|---|---|---|---|---|
+| train | 2438 | 50 | 2388 | _pend_ |
+| val | 319 | 24 | 295 | _pend_ |
+| test | 315 | 13 | 302 | _pend_ |
 
 ## Métricas (de `results/baseline_microcalc_pth_B8/<exp>_s1/summary.csv`)
 

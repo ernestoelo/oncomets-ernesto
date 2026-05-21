@@ -58,7 +58,9 @@ PYBIN="$CONDA_PREFIX/bin/python"
 
 echo "Job $SLURM_JOB_ID started at $(date) on $(hostname)"
 "$PYBIN" -c "import torch; assert torch.cuda.is_available(), 'no CUDA'; print('torch', torch.__version__, 'cuda', torch.version.cuda)"
-nvidia-smi | head -20
+# '|| true': head cierra el pipe -> nvidia-smi recibe SIGPIPE (141); sin esto,
+# 'set -o pipefail' + 'set -e' abortarían el job antes de entrenar (bug del run 4083).
+nvidia-smi | head -20 || true
 
 "$PYBIN" main.py \
   --drop_out 0.25 \
