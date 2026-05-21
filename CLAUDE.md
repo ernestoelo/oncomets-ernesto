@@ -61,6 +61,86 @@ Acceso: **VPN oficial Environ + SSH**. Stack registrado el 19 may 2026
   HEAD `53e2409` (19 may 2026). **NO se agrega al PYTHONPATH, NO se mezcla ni
   se importa cruzado con el codebase de Sebastián.** Solo lectura/consulta.
 
+## Workarounds operativos del servidor Environ
+
+Consolidación de problemas recurrentes encontrados durante el Sprint 4
+y sus fixes verificados. Si tropezás con alguno de estos síntomas,
+aplicar el fix correspondiente sin investigar de nuevo.
+
+### A. El filesystem `/dev/sdb` no preserva permisos POSIX
+
+- **Síntoma**: `git status` marca el árbol entero como modificado (cambios
+  de modo); `git push` falla con `Bad owner or permissions on
+  ~/.ssh/config`.
+- **Causa**: el filesystem donde vive todo (`/dev/sdb`) no preserva los
+  permisos POSIX — los flipea a `0777`.
+- **Fix**: para el repo, `git config --local core.fileMode false` (ya
+  seteado). Para `~/.ssh/`, ver workaround F + "Reglas de commit y push".
+
+### B. `which python` no refleja `conda activate clam_latest`
+
+- **Síntoma**: tras `conda activate clam_latest`, `which python` sigue
+  apuntando al ADFRsuite python2.7 roto (`error while loading shared
+  libraries: libpython2.7.so.1.0`).
+- **Causa**: ADFRsuite va *prepended* al `PATH` por delante del env conda;
+  `conda activate` no lo desplaza.
+- **Fix**: usar SIEMPRE el binario absoluto del env —
+  `/home/sdonoso/miniconda3/envs/clam_latest/bin/python` — en todos los
+  `.slurm` y en cualquier verificación. No confiar en `python` a secas.
+
+### C. `sacct` deshabilitado en este SLURM
+
+- **Síntoma**: `sacct` no devuelve historial de jobs.
+- **Causa**: el accounting de SLURM no está habilitado en este cluster.
+- **Fix**: no hay post-mortem vía `sacct` — la única traza de un job son
+  sus `.out`/`.err`. **Nada se borra de `logs/` ni `results/` hasta el
+  cierre del sprint.** Monitorear en vivo con `squeue -j` / `tail -f`.
+
+### D. `cmd | head` bajo `set -euo pipefail` → exit 141 (SIGPIPE)
+
+- **Síntoma**: un `.slurm` con `set -euo pipefail` aborta antes de
+  entrenar, con exit code 141. Típico con `nvidia-smi | head` u otro
+  comando de stdout grande pipelined.
+- **Causa**: `head` cierra el pipe; el comando aguas arriba recibe
+  SIGPIPE; `pipefail` propaga el 141 y `-e` aborta el script.
+- **Fix**: en diagnósticos pipelined, `cmd | head -N || true` (commit
+  `5122ebf`).
+
+### E. `/mnt/project/` no existe en este server
+
+- **Síntoma**: se busca un paper o artefacto en `/mnt/project/` y no está.
+- **Causa**: `/mnt/project/` pertenece al entorno claude.ai, no a este
+  server.
+- **Fix**: los papers y artefactos del proyecto viven en `papers/`,
+  `sprints/`, `docs/` del repo personal. No descargar nada de afuera: si
+  falta algo, reportarlo y que Ernesto lo suba.
+
+### F. `git push` por SSH
+
+- **Síntoma**: `git push` falla con `Bad owner or permissions on
+  ~/.ssh/config`.
+- **Causa**: el flip de permisos del workaround A deja `~/.ssh/config` y
+  la clave privada en `0777`; SSH los rechaza por inseguros.
+- **Fix**: aplicar `chmod 600 ~/.ssh/config ~/.ssh/id_ed25519` (ver
+  "Reglas de commit y push"). Verificar auth con
+  `ssh -T -p 443 git@ssh.github.com` → debe responder `Hi ernestoelo!`.
+  El bloque `Host github.com` de `~/.ssh/config` redirige el puerto
+  22 → 443.
+
+### Reglas de commit y push para Claude Code
+
+- **Commits locales**: SÍ — granulares, mensajes conventional commits.
+- **`git push`**: NO autónomo. Solo cuando el prompt de la sesión lo pida
+  explícitamente. Default = "commits locales, push lo hace Ernesto".
+- **`git config --global`**: NUNCA. Solo `--local` al repo (ver regla 8).
+- **Si `push` falla con `Bad owner or permissions on ~/.ssh/config`**:
+  permitido aplicar `chmod 600 ~/.ssh/config ~/.ssh/id_ed25519` como
+  **excepción quirúrgica** al containment — las claves SSH son del user
+  `sdonoso` pero las generó Ernesto el 19-may-2026, son funcionalmente
+  suyas en este server. **NO** copiar claves, **NO** modificar
+  `~/.gitconfig`, **NO** tocar nada más en `~/.ssh/`.
+- **Si `push` falla por otra razón**: detenerse y reportar a Ernesto.
+
 ## Workspace containment (regla dura — Sprint 4 en adelante)
 
 **TODO lo que descarguemos, clonemos, generemos o produzcamos vive bajo
