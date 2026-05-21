@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/media/administrador/Storage1/sdonoso/clam_environ/main.py", line 736, in <module>
+    results = main(args)
+  File "/media/administrador/Storage1/sdonoso/clam_environ/main.py", line 514, in main
+    results, test_auc, val_auc, test_acc, val_acc  = train(datasets, i, args) # Se manda args (de ahi obtiene embedding por ejemplo)
+  File "/media/administrador/Storage1/sdonoso/clam_environ/utils/core_utils.py", line 202, in train
+    train_loop_clam(epoch, model, train_loader, optimizer, args.n_classes, args.bag_weight, writer, loss_fn)
+  File "/media/administrador/Storage1/sdonoso/clam_environ/utils/core_utils.py", line 260, in train_loop_clam
+    logits, Y_prob, Y_hat, _, instance_dict = model(data, label=label, instance_eval=True)
+  File "/home/sdonoso/miniconda3/envs/clam_latest/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/sdonoso/miniconda3/envs/clam_latest/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/media/administrador/Storage1/sdonoso/clam_environ/models/model_clam.py", line 224, in forward
+    instance_loss, preds, targets = self.inst_eval(A[i], h, classifier)
+  File "/media/administrador/Storage1/sdonoso/clam_environ/models/model_clam.py", line 112, in inst_eval
+    top_p_ids = torch.topk(A, self.k_sample)[1][-1] # Seleccionamos el índice de los k puntaje de atención con mayor valor.
+RuntimeError: selected index k out of range
