@@ -1,67 +1,134 @@
 # Objetivo 1 — Resultados del baseline CLAM (MicroCalcificaciones, B=8)
 
-> Esqueleto — se llena cuando el job `4083` complete. **Pendiente de ejecución.**
+> Job `4098` **COMPLETED** el 21 may 2026. Números reales de
+> `results/baseline_microcalc_pth_B8_minpatch16/`. No inventar nada acá:
+> todo sale de `summary.csv`, `split_0_results.pkl` y el `.out`.
 
 ## Setup
 
 | Campo | Valor |
 |---|---|
-| Tarea | `microcalcificaciones_pth` (priv+TCGA+HistAI) |
-| Split | `environ/splits/microcalcificaciones_pth_100` (train 2438 / val 319 / test 315) |
+| Tarea | `microcalcificaciones_pth` — CSV `environ/csv/dataset_microcalcificaciones_label.csv` |
+| Clases | **8** (auto-label-dict, ver distribución abajo) |
+| Split | `splits_local/microcalcificaciones_pth_100_minpatch16` (train 2436 / val 319 / test 315) |
 | Features | CONCH 512-dim (`environ/features/pt_files/`) |
-| Args | `--drop_out 0.25 --lr 2e-4 --bag_loss ce --inst_loss svm --model_type clam_mb --embed_dim 512 --k 1 --early_stopping --weighted_sample --auto-label-dict --B 8` |
+| Args | bendecidos + `--B 8` (ver `CLAUDE.md` → "Args bendecidos") |
 | env | `clam_latest` (torch 2.8.0+cu128) |
-| Script | `slurm/baseline_microcalc_B8.slurm` |
-| Job ID | `4096` (run válido) |
-| Encolado | 2026-05-20, ST=PD `(Resources)` |
-| Inicio (PD→R) | _pendiente_ |
-| Fin | _pendiente_ |
-| Duración | _pendiente_ |
+| Job | `4098` — 11:06→15:18 (~4h 11m); early stopping época 51; **mejor checkpoint época 6** |
+| N efectivo | train 2386 / val 295 / test 302 (resto sin `.pt`, el dataloader las salta) |
 
-> **Run 4083 abortado (no entrenó nada)**: bug del wrapper `.slurm` — la línea
-> `nvidia-smi | head -20` bajo `set -euo pipefail` provocaba SIGPIPE (exit 141)
-> y `set -e` mataba el job antes de `main.py`. Corregido con `|| true`.
-> Re-encolado como **4096**.
+## El dataset: 8 clases, desbalance severo
 
-## N efectivo (cobertura de features al ejecutar)
+CSV total 3072 slides. Las 8 clases NO son benigno/maligno — son la
+**ubicación del tejido** donde aparece la microcalcificación:
 
-> Verificar en el log cuántas slides se saltaron por `.pt` ausente (warnings
-> "Feature file not found"). Al preparar: 128 histai sin `.pt` (train 83/val 28/test 17),
-> en extracción por `conch_fe`.
+| id | clase | total | % |
+|---|---|---|---|
+| 7 | `no_identificado` | 2739 | **89.2 %** |
+| 6 | `en_tejido_no_neoplasico` | 161 | 5.2 % |
+| 4 | `en_cdis` | 89 | 2.9 % |
+| 0 | `en_carcinoma_invasivo` | 38 | 1.2 % |
+| 5 | `en_cdis-en_tejido_no_neoplasico` | 15 | 0.5 % |
+| 3 | `en_carcinoma_invasivo-en_tejido_no_neoplasico` | 13 | 0.4 % |
+| 1 | `en_carcinoma_invasivo-en_cdis` | 11 | 0.4 % |
+| 2 | `en_carcinoma_invasivo-en_cdis-en_tejido_no_neoplasico` | 6 | 0.2 % |
 
-Cobertura al re-encolar 4096 (20 may, tras terminar `conch_fe`): 3013 `.pt` en
-`pt_files`; 87 slides del split aún sin `.pt` (train 50 / val 24 / test 13).
+Distribución por split (join `splits_0.csv ⨯ dataset_label.csv`):
 
-| Partición | Nominal | Sin .pt (al encolar) | Efectivo esperado | Saltadas (log real) |
-|---|---|---|---|---|
-| train | 2438 | 50 | 2388 | _pend_ |
-| val | 319 | 24 | 295 | _pend_ |
-| test | 315 | 13 | 302 | _pend_ |
+| clase | train | val | test |
+|---|---|---|---|
+| en_carcinoma_invasivo | 30 | 4 | 4 |
+| en_carcinoma_invasivo-en_cdis | 9 | **1** | **1** |
+| en_carcinoma_invasivo-en_cdis-en_tejido_no_neoplasico | 4 | **1** | **1** |
+| en_carcinoma_invasivo-en_tejido_no_neoplasico | 11 | **1** | **1** |
+| en_cdis | 73 | 8 | 8 |
+| en_cdis-en_tejido_no_neoplasico | 13 | **1** | **1** |
+| en_tejido_no_neoplasico | 128 | 16 | 17 |
+| no_identificado | 2168 | 287 | 282 |
 
-## Métricas (de `results/baseline_microcalc_pth_B8/<exp>_s1/summary.csv`)
+## Métricas finales (de `summary.csv`)
 
-| Fold | test_auc | val_auc | test_acc | val_acc |
-|---|---|---|---|---|
-| 0 | _pend_ | _pend_ | _pend_ | _pend_ |
+| test_auc | val_auc | test_acc | val_acc |
+|---|---|---|---|
+| 0.8117 | 0.6863 | 0.7219 | 0.7017 |
 
-## Régimen de evaluación (clases efectivas en val/test)
+**Balanced accuracy (test) = 0.3076** — calculada del `split_0_results.pkl`
+(media del recall por clase). Es la métrica honesta; ver abajo.
 
-> Documentar qué clases quedaron con <2 ejemplos en val/test y sobre qué subset
-> el AUC es computable (hallazgo Sprint 3). 8 clases; las compuestas raras tienen
-> 1 ej. en val/test.
+## Matriz de confusión (test, 302 slides) — fila = verdadera, col = predicha
+
+```
+verdadera \ predicha     cl0  cl1  cl2  cl3  cl4  cl5  cl6  cl7   total
+carc_inv                   1    .    .    .    .    .    1    2      4
+carc_inv+cdis              .    .    .    .    .    .    .    1      1
+carc_inv+cdis+tejido       .    .    1    .    .    .    .    .      1
+carc_inv+tejido            .    .    .    .    .    .    .    1      1
+cdis                       .    .    .    1    2    .    1    4      8
+cdis+tejido                .    .    .    .    .    .    1    .      1
+tejido_no_neo              3    1    .    .    3    1    3    6     17
+no_identificado            5    4    1    1   21    .   26  211    269
+```
+
+El modelo manda **74.5 % de las predicciones (225/302) a `no_identificado`**.
+
+## Régimen de evaluación — el hallazgo crítico
+
+`test_auc = 0.81` parece superar el 0.55 de V4, **pero no es un resultado
+fuerte ni comparable**. Tres evidencias:
+
+1. **Inversión val < test.** val_auc 0.69 < test_auc 0.81 → gap −0.125. Una
+   generalización sana da test ≤ val. El AUC es un `nanmean` sobre 8 clases
+   one-vs-rest, y **4 clases tienen 1 sola muestra en val/test** → un AUC con
+   1 muestra es ruido. La inversión es la prueba de que la métrica es
+   inestable: el 0.81 y el 0.69 son el mismo cálculo ruidoso que cayó
+   distinto.
+2. **`test_acc` 0.72 < baseline trivial 0.89.** Predecir siempre
+   `no_identificado` acertaría 269/302 = 0.891. El modelo (0.722) es *peor*
+   en accuracy cruda que la respuesta trivial — `weighted_sample` lo empuja a
+   intentar clases minoritarias y las falla.
+3. **Balanced accuracy 0.31.** Trata las 8 clases por igual. Random/trivial =
+   0.125; el modelo (0.31) aprendió una señal débil pero está lejísimos de
+   ser útil (>0.6–0.7 sería útil).
+
+**Conclusión**: el baseline corre, es reproducible y termina limpio. El
+cuello de botella **no es el entrenamiento sino el régimen de evaluación** de
+esta task. Métrica recomendada de aquí en adelante: **balanced accuracy +
+matriz de confusión**, nunca el macro-AUC solo, y siempre con el `n` por
+clase.
+
+## Hallazgo: estructura multi-label disfrazada de 8 clases
+
+Las 8 clases son exactamente las combinaciones no vacías de **3 tejidos**
+{carcinoma invasivo, CDIS, tejido no neoplásico} (2³−1 = 7) + `no_identificado`.
+Es un **problema multi-etiqueta (3 binarios) aplastado en 8 clases
+mutuamente excluyentes**. Aplastar multi-label en clases-combinación es lo
+que fabrica las clases ultra-raras (la triple combinación: 6 slides totales).
+
+**Propuesta para la reunión**: reformular como **3 tareas binarias**
+(`¿microcalcificación en carcinoma invasivo? ¿en CDIS? ¿en tejido no
+neoplásico?`). Cada binario tendría clases evaluables y un AUC con sentido.
+Pendiente confirmar con Sebastián qué significa `no_identificado` (¿no hay
+microcalcificación, o hay pero sin ubicar? — cambia toda la interpretación).
 
 ## Comparación contra V4 (referencia histórica)
 
-> V4 reportó AUC test ≈ 0.55 (n=548, probablemente otro conjunto). NO es blanco
-> de reproducción exacta — se usa `_pth` (3072). Registrar el número observado
-> sin forzar interpretación.
+V4 reportó microcalcificaciones test ≈ 0.55, val ≈ 0.82, gap 0.27, **n=548**.
+Nuestra task `_pth` tiene **3072** slides (dataset post-expansión). **No es
+blanco de reproducción**: distinto conjunto, y ambas métricas son ruidosas.
+Reportar el número observado sin interpretarlo como mejora. Confirmar con
+Sebastián la composición exacta de V4 (decisión #1 de la reunión).
 
 ## Convergencia (de los logs)
 
-> bag loss (`train_error`) y instance loss (`train_clustering_loss`): ¿convergen?
-> (Sprint 3: instance loss converge aunque bag loss no, en datasets con clases
-> ausentes en val/test.)
+El modelo **sobreajusta de inmediato**: `train_error` baja a ~2 % y el mejor
+checkpoint (mejor `val_loss`) es de la **época 6**; las ~45 épocas restantes
+no mejoraron val. `EarlyStopping(patience=20, stop_epoch=50)` está hardcoded
+en `utils/core_utils.py:194` → el job corre hasta la época 51 aunque el
+`counter` sature en 20 mucho antes. El instance loss (`train_clustering_loss`)
+converge; el bag loss se estanca — consistente con el Hallazgo 4 de `CLAUDE.md`.
 
-## Warnings / errores del `.err`
+## Run previo fallido
 
-_pendiente_
+`results/failed_runs/4096_baseline_B8_topk_bug/` — job 4096 cayó por el bug
+`topk` (slides de train con `<B` parches). Mitigado con el split filtrado
+`minpatch16` + `scripts/preflight_minpatch.py`. Ver `docs/workarounds.md` §3.
