@@ -64,6 +64,41 @@ CUDA_VISIBLE_DEVICES=0 python main.py \
 > El repo trae `scripts/train_clam.slurm` ya armado con esto — editar task /
 > exp_code / split_dir y `sbatch`.
 
+## Preflight checks (obligatorio en `.slurm` de entrenamiento)
+
+**Cuándo agregarlos**: siempre que el entrenamiento dependa de invariantes
+del split o del dataset que, si se violan, hacen crashear el job *tarde*
+(tras horas) en vez de fallar rápido. Caso de referencia: el bug `topk` del
+run 4096 — slides de train con menos parches que `--B` reventaban
+`torch.topk` en `inst_eval`, y con `--weighted_sample` el crash aparecía
+recién en una época avanzada.
+
+**Patrón**: un script de validación corre **antes** de `python main.py`; si
+falla, el job termina en segundos. Bloque a insertar en el `.slurm`:
+
+```bash
+# Preflight: validar invariantes del split antes de entrenar.
+# Idiom 'if ! cmd; then' (NO 'cmd; if [ $? ]'): bajo 'set -e' un comando
+# suelto que falla aborta el script antes del 'if'.
+if ! "$PYBIN" "$REPO/scripts/preflight_minpatch.py" \
+  --split_dir    "$SPLIT_DIR" \
+  --features_dir "$FEATURES_DIR" \
+  --min_patches  <= --B del run> ; then
+  echo "PREFLIGHT FAILED: invariante del split no se cumple"
+  exit 1
+fi
+```
+
+**Ejemplo de referencia**: `scripts/preflight_minpatch.py` — valida que
+ninguna slide de train tenga `< min_patches` parches. El `.out` del job
+imprime `PREFLIGHT OK: ...` antes de empezar a entrenar (señal a buscar en
+los primeros logs).
+
+**El patrón es general**: aplica a cualquier task futura, no es específico de
+microcalcificaciones ni de `minpatch`. Si una task nueva tiene otra
+invariante crítica (ej. nº de clases, balance mínimo), escribir su propio
+script de preflight siguiendo el mismo molde y referenciarlo en el `.slurm`.
+
 ## Recursos típicos (observados en `clam_environ/`)
 
 | Tipo de job | gres | cpus | mem | time | env |

@@ -129,6 +129,24 @@ aplicar el fix correspondiente sin investigar de nuevo.
   El bloque `Host github.com` de `~/.ssh/config` redirige el puerto
   22 → 443.
 
+### G. Preflight check obligatorio en `.slurm` de entrenamiento
+
+- **Síntoma**: jobs que crashean **tarde** (tras horas de entrenamiento)
+  por bugs de datos — ej. el bug `topk` (run 4096): slides con menos
+  parches que `k_sample` (`--B`) en `inst_eval` de CLAM.
+- **Causa**: `--weighted_sample` muestrea con reemplazo; una slide
+  problemática puede no aparecer hasta una época avanzada → el crash es
+  tardío y el debug, largo y caro.
+- **Fix**: bloque **preflight** en el `.slurm`, **antes de `python
+  main.py`**, que ejecute un script validando invariantes del
+  split/dataset. `scripts/preflight_minpatch.py` es el ejemplo de
+  referencia (valida nº mínimo de parches por slide de train). Si el
+  preflight falla, el job termina en segundos en lugar de horas. **Patrón
+  obligatorio** en cualquier `.slurm` de entrenamiento futuro, de
+  cualquier task — no es específico de microcalcificaciones ni de
+  `minpatch`. Ver detalle del bug en `docs/workarounds.md` y la plantilla
+  en la skill `@slurm-submission`.
+
 ### Reglas de commit y push para Claude Code
 
 - **Commits locales**: SÍ — granulares, mensajes conventional commits.
