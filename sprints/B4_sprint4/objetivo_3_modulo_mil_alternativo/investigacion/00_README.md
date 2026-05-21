@@ -17,6 +17,7 @@
 | 03 | [`03_comparacion_clam_dsmil.md`](03_comparacion_clam_dsmil.md) | Comparación arquitectónica CLAM vs DSMIL: pooling, supervisión de instancia, loss, multi-clase, memoria, punto de inserción. |
 | 04 | [`04_riesgos_y_preguntas_reunion.md`](04_riesgos_y_preguntas_reunion.md) | Supuestos rotos, riesgos técnicos con severidad, y las 9 preguntas para la reunión. |
 | 05 | [`05_papers_eduardo_desbalance.md`](05_papers_eduardo_desbalance.md) | Los 3 papers de Eduardo (PCGrad, Recurrence Risk MIL, DAMIL) leídos a fondo y evaluados contra el desbalance de `microcalcificaciones_pth`. Dirección recomendada: reformulación multi-label + PCGrad (DSMIL/DAMIL son eje ortogonal, no solución al desbalance). |
+| 06 | [`06_busqueda_web_multiclase_desbalance.md`](06_busqueda_web_multiclase_desbalance.md) | Búsqueda web de literatura 2023-2025 sobre multiclase desbalanceado en MIL/WSI. Foco: HMIL (Hierarchical MIL, IEEE-TMI) — valida el diagnóstico del multi-clase plano, pero asume árbol y nuestro espacio es un lattice multi-etiqueta. Recomendación condicional: adoptar piezas, no el módulo. |
 
 Fuentes: paper en [`../../../papers/dsmil_li2021.pdf`](../../../papers/dsmil_li2021.pdf)
 (8 pp.); código DSMIL en `clam_testing2/DSMIL_official_reference/`
