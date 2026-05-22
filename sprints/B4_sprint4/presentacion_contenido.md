@@ -202,11 +202,44 @@ señal débil, pero está lejos de ser útil.
 
 ---
 
-## Slide 7 — Ablación B=8 vs B=16  [PENDIENTE — job 4099]
+## Slide 7 — Ablación B=8 vs B=16: la palanca barata no mueve la aguja
 
-> Completar cuando el job `4099` (B=16) termine. Comparar contra B=8:
-> Δ test_auc, Δ balanced accuracy, `train_clustering_loss` final, matriz de
-> confusión. Comportamiento preliminar observado: idéntico a B=8 (sobreajuste
-> en época 6, val AUC plateau ~0.66) → pista temprana de que doblar B no
-> cambia la dinámica. Métrica de éxito predefinida (Objetivo 2):
-> Δ test_auc ≥ +0.03.
+**CUERPO** — probamos subir el hiperparámetro `B` (8 → 16, top-B/bottom-B
+del instance loss). Métrica de éxito predefinida: Δ test_auc ≥ +0.03.
+
+| Métrica | B=8 (job 4098) | B=16 (job 4099) | Δ |
+|---|---|---|---|
+| test_auc | 0.81 | 0.82 | **+0.009** (umbral era +0.03) |
+| balanced accuracy | 0.31 | **0.24** | **−0.07** (empeora) |
+| train_clustering_loss | 0.0089 | 0.0126 | +0.004 (sube) |
+
+**Hipótesis NO confirmada.** El AUC casi no se mueve (+0.009, un tercio del
+umbral); la balanced accuracy *baja*; el instance loss *sube* — lo contrario
+de lo que predecía el mecanismo. Conclusión: **`B` es un hiperparámetro;
+ajustarlo no mueve la aguja porque el cuello de botella es la FORMULACIÓN de
+la tarea, no los hiperparámetros.** Esta ablación negativa es justamente la
+evidencia que justifica la reformulación en 3 binarios (Slide 6).
+
+**NOTAS DEL PRESENTADOR:**
+
+> Antes de proponer un cambio grande, probamos el cambio barato. `B` es un
+> hiperparámetro de CLAM: controla cuántos parches usa el instance loss. La
+> hipótesis era razonable —más parches, señal más rica— y fijamos de
+> antemano el criterio de éxito: el AUC de test tenía que subir al menos
+> tres centésimas. Corrimos B=16 con todo lo demás idéntico, mismo split.
+> Resultado: el AUC subió nueve milésimas, un tercio del umbral. Y las dos
+> métricas honestas fueron para el otro lado: la balanced accuracy bajó de
+> 0.31 a 0.24, y el instance loss, que según la hipótesis debía bajar,
+> subió. O sea, ni el número global mejora ni el mecanismo que
+> postulábamos se sostiene. Pero esto no es un experimento fallido: es
+> informativo. Nos dice que `B` es una palanca menor, y que el problema
+> real está en otro nivel —en cómo está planteada la tarea, las ocho
+> clases-combinación de la slide anterior—. Ningún valor de `B` arregla
+> que una clase tenga seis slides. Por eso esta ablación, justamente por
+> dar negativo, es la que respalda la propuesta de reformular en tres
+> tareas binarias. Probamos lo barato, lo medimos con un criterio fijado
+> de antemano, y el resultado nos manda al lugar correcto.
+
+> **PRELIMINAR.** Single seed, sin múltiples corridas; el régimen de
+> evaluación de la tarea de 8 clases es ruidoso (4 clases con 1 muestra en
+> val/test). No reinterpretar el +0.009 como mejora.
