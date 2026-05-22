@@ -7,7 +7,8 @@
 
 ## Sprint actual: B4 / Sprint 4
 
-**Snapshot: 21 may 2026** (baseline B=8 completado; B=16 en curso).
+**Snapshot: 21 may 2026** (Objetivos 1 y 2 completados; investigación del
+Objetivo 3 unificada a `main`).
 
 ### Estado por objetivo
 
@@ -18,17 +19,24 @@
   **Hallazgo central**: el régimen de evaluación de la task NO es confiable
   (ver abajo). Métricas: test_auc 0.81 (ruidoso), val_auc 0.69, test_acc 0.72,
   **balanced accuracy 0.31**.
-- **Objetivo 2 — Ablation B=8 vs B=16**: **EN CURSO**.
-  Job `4099` (B=16) RUNNING. Comportamiento preliminar idéntico a B=8
-  (sobreajuste en época 6, val AUC plateau ~0.66). `summary.csv` al terminar.
-- **Objetivo 3 — Módulo MIL alternativo (propuesta DSMIL)**: **EN INVESTIGACIÓN**.
-  Scaffolding + investigación en la rama `feature/sprint4-obj3-mil-alternativo`.
-  Eduardo subió 3 papers nuevos a `papers/` (ver inventario en `papers/README.md`).
-  DSMIL **sujeto a confirmación** en la reunión.
-- **Objetivo 4 — Heatmaps comparativos**: **PENDIENTE** (bloqueado por Obj 2).
-  Viabilidad verificada (`objetivo_4_heatmaps/viabilidad_script.md`).
+- **Objetivo 2 — Ablation B=8 vs B=16**: **COMPLETADO**.
+  Job `4099` (B=16) terminó COMPLETED. **Veredicto: hipótesis NO confirmada.**
+  Δtest_auc +0.009 (umbral predefinido era +0.03 → banda ambigua); balanced
+  accuracy *bajó* 0.31→0.24; train_clustering_loss *subió* 0.0089→0.0126
+  (contradice el mecanismo de la hipótesis). **Conclusión de fondo**: `B` es
+  un hiperparámetro — ajustarlo no mueve la aguja porque el cuello de botella
+  es la **FORMULACIÓN** de la tarea, no los hiperparámetros. La ablación
+  negativa es la evidencia que justifica la reformulación. Detalle:
+  `sprints/B4_sprint4/objetivo_2_ablation_B/resultados.md`.
+- **Objetivo 3 — Módulo MIL alternativo (propuesta DSMIL)**: **INVESTIGACIÓN
+  COMPLETA, unificada a `main`**. Docs `00`–`06` en
+  `objetivo_3_modulo_mil_alternativo/investigacion/`: DSMIL + evaluación de
+  los 3 papers de Eduardo (`05`) y de HMIL vía búsqueda web (`06`). DSMIL es
+  un eje **ortogonal** al desbalance; **sujeto a confirmación** en la reunión.
+- **Objetivo 4 — Heatmaps comparativos**: **PENDIENTE** (Obj 2 ya no lo
+  bloquea). Viabilidad verificada (`objetivo_4_heatmaps/viabilidad_script.md`).
 
-### Hallazgos críticos del baseline (21 may 2026)
+### Hallazgos críticos (21 may 2026)
 
 1. **Régimen de evaluación roto.** `microcalcificaciones_pth` tiene 8 clases;
    4 de ellas tienen **1 sola slide** en val y en test. El macro-AUC es un
@@ -43,35 +51,39 @@
 4. **El dataset grande no ayuda al desbalance.** 3072 vs 548 de V4: la
    expansión fue casi toda `no_identificado`; las clases raras siguen con
    6–15 slides. Más datos de la clase mayoritaria no enseña las minoritarias.
+5. **B no es la palanca (ablación Obj 2).** Doblar B (8→16) deja todo igual o
+   peor — confirma empíricamente que el problema está en la formulación.
 
 ### Jobs SLURM (snapshot)
 
 | Job | Qué | Estado |
 |---|---|---|
 | `4098` | baseline B=8 `minpatch16` | COMPLETED |
-| `4099` | ablation B=16 `minpatch16` | RUNNING |
-
-Monitoreo en otra sesión. Esta sesión NO toca SLURM.
+| `4099` | ablation B=16 `minpatch16` | COMPLETED |
 
 ### Decisiones pendientes — reunión Sebastián + Eduardo
 
 Tabla completa en `sprints/B4_sprint4/README.md` (decisiones 1-7). Sumar:
 - **Reformular microcalcificaciones como 3 binarios** (multi-label) — ver
-  `objetivo_1_baseline/resultados.md`.
+  `objetivo_1_baseline/resultados.md` y `reformulacion_multilabel/`.
 - **Confirmar la composición de V4** (n=548 vs nuestro `_pth` 3072) — el 0.55
   de V4 NO es blanco de reproducción.
 - **Qué significa `no_identificado`** (¿sin microcalcificación, o sin ubicar?).
+- Preguntas de los papers / DSMIL: ver
+  `objetivo_3_modulo_mil_alternativo/investigacion/04_…` (§C) y `05_`/`06_`.
 
 ### Trabajo humano pendiente (Ernesto)
 
 - Presentación del Sprint 4 (`sprints/B4_sprint4/presentacion_contenido.md`).
-- Revisar la investigación DSMIL + los 3 papers de Eduardo antes de la reunión.
+- Revisar la investigación DSMIL + los 3 papers de Eduardo + HMIL (`06_`)
+  antes de la reunión.
 - Agendar la reunión con Sebastián + Eduardo.
-- `git push` de `main` y `feature` cuando haga sentido empujar todo junto.
 
 ### Ramas
 
-- `main`: infraestructura + resultados del baseline (Obj 1, 2, scripts,
-  preflight, split filtrado, docs, presentación).
-- `feature/sprint4-obj3-mil-alternativo`: trabajo de Objetivo 3 (DSMIL).
-  **Pendiente unificar con `main`** (sesión dedicada — ver prompt entregado).
+- `main`: todo el Sprint 4 — Objetivos 1, 2, 3 (investigación) unificados,
+  scripts, preflight, splits, presentación, docs.
+- `feature/sprint4-obj3-mil-alternativo`: **ya unificada a `main`** (merge
+  `43d2ae4`).
+- `feature/sprint4-reformulacion-multilabel`: scaffolding de la reformulación
+  en 3 tareas binarias (script verificador, plan de entrenamiento, `.slurm`).
