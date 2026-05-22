@@ -7,9 +7,9 @@
 
 ## Sprint actual: B4 / Sprint 4
 
-**Snapshot: 22 may 2026** (Objetivos 1 y 2 completados; investigación del
-Objetivo 3 unificada a `main`; reformulación en 3 binarios corrida —
-resultados PRELIMINARES documentados).
+**Snapshot: 22 may 2026 (post-reunión Sebastián + Eduardo)** (Objetivos 1 y 2
+completados; investigación del Objetivo 3 unificada a `main`; reformulación en
+3 binarios corrida y comparada con Sebastián — ver Reunión abajo).
 
 ### Estado por objetivo
 
@@ -36,8 +36,13 @@ resultados PRELIMINARES documentados).
   un eje **ortogonal** al desbalance; **sujeto a confirmación** en la reunión.
 - **Objetivo 4 — Heatmaps comparativos**: **PENDIENTE** (Obj 2 ya no lo
   bloquea). Viabilidad verificada (`objetivo_4_heatmaps/viabilidad_script.md`).
-- **Reformulación multi-label**: **COMPLETADO (PRELIMINAR)**.
-  Job `4109`. Análisis completo en
+- **Reformulación multi-label**: **COMPLETADO (PRELIMINAR)** — **NO es hallazgo
+  nuestro.** En la reunión Sebastián confirmó que él ya había hecho la
+  separación en 3 binarios hace tiempo; nosotros dimos con su CSV y
+  **reprodujimos/validamos** sus resultados de forma independiente (quedó
+  satisfecho de que lo encontráramos). Comparación: **igualamos en carcinoma
+  invasivo y mejoramos algo en CDIS y tejido** respecto a sus métricas. Nuestro
+  aporte propio = el diagnóstico (eval roto + ablación B). Job `4109`. Detalle:
   `sprints/B4_sprint4/reformulacion_multilabel/resultados.md`.
 
 ### Hallazgos críticos (21–22 may 2026)
@@ -53,8 +58,12 @@ resultados PRELIMINARES documentados).
    `no_identificado` → es un problema multi-etiqueta aplastado. Reformulado
    como 3 tareas binarias en `reformulacion_multilabel/`.
 4. **El dataset grande no ayuda al desbalance.** 3072 vs 548 de V4: la
-   expansión fue casi toda `no_identificado`; las clases raras siguen con
-   6–15 slides. Más datos de la clase mayoritaria no enseña las minoritarias.
+   expansión fue casi toda `no_identificado` (2739/3072); las clases raras
+   siguen con 6–161 slides. Más datos de la mayoritaria no enseña las
+   minoritarias. **Verificado 22 may (read-only):** el ~548 de V4 ≈ cohorte
+   PRIVADA `microcalcificaciones_100` = **533 slides** hoy. Mapa: privado 533 ·
+   combined 1397 · `_pth` 3072 · binarios identificados 333. Regla de la
+   reunión: entrenar con ~548, reservar 3072 para pruebas finales.
 5. **B no es la palanca (ablación Obj 2).** Doblar B (8→16) deja todo igual o
    peor — confirma empíricamente que el problema está en la formulación.
 6. **La reformulación funciona donde más importa (carcinoma invasivo):**
@@ -91,23 +100,42 @@ CDIS y tejido siguen flojos: el siguiente cuello de botella es **datos**
 (333 slides → sobreajuste), no formulación. PRELIMINAR (1 semilla),
 contingente a la reunión.
 
-### Decisiones pendientes — reunión Sebastián + Eduardo
+### Reunión Sebastián + Eduardo — REALIZADA (22 may 2026)
 
-Tabla completa en `sprints/B4_sprint4/README.md` (decisiones 1-7). Sumar:
-- **Reformular microcalcificaciones como 3 binarios** (multi-label) — ver
-  `objetivo_1_baseline/resultados.md` y `reformulacion_multilabel/`.
-- **Confirmar la composición de V4** (n=548 vs nuestro `_pth` 3072) — el 0.55
-  de V4 NO es blanco de reproducción.
-- **Qué significa `no_identificado`** (¿sin microcalcificación, o sin ubicar?).
-- Preguntas de los papers / DSMIL: ver
-  `objetivo_3_modulo_mil_alternativo/investigacion/04_…` (§C) y `05_`/`06_`.
+Acuerdos y dirección del sprint (ver `CLAUDE.md` Hallazgo 10):
 
-### Trabajo humano pendiente (Ernesto)
+1. **Reformulación en 3 binarios = trabajo previo de Sebastián.** No es hallazgo
+   nuestro; lo reprodujimos/validamos. Igualamos carcinoma invasivo, mejoramos
+   algo CDIS y tejido. Sebastián quedó satisfecho.
+2. **Dataset de trabajo = ~548 slides (cohorte privada ≈ 533), NO el `_pth`
+   3072.** El universo completo se reserva para PRUEBAS FINALES de una
+   incorporación. Mapeo de tamaños verificado read-only el 22 may (ver
+   Hallazgo crítico 4).
+3. **`balanced_pth_100`** (Sebastián lo está finalizando): mayoritaria
+   `no_identificado` ≤ 10× minoritaria. Aún no existe como split (el
+   `csv_balance`/`_pth_balance` actual = 333, placeholder). Invitados a entrenar
+   sobre él cuando esté.
+4. **Early stopping efectivo:** cortar cuando deja de mejorar por época.
+5. **Modelo alternativo (DSMIL u otro):** adoptar SOLO con justificación
+   clínica/arquitectónica + comparación contra baseline en el MISMO dataset.
+6. **Investigar:** escala / nº de parches y features de citoplasma según tarea;
+   buscar papers que evalúen tareas débiles con buenos resultados.
 
-- Presentación del Sprint 4 (`sprints/B4_sprint4/presentacion_contenido.md`).
-- Revisar la investigación DSMIL + los 3 papers de Eduardo + HMIL (`06_`)
-  antes de la reunión.
-- Agendar la reunión con Sebastián + Eduardo.
+### Próxima misión (Ernesto — este finde + semana que viene)
+
+- **Investigar requisitos para mejorar microcalcificaciones** y los factores
+  clave para adoptar un modelo nuevo (escala de parches, citoplasma, etc.).
+- **Llegar con una implementación corrida** (DSMIL u otro) para comparar contra
+  el baseline en el mismo dataset (~548), ojalá con mejora medible.
+- Mejorar la presentación del Sprint 4
+  (`sprints/B4_sprint4/presentacion_contenido.md`) — reencuadrar la
+  reformulación como validación, no como descubrimiento.
+
+### Pendiente de confirmar con Sebastián
+
+- Qué define exactamente el subconjunto de 548 (privado 533 incluye
+  `no_identificado`) vs los 333 identificados de los binarios.
+- Qué es `no_identificado` (¿sin microcalcificación, o sin ubicar?).
 
 ### Ramas
 

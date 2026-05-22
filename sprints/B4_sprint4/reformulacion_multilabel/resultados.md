@@ -1,7 +1,14 @@
 # Resultados — Reformulación Multi-label
 
-> **ESTADO: PRELIMINAR** — 1 semilla, 333 slides, contingente a la reunión
-> (confirmación de la reformulación + aclaración de `no_identificado`).
+> **ESTADO: PRELIMINAR** — 1 semilla, 333 slides.
+>
+> **Reunión 22 may 2026:** Sebastián confirmó que la separación en 3 binarios
+> es **trabajo previo suyo** — esto NO es un hallazgo nuestro. Nuestro aporte
+> es el diagnóstico (eval roto + ablación B) y la **reproducción/validación
+> independiente**: dimos con su CSV y replicamos sus resultados. Comparación:
+> **igualamos en carcinoma invasivo y mejoramos algo en CDIS y tejido** vs sus
+> métricas. Pendiente: aclarar `no_identificado` y fijar el dataset de trabajo
+> en ~548 (cohorte privada), no en 3072 (ver `CLAUDE.md` Hallazgo 10).
 
 ---
 

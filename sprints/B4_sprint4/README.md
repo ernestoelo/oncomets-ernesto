@@ -1,8 +1,11 @@
 # B4 — Sprint 4
 
-> **Estado**: scaffolding inicial (12 mayo 2026). Dataset compartido,
-> splits canónicos y división de trabajo Ernesto/Eduardo **pendientes**
-> de reunión con Sebastián + Eduardo (fecha sin confirmar, esta semana).
+> **Estado**: post-reunión Sebastián + Eduardo (22 may 2026). Los docs de
+> planificación de abajo son el registro **pre-reunión** (lo que llevamos a
+> preguntar); la **verdad post-reunión** (acuerdos, dirección, reglas de
+> dataset, autoría de la reformulación) vive en `progress/current.md` →
+> sección "Reunión — REALIZADA" y en `CLAUDE.md` Hallazgo 10. Leer esos
+> primero ante cualquier discrepancia con los planes originales.
 
 ## Contexto que abrió el sprint
 

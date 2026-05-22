@@ -484,7 +484,8 @@ re-validar y actualizar `docs/codebase_map.md`.
    clases-combinación fabrica clases ultra-raras (la triple: 6 slides).
    Propuesta para la reunión: reformular como 3 tareas binarias. Entrenar con
    el dataset grande (`_pth`, 3072) NO ayuda al desbalance — la expansión vs
-   V4 (n=548) fue casi toda `no_identificado`; las clases raras siguen fijas.
+   V4 (n=548 ≈ cohorte privada 533, ver Hallazgo 10) fue casi toda
+   `no_identificado` (2739/3072); las clases raras siguen fijas (6–161 slides).
 8. **`B` no es la palanca (ablación Obj 2, jobs 4098 vs 4099).** Doblar `--B`
    (8→16) sobre `microcalcificaciones_pth` dio Δtest_auc +0,009 (umbral
    predefinido +0,03 → banda ambigua), **balanced accuracy BAJÓ** 0,31→0,24 y
@@ -492,22 +493,56 @@ re-validar y actualizar `docs/codebase_map.md`.
    hipótesis). Lección: ajustar hiperparámetros no mueve la aguja — el cuello
    de botella es la **FORMULACIÓN** de la tarea. Detalle:
    `sprints/B4_sprint4/objetivo_2_ablation_B/resultados.md`.
-9. **Reformulación en 3 binarios: implementada, PRELIMINAR (job 4109).** La
-   infra **ya existe en `clam_environ`** (NO la creamos): tasks
+9. **Reformulación en 3 binarios: NO es hallazgo nuestro — es trabajo previo
+   de Sebastián que reprodujimos (confirmado en reunión 22 may 2026).**
+   Sebastián ya había des-aplastado las 8 clases en 3 preguntas binarias hace
+   tiempo; la infra (tasks
    `microcalcificaciones_en_{carcinoma_invasivo,cdis,tejido_no_neoplasico}_pth`
-   (+ variantes `_pth_balance`) registradas en `main.py`; 3 CSVs binarios en
-   `environ/csv/` (333 slides, `no_identificado` **excluido** → positivos
-   68/121/195, verificado determinísticamente con
-   `scripts/verify_binary_microcalc_csvs.py`); 3 splits estratificados.
-   `csv_balance/` es **byte-idéntico** a `csv/` para estas 3 tasks. Resultados
-   PRELIMINARES (CLAM_MB, B=8, `--max_epochs 30`, CONCH 512): **carcinoma
-   invasivo balanced acc 0,78** (cumple umbral 0,60 → prueba de concepto de
-   que des-aplastar recupera señal); CDIS 0,59 y tejido 0,58 (apenas sobre el
-   piso 0,50). El régimen de evaluación pasó de "no medible" (clases n=1) a
-   confiable (7–20 positivos/test). **Siguiente cuello de botella = DATOS**
-   (333 slides → sobreajuste), no formulación — consistente con Chen & Xu y
-   HMIL. PRELIMINAR (1 semilla), contingente a la reunión + a ratificar qué es
-   `no_identificado`. Detalle: `sprints/B4_sprint4/reformulacion_multilabel/`.
+   + variantes `_pth_balance` en `main.py`; 3 CSVs binarios en `environ/csv/`,
+   333 slides, `no_identificado` **excluido** → positivos 68/121/195,
+   verificado determinísticamente con
+   `scripts/verify_binary_microcalc_csvs.py`; 3 splits estratificados) es de
+   él. Nuestro aporte real es el **diagnóstico** (régimen de eval roto +
+   ablación B negativa) y la **reproducción/validación independiente**: dimos
+   con su CSV y replicamos sus resultados. **Comparación en la reunión: igualamos
+   en carcinoma invasivo y obtuvimos métricas algo MEJORES que las de él en CDIS
+   y tejido no neoplásico.** Resultados nuestros (job 4109, CLAM_MB, B=8,
+   `--max_epochs 30`, CONCH 512): carcinoma invasivo balanced acc **0,78**
+   (umbral 0,60 ✅), CDIS 0,59, tejido 0,58 (apenas sobre el piso 0,50). El
+   régimen de eval pasó de "no medible" (clases n=1) a confiable (7–20
+   positivos/test). PRELIMINAR (1 semilla). Detalle:
+   `sprints/B4_sprint4/reformulacion_multilabel/`.
+10. **Reunión 22 may 2026 — dirección del sprint y reglas de dataset.** Acordado
+   con Sebastián + Eduardo:
+   - **Dataset de trabajo para microcalcificaciones = ~548 slides, NO el
+     universo `_pth` (3072).** Verificado determinísticamente (read-only) el
+     22 may: el ~548 del doc V4 ≈ **cohorte PRIVADA** `microcalcificaciones_100`
+     = **533 slides hoy** (deriva de snapshot de 15 vs V4). Mapa de tamaños:
+     privado 533 · combined (priv+TCGA) 1397 · `_pth` (priv+TCGA+HistAI) 3072 ·
+     binarios identificados (`no_identificado` excluido) 333. Regla: entrenar
+     solo con las slides de interés (≈548); **el universo completo (3072) se
+     reserva para las PRUEBAS FINALES** de una incorporación.
+   - **`balanced_pth_100` (en construcción por Sebastián):** dataset donde la
+     mayoritaria (`no_identificado`) no supera a la minoritaria por más de 10×.
+     **Aún no existe como split** — verificado el 22 may: `csv_balance/` y los
+     splits `_pth_balance` son **byte-idénticos** a los 333 (placeholder).
+     Sebastián nos invitó a entrenar sobre él cuando esté.
+   - **Early stopping efectivo:** cortar cuando el modelo deja de mejorar por
+     época (recordar `stop_epoch=50` hardcoded; en runs cortos usar
+     `--max_epochs` < 50).
+   - **Modelo alternativo (DSMIL u otro):** viable **solo con** (a) justificación
+     clínica/arquitectónica para microcalcificaciones y (b) resultados
+     comparativos contra nuestro baseline **sobre el mismo dataset**. Puede
+     reemplazar a CLAM en una tarea o integrarse en CLAM.
+   - **Factores a investigar (pedido de Sebastián):** escala / nº de parches
+     (algunas tareas necesitan más contexto espacial), y features de
+     **citoplasma** según la tarea. Buscar papers que evalúen tareas donde
+     estamos débiles con buenos resultados y, ojalá, llegar con una
+     implementación corrida para comparar contra el baseline.
+   - **Pendiente de confirmar:** qué define exactamente el subconjunto de 548
+     (privado 533 incluye `no_identificado`) vs los 333 identificados de los
+     binarios; y qué es `no_identificado` (¿sin microcalcificación, o sin
+     ubicar?).
 
 ## Entorno conda — deps esperadas
 
