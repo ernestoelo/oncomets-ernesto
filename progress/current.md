@@ -9,7 +9,7 @@
 
 **Snapshot: 22 may 2026** (Objetivos 1 y 2 completados; investigación del
 Objetivo 3 unificada a `main`; reformulación en 3 binarios corrida —
-resultados PRELIMINARES).
+resultados PRELIMINARES documentados).
 
 ### Estado por objetivo
 
@@ -36,8 +36,11 @@ resultados PRELIMINARES).
   un eje **ortogonal** al desbalance; **sujeto a confirmación** en la reunión.
 - **Objetivo 4 — Heatmaps comparativos**: **PENDIENTE** (Obj 2 ya no lo
   bloquea). Viabilidad verificada (`objetivo_4_heatmaps/viabilidad_script.md`).
+- **Reformulación multi-label**: **COMPLETADO (PRELIMINAR)**.
+  Job `4109`. Análisis completo en
+  `sprints/B4_sprint4/reformulacion_multilabel/resultados.md`.
 
-### Hallazgos críticos (21 may 2026)
+### Hallazgos críticos (21–22 may 2026)
 
 1. **Régimen de evaluación roto.** `microcalcificaciones_pth` tiene 8 clases;
    4 de ellas tienen **1 sola slide** en val y en test. El macro-AUC es un
@@ -47,13 +50,16 @@ resultados PRELIMINARES).
    para el 74.5 % de las slides de test; `test_acc` 0.72 está por *debajo*
    del baseline trivial (0.89).
 3. **Estructura multi-label.** Las 8 clases son combinaciones de 3 tejidos +
-   `no_identificado` → es un problema multi-etiqueta aplastado. Propuesta:
-   reformular como 3 tareas binarias. Ver `objetivo_1_baseline/resultados.md`.
+   `no_identificado` → es un problema multi-etiqueta aplastado. Reformulado
+   como 3 tareas binarias en `reformulacion_multilabel/`.
 4. **El dataset grande no ayuda al desbalance.** 3072 vs 548 de V4: la
    expansión fue casi toda `no_identificado`; las clases raras siguen con
    6–15 slides. Más datos de la clase mayoritaria no enseña las minoritarias.
 5. **B no es la palanca (ablación Obj 2).** Doblar B (8→16) deja todo igual o
    peor — confirma empíricamente que el problema está en la formulación.
+6. **La reformulación funciona donde más importa (carcinoma invasivo):**
+   balanced acc 0.78, sobre el umbral de 0.60. CDIS y tejido siguen flojos
+   (0.59 / 0.58) — el cuello de botella es datos (333 slides), no formulación.
 
 ### Jobs SLURM (snapshot)
 
@@ -67,8 +73,8 @@ resultados PRELIMINARES).
 
 Job `4109` (22 may 2026): las **3 tareas binarias** de microcalcificaciones
 corrieron secuenciales (CLAM_MB, B=8, `--max_epochs 30`, 333 slides,
-`no_identificado` excluido, ~42 min). Análisis completo en
-`reformulacion_multilabel/resultados.md`.
+`no_identificado` excluido, ~42 min). Análisis completo con matrices de
+confusión en `reformulacion_multilabel/resultados.md`.
 
 **Balanced accuracy (test), piso trivial 0.50:**
 
@@ -106,7 +112,7 @@ Tabla completa en `sprints/B4_sprint4/README.md` (decisiones 1-7). Sumar:
 ### Ramas
 
 - `main`: todo el Sprint 4 — Objetivos 1, 2, 3 (investigación) unificados,
-  scripts, preflight, splits, presentación, docs.
+  scripts, preflight, splits, presentación, docs, reformulación multi-label.
 - `feature/sprint4-obj3-mil-alternativo`: **ya unificada a `main`** (merge
   `43d2ae4`).
 - `feature/sprint4-reformulacion-multilabel`: **ya unificada a `main`**

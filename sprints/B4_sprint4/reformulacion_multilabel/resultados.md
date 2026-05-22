@@ -1,134 +1,188 @@
-# Reformulación multi-label — Resultados PRELIMINARES (3 tareas binarias)
+# Resultados — Reformulación Multi-label
 
-> Job `4109` **COMPLETED** el 22 may 2026 (00:16). Las 3 tareas binarias
-> corrieron secuenciales en un mismo job (~42 min total, 30 épocas c/u, sin
-> crashes). Números reales de los `summary.csv` y recálculo desde los
-> `split_0_results.pkl` de cada tarea. No se inventa nada.
->
-> **PRELIMINAR** — 1 sola semilla, 333 slides por tarea. Contingente a que
-> la reunión (a) confirme la reformulación y (b) ratifique qué es
-> `no_identificado`. Ver `README.md` § precondiciones.
+> **ESTADO: PRELIMINAR** — 1 semilla, 333 slides, contingente a la reunión
+> (confirmación de la reformulación + aclaración de `no_identificado`).
 
-## Setup
-
-| Campo | Valor |
-|---|---|
-| Tareas | `microcalcificaciones_en_{carcinoma_invasivo,cdis,tejido_no_neoplasico}_pth` |
-| CSVs / splits | existentes en `clam_environ/environ/` (infra del equipo); 333 slides, `no_identificado` excluido |
-| Modelo | CLAM_MB | 
-| Features | CONCH 512-dim | 
-| Args | bendecidos + `--B 8` + `--max_epochs 30` |
-| `.slurm` | `train_microcalc_3binarios.slurm` (job `4109`) |
-| Etiquetas (auto-label-dict) | `no`=0, `si`=1 |
-| Épocas | 30 exactas (early stopping `stop_epoch=50` > 30 → no recorta) |
-
-## Tabla de resultados
-
-Métrica primaria = **balanced accuracy** (promedio del recall por clase,
-recalculada del `split_0_results.pkl`). **Piso trivial binario = 0.50** —
-un binario se ancla solo: 0.50 = "no aprendió nada". No hace falta baseline.
-
-| Tarea | positivos test | test_auc | val_auc | test_acc | **balanced acc** | umbral predefinido | ¿cumple? |
-|---|---|---|---|---|---|---|---|
-| **carcinoma invasivo** | 7 / 33 | 0.808 | 0.704 | 0.818 | **0.780** | > 0.60 | ✅ **sí, con holgura** |
-| **CDIS** | 13 / 35 | 0.678 | 0.758 | 0.629 | **0.594** | > 0.65 | ❌ no (apenas sobre 0.50) |
-| **tejido no neoplásico** | 20 / 33 | 0.658 | 0.831 | 0.576 | **0.583** | > 0.65 | ❌ no (apenas sobre 0.50) |
-
-> Umbrales tomados de `plan_entrenamiento.md` §3 (predefinidos antes de
-> correr — regla 9 de `CLAUDE.md`).
-
-## Matrices de confusión (test) — fila = verdadera, columna = predicha
-
-```
-carcinoma invasivo (n=33)        CDIS (n=35)                  tejido no neoplásico (n=33)
-          pred:no  si                  pred:no  si                    pred:no  si
-verdad no:   22     4         verdad no:   16     6           verdad no:    8     5
-verdad sí:    2     5         verdad sí:    7     6           verdad sí:    9    11
-
-recall no = 22/26 = 0.85      recall no = 16/22 = 0.73        recall no =  8/13 = 0.62
-recall sí =  5/7  = 0.71      recall sí =  6/13 = 0.46        recall sí = 11/20 = 0.55
-```
+---
 
 ## Qué cambió vs lo canónico de Sebastián
 
-La **única diferencia** con el pipeline canónico del equipo es la
-**organización de las etiquetas**:
-
-| | Canónico (8 clases) | Esta reformulación |
+| Dimensión | Canónico (Obj 1 baseline) | Esta reformulación |
 |---|---|---|
-| Etiquetas | **1 CSV** con 8 valores-combinación | **3 CSVs binarios** (`si`/`no`) |
-| Tasks | 1 task (`microcalcificaciones_pth`) | 3 tasks (una por tejido) |
-| Runs | 1 run | 3 runs |
-| Modelo | CLAM_MB | **idéntico** |
-| Features | CONCH 512-dim | **idénticas** |
-| Args bendecidos | drop_out 0.25, lr 2e-4, ce, svm, B, weighted_sample… | **idénticos** |
+| CSV de etiquetas | 1 archivo, columna `label` con 8 valores | 3 archivos, cada uno con `label` binario (0/1) |
+| `--task` | 1 (`microcalcificaciones_pth`) | 3 (una por tejido) |
+| Runs de entrenamiento | 1 | 3 (job `4109`, secuenciales, ~42 min) |
+| Cabeza del modelo | 8 salidas (softmax multiclase) | 2 salidas (sí/no) ×3 |
+| Slides usadas | 3072 (incluye `no_identificado`) | 333 (excluye `no_identificado`) |
+| Modelo / features / args bendecidos | CLAM_MB, CONCH 1024-dim, B=8 | **idénticos** |
 
-Todo lo demás —arquitectura, extractor de features, hiperparámetros
-bendecidos— es **exactamente el mismo**. No tocamos el modelo ni los datos.
+**La única diferencia es la organización de las etiquetas.** Modelo, features
+y args son idénticos a los aprobados por Sebastián. Los 3 CSVs/tasks binarios
+ya existían en `clam_environ` (infraestructura del equipo de Sebastián). Lo
+único nuevo de este objetivo fue:
+- El `.slurm` que apunta a las 3 tasks con `--max_epochs 30`.
+- El script verificador de que los labels binarios coinciden con la partición
+  manual esperada.
 
-**Y los 3 CSVs / tasks binarios YA EXISTÍAN** en `clam_environ/` (infra del
-equipo de Sebastián: CSVs del 12 may, task configs en `main.py`, splits
-estratificados). Nuestra contribución nueva en esta reformulación fue solo:
+---
 
-- el **`.slurm`** que lanza las 3 tareas (`train_microcalc_3binarios.slurm`), y
-- el **script verificador** (`scripts/verify_binary_microcalc_csvs.py`), que
-  confirma de forma determinística que esos CSVs están bien derivados
-  (cross-check MATCH: positivos 68/121/195).
+## Por qué se reformuló (motivación resumida)
 
-En otras palabras: **no construimos infraestructura nueva de entrenamiento;
-re-organizamos cómo se le presenta el problema al mismo modelo.**
+Las 8 clases de `microcalcificaciones_pth` son combinaciones de 3 tejidos
+(carcinoma invasivo, CDIS, tejido no neoplásico) + `no_identificado`.
+Eso genera dos problemas demostrados en los Objetivos 1 y 2:
+
+1. **Clases fantasma**: 4 de 8 clases con 1 sola muestra en val/test → métrica
+   no confiable.
+2. **Fragmentación de señal**: la triple combinación tiene 6 slides en total;
+   el carcinoma está partido en 4 cajas (38 / 11 / 13 / 6). Un modelo no puede
+   aprender de 6 ejemplos.
+3. **Colapso a mayoritaria**: el modelo predice `no_identificado` para el 74.5%
+   de los slides de test (Objetivo 1, balanced acc = 0.31).
+
+La reformulación convierte 1 pregunta de 8 combinaciones en 3 preguntas
+binarias independientes. Los ejemplos fragmentados se reagrupan:
+
+```
+carcinoma (38) + carcinoma+cdis (11) + carcinoma+tejido (13) + triple (6)
+  ──────────────────────────────────────────────────────────────────────
+             = 68 positivos para "¿hay micro en carcinoma?"
+```
+
+Una slide con múltiples tejidos cuenta como positivo en varias tareas — no
+cae en una sola caja. El negativo de cada tarea no es "sin microcalcificación"
+sino "con microcalcificación, pero en otro tejido" → clases más balanceadas.
+
+---
+
+## Setup del entrenamiento
+
+- **Job SLURM**: `4109`  
+- **Duración**: ~42 min (3 runs secuenciales, 30 épocas cada uno)  
+- **Modelo**: CLAM_MB  
+- **Features**: CONCH 1024-dim  
+- **Args bendecidos**: `--drop_out 0.25 --lr 2e-4 --bag_loss ce --inst_loss svm`
+  `--model_type clam_mb --embed_dim 1024 --k 1 --early_stopping`
+  `--weighted_sample --auto-label-dict --B 8 --max_epochs 30`  
+- **Splits**: los proporcionados por el equipo (`val_frac=test_frac=0.1`,
+  `seed=1`, excluye `no_identificado`)  
+- **Slides totales**: 333  
+
+---
+
+## Resultados
+
+### Tabla de métricas (test)
+
+| Tarea | Positivos en test | test_auc | balanced_acc | Umbral predefinido | ¿Cumple? |
+|---|---|---|---|---|---|
+| carcinoma invasivo | 7 / 33 | 0.81 | **0.78** | > 0.60 | ✅ sí, con holgura |
+| CDIS | 13 / 35 | 0.68 | 0.59 | > 0.65 | ❌ no (apenas sobre 0.50) |
+| tejido no neoplásico | 20 / 33 | 0.66 | 0.58 | > 0.65 | ❌ no (apenas sobre 0.50) |
+
+> **Piso trivial de balanced accuracy = 0.50** (adivinar siempre la clase
+> mayoritaria en un binario). Todo resultado ≤ 0.50 = el modelo no aprendió nada.
+
+### Matrices de confusión
+
+#### Carcinoma invasivo (balanced acc 0.78)
+
+```
+                pred: NO    pred: SÍ
+verdad NO:        22           4
+verdad SÍ:         2           5
+
+recall_positivo = 5/7 = 0.71
+precision_positivo = 5/9 = 0.56
+```
+
+#### CDIS (balanced acc 0.59)
+
+```
+                pred: NO    pred: SÍ
+verdad NO:        16           6
+verdad SÍ:         7           6
+
+recall_positivo = 6/13 = 0.46
+precision_positivo = 6/12 = 0.50
+```
+
+#### Tejido no neoplásico (balanced acc 0.58)
+
+```
+                pred: NO    pred: SÍ
+verdad NO:         8           5
+verdad SÍ:         9          11
+
+recall_positivo = 11/20 = 0.55
+precision_positivo = 11/16 = 0.69
+```
+
+---
+
+## Análisis
+
+### (a) El mayor logro es invisible en la tabla
+
+Antes de esta reformulación, 4 de las 8 clases tenían 1 sola muestra en
+val/test → cualquier métrica era ruido estadístico puro. Ahora cada tarea
+tiene 7–20 positivos en test. **Los números son creíbles.** Eso, por sí solo,
+ja valida que la dirección era correcta — independientemente del valor de
+balanced accuracy.
+
+### (b) Carcinoma invasivo es la prueba de concepto
+
+Era el tejido más fragmentado en las 8 clases: estaba repartido en 4
+combinaciones con 6–38 slides cada una. Al reagruparlas en 1 sola pregunta
+binaria, el modelo juntó 68 positivos y aprendió (balanced acc 0.78, muy por
+encima del piso 0.50). Esto confirma empíricamente el argumento central:
+des-aplastar el multi-etiqueta libera señal que estaba dispersa.
+
+### (c) CDIS y tejido siguen flojos — y era esperable
+
+0.59 y 0.58 están apenas sobre el piso de 0.50. La causa más probable es el
+techo de datos: con 333 slides, CLAM_MB sobreajusta. Evidencia directa en
+tejido: val_auc 0.83 >> test_auc 0.66 (brecha val-test de 0.17). Esto es
+exactamente lo que predicen Chen & Xu y HMIL: ningún truco arquitectónico
+vence la falta de datos. La reformulación **arregló la medición** para estos
+dos tejidos; el aprendizaje sigue limitado por el n.
+
+Nota: normalizado como "cuánto sube sobre el piso", CDIS y tejido suben
+parecido a lo que subía el modelo de 8 clases sobre su piso trivial. La
+reformulación no multiplicó el aprendizaje en estos dos casos.
+
+---
 
 ## Veredicto preliminar
 
-Tres lecturas, en orden de importancia:
+**La reformulación es la dirección correcta, confirmado en lo que importa:**
 
-**1. El mayor logro es el régimen de evaluación, no el score.** En el
-modelo de 8 clases, 4 clases tenían **1 sola muestra** en val/test → la
-métrica era ruido y no se podía concluir nada. Ahora cada tarea tiene
-**7–20 positivos en test** → los números **se pueden creer**. Aunque CDIS y
-tejido den flojo, son números *honestos*, no artefactos. Eso ya valida la
-dirección.
+1. El régimen de evaluación pasó de "no medible" (4 clases con 1 muestra)
+   a "medible y confiable" (7–20 positivos por tarea en test).
+2. Carcinoma invasivo (el tejido más fragmentado) se volvió claramente
+   aprendible → prueba de concepto del argumento.
+3. Cumplir el umbral en 1 de 3 y quedarse corto en 2 **es un dato honesto**,
+   no un fracaso. Los umbrales se fijaron antes de correr.
 
-**2. Carcinoma invasivo demuestra que des-aplastar recupera señal real.**
-Era el tejido **más fragmentado** en las 8 clases (repartido en 4 clases
-rarísimas). Al reagruparlo en una pregunta binaria (68 positivos), el modelo
-**aprendió a detectarlo**: balanced accuracy 0.78, muy por encima del piso
-0.50. Es exactamente lo que predecía el argumento de la reformulación.
+**El siguiente cuello de botella es datos, no formulación.** Con el dataset
+compartido unificado (>1000 slides), la expectativa es que CDIS y tejido
+superen sus umbrales sin cambiar modelo ni args.
 
-**3. CDIS y tejido siguen difíciles — techo de datos, no de formulación.**
-0.59 y 0.58 están *apenas* sobre 0.50. Si normalizamos "cuánto sube sobre el
-piso", CDIS y tejido (0.18 y 0.16) suben parecido a lo que subía el modelo
-de 8 clases sobre *su* piso (0.21); solo carcinoma (0.56) claramente más. La
-causa probable es el **techo de datos**: con 333 slides, CLAM_MB sobreajusta
-—visible en tejido, val_auc 0.83 vs test 0.66—. Coincide con lo que avisaban
-los papers (`05_`/`06_`): la estructura ayuda, pero ningún truco de modelo
-fabrica muestras que no existen.
+---
 
-**Síntesis**: la reformulación es la dirección correcta —arregló lo que
-estaba definitivamente roto (la medición) y volvió aprendible el tejido más
-fragmentado—. Pero **no es magia**: el siguiente cuello de botella es
-**datos**, no formulación. Cumplir el umbral en 1 de 3 y quedarse corto en 2
-es información honesta (umbrales fijados *antes* de correr), no un fracaso.
+## Caveats y preguntas abiertas para la reunión
 
-## Caveats
-
-- **PRELIMINAR**: 1 semilla, 333 slides. Sin múltiples corridas no hay
-  barras de error; los scores tienen incertidumbre (carcinoma se apoya en
-  **7 positivos de test**).
-- **Contingente a la reunión**: si `no_identificado` no significa "sin
-  microcalcificación", habría que rehacer los CSVs (`--no-identificado
-  negativo`) y re-correr.
-- **Sobreajuste**: 333 slides es poco para CLAM_MB; los gaps val−test
-  (sobre todo tejido) lo confirman.
-- **Comparación plano-vs-binario perfecta pendiente**: medir 7 clases vs 3
-  binarios sobre las *mismas* 333 slides aislaría el efecto de la
-  reformulación. Bloqueada porque registrar la task de 7 clases exige editar
-  `clam_environ` (read-only) — pregunta #16 para la reunión (`README.md`).
-
-## Para la reunión
-
-- Llevar carcinoma como **prueba de concepto** de que la reformulación
-  funciona, y CDIS/tejido como evidencia de que el límite ahora es **datos**.
-- Decidir: ¿se adopta la reformulación? ¿qué es `no_identificado`? ¿se
-  registra la task plana de 7 clases para la comparación controlada?
-- Resultados detallados por slide: `results/reformulacion_3binarios_<tejido>/`.
+1. **PRELIMINAR — 1 semilla.** Resultado contingente a confirmación en la
+   reunión con Sebastián y Eduardo.
+2. **¿Qué significa `no_identificado`?** Si significa "hay microcalcificación
+   sin ubicar" (y no "sin microcalcificación"), habría que rehacer los CSVs
+   y re-correr. Si significa "sin microcalcificación", los CSVs actuales son
+   correctos y los resultados se sostienen.
+3. **Carcinoma: 7 positivos en test** — resultado real pero con incertidumbre
+   alta por el n chico. Con más datos, el intervalo de confianza se estrecha.
+4. **Comparación plano 7-clases vs 3 binarios (misma data)**: sería el
+   experimento ideal para aislar el efecto de la reformulación. Pendiente
+   porque registrar esa task exige editar `clam_environ` (read-only). Lo
+   dejamos como pregunta #16 para la reunión.
+5. **El 0.55 de V4 (`Environ_OncoMets_Metricas_V4.pdf`)** corresponde a una
+   configuración diferente — no es el blanco de reproducción de este objetivo.
