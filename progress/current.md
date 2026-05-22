@@ -7,8 +7,9 @@
 
 ## Sprint actual: B4 / Sprint 4
 
-**Snapshot: 21 may 2026** (Objetivos 1 y 2 completados; investigación del
-Objetivo 3 unificada a `main`; run preliminar de la reformulación en cola).
+**Snapshot: 22 may 2026** (Objetivos 1 y 2 completados; investigación del
+Objetivo 3 unificada a `main`; reformulación en 3 binarios corrida —
+resultados PRELIMINARES).
 
 ### Estado por objetivo
 
@@ -60,26 +61,29 @@ Objetivo 3 unificada a `main`; run preliminar de la reformulación en cola).
 |---|---|---|
 | `4098` | baseline B=8 `minpatch16` | COMPLETED |
 | `4099` | ablation B=16 `minpatch16` | COMPLETED |
-| `4109` | reformulación: 3 tareas binarias (PRELIMINAR) | PENDING — en cola detrás del job `4108` (ajeno, cuenta compartida) |
+| `4109` | reformulación: 3 tareas binarias (PRELIMINAR) | COMPLETED |
 
-### Reformulación multi-label — run PRELIMINAR EN CURSO
+### Reformulación multi-label — COMPLETADO (PRELIMINAR)
 
-Job `4109` lanzado el 21 may 2026: las **3 tareas binarias** de
-microcalcificaciones (carcinoma invasivo / CDIS / tejido no neoplásico),
-secuenciales en un mismo job, CLAM_MB, B=8, `--max_epochs 30`, sobre los
-CSVs/splits binarios **existentes** del equipo (333 slides,
-`no_identificado` excluido). Quedó **PENDING** en cola detrás del job
-ajeno `4108`; arranca cuando el GPU se libere. Las 3 tareas juntas toman
-~1 h de cómputo.
+Job `4109` (22 may 2026): las **3 tareas binarias** de microcalcificaciones
+corrieron secuenciales (CLAM_MB, B=8, `--max_epochs 30`, 333 slides,
+`no_identificado` excluido, ~42 min). Análisis completo en
+`reformulacion_multilabel/resultados.md`.
 
-- **Resultados** → `results/reformulacion_3binarios_<tejido>/`.
-- **PRELIMINAR**: contingente a que la reunión confirme la reformulación y
-  ratifique la interpretación de `no_identificado`.
-- **Análisis pendiente (próxima sesión)**: balanced accuracy + matriz de
-  confusión por tarea, ancladas contra el piso trivial 0.5 (un binario se
-  ancla solo; el "antes" es el baseline de 8 clases, job `4098`). No hace
-  falta un baseline binario.
-- `.slurm` usado: `sprints/B4_sprint4/reformulacion_multilabel/train_microcalc_3binarios.slurm`.
+**Balanced accuracy (test), piso trivial 0.50:**
+
+| Tarea | balanced acc | umbral | ¿cumple? |
+|---|---|---|---|
+| carcinoma invasivo | **0.78** | >0.60 | ✅ |
+| CDIS | 0.59 | >0.65 | ❌ (apenas sobre 0.50) |
+| tejido no neoplásico | 0.58 | >0.65 | ❌ (apenas sobre 0.50) |
+
+**Veredicto preliminar**: la reformulación es la dirección correcta —
+arregló el régimen de evaluación (de "no medible" a confiable) y volvió
+aprendible el tejido más fragmentado (carcinoma = prueba de concepto). Pero
+CDIS y tejido siguen flojos: el siguiente cuello de botella es **datos**
+(333 slides → sobreajuste), no formulación. PRELIMINAR (1 semilla),
+contingente a la reunión.
 
 ### Decisiones pendientes — reunión Sebastián + Eduardo
 
