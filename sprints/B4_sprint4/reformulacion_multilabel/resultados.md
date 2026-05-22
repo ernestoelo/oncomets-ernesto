@@ -14,7 +14,7 @@
 | Runs de entrenamiento | 1 | 3 (job `4109`, secuenciales, ~42 min) |
 | Cabeza del modelo | 8 salidas (softmax multiclase) | 2 salidas (sí/no) ×3 |
 | Slides usadas | 3072 (incluye `no_identificado`) | 333 (excluye `no_identificado`) |
-| Modelo / features / args bendecidos | CLAM_MB, CONCH 1024-dim, B=8 | **idénticos** |
+| Modelo / features / args bendecidos | CLAM_MB, CONCH 512-dim, B=8 | **idénticos** |
 
 **La única diferencia es la organización de las etiquetas.** Modelo, features
 y args son idénticos a los aprobados por Sebastián. Los 3 CSVs/tasks binarios
@@ -60,9 +60,9 @@ sino "con microcalcificación, pero en otro tejido" → clases más balanceadas.
 - **Job SLURM**: `4109`  
 - **Duración**: ~42 min (3 runs secuenciales, 30 épocas cada uno)  
 - **Modelo**: CLAM_MB  
-- **Features**: CONCH 1024-dim  
+- **Features**: CONCH 512-dim  
 - **Args bendecidos**: `--drop_out 0.25 --lr 2e-4 --bag_loss ce --inst_loss svm`
-  `--model_type clam_mb --embed_dim 1024 --k 1 --early_stopping`
+  `--model_type clam_mb --embed_dim 512 --k 1 --early_stopping`
   `--weighted_sample --auto-label-dict --B 8 --max_epochs 30`  
 - **Splits**: los proporcionados por el equipo (`val_frac=test_frac=0.1`,
   `seed=1`, excluye `no_identificado`)  
@@ -127,7 +127,7 @@ precision_positivo = 11/16 = 0.69
 Antes de esta reformulación, 4 de las 8 clases tenían 1 sola muestra en
 val/test → cualquier métrica era ruido estadístico puro. Ahora cada tarea
 tiene 7–20 positivos en test. **Los números son creíbles.** Eso, por sí solo,
-ja valida que la dirección era correcta — independientemente del valor de
+ya valida que la dirección era correcta — independientemente del valor de
 balanced accuracy.
 
 ### (b) Carcinoma invasivo es la prueba de concepto
