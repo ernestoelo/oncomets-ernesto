@@ -4,30 +4,37 @@
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=32G
-#SBATCH --time=06:00:00
+#SBATCH --time=03:00:00
 #SBATCH --output=/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/logs/mc_3binarios_%j.out
 #SBATCH --error=/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/logs/mc_3binarios_%j.err
 #SBATCH --chdir=/media/administrador/Storage1/sdonoso/clam_environ
 
 # ============================================================
-#  PLANTILLA — NO LANZAR TODAVÍA.  Scaffolding del Sprint B4.
+#  RUN PRELIMINAR — reformulación multi-label de microcalcificaciones.
 # ============================================================
-# Reformulación multi-label de microcalcificaciones: 3 tareas binarias,
-# una por tejido {carcinoma_invasivo, cdis, tejido_no_neoplasico}.
-# Resuelve el hallazgo de fondo del baseline 8-clases (job 4098): las 8
-# clases son un multi-etiqueta aplastado -> régimen de evaluación roto.
+# Entrena las 3 tareas binarias, una por tejido {carcinoma_invasivo,
+# cdis, tejido_no_neoplasico}, SECUENCIALES en este único job.
+# Resuelve el hallazgo de fondo del baseline 8-clases (job 4098) y de la
+# ablación B=16 (job 4099): las 8 clases son un multi-etiqueta aplastado;
+# B es un hiperparámetro que no mueve la aguja. La palanca correcta es
+# reformular la tarea -> esto es esa reformulación.
 #
 # Argumento, hipótesis y métrica de éxito: plan_entrenamiento.md
 # (regla 9 de CLAUDE.md — argumento antes de código).
 #
-# PRECONDICIONES (NINGUNA se asume cumplida — ver plan_entrenamiento.md §5):
-#   A. La reunión confirma la reformulación en 3 binarios.
-#   B. Se ratifica qué es `no_identificado` (el equipo eligió `excluir`;
-#      los CSVs existentes tienen 333 slides). Si la reunión decide
-#      "negativo limpio", regenerar CSVs + splits antes de usar esto.
-#   C. Preflight `topk` OK (este script lo corre; si falla, filtrar el
-#      split con scripts/filter_split_by_minpatch.py -> splits_local/).
-#   D. Cortesía de GPU: `squeue` antes de `sbatch` (GPU/partición únicas).
+# PRELIMINAR: el resultado de estos runs es insumo para la reunión. Su
+# interpretación es contingente a que la reunión (a) confirme la
+# reformulación en 3 binarios y (b) ratifique qué es `no_identificado`.
+# El equipo eligió `excluir` -> los CSVs binarios existentes tienen ~333
+# slides (sin las no_identificado). Este job usa esos CSVs tal cual.
+#
+# Preflight verificado el 21 may 2026 (CPU, antes de lanzar):
+#   - topk/minpatch: los 3 splits de train tienen todas las slides con
+#     >= B parches (B=8) -> OK, no hace falta filtrar.
+#   - mínimo de positivos por split: los 3 splits están estratificados,
+#     ambas clases (si/no) presentes en train/val/test (peor caso:
+#     carcinoma, 7 positivos en val y 7 en test) -> OK, AUC computable.
+# El bloque preflight de abajo lo re-verifica en el job (workaround G).
 #
 # CONTAINMENT: --chdir va al codebase de Sebastián (read-only) porque
 # main.py lee csv_path relativo. TODO output (logs, results) va a
@@ -53,9 +60,6 @@ nvidia-smi | head -20 || true   # '|| true': head cierra el pipe -> SIGPIPE (wor
 for TEJIDO in carcinoma_invasivo cdis tejido_no_neoplasico; do
   TASK="microcalcificaciones_en_${TEJIDO}_pth"
   SPLIT_DIR="$ENVIRON/splits/${TASK}_100"
-  # Si el preflight (abajo) falla, reemplazar SPLIT_DIR por la copia filtrada:
-  #   SPLIT_DIR="$REPO/splits_local/${TASK}_100_minpatch${B}"
-  # generada con scripts/filter_split_by_minpatch.py.
 
   echo ""
   echo "===== TASK: $TASK ====="
@@ -71,6 +75,9 @@ for TEJIDO in carcinoma_invasivo cdis tejido_no_neoplasico; do
     exit 1
   fi
 
+  # --max_epochs 30: el baseline sobreajustó en la época 6; 30 da margen y
+  # con ~333 slides cada run termina en minutos. EarlyStopping tiene
+  # stop_epoch=50 hardcoded > 30 -> el run para exacto en la época 30.
   "$PYBIN" main.py \
     --drop_out 0.25 \
     --lr 2e-4 \
@@ -79,6 +86,7 @@ for TEJIDO in carcinoma_invasivo cdis tejido_no_neoplasico; do
     --model_type clam_mb \
     --embed_dim 512 \
     --k 1 \
+    --max_epochs 30 \
     --early_stopping \
     --weighted_sample \
     --auto-label-dict \
@@ -87,7 +95,7 @@ for TEJIDO in carcinoma_invasivo cdis tejido_no_neoplasico; do
     --task "$TASK" \
     --split_dir "$SPLIT_DIR" \
     --data_root_dir "$ENVIRON" \
-    --results_dir "$REPO/results/reformulacion_multilabel/${TEJIDO}" \
+    --results_dir "$REPO/results/reformulacion_3binarios_${TEJIDO}" \
     --exp_code "mc_bin_${TEJIDO}_B${B}_$(date +%Y%m%d_%H%M)"
 
   echo "===== $TASK done ====="
@@ -95,4 +103,4 @@ done
 
 echo ""
 echo "Job $SLURM_JOB_ID done at $(date)"
-echo "Results under $REPO/results/reformulacion_multilabel/"
+echo "Results under $REPO/results/reformulacion_3binarios_<tejido>/"

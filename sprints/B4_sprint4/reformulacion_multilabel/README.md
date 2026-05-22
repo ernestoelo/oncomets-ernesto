@@ -11,11 +11,14 @@
 > Argumento de por qué la reformulación es la dirección correcta:
 > [`../objetivo_3_modulo_mil_alternativo/investigacion/05_papers_eduardo_desbalance.md`](../objetivo_3_modulo_mil_alternativo/investigacion/05_papers_eduardo_desbalance.md).
 >
-> **Esto es scaffolding: NO se lanza ningún job SLURM.** La ejecución
-> depende de dos precondiciones (ver abajo).
+> **Estado (21 may 2026): run PRELIMINAR lanzado.** El scaffolding pasó a
+> ejecución como **corrida preliminar** — para llevar números reales a la
+> reunión. La *interpretación y adopción* de la reformulación siguen
+> gateadas por las precondiciones (ver abajo); el run preliminar no las
+> pre-decide, solo produce evidencia.
 >
-> Sesión read-only sobre `clam_environ/`: cero GPU, cero SLURM, cero
-> modificación del codebase de Sebastián.
+> No se modifica `clam_environ/` (read-only): se usan sus CSVs/splits/task
+> configs tal cual.
 
 ---
 
@@ -178,7 +181,7 @@ Decisiones de splits:
 |---|---|
 | `README.md` | Este archivo: hallazgo, auditoría, splits. |
 | [`plan_entrenamiento.md`](plan_entrenamiento.md) | Plan de entrenamiento con hipótesis + métrica de éxito predefinidas (regla 9). |
-| [`train_microcalc_3binarios.slurm`](train_microcalc_3binarios.slurm) | Plantilla `.slurm` de las 3 corridas binarias. **NO se lanza.** |
+| [`train_microcalc_3binarios.slurm`](train_microcalc_3binarios.slurm) | `.slurm` de las 3 corridas binarias (loop secuencial). **Lanzado como run PRELIMINAR el 21 may 2026.** |
 
 Script asociado (en `scripts/`):
 [`verify_binary_microcalc_csvs.py`](../../../scripts/verify_binary_microcalc_csvs.py)
@@ -186,16 +189,32 @@ Script asociado (en `scripts/`):
 
 ---
 
-## Precondiciones de ejecución (ninguna se asume cumplida)
+## Precondiciones — qué gatea el run preliminar vs la adopción
 
-Este scaffolding **no se ejecuta** hasta que:
+El **run preliminar** (21 may 2026) se lanzó para tener números reales en
+la reunión. Lo que **sigue gateado** es la *adopción* de la reformulación:
 
 1. **La reunión confirma la reformulación** en 3 tareas binarias como la
    dirección para `microcalcificaciones`. (El equipo ya la implementó, así
    que es muy probable — pero la decisión se ratifica en la reunión.)
-2. **Se aclara qué es `no_identificado`.** El equipo eligió `excluir`; la
-   reunión debe ratificar esa interpretación clínica. Si se decide lo
+2. **Se ratifica qué es `no_identificado`.** El equipo eligió `excluir`; la
+   reunión debe confirmar esa interpretación clínica. Si se decide lo
    contrario, regenerar los CSVs con `--no-identificado negativo` y los
-   splits correspondientes antes de entrenar.
+   splits correspondientes, y **re-correr** — los resultados preliminares
+   quedarían obsoletos.
 
-Hasta entonces: cero `sbatch`.
+Por eso **todo resultado de este run se reporta como PRELIMINAR**: válido
+como evidencia para la reunión, no como conclusión cerrada.
+
+---
+
+## Preguntas para la reunión
+
+Extienden las de
+[`../objetivo_3_modulo_mil_alternativo/investigacion/04_riesgos_y_preguntas_reunion.md`](../objetivo_3_modulo_mil_alternativo/investigacion/04_riesgos_y_preguntas_reunion.md)
+§C y las de los docs `05_`/`06_`.
+
+| # | Pregunta | Qué desbloquea |
+|---|---|---|
+| 16 | ¿Registrar una **task plana de 7 clases** sobre las **mismas 333 slides** (las 7 combinaciones de tejido, sin `no_identificado`), para una comparación **plano-vs-binario perfectamente controlada** (mismo subconjunto de datos, misma métrica)? Hoy está **bloqueada**: registrar la task exige editar `clam_environ/main.py`, que es read-only. | Permitiría medir el efecto de la reformulación aislado del cambio de subconjunto de datos. Requiere que el equipo (Sebastián) registre la task, o un `main.py` wrapper local. |
+| 17 | ¿Qué hace exactamente el sufijo `_balance` de las tasks? Los CSVs `csv_balance/` son byte-idénticos a `csv/` — la diferencia, si existe, está en los splits `_pth_balance_100`. | Aclara si conviene usar las variantes `_balance` en vez de las `_pth`. |
