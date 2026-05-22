@@ -522,6 +522,11 @@ re-validar y actualizar `docs/codebase_map.md`.
      binarios identificados (`no_identificado` excluido) 333. Regla: entrenar
      solo con las slides de interés (≈548); **el universo completo (3072) se
      reserva para las PRUEBAS FINALES** de una incorporación.
+     **Matiz crítico:** el "~548 privado" aplica al **8-clases**. Para los **3
+     binarios** (`no_identificado` excluido) lo útil son las **identificadas**:
+     privado solo 77 → inentrenable; combined 284; `_pth` 333. Los binarios
+     necesitan combined/`_pth`-identificado, NO privado solo. Cuentas, paths y
+     decisión por escenario: `sprints/B4_sprint4/dataset_microcalcificaciones.md`.
    - **`balanced_pth_100` (en construcción por Sebastián):** dataset donde la
      mayoritaria (`no_identificado`) no supera a la minoritaria por más de 10×.
      **Aún no existe como split** — verificado el 22 may: `csv_balance/` y los
