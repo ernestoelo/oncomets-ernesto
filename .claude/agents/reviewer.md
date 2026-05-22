@@ -142,3 +142,17 @@ Si OBSERVACIONES: lista de mejoras opcionales, no bloqueantes.
   reunión).
 - Args bendecidos por Sebastián: ver `.claude/agents/trainer.md` o
   `CLAUDE.md` (sección "Hechos validados contra el código real").
+- **Balanced accuracy + matriz de confusión** (recalculadas del
+  `split_0_results.pkl`) son la **métrica honesta MANDADA** para tasks
+  multiclase/binarias desbalanceadas (`CLAUDE.md` Hallazgo 6). NO las
+  bloquees como "métrica nueva no presente en `summary.csv`": son derivadas
+  de un artefacto real y son obligatorias. El macro-AUC solo, en cambio,
+  **sí** debe observarse como insuficiente.
+- **Ejemplo de argumento bien formado** (úsalo de vara): la ablación B=8 vs
+  B=16 (`sprints/B4_sprint4/objetivo_2_ablation_B/`) fijó hipótesis +
+  umbral (Δtest_auc ≥ +0,03) y banda ambigua ANTES de correr, y reportó el
+  resultado negativo sin reinterpretarlo. Eso es lo que pido.
+- **Reformulación de tarea ≠ cambio de modelo.** Reformular las etiquetas
+  (8 clases → 3 binarios, `reformulacion_multilabel/`) no toca arquitectura
+  ni args bendecidos — igual exige hipótesis + métrica en su
+  `plan_entrenamiento.md`, pero no es un cambio a `model_*.py`.

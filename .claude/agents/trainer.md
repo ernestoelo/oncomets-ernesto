@@ -19,6 +19,16 @@ si está en cola).
 ## Contexto del Sprint actual (B4 / Sprint 4 — abierto 12 mayo 2026)
 
 > Actualizar esta sección al abrir cada sprint nuevo.
+>
+> **Estado (22 may 2026)**: Obj 1 (baseline B=8, job 4098) y Obj 2 (ablación
+> B=16, job 4099) COMPLETOS. Obj 3 (DSMIL) = investigación completa (docs
+> `00`–`06`). **Hallazgo de fondo**: `microcalcificaciones` es un multi-label
+> aplastado en 8 clases; **`B` no es la palanca** (ablación negativa) — el
+> cuello de botella es la formulación. Reformulado en 3 binarios (job 4109,
+> PRELIMINAR — carcinoma balanced acc 0,78; CDIS 0,59; tejido 0,58). Las 3
+> tasks binarias **ya existen en `clam_environ`** (ver skill `@environ-server`).
+> Detalle: `sprints/B4_sprint4/` (`objetivo_2_ablation_B/`,
+> `reformulacion_multilabel/`).
 
 **Tareas prioritarias candidatas** (AUC test < 0.65 en
 `Environ_OncoMets_Metricas_V4.pdf`; pendientes confirmar en reunión
@@ -226,8 +236,10 @@ sbatch scripts/train_clam.slurm
 
 **Notas**:
 
-- `--max_epochs 30` es razonable para un primer run (no 200 default). Con
-  `--early_stopping` probablemente corte antes.
+- `--max_epochs 30` es razonable para un primer run (no 200 default). OJO:
+  `EarlyStopping` tiene `stop_epoch=50` **hardcoded** → con `--max_epochs < 50`
+  **NO corta antes**; el run llega exacto a `max_epochs` (el mejor checkpoint
+  por `val_loss` igual se guarda). Verificado en jobs 4098/4099/4109.
 - `--embed_dim 512` (CONCH). 1024 solo si se usaran features ResNet legacy.
 - Si el sprint varía `B`, `bag_weight` o `subtyping`, editarlos en el `.slurm`.
   Default: `B=8`, `bag_weight=0.7`, `subtyping=False`.
