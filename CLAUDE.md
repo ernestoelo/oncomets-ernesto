@@ -485,6 +485,29 @@ re-validar y actualizar `docs/codebase_map.md`.
    Propuesta para la reunión: reformular como 3 tareas binarias. Entrenar con
    el dataset grande (`_pth`, 3072) NO ayuda al desbalance — la expansión vs
    V4 (n=548) fue casi toda `no_identificado`; las clases raras siguen fijas.
+8. **`B` no es la palanca (ablación Obj 2, jobs 4098 vs 4099).** Doblar `--B`
+   (8→16) sobre `microcalcificaciones_pth` dio Δtest_auc +0,009 (umbral
+   predefinido +0,03 → banda ambigua), **balanced accuracy BAJÓ** 0,31→0,24 y
+   `train_clustering_loss` SUBIÓ 0,0089→0,0126 (contradice el mecanismo de la
+   hipótesis). Lección: ajustar hiperparámetros no mueve la aguja — el cuello
+   de botella es la **FORMULACIÓN** de la tarea. Detalle:
+   `sprints/B4_sprint4/objetivo_2_ablation_B/resultados.md`.
+9. **Reformulación en 3 binarios: implementada, PRELIMINAR (job 4109).** La
+   infra **ya existe en `clam_environ`** (NO la creamos): tasks
+   `microcalcificaciones_en_{carcinoma_invasivo,cdis,tejido_no_neoplasico}_pth`
+   (+ variantes `_pth_balance`) registradas en `main.py`; 3 CSVs binarios en
+   `environ/csv/` (333 slides, `no_identificado` **excluido** → positivos
+   68/121/195, verificado determinísticamente con
+   `scripts/verify_binary_microcalc_csvs.py`); 3 splits estratificados.
+   `csv_balance/` es **byte-idéntico** a `csv/` para estas 3 tasks. Resultados
+   PRELIMINARES (CLAM_MB, B=8, `--max_epochs 30`, CONCH 512): **carcinoma
+   invasivo balanced acc 0,78** (cumple umbral 0,60 → prueba de concepto de
+   que des-aplastar recupera señal); CDIS 0,59 y tejido 0,58 (apenas sobre el
+   piso 0,50). El régimen de evaluación pasó de "no medible" (clases n=1) a
+   confiable (7–20 positivos/test). **Siguiente cuello de botella = DATOS**
+   (333 slides → sobreajuste), no formulación — consistente con Chen & Xu y
+   HMIL. PRELIMINAR (1 semilla), contingente a la reunión + a ratificar qué es
+   `no_identificado`. Detalle: `sprints/B4_sprint4/reformulacion_multilabel/`.
 
 ## Entorno conda — deps esperadas
 
