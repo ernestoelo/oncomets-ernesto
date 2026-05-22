@@ -514,6 +514,14 @@ re-validar y actualizar `docs/codebase_map.md`.
    `sprints/B4_sprint4/reformulacion_multilabel/`.
 10. **Reunión 22 may 2026 — dirección del sprint y reglas de dataset.** Acordado
    con Sebastián + Eduardo:
+   - **Foco de entrenamiento de microcalcificaciones = las 3 tareas binarias**
+     (`microcalcificaciones_en_{carcinoma_invasivo,cdis,tejido_no_neoplasico}_pth`),
+     **NO las 8 clases.** El 8-clases queda solo como (a) diagnóstico ya
+     cerrado (jobs 4098/4099, evidencia de que la formulación está rota) y
+     (b) vía si hace falta reproducir el V4 de Sebastián. Todas las próximas
+     mejoras (modelo alternativo tipo DSMIL, `balanced_pth_100`, pérdidas
+     sensibles al desbalance, etc.) se evalúan **sobre los 3 binarios** y se
+     comparan contra el baseline binario (job 4109) **sobre el mismo dataset**.
    - **Dataset de trabajo para microcalcificaciones = ~548 slides, NO el
      universo `_pth` (3072).** Verificado determinísticamente (read-only) el
      22 may: el ~548 del doc V4 ≈ **cohorte PRIVADA** `microcalcificaciones_100`

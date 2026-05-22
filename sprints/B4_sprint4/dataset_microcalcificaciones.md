@@ -1,5 +1,11 @@
 # Dataset microcalcificaciones — cuentas verificadas y decisión de entrenamiento
 
+> **TL;DR — foco confirmado (reunión 22 may 2026):** entrenamos las **3 tareas
+> binarias** de microcalcificaciones, **NO las 8 clases**. El 8-clases queda
+> solo como diagnóstico cerrado y como vía para reproducir V4. Toda mejora
+> futura se evalúa sobre los binarios y se compara contra el baseline binario
+> (job 4109) sobre el MISMO dataset.
+
 > Verificado **read-only** el 22 may 2026 sobre `clam_environ/environ/`
 > (CRLF en los CSV de cohorte: limpiar con `tr -d '\r'` al parsear `$NF`).
 > Fuente de verdad para qué dataset usar en cada prueba de microcalcificaciones.

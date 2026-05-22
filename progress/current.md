@@ -102,6 +102,12 @@ contingente a la reunión.
 
 ### Reunión Sebastián + Eduardo — REALIZADA (22 may 2026)
 
+**Foco de entrenamiento confirmado: las 3 tareas binarias de
+microcalcificaciones, NO las 8 clases.** El 8-clases queda solo como
+diagnóstico cerrado (jobs 4098/4099). Toda mejora futura se evalúa sobre los
+binarios y se compara contra el baseline binario (job 4109) sobre el mismo
+dataset.
+
 Acuerdos y dirección del sprint (ver `CLAUDE.md` Hallazgo 10):
 
 1. **Reformulación en 3 binarios = trabajo previo de Sebastián.** No es hallazgo
