@@ -8,7 +8,7 @@
 ## Sprint actual: B4 / Sprint 4
 
 **Snapshot: 21 may 2026** (Objetivos 1 y 2 completados; investigación del
-Objetivo 3 unificada a `main`).
+Objetivo 3 unificada a `main`; run preliminar de la reformulación en cola).
 
 ### Estado por objetivo
 
@@ -60,6 +60,26 @@ Objetivo 3 unificada a `main`).
 |---|---|---|
 | `4098` | baseline B=8 `minpatch16` | COMPLETED |
 | `4099` | ablation B=16 `minpatch16` | COMPLETED |
+| `4109` | reformulación: 3 tareas binarias (PRELIMINAR) | PENDING — en cola detrás del job `4108` (ajeno, cuenta compartida) |
+
+### Reformulación multi-label — run PRELIMINAR EN CURSO
+
+Job `4109` lanzado el 21 may 2026: las **3 tareas binarias** de
+microcalcificaciones (carcinoma invasivo / CDIS / tejido no neoplásico),
+secuenciales en un mismo job, CLAM_MB, B=8, `--max_epochs 30`, sobre los
+CSVs/splits binarios **existentes** del equipo (333 slides,
+`no_identificado` excluido). Quedó **PENDING** en cola detrás del job
+ajeno `4108`; arranca cuando el GPU se libere. Las 3 tareas juntas toman
+~1 h de cómputo.
+
+- **Resultados** → `results/reformulacion_3binarios_<tejido>/`.
+- **PRELIMINAR**: contingente a que la reunión confirme la reformulación y
+  ratifique la interpretación de `no_identificado`.
+- **Análisis pendiente (próxima sesión)**: balanced accuracy + matriz de
+  confusión por tarea, ancladas contra el piso trivial 0.5 (un binario se
+  ancla solo; el "antes" es el baseline de 8 clases, job `4098`). No hace
+  falta un baseline binario.
+- `.slurm` usado: `sprints/B4_sprint4/reformulacion_multilabel/train_microcalc_3binarios.slurm`.
 
 ### Decisiones pendientes — reunión Sebastián + Eduardo
 
@@ -85,5 +105,5 @@ Tabla completa en `sprints/B4_sprint4/README.md` (decisiones 1-7). Sumar:
   scripts, preflight, splits, presentación, docs.
 - `feature/sprint4-obj3-mil-alternativo`: **ya unificada a `main`** (merge
   `43d2ae4`).
-- `feature/sprint4-reformulacion-multilabel`: scaffolding de la reformulación
-  en 3 tareas binarias (script verificador, plan de entrenamiento, `.slurm`).
+- `feature/sprint4-reformulacion-multilabel`: **ya unificada a `main`**
+  (merge `c4982ed`).
