@@ -119,6 +119,20 @@ Usar `%x` (job-name) y `%j` (jobid):
 Crear `logs/` si no existe (`mkdir -p logs`). Los logs versionables del sprint
 van bajo `sprints/<sprint>/<objetivo>/logs/`.
 
+## `--max_epochs` con `--early_stopping` (runs cortos / tareas chicas)
+
+`EarlyStopping` en `utils/core_utils.py` tiene `stop_epoch=50` **hardcoded**:
+solo empieza a contar paciencia DESPUÉS de la época 50. Por eso, si pasás
+`--max_epochs N` con **N < 50**, el run **para exacto en la época N** (early
+stopping nunca recorta) y el mejor checkpoint por `val_loss` igual se guarda.
+Útil para tareas chicas que sobreajustan temprano — ej. los 3 binarios de
+microcalcificaciones (333 slides, `--max_epochs 30`, job 4109, ~14 min c/u).
+
+Recordatorio de args: **CONCH = `--embed_dim 512`** (1024 es ResNet legacy —
+error fácil de cometer al redactar). Plantilla multi-tarea (loop sobre tareas
+con preflight por tarea):
+`sprints/B4_sprint4/reformulacion_multilabel/train_microcalc_3binarios.slurm`.
+
 ## Monitorear y cancelar
 
 ```bash

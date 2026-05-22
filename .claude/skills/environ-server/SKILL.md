@@ -89,6 +89,26 @@ El `_pth_100` más grande: `invasion_linfatica_vascular_pth_100` (2471 slides).
 Descriptors de las 4 verificados **en sync** (19 may 2026). Fuerte desbalance
 de clases (probable causa del AUC bajo).
 
+## Reformulación de microcalcificaciones en 3 binarios (infra YA existente)
+
+El equipo (Sebastián) **ya implementó** la reformulación multi-label de
+`microcalcificaciones` en 3 tareas binarias — **NO recrearla**:
+
+- **Tasks** (en `main.py`): `microcalcificaciones_en_carcinoma_invasivo_pth`,
+  `..._en_cdis_pth`, `..._en_tejido_no_neoplasico_pth` (+ variantes
+  `_pth_balance`). `label_dict={}` → requieren `--auto-label-dict`.
+- **CSVs**: `environ/csv/dataset_microcalcificaciones_en_<tejido>_label.csv`
+  — **333 filas** (subconjunto con localización; `no_identificado` EXCLUIDO),
+  label `si`/`no`. Positivos: carcinoma 68, CDIS 121, tejido 195.
+- **`csv_balance/`** es **byte-idéntico** a `csv/` para estas 3 tasks (si
+  `_balance` aporta algo, está en los splits `_pth_balance_100`).
+- **Splits**: `environ/splits/microcalcificaciones_en_<tejido>_pth_100/`,
+  estratificados sobre la etiqueta binaria (≥7 positivos en val/test).
+- **Verificar** la derivación (CPU): `scripts/verify_binary_microcalc_csvs.py`
+  re-deriva del CSV de 8 clases y cross-chequea (MATCH confirmado 21 may 2026).
+- Resultados PRELIMINARES (job 4109): carcinoma balanced acc 0,78; CDIS 0,59;
+  tejido 0,58. Ver `sprints/B4_sprint4/reformulacion_multilabel/`.
+
 ## Reglas
 
 - **READ-ONLY** sobre todo `clam_environ/` (codebase y datos). Cambios →
