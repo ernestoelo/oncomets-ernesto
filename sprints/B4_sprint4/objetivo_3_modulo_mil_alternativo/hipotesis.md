@@ -300,10 +300,14 @@ Resultados de los smoke tests:
 - ☑ Las secciones 1, 2, 4, 5 están completas (sin `<…>` pendientes).
 - ☑ El umbral de "mejora arquitectónica real" en la sección 2 fue
   decidido **antes** de ver cualquier número del experimento.
-- ☐ El agente `reviewer` revisó este archivo y dio OK.
-- ☐ Este archivo está commiteado en `feature/sprint4-obj3-dsmil-implementacion`
+- ☑ El agente `reviewer` revisó este archivo y dio OK (2026-05-24,
+  veredicto: APROBADO, sin observaciones bloqueantes; observación
+  única no bloqueante: confirmar al cerrar el experimento que las 4
+  casillas de smoke tests §6 quedaron marcadas ANTES del SLURM, no
+  después).
+- ☑ Este archivo está commiteado en `feature/sprint4-obj3-dsmil-implementacion`
   ANTES de la primera edición de código de modelo (`models_dsmil/`)
-  o de cualquier `.slurm` de entrenamiento.
+  o de cualquier `.slurm` de entrenamiento (commit `af78545`).
 
 > Si alguno de estos checks está vacío al momento de tocar código de
 > modelo, el agente `reviewer` bloquea el commit (regla 9 de CLAUDE.md).
