@@ -286,12 +286,42 @@ debe pasar antes del siguiente.
 
 Resultados de los smoke tests:
 
-- **1. Forward CPU**: ☐ pendiente (post-implementación de `models_dsmil/`).
-- **2. Forward con datos reales (CPU)**: ☐ pendiente.
-- **3. Mini-train (GPU, 1 epoch)**: ☐ pendiente.
-- **4. Preflight check**: ☐ pendiente (adaptar
-  `scripts/preflight_minpatch.py` para las 3 tareas binarias antes del
-  `.slurm` final).
+- **1. Forward CPU** (bag random `[200, 512]`): ☑ PASA (2026-05-24,
+  commit `b5abb2c`, `tests/test_dsmil_cpu.py::test_forward_random_bag`).
+  - `logits` shape `(1, 2)`, sin NaN/Inf.
+  - `Y_prob` suma 1 (`atol=1e-5`).
+  - `A` shape `(2, 200)`, cada fila suma 1 (DSMIL ya aplica softmax →
+    NO se dobla softmax aguas abajo).
+  - `instance_scores_c` shape `(200, 2)` expuesto en `results_dict`.
+  - Gradiente fluye a `bag_classifier` y a `fc_projection`.
+  - **Verificación R1/B.1 (bonus)**: `|grad(W_0)| = 0.0` con loss del
+    bag solo; `|grad(W_0)| = 11.1` al agregar `L_max` sobre `c`.
+    Prueba empírica directa del riesgo R1 → justifica B.1.3.
+- **2. Forward con datos reales (CPU)** (`clam_environ/.../101907.pt`):
+  ☑ PASA (2026-05-24, commit `b5abb2c`,
+  `tests/test_dsmil_cpu.py::test_forward_real_pt`).
+  - Bag real: `(4308, 512)` parches CONCH (alineado con la media
+    ~4159 medida en investigación §B.4).
+  - **L2 norm parches**: mean=22.645, std=0.012, rango
+    [22.604, 22.686] — replica exacta de la medición previa de
+    investigación §A.1 (22,65 ± 0,01). Features efectivamente
+    normalizadas → R2 (CONCH vs SimCLR) sigue mitigado.
+  - `logits` rango `[-0.147, 0.039]`, `Y_prob = [0.454, 0.546]` →
+    salidas sanas pre-entrenamiento (cerca de equiprobable, como
+    corresponde a init aleatoria).
+  - `A.sum(dim=1) = [1.0, 1.0]` ✓.
+  - **Entropy de A clase 0 = 8.368 = log(4308)** → atención
+    perfectamente uniforme antes de entrenar (W_0 random → parche
+    crítico arbitrario → β casi uniforme). Esto es **lo esperado**;
+    el smoke test de mini-train (§6.3) validará que tras 1 epoch la
+    entropía baja y la atención se concentra.
+  - `c` rango `[-0.392, 0.758]` → instance scorer lineal sin
+    saturación.
+- **3. Mini-train (GPU, 1 epoch)**: ☐ pendiente — requiere `sbatch`
+  con OK explícito de Ernesto.
+- **4. Preflight check**: ☐ pendiente — adaptar
+  `scripts/preflight_minpatch.py` para las 3 tareas binarias antes
+  del `.slurm` final.
 
 ---
 
