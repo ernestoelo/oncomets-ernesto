@@ -262,6 +262,20 @@ el instance scorer `c` de DSMIL). Valor fijo, no se tunea. Ver §5 R1.
   esquiva el problema multi-clase del paper. Riesgo residual: enunciar
   explícitamente en `resultados.md` que el régimen es no validado por
   el paper.
+- **R6 — `early_stopping` inerte por `stop_epoch=50` > `max_epochs=30`**
+  (heredado de CLAM, `clam_environ/utils/core_utils.py:79`). La
+  condición de stop es `counter >= patience AND epoch > stop_epoch`
+  (defaults 20 / 50); con `max_epochs=30` la rama `epoch > 50` **nunca
+  se cumple** → el loop corre los 30 epochs completos en todos los
+  casos. Lo que **sí cumple su rol** es `save_checkpoint` (best por
+  `val_loss`) → el test final se evalúa sobre el mejor checkpoint, no
+  sobre el modelo del último epoch (patrón CLAM, `main.py:214-217`).
+  **Heredado del codebase de Sebastián y presente en el baseline 4109**
+  → inválido para este experimento intentar arreglarlo (rompería
+  apples-to-apples — violaría §4 "la única variable es el
+  aggregator"). Resolverlo es trabajo de sprint futuro sobre
+  `clam_environ/`, no de este wrapper. Documentado el 24-may-2026 al
+  arrancar la fase del experimento completo.
 
 ---
 
