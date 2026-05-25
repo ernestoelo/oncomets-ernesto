@@ -317,11 +317,30 @@ Resultados de los smoke tests:
     entropía baja y la atención se concentra.
   - `c` rango `[-0.392, 0.758]` → instance scorer lineal sin
     saturación.
-- **3. Mini-train (GPU, 1 epoch)**: ☐ pendiente — requiere `sbatch`
-  con OK explícito de Ernesto.
-- **4. Preflight check**: ☐ pendiente — adaptar
-  `scripts/preflight_minpatch.py` para las 3 tareas binarias antes
-  del `.slurm` final.
+- **3. Mini-train (GPU, 1 epoch)** — ☑ PASA (job `4135`, 1:32 wall,
+  RTX A6000; commit `chore(B4-obj3): smoke §6.3-6.4 PASA en job 4135`).
+  - `train_loss=0.654` · `clustering=0.308` · `max_loss=0.673`.
+  - `|grad W_0|=0.97` (> 0 → L_max efectivamente conecta W_0) ·
+    `|grad q|=0.14`.
+  - `W0_norm 0.825→0.805` (Δ −2.5%) · `q0_norm 6.51→6.28` (Δ −3.4%).
+  - `train_error 0.375` (< trivial 0.5 bajo `weighted_sample`).
+  - `.err` vacío, sin warnings.
+
+  **Nota honesta**: las magnitudes de gradiente son menores que las
+  predichas en el plan (5–20 y 1–10). La predicción venía de
+  `logits.sum() + 0.1·L_max` sobre un bag random en CPU; el flujo real
+  usa losses normalizadas (CE ≈ 0.65) que producen gradientes
+  proporcionalmente menores. La condición decisiva (NO cero) se cumple
+  — la magnitud absoluta no era el criterio.
+
+  Traza auditable en
+  `results/sprint4_obj3_dsmil_smoke/smoke_dsmil_carcinoma_s1/`
+  (`metrics.jsonl`, `init_snapshot.json`, `final_snapshot.json`).
+- **4. Preflight check** — ☑ PASA. Enchufado al `.slurm`
+  (`scripts/run_dsmil_smoke_carcinoma.slurm`) ANTES del `python` vía
+  `scripts/preflight_minpatch.py`. En el job 4135 reportó
+  `264/264 slides ≥ 8 parches en train, 0 sin .pt`. Listo para reusar
+  en el `.slurm` del experimento completo (3 tareas × 30 epochs).
 
 ---
 
