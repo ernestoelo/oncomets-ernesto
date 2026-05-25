@@ -1,0 +1,1 @@
+{"epoch": 0, "train_loss": 0.6537084971752131, "train_clustering_loss": 0.3080086260866444, "train_max_loss": 0.6733002186837521, "train_error": 0.375, "grad_W0_mean": 0.96765626730302, "grad_q_mean": 0.13679965233928956, "processed_batches": 264}
