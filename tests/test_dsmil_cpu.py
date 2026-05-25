@@ -215,8 +215,157 @@ def test_forward_real_pt():
     print("[OK] §6.2 forward CPU con .pt real")
 
 
+class _FakeSlideDataset:
+    """Mini dataset compatible con `compute_test_metrics`. Expone solo
+    `slide_data['slide_id']` y se itera devolviendo `(bag, label)` por
+    cada slide — suficiente para validar shapes/cálculo en CPU.
+
+    Loader real (Generic_MIL_Dataset + get_split_loader) se ejercita en
+    el smoke en GPU; acá validamos solo la lógica de métricas.
+    """
+    def __init__(self, slides):
+        # slides: list[(slide_id, bag_tensor, label_int)]
+        self._slides = slides
+        import pandas as pd
+        self.slide_data = pd.DataFrame({
+            'slide_id': [s[0] for s in slides]
+        })
+
+    def __len__(self):
+        return len(self._slides)
+
+
+class _FakeLoader:
+    """Mimetiza el iterador de un DataLoader CLAM: yields (data, label)
+    con un dataset que tiene slide_data['slide_id']."""
+    def __init__(self, dataset):
+        self.dataset = dataset
+
+    def __iter__(self):
+        for _sid, bag, lbl in self.dataset._slides:
+            yield bag, torch.tensor([lbl])
+
+
+def test_compute_test_metrics():
+    """Verifica que compute_test_metrics produce balanced_accuracy +
+    confusion_matrix coherentes con sklearn sobre datos sintéticos.
+
+    Construye 6 slides (3 positivos, 3 negativos) con bags pequeños.
+    El modelo está en init aleatoria → sus predicciones serán
+    arbitrarias, pero la INTEGRIDAD del cálculo (shapes, no-NaN,
+    consistencia entre confusion y balanced_acc) es lo que validamos.
+    """
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "train_dsmil",
+        str(REPO_ROOT / "scripts" / "train_dsmil.py"),
+    )
+    train_dsmil = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(train_dsmil)
+
+    torch.manual_seed(42)
+    model = DSMIL_CLAM_MB(n_classes=2, embed_dim=512, dropout=0.25, k_sample=8)
+    model.eval()
+    device = torch.device("cpu")
+
+    slides = []
+    for i in range(6):
+        N = 150 + i * 20  # bag sizes diferentes
+        bag = torch.randn(N, 512)
+        label = i % 2  # alterna 0/1
+        slides.append((f"slide_{i:03d}", bag, label))
+
+    loader = _FakeLoader(_FakeSlideDataset(slides))
+    patient_results, test_metrics, preds_df = train_dsmil.compute_test_metrics(
+        model, loader, device,
+    )
+
+    # patient_results: 1 entrada por slide.
+    assert len(patient_results) == 6, f"patient_results len {len(patient_results)}"
+    for sid in [f"slide_{i:03d}" for i in range(6)]:
+        assert sid in patient_results
+        assert 'prob' in patient_results[sid]
+        assert patient_results[sid]['prob'].shape == (1, 2)
+
+    # preds_df: 6 filas, columnas correctas.
+    assert list(preds_df.columns) == ['slide_id', 'y_true', 'y_prob_si', 'y_pred']
+    assert len(preds_df) == 6
+    assert preds_df['y_prob_si'].between(0.0, 1.0).all(), \
+        f"y_prob_si fuera de [0,1]: {preds_df['y_prob_si'].tolist()}"
+
+    # Métricas: shapes y rangos.
+    assert 'test_auc' in test_metrics
+    assert 'test_acc' in test_metrics
+    assert 'balanced_acc' in test_metrics
+    assert 'confusion' in test_metrics
+    cm = test_metrics['confusion']
+    assert len(cm) == 2 and len(cm[0]) == 2, f"confusion shape {cm}"
+    # La suma de la matriz de confusión debe ser n_test.
+    cm_sum = sum(sum(row) for row in cm)
+    assert cm_sum == test_metrics['n_test'] == 6, \
+        f"sum(confusion)={cm_sum}, n_test={test_metrics['n_test']}"
+    assert 0.0 <= test_metrics['test_acc'] <= 1.0
+    assert 0.0 <= test_metrics['balanced_acc'] <= 1.0
+    assert 0.0 <= test_metrics['test_auc'] <= 1.0
+
+    # Consistencia interna: balanced_acc = mean(recall_clase_0, recall_clase_1).
+    from sklearn.metrics import balanced_accuracy_score
+    bal_check = balanced_accuracy_score(
+        preds_df['y_true'].to_numpy(), preds_df['y_pred'].to_numpy()
+    )
+    assert abs(test_metrics['balanced_acc'] - bal_check) < 1e-9, \
+        f"balanced_acc inconsistente: {test_metrics['balanced_acc']} vs {bal_check}"
+
+    print(f"[OK] compute_test_metrics: 6 slides, "
+          f"auc={test_metrics['test_auc']:.3f}, "
+          f"acc={test_metrics['test_acc']:.3f}, "
+          f"bal_acc={test_metrics['balanced_acc']:.3f}, "
+          f"confusion={cm}")
+
+
+def test_validate_one_epoch_no_early_stop():
+    """Verifica que validate_one_epoch corre sin error y devuelve un
+    dict con las 4 keys esperadas. EarlyStopping no se enchufa acá
+    (eso se valida indirectamente en el smoke GPU)."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "train_dsmil",
+        str(REPO_ROOT / "scripts" / "train_dsmil.py"),
+    )
+    train_dsmil = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(train_dsmil)
+
+    torch.manual_seed(0)
+    model = DSMIL_CLAM_MB(n_classes=2, embed_dim=512, dropout=0.0, k_sample=8)
+    device = torch.device("cpu")
+    loss_fn = torch.nn.CrossEntropyLoss()
+
+    slides = [(f"s_{i}", torch.randn(100 + 10 * i, 512), i % 2)
+              for i in range(4)]
+    loader = _FakeLoader(_FakeSlideDataset(slides))
+
+    should_stop, val_metrics = train_dsmil.validate_one_epoch(
+        epoch=0, model=model, loader=loader, loss_fn=loss_fn,
+        device=device, early_stopping=None, ckpt_path=None,
+    )
+    assert should_stop is False
+    for k in ['val_loss', 'val_error', 'val_auc', 'val_processed']:
+        assert k in val_metrics, f"falta {k} en val_metrics"
+    assert val_metrics['val_processed'] == 4
+    assert not (val_metrics['val_loss'] != val_metrics['val_loss']), \
+        "val_loss es NaN"
+    assert 0.0 <= val_metrics['val_error'] <= 1.0
+
+    print(f"[OK] validate_one_epoch: val_loss={val_metrics['val_loss']:.3f}, "
+          f"val_auc={val_metrics['val_auc']:.3f}, "
+          f"val_err={val_metrics['val_error']:.3f}")
+
+
 if __name__ == "__main__":
     test_forward_random_bag()
     test_W0_gradient_requires_Lmax()
     test_forward_real_pt()
-    print("\nTodos los smoke tests §6.1 y §6.2 pasaron.")
+    test_compute_test_metrics()
+    test_validate_one_epoch_no_early_stop()
+    print("\nTodos los smoke tests CPU pasaron "
+          "(§6.1 §6.2 + val_loop + test_loop).")
