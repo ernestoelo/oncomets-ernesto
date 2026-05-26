@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: Comprime la conversación actual en un documento de handoff para que otra sesión de Claude Code la continúe sin pérdida de contexto. Triggers en español: "handoff", "pasar contexto a otra sesión", "preparar prompt para nueva sesión", "comprimir conversación", "cerrar sesión y abrir otra". Útil al cerrar un objetivo del sprint, antes de un experimento largo, o cuando el contexto está saturado y conviene reiniciar limpio.
+description: Comprime la conversación actual en un documento para que otra sesión de Claude Code retome sin pérdida de contexto. Triggers — handoff, pasar contexto, preparar prompt para nueva sesión, comprimir conversación.
 argument-hint: "¿En qué se va a focalizar la próxima sesión? (1 línea)"
 ---
 

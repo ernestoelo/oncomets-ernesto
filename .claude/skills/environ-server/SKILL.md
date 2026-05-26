@@ -1,6 +1,6 @@
 ---
 name: environ-server
-description: Use when you need to locate or reason about the shared CLAM codebase, datasets, CONCH features, label CSVs, or splits on the Environ server. Triggers include "dónde están las features", "qué tasks hay", "ruta del dataset", "splits de la task X", "inventario del servidor", "qué hay en clam_environ". Read-only reference; enforces the read-only + courtesy rules.
+description: Inventario READ-ONLY del codebase y datos compartidos del servidor Environ (CLAM + CONCH features + CSVs + splits). Triggers — dónde están las features, qué tasks hay, ruta del dataset, inventario del servidor, qué hay en clam_environ.
 ---
 
 # environ-server — Inventario del servidor Environ (codebase + datos)

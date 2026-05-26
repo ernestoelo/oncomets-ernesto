@@ -1,6 +1,6 @@
 ---
 name: slurm-submission
-description: Use when the user asks to train, evaluate, generate splits, extract features, or launch ANYTHING that uses the GPU on the Environ server. Triggers include "lanzar entrenamiento", "train CLAM", "sbatch", "correr eval", "generar splits", "extraer features", "run on GPU". Enforces SLURM submission (never python directly on GPU) and the single-GPU courtesy rule.
+description: Lanza trabajos GPU vía sbatch en el servidor Environ (nunca python directo). Plantilla .slurm, recursos típicos, cortesía single-GPU. Triggers — lanzar entrenamiento, train CLAM, sbatch, correr eval, extraer features, run on GPU.
 ---
 
 # slurm-submission — Lanzar trabajos GPU vía SLURM en el servidor Environ

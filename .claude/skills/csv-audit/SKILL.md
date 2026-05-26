@@ -1,6 +1,6 @@
 ---
 name: csv-audit
-description: Use when introducing a new CSV / tabular artifact into the pipeline, when documenting a step that produces or consumes a CSV, when suspecting stale metadata (e.g. splits_0_descriptor.csv), or when auditing CSV schemas before reporting results. Triggers include "auditar CSV", "documentar este CSV", "el descriptor está desactualizado", "cross-check de splits", "qué columnas tiene", "csv stale", "data drift en metadata".
+description: Audita y documenta CSVs / artefactos tabulares del pipeline OncoMets. Detecta descriptors stale, cross-check splits×labels. Triggers — auditar CSV, documentar CSV, cross-check de splits, descriptor desactualizado, csv stale.
 ---
 
 # csv-audit — Auditoría pedagógica y cross-check de CSVs del pipeline
