@@ -1,0 +1,286 @@
+===== Job 4137 started at dom 24 may 2026 22:34:56 -04 on administrador-PowerEdge-R740xd =====
+PYBIN  = /home/sdonoso/miniconda3/envs/clam_latest/bin/python
+REPO   = /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto
+CLAM   = /media/administrador/Storage1/sdonoso/clam_environ (READ-ONLY)
+GPU 0: NVIDIA RTX A6000 (UUID: GPU-7b416d79-592e-ad55-2174-2a5b35bbdfaa)
+torch 2.8.0+cu128 cuda 12.8
+
+===== TASK: microcalcificaciones_en_carcinoma_invasivo_pth =====
+PREFLIGHT OK: 264 slides de train con >= 8 parches (0 sin .pt -> el dataloader las salta).
+[INFO] device: cuda  (cuda available: True)
+[INFO] GPU: NVIDIA RTX A6000
+[INFO] results_dir: /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/sprint4_obj3_dsmil_full/dsmil_full_carcinoma_invasivo_B8_s1
+label column: label
+label dictionary: {'no': 0, 'si': 1}
+number of classes: 2
+slide-level counts:  
+ label
+0    265
+1     68
+Name: count, dtype: int64
+Patient-LVL; Number of samples registered in class 0: 255
+Slide-LVL; Number of samples registered in class 0: 265
+Patient-LVL; Number of samples registered in class 1: 68
+Slide-LVL; Number of samples registered in class 1: 68
+[INFO] train=264  val=35  test=34
+Setting tau to 1.0
+[WARN] R6: max_epochs=30 <= stop_epoch=50 → early_stop nunca triggea (el loop corre completo). save_checkpoint sí guarda best por val_loss.
+Validation loss decreased (inf --> 0.488425).  Saving model ...
+[EPOCH 0] train_loss=0.6537  clustering_loss=0.3080  max_loss=0.6733  |grad W_0|=0.9677  |grad q|=0.1368  train_err=0.3750  val_loss=0.4884  val_auc=0.6582  val_err=0.2000
+EarlyStopping counter: 1 out of 20
+[EPOCH 1] train_loss=0.4799  clustering_loss=0.0085  max_loss=0.5797  |grad W_0|=1.1063  |grad q|=0.4213  train_err=0.2424  val_loss=0.5851  val_auc=0.6276  val_err=0.3143
+EarlyStopping counter: 2 out of 20
+[EPOCH 2] train_loss=0.4467  clustering_loss=0.0209  max_loss=0.5576  |grad W_0|=1.2067  |grad q|=0.4452  train_err=0.2045  val_loss=0.6651  val_auc=0.6173  val_err=0.3143
+EarlyStopping counter: 3 out of 20
+[EPOCH 3] train_loss=0.5200  clustering_loss=0.0033  max_loss=0.5868  |grad W_0|=1.1927  |grad q|=0.3976  train_err=0.2689  val_loss=0.8418  val_auc=0.6582  val_err=0.4571
+EarlyStopping counter: 4 out of 20
+[EPOCH 4] train_loss=0.4469  clustering_loss=0.0287  max_loss=0.5214  |grad W_0|=1.0747  |grad q|=0.3476  train_err=0.2424  val_loss=0.6689  val_auc=0.5255  val_err=0.3429
+EarlyStopping counter: 5 out of 20
+[EPOCH 5] train_loss=0.4075  clustering_loss=0.0024  max_loss=0.4813  |grad W_0|=0.9960  |grad q|=0.3193  train_err=0.1970  val_loss=0.6481  val_auc=0.6582  val_err=0.3714
+EarlyStopping counter: 6 out of 20
+[EPOCH 6] train_loss=0.3726  clustering_loss=0.0027  max_loss=0.4574  |grad W_0|=1.0100  |grad q|=0.4064  train_err=0.2121  val_loss=0.6888  val_auc=0.6531  val_err=0.4286
+EarlyStopping counter: 7 out of 20
+[EPOCH 7] train_loss=0.3989  clustering_loss=0.0443  max_loss=0.4365  |grad W_0|=1.0313  |grad q|=0.4465  train_err=0.1932  val_loss=0.8048  val_auc=0.5510  val_err=0.4000
+EarlyStopping counter: 8 out of 20
+[EPOCH 8] train_loss=0.3493  clustering_loss=0.0018  max_loss=0.4344  |grad W_0|=0.9774  |grad q|=0.3508  train_err=0.1705  val_loss=0.7954  val_auc=0.6582  val_err=0.4286
+EarlyStopping counter: 9 out of 20
+[EPOCH 9] train_loss=0.3213  clustering_loss=0.0016  max_loss=0.4230  |grad W_0|=0.9445  |grad q|=0.3555  train_err=0.1477  val_loss=1.5445  val_auc=0.6071  val_err=0.4857
+EarlyStopping counter: 10 out of 20
+[EPOCH 10] train_loss=0.3365  clustering_loss=0.0479  max_loss=0.4122  |grad W_0|=0.9020  |grad q|=0.4616  train_err=0.1326  val_loss=0.9307  val_auc=0.5561  val_err=0.2857
+EarlyStopping counter: 11 out of 20
+[EPOCH 11] train_loss=0.2552  clustering_loss=0.1800  max_loss=0.3474  |grad W_0|=0.7259  |grad q|=0.5167  train_err=0.1098  val_loss=1.4242  val_auc=0.5153  val_err=0.5429
+EarlyStopping counter: 12 out of 20
+[EPOCH 12] train_loss=0.2774  clustering_loss=0.0067  max_loss=0.3545  |grad W_0|=0.7579  |grad q|=0.4529  train_err=0.1402  val_loss=1.1140  val_auc=0.5918  val_err=0.4286
+EarlyStopping counter: 13 out of 20
+[EPOCH 13] train_loss=0.3430  clustering_loss=0.1995  max_loss=0.4237  |grad W_0|=0.8974  |grad q|=0.6526  train_err=0.1667  val_loss=0.8856  val_auc=0.6173  val_err=0.2857
+EarlyStopping counter: 14 out of 20
+[EPOCH 14] train_loss=0.2138  clustering_loss=0.0326  max_loss=0.2938  |grad W_0|=0.6644  |grad q|=0.3967  train_err=0.0720  val_loss=1.1654  val_auc=0.5765  val_err=0.3143
+EarlyStopping counter: 15 out of 20
+[EPOCH 15] train_loss=0.1997  clustering_loss=0.0049  max_loss=0.2873  |grad W_0|=0.6672  |grad q|=0.4125  train_err=0.0909  val_loss=1.3756  val_auc=0.5765  val_err=0.4286
+EarlyStopping counter: 16 out of 20
+[EPOCH 16] train_loss=0.2143  clustering_loss=0.0029  max_loss=0.3354  |grad W_0|=0.7296  |grad q|=0.4446  train_err=0.0720  val_loss=1.2485  val_auc=0.5408  val_err=0.3429
+EarlyStopping counter: 17 out of 20
+[EPOCH 17] train_loss=0.1960  clustering_loss=0.0020  max_loss=0.3140  |grad W_0|=0.6885  |grad q|=0.5052  train_err=0.0682  val_loss=1.3294  val_auc=0.5510  val_err=0.3429
+EarlyStopping counter: 18 out of 20
+[EPOCH 18] train_loss=0.1815  clustering_loss=0.0023  max_loss=0.2815  |grad W_0|=0.6299  |grad q|=0.4345  train_err=0.0758  val_loss=1.4471  val_auc=0.5816  val_err=0.4000
+EarlyStopping counter: 19 out of 20
+[EPOCH 19] train_loss=0.1336  clustering_loss=0.0022  max_loss=0.2639  |grad W_0|=0.6135  |grad q|=0.4070  train_err=0.0530  val_loss=1.2813  val_auc=0.5765  val_err=0.2857
+EarlyStopping counter: 20 out of 20
+[EPOCH 20] train_loss=0.1847  clustering_loss=0.0011  max_loss=0.2511  |grad W_0|=0.5696  |grad q|=0.4778  train_err=0.0682  val_loss=1.4203  val_auc=0.5561  val_err=0.2857
+EarlyStopping counter: 21 out of 20
+[EPOCH 21] train_loss=0.1571  clustering_loss=0.0431  max_loss=0.2330  |grad W_0|=0.5202  |grad q|=0.5774  train_err=0.0644  val_loss=1.4701  val_auc=0.5255  val_err=0.3429
+EarlyStopping counter: 22 out of 20
+[EPOCH 22] train_loss=0.1201  clustering_loss=0.0023  max_loss=0.2397  |grad W_0|=0.5490  |grad q|=0.3470  train_err=0.0455  val_loss=1.4504  val_auc=0.5918  val_err=0.2571
+EarlyStopping counter: 23 out of 20
+[EPOCH 23] train_loss=0.1613  clustering_loss=0.0335  max_loss=0.3036  |grad W_0|=0.6506  |grad q|=0.4228  train_err=0.0644  val_loss=1.3530  val_auc=0.6020  val_err=0.3429
+EarlyStopping counter: 24 out of 20
+[EPOCH 24] train_loss=0.1155  clustering_loss=0.0020  max_loss=0.2452  |grad W_0|=0.5399  |grad q|=0.3215  train_err=0.0379  val_loss=1.3692  val_auc=0.6071  val_err=0.2857
+EarlyStopping counter: 25 out of 20
+[EPOCH 25] train_loss=0.0733  clustering_loss=0.0164  max_loss=0.1739  |grad W_0|=0.4229  |grad q|=0.2857  train_err=0.0227  val_loss=1.7652  val_auc=0.5969  val_err=0.3143
+EarlyStopping counter: 26 out of 20
+[EPOCH 26] train_loss=0.1886  clustering_loss=0.0213  max_loss=0.2392  |grad W_0|=0.5334  |grad q|=0.7021  train_err=0.0758  val_loss=1.1773  val_auc=0.6531  val_err=0.2571
+EarlyStopping counter: 27 out of 20
+[EPOCH 27] train_loss=0.1051  clustering_loss=0.0046  max_loss=0.2288  |grad W_0|=0.5117  |grad q|=0.4417  train_err=0.0303  val_loss=1.4544  val_auc=0.5765  val_err=0.2857
+EarlyStopping counter: 28 out of 20
+[EPOCH 28] train_loss=0.0629  clustering_loss=0.0012  max_loss=0.1747  |grad W_0|=0.4466  |grad q|=0.2801  train_err=0.0227  val_loss=1.7584  val_auc=0.5612  val_err=0.3429
+EarlyStopping counter: 29 out of 20
+[EPOCH 29] train_loss=0.0537  clustering_loss=0.0012  max_loss=0.1798  |grad W_0|=0.4300  |grad q|=0.2253  train_err=0.0189  val_loss=1.6655  val_auc=0.6122  val_err=0.3143
+[INFO] init  W0_norm=0.8252  q0_norm=6.5062
+[INFO] final W0_norm=1.6427  q0_norm=7.3005
+[INFO] cargando best checkpoint para val/test final: /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/sprint4_obj3_dsmil_full/dsmil_full_carcinoma_invasivo_B8_s1/s_0_checkpoint.pt
+[VAL FINAL] val_loss=0.4884  val_auc=0.6582  val_err=0.2000  n=35
+Warning: Feature file not found, skipping: /media/administrador/Storage1/sdonoso/clam_environ/environ/features/pt_files/150012-2-3.pt
+[TEST FINAL] test_auc=0.8242  test_acc=0.8182  balanced_acc=0.6758  n=33
+[TEST FINAL] confusion (rows=true, cols=pred): [[24, 2], [4, 3]]
+[INFO] summary.csv -> /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/sprint4_obj3_dsmil_full/dsmil_full_carcinoma_invasivo_B8_s1/summary.csv
+[INFO] split_0_results.pkl -> /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/sprint4_obj3_dsmil_full/dsmil_full_carcinoma_invasivo_B8_s1/split_0_results.pkl
+[INFO] test_metrics.json + test_predictions.csv -> /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/sprint4_obj3_dsmil_full/dsmil_full_carcinoma_invasivo_B8_s1
+[DONE] train + val + test completado. Artefactos en /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/sprint4_obj3_dsmil_full/dsmil_full_carcinoma_invasivo_B8_s1
+===== microcalcificaciones_en_carcinoma_invasivo_pth done =====
+
+===== TASK: microcalcificaciones_en_cdis_pth =====
+PREFLIGHT OK: 264 slides de train con >= 8 parches (1 sin .pt -> el dataloader las salta).
+[INFO] device: cuda  (cuda available: True)
+[INFO] GPU: NVIDIA RTX A6000
+[INFO] results_dir: /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/sprint4_obj3_dsmil_full/dsmil_full_cdis_B8_s1
+label column: label
+label dictionary: {'no': 0, 'si': 1}
+number of classes: 2
+slide-level counts:  
+ label
+0    210
+1    118
+Name: count, dtype: int64
+Patient-LVL; Number of samples registered in class 0: 206
+Slide-LVL; Number of samples registered in class 0: 210
+Patient-LVL; Number of samples registered in class 1: 114
+Slide-LVL; Number of samples registered in class 1: 118
+[INFO] train=262  val=33  test=33
+Setting tau to 1.0
+[WARN] R6: max_epochs=30 <= stop_epoch=50 → early_stop nunca triggea (el loop corre completo). save_checkpoint sí guarda best por val_loss.
+Validation loss decreased (inf --> 0.610992).  Saving model ...
+[EPOCH 0] train_loss=0.7144  clustering_loss=0.7446  max_loss=0.7022  |grad W_0|=0.8844  |grad q|=0.0402  train_err=0.4618  val_loss=0.6110  val_auc=0.7500  val_err=0.4242
+Validation loss decreased (0.610992 --> 0.587191).  Saving model ...
+[EPOCH 1] train_loss=0.6477  clustering_loss=0.2931  max_loss=0.6766  |grad W_0|=1.0744  |grad q|=0.0746  train_err=0.3550  val_loss=0.5872  val_auc=0.7540  val_err=0.3636
+EarlyStopping counter: 1 out of 20
+[EPOCH 2] train_loss=0.6453  clustering_loss=0.0925  max_loss=0.6640  |grad W_0|=1.0933  |grad q|=0.0750  train_err=0.3931  val_loss=0.6101  val_auc=0.7262  val_err=0.3333
+EarlyStopping counter: 2 out of 20
+[EPOCH 3] train_loss=0.6180  clustering_loss=0.0168  max_loss=0.6810  |grad W_0|=1.1036  |grad q|=0.1674  train_err=0.3397  val_loss=0.6129  val_auc=0.7857  val_err=0.2727
+EarlyStopping counter: 3 out of 20
+[EPOCH 4] train_loss=0.6141  clustering_loss=0.0075  max_loss=0.6434  |grad W_0|=0.9825  |grad q|=0.2302  train_err=0.3588  val_loss=0.6052  val_auc=0.7579  val_err=0.3030
+Validation loss decreased (0.587191 --> 0.563322).  Saving model ...
+[EPOCH 5] train_loss=0.5658  clustering_loss=0.0153  max_loss=0.6283  |grad W_0|=0.9354  |grad q|=0.2413  train_err=0.3053  val_loss=0.5633  val_auc=0.7381  val_err=0.3636
+EarlyStopping counter: 1 out of 20
+[EPOCH 6] train_loss=0.5648  clustering_loss=0.0132  max_loss=0.5965  |grad W_0|=0.9624  |grad q|=0.2850  train_err=0.2748  val_loss=0.5793  val_auc=0.7381  val_err=0.3939
+EarlyStopping counter: 2 out of 20
+[EPOCH 7] train_loss=0.5291  clustering_loss=0.0117  max_loss=0.5817  |grad W_0|=0.9662  |grad q|=0.3240  train_err=0.3015  val_loss=0.6539  val_auc=0.7183  val_err=0.3636
+EarlyStopping counter: 3 out of 20
+[EPOCH 8] train_loss=0.5165  clustering_loss=0.0128  max_loss=0.5727  |grad W_0|=1.0135  |grad q|=0.3061  train_err=0.2443  val_loss=0.6126  val_auc=0.6786  val_err=0.3030
+Validation loss decreased (0.563322 --> 0.550693).  Saving model ...
+[EPOCH 9] train_loss=0.4712  clustering_loss=0.0112  max_loss=0.5892  |grad W_0|=1.0340  |grad q|=0.3242  train_err=0.2137  val_loss=0.5507  val_auc=0.7619  val_err=0.2424
+EarlyStopping counter: 1 out of 20
+[EPOCH 10] train_loss=0.4466  clustering_loss=0.0176  max_loss=0.5435  |grad W_0|=0.9066  |grad q|=0.3215  train_err=0.2137  val_loss=0.5823  val_auc=0.7341  val_err=0.4242
+EarlyStopping counter: 2 out of 20
+[EPOCH 11] train_loss=0.4525  clustering_loss=0.0039  max_loss=0.5470  |grad W_0|=0.9155  |grad q|=0.3719  train_err=0.2443  val_loss=0.6959  val_auc=0.6389  val_err=0.4545
+EarlyStopping counter: 3 out of 20
+[EPOCH 12] train_loss=0.3694  clustering_loss=0.0037  max_loss=0.4938  |grad W_0|=0.9129  |grad q|=0.3967  train_err=0.1603  val_loss=0.6091  val_auc=0.7063  val_err=0.3636
+EarlyStopping counter: 4 out of 20
+[EPOCH 13] train_loss=0.3417  clustering_loss=0.0117  max_loss=0.4788  |grad W_0|=0.9133  |grad q|=0.3958  train_err=0.1603  val_loss=0.6144  val_auc=0.7421  val_err=0.3636
+EarlyStopping counter: 5 out of 20
+[EPOCH 14] train_loss=0.3765  clustering_loss=0.0041  max_loss=0.4903  |grad W_0|=0.9180  |grad q|=0.4716  train_err=0.1679  val_loss=0.7084  val_auc=0.6230  val_err=0.4848
+EarlyStopping counter: 6 out of 20
+[EPOCH 15] train_loss=0.2974  clustering_loss=0.0030  max_loss=0.5117  |grad W_0|=0.9190  |grad q|=0.3875  train_err=0.1412  val_loss=0.7406  val_auc=0.6905  val_err=0.3636
+EarlyStopping counter: 7 out of 20
+[EPOCH 16] train_loss=0.3243  clustering_loss=0.0127  max_loss=0.4655  |grad W_0|=0.8699  |grad q|=0.4917  train_err=0.1450  val_loss=0.7269  val_auc=0.6627  val_err=0.3939
+EarlyStopping counter: 8 out of 20
+[EPOCH 17] train_loss=0.3211  clustering_loss=0.0555  max_loss=0.5108  |grad W_0|=0.9577  |grad q|=0.4551  train_err=0.1450  val_loss=0.7811  val_auc=0.6548  val_err=0.3939
+EarlyStopping counter: 9 out of 20
+[EPOCH 18] train_loss=0.2604  clustering_loss=0.0052  max_loss=0.4380  |grad W_0|=0.8682  |grad q|=0.4790  train_err=0.0992  val_loss=0.8168  val_auc=0.6667  val_err=0.3939
+EarlyStopping counter: 10 out of 20
+[EPOCH 19] train_loss=0.2430  clustering_loss=0.1036  max_loss=0.4210  |grad W_0|=0.8627  |grad q|=0.5398  train_err=0.0992  val_loss=0.6866  val_auc=0.7460  val_err=0.3333
+EarlyStopping counter: 11 out of 20
+[EPOCH 20] train_loss=0.2081  clustering_loss=0.0088  max_loss=0.4046  |grad W_0|=0.8434  |grad q|=0.4748  train_err=0.0954  val_loss=0.6623  val_auc=0.7579  val_err=0.3333
+EarlyStopping counter: 12 out of 20
+[EPOCH 21] train_loss=0.2250  clustering_loss=0.0076  max_loss=0.3829  |grad W_0|=0.8235  |grad q|=0.5479  train_err=0.1107  val_loss=0.9064  val_auc=0.7183  val_err=0.4242
+EarlyStopping counter: 13 out of 20
+[EPOCH 22] train_loss=0.1971  clustering_loss=0.0042  max_loss=0.3840  |grad W_0|=0.7906  |grad q|=0.4637  train_err=0.0840  val_loss=0.8392  val_auc=0.7024  val_err=0.3939
+EarlyStopping counter: 14 out of 20
+[EPOCH 23] train_loss=0.1888  clustering_loss=0.1103  max_loss=0.3491  |grad W_0|=0.7750  |grad q|=0.4271  train_err=0.0649  val_loss=0.6901  val_auc=0.6905  val_err=0.3333
+EarlyStopping counter: 15 out of 20
+[EPOCH 24] train_loss=0.1735  clustering_loss=0.0359  max_loss=0.3675  |grad W_0|=0.8314  |grad q|=0.5196  train_err=0.0763  val_loss=0.7850  val_auc=0.7222  val_err=0.3030
+EarlyStopping counter: 16 out of 20
+[EPOCH 25] train_loss=0.1783  clustering_loss=0.0049  max_loss=0.3307  |grad W_0|=0.7669  |grad q|=0.5214  train_err=0.0840  val_loss=0.7714  val_auc=0.7302  val_err=0.2727
+EarlyStopping counter: 17 out of 20
+[EPOCH 26] train_loss=0.1567  clustering_loss=0.0176  max_loss=0.3439  |grad W_0|=0.7586  |grad q|=0.5114  train_err=0.0687  val_loss=0.7500  val_auc=0.7183  val_err=0.3333
+EarlyStopping counter: 18 out of 20
+[EPOCH 27] train_loss=0.1220  clustering_loss=0.0064  max_loss=0.3571  |grad W_0|=0.8040  |grad q|=0.5222  train_err=0.0420  val_loss=0.7963  val_auc=0.7103  val_err=0.2727
+EarlyStopping counter: 19 out of 20
+[EPOCH 28] train_loss=0.1214  clustering_loss=0.0616  max_loss=0.3053  |grad W_0|=0.7202  |grad q|=0.4779  train_err=0.0420  val_loss=0.8362  val_auc=0.7302  val_err=0.3333
+EarlyStopping counter: 20 out of 20
+[EPOCH 29] train_loss=0.1428  clustering_loss=0.0716  max_loss=0.2959  |grad W_0|=0.6889  |grad q|=0.5601  train_err=0.0611  val_loss=0.8963  val_auc=0.6746  val_err=0.3030
+[INFO] init  W0_norm=0.8252  q0_norm=6.5062
+[INFO] final W0_norm=1.3855  q0_norm=7.1110
+[INFO] cargando best checkpoint para val/test final: /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/sprint4_obj3_dsmil_full/dsmil_full_cdis_B8_s1/s_0_checkpoint.pt
+[VAL FINAL] val_loss=0.5507  val_auc=0.7619  val_err=0.2424  n=33
+[TEST FINAL] test_auc=0.5702  test_acc=0.6364  balanced_acc=0.5455  n=33
+[TEST FINAL] confusion (rows=true, cols=pred): [[18, 4], [8, 3]]
+[INFO] summary.csv -> /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/sprint4_obj3_dsmil_full/dsmil_full_cdis_B8_s1/summary.csv
+[INFO] split_0_results.pkl -> /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/sprint4_obj3_dsmil_full/dsmil_full_cdis_B8_s1/split_0_results.pkl
+[INFO] test_metrics.json + test_predictions.csv -> /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/sprint4_obj3_dsmil_full/dsmil_full_cdis_B8_s1
+[DONE] train + val + test completado. Artefactos en /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/sprint4_obj3_dsmil_full/dsmil_full_cdis_B8_s1
+===== microcalcificaciones_en_cdis_pth done =====
+
+===== TASK: microcalcificaciones_en_tejido_no_neoplasico_pth =====
+PREFLIGHT OK: 266 slides de train con >= 8 parches (1 sin .pt -> el dataloader las salta).
+[INFO] device: cuda  (cuda available: True)
+[INFO] GPU: NVIDIA RTX A6000
+[INFO] results_dir: /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/sprint4_obj3_dsmil_full/dsmil_full_tejido_no_neoplasico_B8_s1
+label column: label
+label dictionary: {'no': 0, 'si': 1}
+number of classes: 2
+slide-level counts:  
+ label
+1    192
+0    136
+Name: count, dtype: int64
+Patient-LVL; Number of samples registered in class 0: 133
+Slide-LVL; Number of samples registered in class 0: 136
+Patient-LVL; Number of samples registered in class 1: 187
+Slide-LVL; Number of samples registered in class 1: 192
+[INFO] train=264  val=31  test=33
+Setting tau to 1.0
+[WARN] R6: max_epochs=30 <= stop_epoch=50 → early_stop nunca triggea (el loop corre completo). save_checkpoint sí guarda best por val_loss.
+Validation loss decreased (inf --> 0.698665).  Saving model ...
+[EPOCH 0] train_loss=0.7136  clustering_loss=0.4562  max_loss=0.6973  |grad W_0|=0.9531  |grad q|=0.0503  train_err=0.5000  val_loss=0.6987  val_auc=0.5342  val_err=0.4516
+Validation loss decreased (0.698665 --> 0.648967).  Saving model ...
+[EPOCH 1] train_loss=0.6748  clustering_loss=0.7025  max_loss=0.6783  |grad W_0|=1.0412  |grad q|=0.1407  train_err=0.4015  val_loss=0.6490  val_auc=0.6325  val_err=0.4516
+EarlyStopping counter: 1 out of 20
+[EPOCH 2] train_loss=0.6498  clustering_loss=0.5425  max_loss=0.6689  |grad W_0|=1.2513  |grad q|=0.1778  train_err=0.3523  val_loss=0.6762  val_auc=0.5855  val_err=0.4839
+EarlyStopping counter: 2 out of 20
+[EPOCH 3] train_loss=0.6458  clustering_loss=0.4829  max_loss=0.6830  |grad W_0|=1.6503  |grad q|=0.2883  train_err=0.4053  val_loss=0.7245  val_auc=0.5897  val_err=0.3871
+EarlyStopping counter: 3 out of 20
+[EPOCH 4] train_loss=0.6046  clustering_loss=0.5591  max_loss=0.6899  |grad W_0|=1.8439  |grad q|=0.4361  train_err=0.3333  val_loss=0.7165  val_auc=0.5684  val_err=0.4839
+EarlyStopping counter: 4 out of 20
+[EPOCH 5] train_loss=0.5804  clustering_loss=0.0298  max_loss=0.6401  |grad W_0|=1.8040  |grad q|=0.4622  train_err=0.3409  val_loss=0.7844  val_auc=0.6752  val_err=0.3871
+EarlyStopping counter: 5 out of 20
+[EPOCH 6] train_loss=0.5299  clustering_loss=0.0193  max_loss=0.6359  |grad W_0|=1.8293  |grad q|=0.5644  train_err=0.2652  val_loss=0.7128  val_auc=0.6581  val_err=0.3548
+EarlyStopping counter: 6 out of 20
+[EPOCH 7] train_loss=0.5489  clustering_loss=0.0146  max_loss=0.6186  |grad W_0|=1.7812  |grad q|=0.4834  train_err=0.3258  val_loss=0.6710  val_auc=0.7265  val_err=0.3226
+EarlyStopping counter: 7 out of 20
+[EPOCH 8] train_loss=0.5010  clustering_loss=0.0114  max_loss=0.6108  |grad W_0|=1.7533  |grad q|=0.4812  train_err=0.2652  val_loss=0.7501  val_auc=0.7179  val_err=0.3871
+EarlyStopping counter: 8 out of 20
+[EPOCH 9] train_loss=0.4997  clustering_loss=0.0133  max_loss=0.6291  |grad W_0|=1.7607  |grad q|=0.5983  train_err=0.2614  val_loss=0.7559  val_auc=0.6368  val_err=0.3548
+EarlyStopping counter: 9 out of 20
+[EPOCH 10] train_loss=0.4441  clustering_loss=0.0062  max_loss=0.5878  |grad W_0|=1.7113  |grad q|=0.5380  train_err=0.1970  val_loss=0.8765  val_auc=0.6368  val_err=0.3871
+EarlyStopping counter: 10 out of 20
+[EPOCH 11] train_loss=0.4371  clustering_loss=0.0142  max_loss=0.6118  |grad W_0|=1.7127  |grad q|=0.5767  train_err=0.2197  val_loss=0.8482  val_auc=0.6581  val_err=0.3548
+EarlyStopping counter: 11 out of 20
+[EPOCH 12] train_loss=0.3846  clustering_loss=0.0108  max_loss=0.5609  |grad W_0|=1.5895  |grad q|=0.5789  train_err=0.1667  val_loss=0.8363  val_auc=0.5726  val_err=0.3871
+EarlyStopping counter: 12 out of 20
+[EPOCH 13] train_loss=0.4111  clustering_loss=0.0185  max_loss=0.5817  |grad W_0|=1.6131  |grad q|=0.7327  train_err=0.1667  val_loss=0.8090  val_auc=0.6966  val_err=0.2903
+EarlyStopping counter: 13 out of 20
+[EPOCH 14] train_loss=0.3477  clustering_loss=0.0150  max_loss=0.5726  |grad W_0|=1.5839  |grad q|=0.6029  train_err=0.1439  val_loss=0.8983  val_auc=0.6325  val_err=0.4194
+EarlyStopping counter: 14 out of 20
+[EPOCH 15] train_loss=0.3540  clustering_loss=0.0107  max_loss=0.5344  |grad W_0|=1.4974  |grad q|=0.6510  train_err=0.1515  val_loss=0.8624  val_auc=0.6838  val_err=0.3226
+EarlyStopping counter: 15 out of 20
+[EPOCH 16] train_loss=0.3697  clustering_loss=0.0059  max_loss=0.5428  |grad W_0|=1.5182  |grad q|=0.7185  train_err=0.1856  val_loss=0.9565  val_auc=0.6325  val_err=0.4194
+EarlyStopping counter: 16 out of 20
+[EPOCH 17] train_loss=0.3375  clustering_loss=0.0062  max_loss=0.5127  |grad W_0|=1.3728  |grad q|=0.6006  train_err=0.1667  val_loss=0.7846  val_auc=0.7521  val_err=0.3548
+EarlyStopping counter: 17 out of 20
+[EPOCH 18] train_loss=0.3256  clustering_loss=0.0067  max_loss=0.4801  |grad W_0|=1.2864  |grad q|=0.5685  train_err=0.1326  val_loss=1.0161  val_auc=0.6410  val_err=0.3548
+EarlyStopping counter: 18 out of 20
+[EPOCH 19] train_loss=0.2843  clustering_loss=0.0074  max_loss=0.4451  |grad W_0|=1.2031  |grad q|=0.5592  train_err=0.0985  val_loss=0.8505  val_auc=0.7051  val_err=0.4194
+EarlyStopping counter: 19 out of 20
+[EPOCH 20] train_loss=0.2615  clustering_loss=0.0353  max_loss=0.4800  |grad W_0|=1.2813  |grad q|=0.5946  train_err=0.1098  val_loss=0.8441  val_auc=0.7009  val_err=0.3871
+EarlyStopping counter: 20 out of 20
+[EPOCH 21] train_loss=0.2716  clustering_loss=0.0893  max_loss=0.4552  |grad W_0|=1.1534  |grad q|=0.5696  train_err=0.1212  val_loss=0.9443  val_auc=0.7094  val_err=0.3871
+EarlyStopping counter: 21 out of 20
+[EPOCH 22] train_loss=0.2182  clustering_loss=0.0726  max_loss=0.4303  |grad W_0|=1.1399  |grad q|=0.5760  train_err=0.0795  val_loss=1.0201  val_auc=0.7094  val_err=0.3548
+EarlyStopping counter: 22 out of 20
+[EPOCH 23] train_loss=0.2135  clustering_loss=0.2004  max_loss=0.4019  |grad W_0|=1.0670  |grad q|=0.5765  train_err=0.0795  val_loss=0.7850  val_auc=0.7821  val_err=0.2581
+EarlyStopping counter: 23 out of 20
+[EPOCH 24] train_loss=0.2346  clustering_loss=0.1216  max_loss=0.4076  |grad W_0|=1.0664  |grad q|=0.5564  train_err=0.1061  val_loss=0.8984  val_auc=0.7308  val_err=0.3226
+EarlyStopping counter: 24 out of 20
+[EPOCH 25] train_loss=0.1962  clustering_loss=0.0566  max_loss=0.3926  |grad W_0|=1.0382  |grad q|=0.4237  train_err=0.0720  val_loss=1.0442  val_auc=0.7308  val_err=0.3226
+EarlyStopping counter: 25 out of 20
+[EPOCH 26] train_loss=0.2109  clustering_loss=0.0592  max_loss=0.3930  |grad W_0|=0.9980  |grad q|=0.6255  train_err=0.0833  val_loss=0.9754  val_auc=0.7308  val_err=0.2903
+EarlyStopping counter: 26 out of 20
+[EPOCH 27] train_loss=0.1392  clustering_loss=0.0557  max_loss=0.3238  |grad W_0|=0.8349  |grad q|=0.4379  train_err=0.0455  val_loss=1.0482  val_auc=0.7479  val_err=0.2581
+EarlyStopping counter: 27 out of 20
+[EPOCH 28] train_loss=0.1410  clustering_loss=0.0587  max_loss=0.3406  |grad W_0|=0.9079  |grad q|=0.5209  train_err=0.0606  val_loss=1.0113  val_auc=0.7436  val_err=0.3871
+EarlyStopping counter: 28 out of 20
+[EPOCH 29] train_loss=0.1913  clustering_loss=0.0074  max_loss=0.3143  |grad W_0|=0.8358  |grad q|=0.5622  train_err=0.0833  val_loss=1.0163  val_auc=0.7308  val_err=0.3226
+[INFO] init  W0_norm=0.8252  q0_norm=6.5062
+[INFO] final W0_norm=1.3015  q0_norm=6.8902
+[INFO] cargando best checkpoint para val/test final: /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/sprint4_obj3_dsmil_full/dsmil_full_tejido_no_neoplasico_B8_s1/s_0_checkpoint.pt
+[VAL FINAL] val_loss=0.6490  val_auc=0.6325  val_err=0.4516  n=31
+[TEST FINAL] test_auc=0.5769  test_acc=0.5758  balanced_acc=0.5019  n=33
+[TEST FINAL] confusion (rows=true, cols=pred): [[2, 11], [3, 17]]
+[INFO] summary.csv -> /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/sprint4_obj3_dsmil_full/dsmil_full_tejido_no_neoplasico_B8_s1/summary.csv
+[INFO] split_0_results.pkl -> /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/sprint4_obj3_dsmil_full/dsmil_full_tejido_no_neoplasico_B8_s1/split_0_results.pkl
+[INFO] test_metrics.json + test_predictions.csv -> /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/sprint4_obj3_dsmil_full/dsmil_full_tejido_no_neoplasico_B8_s1
+[DONE] train + val + test completado. Artefactos en /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/sprint4_obj3_dsmil_full/dsmil_full_tejido_no_neoplasico_B8_s1
+===== microcalcificaciones_en_tejido_no_neoplasico_pth done =====
+
+===== Job 4137 done at dom 24 may 2026 23:24:28 -04 =====
+Artefactos en /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/sprint4_obj3_dsmil_full/dsmil_full_<tejido>_B8_s1/
