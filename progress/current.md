@@ -117,10 +117,15 @@ Acuerdos y dirección del sprint (ver `CLAUDE.md` Hallazgo 10):
    3072.** El universo completo se reserva para PRUEBAS FINALES de una
    incorporación. Mapeo de tamaños verificado read-only el 22 may (ver
    Hallazgo crítico 4).
-3. **`balanced_pth_100`** (Sebastián lo está finalizando): mayoritaria
-   `no_identificado` ≤ 10× minoritaria. Aún no existe como split (el
-   `csv_balance`/`_pth_balance` actual = 333, placeholder). Invitados a entrenar
-   sobre él cuando esté.
+3. **`balanced_pth_100` para binarios = diseño, NO placeholder** (corregido
+   tras WhatsApp Sebastián 26-may-2026 — antes leído como work-in-progress).
+   El "balance" se define con un cap de imbalance ratio ≤10×; como los 3
+   binarios ya cumplen (carcinoma 3.8×, cdis 1.8×, tejido 1.4×),
+   `csv_balance/` y `splits/microcalcificaciones_en_*_pth_balance_100/`
+   quedan iguales a las 333 identificadas (solo cambia el seed del split).
+   Para los binarios de microcalcificaciones, entrenar sobre `_balance` no
+   aporta nada vs entrenar sobre 333. El cap SÍ aplica a multiclase
+   (`tipo_histologico_4clases`, etc.).
 4. **Early stopping efectivo:** cortar cuando deja de mejorar por época.
 5. **Modelo alternativo (DSMIL u otro):** adoptar SOLO con justificación
    clínica/arquitectónica + comparación contra baseline en el MISMO dataset.
@@ -137,11 +142,42 @@ Acuerdos y dirección del sprint (ver `CLAUDE.md` Hallazgo 10):
   (`sprints/B4_sprint4/presentacion_contenido.md`) — reencuadrar la
   reformulación como validación, no como descubrimiento.
 
+### WhatsApp Sebastián 26-may-2026 (mañana) — pendientes aclarados
+
+- **`_balance` para binarios = diseño** (cap imbalance ratio ≤10× ya cumplido).
+  Ver punto 3 de la reunión actualizado arriba.
+- **`no_identificado` semántica**: WSI sin mención en reporte CAP (no
+  necesariamente ausencia). **NO se incluye** en entrenamiento de binarios
+  hoy (ni nuestros ni de Sebastián). Es decisión por defecto.
+- **Mapeo multi-label → binarios**: WSI con mención de tejido(s) → `si` en
+  ese binario, `no` en los demás. Combinaciones → si en ambos.
+- Detalle completo + citas textuales en memorias
+  `microcalc-dataset-decision.md` (actualizada) y `CLAUDE.md` Hallazgo 10.
+
+### Reunión Sebastián 26-may-2026 16:30 — AGENDADA
+
+Convocada vía WhatsApp 26-may. Agenda:
+
+1. **Propuesta jerárquica para microcalcificaciones** (idea de Sebastián que
+   surgió en la WhatsApp de la mañana): *"tiene o no tiene microcalcificaciones,
+   y si tiene, cual de estas tres"*. Sería binario presencia/ausencia +
+   3 binarios por tejido condicionados a presencia=SI. Permitiría aprovechar
+   las ~2487 WSIs `no_identificado` del `_pth` como negativos del nivel 1
+   sin disparar la mayoritaria de los binarios planos.
+   Detalle + cita textual + lo que falta acordar: memoria
+   `microcalc-hierarchical-proposal.md`.
+2. Cierre operacional del `_balance` aclarado (ver bloque anterior).
+
+**Regla de oro**: NO construir CSVs/splits jerárquicos ni hipótesis hasta
+después de la reunión. Divergencia silenciosa con la versión definitiva
+de Sebastián si Ernesto improvisa.
+
 ### Pendiente de confirmar con Sebastián
 
-- Qué define exactamente el subconjunto de 548 (privado 533 incluye
-  `no_identificado`) vs los 333 identificados de los binarios.
-- Qué es `no_identificado` (¿sin microcalcificación, o sin ubicar?).
+- Pendiente menor: qué define exactamente el subconjunto de 548 (privado 533
+  incluye `no_identificado`) vs los 333 identificados de los binarios. La
+  diferencia es la cohorte (privado vs `_pth`), no una regla de filtro
+  adicional; aclarado parcialmente con la WhatsApp 26-may.
 
 ### Ramas
 

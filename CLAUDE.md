@@ -535,11 +535,17 @@ re-validar y actualizar `docs/codebase_map.md`.
      privado solo 77 → inentrenable; combined 284; `_pth` 333. Los binarios
      necesitan combined/`_pth`-identificado, NO privado solo. Cuentas, paths y
      decisión por escenario: `sprints/B4_sprint4/dataset_microcalcificaciones.md`.
-   - **`balanced_pth_100` (en construcción por Sebastián):** dataset donde la
-     mayoritaria (`no_identificado`) no supera a la minoritaria por más de 10×.
-     **Aún no existe como split** — verificado el 22 may: `csv_balance/` y los
-     splits `_pth_balance` son **byte-idénticos** a los 333 (placeholder).
-     Sebastián nos invitó a entrenar sobre él cuando esté.
+   - **`balanced_pth_100` para binarios de microcalcificaciones = diseño, NO
+     placeholder** (corregido tras WhatsApp Sebastián 26-may-2026 — antes se
+     había leído como work-in-progress). Sebastián define el "balance" con un
+     cap de **imbalance ratio ≤10×**. Como los 3 binarios ya cumplen ese cap
+     (carcinoma 3.8×, cdis 1.8×, tejido 1.4×), `csv_balance/` y los splits
+     `microcalcificaciones_en_*_pth_balance_100/` quedan **iguales a las 333
+     identificadas**, solo cambia el seed del split. Implicación práctica:
+     para los binarios de microcalcificaciones, entrenar sobre `_balance` ≡
+     entrenar sobre 333 con seed distinto — no hay ganancia esperada. El cap
+     SÍ modifica multiclase (`tipo_histologico_4clases`, etc.) donde
+     `no_identificado` domina.
    - **Early stopping efectivo:** cortar cuando el modelo deja de mejorar por
      época (recordar `stop_epoch=50` hardcoded; en runs cortos usar
      `--max_epochs` < 50).
@@ -552,10 +558,33 @@ re-validar y actualizar `docs/codebase_map.md`.
      **citoplasma** según la tarea. Buscar papers que evalúen tareas donde
      estamos débiles con buenos resultados y, ojalá, llegar con una
      implementación corrida para comparar contra el baseline.
-   - **Pendiente de confirmar:** qué define exactamente el subconjunto de 548
-     (privado 533 incluye `no_identificado`) vs los 333 identificados de los
-     binarios; y qué es `no_identificado` (¿sin microcalcificación, o sin
-     ubicar?).
+   - **`no_identificado` — semántica y uso en entrenamiento (confirmado
+     WhatsApp Sebastián 25 + 26 may 2026).** Semántica: WSI cuyo reporte CAP
+     **no menciona** microcalcificaciones (no necesariamente ausencia
+     confirmada). Cita: *"hay WSIs que explícitamente dicen que no tienen
+     porque el CAP lo dice, y otras donde no se reporta simplemente"*. Uso
+     actual: las ~2487 WSIs `no_identificado` del `_pth` 3072 **NO se
+     incluyen** en los splits de los 3 binarios — ni en los nuestros ni en
+     los de Sebastián. Cita textual: *"en las 2800 wsi que tenemos, en los
+     json que aparecen no identificados no se estan considerando"*. Es
+     decisión por defecto, no oversight. **Incluirlas como negativo es
+     propuesta abierta** (jerarquía presencia/ausencia + 3 binarios
+     condicionados), discutida 26-may-2026 16:30 con Sebastián. Riesgo
+     anticipado: dispara la mayoritaria — ya pasó en los runs 8-clases.
+   - **Mapeo multi-label → 3 binarios (regla operacional, confirmada
+     Sebastián 26-may-2026).** WSI con menciones de tejido(s) tiene
+     `label=si` en el binario de cada tejido mencionado, `label=no` en los
+     demás. Cita: *"si una wsi tiene solo 'micro en dcis', para esa tarea
+     dirá SI y para las demás que son 'en tej no neo.' y 'en carcinoma
+     invasivo' dirá que no"*. Las combinaciones (ej. *"micro en dcis y
+     carcinoma"*) → si en ambos binarios. Las `no_identificado` quedan
+     fuera de los 3 CSVs (ver bullet anterior).
+   - **Pendiente menor:** qué define exactamente el subconjunto de 548
+     (privado 533 incluye `no_identificado`) vs los 333 identificados de
+     los binarios — la diferencia es la cohorte (privado vs `_pth`), no
+     una regla de filtro adicional. Aclarado parcialmente con los bullets
+     anteriores; cerrar formalmente cuando haya respuesta de la reunión
+     16:30.
 
 ## Entorno conda — deps esperadas
 
