@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
-"""train_dsmil.py — entrenamiento DSMIL_CLAM_MB sobre una tarea binaria.
+"""train_dsmil.py — entrenamiento DSMIL_CLAM_MB (o CLAM_MB baseline) sobre una
+tarea binaria.
+
+`--model_type` (default `dsmil`) elige el modelo SIN cambiar el harness
+train/val/test (comparación apples-to-apples, Objetivo 5 Fase 1 vs Fase 2):
+- `dsmil`: DSMIL_CLAM_MB + L_max (comportamiento original, byte-idéntico a
+  jobs 4135/4137).
+- `clam`:  CLAM_MB baseline (≡ job 4109; loss bag+inst SIN L_max). En este
+  modo NO se generan init/final_snapshot.json y las columnas
+  train_max_loss / grad_W0_mean / grad_q_mean del metrics.jsonl salen 0.0
+  (son diagnósticos solo-DSMIL, sin efecto en el entrenamiento CLAM).
 
 Replica el patrón de `clam_environ/main.py` + `core_utils.train_loop_clam`
 SIN modificar nada bajo `clam_environ/` (regla 2 de CLAUDE.md). Añade
@@ -88,7 +98,7 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument("--task", required=True)
     p.add_argument("--exp_code", default=None,
-                   help="default: dsmil_<task>")
+                   help="default: <model_type>_<task> (ej. dsmil_<task> / clam_<task>)")
     p.add_argument("--seed", type=int, default=1)
     p.add_argument("--fold", type=int, default=0)
 
@@ -111,6 +121,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--embed_dim", type=int, default=512)
     p.add_argument("--max_epochs", type=int, default=1)
     p.add_argument("--n_classes", type=int, default=2)
+    p.add_argument("--model_type", choices=["dsmil", "clam"], default="dsmil",
+                   help="dsmil = DSMIL_CLAM_MB (default; path byte-idéntico a "
+                        "jobs 4135/4137). clam = CLAM_MB baseline (MISMO harness "
+                        "train/val/test, SIN L_max ni aggregator dual-stream) — "
+                        "para comparación apples-to-apples sobre el fusionado "
+                        "(Objetivo 5 Fase 1 vs Fase 2).")
 
     p.add_argument("--early_stopping", action="store_true",
                    help="activa EarlyStopping de CLAM. R6 §5: con "
@@ -131,19 +147,32 @@ def parse_args() -> argparse.Namespace:
 
 def build_model(args: argparse.Namespace, device: torch.device) -> nn.Module:
     if args.embed_dim != 512:
-        raise ValueError("DSMIL_CLAM_MB con CONCH requiere embed_dim=512")
+        raise ValueError("CONCH requiere embed_dim=512")
     from topk.svm import SmoothTop1SVM
     instance_loss_fn = SmoothTop1SVM(n_classes=2)
     if device.type == "cuda":
         instance_loss_fn = instance_loss_fn.cuda()
-    model = DSMIL_CLAM_MB(
-        gate=True, size_arg="small",
-        dropout=args.drop_out, k_sample=args.B,
-        n_classes=args.n_classes, subtyping=False,
-        instance_loss_fn=instance_loss_fn,
-        embed_dim=args.embed_dim,
-        dsmil_nonlinear=True, dsmil_passing_v=False,
-    )
+    if args.model_type == "clam":
+        # CLAM_MB baseline (idéntico al job 4109: --model_type clam_mb
+        # --inst_loss svm --B 8 --bag_weight 0.7). Mismo instance_loss_fn
+        # SmoothTop1SVM. Sin aggregator dual-stream ni L_max.
+        from models.model_clam import CLAM_MB  # noqa: E402
+        model = CLAM_MB(
+            gate=True, size_arg="small",
+            dropout=args.drop_out, k_sample=args.B,
+            n_classes=args.n_classes, subtyping=False,
+            instance_loss_fn=instance_loss_fn,
+            embed_dim=args.embed_dim,
+        )
+    else:
+        model = DSMIL_CLAM_MB(
+            gate=True, size_arg="small",
+            dropout=args.drop_out, k_sample=args.B,
+            n_classes=args.n_classes, subtyping=False,
+            instance_loss_fn=instance_loss_fn,
+            embed_dim=args.embed_dim,
+            dsmil_nonlinear=True, dsmil_passing_v=False,
+        )
     return model.to(device)
 
 
@@ -159,8 +188,12 @@ def grad_l2_norm(module: nn.Module) -> float:
 
 
 def train_one_epoch(epoch, model, loader, optimizer, loss_fn,
-                    bag_weight, w_max, device):
-    """Réplica de `core_utils.train_loop_clam` + L_max sobre c."""
+                    bag_weight, w_max, device, model_type="dsmil"):
+    """Réplica de `core_utils.train_loop_clam` + L_max sobre c (solo DSMIL).
+
+    Con model_type="clam" el path es EXACTAMENTE core_utils.train_loop_clam
+    (L_bag + L_inst, sin L_max ni grad-logging del aggregator dual-stream).
+    """
     model.train()
     acc_logger = Accuracy_Logger(n_classes=model.n_classes)
     inst_logger = Accuracy_Logger(n_classes=model.n_classes)
@@ -182,20 +215,25 @@ def train_one_epoch(epoch, model, loader, optimizer, loss_fn,
 
         L_bag = loss_fn(logits, label)
         L_inst = instance_dict["instance_loss"]
-        c = instance_dict["instance_scores_c"]      # [N, n_classes]
-        max_pred, _ = c.max(dim=0)                  # [n_classes]
-        L_max = F.cross_entropy(max_pred.view(1, -1), label)
-
-        total = (bag_weight * L_bag
-                 + (1.0 - bag_weight) * L_inst
-                 + w_max * L_max)
+        if model_type == "dsmil":
+            c = instance_dict["instance_scores_c"]      # [N, n_classes]
+            max_pred, _ = c.max(dim=0)                  # [n_classes]
+            L_max = F.cross_entropy(max_pred.view(1, -1), label)
+            total = (bag_weight * L_bag
+                     + (1.0 - bag_weight) * L_inst
+                     + w_max * L_max)
+        else:
+            # CLAM baseline: idéntico a core_utils.train_loop_clam (sin L_max).
+            L_max = torch.zeros((), device=logits.device)
+            total = bag_weight * L_bag + (1.0 - bag_weight) * L_inst
         total.backward()
 
-        # Métricas de gradiente: post-backward, pre-step (después step
-        # los grads siguen disponibles hasta zero_grad, pero pre-step es
-        # más limpio conceptualmente).
-        sums["grad_W0"] += grad_l2_norm(model.dsmil_aggregator.i_classifier)
-        sums["grad_q"] += grad_l2_norm(model.dsmil_aggregator.q)
+        # Métricas de gradiente del aggregator dual-stream: solo DSMIL.
+        # Post-backward, pre-step (los grads siguen disponibles hasta
+        # zero_grad, pero pre-step es más limpio conceptualmente).
+        if model_type == "dsmil":
+            sums["grad_W0"] += grad_l2_norm(model.dsmil_aggregator.i_classifier)
+            sums["grad_q"] += grad_l2_norm(model.dsmil_aggregator.q)
 
         optimizer.step()
         optimizer.zero_grad()
@@ -364,7 +402,7 @@ def compute_test_metrics(model, loader, device):
 def main() -> int:
     args = parse_args()
     if args.exp_code is None:
-        args.exp_code = f"dsmil_{args.task}"
+        args.exp_code = f"{args.model_type}_{args.task}"  # dsmil_* (default) o clam_*
     args.opt = "adam"   # get_optim de Sebastián lo lee como atributo
 
     torch.manual_seed(args.seed)
@@ -428,17 +466,19 @@ def main() -> int:
     val_loader = get_split_loader(val_split)
     test_loader = get_split_loader(test_split)
 
-    # Snapshot inicial de pesos del aggregator (para inspección manual).
-    init_snap = {
-        "W0_weight_norm": float(
-            model.dsmil_aggregator.i_classifier.weight.data.norm().item()
-        ),
-        "q0_weight_norm": float(
-            model.dsmil_aggregator.q[0].weight.data.norm().item()
-        ),
-    }
-    with open(results_dir / "init_snapshot.json", "w") as f:
-        json.dump(init_snap, f, indent=2)
+    # Snapshot inicial de pesos del aggregator (solo DSMIL — CLAM no tiene
+    # dsmil_aggregator; para CLAM no aplica este diagnóstico).
+    if args.model_type == "dsmil":
+        init_snap = {
+            "W0_weight_norm": float(
+                model.dsmil_aggregator.i_classifier.weight.data.norm().item()
+            ),
+            "q0_weight_norm": float(
+                model.dsmil_aggregator.q[0].weight.data.norm().item()
+            ),
+        }
+        with open(results_dir / "init_snapshot.json", "w") as f:
+            json.dump(init_snap, f, indent=2)
 
     # EarlyStopping (R6 §5: con stop_epoch=50 > max_epochs=30 nunca
     # triggea, pero save_checkpoint guarda el best por val_loss). El
@@ -462,7 +502,7 @@ def main() -> int:
         for epoch in range(args.max_epochs):
             train_metrics, _, _ = train_one_epoch(
                 epoch, model, train_loader, optimizer, loss_fn,
-                args.bag_weight, args.w_max, device,
+                args.bag_weight, args.w_max, device, args.model_type,
             )
             should_stop, val_metrics = validate_one_epoch(
                 epoch, model, val_loader, loss_fn, device,
@@ -488,23 +528,24 @@ def main() -> int:
                 print(f"[EARLY-STOP] triggered at epoch {epoch}")
                 break
 
-    # Snapshot final del aggregator (pre-load del best checkpoint, para
-    # capturar el estado al cierre del training; el best puede ser de
-    # un epoch anterior y eso se ve en el delta).
-    final_snap = {
-        "W0_weight_norm": float(
-            model.dsmil_aggregator.i_classifier.weight.data.norm().item()
-        ),
-        "q0_weight_norm": float(
-            model.dsmil_aggregator.q[0].weight.data.norm().item()
-        ),
-    }
-    with open(results_dir / "final_snapshot.json", "w") as f:
-        json.dump(final_snap, f, indent=2)
-    print(f"[INFO] init  W0_norm={init_snap['W0_weight_norm']:.4f}  "
-          f"q0_norm={init_snap['q0_weight_norm']:.4f}")
-    print(f"[INFO] final W0_norm={final_snap['W0_weight_norm']:.4f}  "
-          f"q0_norm={final_snap['q0_weight_norm']:.4f}")
+    # Snapshot final del aggregator (solo DSMIL; pre-load del best
+    # checkpoint, para capturar el estado al cierre del training; el best
+    # puede ser de un epoch anterior y eso se ve en el delta).
+    if args.model_type == "dsmil":
+        final_snap = {
+            "W0_weight_norm": float(
+                model.dsmil_aggregator.i_classifier.weight.data.norm().item()
+            ),
+            "q0_weight_norm": float(
+                model.dsmil_aggregator.q[0].weight.data.norm().item()
+            ),
+        }
+        with open(results_dir / "final_snapshot.json", "w") as f:
+            json.dump(final_snap, f, indent=2)
+        print(f"[INFO] init  W0_norm={init_snap['W0_weight_norm']:.4f}  "
+              f"q0_norm={init_snap['q0_weight_norm']:.4f}")
+        print(f"[INFO] final W0_norm={final_snap['W0_weight_norm']:.4f}  "
+              f"q0_norm={final_snap['q0_weight_norm']:.4f}")
 
     # Patrón CLAM (main.py:214-217): si early_stopping activado, cargar
     # best por val_loss (EXPLÍCITO — NO usar el modelo del último epoch).
