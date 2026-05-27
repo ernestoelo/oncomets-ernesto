@@ -241,6 +241,18 @@ reunión.
   palanca ni con datos; cierra DSMIL también para el fusionado.
 - **Regresión** = Δ ≤ −0.05 → DSMIL peor; documentar y cerrar.
 
+> **Adenda 27-may (guardrail estadístico, NO cambia el umbral).** El umbral
+> +0.03 se **mantiene**. Aclaración de interpretación: la validación es
+> **Monte Carlo CV** (ver R4), con test que **se solapan** entre repeticiones →
+> los AUC/bal_acc por fold están **correlacionados** → el `std` es levemente
+> optimista y "bandas `mean ± std` no solapadas" es un **heurístico de
+> screening, NO una prueba de significancia formal**. Con k=3 el `std` mismo es
+> ruidoso. A favor: la comparación CLAM-vs-DSMIL es **pareada** (mismos splits)
+> → el Δ por fold cancela parte del ruido de partición. En `resultados.md` NO
+> sobre-afirmar significancia; reportar Δ pareado + bandas como evidencia
+> direccional, no como p-valor. (Evidencia del porqué: Fase 0 dio std hasta
+> 0.167 en carcinoma — el single-split engañaba.)
+
 ### 2.3 Variables controladas
 
 CLAM (Fase 1) vs DSMIL: **única variable = el aggregator**. Mismo CSV

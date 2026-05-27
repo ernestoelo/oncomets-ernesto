@@ -197,12 +197,17 @@ Argumento + métrica pre-registrados (reviewer OK):
 `sprints/B4_sprint4/objetivo_5_fusion_binaria/hipotesis.md`. 3 fases en chain
 SLURM (rama `feature/sprint4-fusion-microcalc`):
 
-- **Fase 0 (job 4170)** — varianza vía k-fold (CLAM, 3 binarias, **k=5**).
-  Calibra si los Δ vs Sebastián a n≈33 son reales o ruido (`--seed` con split
-  fijo NO sirve; la palanca es k-fold). **Tarea 0 (verdad de campo summary.csv):
-  en test_auc ya estamos en PARIDAD con Sebastián** en las 3 binarias (carc
-  0.808 vs 0.79, cdis 0.678 vs 0.69, tej 0.658 vs 0.63; |Δ|≤0.03, dentro del
-  ruido de 1 seed).
+- **Fase 0 (job 4170) — COMPLETA 27-may.** Varianza vía **Monte Carlo CV**
+  (k=5; lo llamamos "k-fold" en archivos pero es MC-CV = test solapados, el
+  mismo `generate_split` de CLAM, `utils/utils.py:104-141`). **Resultado clave**:
+  el single-split del 4109 era **optimista por suerte de sorteo**. test_auc
+  honesto (media±std): carcinoma **0.732 ± 0.167** (un fold dio 0.41!), cdis
+  **0.652 ± 0.072**, tejido **0.646 ± 0.025**; balanced_acc **0.639 / 0.595 /
+  0.577**. La "paridad/ventaja sobre Sebastián" del single-split NO se sostiene
+  — pero tampoco perdemos: con barras de error las 3 son **indistinguibles** de
+  Sebastián (su 0.79/0.69/0.63 cae dentro de las bandas). Regla §0.2 disparada
+  (std>0.05) → downstream solo con MC-CV. Detalle:
+  `objetivo_5_fusion_binaria/resultados.md`.
 - **Fase 1 (job 4171, dep 4170)** — CLAM sobre el fusionado (**k=3**, régimen
   test grande ~33 pos/fold). CSV propio 2814 slides (328 si / 2486 no, 7.58:1).
 - **Fase 2 (job 4172, dep 4171)** — DSMIL sobre el fusionado (k=3), con **gate
