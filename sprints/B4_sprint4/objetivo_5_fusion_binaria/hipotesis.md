@@ -180,8 +180,13 @@ confirma determinísticamente los conteos antes de cualquier split.
 
 ### 1.3 Métrica de éxito (predefinida)
 
-- **Decisiva**: `balanced_acc` (test), `mean ± std` sobre k=5 folds + matriz
+- **Decisiva**: `balanced_acc` (test), `mean ± std` sobre **k=3 folds** + matriz
   de confusión agregada. AUC se reporta pero no decide (régimen desbalanceado).
+  **k=3 (no 5) por régimen de datos**: la fusionada tiene ~33 positivos en test
+  (vs 7 en las binarias) → varianza de partición baja → 3 draws bastan para
+  barras de error estables. Las binarias (Fase 0) sí van a k=5 porque con 7
+  positivos la AUC por fold oscila fuerte. Decisión de presupuesto + cortesía
+  GPU única (chain ~15h vs ~24h con k=5), confirmada con Ernesto 27-may.
 - **Umbrales** (sobre `mean` k-fold):
   - **Usable** = balanced_acc ≥ 0.65 (umbral clínico) → detector de presencia
     aprovecha las no_id sin colapsar.
@@ -200,7 +205,9 @@ confirma determinísticamente los conteos antes de cualquier split.
 Args bendecidos idénticos a Fase 0. **Únicas diferencias**: `--task` apunta a
 la tarea fusionada nueva (registrada como config local, no en el `main.py` de
 Sebastián — vía CSV propio + `--auto-label-dict`), y `--split_dir` propio
-(k=5, generado de la misma forma). Modelo CLAM_MB, CONCH 512, B=8, 30 epochs.
+(k=3, generado con `scripts/build_fusion_splits.py`, misma lógica que Fase 0).
+Modelo CLAM_MB, CONCH 512, B=8, 30 epochs. Harness: `scripts/train_dsmil.py
+--model_type clam` (mismo train/val/test que DSMIL → apples-to-apples con Fase 2).
 
 ---
 
@@ -225,8 +232,8 @@ reunión.
 
 ### 2.2 Métrica de éxito (predefinida)
 
-- Mismo k=5 que CLAM en Fase 1. Δ = DSMIL − CLAM sobre el fusionado, en
-  `balanced_acc` (decisiva) y `test_auc` (reporte).
+- Mismo k=3 que CLAM en Fase 1 (mismos splits fusionados). Δ = DSMIL − CLAM
+  sobre el fusionado, en `balanced_acc` (decisiva) y `test_auc` (reporte).
 - **Éxito arquitectónico** = DSMIL Δ balanced_acc ≥ +0.03 (mean k-fold) sobre
   CLAM **Y** sin solaparse las bandas `mean ± std`. → el dual-stream aporta en
   el régimen con datos.
@@ -237,7 +244,7 @@ reunión.
 ### 2.3 Variables controladas
 
 CLAM (Fase 1) vs DSMIL: **única variable = el aggregator**. Mismo CSV
-fusionado, mismos k=5 splits, mismos args bendecidos + el `w_max=0.1` de DSMIL
+fusionado, mismos k=3 splits, mismos args bendecidos + el `w_max=0.1` de DSMIL
 ya validado (R1 del objetivo 3). Features CONCH 512, B=8, 30 epochs.
 
 ---

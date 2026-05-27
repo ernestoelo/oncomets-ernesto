@@ -15,6 +15,7 @@ Uso:
   $PY scripts/verify_kfold_splits.py
 Sale con código != 0 si alguna invariante falla (apto para preflight).
 """
+import glob
 import os
 import sys
 import pandas as pd
@@ -23,12 +24,21 @@ REPO = "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto"
 ENVIRON = "/media/administrador/Storage1/sdonoso/clam_environ/environ"
 SPLITS_BASE = os.path.join(REPO, "data", "splits_kfold")
 FEATS = os.path.join(ENVIRON, "features", "pt_files")
-K = 5
 
+# split_dir_name (bajo data/splits_kfold/) -> CSV de labels (path completo).
+# Las 3 binarias leen los CSV read-only de Sebastián; la fusionada lee el CSV
+# propio bajo clam_testing2/.
+_C = os.path.join(ENVIRON, "csv")
+_F = os.path.join(REPO, "data", "csv_fusion")
 TASKS = {
-    "carcinoma_invasivo": "dataset_microcalcificaciones_en_carcinoma_invasivo_label.csv",
-    "cdis": "dataset_microcalcificaciones_en_cdis_label.csv",
-    "tejido_no_neoplasico": "dataset_microcalcificaciones_en_tejido_no_neoplasico_label.csv",
+    "microcalcificaciones_en_carcinoma_invasivo_pth_100":
+        os.path.join(_C, "dataset_microcalcificaciones_en_carcinoma_invasivo_label.csv"),
+    "microcalcificaciones_en_cdis_pth_100":
+        os.path.join(_C, "dataset_microcalcificaciones_en_cdis_label.csv"),
+    "microcalcificaciones_en_tejido_no_neoplasico_pth_100":
+        os.path.join(_C, "dataset_microcalcificaciones_en_tejido_no_neoplasico_label.csv"),
+    "microcalcificaciones_presencia_100":
+        os.path.join(_F, "dataset_microcalcificaciones_presencia_label.csv"),
 }
 
 
@@ -40,13 +50,17 @@ def load_fold(split_dir, i):
 def main():
     pt_ids = {f[:-3] for f in os.listdir(FEATS) if f.endswith(".pt")}
     ok = True
-    for task, csv_name in TASKS.items():
-        split_dir = os.path.join(SPLITS_BASE, f"microcalcificaciones_en_{task}_pth_100")
-        labels = pd.read_csv(os.path.join(ENVIRON, "csv", csv_name))
+    for split_name, csv_path in TASKS.items():
+        split_dir = os.path.join(SPLITS_BASE, split_name)
+        labels = pd.read_csv(csv_path)
         lab = dict(zip(labels["slide_id"].astype(str), labels["label"].astype(str)))
         n_total_expected = len(labels)
-        print(f"\n=== {task}  (label CSV: {len(labels)} filas) ===")
-        for i in range(K):
+        # nº de folds = auto-detectado (binarias k=5, fusionada k=3).
+        fold_files = glob.glob(os.path.join(split_dir, "splits_*.csv"))
+        n_folds = len([p for p in fold_files
+                       if not p.endswith(("_bool.csv", "_descriptor.csv"))])
+        print(f"\n=== {split_name}  (label CSV: {len(labels)} filas, {n_folds} folds) ===")
+        for i in range(n_folds):
             f = load_fold(split_dir, i)
             tr, va, te = set(f["train"]), set(f["val"]), set(f["test"])
             allids = f["train"] + f["val"] + f["test"]
