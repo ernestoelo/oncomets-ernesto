@@ -7,9 +7,10 @@
 
 ## Sprint actual: B4 / Sprint 4
 
-**Snapshot: 22 may 2026 (post-reunión Sebastián + Eduardo)** (Objetivos 1 y 2
-completados; investigación del Objetivo 3 unificada a `main`; reformulación en
-3 binarios corrida y comparada con Sebastián — ver Reunión abajo).
+**Snapshot: 27 may 2026 (post-reunión 26-may 16:30)** (Objetivos 1-3
+completados; reformulación 3 binarios validada; **Objetivo 5 — fusión binaria
++ varianza k-fold + CLAM-vs-DSMIL — lanzado como chain SLURM 4170→4171→4172**.
+Ver Reunión 26-may y Objetivo 5 abajo.)
 
 ### Estado por objetivo
 
@@ -77,6 +78,10 @@ completados; investigación del Objetivo 3 unificada a `main`; reformulación en
 | `4098` | baseline B=8 `minpatch16` | COMPLETED |
 | `4099` | ablation B=16 `minpatch16` | COMPLETED |
 | `4109` | reformulación: 3 tareas binarias (PRELIMINAR) | COMPLETED |
+| `4137` | DSMIL 3 binarias (obj3, fracaso en balanced_acc) | COMPLETED |
+| `4170` | **Obj5 Fase 0** — varianza CLAM 3 binarias k=5 | RUNNING (27-may) |
+| `4171` | **Obj5 Fase 1** — CLAM fusionado k=3 | PENDING (dep 4170) |
+| `4172` | **Obj5 Fase 2** — DSMIL fusionado k=3 + gate | PENDING (dep 4171) |
 
 ### Reformulación multi-label — COMPLETADO (PRELIMINAR)
 
@@ -154,23 +159,62 @@ Acuerdos y dirección del sprint (ver `CLAUDE.md` Hallazgo 10):
 - Detalle completo + citas textuales en memorias
   `microcalc-dataset-decision.md` (actualizada) y `CLAUDE.md` Hallazgo 10.
 
-### Reunión Sebastián 26-may-2026 16:30 — AGENDADA
+### Reunión Sebastián + Eduardo — REALIZADA (26-may-2026 16:30)
 
-Convocada vía WhatsApp 26-may. Agenda:
+8 puntos conversados (reporte de Ernesto):
 
-1. **Propuesta jerárquica para microcalcificaciones** (idea de Sebastián que
-   surgió en la WhatsApp de la mañana): *"tiene o no tiene microcalcificaciones,
-   y si tiene, cual de estas tres"*. Sería binario presencia/ausencia +
-   3 binarios por tejido condicionados a presencia=SI. Permitiría aprovechar
-   las ~2487 WSIs `no_identificado` del `_pth` como negativos del nivel 1
-   sin disparar la mayoritaria de los binarios planos.
-   Detalle + cita textual + lo que falta acordar: memoria
-   `microcalc-hierarchical-proposal.md`.
-2. Cierre operacional del `_balance` aclarado (ver bloque anterior).
+1. **Tabla de mejores resultados de Sebastián** (17 tasks, 12 con test_auc≥0.75
+   = 71%). Métrica reportada = **test AUC**. Escoge dataset **por task** (no
+   uniforme): micro carc inv 0.79 (`combined`), micro cdis 0.69 (`pth_balance`
+   **con** no_id, rango 118-2010), micro tej no neo 0.63 (`pth_balance` 328).
+   Snapshot en `objetivo_5_fusion_binaria/` (vía hipotesis.md Tarea 0).
+2. **Eduardo + mammoth** en grado nuclear: reemplazó la 1ª FC común de CLAM por
+   mammoth → subió. **mammoth ya gana en 3 tasks** de Sebastián (g.h. tubular
+   0.81, c.d.i. grado nuclear 0.78, pleomorfismo 0.78).
+3. **Sebastián + LongNet** post-CONCH (al embedding) → empeoró en general.
+4. **Necrosis fusionada a 1 binario**: al unir varias binarias en UNA pregunta
+   ("tiene/no tiene"), **SÍ incluye `ausente/no_identificado` como negativo**;
+   con varias binarias separadas NO (absorberían la señal). **Regla nueva.**
+5. **Aprobado: fusionar las 3 binarias de microcalc en 1 binario** "tiene/no
+   tiene" + no_id como negativo. Condición: **no tocar sus CSVs/splits, crear
+   los nuestros** bajo `clam_testing2/`. → **Objetivo 5 Fase 1.**
+6. **Aprobado: CLAM vs DSMIL también en el fusionado** (Fase 2). Reabre DSMIL
+   solo en este régimen (más datos → ya no data-starved como en job 4137).
+7. **Diagrama DSMIL para la presentación** + diferencias/ventajas vs CLAM.
+8. **Ejes futuros aprobados**: (a) re-extraer CONCH a **mayor magnificación**
+   solo para slides de microcalc (CONCH es caro); (b) **selección de parches
+   con info (no ruido)** vía el mejor modelo, estilo heatmap Camelyon. Ambos
+   pendientes, no en este sprint.
 
-**Regla de oro**: NO construir CSVs/splits jerárquicos ni hipótesis hasta
-después de la reunión. Divergencia silenciosa con la versión definitiva
-de Sebastián si Ernesto improvisa.
+Alcance preciso de lo aprobado: **binario fusionado plano (nivel 1)**, NO el
+nivel 2 condicionado de la propuesta jerárquica original. Ver memoria
+[[microcalc-hierarchical-proposal]] (cerrada como adopción parcial) y
+[[microcalc-fusion-objetivo5]] (decisiones operativas del objetivo).
+
+### Objetivo 5 — Fusión binaria + varianza + arquitecturas (LANZADO 27-may)
+
+Argumento + métrica pre-registrados (reviewer OK):
+`sprints/B4_sprint4/objetivo_5_fusion_binaria/hipotesis.md`. 3 fases en chain
+SLURM (rama `feature/sprint4-fusion-microcalc`):
+
+- **Fase 0 (job 4170)** — varianza vía k-fold (CLAM, 3 binarias, **k=5**).
+  Calibra si los Δ vs Sebastián a n≈33 son reales o ruido (`--seed` con split
+  fijo NO sirve; la palanca es k-fold). **Tarea 0 (verdad de campo summary.csv):
+  en test_auc ya estamos en PARIDAD con Sebastián** en las 3 binarias (carc
+  0.808 vs 0.79, cdis 0.678 vs 0.69, tej 0.658 vs 0.63; |Δ|≤0.03, dentro del
+  ruido de 1 seed).
+- **Fase 1 (job 4171, dep 4170)** — CLAM sobre el fusionado (**k=3**, régimen
+  test grande ~33 pos/fold). CSV propio 2814 slides (328 si / 2486 no, 7.58:1).
+- **Fase 2 (job 4172, dep 4171)** — DSMIL sobre el fusionado (k=3), con **gate
+  de colapso** (se auto-aborta si Fase 1 colapsa <0.55, no quema GPU).
+
+Harness Fase 1/2 = `scripts/train_dsmil.py --model_type {clam,dsmil}` (switch
+aditivo; path DSMIL byte-idéntico a 4135/4137, reviewer-verificado) → CLAM y
+DSMIL por el MISMO train/val/test = apples-to-apples.
+
+**Hallazgo de la tabla de Sebastián**: su `pth_balance` de cdis YA incluye
+no_id (118 pos / 2010 neg) y aun así da 0.69 → tempera expectativa del
+fusionado (incluir no_id no fue bala de plata para él).
 
 ### Pendiente de confirmar con Sebastián
 
@@ -187,3 +231,7 @@ de Sebastián si Ernesto improvisa.
   `43d2ae4`).
 - `feature/sprint4-reformulacion-multilabel`: **ya unificada a `main`**
   (merge `c4982ed`).
+- `feature/sprint4-fusion-microcalc`: **ACTIVA** (Objetivo 5). Pusheada a
+  origin. Contiene hipótesis + Fase 0/1/2 (splits, CSV fusionado, gate, 2
+  .slurm, switch `--model_type` de train_dsmil). NO mergeada a main todavía
+  (esperar resultados del chain 4170→4171→4172).
