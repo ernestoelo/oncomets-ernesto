@@ -1,8 +1,9 @@
 # Resultados — Objetivo 5
 
-> Se llena por fase. **Fase 0 COMPLETA** (job 4170, 27-may). Fase 1 (4171)
-> corriendo, Fase 2 (4172) en cola. Métricas = verdad de campo desde
-> `results/obj5_varianza_*/.../summary.csv` y `split_*_results.pkl`.
+> **Objetivo 5 COMPLETO.** Fase 0 (job 4170, 27-may), Fase 1 (4171, 27-may) y
+> Fase 2 (4172, 28-may) ya cerradas. Métricas = verdad de campo desde
+> `results/obj5_varianza_*/.../summary.csv`,
+> `results/obj5_fase{1,2}_*/.../test_metrics.json` y `split_*_results.pkl`.
 
 ---
 
@@ -90,11 +91,73 @@ no_id → 0.69 AUC; nosotros 0.776 AUC pero balanced_acc honesta 0.620).
    pareada CLAM vs DSMIL con barras de error chicas → el umbral arquitectónico
    +0.03 (§2.2) es exigente y honesto (DSMIL necesita bal_acc ≥ 0.65 mean).
 
-## FASE 2 — DSMIL sobre el fusionado (RUNNING, job 4172)
+## FASE 2 — DSMIL sobre el fusionado (COMPLETA, job 4172, 28-may)
 
-(gate pasó; corriendo desde 27-may ~21:45; se llena al terminar)
+**Setup**: train_dsmil.py `--model_type dsmil` (path DSMIL byte-idéntico a
+4135/4137, reviewer-verificado), 2814 slides, **mismos splits k=3 que Fase 1**
+(comparación pareada), args bendecidos + `w_max=0.1` ya validado. ~6h09m wall.
+Gate de colapso §1.3 PASÓ (Fase 1 bal_acc 0.620 > 0.55) → DSMIL corrió como
+estaba pre-registrado.
 
-## FASE 2 — DSMIL sobre el fusionado (PENDIENTE, job 4172 en cola)
+| Métrica | f0 | f1 | f2 | **media ± std** |
+|---|---|---|---|---|
+| test_auc | 0.781 | 0.723 | 0.764 | **0.756 ± 0.024** |
+| balanced_acc | 0.726 | 0.630 | 0.626 | **0.661 ± 0.046** |
+| confusión TP/FN (recall+) | 21/11 (0.66) | 12/20 (0.38) | 14/18 (0.44) | recall+ ≈ 0.49 ± 0.12 |
+| confusión TN/FP (recall−) | 198/51 (0.80) | 225/29 (0.89) | 203/46 (0.82) | recall− ≈ 0.83 ± 0.04 |
 
-(corre solo si el gate de colapso pasa; comparación pareada CLAM vs DSMIL,
-ver hipotesis.md §2.2 + adenda estadística)
+### Comparación pareada CLAM vs DSMIL (mismos splits, 3 folds)
+
+| Fold | CLAM bal_acc | DSMIL bal_acc | Δ bal_acc | CLAM AUC | DSMIL AUC | Δ AUC |
+|---|---|---|---|---|---|---|
+| f0 | 0.632 | 0.726 | **+0.094** | 0.805 | 0.781 | −0.024 |
+| f1 | 0.621 | 0.630 | +0.009 | 0.764 | 0.723 | −0.041 |
+| f2 | 0.608 | 0.626 | +0.018 | 0.758 | 0.764 | +0.006 |
+| **media ± std** | 0.620 ± 0.010 | 0.661 ± 0.046 | **+0.040 ± 0.038** | 0.776 ± 0.021 | 0.756 ± 0.024 | **−0.020 ± 0.019** |
+
+### Veredicto (umbrales §2.2 + adenda estadística)
+
+**Banda AMBIGUA.** Lectura honesta:
+
+- DSMIL media **0.661 ± 0.046** cruza el umbral pre-registrado §2.2 (≥0.65 mean
+  para "supera") por +0.011 — dentro de la barra de error.
+- Δ pareado **+0.040 ± 0.038** en balanced_acc: **signo positivo en los 3
+  folds** (consistente), pero magnitud chica y std grande con k=3.
+- **Bandas mean ± std SE SOLAPAN** (CLAM [0.610, 0.630] vs DSMIL [0.615, 0.707])
+  → el heurístico §2.2 de "bandas no solapadas" NO se cumple.
+- **AUC retrocede** (Δ = −0.020 ± 0.019), no acompaña al balanced_acc.
+
+No es éxito arquitectónico (§2.2 exige Δ ≥ +0.03 mean **Y** bandas no
+solapadas: cumple Δ pero NO bandas) ni regresión (Δ ≥ −0.05). Tampoco
+"plateau" estricto (signo consistente en los 3 folds). **Lectura: banda
+ambigua — NO sobre-vender como "supera a CLAM".**
+
+### Hallazgos
+
+1. **DSMIL es menos conservador, no necesariamente mejor discriminador.**
+   Recupera más positivos (recall+ ≈ 0.49 vs CLAM 0.36) — detecta 1 de cada 2
+   casos con micro vs 1 de cada 3 — pero a costa de más falsos positivos
+   (recall− cae de 0.88 → 0.83). El AUC (independiente del umbral) **baja**
+   −0.020 → DSMIL no rankea mejor, solo desplaza el umbral implícito.
+2. **El régimen ya NO está data-starved** (era el argumento §2.1 para reabrir
+   DSMIL en el fusionado), pero la arquitectura **no rinde aporte claro** ni
+   siquiera con ~262 positivos en train (vs ~54 en las binarias del 4137).
+   El cuello de botella no era solo el tamaño.
+3. **Adenda §2.2 confirmada empíricamente.** Con MC-CV k=3 el `std` mismo es
+   ruidoso; el Δ pareado es +0.040 en media pero su std (0.038) abarca cero.
+   Sin paired test formal (paired t-test sobre 3 folds no es robusto), la
+   evidencia direccional es **no concluyente**.
+4. **Frente a CLAM Fase 1**: la accuracy DSMIL es similar (~0.79 vs 0.82),
+   pero el patrón cambia — DSMIL acepta más FP por más TP. Para una decisión
+   clínica con costo asimétrico (un FN vale más que un FP en screening), la
+   balanced_acc 0.066 mayor podría preferirse — pero NO con k=3 como única
+   evidencia. Sería un eje para validación externa.
+
+### Para la presentación
+
+- Slide 10 (`presentacion_contenido_completo.md`): tabla por fold + Δ pareado
+  + veredicto ambiguo. Fig 2 (`figuras/fig2_fusionado_clam_vs_dsmil.png`).
+- Mensaje: *DSMIL aporta direccionalmente en balanced_acc pero no en AUC, y
+  las bandas se solapan a k=3. No es éxito ni fracaso — es "no concluyente",
+  y eso vale como dato: la arquitectura sola tampoco mueve la aguja, el
+  cuello sigue siendo datos / contexto espacial / desbalance.*
