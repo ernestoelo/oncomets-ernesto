@@ -233,49 +233,76 @@ BLOQUE 4 — Por qué la accuracy es alta y engaña
 
 ## SLIDE 10 — Con fusión: ¿gana DSMIL a CLAM? (Fase 2, k=3 MC-CV)
 
-> **PENDIENTE — el job 4172 sigue corriendo al cierre de la sesión 27-may noche.**
-> Mismo dataset (2814 fusionado), mismos splits k=3 que Fase 1 (comparación pareada).
-> Se llena con los `test_metrics.json` de DSMIL al terminar el chain.
+Dataset y splits **idénticos a Fase 1** (2814 slides, mismos 3 sorteos MC-CV)
+→ comparación **pareada**: CLAM y DSMIL ven exactamente las mismas slides en
+train / val / test fold por fold. Única variable que cambia: el aggregator
+(gated-attention de CLAM vs dual-stream de DSMIL).
+
+### Por fold (DSMIL_MB sobre los mismos splits que Fase 1)
 
 | Fold | TN | FP | FN | TP | recall+ | recall− | balanced_acc | accuracy | AUC |
 |---|---|---|---|---|---|---|---|---|---|
-| 0 |  |  |  |  |  |  |  |  |  |
-| 1 |  |  |  |  |  |  |  |  |  |
-| 2 |  |  |  |  |  |  |  |  |  |
-| **media ± std** | | | | | | | | | |
+| 0 | 198 | 51 | 11 | 21 | **0.66** | 0.80 | 0.726 | 0.78 | 0.781 |
+| 1 | 225 | 29 | 20 | 12 | 0.38 | 0.89 | 0.630 | 0.83 | 0.723 |
+| 2 | 203 | 46 | 18 | 14 | 0.44 | 0.82 | 0.626 | 0.77 | 0.764 |
+| **media ± std** | | | | | **0.49 ± 0.12** | **0.83 ± 0.04** | **0.661 ± 0.046** | **0.79 ± 0.03** | **0.756 ± 0.024** |
 
 ### Comparación pareada CLAM vs DSMIL — el resultado clave del objetivo
 
 | Métrica | CLAM (Fase 1) | DSMIL (Fase 2) | Δ (DSMIL − CLAM) |
 |---|---|---|---|
-| balanced_acc | **0.620 ± 0.010** | _pendiente_ | _pendiente_ |
-| test AUC | **0.776 ± 0.021** | _pendiente_ | _pendiente_ |
-| recall+ | 0.36 ± 0.05 | _pendiente_ | _pendiente_ |
-| recall− | 0.88 ± 0.03 | _pendiente_ | _pendiente_ |
+| balanced_acc | **0.620 ± 0.010** | **0.661 ± 0.046** | **+0.040 ± 0.038** |
+| test AUC | **0.776 ± 0.021** | **0.756 ± 0.024** | **−0.020 ± 0.019** |
+| recall+ | 0.36 ± 0.05 | **0.49 ± 0.12** | **+0.13** |
+| recall− | 0.88 ± 0.03 | 0.83 ± 0.04 | **−0.05** |
 
-BLOQUE 1 — Veredicto a aplicar (§2.2 de la hipótesis, pre-registrado)
--> Éxito arquitectónico = Δ balanced_acc ≥ +0.03 Y bandas mean ± std no solapadas.
--> Plateau = |Δ| < 0.03 o bandas solapadas → DSMIL no aporta sobre el fusionado.
--> Regresión = Δ ≤ −0.05 → DSMIL peor.
+### Δ pareado fold por fold (balanced_acc)
 
-BLOQUE 2 — Guardrail estadístico (adenda 27-may)
+| Fold | CLAM | DSMIL | Δ (DSMIL − CLAM) |
+|---|---|---|---|
+| 0 | 0.632 | 0.726 | **+0.094** |
+| 1 | 0.621 | 0.630 | +0.009 |
+| 2 | 0.608 | 0.626 | +0.018 |
+
+BLOQUE 1 — La dirección es consistente, la magnitud no es concluyente
+-> Δ balanced_acc positivo en los 3 folds (signo consistente, mecanismo plausible).
+-> Pero magnitud chica y std grande con k=3: +0.040 ± 0.038.
+-> Las bandas mean ± std SE SOLAPAN: CLAM [0.610, 0.630] vs DSMIL [0.615, 0.707].
+-> AUC retrocede −0.020 — no acompaña al balanced_acc.
+
+BLOQUE 2 — Qué cambia DSMIL en la práctica
+-> DSMIL recupera más positivos: recall+ 0.49 vs 0.36 (detecta 1 de cada 2 vs 1 de cada 3).
+-> Pero acepta más falsos positivos: recall− 0.83 vs 0.88.
+-> Lectura: DSMIL es **menos conservador**, no necesariamente mejor discriminador.
+-> El AUC bajando confirma: no rankea mejor, solo desplaza el umbral implícito.
+
+BLOQUE 3 — Veredicto aplicado (§2.2 de la hipótesis, pre-registrado)
+-> Éxito arquitectónico = Δ balanced_acc ≥ +0.03 mean Y bandas mean ± std no solapadas.
+-> DSMIL cumple el Δ (+0.040) pero NO la condición de bandas (se solapan).
+-> No es éxito en el sentido fuerte. No es regresión (Δ ≥ −0.05). No es plateau estricto (signo consistente).
+-> **Lectura honesta: banda AMBIGUA — no sobre-vender como "supera a CLAM".**
+
+BLOQUE 4 — Guardrail estadístico (adenda 27-may, confirmado empíricamente)
 -> Los test sets de MC-CV se solapan entre folds → los Δ están correlacionados.
 -> "Bandas no solapadas" es un heurístico de screening, no una prueba de significancia formal.
--> Con k=3 el std mismo es ruidoso.
+-> Con k=3 el std mismo es ruidoso (Δ std 0.038 abarca cero).
 -> Reportar la dirección del Δ, no afirmar un p-valor.
+
+Punto clave para la slide: *DSMIL aporta direccionalmente en balanced_acc pero no en AUC, y las bandas se solapan a k=3. No es éxito ni fracaso — es "no concluyente". El cuello sigue siendo datos / contexto espacial / desbalance, no la arquitectura.*
 
 ---
 
 ## SLIDE 11 — Cierre: la lección del Objetivo 5
 
-BLOQUE 1 — Tres descubrimientos
+BLOQUE 1 — Cuatro descubrimientos
 -> El single-split del 4109 era optimista por suerte. La estimación honesta es más modesta.
 -> Frente a Sebastián, estamos en paridad estadística (no superiores, no inferiores).
 -> Fusionar las 3 binarias en una sola pregunta + incluir no_identificado NO fue bala de plata: balanced_acc 0.620 ≈ promedio de las binarias separadas (0.60).
+-> DSMIL sobre el fusionado dio Δ +0.040 en balanced_acc (los 3 folds positivos) pero bandas solapadas y AUC retrocediendo: banda AMBIGUA, no éxito arquitectónico en sentido fuerte.
 
 BLOQUE 2 — Lo que el objetivo aportó
 -> Medir la incertidumbre que el single-split escondía.
--> Confirmar que el cuello de botella sigue siendo datos / contexto espacial / desbalance, NO arquitectura ni formulación.
+-> Confirmar que el cuello de botella sigue siendo datos / contexto espacial / desbalance, NO la arquitectura sola (DSMIL en régimen con datos tampoco rompe la barrera) NI la formulación (fusionado plano ≈ promedio binarias separadas).
 -> Justificar empíricamente los próximos ejes: mayor magnificación CONCH y selección de parches con información (no ruido).
 
 BLOQUE 3 — Próximos pasos (ya aprobados por Sebastián, futuros sprints)

@@ -119,7 +119,7 @@ no significa nada — y de hecho ese 0.808 resultó ser 0.732 ± 0.167 al repeti
 | 10 | 4170 | Fase 0 varianza — CDIS | CLAM_MB | binaria | 328 | **5** | ✅ | **0.652 ± 0.072** | **0.595 ± 0.077** |
 | 11 | 4170 | Fase 0 varianza — tejido | CLAM_MB | binaria | 328 | **5** | ✅ | **0.646 ± 0.025** | **0.577 ± 0.030** |
 | 12 | 4171 | Fase 1 — fusionado | CLAM_MB | fusionada | 2814 | **3** | ✅ | **0.776 ± 0.021** | **0.620 ± 0.010** (plateau) |
-| 13 | 4172 | Fase 2 — fusionado | DSMIL | fusionada | 2814 | **3** | ⏳ |  ±  |  ±  |
+| 13 | 4172 | Fase 2 — fusionado | DSMIL | fusionada | 2814 | **3** | ✅ | **0.756 ± 0.024** | **0.661 ± 0.046** (ambigua) |
 
 > ✅ hecho · ⏳ en cola/corriendo · `±` = media ± desviación sobre las k
 > repeticiones de MC-CV. Filas 3-5 (4109) = **un solo sorteo** → optimistas
@@ -145,12 +145,32 @@ no significa nada — y de hecho ese 0.808 resultó ser 0.732 ± 0.167 al repeti
 ## D. Notas para llenar resultados
 
 - **Fila 9-11 (Fase 0):** ✅ LLENO (job 4170, `results/obj5_varianza_<tejido>/`).
-- **Fila 12-13 (Fase 1/2):** PENDIENTE — de
-  `results/obj5_fase1_clam_fusionado/clam_presencia_f*_s1/test_metrics.json` y
-  `results/obj5_fase2_dsmil_fusionado/dsmil_presencia_f*_s1/test_metrics.json`
-  (`balanced_acc` directo + test_auc) → media ± std sobre los 3 folds.
-- La comparación clave de la presentación: **¿DSMIL (fila 13) supera a CLAM
-  (fila 12) sobre el fusionado, con bandas que NO se solapan?**
+- **Fila 12 (Fase 1, CLAM fusionado):** ✅ LLENO (job 4171,
+  `results/obj5_fase1_clam_fusionado/clam_presencia_f*_s1/test_metrics.json`).
+- **Fila 13 (Fase 2, DSMIL fusionado):** ✅ LLENO (job 4172,
+  `results/obj5_fase2_dsmil_fusionado/dsmil_presencia_f*_s1/test_metrics.json`).
+
+### La comparación clave del objetivo — lectura honesta (§2.2)
+
+**¿DSMIL (fila 13) supera a CLAM (fila 12) sobre el fusionado?**
+
+| Métrica | CLAM (Fase 1) | DSMIL (Fase 2) | Δ pareado (DSMIL − CLAM) |
+|---|---|---|---|
+| balanced_acc | **0.620 ± 0.010** | **0.661 ± 0.046** | **+0.040 ± 0.038** |
+| test_auc | **0.776 ± 0.021** | **0.756 ± 0.024** | **−0.020 ± 0.019** |
+
+- **DSMIL cruza el umbral 0.65** (umbral §2.2 "supera") por +0.011 — dentro
+  de la barra de error.
+- Δ balanced_acc **positivo en los 3 folds** (+0.094, +0.009, +0.018) — signo
+  consistente, mecanismo plausible.
+- Pero las **bandas mean ± std SE SOLAPAN** (CLAM [0.610, 0.630] vs DSMIL
+  [0.615, 0.707]) → el heurístico de screening §2.2 NO se cumple.
+- **AUC retrocede** (−0.020), no acompaña.
+- DSMIL recupera más positivos (recall+ ≈ 0.49 vs CLAM 0.36) pero con más FP
+  → es **menos conservador**, no necesariamente mejor discriminador.
+
+**Veredicto: banda AMBIGUA**. No "supera" en el sentido fuerte de §2.2; tampoco
+"plateau" estricto (signo consistente). No sobre-vender en la slide.
 
 > **Matiz estadístico (no sobre-afirmar).** Los test de MC-CV **se solapan**
 > entre repeticiones → los AUC están correlacionados → "bandas no solapadas"
