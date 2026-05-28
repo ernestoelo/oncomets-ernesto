@@ -443,6 +443,20 @@ sbatch. El reviewer lo verifica como parte del checklist.
 10. **Antes de confiar en `splits_0_descriptor.csv`**, cross-check con el
     join `splits_0.csv ⨯ dataset_<task>_label.csv` (ver Hallazgos).
 
+11. **Limpieza de branches al cierre del sprint.** Durante un sprint
+    activo, las branches mergeadas se PRESERVAN en remoto como
+    referencias vivas (permite `git checkout feature/X` si hay que
+    re-mirar el contexto). Al CIERRE del sprint (cuando todos los
+    objetivos están consolidados en main y no hay trabajo pendiente
+    en ninguna feature), borrar local + remoto las branches
+    mergeadas en una sola pasada. Verificación previa obligatoria:
+    `git branch -a --no-merged main` debe devolver vacío (cero
+    pérdida de código). La línea semántica de cada branch queda
+    preservada en los merge commits via `git log --graph`. La regla
+    NO aplica a branches huérfanas con trabajo no mergeado — esas
+    se resuelven caso por caso (rebase, cherry-pick, o discusión).
+    Ver memoria [[repo-limpieza-branches-cierre-sprint]].
+
 ## Args bendecidos por Sebastián (de `run_all_training.sh` real)
 
 ```
