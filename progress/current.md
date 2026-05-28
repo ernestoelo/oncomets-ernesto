@@ -7,9 +7,11 @@
 
 ## Sprint actual: B4 / Sprint 4
 
-**Snapshot: 22 may 2026 (post-reunión Sebastián + Eduardo)** (Objetivos 1 y 2
-completados; investigación del Objetivo 3 unificada a `main`; reformulación en
-3 binarios corrida y comparada con Sebastián — ver Reunión abajo).
+**Snapshot: 28 may 2026 (post chain Obj 5)** (Objetivos 1-3 completados;
+reformulación 3 binarios validada; **Objetivo 5 COMPLETADO** — chain SLURM
+4170→4171→4172 ✅, veredicto §2.2 = **banda ambigua** para DSMIL sobre el
+fusionado, slides 1-11 listas. Objetivo 4 (heatmaps) pendiente. Ver Objetivo 5
+abajo.)
 
 ### Estado por objetivo
 
@@ -36,6 +38,14 @@ completados; investigación del Objetivo 3 unificada a `main`; reformulación en
   un eje **ortogonal** al desbalance; **sujeto a confirmación** en la reunión.
 - **Objetivo 4 — Heatmaps comparativos**: **PENDIENTE** (Obj 2 ya no lo
   bloquea). Viabilidad verificada (`objetivo_4_heatmaps/viabilidad_script.md`).
+- **Objetivo 5 — Fusión binaria + varianza MC-CV + CLAM-vs-DSMIL**:
+  **COMPLETADO (28 may 2026)**. Chain `4170→4171→4172` ✅. Veredicto §2.2 =
+  **banda AMBIGUA** para DSMIL sobre fusionado (Δ bal_acc +0.040 ± 0.038
+  positivo en los 3 folds pero bandas mean±std solapadas; AUC retrocede
+  −0.020 ± 0.019). Hallazgo central: el cuello sigue siendo datos / contexto
+  espacial / desbalance, NO la arquitectura sola NI la formulación. Slides
+  1-11 listas en `objetivo_5_fusion_binaria/presentacion_contenido_completo.md`.
+  Detalle: `objetivo_5_fusion_binaria/resultados.md`.
 - **Reformulación multi-label**: **COMPLETADO (PRELIMINAR)** — **NO es hallazgo
   nuestro.** En la reunión Sebastián confirmó que él ya había hecho la
   separación en 3 binarios hace tiempo; nosotros dimos con su CSV y
@@ -77,6 +87,10 @@ completados; investigación del Objetivo 3 unificada a `main`; reformulación en
 | `4098` | baseline B=8 `minpatch16` | COMPLETED |
 | `4099` | ablation B=16 `minpatch16` | COMPLETED |
 | `4109` | reformulación: 3 tareas binarias (PRELIMINAR) | COMPLETED |
+| `4137` | DSMIL 3 binarias (obj3, fracaso en balanced_acc) | COMPLETED |
+| `4170` | **Obj5 Fase 0** — varianza CLAM 3 binarias k=5 | COMPLETED (27-may) |
+| `4171` | **Obj5 Fase 1** — CLAM fusionado k=3 | COMPLETED (27-may) |
+| `4172` | **Obj5 Fase 2** — DSMIL fusionado k=3 + gate | COMPLETED (28-may, gate PASÓ) |
 
 ### Reformulación multi-label — COMPLETADO (PRELIMINAR)
 
@@ -132,15 +146,22 @@ Acuerdos y dirección del sprint (ver `CLAUDE.md` Hallazgo 10):
 6. **Investigar:** escala / nº de parches y features de citoplasma según tarea;
    buscar papers que evalúen tareas débiles con buenos resultados.
 
-### Próxima misión (Ernesto — este finde + semana que viene)
+### Próxima misión (Ernesto — semana 28-may en adelante)
 
-- **Investigar requisitos para mejorar microcalcificaciones** y los factores
-  clave para adoptar un modelo nuevo (escala de parches, citoplasma, etc.).
-- **Llegar con una implementación corrida** (DSMIL u otro) para comparar contra
-  el baseline en el mismo dataset (~548), ojalá con mejora medible.
-- Mejorar la presentación del Sprint 4
-  (`sprints/B4_sprint4/presentacion_contenido.md`) — reencuadrar la
-  reformulación como validación, no como descubrimiento.
+- **Armar slides en OnlyOffice** copiando desde
+  `sprints/B4_sprint4/objetivo_5_fusion_binaria/presentacion_contenido_completo.md`
+  (Slides 1-11, formato copy-paste) + insertar `figuras/{fig1a_fase0_auc.png,
+  fig1b_fase0_balacc.png, fig2_fusionado_clam_vs_dsmil.png}`. Una vez listo
+  → habilita merge a main del Obj 5.
+- **Objetivo 4 (heatmaps comparativos)**: arrancar; viabilidad ya verificada
+  (`objetivo_4_heatmaps/viabilidad_script.md`). Insumo natural del Eje B
+  (selección de parches con información).
+- **Ejes futuros (post-sprint, aprobados Sebastián 26-may)**: re-extracción
+  CONCH a mayor magnificación (Eje A, priorizado) + selección de parches
+  útiles (Eje B). Ver `sprints/B4_sprint4/ejes_futuros_microcalc.md`.
+- **Apéndice descartado**: DSMIL × 3 binarias × k=5 NO se ejecuta este sprint
+  (Hallazgo 4 de Fase 0 ya respondió la pregunta arquitectónica; Sebastián
+  pidió otra dirección). Registrado en `ejes_futuros_microcalc.md`.
 
 ### WhatsApp Sebastián 26-may-2026 (mañana) — pendientes aclarados
 
@@ -154,23 +175,88 @@ Acuerdos y dirección del sprint (ver `CLAUDE.md` Hallazgo 10):
 - Detalle completo + citas textuales en memorias
   `microcalc-dataset-decision.md` (actualizada) y `CLAUDE.md` Hallazgo 10.
 
-### Reunión Sebastián 26-may-2026 16:30 — AGENDADA
+### Reunión Sebastián + Eduardo — REALIZADA (26-may-2026 16:30)
 
-Convocada vía WhatsApp 26-may. Agenda:
+8 puntos conversados (reporte de Ernesto):
 
-1. **Propuesta jerárquica para microcalcificaciones** (idea de Sebastián que
-   surgió en la WhatsApp de la mañana): *"tiene o no tiene microcalcificaciones,
-   y si tiene, cual de estas tres"*. Sería binario presencia/ausencia +
-   3 binarios por tejido condicionados a presencia=SI. Permitiría aprovechar
-   las ~2487 WSIs `no_identificado` del `_pth` como negativos del nivel 1
-   sin disparar la mayoritaria de los binarios planos.
-   Detalle + cita textual + lo que falta acordar: memoria
-   `microcalc-hierarchical-proposal.md`.
-2. Cierre operacional del `_balance` aclarado (ver bloque anterior).
+1. **Tabla de mejores resultados de Sebastián** (17 tasks, 12 con test_auc≥0.75
+   = 71%). Métrica reportada = **test AUC**. Escoge dataset **por task** (no
+   uniforme): micro carc inv 0.79 (`combined`), micro cdis 0.69 (`pth_balance`
+   **con** no_id, rango 118-2010), micro tej no neo 0.63 (`pth_balance` 328).
+   Snapshot en `objetivo_5_fusion_binaria/` (vía hipotesis.md Tarea 0).
+2. **Eduardo + mammoth** en grado nuclear: reemplazó la 1ª FC común de CLAM por
+   mammoth → subió. **mammoth ya gana en 3 tasks** de Sebastián (g.h. tubular
+   0.81, c.d.i. grado nuclear 0.78, pleomorfismo 0.78).
+3. **Sebastián + LongNet** post-CONCH (al embedding) → empeoró en general.
+4. **Necrosis fusionada a 1 binario**: al unir varias binarias en UNA pregunta
+   ("tiene/no tiene"), **SÍ incluye `ausente/no_identificado` como negativo**;
+   con varias binarias separadas NO (absorberían la señal). **Regla nueva.**
+5. **Aprobado: fusionar las 3 binarias de microcalc en 1 binario** "tiene/no
+   tiene" + no_id como negativo. Condición: **no tocar sus CSVs/splits, crear
+   los nuestros** bajo `clam_testing2/`. → **Objetivo 5 Fase 1.**
+6. **Aprobado: CLAM vs DSMIL también en el fusionado** (Fase 2). Reabre DSMIL
+   solo en este régimen (más datos → ya no data-starved como en job 4137).
+7. **Diagrama DSMIL para la presentación** + diferencias/ventajas vs CLAM.
+8. **Ejes futuros aprobados**: (a) re-extraer CONCH a **mayor magnificación**
+   solo para slides de microcalc (CONCH es caro); (b) **selección de parches
+   con info (no ruido)** vía el mejor modelo, estilo heatmap Camelyon. Ambos
+   pendientes, no en este sprint.
 
-**Regla de oro**: NO construir CSVs/splits jerárquicos ni hipótesis hasta
-después de la reunión. Divergencia silenciosa con la versión definitiva
-de Sebastián si Ernesto improvisa.
+Alcance preciso de lo aprobado: **binario fusionado plano (nivel 1)**, NO el
+nivel 2 condicionado de la propuesta jerárquica original. Ver memoria
+[[microcalc-hierarchical-proposal]] (cerrada como adopción parcial) y
+[[microcalc-fusion-objetivo5]] (decisiones operativas del objetivo).
+
+### Objetivo 5 — Fusión binaria + varianza + arquitecturas (COMPLETADO 28-may)
+
+Argumento + métrica pre-registrados (reviewer OK):
+`sprints/B4_sprint4/objetivo_5_fusion_binaria/hipotesis.md`. 3 fases en chain
+SLURM (rama `feature/sprint4-fusion-microcalc`, pusheada a origin con todos
+los commits del cierre):
+
+- **Fase 0 (job 4170) — COMPLETA 27-may.** Varianza vía **Monte Carlo CV**
+  (k=5; lo llamamos "k-fold" en archivos pero es MC-CV = test solapados, el
+  mismo `generate_split` de CLAM, `utils/utils.py:104-141`). **Resultado clave**:
+  el single-split del 4109 era **optimista por suerte de sorteo**. test_auc
+  honesto (media±std): carcinoma **0.732 ± 0.167** (un fold dio 0.41!), cdis
+  **0.652 ± 0.072**, tejido **0.646 ± 0.025**; balanced_acc **0.639 / 0.595 /
+  0.577**. La "paridad/ventaja sobre Sebastián" del single-split NO se sostiene
+  — pero tampoco perdemos: con barras de error las 3 son **indistinguibles** de
+  Sebastián (su 0.79/0.69/0.63 cae dentro de las bandas). Regla §0.2 disparada
+  (std>0.05) → downstream solo con MC-CV.
+- **Fase 1 (job 4171) — COMPLETA 27-may.** CLAM sobre el fusionado (**k=3**,
+  régimen test grande ~33 pos/fold). CSV propio 2814 slides (328 si / 2486 no,
+  7.58:1). balanced_acc **0.620 ± 0.010** (PLATEAU §1.3, no llega al umbral
+  clínico 0.65 pero no colapsa); test_auc **0.776 ± 0.021**. Gate de colapso
+  para Fase 2 PASA (>0.55).
+- **Fase 2 (job 4172) — COMPLETA 28-may.** DSMIL sobre el fusionado (mismos
+  splits k=3 que Fase 1 → comparación pareada). balanced_acc **0.661 ± 0.046**;
+  test_auc **0.756 ± 0.024**. Δ pareado bal_acc **+0.040 ± 0.038** positivo en
+  los 3 folds (+0.094/+0.009/+0.018), pero **bandas mean±std SE SOLAPAN** (CLAM
+  [0.610, 0.630] vs DSMIL [0.615, 0.707]) → heurístico §2.2 NO se cumple. Δ
+  pareado AUC **−0.020 ± 0.019** (no acompaña). DSMIL recupera más positivos
+  (recall+ 0.49 vs CLAM 0.36) pero con más FP (recall− 0.83 vs 0.88) → menos
+  conservador, no necesariamente mejor discriminador. **Veredicto §2.2 = banda
+  AMBIGUA**: NO sobre-vender como "supera a CLAM".
+
+Harness Fase 1/2 = `scripts/train_dsmil.py --model_type {clam,dsmil}` (switch
+aditivo; path DSMIL byte-idéntico a 4135/4137, reviewer-verificado) → CLAM y
+DSMIL por el MISMO train/val/test = apples-to-apples.
+
+**Hallazgo de la tabla de Sebastián**: su `pth_balance` de cdis YA incluye
+no_id (118 pos / 2010 neg) y aun así da 0.69 → temperaba expectativa del
+fusionado (incluir no_id no fue bala de plata para él). Resultado nuestro
+confirma: balanced_acc honesta 0.620 ≈ promedio de las binarias separadas.
+
+**Lección central del objetivo**: el cuello sigue siendo datos / contexto
+espacial / desbalance, NO la arquitectura sola (DSMIL en régimen con datos
+tampoco rompe la barrera) NI la formulación (fusionado plano ≈ promedio
+binarias separadas). Justifica empíricamente los ejes futuros aprobados
+(mayor magnificación CONCH + selección de parches).
+
+**Entregables**: Slides 1-11 en `objetivo_5_fusion_binaria/presentacion_contenido_completo.md`
+(formato copy-paste OnlyOffice) + figuras (fig1a, fig1b, fig2) en
+`objetivo_5_fusion_binaria/figuras/`. Detalle: `objetivo_5_fusion_binaria/resultados.md`.
 
 ### Pendiente de confirmar con Sebastián
 
@@ -187,3 +273,9 @@ de Sebastián si Ernesto improvisa.
   `43d2ae4`).
 - `feature/sprint4-reformulacion-multilabel`: **ya unificada a `main`**
   (merge `c4982ed`).
+- `feature/sprint4-fusion-microcalc`: **ACTIVA, Obj 5 CERRADO en local + push
+  a origin (28-may)**. Contiene hipótesis + Fase 0/1/2 completas (splits, CSV
+  fusionado, gate, 2 .slurm, switch `--model_type` de train_dsmil, resultados,
+  tablas, slides 1-11, figuras). **NO mergeada a `main`** — espera OK
+  explícito de Ernesto, condicionado a que la presentación esté lista en
+  OnlyOffice.

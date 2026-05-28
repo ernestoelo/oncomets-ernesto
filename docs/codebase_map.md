@@ -237,3 +237,18 @@ Entregable 2). Validar contra el código real si pasa tiempo.
   en un carácter.
 - Probable bug de etiquetado en el CSV fuente (typo de género).
 - **Acción**: hablar con Sebastián, NO incluir en entregables del sprint.
+
+### `create_splits_seq.py` genera Monte Carlo CV, NO k-fold canónico (27-may)
+
+- `generate_split` (`utils/utils.py:104-141`) fija `np.random.seed` **una sola
+  vez** (L111) y en cada repetición sortea val/test del **pool completo**
+  (`indices` NO se reduce entre folds; `np.random.choice` L122/L129). ⇒ los
+  test **se solapan** entre folds ⇒ es **validación cruzada Monte Carlo**
+  (repeated random subsampling), NO k-fold canónico (bloques disjuntos).
+- Verificado read-only el 27-may. Aplica también a nuestro
+  `scripts/build_fusion_splits.py` (reusa la misma maquinaria).
+- **Implicación**: con `--k N --test_frac 0.1` se obtienen N estimaciones del
+  mismo régimen 90/10 → sirve para poner barra de error (media±std), PERO los
+  folds están correlacionados (test solapados) → el `std` es algo optimista y
+  "bandas no solapadas" NO es prueba de significancia. En presentación llamarlo
+  **"Monte Carlo CV"**, no "k-fold".
