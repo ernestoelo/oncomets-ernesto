@@ -181,6 +181,17 @@ aplicar el fix correspondiente sin investigar de nuevo.
     *ellas específicamente* es excepción quirúrgica autorizada y no viola
     el containment.
 - **Si `push` falla por otra razón**: detenerse y reportar a Ernesto.
+- **`.claude/settings.json` es LOCAL por usuario** (ignorado por
+  `.gitignore` desde commit `7359c2f`, 28-may-2026). Acumula permisos
+  pre-aprobados durante el uso — allow-list de comandos one-shot, paths
+  absolutos a `$HOME`/`$TMP`, IDs de jobs ya cerrados. NO es config del
+  proyecto; cada sesión nueva reconstruye su allow-list naturalmente. Si
+  alguna sesión cree que necesita un baseline compartido, crear
+  `.claude/settings.json.example` curado a mano. Las memorias persistentes
+  viven en `~/.claude/projects/<hash-path>/memory/` y están segregadas
+  por path-de-repo (verificado 28-may, ver
+  `sprints/B4_sprint4/diseño_memoria_versionada.md` §0) — cero
+  contaminación entre operadores del server compartido.
 
 ## Workspace containment (regla dura — Sprint 4 en adelante)
 
@@ -206,6 +217,16 @@ aplicar el fix correspondiente sin investigar de nuevo.
   de `main.py` como `environ/...`; si es el caso, usar paths absolutos en los
   args y `--chdir` al codebase, pero mandar TODO output a `clam_testing2/` vía
   args absolutos. Resolver caso por caso y documentar.)
+
+**Al cerrar un objetivo del sprint** (regla operativa, post Obj 5):
+ejecutar `git add results/<objetivo>/` para versionar la **verdad de
+campo chica** (predicciones por slide `*_results.pkl`, `summary.csv`,
+config snapshots, métricas per-fold). El `.gitignore` ya excluye los
+artefactos pesados (`*.pt`, `*.pth`, `*.h5`, `checkpoints/`,
+`events.out.tfevents.*`), así que un `git add results/<obj>/` plano es
+seguro. Esto deja la verdad de campo citable por los `resultados.md` y
+sobrevive a una pérdida del workspace. Detalle del checklist:
+`.claude/skills/dev-workflow/references/checklist.md` §13.
 
 ### Estructura del codebase de Sebastián (`clam_environ/`, READ-ONLY)
 
@@ -324,6 +345,47 @@ tail -f logs/<job>_<jobid>.out
 scancel <jobid>          # cancelación segura de MIS jobs
 ```
 
+## Patrones operativos para experimentos
+
+Decisiones de diseño experimental que sobreviven sprints. No son
+workarounds del server (esos están más arriba): son patrones que
+estructuran cómo se diseñan los experimentos comparativos del proyecto.
+
+### P1. Comparación pareada vía reuso de splits
+
+**Cuándo aplica**: cualquier experimento que compare arquitectura,
+hiperparámetro o configuración **contra un baseline ya corrido con
+MC-CV / k-fold** (típicamente: variante X vs baseline Y sobre la misma
+tarea/dataset).
+
+**Regla operativa**: el `.slurm` del experimento nuevo apunta
+**exactamente al mismo `--split_dir`** que el baseline. NO regenerar
+splits ni usar splits "equivalentes" con la misma semilla. La
+comparación queda **pareada por construcción** (Δ por fold = nuevo_i −
+baseline_i, sin confound de sorteo) y la varianza inter-fold se cancela
+parcialmente en el Δ → señales chicas pero reales se vuelven
+detectables.
+
+**Por qué**: MC-CV / k-fold producen test sets correlacionados (en MC-CV
+explícitamente solapados). Si el experimento nuevo regenera splits, el Δ
+pareado no se puede construir, y el Δ unpaired queda dominado por la
+varianza inter-fold (enorme con n chico — Fase 0 del Obj 5: carcinoma
+0.732 ± 0.167 single-split). Reusando splits, **la diferencia de sorteo
+se cancela en el Δ pareado** y queda solo el efecto de la variable de
+estudio.
+
+**Caso de referencia**: anexo Obj 5 (job 4179, 28-may-2026) reusó los
+splits del job 4170 (CLAM Fase 0). Δ pareado por fold reveló en CDIS
+regresión leve consistente (Δ bal_acc −0.053 ± 0.026, 5/5 folds
+negativos) que el Δ unpaired hubiera aplastado en ruido. Detalle del
+patrón: skill `@slurm-submission` (sección "Comparación pareada por
+reuso de splits") y memoria
+[[patron-paired-comparison-reuso-splits]].
+
+**Cómo documentarlo en la hipótesis**: declarar `**Comparación**:
+paired vs <job baseline> reusando `<path/al/split_dir>`` antes del
+sbatch. El reviewer lo verifica como parte del checklist.
+
 ## Reglas operativas no negociables
 
 1. **NO `sbatch` / `srun` / GPU** en sesiones de recon o exploración. Cero
@@ -357,6 +419,26 @@ scancel <jobid>          # cancelación segura de MIS jobs
 
    Si un cambio toca `model_*.py`, `core_utils.py` o el training wrapper sin
    cumplir esto, el agente `reviewer` bloquea el commit.
+
+   **9.b — Decisiones revisitadas** (ampliación post-Obj 5 ANEXO,
+   28-may-2026). Reabrir un experimento o eje que fue descartado
+   explícitamente (en `ejes_futuros_*.md`, apéndice "descartado",
+   `resultados.md` con veredicto NO-GO, o memoria con status
+   "descartado") es legítimo **solo si** un hallazgo posterior del mismo
+   sprint contradice el argumento original del descarte. La reapertura:
+   - **Cita explícitamente** qué hallazgo posterior cambió la premisa
+     (con job ID + número concreto, no generalidad). Si el argumento es
+     "ahora tengo más confianza" o "vamos a probarlo igual" → NO se
+     reabre.
+   - **NO es excepción a regla 9** — sigue exigiendo hipótesis
+     pre-registrada (primaria + alternativa + regresión), métrica
+     decisiva, umbrales numéricos antes de tocar código.
+   - **Va a branch nueva** (no mezclar con sprint en curso).
+   - El agente `reviewer` (ítem 6 de su checklist) detecta el caso y
+     bloquea si la cita del hallazgo habilitante no está. Caso de
+     referencia: anexo Obj 5 (job 4179) reabrió DSMIL × binarias citando
+     "Fase 0 invalidó single-split que sostenía el descarte original del
+     4137". Ver memoria [[meta-regla-decisiones-revisitadas]].
 
 10. **Antes de confiar en `splits_0_descriptor.csv`**, cross-check con el
     join `splits_0.csv ⨯ dataset_<task>_label.csv` (ver Hallazgos).
@@ -585,6 +667,35 @@ re-validar y actualizar `docs/codebase_map.md`.
      una regla de filtro adicional. Aclarado parcialmente con los bullets
      anteriores; cerrar formalmente cuando haya respuesta de la reunión
      16:30.
+11. **Cuadro arquitectónico CLAM × DSMIL × {binarias, fusionado} cerrado
+    simétricamente (Obj 5 + ANEXO, 28-may-2026).** DSMIL evaluado en
+    TODOS los regímenes disponibles para microcalcificaciones con MC-CV
+    (=Monte Carlo CV; lo llamamos "k-fold" en archivos pero los test
+    están solapados — corrección de rótulo del 27-may, ver
+    `objetivo_5_fusion_binaria/resultados.md`):
+    - **Binarias n=328** (carcinoma/cdis/tejido) × k=5, splits reusados
+      del CLAM Fase 0 → comparación PAIRED. Job 4179.
+    - **Fusionado n=2814** (binario presencia/ausencia con no_id como
+      negativo) × k=3. Job 4172 vs CLAM Fase 1 (job 4171).
+    **Veredicto unificado**: la **arquitectura sola NO es la palanca**
+    para microcalcificaciones a NINGUNA escala disponible —
+    - Fusionado (§2.2): banda **AMBIGUA** (DSMIL bal_acc 0.661 ± 0.046,
+      Δ pareado +0.040 ± 0.038 positivo en 3/3 folds pero std grande y
+      AUC retrocede −0.020 ± 0.019).
+    - Binarias (ANEXO): **NULL en carcinoma** (Δ −0.023 ± 0.071, el
+      "0.824" del 4137 era ruido del sorteo) + **regresión leve
+      consistente en CDIS** (Δ **−0.053 ± 0.026**, signo negativo en 5/5
+      folds → no es ruido) + **NULL/ambigua en tejido** (Δ +0.021 ±
+      0.051). El "fracaso DSMIL" del 4137 era single-split — la misma
+      vara que invalidamos para CLAM en Fase 0 (Hallazgo del 27-may:
+      carcinoma 0.808→0.732 ± 0.167 con MC-CV).
+    **Lección de fondo**: el cuello sigue siendo **datos / contexto
+    espacial / desbalance**, NO la arquitectura. Justifica empíricamente
+    los ejes futuros (mayor magnificación CONCH = Eje A, selección de
+    parches útiles = Eje B; CDIS abre Eje C morfológico — atención
+    gated absoluta CLAM vs dual relacional DSMIL en lesiones distribuidas
+    en ductos). Detalle: `objetivo_5_fusion_binaria/resultados.md`
+    (§FASE 2 + §ANEXO) y `ejes_futuros_microcalc.md` (Ejes A/B/C).
 
 ## Entorno conda — deps esperadas
 
@@ -624,6 +735,21 @@ plano. Estilo visual: `Modelo_OncoMets_Spatial_V1.pdf`. Estructura:
 sub-items con `-> `, fórmulas inline sin LaTeX (`h_k = ReLU(W₁·z_k)`), sin
 emojis ni corchetes de gesto, destacados en línea propia (`Punto clave:` /
 `Detalle crítico:`), ultra-minimalista para copy-paste a OnlyOffice.
+
+**Assets PNG insertables para slides (patrón Obj 5)**. Cuando el deck vive
+en OnlyOffice (o cualquier herramienta con branding Environ — logo, header
+teal, paleta corporativa) y Claude no puede editar el `.pptx` directamente,
+generar **PNG estilo "asset insertable"** (sin logo, sin header, sin
+título — solo el contenido: tabla, matriz, figura) que Ernesto arrastra
+a la slide preservando 100% el branding. Script de referencia:
+`scripts/generate_slide_assets.py` (28-may, Obj 5 — produjo los 21 PNG en
+`sprints/B4_sprint4/objetivo_5_fusion_binaria/figuras/slide_assets/`).
+Convención: nombrar `M##_*.png` para matrices/figuras y `T##_*.png` para
+tablas; DPI 220; fondo blanco; tipografía neutra. Esto resuelve el
+problema de "Claude entrega contenido, Ernesto controla branding" sin
+duplicar trabajo. **NO** intentar editar el `.pptx` ni el PDF del deck
+(el PDF transitorio `CLAM_Sprint_*.pdf` está gitignored — ver
+`.gitignore`).
 
 ## Subagentes disponibles
 
