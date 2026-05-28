@@ -81,48 +81,44 @@ Ver [[equipo-arquitecturas-mammoth-longnet]] y [[microcalc-fusion-objetivo5]]
 
 ---
 
-## Apéndice — Experimentos opcionales no prioritarios
+## Apéndice — Experimentos ejecutados como anexo del Objetivo 5
 
-Registro de experimentos pensados pero **descartados como prioridad** del
-sprint actual. Quedan acá para no perderlos; no son direcciones aprobadas por
-Sebastián.
+### DSMIL × 3 binarias × k=5 MC-CV — EJECUTADO (job 4179, 28-may-2026)
 
-### DSMIL × 3 binarias × k=5 MC-CV (simetría del cuadro CLAM vs DSMIL)
+**Decisión revisitada el 28-may** (post-merge del Obj 5 a main): tras
+discutir con Ernesto, se decidió ejecutar el experimento aplicando la
+regla 9 estricta (hipótesis primaria NULL pre-registrada + alternativa +
+regresión + métrica decisiva + umbrales numéricos antes del sbatch +
+reviewer OK obligatorio). El argumento clave que destrabó la decisión: el
+"fracaso DSMIL" del job 4137 era **single-split** — el mismo régimen que
+en Fase 0 invalidamos para CLAM (Hallazgo 1: carcinoma "0.808" era
+0.732 ± 0.167). No se podía sostener "DSMIL falla en binarias" sin la
+misma vara MC-CV.
 
-**Qué.** Repetir el régimen de Fase 0 (CLAM × 3 binarias × k=5 MC-CV, job
-4170) pero con DSMIL en lugar de CLAM. Cierra simétricamente el cuadro
-"CLAM vs DSMIL × {3 binarias, 1 fusionado} × MC-CV" — hoy tenemos CLAM en
-ambos (Fase 0 + Fase 1) y DSMIL solo en el fusionado (Fase 2). El cuadrante
-faltante es DSMIL × binarias × k=5.
+**Hipótesis pre-registrada:** `sprints/B4_sprint4/objetivo_5_fusion_binaria/hipotesis_dsmil_binarias.md`
+(reviewer-aprobado 28-may; cumple regla 9 íntegramente).
 
-**Por qué NO en este sprint (3 razones).**
+**Setup:** train_dsmil.py `--model_type dsmil`, 3 binarias × k=5 MC-CV,
+**MISMOS splits que Fase 0** (paired por construcción), args idénticos a
+Fase 2 (w_max 0.1 fijo). Wall: ~3h29m (early stopping cortó antes de las
+30 epochs en la mayoría de folds).
 
-1. **Sin hipótesis pre-registrada nueva, viola la regla 9 de CLAUDE.md.** El
-   job 4137 (DSMIL × binarias × 1 split) ya cerró como "fracaso
-   arquitectónico" sobre balanced_acc; la única hipótesis viable nueva sería
-   "el fracaso del 4137 era ruido del single-split" — pero eso sería
-   alineado con la lógica de varianza de Fase 0, **no con un mecanismo
-   arquitectónico**. Hipótesis débil → reviewer bloquea.
-2. **El Hallazgo 4 de Fase 0 ya respondió la pregunta de fondo.** Las 3
-   binarias dieron balanced_acc 0.577-0.639 con std 0.030-0.077 → modestas,
-   apenas sobre 0.50, con barras de error que cubren el rango clínicamente
-   relevante. El cuello es **datos** (328 slides), no arquitectura — Δ
-   esperado DSMIL-CLAM ≈ 0 dentro de las bandas. Coherente con el resultado
-   de Fase 2 sobre el fusionado: incluso con ~2814 slides el Δ pareado es
-   ambiguo (+0.040 ± 0.038 en bal_acc, AUC retrocede). La hipótesis null
-   ("DSMIL no aporta sobre las binarias tampoco") es la predicción honesta.
-3. **Sebastián pidió otra dirección.** Reunión 26-may: mammoth (ya gana en
-   3 tasks de él), mayor magnificación (Eje A), selección de parches
-   (Eje B). El presupuesto de cómputo y atención va ahí.
+**Resultado (veredicto por tarea según umbrales pre-registrados):**
 
-**Si se retomara igual, requisitos mínimos (regla 9).**
+| Tarea | Δ bal pareado | Veredicto |
+|---|---|---|
+| carcinoma invasivo | −0.023 ± 0.071 | **NULL** ✅ — el "0.824" del 4137 era ruido del sorteo |
+| CDIS | **−0.053 ± 0.026** | **Regresión leve** ⚠️ — signo negativo en los 5 folds (consistente, no ruido) |
+| tejido no neoplásico | +0.021 ± 0.051 | NULL / ambigua |
 
-- Hipótesis pre-registrada explícita: dirección esperada del Δ, magnitud
-  umbral, justificación de por qué la pregunta sigue abierta tras Hallazgo 4.
-- Reviewer OK antes de tocar `.slurm` o splits.
-- Splits **reutilizar los de Fase 0** (`data/splits_kfold/microcalcificaciones_en_<tejido>_kfold/`)
-  para mantener comparación pareada con CLAM 4170.
-- Harness = `scripts/train_dsmil.py --model_type dsmil` (path byte-idéntico
-  a 4135/4137).
-- Wall esperado ≈ 3 × 5 × 1.3h ≈ 20h. Una sola GPU → cortesía single-GPU.
-- Reporte = mean ± std + Δ pareado vs 4170; sin sobre-vender.
+**Hallazgo agregado al Hallazgo 4 Fase 0:** la arquitectura sola no es la
+palanca para microcalcificaciones, ahora con evidencia simétrica en ambos
+regímenes (binarias y fusionado, ambos con MC-CV). CDIS abre una pregunta
+morfológica (atención dual de DSMIL vs gated absoluta de CLAM) — tema para
+futuro, no de este sprint.
+
+**Detalle completo:**
+- Resultados y comparación pareada por fold: `objetivo_5_fusion_binaria/resultados.md` §"ANEXO — DSMIL × 3 binarias × MC-CV k=5"
+- Tabla comparativa maestra: `objetivo_5_fusion_binaria/tablas_presentacion.md` §C (filas 14-16) y §C.2
+- Slides 11-12: `objetivo_5_fusion_binaria/presentacion_contenido_completo.md`
+- Figuras: `objetivo_5_fusion_binaria/figuras/fig3{a,b}_anexo_dsmil_vs_clam_binarias_*.png` + `fig4{a..d}_*_confusion.png`
