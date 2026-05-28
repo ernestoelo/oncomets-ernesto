@@ -129,6 +129,35 @@ This checklist is intended for **self-validation**, not formal review.
 
 ---
 
+## 13. Sprint objective closure (OncoMets-specific)
+
+Run this checklist **before merging a feature branch of a sprint objective to main**.
+
+- [ ] `git add results/<objetivo>/` — version the small ground-truth
+  artifacts produced by the training run: per-slide predictions
+  (`*_results.pkl`), summaries (`summary.csv`), config snapshots,
+  per-fold metrics. The `.gitignore` already excludes heavy artifacts
+  (`*.pt`, `*.pth`, `*.h5`, `checkpoints/`, `events.out.tfevents.*`),
+  so a plain `git add results/<objetivo>/` is safe.
+- [ ] Hypothesis doc (`hipotesis*.md`) committed under the objective dir,
+  matching the actual run.
+- [ ] `resultados.md` committed under the objective dir, with verdicts
+  per pre-registered threshold (PASS/FAIL/AMBIGUOUS), citing exact job
+  IDs and metric values.
+- [ ] Figures (`figuras/`) committed if part of the deliverable.
+- [ ] SLURM logs that you want to keep are either under `logs/` (with
+  the appropriate `!logs/<filename>` exception in `.gitignore` if it's
+  a one-off) or copied to `sprints/<sprint>/<obj>/logs/` (versioned by
+  default).
+- [ ] `progress/current.md` updated to reflect the new objective state.
+- [ ] Branch passed `reviewer` agent if it touched model/training code
+  (mandatory per CLAUDE.md regla 9).
+- [ ] Repo is autoconsistent — external deliverables (OnlyOffice deck,
+  paper) are NOT a precondition for merge (see
+  [[merge-criterio-contenido-vs-derivables]] memory).
+
+---
+
 ## Self-Validation Statement
 
 By completing this checklist, the team confirms that:

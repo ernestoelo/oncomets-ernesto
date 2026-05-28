@@ -133,6 +133,60 @@ error fácil de cometer al redactar). Plantilla multi-tarea (loop sobre tareas
 con preflight por tarea):
 `sprints/B4_sprint4/reformulacion_multilabel/train_microcalc_3binarios.slurm`.
 
+## Wall time real con `--early_stopping` (estimaciones conservadoras vs reales)
+
+Con `--max_epochs ≥ 30` **y `--early_stopping`**, los jobs CLAM/DSMIL típicos
+sobre microcalcificaciones cortan **antes de las 30 epochs** en la mayoría
+de folds — el `val_loss` deja de mejorar en epoch 10-20 y la paciencia
+hardcoded (después del epoch 50, ver arriba) no se activa porque ya pasó
+`--max_epochs`. **El wall time real suele ser ~40-50% del estimado conservador**
+basado en "epochs completas × tiempo/epoch":
+
+| Job | Setup | Estimado conservador | Wall real |
+|---|---|---|---|
+| 4179 | DSMIL × 3 binarias × k=5, --max_epochs 30 | 7-8h | **3h29m** |
+| 4172 | DSMIL fusionado × k=3, --max_epochs 30 | 6h | ~3h |
+| 4171 | CLAM fusionado × k=3, --max_epochs 30 | 6h | ~3h |
+
+**Implicación para `#SBATCH --time`**: seguir siendo conservadores
+(12-24h para chains, 48h default) — el costo de pedir mucho tiempo es
+solo prioridad en cola, y un wall real corto libera el slot temprano. NO
+ajustar `--time` al wall esperado real, porque un fold patológico que SÍ
+corra 30 epochs revienta el límite ajustado.
+
+## Comparación pareada por reuso de splits (cuando se compara contra un baseline)
+
+Cuando el `.slurm` corre un **experimento comparativo** (arquitectura
+nueva vs baseline, configuración nueva vs baseline, etc.), el `--split_dir`
+debe apuntar **exactamente al mismo path** que el baseline ya corrido —
+no regenerar splits ni usar splits "equivalentes" con la misma semilla.
+
+**Por qué**: MC-CV / k-fold producen test sets correlacionados. Si el
+experimento nuevo regenera sus splits, el Δ pareado por fold no se puede
+construir y el Δ unpaired queda dominado por la varianza inter-fold (que
+en n chico es enorme: Fase 0 del Obj 5 mostró carcinoma 0.732 ± 0.167
+single-split). Reusando splits, **la varianza inter-fold se cancela
+parcialmente en el Δ pareado** → señales chicas pero reales se vuelven
+detectables.
+
+**Caso de referencia** (Obj 5 ANEXO, job 4179): el `.slurm` apuntó al
+`--split_dir` del job 4170 (Fase 0 CLAM). Δ pareado por fold reveló en
+CDIS regresión leve consistente (Δ bal −0.053 ± 0.026, signo negativo en
+5/5 folds) que el Δ unpaired hubiera aplastado.
+
+**Patrón en el `.slurm`**:
+
+```bash
+# NO: --split_dir <regenerado_con_misma_semilla>
+# SÍ: --split_dir <mismo_path_que_el_baseline>
+SPLIT_DIR=/path/al/baseline/splits/<task>_k5  # mismo que job baseline
+```
+
+Documentar en la hipótesis pre-registrada que la comparación es **paired
+por reuso de splits**, citando el job/path del baseline. El reviewer lo
+verifica como parte del checklist. Ver memoria
+[[patron-paired-comparison-reuso-splits]] para detalle.
+
 ## Monitorear y cancelar
 
 ```bash

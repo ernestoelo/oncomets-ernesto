@@ -40,6 +40,7 @@ project-root/
    - Merge to `develop` via PR, then to `main` for releases
 4. **Validation**: Run `scripts/validate_project.sh` to check structure and required files.
 5. **Self-Validation**: Complete the checklist in references/checklist.md before handover or deployment.
+6. **Sprint objective closure** (OncoMets-specific): before merging a sprint objective branch to main, run section 13 of `references/checklist.md`. Key item: `git add results/<objetivo>/` to version per-slide predictions (`*_results.pkl`), `summary.csv`, config snapshots — the `.gitignore` already excludes heavy `.pt`/`.pth`/`.h5`/checkpoints. The merge criterion is **repo autoconsistency**, not whether external deliverables (OnlyOffice deck, paper) are ready.
 
 ## Bundled Resources
 
