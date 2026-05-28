@@ -67,6 +67,46 @@ métrica pre-registradas.
 
 ---
 
+## Eje C — CDIS: atención dual vs gated en lesiones distribuidas en ductos
+
+**Qué.** Investigar si la atención **gated absoluta** de CLAM (`models/
+model_clam.py:172`/`:239` — `M = torch.mm(A, h)` sobre todos los N parches)
+captura algo específico de CDIS que la **atención dual relacional** de DSMIL
+no replica. Posible vía: ablation por mecanismo de atención (gated vs dual)
+manteniendo el resto del pipeline fijo, sobre el dataset binario CDIS.
+
+**Por qué (pregunta abierta — argumento morfológico).** El anexo del
+Objetivo 5 (job 4179, 28-may-2026) dio en CDIS un Δ pareado bal_acc =
+**−0.053 ± 0.026** con signo negativo en los **5/5 folds** — no es ruido
+del sorteo (la magnitud es chica pero la consistencia inter-fold descarta
+azar). NULL en carcinoma y tejido, regresión leve solo en CDIS. La
+morfología de CDIS (microcalcificaciones distribuidas en **ductos**, con
+patrón espacial difuso a lo largo de estructuras tubulares) podría
+beneficiar más a un mecanismo que pondere parches **absoluta**mente sobre
+todo el bag (CLAM gated) que a uno que pondere **relativamente** entre
+parches (DSMIL dual): si la señal está distribuida en muchos parches con
+intensidad moderada, la atención dual de DSMIL — que tiende a destacar
+parches "raros" relativo al resto — puede dispersarse, mientras la gated
+absoluta los suma sin requerir contraste relacional.
+
+**Estado.** Hipótesis abierta, sin formalizar. Requiere literatura sobre
+mecanismos de atención en MIL para histopatología, y argumento clínico
+formal sobre por qué CDIS sería el caso límite (lesión distribuida en
+ductos vs lesión focal en carcinoma vs lesión dispersa en tejido).
+
+**Primer paso cuando se retome.** Pre-registrar hipótesis (regla 9):
+mecanismo concreto que se va a aislar (gated vs dual vs híbrido), métrica
+de éxito = Δ bal_acc CDIS específicamente, sobre **los mismos splits** que
+4170/4179 (paired por construcción — ver
+[[patron-paired-comparison-reuso-splits]]). Reviewer OK obligatorio.
+
+**Conexión con los otros ejes.** Es ortogonal a A y B: A toca features
+(magnificación), B toca selección de parches, C toca el mecanismo de
+agregación. Si los 3 se ejecutan, se pueden combinar (ej. mayor
+magnificación + atención gated → ¿saca CDIS de la regresión leve?).
+
+---
+
 ## Orden sugerido (cuando se retomen)
 
 1. Cerrar el chain actual (4170→4171→4172) y decidir según resultados si el
@@ -75,6 +115,9 @@ métrica pre-registradas.
    directo y Sebastián lo priorizó ("muy vital", "quedó entusiasmado").
 3. Eje B (selección de parches) después, apoyado en los heatmaps del Objetivo 4
    y, si se hizo, sobre las features de mayor magnificación del Eje A.
+4. Eje C (atención CDIS) en paralelo con B o al final — abre pregunta
+   morfológica específica, no compite con A/B por cómputo (es ablation de
+   mecanismo, no de datos). Útil solo si A no resuelve CDIS por sí solo.
 
 Ver [[equipo-arquitecturas-mammoth-longnet]] y [[microcalc-fusion-objetivo5]]
 (memorias) para el contexto de modelo y el estado del objetivo en curso.

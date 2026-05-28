@@ -42,6 +42,13 @@ results/**/events.out.tfevents.*
 # verdad de referencia que citan los resultados.md de cada sprint).
 !results/**/*_results.pkl
 
+# PDFs transitorios del deck de presentación de cada sprint.
+# Son referencia visual local (paleta/branding) para diseñar assets, no
+# fuente de verdad — el contenido vive en sprints/<sprint>/<obj>/figuras/
+# y en `presentacion_contenido_completo.md`. Si en algún sprint se quiere
+# un snapshot histórico, commit explícito con `git add -f`.
+sprints/**/CLAM_Sprint_*.pdf
+
 # Editor / OS
 .vscode/
 .idea/
