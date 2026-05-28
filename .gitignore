@@ -52,6 +52,12 @@ results/**/events.out.tfevents.*
 .claude/projects/
 .claude/todos/
 .claude/cache/
+# settings.json acumula permisos pre-aprobados durante el uso (allow-list de
+# comandos one-shot, paths absolutos a $HOME/$TMP, etc.). Es local de cada
+# usuario/máquina, no config del proyecto — cada sesión nueva reconstruye su
+# allow-list naturalmente. Si en el futuro hace falta un baseline compartido,
+# crear .claude/settings.json.example curado a mano.
+.claude/settings.json
 
 # Secretos
 *.env
