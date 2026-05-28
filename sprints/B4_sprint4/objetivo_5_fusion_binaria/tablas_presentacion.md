@@ -120,10 +120,16 @@ no significa nada — y de hecho ese 0.808 resultó ser 0.732 ± 0.167 al repeti
 | 11 | 4170 | Fase 0 varianza — tejido | CLAM_MB | binaria | 328 | **5** | ✅ | **0.646 ± 0.025** | **0.577 ± 0.030** |
 | 12 | 4171 | Fase 1 — fusionado | CLAM_MB | fusionada | 2814 | **3** | ✅ | **0.776 ± 0.021** | **0.620 ± 0.010** (plateau) |
 | 13 | 4172 | Fase 2 — fusionado | DSMIL | fusionada | 2814 | **3** | ✅ | **0.756 ± 0.024** | **0.661 ± 0.046** (ambigua) |
+| 14 | 4179 | **Anexo** — DSMIL × binarias — carcinoma | DSMIL | binaria | 328 | **5** | ✅ | **0.722 ± 0.098** | **0.617 ± 0.117** (NULL) |
+| 15 | 4179 | **Anexo** — DSMIL × binarias — CDIS | DSMIL | binaria | 328 | **5** | ✅ | **0.619 ± 0.099** | **0.543 ± 0.077** (regr. leve) |
+| 16 | 4179 | **Anexo** — DSMIL × binarias — tejido | DSMIL | binaria | 328 | **5** | ✅ | **0.682 ± 0.042** | **0.599 ± 0.029** (null/ambigua) |
 
 > ✅ hecho · ⏳ en cola/corriendo · `±` = media ± desviación sobre las k
 > repeticiones de MC-CV. Filas 3-5 (4109) = **un solo sorteo** → optimistas
 > (ver filas 9-11, la estimación honesta con barras de error).
+> Filas 6-8 (4137) = **un solo sorteo** DSMIL binarias (parecía "fracaso" en
+> bal_acc) → reemplazadas en honestidad por filas 14-16 con MC-CV (anexo,
+> ver §C.2 abajo).
 
 ### C.1 — Comparativa contra Sebastián (test_auc) — single-split vs MC-CV honesto
 
@@ -140,6 +146,34 @@ no significa nada — y de hecho ese 0.808 resultó ser 0.732 ± 0.167 al repeti
 > es **medir la incertidumbre**, que el single-split escondía. Carcinoma es el
 > caso de manual: 0.808 (suerte) → 0.732 ± 0.167 (realidad).
 
+### C.2 — Anexo: comparativa pareada CLAM vs DSMIL × 3 binarias × MC-CV k=5 (job 4179)
+
+Cierra simétricamente el cuadro arquitectónico. Mismos splits que Fase 0
+(paired por construcción).
+
+| Tarea | CLAM bal (Fase 0) | DSMIL bal (Anexo) | **Δ bal pareado** | CLAM auc | DSMIL auc | **Δ auc pareado** | Veredicto pre-registrado |
+|---|---|---|---|---|---|---|---|
+| carcinoma invasivo | 0.639 ± 0.077 | 0.617 ± 0.117 | **−0.023 ± 0.071** | 0.732 ± 0.167 | 0.722 ± 0.098 | −0.011 ± 0.080 | **NULL ✅** |
+| CDIS | 0.595 ± 0.077 | 0.543 ± 0.077 | **−0.053 ± 0.026** | 0.652 ± 0.072 | 0.619 ± 0.099 | −0.034 ± 0.081 | **Regresión leve ⚠️** |
+| tejido no neoplásico | 0.577 ± 0.030 | 0.599 ± 0.029 | **+0.021 ± 0.051** | 0.646 ± 0.025 | 0.682 ± 0.042 | +0.036 ± 0.048 | NULL / ambigua |
+
+**Δ pareado por fold** (fila por tejido = signo del Δ en bal_acc por fold):
+
+| Tarea | f0 | f1 | f2 | f3 | f4 | Patrón |
+|---|---|---|---|---|---|---|
+| carcinoma | − | − | − | + | + | mixto |
+| CDIS | − | − | − | − | − | **5/5 negativo** (no es ruido) |
+| tejido | − | + | + | + | + | 4/5 positivo |
+
+> **Mensaje honesto para la slide:** DSMIL evaluado en TODOS los regímenes
+> (binarias + fusionado, ambos con MC-CV). En binarias: **2 de 3 tareas
+> empate estadístico** (carcinoma, tejido) → confirma que el cuello es datos
+> / contexto / desbalance, no arquitectura. **CDIS regresión leve consistente**
+> en los 5 folds (no es ruido) → sostiene el "fracaso" del 4137 con barras de
+> error; abre pregunta morfológica (atención dual vs gated absoluta) para
+> futuro, no decisión de este sprint. Lectura honesta: la arquitectura sola
+> no es la palanca.
+
 ---
 
 ## D. Notas para llenar resultados
@@ -149,6 +183,8 @@ no significa nada — y de hecho ese 0.808 resultó ser 0.732 ± 0.167 al repeti
   `results/obj5_fase1_clam_fusionado/clam_presencia_f*_s1/test_metrics.json`).
 - **Fila 13 (Fase 2, DSMIL fusionado):** ✅ LLENO (job 4172,
   `results/obj5_fase2_dsmil_fusionado/dsmil_presencia_f*_s1/test_metrics.json`).
+- **Filas 14-16 (Anexo, DSMIL × binarias × k=5):** ✅ LLENO (job 4179,
+  `results/obj5_anexo_dsmil_binarias_<tejido>/dsmil_<tejido>_f*_*_s1/test_metrics.json`).
 
 ### La comparación clave del objetivo — lectura honesta (§2.2)
 

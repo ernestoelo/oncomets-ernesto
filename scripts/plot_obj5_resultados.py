@@ -136,7 +136,161 @@ def fase12():
     return True
 
 
+def anexo_dsmil_binarias():
+    """Fig 3: CLAM Fase 0 vs DSMIL anexo, 3 binarias × k=5 (paired)."""
+    clam_auc_m, clam_auc_s, clam_bal_m, clam_bal_s = [], [], [], []
+    dsmil_auc_m, dsmil_auc_s, dsmil_bal_m, dsmil_bal_s = [], [], [], []
+    for t in TEJIDOS:
+        f0_dirs = glob.glob(os.path.join(REPO, f"results/obj5_varianza_{t}/*"))
+        anx_dirs = sorted(glob.glob(os.path.join(REPO, f"results/obj5_anexo_dsmil_binarias_{t}/dsmil_*_f*_s1")))
+        if not f0_dirs or not anx_dirs:
+            print(f"[anexo] sin resultados para {t} — abortar fig 3")
+            return False
+        # CLAM Fase 0
+        aucs = pd.read_csv(glob.glob(os.path.join(f0_dirs[0], "summary.csv"))[0])["test_auc"].values
+        bals = _bal_acc_folds(f0_dirs[0])
+        clam_auc_m.append(aucs.mean()); clam_auc_s.append(aucs.std())
+        clam_bal_m.append(bals.mean()); clam_bal_s.append(bals.std())
+        # DSMIL anexo
+        d_auc, d_bal = [], []
+        for d in anx_dirs:
+            with open(os.path.join(d, "test_metrics.json")) as fh:
+                m = json.load(fh)
+            d_auc.append(m["test_auc"]); d_bal.append(m["balanced_acc"])
+        d_auc = np.array(d_auc); d_bal = np.array(d_bal)
+        dsmil_auc_m.append(d_auc.mean()); dsmil_auc_s.append(d_auc.std())
+        dsmil_bal_m.append(d_bal.mean()); dsmil_bal_s.append(d_bal.std())
+
+    x = np.arange(len(TEJIDOS)); w = 0.35
+    for metric, (cm, cs, dm, ds, ylab, fname) in {
+        "auc": (clam_auc_m, clam_auc_s, dsmil_auc_m, dsmil_auc_s, "test AUC",
+                "fig3a_anexo_dsmil_vs_clam_binarias_auc.png"),
+        "bal": (clam_bal_m, clam_bal_s, dsmil_bal_m, dsmil_bal_s, "balanced accuracy",
+                "fig3b_anexo_dsmil_vs_clam_binarias_balacc.png"),
+    }.items():
+        fig, ax = plt.subplots(figsize=(8, 4.8))
+        ax.bar(x - w/2, cm, w, yerr=cs, capsize=6, color="#4C78A8",
+               label="CLAM (Fase 0)")
+        ax.bar(x + w/2, dm, w, yerr=ds, capsize=6, color="#F58518",
+               label="DSMIL (Anexo)")
+        ax.axhline(0.5, ls="--", lw=1, color="gray", label="piso trivial 0.50")
+        ax.set_xticks(x); ax.set_xticklabels(LABELS)
+        ax.set_ylabel(ylab); ax.set_ylim(0.3, 1.0)
+        ax.set_title(f"Anexo · 3 binarias × MC-CV k=5 (mismos splits, paired) · {ylab}\n"
+                     "CLAM (Fase 0, job 4170) vs DSMIL (Anexo, job 4179)")
+        ax.legend(fontsize=9, loc="lower right")
+        for xi, (cmi, csi, dmi, dsi) in enumerate(zip(cm, cs, dm, ds)):
+            ax.text(xi - w/2, cmi + csi + 0.02, f"{cmi:.2f}±{csi:.2f}",
+                    ha="center", fontsize=7)
+            ax.text(xi + w/2, dmi + dsi + 0.02, f"{dmi:.2f}±{dsi:.2f}",
+                    ha="center", fontsize=7)
+        fig.tight_layout(); fig.savefig(os.path.join(OUT, fname), dpi=150)
+        plt.close(fig); print(f"[anexo] {fname}")
+    return True
+
+
+def _confusion_from_pkl(pkl_path):
+    """Calcula matriz 2x2 [[TN,FP],[FN,TP]] desde un split_*_results.pkl."""
+    with open(pkl_path, "rb") as f:
+        r = pickle.load(f)
+    yt = np.array([v["label"] for v in r.values()])
+    yp = np.array([int(np.argmax(np.asarray(v["prob"]).squeeze())) for v in r.values()])
+    tn = int(((yt == 0) & (yp == 0)).sum())
+    fp = int(((yt == 0) & (yp == 1)).sum())
+    fn = int(((yt == 1) & (yp == 0)).sum())
+    tp = int(((yt == 1) & (yp == 1)).sum())
+    return np.array([[tn, fp], [fn, tp]])
+
+
+def _confusion_from_metrics_json(json_path):
+    with open(json_path) as fh:
+        m = json.load(fh)
+    return np.array(m["confusion"])
+
+
+def _plot_confusion_grid(rows, suptitle, fname, ncols=5):
+    """rows = list of (title, conf 2x2). Plotea grid de heatmaps con anotaciones."""
+    n = len(rows)
+    nrows = int(np.ceil(n / ncols))
+    fig, axes = plt.subplots(nrows, ncols, figsize=(2.4*ncols, 2.4*nrows + 0.6))
+    axes = np.atleast_2d(axes).reshape(nrows, ncols)
+    for i in range(nrows * ncols):
+        ax = axes[i // ncols, i % ncols]
+        if i >= n:
+            ax.axis("off"); continue
+        title, conf = rows[i]
+        total = conf.sum()
+        im = ax.imshow(conf, cmap="Blues", vmin=0, vmax=conf.max() if conf.max() > 0 else 1)
+        for r in range(2):
+            for c in range(2):
+                v = conf[r, c]
+                color = "white" if v > conf.max() * 0.5 else "black"
+                ax.text(c, r, f"{v}\n({v/total:.0%})", ha="center", va="center",
+                        fontsize=8, color=color)
+        ax.set_xticks([0, 1]); ax.set_xticklabels(["pred no", "pred sí"], fontsize=7)
+        ax.set_yticks([0, 1]); ax.set_yticklabels(["true no", "true sí"], fontsize=7)
+        ax.set_title(title, fontsize=8)
+    fig.suptitle(suptitle, fontsize=11)
+    fig.tight_layout(rect=[0, 0, 1, 0.96])
+    fig.savefig(os.path.join(OUT, fname), dpi=150)
+    plt.close(fig); print(f"[confusion] {fname}")
+
+
+def matrices_confusion():
+    """Fig 4: matrices de confusión por fold para todos los experimentos."""
+    # --- Fase 0 (3 binarias × 5 folds) ---
+    for t, label in zip(TEJIDOS, ["carcinoma invasivo", "CDIS", "tejido no neoplásico"]):
+        rundir_list = glob.glob(os.path.join(REPO, f"results/obj5_varianza_{t}/*"))
+        if not rundir_list: continue
+        rundir = rundir_list[0]
+        rows = []
+        for i, pkl in enumerate(sorted(glob.glob(os.path.join(rundir, "split_*_results.pkl")))):
+            conf = _confusion_from_pkl(pkl)
+            rows.append((f"f{i}", conf))
+        if rows:
+            _plot_confusion_grid(rows, f"Fase 0 · CLAM × {label} · k=5 (job 4170)",
+                                  f"fig4a_fase0_{t}_confusion.png", ncols=5)
+
+    # --- Fase 1 (CLAM fusionado × 3 folds) ---
+    rows = []
+    for d in sorted(glob.glob(os.path.join(REPO, "results/obj5_fase1_clam_fusionado/clam_presencia_f*_s1"))):
+        f = os.path.join(d, "test_metrics.json")
+        if not os.path.isfile(f): continue
+        fold = d.split("_f")[-1].split("_")[0]
+        rows.append((f"f{fold}", _confusion_from_metrics_json(f)))
+    if rows:
+        _plot_confusion_grid(rows, "Fase 1 · CLAM × fusionado (presencia) · k=3 (job 4171)",
+                              "fig4b_fase1_clam_fusionado_confusion.png", ncols=3)
+
+    # --- Fase 2 (DSMIL fusionado × 3 folds) ---
+    rows = []
+    for d in sorted(glob.glob(os.path.join(REPO, "results/obj5_fase2_dsmil_fusionado/dsmil_presencia_f*_s1"))):
+        f = os.path.join(d, "test_metrics.json")
+        if not os.path.isfile(f): continue
+        fold = d.split("_f")[-1].split("_")[0]
+        rows.append((f"f{fold}", _confusion_from_metrics_json(f)))
+    if rows:
+        _plot_confusion_grid(rows, "Fase 2 · DSMIL × fusionado (presencia) · k=3 (job 4172)",
+                              "fig4c_fase2_dsmil_fusionado_confusion.png", ncols=3)
+
+    # --- Anexo (DSMIL × 3 binarias × 5 folds) ---
+    for t, label in zip(TEJIDOS, ["carcinoma invasivo", "CDIS", "tejido no neoplásico"]):
+        dirs = sorted(glob.glob(os.path.join(REPO, f"results/obj5_anexo_dsmil_binarias_{t}/dsmil_*_f*_s1")))
+        rows = []
+        for d in dirs:
+            f = os.path.join(d, "test_metrics.json")
+            if not os.path.isfile(f): continue
+            fold = d.split("_f")[-1].split("_")[0]
+            rows.append((f"f{fold}", _confusion_from_metrics_json(f)))
+        if rows:
+            _plot_confusion_grid(rows, f"Anexo · DSMIL × {label} · k=5 (job 4179)",
+                                  f"fig4d_anexo_{t}_confusion.png", ncols=5)
+    return True
+
+
 if __name__ == "__main__":
     fase0()
     fase12()
+    anexo_dsmil_binarias()
+    matrices_confusion()
     print(f"Figuras en: {OUT}")

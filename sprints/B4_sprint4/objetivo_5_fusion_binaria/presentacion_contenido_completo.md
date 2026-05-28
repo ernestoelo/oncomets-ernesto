@@ -6,19 +6,21 @@
 
 ---
 
-## SLIDE 1 — Qué son Fase 0, Fase 1 y Fase 2 (resumen explícito)
+## SLIDE 1 — Qué son Fase 0, Fase 1, Fase 2 y Anexo (resumen explícito)
 
-| Fase | Pregunta que responde | Tarea(s) | Modelo | Slides | k MC-CV |
-|---|---|---|---|---|---|
-| **Fase 0** | ¿Cuánto puede bailar mi métrica solo por la suerte del sorteo? | 3 binarias separadas (carcinoma, CDIS, tejido) | CLAM_MB | 328 c/u | **5** |
-| **Fase 1** | ¿Si uno las 3 binarias en una sola "tiene/no tiene" y meto las no_identificado como negativo, mejora? | 1 binaria fusionada | CLAM_MB | 2814 | **3** |
-| **Fase 2** | ¿Sobre el fusionado, una arquitectura distinta (DSMIL) le gana a CLAM? | 1 binaria fusionada | DSMIL | 2814 | **3** |
+| Fase | Pregunta que responde | Tarea(s) | Modelo | Slides | k MC-CV | Job |
+|---|---|---|---|---|---|---|
+| **Fase 0** | ¿Cuánto puede bailar mi métrica solo por la suerte del sorteo? | 3 binarias separadas (carcinoma, CDIS, tejido) | CLAM_MB | 328 c/u | **5** | 4170 |
+| **Fase 1** | ¿Si uno las 3 binarias en una sola "tiene/no tiene" y meto las no_identificado como negativo, mejora? | 1 binaria fusionada | CLAM_MB | 2814 | **3** | 4171 |
+| **Fase 2** | ¿Sobre el fusionado, una arquitectura distinta (DSMIL) le gana a CLAM? | 1 binaria fusionada | DSMIL | 2814 | **3** | 4172 |
+| **Anexo** | ¿El "fracaso DSMIL en binarias" del 4137 era ruido del sorteo o se sostiene con barras de error? | 3 binarias separadas (mismos splits que Fase 0) | DSMIL | 328 c/u | **5** | 4179 |
 
 BLOQUE 1 — La historia
 -> Fase 0 mide la VARIANZA del baseline que ya teníamos (no entrena nada nuevo, solo lo repite muchas veces).
 -> Fase 1 prueba la propuesta de Sebastián (reunión 26-may): "tiene/no tiene micro" como pregunta única.
 -> Fase 2 prueba si la arquitectura DSMIL aporta sobre el régimen con más datos que la fusión habilita.
-Punto clave: el orden no es arbitrario. Sin Fase 0 no podríamos saber si Fase 1/2 son mejoras reales o ruido.
+-> Anexo cierra simétricamente el cuadro: aplica MC-CV a DSMIL × binarias (mismos splits que Fase 0) para juzgar el 4137 con barras de error.
+Punto clave: el orden no es arbitrario. Sin Fase 0 no podríamos saber si Fase 1/2 son mejoras reales o ruido. El anexo aplica esa misma vara a DSMIL.
 
 ---
 
@@ -292,20 +294,84 @@ Punto clave para la slide: *DSMIL aporta direccionalmente en balanced_acc pero n
 
 ---
 
-## SLIDE 11 — Cierre: la lección del Objetivo 5
+## SLIDE 11 — Anexo: ¿y si el "fracaso DSMIL en binarias" del 4137 también era ruido del sorteo?
 
-BLOQUE 1 — Cuatro descubrimientos
+BLOQUE 1 — La pregunta abierta
+-> En Fase 0 vimos que el single-split de CLAM (4109, carcinoma 0.808) era engaño: con MC-CV bajó a 0.732 ± 0.167.
+-> El job 4137 (DSMIL × binarias × 1 sorteo) dio "fracaso" en bal_acc en CDIS y tejido.
+-> ¿Y si ese fracaso también era ruido del sorteo, como pasó con CLAM?
+-> Sin MC-CV no podíamos sostener "DSMIL falla en binarias". Hicimos el experimento.
+
+BLOQUE 2 — Setup del anexo (job 4179, 28-may, ~3h29m)
+-> Mismo régimen que Fase 0: 3 binarias × k=5 MC-CV, MISMOS splits, mismas features, misma seed.
+-> Único cambio: modelo DSMIL en vez de CLAM (con w_max 0.1 fijo, idéntico a Fase 2 — no se retunea).
+-> Hipótesis primaria pre-registrada: **NULL arquitectónico** — DSMIL ≈ CLAM con bandas solapadas, porque el cuello es datos (Hallazgo 4 Fase 0).
+-> Reviewer OK (regla 9 cumplida íntegramente) antes del sbatch.
+
+BLOQUE 3 — Resultado: tabla mean ± std comparada con CLAM Fase 0 (paired)
+
+| Tarea | CLAM bal (Fase 0) | DSMIL bal (Anexo) | Δ pareado | Veredicto |
+|---|---|---|---|---|
+| carcinoma invasivo | 0.639 ± 0.077 | 0.617 ± 0.117 | **−0.023 ± 0.071** | **NULL ✅** |
+| CDIS | 0.595 ± 0.077 | 0.543 ± 0.077 | **−0.053 ± 0.026** | **Regresión leve ⚠️** |
+| tejido no neoplásico | 0.577 ± 0.030 | 0.599 ± 0.029 | **+0.021 ± 0.051** | NULL / ambigua |
+
+BLOQUE 4 — Por qué CDIS es distinto (signo Δ por fold)
+
+| Fold | carcinoma | CDIS | tejido |
+|---|---|---|---|
+| f0 | − | − | − |
+| f1 | − | − | + |
+| f2 | − | − | + |
+| f3 | + | − | + |
+| f4 | + | − | + |
+
+-> En CDIS los 5 folds dan Δ NEGATIVO. No es ruido aleatorio — es consistente.
+-> El "fracaso DSMIL en CDIS" del 4137 (single-split) se sostiene con barras de error.
+-> En carcinoma y tejido, los signos están mezclados → ruido alrededor de cero → empate.
+
+Punto clave: *DSMIL evaluado en TODOS los regímenes con MC-CV. En binarias, 2 de 3 tareas dan empate estadístico con CLAM. CDIS es la única tarea con regresión consistente — abre una pregunta morfológica (atención dual vs gated absoluta) para futuro, no decisión de este sprint.*
+
+---
+
+## SLIDE 12 — Lo que el anexo cierra: el cuadro CLAM-vs-DSMIL completo
+
+BLOQUE 1 — Cuadro arquitectónico cerrado simétricamente
+
+|  | Binarias × k=5 MC-CV | Fusionado × k=3 MC-CV |
+|---|---|---|
+| **CLAM** | Fase 0 (job 4170) — bal 0.58–0.64 | Fase 1 (job 4171) — bal 0.620 ± 0.010 (plateau) |
+| **DSMIL** | Anexo (job 4179) — bal 0.54–0.62 (paired Δ ≈ 0 salvo CDIS) | Fase 2 (job 4172) — bal 0.661 ± 0.046 (ambigua) |
+
+BLOQUE 2 — La lectura unificada
+-> En el régimen pequeño (binarias, n=328): CLAM y DSMIL empatan estadísticamente en 2 de 3 tareas; DSMIL retrocede leve en CDIS.
+-> En el régimen grande (fusionado, n=2814): DSMIL mejora marginal en bal_acc pero NO en AUC, con bandas solapadas — banda ambigua, no éxito en sentido fuerte.
+-> Patrón consistente: la arquitectura sola no es la palanca a ninguna escala de datos disponible.
+
+BLOQUE 3 — Lo que esto significa para el proyecto
+-> El cuello sigue siendo datos / contexto espacial / desbalance — y ahora la evidencia es simétrica (no podemos echarle la culpa al modelo).
+-> Los próximos ejes (mayor magnificación CONCH, selección de parches útiles) atacan el cuello real.
+-> CDIS abre una pregunta morfológica: ¿por qué la atención gated absoluta de CLAM captura algo que la dual relacional de DSMIL no? Tema para otra iteración, no para este sprint.
+
+---
+
+## SLIDE 13 — Cierre: la lección del Objetivo 5
+
+BLOQUE 1 — Cinco descubrimientos (con el anexo cerrado)
 -> El single-split del 4109 era optimista por suerte. La estimación honesta es más modesta.
 -> Frente a Sebastián, estamos en paridad estadística (no superiores, no inferiores).
 -> Fusionar las 3 binarias en una sola pregunta + incluir no_identificado NO fue bala de plata: balanced_acc 0.620 ≈ promedio de las binarias separadas (0.60).
 -> DSMIL sobre el fusionado dio Δ +0.040 en balanced_acc (los 3 folds positivos) pero bandas solapadas y AUC retrocediendo: banda AMBIGUA, no éxito arquitectónico en sentido fuerte.
+-> El "fracaso DSMIL en binarias" del 4137 era ruido del sorteo en carcinoma y tejido (empate estadístico con MC-CV); pero en CDIS se sostiene con barras de error (regresión leve consistente en los 5 folds) — pregunta morfológica abierta.
 
 BLOQUE 2 — Lo que el objetivo aportó
--> Medir la incertidumbre que el single-split escondía.
--> Confirmar que el cuello de botella sigue siendo datos / contexto espacial / desbalance, NO la arquitectura sola (DSMIL en régimen con datos tampoco rompe la barrera) NI la formulación (fusionado plano ≈ promedio binarias separadas).
+-> Medir la incertidumbre que el single-split escondía (binarias y fusionado).
+-> Cerrar el cuadro arquitectónico CLAM vs DSMIL en TODOS los regímenes (binarias × k=5 + fusionado × k=3).
+-> Confirmar que el cuello de botella sigue siendo datos / contexto espacial / desbalance, NO la arquitectura sola (DSMIL evaluado en TODOS los regímenes con MC-CV) NI la formulación (fusionado plano ≈ promedio binarias separadas).
 -> Justificar empíricamente los próximos ejes: mayor magnificación CONCH y selección de parches con información (no ruido).
 
 BLOQUE 3 — Próximos pasos (ya aprobados por Sebastián, futuros sprints)
 -> Re-extraer CONCH a mayor magnificación, solo para slides de microcalcificaciones.
 -> Selección de parches útiles vía el mejor modelo, estilo heatmap Camelyon.
+-> Pregunta abierta secundaria (CDIS): ¿por qué la atención gated absoluta de CLAM captura algo que la dual relacional de DSMIL no? Tema morfológico, no de este sprint.
 -> Ver `sprints/B4_sprint4/ejes_futuros_microcalc.md`.
