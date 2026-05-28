@@ -7,11 +7,14 @@
 
 ## Sprint actual: B4 / Sprint 4
 
-**Snapshot: 28 may 2026 (post chain Obj 5)** (Objetivos 1-3 completados;
-reformulación 3 binarios validada; **Objetivo 5 COMPLETADO** — chain SLURM
-4170→4171→4172 ✅, veredicto §2.2 = **banda ambigua** para DSMIL sobre el
-fusionado, slides 1-11 listas. Objetivo 4 (heatmaps) pendiente. Ver Objetivo 5
-abajo.)
+**Snapshot: 28 may 2026 (post chain Obj 5 + ANEXO DSMIL × binarias)**
+(Objetivos 1-3 completados; reformulación 3 binarios validada; **Objetivo 5
+COMPLETADO + ANEXO** — chain SLURM 4170→4171→4172 ✅, **job anexo 4179 ✅**
+(DSMIL × binarias × k=5, cierre simétrico arquitectónico). Veredicto §2.2 =
+**banda ambigua** para DSMIL sobre fusionado; veredicto anexo = **NULL en
+2/3 binarias (carcinoma, tejido) + regresión leve en CDIS (5/5 folds Δ
+negativo)**. Cuadro arquitectónico cerrado simétricamente. Slides 1-13
+listas (anexo en 11-12). Objetivo 4 (heatmaps) pendiente.)
 
 ### Estado por objetivo
 
@@ -39,13 +42,19 @@ abajo.)
 - **Objetivo 4 — Heatmaps comparativos**: **PENDIENTE** (Obj 2 ya no lo
   bloquea). Viabilidad verificada (`objetivo_4_heatmaps/viabilidad_script.md`).
 - **Objetivo 5 — Fusión binaria + varianza MC-CV + CLAM-vs-DSMIL**:
-  **COMPLETADO (28 may 2026)**. Chain `4170→4171→4172` ✅. Veredicto §2.2 =
-  **banda AMBIGUA** para DSMIL sobre fusionado (Δ bal_acc +0.040 ± 0.038
+  **COMPLETADO + ANEXO (28 may 2026)**. Chain `4170→4171→4172` ✅ + job
+  anexo `4179` ✅ (DSMIL × 3 binarias × k=5, cierre simétrico). Veredicto §2.2
+  = **banda AMBIGUA** para DSMIL sobre fusionado (Δ bal_acc +0.040 ± 0.038
   positivo en los 3 folds pero bandas mean±std solapadas; AUC retrocede
-  −0.020 ± 0.019). Hallazgo central: el cuello sigue siendo datos / contexto
-  espacial / desbalance, NO la arquitectura sola NI la formulación. Slides
-  1-11 listas en `objetivo_5_fusion_binaria/presentacion_contenido_completo.md`.
-  Detalle: `objetivo_5_fusion_binaria/resultados.md`.
+  −0.020 ± 0.019). **Veredicto anexo**: NULL en carcinoma (Δ −0.023 ± 0.071,
+  el "0.824" del 4137 era ruido del sorteo) + NULL/ambigua en tejido (Δ
+  +0.021 ± 0.051) + **regresión leve consistente en CDIS** (Δ −0.053 ± 0.026,
+  5/5 folds negativos — el "fracaso" del 4137 se sostiene con barras).
+  **Hallazgo central agregado**: la arquitectura sola NO es la palanca a
+  ninguna escala (binarias n=328 ni fusionado n=2814), con evidencia
+  simétrica. El cuello sigue siendo datos / contexto espacial / desbalance.
+  Slides 1-13 listas (anexo en 11-12). Detalle:
+  `objetivo_5_fusion_binaria/resultados.md` (§FASE 2 + §ANEXO).
 - **Reformulación multi-label**: **COMPLETADO (PRELIMINAR)** — **NO es hallazgo
   nuestro.** En la reunión Sebastián confirmó que él ya había hecho la
   separación en 3 binarios hace tiempo; nosotros dimos con su CSV y
@@ -91,6 +100,7 @@ abajo.)
 | `4170` | **Obj5 Fase 0** — varianza CLAM 3 binarias k=5 | COMPLETED (27-may) |
 | `4171` | **Obj5 Fase 1** — CLAM fusionado k=3 | COMPLETED (27-may) |
 | `4172` | **Obj5 Fase 2** — DSMIL fusionado k=3 + gate | COMPLETED (28-may, gate PASÓ) |
+| `4179` | **Obj5 ANEXO** — DSMIL × 3 binarias k=5 (paired vs 4170) | COMPLETED (28-may, ~3h29m) |
 
 ### Reformulación multi-label — COMPLETADO (PRELIMINAR)
 
@@ -159,9 +169,13 @@ Acuerdos y dirección del sprint (ver `CLAUDE.md` Hallazgo 10):
 - **Ejes futuros (post-sprint, aprobados Sebastián 26-may)**: re-extracción
   CONCH a mayor magnificación (Eje A, priorizado) + selección de parches
   útiles (Eje B). Ver `sprints/B4_sprint4/ejes_futuros_microcalc.md`.
-- **Apéndice descartado**: DSMIL × 3 binarias × k=5 NO se ejecuta este sprint
-  (Hallazgo 4 de Fase 0 ya respondió la pregunta arquitectónica; Sebastián
-  pidió otra dirección). Registrado en `ejes_futuros_microcalc.md`.
+- **Anexo EJECUTADO (28-may)**: DSMIL × 3 binarias × k=5 (job 4179) corrió
+  como cierre simétrico tras decisión revisitada con Ernesto. Hipótesis
+  pre-registrada `hipotesis_dsmil_binarias.md` con reviewer OK (regla 9
+  cumplida). Resultado: NULL en carcinoma + NULL/ambigua en tejido + regresión
+  leve consistente en CDIS (5/5 folds Δ negativo). El veredicto refuerza
+  Hallazgo 4 Fase 0 con evidencia simétrica. Detalle en
+  `ejes_futuros_microcalc.md` §Apéndice y `objetivo_5_fusion_binaria/resultados.md` §ANEXO.
 
 ### WhatsApp Sebastián 26-may-2026 (mañana) — pendientes aclarados
 
