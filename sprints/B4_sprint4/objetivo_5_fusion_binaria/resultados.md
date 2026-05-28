@@ -161,3 +161,87 @@ ambigua — NO sobre-vender como "supera a CLAM".**
   las bandas se solapan a k=3. No es éxito ni fracaso — es "no concluyente",
   y eso vale como dato: la arquitectura sola tampoco mueve la aguja, el
   cuello sigue siendo datos / contexto espacial / desbalance.*
+
+---
+
+## ANEXO — DSMIL × 3 binarias × MC-CV k=5 (COMPLETA, job 4179, 28-may 12:15)
+
+**Setup**: train_dsmil.py `--model_type dsmil`, 3 binarias × k=5 MC-CV,
+**MISMOS splits que Fase 0** (paired por construcción), args idénticos a
+Fase 2 (w_max 0.1 fijo). ~3h29m wall (15 folds; early stopping cortó antes
+de 30 epochs en la mayoría). Hipótesis pre-registrada:
+`hipotesis_dsmil_binarias.md` (reviewer OK 28-may).
+
+### Por qué este anexo
+
+Cierra simétricamente el cuadro arquitectónico CLAM vs DSMIL aplicando a
+DSMIL la misma vara de Fase 0 (MC-CV k=5). El "fracaso DSMIL × binarias"
+del job 4137 era **single-split**; Hallazgo 1 Fase 0 nos enseñó que el
+single-split engaña fuerte a n≈33 (CLAM carcinoma "0.808" era 0.732 ±
+0.167). Sin MC-CV no podíamos sostener "DSMIL falla en binarias".
+
+### Resultados (media ± std, k=5) — comparación pareada vs CLAM Fase 0
+
+| Tarea | CLAM auc (Fase 0) | DSMIL auc | Δ auc pareado | CLAM bal (Fase 0) | DSMIL bal | Δ bal pareado |
+|---|---|---|---|---|---|---|
+| carcinoma invasivo | 0.732 ± 0.167 | **0.722 ± 0.098** | **−0.011 ± 0.080** | 0.639 ± 0.077 | **0.617 ± 0.117** | **−0.023 ± 0.071** |
+| CDIS | 0.652 ± 0.072 | **0.619 ± 0.099** | **−0.034 ± 0.081** | 0.595 ± 0.077 | **0.543 ± 0.077** | **−0.053 ± 0.026** |
+| tejido no neoplásico | 0.646 ± 0.025 | **0.682 ± 0.042** | **+0.036 ± 0.048** | 0.577 ± 0.030 | **0.599 ± 0.029** | **+0.021 ± 0.051** |
+
+### Δ pareado por fold (DSMIL − CLAM, mismos splits Fase 0)
+
+| Fold | carcinoma (Δbal / Δauc) | CDIS (Δbal / Δauc) | tejido (Δbal / Δauc) |
+|---|---|---|---|
+| f0 | −0.020 / +0.143 | −0.036 / −0.068 | −0.067 / +0.081 |
+| f1 | −0.040 / −0.034 | −0.019 / +0.061 | +0.063 / +0.046 |
+| f2 | −0.143 / −0.057 | −0.045 / −0.101 | +0.024 / −0.053 |
+| f3 | +0.071 / −0.085 | −0.091 / +0.066 | +0.010 / +0.033 |
+| f4 | +0.017 / −0.020 | −0.071 / −0.126 | +0.077 / +0.073 |
+| **Signo Δ bal** | 2/5 positivo, mixto | **5/5 negativo** (consistente) | 4/5 positivo |
+| **Δ medio bal** | −0.023 ± 0.071 | **−0.053 ± 0.026** | +0.021 ± 0.051 |
+
+### Veredicto (umbrales pre-registrados — `hipotesis_dsmil_binarias.md`)
+
+| Tarea | Veredicto | Razón |
+|---|---|---|
+| carcinoma invasivo | **NULL ✅** | \|Δ bal\| = 0.023 < 0.03 Y bandas mean±std solapadas. El "0.824" AUC del 4137 era ruido del sorteo: con MC-CV, DSMIL 0.722 ± 0.098 es **indistinguible** de CLAM 0.732 ± 0.167. Confirma la hipótesis primaria (null). |
+| CDIS | **REGRESIÓN leve ⚠️** | Δ bal = **−0.053** ≤ −0.05 (umbral pre-registrado de regresión) **Y** signo negativo en los 5 folds (no ruido aleatorio). El "fracaso DSMIL en CDIS" del 4137 **se sostiene con barras de error**. |
+| tejido no neoplásico | **NULL / AMBIGUO** | Δ bal = +0.021 < 0.03 (no llega a "señal" pre-registrada +0.05) Y bandas mean±std solapadas. Δ auc +0.036 ± 0.048 (banda solapada). Aporte marginal, no consistente entre métricas. |
+
+### Hallazgos del anexo
+
+1. **2 de 3 tareas: empate estadístico CLAM vs DSMIL** → **confirma
+   Hallazgo 4 de Fase 0** (cuello = datos, no arquitectura) ahora también
+   con DSMIL. La arquitectura sola no rompe el techo de balanced_acc
+   0.58–0.64 a n=328.
+2. **CDIS es la única tarea con regresión consistente.** El signo negativo
+   en los 5 folds (no es ruido aleatorio) sostiene la lectura del 4137:
+   para CDIS la atención dual de DSMIL **resta** algo que CLAM sí captura.
+   Posible explicación a explorar (no de este sprint): la morfología del
+   CDIS (microcalcificaciones distribuidas dentro de ductos) podría
+   beneficiar más la atención gated absoluta de CLAM que la dual
+   relacional de DSMIL.
+3. **Carcinoma con MC-CV "limpia" la narrativa del 4137.** El 4137 había
+   dado test_auc 0.824 single-split (parecía "DSMIL gana en carcinoma");
+   MC-CV dice 0.722 ± 0.098, paired Δ −0.011 con CLAM — **indistinguibles**.
+   Mismo patrón empírico que el Hallazgo 1 Fase 0 sobre CLAM (0.808 →
+   0.732 ± 0.167): el single-split es ruido del sorteo, no señal.
+4. **Coherente con Fase 2 fusionado.** DSMIL en TODOS los regímenes
+   evaluado con MC-CV (binarias + fusionado): aporte marginal/ambiguo en
+   mejor caso, regresión leve en peor (CDIS). El veredicto arquitectónico
+   queda **cerrado simétricamente** — no es la palanca para este pipeline
+   de microcalcificaciones.
+
+### Para la presentación
+
+- Slide 12 nueva (`presentacion_contenido_completo.md`): tabla por fold +
+  comparación pareada + veredicto por tarea.
+- Figuras `figuras/fig3a_anexo_dsmil_vs_clam_binarias_auc.png` y
+  `fig3b_..._balacc.png` (barras CLAM vs DSMIL con error, paired).
+- Figuras `figuras/fig4{a..d}_*_confusion.png` (heatmaps 2×2 por fold de
+  todos los experimentos: Fase 0, Fase 1, Fase 2, Anexo).
+- Mensaje honesto: *DSMIL evaluado en TODOS los regímenes (binarias +
+  fusionado, ambos con MC-CV). Conclusión arquitectónica cerrada: no es la
+  palanca. El cuello sigue siendo datos / contexto / desbalance. CDIS abre
+  una pregunta morfológica (atención dual vs gated absoluta) para futuro,
+  no decisión de este sprint.*
