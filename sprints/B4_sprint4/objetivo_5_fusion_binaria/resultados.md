@@ -56,9 +56,43 @@ downstream (Fase 1/2, Sebastián) se evalúa **solo con MC-CV mean±std**; ning�
 
 ---
 
-## FASE 1 — CLAM sobre el fusionado (PENDIENTE, job 4171 corriendo)
+## FASE 1 — CLAM sobre el fusionado (COMPLETA, job 4171, 27-may)
 
-(se llena al terminar — `results/obj5_fase1_clam_fusionado/clam_presencia_f*_s1/test_metrics.json`)
+**Setup**: train_dsmil.py `--model_type clam`, 2814 slides, k=3 MC-CV, args
+bendecidos. ~5h44m wall (3 folds × 30 epochs).
+
+| Métrica | f0 | f1 | f2 | **media ± std** |
+|---|---|---|---|---|
+| test_auc | 0.805 | 0.764 | 0.758 | **0.776 ± 0.021** |
+| balanced_acc | 0.632 | 0.621 | 0.608 | **0.620 ± 0.010** |
+| confusión TP/FN (recall+) | 14/18 (0.44) | 11/21 (0.34) | 10/22 (0.31) | recall+ ≈ 0.36 |
+| confusión TN/FP (recall−) | 206/43 (0.83) | 228/26 (0.90) | 225/24 (0.90) | recall− ≈ 0.88 |
+
+### Veredicto (umbrales §1.3)
+
+**balanced_acc 0.620 ± 0.010 → banda PLATEAU** (0.55 ≤ x < 0.65). El modelo NO
+colapsa (recall+ ≈ 0.36, no 0 — un colapso daría recall+ = 0). Aprende algo,
+pero el desbalance 7.6:1 lo inclina a "no" pese al `weighted_sample`. **No
+llega al umbral clínico 0.65.** Coherente con la predicción pre-registrada
+(§1.1: "detector modesto, no salto") y el precedente de Sebastián (cdis con
+no_id → 0.69 AUC; nosotros 0.776 AUC pero balanced_acc honesta 0.620).
+
+### Hallazgos
+
+1. **Std súper estable (0.010 / 0.021)** porque cada test tiene 281-286 slides
+   (32 positivos) — vs Fase 0 binarias con 33 slides (7-20 positivos) →
+   confirma el argumento de "k por régimen": el fusionado no necesita k=5.
+2. **Fusionar no fue bala de plata** — balanced_acc 0.620 es comparable al
+   promedio de las binarias separadas (Fase 0: carcinoma 0.639, cdis 0.595,
+   tejido 0.577). Aprovechar las ~2486 no_identificado no movió la métrica
+   honesta.
+3. **El gate de Fase 2 PASA** (0.620 > 0.55) → DSMIL corre. Comparación
+   pareada CLAM vs DSMIL con barras de error chicas → el umbral arquitectónico
+   +0.03 (§2.2) es exigente y honesto (DSMIL necesita bal_acc ≥ 0.65 mean).
+
+## FASE 2 — DSMIL sobre el fusionado (RUNNING, job 4172)
+
+(gate pasó; corriendo desde 27-may ~21:45; se llena al terminar)
 
 ## FASE 2 — DSMIL sobre el fusionado (PENDIENTE, job 4172 en cola)
 

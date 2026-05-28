@@ -118,7 +118,7 @@ no significa nada — y de hecho ese 0.808 resultó ser 0.732 ± 0.167 al repeti
 | 9 | 4170 | Fase 0 varianza — carcinoma | CLAM_MB | binaria | 328 | **5** | ✅ | **0.732 ± 0.167** | **0.639 ± 0.077** |
 | 10 | 4170 | Fase 0 varianza — CDIS | CLAM_MB | binaria | 328 | **5** | ✅ | **0.652 ± 0.072** | **0.595 ± 0.077** |
 | 11 | 4170 | Fase 0 varianza — tejido | CLAM_MB | binaria | 328 | **5** | ✅ | **0.646 ± 0.025** | **0.577 ± 0.030** |
-| 12 | 4171 | Fase 1 — fusionado | CLAM_MB | fusionada | 2814 | **3** | ⏳ |  ±  |  ±  |
+| 12 | 4171 | Fase 1 — fusionado | CLAM_MB | fusionada | 2814 | **3** | ✅ | **0.776 ± 0.021** | **0.620 ± 0.010** (plateau) |
 | 13 | 4172 | Fase 2 — fusionado | DSMIL | fusionada | 2814 | **3** | ⏳ |  ±  |  ±  |
 
 > ✅ hecho · ⏳ en cola/corriendo · `±` = media ± desviación sobre las k
