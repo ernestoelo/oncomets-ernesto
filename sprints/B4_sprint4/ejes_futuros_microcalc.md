@@ -78,3 +78,51 @@ métrica pre-registradas.
 
 Ver [[equipo-arquitecturas-mammoth-longnet]] y [[microcalc-fusion-objetivo5]]
 (memorias) para el contexto de modelo y el estado del objetivo en curso.
+
+---
+
+## Apéndice — Experimentos opcionales no prioritarios
+
+Registro de experimentos pensados pero **descartados como prioridad** del
+sprint actual. Quedan acá para no perderlos; no son direcciones aprobadas por
+Sebastián.
+
+### DSMIL × 3 binarias × k=5 MC-CV (simetría del cuadro CLAM vs DSMIL)
+
+**Qué.** Repetir el régimen de Fase 0 (CLAM × 3 binarias × k=5 MC-CV, job
+4170) pero con DSMIL en lugar de CLAM. Cierra simétricamente el cuadro
+"CLAM vs DSMIL × {3 binarias, 1 fusionado} × MC-CV" — hoy tenemos CLAM en
+ambos (Fase 0 + Fase 1) y DSMIL solo en el fusionado (Fase 2). El cuadrante
+faltante es DSMIL × binarias × k=5.
+
+**Por qué NO en este sprint (3 razones).**
+
+1. **Sin hipótesis pre-registrada nueva, viola la regla 9 de CLAUDE.md.** El
+   job 4137 (DSMIL × binarias × 1 split) ya cerró como "fracaso
+   arquitectónico" sobre balanced_acc; la única hipótesis viable nueva sería
+   "el fracaso del 4137 era ruido del single-split" — pero eso sería
+   alineado con la lógica de varianza de Fase 0, **no con un mecanismo
+   arquitectónico**. Hipótesis débil → reviewer bloquea.
+2. **El Hallazgo 4 de Fase 0 ya respondió la pregunta de fondo.** Las 3
+   binarias dieron balanced_acc 0.577-0.639 con std 0.030-0.077 → modestas,
+   apenas sobre 0.50, con barras de error que cubren el rango clínicamente
+   relevante. El cuello es **datos** (328 slides), no arquitectura — Δ
+   esperado DSMIL-CLAM ≈ 0 dentro de las bandas. Coherente con el resultado
+   de Fase 2 sobre el fusionado: incluso con ~2814 slides el Δ pareado es
+   ambiguo (+0.040 ± 0.038 en bal_acc, AUC retrocede). La hipótesis null
+   ("DSMIL no aporta sobre las binarias tampoco") es la predicción honesta.
+3. **Sebastián pidió otra dirección.** Reunión 26-may: mammoth (ya gana en
+   3 tasks de él), mayor magnificación (Eje A), selección de parches
+   (Eje B). El presupuesto de cómputo y atención va ahí.
+
+**Si se retomara igual, requisitos mínimos (regla 9).**
+
+- Hipótesis pre-registrada explícita: dirección esperada del Δ, magnitud
+  umbral, justificación de por qué la pregunta sigue abierta tras Hallazgo 4.
+- Reviewer OK antes de tocar `.slurm` o splits.
+- Splits **reutilizar los de Fase 0** (`data/splits_kfold/microcalcificaciones_en_<tejido>_kfold/`)
+  para mantener comparación pareada con CLAM 4170.
+- Harness = `scripts/train_dsmil.py --model_type dsmil` (path byte-idéntico
+  a 4135/4137).
+- Wall esperado ≈ 3 × 5 × 1.3h ≈ 20h. Una sola GPU → cortesía single-GPU.
+- Reporte = mean ± std + Δ pareado vs 4170; sin sobre-vender.
