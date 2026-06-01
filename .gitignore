@@ -49,6 +49,11 @@ results/**/events.out.tfevents.*
 # un snapshot histórico, commit explícito con `git add -f`.
 sprints/**/CLAM_Sprint_*.pdf
 
+# Slides locales que Ernesto sube para que Claude las revise/actualice (PDFs,
+# pptx, etc.). Carpeta de trabajo local — NO versionar. El contenido de verdad
+# vive en sprints/<sprint>/<obj>/ (figuras, guion_montaje, presentacion_*.md).
+papers/presentations/
+
 # Editor / OS
 .vscode/
 .idea/

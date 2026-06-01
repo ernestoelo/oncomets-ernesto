@@ -764,6 +764,14 @@ problema de "Claude entrega contenido, Ernesto controla branding" sin
 duplicar trabajo. **NO** intentar editar el `.pptx` ni el PDF del deck
 (el PDF transitorio `CLAM_Sprint_*.pdf` está gitignored — ver
 `.gitignore`).
+> **`render_table` auto-dimensiona columnas** (fix 1-jun, commit `e88032f`):
+> mide el ancho real de cada string (mathtext/Text artist sobre canvas Agg) y
+> calcula col widths + figura, con el eje al 100% del ancho → cada columna
+> recibe `≥ ancho_texto + padding` por construcción (sin solape ni clip). **NO
+> volver a pasar `col_widths` a mano** (el arg se ignora). Si una tabla se ve
+> mal, es **padding/wrap de celdas largas** (insertá `\n`), nunca proporciones.
+> Para math bonito en diagramas usar **mathtext** (`$...$`), NO mermaid (texto
+> plano, feo) ni `usetex` (requiere LaTeX instalado).
 
 ## Subagentes disponibles
 
