@@ -28,6 +28,7 @@ import pickle
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.font_manager import FontProperties
 import numpy as np
 import pandas as pd
 from sklearn.metrics import balanced_accuracy_score
@@ -65,6 +66,29 @@ TEJIDO_LABEL = {
 # Helpers tabla
 # =============================================================================
 
+def _measure_text_width_in(strings_bold, fontsize):
+    """Ancho máximo (in) entre varios (texto, bold), midiendo el render real.
+
+    Mide con un Text artist sobre una figura Agg temporal → ancho exacto en px,
+    /DPI → pulgadas. Soporta multilínea (ancho = línea más larga). Esto evita
+    el solape/clipping que producía repartir col_widths a ojo.
+    """
+    fig_tmp = plt.figure(dpi=DPI)
+    renderer = fig_tmp.canvas.get_renderer()
+    maxw = 0.0
+    for s, bold in strings_bold:
+        fp = FontProperties(family="DejaVu Sans", size=fontsize,
+                            weight="bold" if bold else "normal")
+        for line in str(s).split("\n"):
+            if not line:
+                continue
+            t = fig_tmp.text(0, 0, line, fontproperties=fp)
+            maxw = max(maxw, t.get_window_extent(renderer).width / DPI)
+            t.remove()
+    plt.close(fig_tmp)
+    return maxw
+
+
 def render_table(headers, rows, out_path, col_widths=None,
                  row_colors=None, cell_colors=None,
                  header_bg=COL_TEAL, header_fg="white",
@@ -74,36 +98,61 @@ def render_table(headers, rows, out_path, col_widths=None,
 
     headers: list[str]
     rows: list[list[str]]
-    col_widths: opcional, lista de pesos (suma debe ser ~1.0)
+    col_widths: ignorado (los anchos se auto-calculan midiendo el texto). Se
+        mantiene en la firma por compatibilidad con los callers existentes.
     row_colors: opcional, color de fondo por fila (len == n_rows)
     cell_colors: opcional, dict {(i, j): color} para destacar celdas
     header_bg / header_fg: estilo del header
     title: opcional, texto en negrita arriba
     footnote: opcional, texto chico debajo
+
+    El eje ocupa el 100% del ancho de la figura, así colWidths (fracciones) se
+    mapean 1:1 a pulgadas → cada columna recibe exactamente el ancho que su
+    texto necesita (medido + padding). Sin solape ni recorte.
     """
     n_rows = len(rows); n_cols = len(headers)
-    if col_widths is None:
-        col_widths = [1.0 / n_cols] * n_cols
 
-    # Heuristica tamaño: ancho por nº cols, alto por nº rows (compacto)
-    if figsize is None:
-        w = max(8, 1.6 * n_cols)
-        h = 0.45 * (n_rows + 1) + (0.45 if title else 0.1) + (0.25 if footnote else 0.1)
-        figsize = (w, h)
+    PAD_IN = 0.34       # padding horizontal total por celda (in)
+    MIN_COL_IN = 0.55   # ancho mínimo de columna (in)
 
-    fig, ax = plt.subplots(figsize=figsize, dpi=DPI)
+    # --- Ancho necesario por columna (medición exacta del texto) ---
+    col_in = []
+    maxlines = 1
+    for j in range(n_cols):
+        items = [(headers[j], True)] + [(rows[i][j], j == 0) for i in range(n_rows)]
+        need = _measure_text_width_in(items, fontsize)
+        col_in.append(max(MIN_COL_IN, need + PAD_IN))
+        maxlines = max(maxlines, str(headers[j]).count("\n") + 1,
+                       *[str(rows[i][j]).count("\n") + 1 for i in range(n_rows)])
+
+    table_w = sum(col_in)
+    colWidths = [c / table_w for c in col_in]
+
+    # --- Geometría de la figura ---
+    row_in = 0.30 * maxlines + 0.14
+    table_h = row_in * (n_rows + 1)
+    title_h = 0.62 if title else 0.10
+    foot_h = 0.50 if footnote else 0.10
+    fig_w = table_w + 0.30
+    fig_h = table_h + title_h + foot_h
+
+    fig = plt.figure(figsize=(fig_w, fig_h), dpi=DPI)
+    ax = fig.add_axes([0.0, foot_h / fig_h, 1.0, table_h / fig_h])
     ax.axis("off")
 
     table = ax.table(
         cellText=rows,
         colLabels=headers,
-        colWidths=col_widths,
+        colWidths=colWidths,
         loc="center",
         cellLoc="center",
     )
     table.auto_set_font_size(False)
     table.set_fontsize(fontsize)
-    table.scale(1, 1.6)
+    # Altura uniforme: las n_rows+1 celdas llenan el eje exactamente
+    cell_h = 1.0 / (n_rows + 1)
+    for cell in table.get_celld().values():
+        cell.set_height(cell_h)
 
     # Estilo: header
     for j in range(n_cols):
@@ -112,7 +161,6 @@ def render_table(headers, rows, out_path, col_widths=None,
         c.set_text_props(color=header_fg, weight="bold", fontsize=fontsize)
         c.set_edgecolor(COL_BORDER)
         c.set_linewidth(0.6)
-        c.set_height(c.get_height() * 1.0)
 
     # Estilo: cuerpo
     for i in range(n_rows):
@@ -142,12 +190,12 @@ def render_table(headers, rows, out_path, col_widths=None,
             c.set_text_props(color=color, weight=weight, fontsize=fontsize)
 
     if title:
-        fig.suptitle(title, fontsize=fontsize + 3, color=COL_TEAL_DK, weight="bold", y=0.97)
+        fig.text(0.5, 1 - title_h / (2 * fig_h), title, ha="center", va="center",
+                 fontsize=fontsize + 3, color=COL_TEAL_DK, weight="bold")
     if footnote:
-        fig.text(0.5, 0.015, footnote, ha="center", fontsize=fontsize - 2,
-                 color=COL_GRIS_TXT, style="italic")
+        fig.text(0.5, foot_h / (2 * fig_h), footnote, ha="center", va="center",
+                 fontsize=fontsize - 2, color=COL_GRIS_TXT, style="italic")
 
-    fig.tight_layout(rect=[0, 0.03 if footnote else 0, 1, 0.93 if title else 1])
     fig.savefig(out_path, dpi=DPI, bbox_inches="tight", facecolor="white")
     plt.close(fig)
     print(f"  → {os.path.basename(out_path)}")
@@ -542,11 +590,11 @@ def asset_anexo_paired_per_fold():
         db, _ = deltas_per_task[t]
         n_pos = (db > 0).sum(); n_neg = (db < 0).sum()
         if n_neg == 5:
-            txt, col = "5/5 negativo (consistente)", COL_ROJO
+            txt, col = "5/5 negativo\n(consistente)", COL_ROJO
         elif n_pos == 5:
-            txt, col = "5/5 positivo (consistente)", COL_VERDE
+            txt, col = "5/5 positivo\n(consistente)", COL_VERDE
         else:
-            txt, col = f"{n_pos}/5 positivo, {n_neg}/5 negativo (mixto)", COL_AMBAR
+            txt, col = f"{n_pos}/5 positivo,\n{n_neg}/5 negativo (mixto)", COL_AMBAR
         signs_row.append(txt)
     rows.append(signs_row)
     for j in range(1, 4):
@@ -605,7 +653,7 @@ def asset_comparativa_maestra():
 def asset_comparativa_sebastian():
     headers = ["Tarea", "4109 (1 sorteo)", "Fase 0 MC-CV (honesto)", "Sebastián (1 sorteo)", "¿distinguibles?"]
     rows = [
-        ["micro carcinoma invasivo",  "0.808", "0.732 ± 0.167", "0.79", "NO — Sebastián cae dentro de nuestra banda"],
+        ["micro carcinoma invasivo",  "0.808", "0.732 ± 0.167", "0.79", "NO — Sebastián cae\ndentro de nuestra banda"],
         ["micro CDIS",                 "0.678", "0.652 ± 0.072", "0.69", "NO — se solapan"],
         ["micro tejido no neoplásico", "0.658", "0.646 ± 0.025", "0.63", "NO — se solapan"],
     ]
@@ -621,9 +669,10 @@ def asset_cuadro_arquitecturas():
     """Cuadro 2x2 modelos x regímenes (DSMIL evaluado en todo)."""
     headers = ["", "Binarias separadas (n=328, k=5)", "Fusionado (n=2814, k=3)"]
     rows = [
-        ["CLAM",  "Fase 0 (job 4170)  ·  bal 0.58–0.64", "Fase 1 (job 4171)  ·  bal 0.620 ± 0.010 (plateau)"],
-        ["DSMIL", "Anexo (job 4179)  ·  bal 0.54–0.62  ·  Δ pareado ≈ 0 (CDIS regresión leve)",
-                  "Fase 2 (job 4172)  ·  bal 0.661 ± 0.046 (ambigua)  ·  Δ pareado +0.040 ± 0.038"],
+        ["CLAM",  "Fase 0 (job 4170)\nbal 0.58–0.64",
+                  "Fase 1 (job 4171)\nbal 0.620 ± 0.010 (plateau)"],
+        ["DSMIL", "Anexo (job 4179)\nbal 0.54–0.62\nΔ pareado ≈ 0 (CDIS regresión leve)",
+                  "Fase 2 (job 4172)\nbal 0.661 ± 0.046 (ambigua)\nΔ pareado +0.040 ± 0.038"],
     ]
     footnote = ("DSMIL evaluado en TODOS los regímenes con MC-CV · "
                 "la arquitectura sola NO es la palanca a ninguna escala disponible")
