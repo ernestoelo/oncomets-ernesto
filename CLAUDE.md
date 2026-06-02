@@ -790,6 +790,9 @@ duplicar trabajo. **NO** intentar editar el `.pptx` ni el PDF del deck
   físico.
 - `@dev-workflow` — estructura del repo, Gitflow, validación.
 - `@harness` — referencia para escalado post-sprint.
+- `@mammoth` — Mammoth (MoE de bajo rango que reemplaza la 1ª capa lineal de
+  CLAM; heredado de Eduardo, prioridad de Benjamín): modelo `models_mammoth/`,
+  driver `train_dsmil.py --model_type clam_mammoth`, slurm Obj 6, test CPU.
 
 ## Contexto del usuario para sesiones rápidas
 
