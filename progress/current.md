@@ -21,7 +21,7 @@ según los pedidos de Benjamín (1-jun):
 
 | # | Objetivo | Estado |
 |---|---|---|
-| 1 | **mammoth k=5 paired** sobre las 3 binarias (correr + analizar) | port LISTO (B4 Obj 6), falta `sbatch` |
+| 1 | **mammoth k=5 paired** sobre las 3 binarias (correr + analizar) | **CORRIENDO** (job 4229, ambos brazos, lanzado 2-jun 00:06); falta analizar |
 | 2 | **Magnificación**: investigar (papers) ANTES de implementar | pendiente |
 | 3 | **k=5 folds** en más tasks débiles (no single-split) | pendiente |
 | 4 | **Parches/slides útiles**: selección de los que aportan al train | pendiente |
@@ -32,14 +32,18 @@ según los pedidos de Benjamín (1-jun):
 
 ### Estado inmediato
 
-- **mammoth (Obj 1 de B5)**: `models_mammoth/CLAM_MB_Mammoth` + driver
-  `train_dsmil.py --model_type clam_mammoth` + `scripts/run_obj6_mammoth_binarias_kfold.slurm`
-  + `tests/test_mammoth_cpu.py` (pasa) + hipótesis en
-  `sprints/B4_sprint4/objetivo_6_mammoth/README.md`. Reviewer GO. **NO lanzado a
-  GPU** (espera OK de Ernesto). Splits k=5 ya existen en `data/splits_kfold/`.
-- **Pendiente técnico antes de citar mammoth**: vendorizar `mammoth-moe` bajo
-  `clam_testing2` (hoy editable desde `clam_testing`, fuera de containment).
-- Jobs SLURM activos: **ninguno**.
+- **mammoth (Obj 1 de B5) — LANZADO**: job **4229** (`sbatch
+  scripts/run_obj6_mammoth_binarias_kfold.slurm`, ambos brazos `clam
+  clam_mammoth`, 3 binarias × k=5 = 30 corridas, ~15h, lanzado 2-jun 00:06 con
+  OK de Ernesto). Gates pasados: verify_kfold + test CPU + preflight ×5/tarea.
+  Resultados → `results/obj6_mammoth_binarias_<tejido>/`. Analizar Δ pareado por
+  fold (balanced_acc) cuando termine; escribir
+  `sprints/B5_sprint5/objetivo_1_mammoth_run/resultados.md`.
+- **Vendorizado HECHO**: `mammoth-moe` copiado a `clam_testing2/MAMMOTH` (pin
+  `fe36d4e`) + `pip install -e` reapuntado → `import mammoth` resuelve dentro de
+  containment. Resultado ya citable. (El env compartido `clam_latest` quedó
+  apuntando al editable nuevo.)
+- Monitoreo: `tail -f logs/eg_mammoth_bin_kfold_4229.out` · `squeue -j 4229`.
 
 ### Reglas que gobiernan el sprint (de CLAUDE.md)
 
