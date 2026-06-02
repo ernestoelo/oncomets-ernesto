@@ -10,6 +10,10 @@ train/val/test (comparación apples-to-apples, Objetivo 5 Fase 1 vs Fase 2):
   modo NO se generan init/final_snapshot.json y las columnas
   train_max_loss / grad_W0_mean / grad_q_mean del metrics.jsonl salen 0.0
   (son diagnósticos solo-DSMIL, sin efecto en el entrenamiento CLAM).
+- `clam_mammoth`: CLAM_MB con la 1ª capa lineal reemplazada por Mammoth
+  (Obj 6). MISMA loss y MISMO harness que `clam` (cae en el mismo path, sin
+  L_max ni snapshots dual-stream); único delta = el patch embed. Comparación
+  paired vs `clam` sobre los mismos splits.
 
 Replica el patrón de `clam_environ/main.py` + `core_utils.train_loop_clam`
 SIN modificar nada bajo `clam_environ/` (regla 2 de CLAUDE.md). Añade
@@ -121,12 +125,27 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--embed_dim", type=int, default=512)
     p.add_argument("--max_epochs", type=int, default=1)
     p.add_argument("--n_classes", type=int, default=2)
-    p.add_argument("--model_type", choices=["dsmil", "clam"], default="dsmil",
+    p.add_argument("--model_type", choices=["dsmil", "clam", "clam_mammoth"],
+                   default="dsmil",
                    help="dsmil = DSMIL_CLAM_MB (default; path byte-idéntico a "
                         "jobs 4135/4137). clam = CLAM_MB baseline (MISMO harness "
                         "train/val/test, SIN L_max ni aggregator dual-stream) — "
-                        "para comparación apples-to-apples sobre el fusionado "
-                        "(Objetivo 5 Fase 1 vs Fase 2).")
+                        "para comparación apples-to-apples (Obj 5 Fase 1 vs Fase 2). "
+                        "clam_mammoth = CLAM_MB con la 1ª capa lineal reemplazada "
+                        "por Mammoth (Obj 6; MISMO harness y MISMA loss que clam, "
+                        "único delta = el patch embed → comparación paired vs clam).")
+
+    # Hiperparámetros de Mammoth (solo aplican con --model_type clam_mammoth;
+    # ignorados en dsmil/clam). Defaults = recomendados del paper (README MAMMOTH).
+    p.add_argument("--mammoth_num_experts", type=int, default=30)
+    p.add_argument("--mammoth_num_slots", type=int, default=10)
+    p.add_argument("--mammoth_num_heads", type=int, default=16)
+    p.add_argument("--mammoth_slot_dim", type=int, default=256)
+    p.add_argument("--mammoth_keep_slots", action="store_true",
+                   help="si se pasa, Mammoth devuelve E·S features agregadas en "
+                        "vez de los N parches (cambia la semántica de attention/"
+                        "instance-loss). Obj 6 #1: por defecto FALSE — mantiene N "
+                        "parches, comparación limpia vs el baseline CLAM.")
 
     p.add_argument("--early_stopping", action="store_true",
                    help="activa EarlyStopping de CLAM. R6 §5: con "
@@ -163,6 +182,24 @@ def build_model(args: argparse.Namespace, device: torch.device) -> nn.Module:
             n_classes=args.n_classes, subtyping=False,
             instance_loss_fn=instance_loss_fn,
             embed_dim=args.embed_dim,
+        )
+    elif args.model_type == "clam_mammoth":
+        # CLAM_MB con la 1ª capa lineal reemplazada por Mammoth (Obj 6). MISMO
+        # instance_loss_fn (SmoothTop1SVM), MISMO harness; único delta vs 'clam'
+        # = el patch embed. forward/inst_eval heredados de CLAM_MB → la
+        # comparación clam vs clam_mammoth es paired a nivel de arquitectura.
+        from models_mammoth import CLAM_MB_Mammoth  # noqa: E402
+        model = CLAM_MB_Mammoth(
+            gate=True, size_arg="small",
+            dropout=args.drop_out, k_sample=args.B,
+            n_classes=args.n_classes, subtyping=False,
+            instance_loss_fn=instance_loss_fn,
+            embed_dim=args.embed_dim,
+            mammoth_num_experts=args.mammoth_num_experts,
+            mammoth_num_slots=args.mammoth_num_slots,
+            mammoth_num_heads=args.mammoth_num_heads,
+            mammoth_slot_dim=args.mammoth_slot_dim,
+            mammoth_keep_slots=args.mammoth_keep_slots,
         )
     else:
         model = DSMIL_CLAM_MB(
