@@ -75,3 +75,8 @@ papers/presentations/
 *.env
 .env.local
 conf.env
+
+# Snapshot pesado del trabajo heredado de Eduardo (mammoth). El código
+# irremplazable vive extraído en key_sources/ (committeado); el tarball es
+# backup local de 23 MB (incluye assets/PDFs de MAMMOTH), no va a git.
+sprints/B4_sprint4/objetivo_6_mammoth/eduardo_snapshot/*.tar.gz
