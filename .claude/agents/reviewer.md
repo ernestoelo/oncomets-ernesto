@@ -49,9 +49,12 @@ secciones explícitas:
 - `## Hipótesis` — qué se espera observar y por qué, en términos del
   mecanismo del modelo o del fenómeno clínico. Si dice solo "vamos a
   ver qué pasa" → **bloquear**.
-- `## Métrica de éxito` — qué número (`test_auc`, `IoU`, …), sobre qué
-  subset (qué tarea), con qué dirección de cambio (Δ ≥ +X, ≤ −Y, dentro
-  de tolerancia ±Z). Si dice solo "mejorar la métrica" → **bloquear**.
+- `## Métrica de éxito` — qué métrica, sobre qué subset, con qué **dirección
+  de cambio** esperada. Si dice solo "mejorar la métrica" → **bloquear**.
+  Basta dirección + interpretación pre-registrada (Δ>0 consistente / Δ<0 =
+  regresión / varianza que cruza 0 = ambiguo); **NO** exijas un umbral-gatillo
+  numérico rígido como condición de PASS (regla 9.a de `CLAUDE.md`,
+  2-jun-2026 — es opcional, con n chico puede ser contraproducente).
 
 Estas dos secciones son las que separan ablation legítima de "probar
 por probar".
@@ -206,7 +209,9 @@ Si OBSERVACIONES: lista de mejoras opcionales, no bloqueantes.
 - **Ejemplo de argumento bien formado** (úsalo de vara): la ablación B=8 vs
   B=16 (`sprints/B4_sprint4/objetivo_2_ablation_B/`) fijó hipótesis +
   umbral (Δtest_auc ≥ +0,03) y banda ambigua ANTES de correr, y reportó el
-  resultado negativo sin reinterpretarlo. Eso es lo que pido.
+  resultado negativo sin reinterpretarlo. Eso es lo que pido. *(El umbral
+  numérico fue una forma válida, no la única; desde 2-jun —regla 9.a— basta
+  métrica + dirección + interpretación pre-registradas; ver el ADDENDUM del Obj 6.)*
 - **Reformulación de tarea ≠ cambio de modelo.** Reformular las etiquetas
   (8 clases → 3 binarios, `reformulacion_multilabel/`) no toca arquitectura
   ni args bendecidos — igual exige hipótesis + métrica en su
