@@ -16,7 +16,9 @@
 Soy Ernesto Gamero, estudiante de último año de Ingeniería Civil Electrónica
 (esp. Computadores) en la UTFSM. Práctica en EnvironBio en el proyecto
 **OncoMets** (IA para diagnóstico oncológico), 20 hrs/sem. Supervisor:
-Sebastián Gaete. Senior: Benjamín. Colaborador: Eduardo.
+Sebastián Gaete. Senior: Benjamín. (Eduardo, colaborador, renunció el
+1-jun-2026; equipo actual = Ernesto + Sebastián. Su trabajo de mammoth lo
+heredó Ernesto — ver memoria `equipo-arquitecturas-mammoth-longnet`.)
 
 Este repo (`oncomets-ernesto`) es mi **control center** sobre el servidor
 Environ. NO contiene el código de CLAM — ese es de Sebastián Donoso
@@ -414,11 +416,29 @@ sbatch. El reviewer lo verifica como parte del checklist.
    código. Una ablation cuenta como argumento sólido **solo si**:
    - La **hipótesis** está enunciada de antemano (qué se espera observar y
      por qué, en términos del mecanismo del modelo o del fenómeno clínico).
-   - La **métrica de éxito** está predefinida (qué número, sobre qué subset,
-     con qué dirección de cambio).
+   - La **métrica de éxito** está predefinida (qué métrica, sobre qué subset,
+     con qué **dirección de cambio** esperada).
 
    Si un cambio toca `model_*.py`, `core_utils.py` o el training wrapper sin
    cumplir esto, el agente `reviewer` bloquea el commit.
+
+   **9.a — "Métrica predefinida" ≠ "umbral mágico de pass/fail"** (aclaración
+   2-jun-2026, B5 — memoria `eval-reporte-auc-y-umbrales-obj6`). "Predefinida"
+   exige la **métrica + el subset + la dirección esperada** y cómo se
+   interpretaría el resultado (consistencia de signo a través de folds, magnitud
+   de la varianza, si supera el trivial). **NO** exige un número-gatillo que
+   dispare "éxito/regresión" mecánicamente. Un GO/NO-GO numérico rígido (ej.
+   `Δ≥+0.03 ⇒ éxito`) es **opcional**, no obligatorio, y con n chico + varianza
+   alta puede ser **contraproducente** (fuerza un veredicto binario sobre ruido).
+   Pre-registrar *"espero Δ pareado >0 consistente en signo; un Δ<0 consistente
+   sería regresión; varianza que cruza 0 = ambiguo"* **cumple regla 9**. El caso
+   de referencia es el Obj 6 (mammoth, 2-jun): se retiró su gate `0.03/0.05/4-de-5`
+   conservando la métrica + dirección pre-registradas (ver
+   `sprints/B4_sprint4/objetivo_6_mammoth/README.md` §ADDENDUM). Esto NO relaja
+   9.b: una decisión revisitada sigue exigiendo hipótesis pre-registrada (primaria
+   + alternativa + regresión) con métrica y dirección — solo aclara que el
+   "umbral numérico" puede ser una dirección esperada interpretada, no un gate
+   automático.
 
    **9.b — Decisiones revisitadas** (ampliación post-Obj 5 ANEXO,
    28-may-2026). Reabrir un experimento o eje que fue descartado
@@ -594,8 +614,16 @@ re-validar y actualizar `docs/codebase_map.md`.
    dominado por ruido: el job dio val_auc 0.69 < test_auc 0.81 (inversión =
    prueba de inestabilidad). `test_acc` 0.72 cae *bajo* el baseline trivial
    (0.89). **Métrica honesta = balanced accuracy** (job 4098: 0.31) **+ matriz
-   de confusión, siempre con el `n` por clase**. El macro-AUC solo, nunca.
-   Detalle: `sprints/B4_sprint4/objetivo_1_baseline/resultados.md`.
+   de confusión, siempre con el `n` por clase**. El macro-AUC **solo** (aislado),
+   nunca.
+   **Actualización política de eval (2-jun-2026, B5 — memoria
+   `eval-reporte-auc-y-umbrales-obj6`):** el veto es al AUC *aislado*, NO a
+   reportar AUC. Desde B5 se reporta **SIEMPRE balanced_acc Y AUC** (test, y val
+   si aporta) **juntos**, con matriz de confusión + n por clase. Reportar AUC
+   junto a balanced_acc es ahora **obligatorio**; lo prohibido sigue siendo
+   decidir con AUC a secas. Detalle:
+   `sprints/B4_sprint4/objetivo_1_baseline/resultados.md` y
+   `sprints/B5_sprint5/auditoria_coherencia/hallazgos.md` §D.
 7. **Las 8 clases de microcalcificaciones son un problema multi-label
    aplastado.** Son las combinaciones de 3 tejidos {carcinoma invasivo, CDIS,
    tejido no neoplásico} + `no_identificado`. Aplastar multi-label en
