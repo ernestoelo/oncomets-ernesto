@@ -16,7 +16,9 @@
 Soy Ernesto Gamero, estudiante de último año de Ingeniería Civil Electrónica
 (esp. Computadores) en la UTFSM. Práctica en EnvironBio en el proyecto
 **OncoMets** (IA para diagnóstico oncológico), 20 hrs/sem. Supervisor:
-Sebastián Gaete. Senior: Benjamín. Colaborador: Eduardo.
+Sebastián Gaete. Senior: Benjamín. (Eduardo, colaborador, renunció el
+1-jun-2026; equipo actual = Ernesto + Sebastián. Su trabajo de mammoth lo
+heredó Ernesto — ver memoria `equipo-arquitecturas-mammoth-longnet`.)
 
 Este repo (`oncomets-ernesto`) es mi **control center** sobre el servidor
 Environ. NO contiene el código de CLAM — ese es de Sebastián Donoso
@@ -414,11 +416,29 @@ sbatch. El reviewer lo verifica como parte del checklist.
    código. Una ablation cuenta como argumento sólido **solo si**:
    - La **hipótesis** está enunciada de antemano (qué se espera observar y
      por qué, en términos del mecanismo del modelo o del fenómeno clínico).
-   - La **métrica de éxito** está predefinida (qué número, sobre qué subset,
-     con qué dirección de cambio).
+   - La **métrica de éxito** está predefinida (qué métrica, sobre qué subset,
+     con qué **dirección de cambio** esperada).
 
    Si un cambio toca `model_*.py`, `core_utils.py` o el training wrapper sin
    cumplir esto, el agente `reviewer` bloquea el commit.
+
+   **9.a — "Métrica predefinida" ≠ "umbral mágico de pass/fail"** (aclaración
+   2-jun-2026, B5 — memoria `eval-reporte-auc-y-umbrales-obj6`). "Predefinida"
+   exige la **métrica + el subset + la dirección esperada** y cómo se
+   interpretaría el resultado (consistencia de signo a través de folds, magnitud
+   de la varianza, si supera el trivial). **NO** exige un número-gatillo que
+   dispare "éxito/regresión" mecánicamente. Un GO/NO-GO numérico rígido (ej.
+   `Δ≥+0.03 ⇒ éxito`) es **opcional**, no obligatorio, y con n chico + varianza
+   alta puede ser **contraproducente** (fuerza un veredicto binario sobre ruido).
+   Pre-registrar *"espero Δ pareado >0 consistente en signo; un Δ<0 consistente
+   sería regresión; varianza que cruza 0 = ambiguo"* **cumple regla 9**. El caso
+   de referencia es el Obj 6 (mammoth, 2-jun): se retiró su gate `0.03/0.05/4-de-5`
+   conservando la métrica + dirección pre-registradas (ver
+   `sprints/B4_sprint4/objetivo_6_mammoth/README.md` §ADDENDUM). Esto NO relaja
+   9.b: una decisión revisitada sigue exigiendo hipótesis pre-registrada (primaria
+   + alternativa + regresión) con métrica y dirección — solo aclara que el
+   "umbral numérico" puede ser una dirección esperada interpretada, no un gate
+   automático.
 
    **9.b — Decisiones revisitadas** (ampliación post-Obj 5 ANEXO,
    28-may-2026). Reabrir un experimento o eje que fue descartado
@@ -594,8 +614,16 @@ re-validar y actualizar `docs/codebase_map.md`.
    dominado por ruido: el job dio val_auc 0.69 < test_auc 0.81 (inversión =
    prueba de inestabilidad). `test_acc` 0.72 cae *bajo* el baseline trivial
    (0.89). **Métrica honesta = balanced accuracy** (job 4098: 0.31) **+ matriz
-   de confusión, siempre con el `n` por clase**. El macro-AUC solo, nunca.
-   Detalle: `sprints/B4_sprint4/objetivo_1_baseline/resultados.md`.
+   de confusión, siempre con el `n` por clase**. El macro-AUC **solo** (aislado),
+   nunca.
+   **Actualización política de eval (2-jun-2026, B5 — memoria
+   `eval-reporte-auc-y-umbrales-obj6`):** el veto es al AUC *aislado*, NO a
+   reportar AUC. Desde B5 se reporta **SIEMPRE balanced_acc Y AUC** (test, y val
+   si aporta) **juntos**, con matriz de confusión + n por clase. Reportar AUC
+   junto a balanced_acc es ahora **obligatorio**; lo prohibido sigue siendo
+   decidir con AUC a secas. Detalle:
+   `sprints/B4_sprint4/objetivo_1_baseline/resultados.md` y
+   `sprints/B5_sprint5/auditoria_coherencia/hallazgos.md` §D.
 7. **Las 8 clases de microcalcificaciones son un problema multi-label
    aplastado.** Son las combinaciones de 3 tejidos {carcinoma invasivo, CDIS,
    tejido no neoplásico} + `no_identificado`. Aplastar multi-label en
@@ -611,127 +639,56 @@ re-validar y actualizar `docs/codebase_map.md`.
    hipótesis). Lección: ajustar hiperparámetros no mueve la aguja — el cuello
    de botella es la **FORMULACIÓN** de la tarea. Detalle:
    `sprints/B4_sprint4/objetivo_2_ablation_B/resultados.md`.
-9. **Reformulación en 3 binarios: NO es hallazgo nuestro — es trabajo previo
-   de Sebastián que reprodujimos (confirmado en reunión 22 may 2026).**
-   Sebastián ya había des-aplastado las 8 clases en 3 preguntas binarias hace
-   tiempo; la infra (tasks
+9. **Reformulación 8 clases → 3 binarios = trabajo previo de Sebastián, NO
+   nuestro** (confirmado reunión 22-may). Su infra: tasks
    `microcalcificaciones_en_{carcinoma_invasivo,cdis,tejido_no_neoplasico}_pth`
-   + variantes `_pth_balance` en `main.py`; 3 CSVs binarios en `environ/csv/`,
-   333 slides, `no_identificado` **excluido** → positivos 68/121/195,
-   verificado determinísticamente con
-   `scripts/verify_binary_microcalc_csvs.py`; 3 splits estratificados) es de
-   él. Nuestro aporte real es el **diagnóstico** (régimen de eval roto +
-   ablación B negativa) y la **reproducción/validación independiente**: dimos
-   con su CSV y replicamos sus resultados. **Comparación en la reunión: igualamos
-   en carcinoma invasivo y obtuvimos métricas algo MEJORES que las de él en CDIS
-   y tejido no neoplásico.** Resultados nuestros (job 4109, CLAM_MB, B=8,
-   `--max_epochs 30`, CONCH 512): carcinoma invasivo balanced acc **0,78**
-   (umbral 0,60 ✅), CDIS 0,59, tejido 0,58 (apenas sobre el piso 0,50). El
-   régimen de eval pasó de "no medible" (clases n=1) a confiable (7–20
-   positivos/test). PRELIMINAR (1 semilla). Detalle:
-   `sprints/B4_sprint4/reformulacion_multilabel/`.
-10. **Reunión 22 may 2026 — dirección del sprint y reglas de dataset.** Acordado
-   con Sebastián + Eduardo:
-   - **Foco de entrenamiento de microcalcificaciones = las 3 tareas binarias**
-     (`microcalcificaciones_en_{carcinoma_invasivo,cdis,tejido_no_neoplasico}_pth`),
-     **NO las 8 clases.** El 8-clases queda solo como (a) diagnóstico ya
-     cerrado (jobs 4098/4099, evidencia de que la formulación está rota) y
-     (b) vía si hace falta reproducir el V4 de Sebastián. Todas las próximas
-     mejoras (modelo alternativo tipo DSMIL, `balanced_pth_100`, pérdidas
-     sensibles al desbalance, etc.) se evalúan **sobre los 3 binarios** y se
-     comparan contra el baseline binario (job 4109) **sobre el mismo dataset**.
-   - **Dataset de trabajo para microcalcificaciones = ~548 slides, NO el
-     universo `_pth` (3072).** Verificado determinísticamente (read-only) el
-     22 may: el ~548 del doc V4 ≈ **cohorte PRIVADA** `microcalcificaciones_100`
-     = **533 slides hoy** (deriva de snapshot de 15 vs V4). Mapa de tamaños:
-     privado 533 · combined (priv+TCGA) 1397 · `_pth` (priv+TCGA+HistAI) 3072 ·
-     binarios identificados (`no_identificado` excluido) 333. Regla: entrenar
-     solo con las slides de interés (≈548); **el universo completo (3072) se
-     reserva para las PRUEBAS FINALES** de una incorporación.
-     **Matiz crítico:** el "~548 privado" aplica al **8-clases**. Para los **3
-     binarios** (`no_identificado` excluido) lo útil son las **identificadas**:
-     privado solo 77 → inentrenable; combined 284; `_pth` 333. Los binarios
-     necesitan combined/`_pth`-identificado, NO privado solo. Cuentas, paths y
-     decisión por escenario: `sprints/B4_sprint4/dataset_microcalcificaciones.md`.
-   - **`balanced_pth_100` para binarios de microcalcificaciones = diseño, NO
-     placeholder** (corregido tras WhatsApp Sebastián 26-may-2026 — antes se
-     había leído como work-in-progress). Sebastián define el "balance" con un
-     cap de **imbalance ratio ≤10×**. Como los 3 binarios ya cumplen ese cap
-     (carcinoma 3.8×, cdis 1.8×, tejido 1.4×), `csv_balance/` y los splits
-     `microcalcificaciones_en_*_pth_balance_100/` quedan **iguales a las 333
-     identificadas**, solo cambia el seed del split. Implicación práctica:
-     para los binarios de microcalcificaciones, entrenar sobre `_balance` ≡
-     entrenar sobre 333 con seed distinto — no hay ganancia esperada. El cap
-     SÍ modifica multiclase (`tipo_histologico_4clases`, etc.) donde
-     `no_identificado` domina.
-   - **Early stopping efectivo:** cortar cuando el modelo deja de mejorar por
-     época (recordar `stop_epoch=50` hardcoded; en runs cortos usar
-     `--max_epochs` < 50).
-   - **Modelo alternativo (DSMIL u otro):** viable **solo con** (a) justificación
-     clínica/arquitectónica para microcalcificaciones y (b) resultados
-     comparativos contra nuestro baseline **sobre el mismo dataset**. Puede
-     reemplazar a CLAM en una tarea o integrarse en CLAM.
-   - **Factores a investigar (pedido de Sebastián):** escala / nº de parches
-     (algunas tareas necesitan más contexto espacial), y features de
-     **citoplasma** según la tarea. Buscar papers que evalúen tareas donde
-     estamos débiles con buenos resultados y, ojalá, llegar con una
-     implementación corrida para comparar contra el baseline.
-   - **`no_identificado` — semántica y uso en entrenamiento (confirmado
-     WhatsApp Sebastián 25 + 26 may 2026).** Semántica: WSI cuyo reporte CAP
-     **no menciona** microcalcificaciones (no necesariamente ausencia
-     confirmada). Cita: *"hay WSIs que explícitamente dicen que no tienen
-     porque el CAP lo dice, y otras donde no se reporta simplemente"*. Uso
-     actual: las ~2487 WSIs `no_identificado` del `_pth` 3072 **NO se
-     incluyen** en los splits de los 3 binarios — ni en los nuestros ni en
-     los de Sebastián. Cita textual: *"en las 2800 wsi que tenemos, en los
-     json que aparecen no identificados no se estan considerando"*. Es
-     decisión por defecto, no oversight. **Incluirlas como negativo es
-     propuesta abierta** (jerarquía presencia/ausencia + 3 binarios
-     condicionados), discutida 26-may-2026 16:30 con Sebastián. Riesgo
-     anticipado: dispara la mayoritaria — ya pasó en los runs 8-clases.
-   - **Mapeo multi-label → 3 binarios (regla operacional, confirmada
-     Sebastián 26-may-2026).** WSI con menciones de tejido(s) tiene
-     `label=si` en el binario de cada tejido mencionado, `label=no` en los
-     demás. Cita: *"si una wsi tiene solo 'micro en dcis', para esa tarea
-     dirá SI y para las demás que son 'en tej no neo.' y 'en carcinoma
-     invasivo' dirá que no"*. Las combinaciones (ej. *"micro en dcis y
-     carcinoma"*) → si en ambos binarios. Las `no_identificado` quedan
-     fuera de los 3 CSVs (ver bullet anterior).
-   - **Pendiente menor:** qué define exactamente el subconjunto de 548
-     (privado 533 incluye `no_identificado`) vs los 333 identificados de
-     los binarios — la diferencia es la cohorte (privado vs `_pth`), no
-     una regla de filtro adicional. Aclarado parcialmente con los bullets
-     anteriores; cerrar formalmente cuando haya respuesta de la reunión
-     16:30.
-11. **Cuadro arquitectónico CLAM × DSMIL × {binarias, fusionado} cerrado
-    simétricamente (Obj 5 + ANEXO, 28-may-2026).** DSMIL evaluado en
-    TODOS los regímenes disponibles para microcalcificaciones con MC-CV
-    (=Monte Carlo CV; lo llamamos "k-fold" en archivos pero los test
-    están solapados — corrección de rótulo del 27-may, ver
-    `objetivo_5_fusion_binaria/resultados.md`):
-    - **Binarias n=328** (carcinoma/cdis/tejido) × k=5, splits reusados
-      del CLAM Fase 0 → comparación PAIRED. Job 4179.
-    - **Fusionado n=2814** (binario presencia/ausencia con no_id como
-      negativo) × k=3. Job 4172 vs CLAM Fase 1 (job 4171).
-    **Veredicto unificado**: la **arquitectura sola NO es la palanca**
-    para microcalcificaciones a NINGUNA escala disponible —
-    - Fusionado (§2.2): banda **AMBIGUA** (DSMIL bal_acc 0.661 ± 0.046,
-      Δ pareado +0.040 ± 0.038 positivo en 3/3 folds pero std grande y
-      AUC retrocede −0.020 ± 0.019).
-    - Binarias (ANEXO): **NULL en carcinoma** (Δ −0.023 ± 0.071, el
-      "0.824" del 4137 era ruido del sorteo) + **regresión leve
-      consistente en CDIS** (Δ **−0.053 ± 0.026**, signo negativo en 5/5
-      folds → no es ruido) + **NULL/ambigua en tejido** (Δ +0.021 ±
-      0.051). El "fracaso DSMIL" del 4137 era single-split — la misma
-      vara que invalidamos para CLAM en Fase 0 (Hallazgo del 27-may:
-      carcinoma 0.808→0.732 ± 0.167 con MC-CV).
-    **Lección de fondo**: el cuello sigue siendo **datos / contexto
-    espacial / desbalance**, NO la arquitectura. Justifica empíricamente
-    los ejes futuros (mayor magnificación CONCH = Eje A, selección de
-    parches útiles = Eje B; CDIS abre Eje C morfológico — atención
-    gated absoluta CLAM vs dual relacional DSMIL en lesiones distribuidas
-    en ductos). Detalle: `objetivo_5_fusion_binaria/resultados.md`
-    (§FASE 2 + §ANEXO) y `ejes_futuros_microcalc.md` (Ejes A/B/C).
+   (+ `_pth_balance`), 3 CSVs binarios en `environ/csv/` (333 ident.,
+   `no_identificado` excluido, pos 68/121/195), splits estratificados. Nuestro
+   aporte real = **diagnóstico** (régimen de eval roto, Hallazgo 6; B no es la
+   palanca, Hallazgo 8) + **reproducción/validación independiente**. El régimen
+   de eval pasó de "no medible" (clases n=1) a confiable (7–20 positivos/test).
+   **Los números single-split del job 4109 (carcinoma 0,78 / cdis 0,59 / tejido
+   0,58) quedaron SUPERSEDED por los honestos MC-CV** (Hallazgo 11) — eran
+   optimistas por sorteo. Detalle: `sprints/B4_sprint4/reformulacion_multilabel/`.
+10. **Reunión 22-may + reglas de dataset de microcalcificaciones (lecciones
+    durables; cuentas, paths y citas en la memoria canónica
+    [[microcalc-dataset-decision]] + `sprints/B4_sprint4/dataset_microcalcificaciones.md`).**
+    - **Foco = las 3 binarias, NO las 8 clases.** El 8-clases queda como
+      diagnóstico cerrado (4098/4099) y vía para reproducir el V4. Toda mejora
+      se evalúa sobre los binarios, contra el baseline binario, **mismo dataset**.
+    - **Dataset por escenario**: binarios = **333 identificadas** (`_pth` sin
+      `no_identificado`; privado-solo 77 → inentrenable, usar combined 284 /
+      `_pth` 333); **~548 privado (533) = 8-clases**; **`_pth` 3072 reservado
+      para PRUEBAS FINALES**. (La diferencia 548 vs 333 es la cohorte, no un
+      filtro extra.)
+    - **`_balance` para binarios = diseño, NO placeholder** — cap imbalance
+      ≤10× ya cumplido (carcinoma 3.8×, cdis 1.8×, tejido 1.4×) → `_balance` ≡
+      333 con otro seed. El cap SÍ mueve multiclase (`no_identificado` domina).
+    - **`no_identificado`** = WSI cuyo reporte CAP **no menciona** microcalc (no
+      ausencia confirmada). HOY **excluido** de los 3 binarios (default, no
+      oversight); incluirlo como negativo **dispara la mayoritaria** → propuesta
+      abierta de jerarquía presencia/ausencia, adoptada PARCIAL como Obj 5
+      ([[microcalc-hierarchical-proposal]]).
+    - **Mapeo multi-label → binarios**: WSI con menciones de tejido(s) → `si`
+      en el binario de cada tejido mencionado, `no` en los demás.
+    - **Early stopping**: `stop_epoch=50` HARDCODEADO; runs cortos `--max_epochs`<50.
+    - **Pedido de Sebastián a investigar**: escala / nº de parches (contexto
+      espacial) + features de **citoplasma** según tarea → es el **Obj 2 de B5**
+      (magnificación). Modelo alternativo: viable solo con argumento clínico +
+      comparativo paired mismo dataset (regla 9 + [[patron-paired-comparison-reuso-splits]]).
+11. **La arquitectura del agregador NO es la palanca para microcalc — cerrado
+    simétricamente (Obj 5 + ANEXO, CLAM×DSMIL con MC-CV; números, veredictos y
+    rótulo en [[microcalc-fusion-objetivo5]] + `objetivo_5_fusion_binaria/resultados.md`
+    + `ejes_futuros_microcalc.md`).** DSMIL evaluado en TODOS los regímenes:
+    binarias n=328 (paired k=5, job 4179 → NULL en carcinoma/tejido +
+    **regresión leve consistente en CDIS** Δ −0.053 ± 0.026, signo negativo
+    5/5 folds) y fusionado n=2814 (k=3, job 4172 → banda **AMBIGUA**). El
+    single-split engañaba fuerte a n≈33 (carcinoma 0.808→0.732 ± 0.167 con
+    MC-CV) → **MC-CV + comparación PAIRED obligatorios**. Cuello = **datos /
+    contexto espacial / desbalance**, no la arquitectura → justifica los ejes
+    B5 (magnificación = Eje A, parches útiles = Eje B; CDIS abre Eje C
+    morfológico). *(Nota de rótulo: "k-fold" en archivos = Monte Carlo CV —
+    test solapados; es identificador histórico, NO se renombra.)*
 
 ## Entorno conda — deps esperadas
 
@@ -819,6 +776,11 @@ duplicar trabajo. **NO** intentar editar el `.pptx` ni el PDF del deck
   alternativo (variante de CLAM o agregador nuevo) paired vs CLAM, sin tocar
   `clam_environ`: `models_<X>/` + branch aditivo en `train_dsmil.py` + slurm +
   test CPU + hipótesis + reviewer. La probaron DSMIL y mammoth.
+- `@coherence-audit` — audita el espacio completo (CLAUDE.md, memorias,
+  agentes, skills) y depura contradicciones, info stale y redundancias: doc de
+  hallazgos primero, fixes después, con criterio (canonical vs referencia, no
+  borrar contenido único, addendum para pre-registración, edición aditiva de
+  reglas duras). Caso de referencia: `sprints/B5_sprint5/auditoria_coherencia/`.
 
 ## Contexto del usuario para sesiones rápidas
 

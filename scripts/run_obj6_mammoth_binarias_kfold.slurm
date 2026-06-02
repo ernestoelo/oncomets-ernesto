@@ -30,8 +30,11 @@
 # Hiperparámetros mammoth = recomendados del paper (e30 s10 h16 d256, auto_rank,
 # share_lora). PCGrad (gradient surgery) NO entra acá — eje separado (Obj 6 #3).
 #
-# MÉTRICA DECISIVA: balanced_acc media±std (k=5), Δ pareado por fold. Umbral
-# éxito Δ ≥ +0.03 + bandas no solapadas; regresión Δ ≤ −0.05 (vara del Obj 5).
+# MÉTRICA DECISIVA: Δ pareado por fold en balanced_acc Y AUC, media±std (k=5),
+# + matriz de confusión y n por clase. Política B5 (2-jun, memoria
+# eval-reporte-auc-y-umbrales-obj6): SIN gate numérico — los umbrales rígidos
+# Δ≥+0.03 / Δ≤−0.05 / ≥4/5 se RETIRARON como GO/NO-GO. Interpretación cualitativa
+# (consistencia de signo, varianza, vs trivial 0.5); dirección esperada Δ>0.
 #
 # Economía de GPU: por defecto corre AMBOS brazos (~15h, comparación rigurosa).
 # Si la GPU única está apretada, setear MODEL_TYPES="clam_mammoth" y comparar
