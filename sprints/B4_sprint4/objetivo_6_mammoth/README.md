@@ -95,5 +95,34 @@ Por ahora la 1ª pasada es exploratoria y el pin queda documentado.
 - [x] Port a `models_mammoth/` + driver (`train_dsmil.py --model_type clam_mammoth`)
       + slurm con preflight (`run_obj6_mammoth_binarias_kfold.slurm`) + test CPU (pasa).
 - [x] Reviewer valida argumento + decisiones de port → **GO con observaciones** (1-jun).
-- [ ] Commit (rama a confirmar) + vendorizar mammoth (opcional, antes de citar).
-- [ ] sbatch (solo tras OK de Ernesto).
+- [x] Commit + vendorizar mammoth (HECHO 2-jun: `clam_testing2/MAMMOTH`, pin `fe36d4e`).
+- [x] sbatch (HECHO 2-jun con OK de Ernesto: **job 4229**, ambos brazos, RUNNING).
+
+---
+
+## ADDENDUM (2-jun-2026) — política de evaluación: se retiran los umbrales rígidos
+
+> Este addendum **no reescribe** la hipótesis pre-registrada de arriba (los
+> umbrales `Δ≥+0.03 / Δ≤−0.05 / ≥4/5 folds` quedan como registro histórico de lo
+> que se comprometió **antes** de correr el 4229 — la integridad del pre-registro
+> se preserva). Lo que cambia es **cómo se juzga el resultado**.
+
+Decisión de Ernesto durante la corrida del 4229 (fuente de verdad: memoria
+`eval-reporte-auc-y-umbrales-obj6`):
+
+1. **Se retira el GO/NO-GO numérico automático.** Ya no se dispara "éxito" porque
+   `Δ≥+0.03` ni "regresión" porque `Δ≤−0.05` en ≥4/5 folds. Esos números eran
+   arbitrarios y, con n≈33 y std±0.14 (régimen ruidoso de las binarias), forzaban
+   un veredicto binario sobre señales dominadas por varianza (la vista preliminar
+   de carcinoma —Δ −0.054 ± 0.140, f1 colapsado a 0.5— lo expone).
+2. **Reportar SIEMPRE balanced_acc Y AUC** (test, y val si aporta), Δ pareado por
+   fold, media±std, matriz de confusión + n por clase. Nunca una sola métrica.
+3. **Interpretación cualitativa razonada**, no pass/fail: consistencia de signo a
+   través de folds, magnitud de la varianza, si supera el trivial 0.5.
+
+**Cómo convive con regla 9** (no la viola): la métrica predefinida **sigue
+existiendo** = Δ pareado en balanced_acc+AUC con **dirección esperada**
+(mammoth mejora ⇒ Δ>0 consistente; un Δ<0 consistente sería regresión; varianza
+que cruza 0 = ambiguo). Lo que se retira es el umbral mágico, no la
+pre-registración de qué se espera y en qué dirección. Ver reconciliación en
+`CLAUDE.md` (regla 9 + Hallazgo 6) y `auditoria_coherencia/hallazgos.md` §E.

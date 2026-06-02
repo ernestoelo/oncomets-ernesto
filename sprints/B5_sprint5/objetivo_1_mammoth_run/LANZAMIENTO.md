@@ -75,9 +75,15 @@ tail -f logs/eg_mammoth_bin_kfold_*.out
 Por cada tejido y brazo: `results/obj6_mammoth_binarias_<tejido>/<modelo>_<tejido>_f<f>_*_s1/test_metrics.json`
 (tiene `balanced_acc` + matriz de confusión) y `summary.csv`.
 
-- **Δ pareado por fold** = `clam_mammoth_f − clam_f` en balanced_acc → media ± std (k=5).
-- **Veredicto** (umbral del Obj 6): éxito si Δ ≥ +0.03 (media) en ≥2/3 binarias con
-  bandas no solapadas; regresión si Δ ≤ −0.05 con signo consistente (≥4/5 folds);
-  si no, banda ambigua → "arquitectura no es la palanca tampoco acá".
+- **Δ pareado por fold** = `clam_mammoth_f − clam_f`, en **balanced_acc Y AUC**
+  → media ± std (k=5), por tejido.
+- **Reporte (política B5, sin gate numérico — ver
+  [[eval-reporte-auc-y-umbrales-obj6]] / `auditoria_coherencia/hallazgos.md` §C,E):**
+  los umbrales rígidos `Δ≥+0.03 / Δ≤−0.05 / ≥4/5` **se retiraron** como GO/NO-GO
+  automático. Se reporta el Δ pareado (balanced_acc **y** AUC), media±std, matriz
+  de confusión + n por clase, e **interpretación cualitativa**: consistencia de
+  signo a través de folds, magnitud de la varianza, si supera el trivial 0.5.
+  Dirección esperada pre-registrada (mammoth mejora ⇒ Δ>0 consistente); sin
+  pass/fail comprometido de antemano.
 - Escribir `sprints/B5_sprint5/objetivo_1_mammoth_run/resultados.md`. Entregables
   **sin números de job**, baseline como "Environ vX".
