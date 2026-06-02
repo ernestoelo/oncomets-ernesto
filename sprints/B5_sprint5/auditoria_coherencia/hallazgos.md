@@ -19,7 +19,7 @@
 | C | Umbrales rígidos del Obj 6 (Δ≥+0.03 / Δ≤−0.05 / ≥4/5) a retirar como GO/NO-GO (decisión 2-jun) | propagación | **FIX** (3 docs, vía addendum donde es pre-registro) |
 | D | "AUC siempre + balanced_acc" (decisión 2-jun) tensiona en lectura con Hallazgo 6 ("macro-AUC solo, nunca") | reconciliación | **FIX** (CLAUDE.md Hallazgo 6) |
 | E | Retirar umbral rígido roza regla 9 ("métrica de éxito predefinida") | reconciliación regla dura | **FIX** (CLAUDE.md regla 9 + reviewer.md) |
-| F | "Hallazgos vigentes" (11 ítems, CLAUDE.md) solapa con memorias microcalc | redundancia estructural | **DIFERIDO** (recomendación; no surgery sin Ernesto) |
+| F | "Hallazgos vigentes" (11 ítems, CLAUDE.md) solapa con memorias microcalc | redundancia estructural | **FIX** (condensados H9/10/11; aprobado por Ernesto) |
 | G | Skills: estructura OK; solape `@mammoth`/`@mil-model-integration` defendible | bajo | sin acción (documentado) |
 
 ---
@@ -109,20 +109,31 @@ progress/current.md):
 - **Fix** (aditivo, regla dura → no se reescribe, se aclara): sub-cláusula en
   regla 9 + nota en reviewer.md (checklist ítem 1 y el "ejemplo bien formado").
 
-## F. Redundancia — "Hallazgos vigentes" (CLAUDE.md) ↔ memorias [DIFERIDO]
+## F. Redundancia — "Hallazgos vigentes" (CLAUDE.md) ↔ memorias [APLICADO]
 
-- `CLAUDE.md` sección "Hallazgos vigentes" (11 ítems, ~Hallazgos 6–11 con
-  mucho detalle microcalc) solapa con `microcalc-dataset-decision`,
-  `microcalc-fusion-objetivo5`, `microcalc-hierarchical-proposal`.
+- `CLAUDE.md` sección "Hallazgos vigentes" (11 ítems) solapaba con
+  `microcalc-dataset-decision`, `microcalc-fusion-objetivo5`,
+  `microcalc-hierarchical-proposal`.
 - **Tensión de diseño**: CLAUDE.md y MEMORY.md se cargan AMBOS en cada sesión →
-  el detalle microcalc se paga dos veces en contexto. Pero parte de "Hallazgos
-  vigentes" son hechos durables que justifican vivir en CLAUDE.md (régimen de
-  eval roto, B no es la palanca, mapeo multi-label→3 binarios).
-- **Recomendación** (NO aplicada — es surgery estructural sobre la regla dura
-  del control center; requiere criterio de Ernesto): condensar Hallazgos 9–11 a
-  1–2 líneas + puntero a la memoria canónica, dejando en CLAUDE.md solo el
-  *hecho durable* y delegando el detalle histórico (jobs, números por fold) a la
-  memoria/sprint doc. **No borrar contenido único.** Decisión para Ernesto.
+  el detalle microcalc se pagaba dos veces en contexto.
+- **Aplicado** (Ernesto aprobó "aplica todas las recomendaciones"): condensados
+  **H9, H10, H11** (~121 → ~40 líneas). Antes de condensar, **verifiqué que cada
+  pieza esté preservada en su memoria canónica**:
+  - H10 (reunión 22-may + reglas de dataset) → cubierto íntegro por
+    `microcalc-dataset-decision` (cuentas por cohorte, ~548 vs 333, `_balance`,
+    `no_identificado`, mapeo multi-label).
+  - H11 (CLAM×DSMIL cerrado) → cubierto con MÁS detalle por
+    `microcalc-fusion-objetivo5` (todos los Δ por tejido, jobs 4170–4179,
+    rótulo MC-CV).
+  - H9 (reformulación = trabajo de Sebastián) → cubierto; además sus números
+    single-split (job 4109) quedaron **superseded** por los MC-CV → se marcan
+    como tales en vez de citarlos como vigentes.
+- **Contenido único preservado en CLAUDE.md** (no estaba en memorias): "early
+  stopping `stop_epoch=50` hardcoded", pedido de Sebastián (escala/citoplasma →
+  Obj 2 B5). Se mantuvieron inline condensados.
+- **Numeración preservada** (H10=dataset, H11=arquitectura) para no romper los
+  cross-refs internos ("ver Hallazgo 10" en H7; "Hallazgo 11" en H9) ni la
+  referencia externa de `microcalc-dataset-decision` ("Hallazgo 10 de CLAUDE.md").
 
 ## G. Skills y agentes — estructura
 
@@ -147,5 +158,9 @@ progress/current.md):
 3. **C** — addendum Obj6 README + reescritura "Veredicto" LANZAMIENTO + header slurm.
 4. **D+E** — reconciliación en CLAUDE.md (Hallazgo 6 + regla 9) + reviewer.md.
 
+5. **F** — condensar Hallazgos 9/10/11 de CLAUDE.md (verificando preservación en
+   memorias canónicas antes de recortar).
+
 Commits granulares en `chore/audit-coherencia-b5`. **Push y merge a main los
-autoriza Ernesto.** F queda como recomendación documentada.
+autoriza Ernesto.** Todas las recomendaciones (A–F) quedaron aplicadas; G no
+requería acción.
