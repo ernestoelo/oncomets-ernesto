@@ -1,6 +1,6 @@
 ---
 name: mammoth
-description: Entrena/integra Mammoth (MoE de bajo rango que reemplaza la 1ª capa lineal de CLAM) en el pipeline OncoMets. Trabajo heredado de Eduardo, prioridad de Benjamín. Triggers — mammoth, mixture of experts, MoE, reemplazar capa lineal de CLAM, clam_mammoth, instance-gradient interference, correr mammoth, expertos.
+description: Entrena/integra Mammoth (MoE de bajo rango que reemplaza la 1ª capa lineal de CLAM) en OncoMets. Triggers — mammoth, mixture of experts, MoE, reemplazar capa lineal de CLAM, clam_mammoth, instance-gradient interference, expertos.
 ---
 
 # mammoth — Mixture of Mini Experts en la 1ª capa de CLAM
