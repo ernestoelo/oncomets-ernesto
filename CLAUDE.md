@@ -524,6 +524,12 @@ re-validar y actualizar `docs/codebase_map.md`.
   top-B/bottom-B de parches, NO sobre los N totales.
 - Attention pooling `M = torch.mm(A, h)`: **L172** (CLAM_SB), **L239**
   (CLAM_MB). Usa **todos los N parches**.
+- **`forward` devuelve `A_raw` (atención PRE-softmax)** como 4º valor (la
+  softmax sobre N se aplica internamente para el pooling, pero lo retornado es
+  crudo). `DSMIL_CLAM_MB`, en cambio, devuelve A **normalizada**. Un test/QA que
+  asuma `A.sum(dim=1)==1` falla con CLAM/mammoth → usar `softmax(A,dim=1)` o solo
+  la **forma** `(n_classes, N)` (que confirma preservación de los N parches —
+  clave con mammoth `keep_slots=False`). Verificado 1-jun (Obj 6).
 
 ### `utils/core_utils.py`
 
@@ -546,6 +552,22 @@ re-validar y actualizar `docs/codebase_map.md`.
   están stale respecto a los CSVs reales).
 - `--pretrain_path`: warm-start desde un checkpoint CLAM (capas con nombre y
   shape compatibles se transfieren).
+
+### Modelos alternativos en NUESTRO repo (no `clam_environ`)
+
+- **`scripts/train_dsmil.py` es el harness MIL genérico** (el nombre engaña):
+  `--model_type {dsmil, clam, clam_mammoth}`, mismo train/val/test + loss
+  bag+inst → comparación **apples-to-apples por construcción**. El path
+  `clam`/`clam_mammoth` es byte-idéntico a `core_utils.train_loop_clam`; lo
+  específico de DSMIL (L_max + grad-logging) está gated en `== "dsmil"`.
+- **`models_dsmil/`** — `DSMIL_CLAM_MB` (agregador dual-stream, Obj 3/5).
+- **`models_mammoth/`** — `CLAM_MB_Mammoth` (subclase de `CLAM_MB`; 1ª capa
+  lineal → MoE Mammoth, Obj 6). `keep_slots=False` preserva los N parches.
+- **Receta para integrar otro modelo** (DSMIL→mammoth la probó): `models_<X>/`
+  (subclase de `CLAM_MB` o wrapper) + branch ADITIVO en `build_model` de
+  `train_dsmil.py` + slurm reusando `data/splits_kfold/<task>_pth_100` (paired) +
+  test CPU en `tests/` + hipótesis (regla 9) + reviewer. Skill `@mammoth` y
+  memoria [[patron-harness-generico-mil]].
 
 ## Hallazgos vigentes (relevantes para sprints)
 
@@ -793,6 +815,10 @@ duplicar trabajo. **NO** intentar editar el `.pptx` ni el PDF del deck
 - `@mammoth` — Mammoth (MoE de bajo rango que reemplaza la 1ª capa lineal de
   CLAM; heredado de Eduardo, prioridad de Benjamín): modelo `models_mammoth/`,
   driver `train_dsmil.py --model_type clam_mammoth`, slurm Obj 6, test CPU.
+- `@mil-model-integration` — receta reusable para integrar un modelo MIL
+  alternativo (variante de CLAM o agregador nuevo) paired vs CLAM, sin tocar
+  `clam_environ`: `models_<X>/` + branch aditivo en `train_dsmil.py` + slurm +
+  test CPU + hipótesis + reviewer. La probaron DSMIL y mammoth.
 
 ## Contexto del usuario para sesiones rápidas
 
