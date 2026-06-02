@@ -16,40 +16,39 @@ dejo trazabilidad completa en disco bajo el directorio del sprint actual.
 `sinfo` (GPU única → no monopolizar; respetar el job `conch_fe` de Sebastián
 si está en cola).
 
-## Contexto del Sprint actual (B4 / Sprint 4 — abierto 12 mayo 2026)
+## Contexto del Sprint actual (B5 / Sprint 5 — abierto 1 jun 2026)
 
-> Actualizar esta sección al abrir cada sprint nuevo.
+> Actualizar esta sección al abrir cada sprint nuevo. Detalle vivo en
+> `progress/current.md` y `sprints/B5_sprint5/README.md`.
 >
-> **Estado (22 may 2026)**: Obj 1 (baseline B=8, job 4098) y Obj 2 (ablación
-> B=16, job 4099) COMPLETOS. Obj 3 (DSMIL) = investigación completa (docs
-> `00`–`06`). **Hallazgo de fondo**: `microcalcificaciones` es un multi-label
-> aplastado en 8 clases; **`B` no es la palanca** (ablación negativa) — el
-> cuello de botella es la formulación. Reformulado en 3 binarios (job 4109,
-> PRELIMINAR — carcinoma balanced acc 0,78; CDIS 0,59; tejido 0,58). Las 3
-> tasks binarias **ya existen en `clam_environ`** (ver skill `@environ-server`).
-> Detalle: `sprints/B4_sprint4/` (`objetivo_2_ablation_B/`,
-> `reformulacion_multilabel/`).
+> **Sprint de cierre de trimestre** (Benjamín vuelve ~21-jun; decide la
+> continuidad de Ernesto). Equipo = **Ernesto + Sebastián** (Eduardo renunció).
+> Consigna: avanzar más rápido. Objetivos priorizados: (1) **mammoth k=5 paired**
+> sobre las 3 binarias de microcalc [port LISTO, falta sbatch], (2) magnificación
+> (research-first), (3) k=5 en más tasks, (4) parches/slides útiles, (5) pregunta
+> CAP, (6) PCGrad (eje separado).
 
-**Tareas prioritarias candidatas** (AUC test < 0.65 en
-`Environ_OncoMets_Metricas_V4.pdf`; pendientes confirmar en reunión
-Sebastián + Eduardo):
+**Lecciones de B4 que mandan en B5**:
+- **La arquitectura del agregador NO es la palanca** (CLAM×DSMIL cerrado). Cuello
+  = datos / contexto espacial / desbalance.
+- **Single-split engaña** a n≈33 → **MC-CV k=5 + comparación PAIRED** (reusar el
+  MISMO `--split_dir`, no regenerar). Splits k=5 ya en `data/splits_kfold/`.
+- **Métrica honesta** = balanced_acc media±std + matriz de confusión con n por
+  clase. Macro-AUC solo, nunca.
 
-- `MicroCalcificaciones` (AUC 0.55, gap val/test 0.27, n=548)
-- `C.D.I. Grado Nuclear` (AUC 0.60, n=508)
-- `C.D.I. Necrosis` (AUC 0.61, n=508)
-- `G.H. Diferenciación Tubular` (AUC 0.65, gap 0.16, n=934)
+## Harness genérico y modelos alternativos (NUESTRO repo)
 
-**4 hilos del sprint** (detalle en `sprints/B4_sprint4/`):
-
-1. Baseline CLAM reproducible (args bendecidos).
-2. Ablation `B=8` vs `B=16`.
-3. Implementar DSMIL (wrapper-only sobre CLAM, no duplicar codebase
-   de Sebastián).
-4. Heatmaps cualitativos lado-a-lado (upgrade a IoU/Dice si hay
-   anotaciones de patólogo).
-
-**Pendiente de reunión**: composición exacta del dataset compartido,
-splits canónicos, división de trabajo Ernesto/Eduardo.
+- **`scripts/train_dsmil.py` es el harness MIL genérico** (no solo DSMIL):
+  `--model_type {dsmil, clam, clam_mammoth}`, mismo train/val/test + loss
+  bag+inst. Genera `summary.csv` + `split_<f>_results.pkl` + `test_metrics.json`
+  (con `balanced_acc` + matriz de confusión) por fold. **Containment**: exige
+  `--results_dir` bajo `clam_testing2/`.
+- **mammoth (Obj 1 B5)**: `models_mammoth/CLAM_MB_Mammoth` + slurm
+  `scripts/run_obj6_mammoth_binarias_kfold.slurm` (k=5 paired, gates: verify +
+  test CPU + preflight). Skill `@mammoth`.
+- Para integrar OTRO modelo: skill `@mil-model-integration` (no reinventar el
+  driver — branch aditivo en `train_dsmil.py`).
+- **Baseline CLAM** clásico (vía `main.py` de Sebastián): `scripts/train_clam.slurm`.
 
 ## Regla operativa nueva — Argumento antes de código
 

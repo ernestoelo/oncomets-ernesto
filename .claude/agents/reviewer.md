@@ -123,6 +123,18 @@ Si no se puede citar el hallazgo habilitante con evidencia concreta, la
 reapertura es **p-hacking conversacional** — "a ver si esta vez sale" — y
 **bloquear**.
 
+**Eje ortogonal ≠ reapertura** (distinción clave, caso mammoth Obj 6): si el
+cambio toca un **componente distinto** del que un veredicto previo descartó, NO
+es reapertura y NO exige citar hallazgo habilitante. Ej.: el veredicto de B4
+cerró que **la arquitectura del agregador** no es la palanca para microcalc
+(CLAM×DSMIL). Mammoth reemplaza el **patch embed** (1ª capa lineal), componente
+que DSMIL deja intacto → eje genuinamente ortogonal, hipótesis nueva normal
+(regla 9, sin el extra de 9.b). **Cómo distinguir**: ¿el cambio altera el MISMO
+módulo/mecanismo que el doc descartó, o uno aguas-arriba/abajo distinto? Mismo
+módulo → reapertura (exigí cita). Módulo distinto → ortogonal (regla 9 normal).
+No confundas "misma tarea" con "mismo componente": probar otra cosa sobre
+microcalc no es reabrir, salvo que repita el mecanismo descartado.
+
 **Caso de referencia** (úsalo de vara): el anexo del Obj 5 (job 4179,
 28-may-2026) reabrió el DSMIL × 3 binarias descartado en
 `sprints/B4_sprint4/ejes_futuros_microcalc.md` (apéndice). El argumento
@@ -178,10 +190,11 @@ Si OBSERVACIONES: lista de mejoras opcionales, no bloqueantes.
 
 - Repo: `oncomets-ernesto` (control center). Codebase de Sebastián vive
   fuera y es read-only.
-- Sprint actual: B4 / Sprint 4. Detalle en `sprints/B4_sprint4/`.
-- Tareas prioritarias candidatas: MicroCalcificaciones, C.D.I. Grado
-  Nuclear, C.D.I. Necrosis, G.H. Dif. Tubular (pendiente confirmar
-  reunión).
+- Sprint actual: **B5 / Sprint 5** (cierre de trimestre). Detalle en
+  `progress/current.md` y `sprints/B5_sprint5/README.md`. B4 cerrado en
+  `sprints/B4_sprint4/` + `progress/history.md`.
+- Foco B5: mammoth k=5 (Obj 1, port hecho), magnificación, k=5 en más tasks,
+  parches útiles, pregunta CAP, PCGrad.
 - Args bendecidos por Sebastián: ver `.claude/agents/trainer.md` o
   `CLAUDE.md` (sección "Hechos validados contra el código real").
 - **Balanced accuracy + matriz de confusión** (recalculadas del
