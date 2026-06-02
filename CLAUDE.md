@@ -776,6 +776,11 @@ duplicar trabajo. **NO** intentar editar el `.pptx` ni el PDF del deck
   alternativo (variante de CLAM o agregador nuevo) paired vs CLAM, sin tocar
   `clam_environ`: `models_<X>/` + branch aditivo en `train_dsmil.py` + slurm +
   test CPU + hipótesis + reviewer. La probaron DSMIL y mammoth.
+- `@coherence-audit` — audita el espacio completo (CLAUDE.md, memorias,
+  agentes, skills) y depura contradicciones, info stale y redundancias: doc de
+  hallazgos primero, fixes después, con criterio (canonical vs referencia, no
+  borrar contenido único, addendum para pre-registración, edición aditiva de
+  reglas duras). Caso de referencia: `sprints/B5_sprint5/auditoria_coherencia/`.
 
 ## Contexto del usuario para sesiones rápidas
 
