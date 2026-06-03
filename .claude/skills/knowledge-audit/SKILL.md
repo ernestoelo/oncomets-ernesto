@@ -1,6 +1,6 @@
 ---
 name: knowledge-audit
-description: Audita la coherencia de la base de conocimiento del repo (CLAUDE.md, memorias, agentes, skills) y depura contradicciones, info stale y redundancias. Triggers — knowledge audit, auditar el conocimiento, auditar el espacio, auditoría de coherencia, depurar contradicciones, revisar memoria/agentes/skills.
+description: Audita la coherencia de la base de conocimiento (CLAUDE.md, memorias, agentes, skills) — contradicciones, stale, redundancias, enlaces rotos. Triggers — knowledge audit, auditar el conocimiento/espacio, depurar contradicciones, revisar memoria.
 ---
 
 # Knowledge Audit

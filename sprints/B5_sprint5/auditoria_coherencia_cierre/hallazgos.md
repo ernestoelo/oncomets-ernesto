@@ -23,6 +23,8 @@
 | H4 | Rename skill `coherence-audit` → `knowledge-audit`: ¿quedan referencias colgadas? | verificación | **sin acción** (grep: 0 refs colgadas; las del worked-example son históricas) |
 | H5 | "Obj 6" (B4) / "Obj 1" (B5) / `results/obj6_mammoth_binarias_*` / `run_obj6_*.slurm` — ¿contradicción de numeración? | naming / bajo | **sin acción** (linaje, no contradicción; los cross-refs resuelven — patrón "identificador histórico" como "k-fold = MC-CV") |
 | H6 | CAP (College of American Pathologists) = fuente oficial de las formulaciones de clase (patrón→4 binarias, invasión 3-clase). Durable, citado en Obj2 README, sin memoria propia | captura de conocimiento | **FIX** (memoria nueva `cap-fuente-clases-tareas`, handoff §10.3) |
+| H7 | `/architect` `quick_validate.py` sobre las 10 skills: `knowledge-audit` FAIL (description 303 chars > 250 → se trunca en el listing); el commit del rename no la acortó. Las otras 9 PASS | error (estructura) | **FIX** (description → 244 chars, sin `:` que rompe el YAML del frontmatter) |
+| H8 | Wikilink integrity sweep (memorias + CLAUDE.md + skills + sprint docs) + `MEMORY.md` índice ↔ archivos en disco | verificación | **sin acción** (0 `[[…]]` rotos reales; los 2 hits son placeholders meta en SKILL.md; índice 100% en sync) |
 
 > **Fuera de alcance de esta pasada** (recomendados, NO aplicados): los aprendizajes
 > de código del handoff §10 que van a skills vía `/architect` — gotcha de métricas
