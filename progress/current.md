@@ -21,7 +21,8 @@ según los pedidos de Benjamín (1-jun):
 
 | # | Objetivo | Estado |
 |---|---|---|
-| 1 | **mammoth k=5 paired** sobre las 3 binarias (correr + analizar) | **CORRIENDO** (job 4229, ambos brazos, lanzado 2-jun 00:06); falta analizar |
+| 1 | **mammoth k=5 paired** sobre las 3 binarias (correr + analizar) | **COMPLETADO** (job 4229, analizado): mammoth NO es palanca en microcalc (cuello=datos). `objetivo_1_mammoth_run/resultados.md` |
+| 1b | **mammoth en patrón arquitectónico (4 binarias) + invasión (3-clase)** k=5 | **lanzado job 4241 y CRASHEÓ** (branch-switch borró los CSVs de input); re-lanzar desde `main`. `objetivo_2_mammoth_patron_invasion/` |
 | 2 | **Magnificación**: investigar (papers) ANTES de implementar | pendiente |
 | 3 | **k=5 folds** en más tasks débiles (no single-split) | pendiente |
 | 4 | **Parches/slides útiles**: selección de los que aportan al train | pendiente |
@@ -30,20 +31,27 @@ según los pedidos de Benjamín (1-jun):
 
 > DSMIL: "entenderlo mejor", menor prioridad (cerrado para microcalc, ver B4).
 
-### Estado inmediato
+### Estado inmediato (act. 3-jun, auditoría de cierre)
 
-- **mammoth (Obj 1 de B5) — LANZADO**: job **4229** (`sbatch
-  scripts/run_obj6_mammoth_binarias_kfold.slurm`, ambos brazos `clam
-  clam_mammoth`, 3 binarias × k=5 = 30 corridas, ~15h, lanzado 2-jun 00:06 con
-  OK de Ernesto). Gates pasados: verify_kfold + test CPU + preflight ×5/tarea.
-  Resultados → `results/obj6_mammoth_binarias_<tejido>/`. Analizar Δ pareado por
-  fold (balanced_acc) cuando termine; escribir
-  `sprints/B5_sprint5/objetivo_1_mammoth_run/resultados.md`.
-- **Vendorizado HECHO**: `mammoth-moe` copiado a `clam_testing2/MAMMOTH` (pin
-  `fe36d4e`) + `pip install -e` reapuntado → `import mammoth` resuelve dentro de
-  containment. Resultado ya citable. (El env compartido `clam_latest` quedó
-  apuntando al editable nuevo.)
-- Monitoreo: `tail -f logs/eg_mammoth_bin_kfold_4229.out` · `squeue -j 4229`.
+- **mammoth microcalc (Obj 1 de B5) — COMPLETADO Y ANALIZADO**: job **4229**
+  (3 binarias × k=5 × 2 brazos, ~9h40m). **Veredicto**: mammoth NO es palanca
+  consistente en microcalc (tejido +0.049, cdis −0.086, carcinoma nulo; std >
+  |media| → banda ambigua H0; cuello = datos). Brazo CLAM reproduce Fase 0 al 3er
+  decimal. Detalle: `sprints/B5_sprint5/objetivo_1_mammoth_run/resultados.md`.
+- **mammoth patrón+invasión (`objetivo_2_mammoth_patron_invasion/`) — LANZADO Y
+  CRASHEÓ**: job **4241** (GROUP=patron, 4 binarias × k=5 × 2 brazos = 40 runs).
+  Completó 1 run (cribiforme f0, CLAM) y murió: durante el job, un `git checkout`
+  a la rama `chore` en el working-tree COMPARTIDO borró `data/csv_new_tasks/*.csv`
+  → `FileNotFoundError` en fold 1 ([[working-tree-compartido-job-en-curso]],
+  workaround H de CLAUDE.md). **Re-lanzar desde `main`** (ya tiene CSVs+splits tras
+  el merge de cierre) **sin cambiar de rama durante el job**. Invasión (3-clase, ~25h)
+  NO lanzada (2ª ola deliberada, con OK).
+  > Nota de numeración: la tabla del plan numera por pedido de Benjamín (1=mammoth
+  > microcalc, 2=magnificación...). El dir `objetivo_2_mammoth_patron_invasion` es la
+  > **continuación del hilo mammoth**, NO el "Objetivo 2 = magnificación" del plan.
+- **Vendorizado HECHO**: `mammoth-moe` en `clam_testing2/MAMMOTH` (pin `fe36d4e`),
+  `pip install -e` reapuntado → `import mammoth` resuelve dentro de containment.
+- **GPU**: job ajeno `sgaete` (feature extraction, job 4242) corría al cierre — cortesía.
 
 ### Reglas que gobiernan el sprint (de CLAUDE.md)
 
