@@ -25,6 +25,7 @@
 | H6 | CAP (College of American Pathologists) = fuente oficial de las formulaciones de clase (patrón→4 binarias, invasión 3-clase). Durable, citado en Obj2 README, sin memoria propia | captura de conocimiento | **FIX** (memoria nueva `cap-fuente-clases-tareas`, handoff §10.3) |
 | H7 | `/architect` `quick_validate.py` sobre las 10 skills: `knowledge-audit` FAIL (description 303 chars > 250 → se trunca en el listing); el commit del rename no la acortó. Las otras 9 PASS | error (estructura) | **FIX** (description → 244 chars, sin `:` que rompe el YAML del frontmatter) |
 | H8 | Wikilink integrity sweep (memorias + CLAUDE.md + skills + sprint docs) + `MEMORY.md` índice ↔ archivos en disco | verificación | **sin acción** (0 `[[…]]` rotos reales; los 2 hits son placeholders meta en SKILL.md; índice 100% en sync) |
+| H9 | `.claude/agents/trainer.md:27` decía mammoth microcalc `[port LISTO, falta sbatch]` — el sbatch (job 4229) ya completó y se analizó | stale (agente) | **FIX** (→ `[COMPLETADO job 4229: no es palanca]` + extendido a Obj2/4243) |
 
 > **Fuera de alcance de esta pasada** (recomendados, NO aplicados): los aprendizajes
 > de código del handoff §10 que van a skills vía `/architect` — gotcha de métricas
