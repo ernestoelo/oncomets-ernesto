@@ -31,7 +31,11 @@ fixes second.**
 ### 1. Setup
 - `git branch --show-current`; create a NEW branch `chore/audit-coherencia-<sprint>`.
 - `git fetch` (main is shared, multiple authors — [[git-main-shared-pushes]]).
-- **Do NOT touch running GPU jobs** (`squeue -j <id>`); the audit is documental.
+- **Do NOT touch running GPU jobs** (`squeue` first): neither cancel them **nor**
+  `git checkout`/merge that changes tracked files while one runs — the job reads its
+  inputs from the live **shared** working-tree and you crash it (job 4241 died this
+  way; CLAUDE.md workaround H, [[working-tree-compartido-job-en-curso]]). The audit is
+  documental; do branch-switch/merge/cleanup only with the GPU free.
 - Note `python` is broken at base PATH → use the env binary
   `/home/sdonoso/miniconda3/envs/clam_latest/bin/python` for any script.
 
