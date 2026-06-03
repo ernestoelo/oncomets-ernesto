@@ -149,6 +149,25 @@ aplicar el fix correspondiente sin investigar de nuevo.
   `minpatch`. Ver detalle del bug en `docs/workarounds.md` y la plantilla
   en la skill `@slurm-submission`.
 
+### H. NO mover el working-tree mientras un job corre (árbol compartido)
+
+- **Síntoma**: un job SLURM que arrancó OK crashea a mitad de camino con
+  `FileNotFoundError` (o, peor, produce resultados con código mezclado sin
+  avisar). Caso real: job 4241 (Obj2), un `git checkout` a otra rama durante
+  el job borró `data/csv_new_tasks/*.csv` → fold 1 murió (solo 1/40 runs).
+- **Causa**: el `.slurm` invoca `python` **por cada run** y cada invocación
+  **relee** sus inputs/código del **working-tree vivo y COMPARTIDO** (`sdonoso`).
+  Un `git checkout`/branch-switch/edición de archivos versionados **mientras el
+  job corre** (propio o de una sesión paralela) le cambia el piso al job.
+- **Fix**: con un job en curso, **NO cambiar de rama ni editar archivos
+  versionados** del árbol. Antes del `sbatch`, asegurar que **todos los inputs
+  del job (CSVs, splits, scripts) estén commiteados en la rama que queda
+  checked-out** — idealmente correr desde `main`. Verificar `squeue` (jobs
+  propios y ajenos) antes de tocar `git`. Memoria
+  [[working-tree-compartido-job-en-curso]]. (Refuerza la regla de commit "el
+  working tree es compartido, verificá la rama" — acá el riesgo es contra el
+  job, no contra el commit.)
+
 ### Reglas de commit y push para Claude Code
 
 - **Commits locales**: SÍ — granulares, mensajes conventional commits.

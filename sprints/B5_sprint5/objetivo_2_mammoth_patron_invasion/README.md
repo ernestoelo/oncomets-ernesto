@@ -130,5 +130,10 @@ Aplica **por tarea** (5 comparaciones paired independientes):
 - [x] Splits k=5 (`scripts/build_new_tasks_splits.py` → `data/splits_kfold/`; verify rc=0).
 - [x] Fix métricas multiclase (`train_dsmil.py`) + slurm + test CPU (3-clase, pasa).
 - [x] reviewer **GO con observaciones** (2-jun; aplicadas obs 1/2/3).
-- [ ] sbatch (con OK explícito de Ernesto + GPU libre).
-- [ ] Resultados + README en `clam_testing/`.
+- [~] sbatch GROUP=patron **LANZADO 2-jun (job 4241) y CRASHEÓ** tras 1/40 runs
+  (cribiforme f0 CLAM OK). Causa: branch-switch en el working-tree compartido borró
+  `data/csv_new_tasks/` durante el job → `FileNotFoundError` en fold 1 (workaround H
+  de CLAUDE.md, [[working-tree-compartido-job-en-curso]]). **Re-lanzar desde `main`**
+  (ya tiene CSVs+splits tras el merge de cierre) **sin cambiar de rama durante el job**.
+- [ ] 2ª ola: invasión 3-clase (GROUP=invasion, ~25h) — no lanzada (con OK + cortesía GPU).
+- [ ] Resultados (`objetivo_2/resultados.md`, política eval B5) + README en `clam_testing/`.
