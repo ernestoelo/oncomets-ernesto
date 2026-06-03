@@ -1,0 +1,177 @@
+# Experimentos Mammoth en CLAM — OncoMets / Environ (config, datasets, splits, resultados)
+
+> Autor: Ernesto Gamero · Sprint B5 (cierre trimestre jun-2026).
+> **FUENTE CANÓNICA Y VERSIONADA** de este doc (vive en el repo, sobrevive a una
+> pérdida del workspace y es citable desde GitHub). Si existe una copia en
+> `clam_testing/`, es un stub/derivado — editá SIEMPRE acá.
+> Doc de referencia para el equipo (Sebastián). Documenta, por tarea: la **config
+> fija** de entrenamiento, el **dataset de origen** y el **n por clase**, el **split**
+> usado (con rutas a los archivos), y los **resultados**.
+>
+> **Comparación central:** CLAM (baseline) **vs** CLAM+Mammoth, **k=5 paired** (mismos
+> splits ambos brazos, único delta = la 1ª capa lineal → Mixture-of-Experts). Mismo
+> harness `train_dsmil.py` (`--model_type clam | clam_mammoth`) → comparación
+> apples-to-apples sin confound de training-loop.
+>
+> Todo el código/datos/resultados viven en `clam_testing2/oncomets-ernesto/`
+> (este repo). Rutas de abajo: relativas al repo o con `$REPO`.
+
+---
+
+## 1. Config fija de entrenamiento (idéntica en TODAS las tareas y ambos brazos)
+
+Args "bendecidos" (mismos que el baseline oficial Environ y que el run de microcalc):
+
+| Arg | Valor | | Arg | Valor |
+|---|---|---|---|---|
+| `--model_type` | `clam` / `clam_mammoth` | | `--max_epochs` | 30 |
+| `--B` (k_sample inst-loss) | 8 | | `--early_stopping` | sí |
+| `--bag_weight` | 0.7 | | `--patience` | 20 |
+| `--lr` | 2e-4 | | `--stop_epoch` | 50 |
+| `--reg` | 1e-5 | | `--seed` | 1 |
+| `--drop_out` | 0.25 | | `--embed_dim` (CONCH) | 512 |
+
+**Hiperparámetros de Mammoth** (solo brazo `clam_mammoth`; defaults recomendados del
+paper, `auto_rank` mantiene el conteo de params comparable a la lineal original):
+
+| `num_experts` | `num_slots` | `num_heads` | `slot_dim` | `dropout` | `keep_slots` | `share_lora_weights` | `auto_rank` |
+|---|---|---|---|---|---|---|---|
+| 30 | 10 | 16 | 256 | 0.1 | **False** | True | True |
+
+> `keep_slots=False` → Mammoth devuelve los N parches transformados (misma semántica
+> de attention/instance-loss que el baseline → comparación limpia).
+> Features: **CONCH 512-dim** (todas las slides). Instance-loss: `SmoothTop1SVM`.
+> Sampler de train: `weighted` (corrige desbalance de clases).
+
+---
+
+## 2. Tareas, clases, n por clase y dataset de origen
+
+**Cohorte `_pth` = Privado (Environ) + TCGA + HistAI** (la unión grande). Para las
+binarias de patrón se excluye `no_identificado` (slides cuyo reporte CAP no menciona
+el patrón) → universo = DCIS **identificado**.
+
+### 2.a Patrón arquitectónico de CDIS — 4 tareas BINARIAS (si/no)
+
+Clases = patrones del protocolo CAP (`papers/Breast.Invasive.Bx_1.2.0.0.REL_CAPCP.pdf`,
+*DCIS → Architectural Patterns*, "select all that apply" → multi-label → 1 binaria por
+patrón). n total por tarea = **513** (idéntico universo; cada slide es si/no para cada
+patrón). Fuente: **HistAI 200 + TCGA 238 + Privado 75**.
+
+| Tarea (`--task`) | clase `si` | clase `no` | desbalance | régimen |
+|---|---|---|---|---|
+| `cdis_patron_cribiforme_pth` | 252 | 261 | ~1:1 | sano |
+| `cdis_patron_solido_pth` | 388 | 125 | ~3:1 | ok |
+| `cdis_patron_micropapilar_pth` | 34 | 479 | 14:1 | **3 pos/test fold — "estadísticamente ciego"** |
+| `cdis_patron_papilar_pth` | 32 | 481 | 15:1 | **3 pos/test fold — idem** |
+
+CSV de labels (snapshot filtrado a slides con `.pt`):
+`$REPO/data/csv_new_tasks/dataset_carcinoma_ductal_in_situ_patrones_arquitectonicos_<patrón>_label.csv`
+
+### 2.b Invasión linfática (linfovascular) — 1 tarea de 3 CLASES
+
+Clases = CAP *Lymphatic and/or Vascular Invasion* (Not identified / Present / Cannot
+be determined). n total = **2814** (1 slide HistAI `histai_1132_slide_H&E_0` sin `.pt`,
+excluida del crudo 2815). Fuente: **HistAI 1418 + TCGA 864 + Privado 532**.
+
+| Tarea (`--task`) | `no_identificado` | `ausente` | `presente` | trivial bal_acc |
+|---|---|---|---|---|
+| `invasion_linfatica_vascular_pth` | 1967 (70%) | 479 | 368 | 0.333 |
+
+`label_dict = {"ausente":0, "no_identificado":1, "presente":2}` (`--n_classes 3`).
+CSV: `$REPO/data/csv_new_tasks/dataset_invasion_linfovascular_label.csv`
+
+### 2.c Referencia: microcalcificaciones — 3 tareas BINARIAS (ya corridas)
+
+| Tarea | `si` | `no` | n_test/fold (pos) | fuente |
+|---|---|---|---|---|
+| `microcalcificaciones_en_carcinoma_invasivo_pth` | 121 | 212 | 32 (7) | priv+TCGA+HistAI |
+| `microcalcificaciones_en_cdis_pth` | 68 | 265 | 36 (11-14) | idem |
+| `microcalcificaciones_en_tejido_no_neoplasico_pth` | 195 | 138 | 33 (19-21) | idem |
+
+---
+
+## 3. Splits (verdad de campo — referencias exactas)
+
+**Esquema:** Monte-Carlo CV **k=5** estratificado, `patient_strat`, `val_frac=test_frac=0.1`,
+`seed=1`. Generados con `scripts/build_new_tasks_splits.py` (reusa
+`Generic_WSI_Classification_Dataset` de CLAM sin forkear). Verificados con
+`scripts/verify_kfold_splits.py` (disjuntos, total constante, `.pt` presente) → **rc=0**.
+
+Archivos por tarea (5 folds: `splits_0.csv` … `splits_4.csv`, + `_bool` y `_descriptor`):
+
+```
+$REPO/data/splits_kfold/
+├── cdis_patron_cribiforme_pth_100/        splits_{0..4}.csv
+├── cdis_patron_solido_pth_100/            splits_{0..4}.csv
+├── cdis_patron_micropapilar_pth_100/      splits_{0..4}.csv
+├── cdis_patron_papilar_pth_100/           splits_{0..4}.csv
+└── invasion_linfatica_vascular_pth_100/   splits_{0..4}.csv
+```
+
+Columnas de `splits_<f>.csv`: `,train,val,test` (un `slide_id` por celda). Ambos brazos
+(CLAM y CLAM+Mammoth) leen **el mismo** `splits_<f>.csv` → Δ pareado por fold.
+
+> Splits de microcalc (referencia): `$REPO/data/splits_kfold/microcalcificaciones_en_<tejido>_pth_100/`.
+
+---
+
+## 4. Resultados
+
+Política de evaluación (B5): se reporta **balanced_acc Y AUC juntos** (test) + matriz de
+confusión + n por clase. Métrica decisiva = **Δ pareado por fold** (`mammoth − clam`),
+media ± std. Sin gate numérico; interpretación cualitativa (consistencia de signo,
+varianza, vs trivial). Binarias = ROC-AUC; invasión = macro one-vs-rest.
+
+### 4.a Microcalcificaciones (COMPLETO — 2-jun)
+
+**Veredicto: Mammoth NO es palanca** (señal dominada por varianza en las 3). Detalle:
+`$REPO/sprints/B5_sprint5/objetivo_1_mammoth_run/resultados.md`.
+
+| Binaria | CLAM bal_acc | +Mammoth bal_acc | Δ pareado bal_acc | Δ pareado AUC | signo |
+|---|---|---|---|---|---|
+| carcinoma | 0.639 ± 0.077 | 0.585 ± 0.080 | −0.054 ± 0.125 | −0.010 ± 0.065 | 2+/3− (nulo) |
+| cdis | 0.595 ± 0.077 | 0.509 ± 0.117 | −0.086 ± 0.113 | −0.035 ± 0.104 | 1+/4− (leve regresión) |
+| tejido | 0.577 ± 0.030 | 0.626 ± 0.096 | +0.049 ± 0.077 | +0.032 ± 0.084 | 4+/1− (leve mejora) |
+
+### 4.b Patrón arquitectónico (EN CURSO — re-lanzado 3-jun)
+
+> **RE-LANZADO job 4243 (GROUP=patron, 3-jun, desde `main`).** El intento previo
+> (job 4241, 2-jun) **crasheó** tras 1/40 runs: durante el job, un branch-switch en el
+> working-tree compartido borró `data/csv_new_tasks/` → `FileNotFoundError` en fold 1
+> (workaround H de CLAUDE.md). El re-run corre desde `main` (con los CSVs+splits
+> commiteados) y sin cambiar de rama. _Tabla pendiente hasta que termine (~13h)._
+> micropapilar/papilar se leerán **agregando los ~15 positivos de los 5 folds** (3
+> pos/fold = régimen ciego), no fold a fold.
+
+| Binaria | CLAM bal_acc | +Mammoth bal_acc | Δ pareado bal_acc | Δ pareado AUC |
+|---|---|---|---|---|
+| cribiforme | _pendiente_ | | | |
+| solido | _pendiente_ | | | |
+| micropapilar | _pendiente_ | | | |
+| papilar | _pendiente_ | | | |
+
+### 4.c Invasión linfática 3-clase (PENDIENTE — 2ª ola, ~25h)
+
+> _No lanzada aún (se lanza con `GROUP=invasion` cuando termine patrón / GPU libre)._
+> Vigilar **colapso a `no_identificado`** (mayoritaria 70%) vía la confusión 3×3.
+
+---
+
+## 5. Reproducir / trazabilidad
+
+```bash
+REPO=/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto
+# (1) splits:   $PY $REPO/scripts/build_new_tasks_splits.py   ($PY = binario absoluto env clam_latest)
+# (2) verificar:$PY $REPO/scripts/verify_kfold_splits.py
+# (3) entrenar (GPU, vía SLURM; NO cambiar de rama mientras corre — workaround H):
+GROUP=patron   sbatch $REPO/scripts/run_obj2_mammoth_patron_invasion_kfold.slurm   # 4 binarias
+GROUP=invasion sbatch $REPO/scripts/run_obj2_mammoth_patron_invasion_kfold.slurm   # 3-clase
+```
+
+- Hipótesis pre-registrada + diseño: `$REPO/sprints/B5_sprint5/objetivo_2_mammoth_patron_invasion/README.md`.
+- Salidas por run: `$REPO/results/obj2_mammoth/<task>/<modelo>_<task>_f<0..4>_*_s1/`
+  (`test_metrics.json`: balanced_acc + AUC + confusión + n; `test_predictions.csv`: `y_prob_<c>`).
+- Port de Mammoth: `$REPO/models_mammoth/clam_mammoth.py` (clase `CLAM_MB_Mammoth`,
+  subclase de `CLAM_MB`, único delta = la 1ª capa lineal → `MammothPatchEmbed`). Paquete
+  `mammoth` vendorizado en `clam_testing2/MAMMOTH` (pin `fe36d4e`).
