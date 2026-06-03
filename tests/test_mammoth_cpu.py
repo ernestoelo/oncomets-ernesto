@@ -171,12 +171,62 @@ def test_compute_test_metrics_with_mammoth():
         model, loader, torch.device("cpu"),
     )
     assert len(patient_results) == 6
-    assert list(preds_df.columns) == ['slide_id', 'y_true', 'y_prob_si', 'y_pred']
+    # Schema: columnas base + y_prob_<c> por clase (fix métricas multiclase B5 Obj 2).
+    assert list(preds_df.columns)[:4] == ['slide_id', 'y_true', 'y_prob_si', 'y_pred']
+    assert 'y_prob_0' in preds_df.columns and 'y_prob_1' in preds_df.columns
     cm = test_metrics['confusion']
     assert sum(sum(r) for r in cm) == test_metrics['n_test'] == 6
     assert 0.0 <= test_metrics['balanced_acc'] <= 1.0
     print(f"[OK] compute_test_metrics con Mammoth: "
           f"bal_acc={test_metrics['balanced_acc']:.3f}, confusion={cm}")
+
+
+def test_compute_test_metrics_multiclase():
+    """Fix B5 Obj 2: compute_test_metrics con n_classes=3 (invasión linfática)
+    produce confusión 3×3 + macro-OVR AUC (float si las 3 clases están en test)."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "train_dsmil", str(REPO_ROOT / "scripts" / "train_dsmil.py"),
+    )
+    train_dsmil = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(train_dsmil)
+
+    torch.manual_seed(7)
+    model = CLAM_MB_Mammoth(n_classes=3, embed_dim=512, dropout=0.25, k_sample=8)
+    model.eval()
+
+    class _FakeSlideDataset:
+        def __init__(self, slides):
+            import pandas as pd
+            self._slides = slides
+            self.slide_data = pd.DataFrame({'slide_id': [s[0] for s in slides]})
+
+        def __len__(self):
+            return len(self._slides)
+
+    class _FakeLoader:
+        def __init__(self, dataset):
+            self.dataset = dataset
+
+        def __iter__(self):
+            for _sid, bag, lbl in self.dataset._slides:
+                yield bag, torch.tensor([lbl])
+
+    # 9 slides, las 3 clases presentes (requisito para AUC macro-OVR).
+    slides = [(f"slide_{i:03d}", torch.randn(150 + i * 10, 512), i % 3) for i in range(9)]
+    loader = _FakeLoader(_FakeSlideDataset(slides))
+    _, test_metrics, preds_df = train_dsmil.compute_test_metrics(
+        model, loader, torch.device("cpu"),
+    )
+    cm = test_metrics['confusion']
+    assert len(cm) == 3 and all(len(r) == 3 for r in cm), f"confusión no es 3x3: {cm}"
+    assert sum(sum(r) for r in cm) == test_metrics['n_test'] == 9
+    assert {'y_prob_0', 'y_prob_1', 'y_prob_2'}.issubset(preds_df.columns)
+    auc = test_metrics['test_auc']
+    import math
+    assert math.isnan(auc) or 0.0 <= auc <= 1.0, f"AUC fuera de rango: {auc}"
+    print(f"[OK] compute_test_metrics multiclase (n=3): "
+          f"bal_acc={test_metrics['balanced_acc']:.3f}, AUC={auc}, confusion={cm}")
 
 
 if __name__ == "__main__":
@@ -185,4 +235,5 @@ if __name__ == "__main__":
     test_keep_slots_true_changes_cardinality()
     test_forward_real_pt()
     test_compute_test_metrics_with_mammoth()
+    test_compute_test_metrics_multiclase()
     print("\nTodos los smoke tests CPU de Mammoth pasaron.")
