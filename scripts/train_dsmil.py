@@ -381,6 +381,7 @@ def compute_test_metrics(model, loader, device):
 
     patient_results = {}
     rows = []
+    prob_mat = []  # probs completas [N, n_classes] (AUC multiclase + trazabilidad)
     n_classes = model.n_classes
 
     with torch.inference_mode():
@@ -399,6 +400,7 @@ def compute_test_metrics(model, loader, device):
                 'prob': probs,
                 'label': y_true,
             }
+            prob_mat.append(probs[0])
             rows.append({
                 'slide_id': slide_id,
                 'y_true': y_true,
@@ -414,23 +416,37 @@ def compute_test_metrics(model, loader, device):
         }, pd.DataFrame(columns=['slide_id', 'y_true', 'y_prob_si', 'y_pred'])
 
     preds_df = pd.DataFrame(rows)
+    prob_full = np.vstack(prob_mat)                 # [N, n_classes]
+    # probs por clase (y_prob_0..k-1) para AUC multiclase post-hoc / trazabilidad.
+    for c in range(n_classes):
+        preds_df[f'y_prob_{c}'] = prob_full[:, c]
     y_true_arr = preds_df['y_true'].to_numpy()
     y_pred_arr = preds_df['y_pred'].to_numpy()
-    y_prob_arr = preds_df['y_prob_si'].to_numpy()
 
     test_acc = float((y_true_arr == y_pred_arr).mean())
     bal_acc = float(balanced_accuracy_score(y_true_arr, y_pred_arr))
     cm = confusion_matrix(y_true_arr, y_pred_arr, labels=list(range(n_classes)))
-    if n_classes == 2 and len(np.unique(y_true_arr)) == 2:
-        test_auc = float(roc_auc_score(y_true_arr, y_prob_arr))
-    else:
+    # AUC: binario = ROC-AUC; multiclase = macro one-vs-rest. Requiere >=1 muestra de
+    # cada clase en test; si no, queda nan. Política B5: el AUC se reporta SIEMPRE
+    # junto a balanced_acc, nunca como métrica única (Hallazgo 6). La rama binaria es
+    # idéntica a la anterior (prob_full[:,1] == y_prob_si) → reproduce microcalc.
+    test_auc = float("nan")
+    try:
+        if n_classes == 2:
+            if len(np.unique(y_true_arr)) == 2:
+                test_auc = float(roc_auc_score(y_true_arr, prob_full[:, 1]))
+        elif len(np.unique(y_true_arr)) == n_classes:
+            test_auc = float(roc_auc_score(
+                y_true_arr, prob_full, multi_class='ovr',
+                average='macro', labels=list(range(n_classes))))
+    except ValueError:
         test_auc = float("nan")
 
     test_metrics = {
         "test_auc": test_auc,
         "test_acc": test_acc,
         "balanced_acc": bal_acc,
-        "confusion": cm.tolist(),  # 2x2 = [[TN, FP], [FN, TP]] (sklearn convention)
+        "confusion": cm.tolist(),  # binario [[TN,FP],[FN,TP]]; multiclase n×n (sklearn)
         "n_test": int(len(preds_df)),
     }
     return patient_results, test_metrics, preds_df

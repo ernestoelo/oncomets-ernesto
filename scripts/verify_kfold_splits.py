@@ -18,6 +18,8 @@ Sale con código != 0 si alguna invariante falla (apto para preflight).
 import glob
 import os
 import sys
+from collections import Counter
+
 import pandas as pd
 
 REPO = "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto"
@@ -30,6 +32,7 @@ FEATS = os.path.join(ENVIRON, "features", "pt_files")
 # propio bajo clam_testing2/.
 _C = os.path.join(ENVIRON, "csv")
 _F = os.path.join(REPO, "data", "csv_fusion")
+_NT = os.path.join(REPO, "data", "csv_new_tasks")  # snapshots Obj 2 B5 (patrón + invasión)
 TASKS = {
     "microcalcificaciones_en_carcinoma_invasivo_pth_100":
         os.path.join(_C, "dataset_microcalcificaciones_en_carcinoma_invasivo_label.csv"),
@@ -39,6 +42,17 @@ TASKS = {
         os.path.join(_C, "dataset_microcalcificaciones_en_tejido_no_neoplasico_label.csv"),
     "microcalcificaciones_presencia_100":
         os.path.join(_F, "dataset_microcalcificaciones_presencia_label.csv"),
+    # --- Obj 2 B5: patrón arquitectónico (4 binarias) + invasión linfática (3 clases) ---
+    "cdis_patron_cribiforme_pth_100":
+        os.path.join(_NT, "dataset_carcinoma_ductal_in_situ_patrones_arquitectonicos_cribiforme_label.csv"),
+    "cdis_patron_solido_pth_100":
+        os.path.join(_NT, "dataset_carcinoma_ductal_in_situ_patrones_arquitectonicos_solido_label.csv"),
+    "cdis_patron_micropapilar_pth_100":
+        os.path.join(_NT, "dataset_carcinoma_ductal_in_situ_patrones_arquitectonicos_micropapilar_label.csv"),
+    "cdis_patron_papilar_pth_100":
+        os.path.join(_NT, "dataset_carcinoma_ductal_in_situ_patrones_arquitectonicos_papilar_label.csv"),
+    "invasion_linfatica_vascular_pth_100":
+        os.path.join(_NT, "dataset_invasion_linfovascular_label.csv"),
 }
 
 
@@ -72,18 +86,17 @@ def main():
                 print(f"  fold {i}: ✗ total {len(allids)} != {n_total_expected}"); ok = False
             if len(set(allids)) != len(allids):
                 print(f"  fold {i}: ✗ slide_id duplicado en el fold"); ok = False
-            # 3. conteos por clase en test
+            # 3. conteos por clase en test (label-agnóstico: binario o multiclase)
             te_lab = [lab.get(s, "??") for s in f["test"]]
-            n_pos = sum(1 for x in te_lab if x == "si")
-            n_neg = sum(1 for x in te_lab if x == "no")
-            n_unk = sum(1 for x in te_lab if x not in ("si", "no"))
+            dist = dict(sorted(Counter(te_lab).items(), key=lambda x: str(x[0])))
+            n_unk = dist.get("??", 0)  # slide del split ausente del CSV de labels
             # 4. .pt existe
             missing = [s for s in allids if s not in pt_ids]
             flag = "✓" if (not missing and n_unk == 0) else "✗"
             if missing or n_unk:
                 ok = False
             print(f"  fold {i}: {flag} train={len(tr)} val={len(va)} test={len(te)} "
-                  f"| test pos(si)={n_pos} neg(no)={n_neg}"
+                  f"| test dist={dist}"
                   + (f" | SIN .pt: {len(missing)}" if missing else "")
                   + (f" | label desconocido: {n_unk}" if n_unk else ""))
     print("\n" + ("RESULTADO: ✓ TODAS LAS INVARIANTES OK" if ok else "RESULTADO: ✗ FALLA — revisar arriba"))
