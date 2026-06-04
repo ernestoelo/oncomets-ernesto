@@ -169,10 +169,13 @@ resultado es el **régimen de datos**, no el agregador/patch-embed → el cuello
 desbalance / contexto espacial**, no la arquitectura. Apunta el esfuerzo a datos
 (magnificación, parches útiles, más positivos), no a más swaps de modelo.
 
-### 4.c Invasión linfática 3-clase (PENDIENTE — 2ª ola, ~25h)
+### 4.c Invasión linfática 3-clase (EN CURSO — job 4246, lanzado 4-jun)
 
-> _No lanzada aún (se lanza con `GROUP=invasion` cuando termine patrón / GPU libre)._
-> Vigilar **colapso a `no_identificado`** (mayoritaria 70%) vía la confusión 3×3.
+> **RUNNING** (`GROUP=invasion`, 10 runs = 3-clase × k=5 × 2 brazos, ~20-25h, ETA ~5-jun).
+> Es la mejor chance de señal estable por el n grande (2814 vs ~330 de las binarias).
+> Vigilar **colapso a `no_identificado`** (mayoritaria 70%, trivial bal_acc 0.333) vía la
+> confusión 3×3. _Tabla pendiente hasta que termine; resultados se leerán con balanced_acc
+> + macro-OVR AUC + confusión 3×3 + n (política eval B5)._
 
 ---
 
