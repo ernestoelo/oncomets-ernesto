@@ -1,0 +1,2 @@
+folds,test_auc,val_auc,test_acc,val_acc
+2,0.8,0.66,0.803921568627451,0.6274509803921569

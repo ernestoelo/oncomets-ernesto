@@ -134,22 +134,40 @@ varianza, vs trivial). Binarias = ROC-AUC; invasión = macro one-vs-rest.
 | cdis | 0.595 ± 0.077 | 0.509 ± 0.117 | −0.086 ± 0.113 | −0.035 ± 0.104 | 1+/4− (leve regresión) |
 | tejido | 0.577 ± 0.030 | 0.626 ± 0.096 | +0.049 ± 0.077 | +0.032 ± 0.084 | 4+/1− (leve mejora) |
 
-### 4.b Patrón arquitectónico (EN CURSO — re-lanzado 3-jun)
+### 4.b Patrón arquitectónico (COMPLETO — 4-jun, job 4243, 40 runs)
 
-> **RE-LANZADO job 4243 (GROUP=patron, 3-jun, desde `main`).** El intento previo
-> (job 4241, 2-jun) **crasheó** tras 1/40 runs: durante el job, un branch-switch en el
-> working-tree compartido borró `data/csv_new_tasks/` → `FileNotFoundError` en fold 1
-> (workaround H de CLAUDE.md). El re-run corre desde `main` (con los CSVs+splits
-> commiteados) y sin cambiar de rama. _Tabla pendiente hasta que termine (~13h)._
-> micropapilar/papilar se leerán **agregando los ~15 positivos de los 5 folds** (3
-> pos/fold = régimen ciego), no fold a fold.
+**Veredicto: Mammoth NO es palanca** (igual que microcalc). Lean positivo leve solo en
+**cribiforme** (la única binaria balanceada); nulo en el resto. Detalle:
+`$REPO/sprints/B5_sprint5/objetivo_2_mammoth_patron_invasion/resultados.md`.
 
-| Binaria | CLAM bal_acc | +Mammoth bal_acc | Δ pareado bal_acc | Δ pareado AUC |
-|---|---|---|---|---|
-| cribiforme | _pendiente_ | | | |
-| solido | _pendiente_ | | | |
-| micropapilar | _pendiente_ | | | |
-| papilar | _pendiente_ | | | |
+**Régimen sano** (cribiforme/solido — fold a fold, k=5, std poblacional):
+
+| Binaria | CLAM bal_acc | +Mammoth bal_acc | Δ pareado bal_acc | Δ pareado AUC | signo |
+|---|---|---|---|---|---|
+| cribiforme | 0.650 ± 0.057 | 0.694 ± 0.078 | +0.044 ± 0.048 | +0.022 ± 0.042 | 4+/1− (leve mejora) |
+| solido | 0.647 ± 0.065 | 0.632 ± 0.067 | −0.014 ± 0.064 | −0.022 ± 0.055 | 3+/2− (nulo) |
+
+**Régimen ciego** (micropapilar/papilar — 3 pos/test → **pooled** los 15 positivos de los
+5 folds; sens/spec/AUC global, NO fold a fold):
+
+| Binaria | brazo | pooled n (pos) | sens | spec | bal_acc (pool) | AUC (pool) |
+|---|---|---|---|---|---|---|
+| micropapilar | CLAM | 257 (15) | 0.267 | 0.967 | 0.617 | 0.707 |
+| micropapilar | +Mammoth | 257 (15) | 0.200 | 0.921 | 0.561 | 0.710 |
+| papilar | CLAM | 256 (15) | 0.133 | 0.929 | 0.531 | 0.583 |
+| papilar | +Mammoth | 256 (15) | 0.067 | 0.946 | 0.506 | 0.599 |
+
+> Ambos brazos casi no detectan el patrón (TP global 4/15 y 2/15; mammoth 3/15 y 1/15) →
+> tareas hambrientas de positivos (32–34 en toda la cohorte). MC-CV: los folds solapan,
+> el pool es descriptivo. El re-run 4243 cerró los 40 runs sin el crash del 4241
+> (corrió desde `main`, sin branch-switch — workaround H).
+
+**Hallazgo crítico (cruce Obj1+Obj2 = 7 binarias):** el lean positivo de mammoth aparece
+**solo en las 2 tareas más balanceadas** (microcalc·tejido ~58% +0.049; patrón·cribiforme
+~49% +0.044) y se apaga en cuanto domina el desbalance o faltan positivos. El predictor del
+resultado es el **régimen de datos**, no el agregador/patch-embed → el cuello es **datos /
+desbalance / contexto espacial**, no la arquitectura. Apunta el esfuerzo a datos
+(magnificación, parches útiles, más positivos), no a más swaps de modelo.
 
 ### 4.c Invasión linfática 3-clase (PENDIENTE — 2ª ola, ~25h)
 

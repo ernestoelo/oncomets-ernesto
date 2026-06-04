@@ -708,6 +708,22 @@ re-validar y actualizar `docs/codebase_map.md`.
     B5 (magnificación = Eje A, parches útiles = Eje B; CDIS abre Eje C
     morfológico). *(Nota de rótulo: "k-fold" en archivos = Monte Carlo CV —
     test solapados; es identificador histórico, NO se renombra.)*
+12. **Mammoth (MoE en el patch-embed) NO es palanca — y su (débil) efecto está
+    gobernado por el BALANCE de clases, no por la arquitectura.** Cerrado sobre 7
+    binarias con el mismo harness pareado (`train_dsmil.py`, `--model_type
+    clam|clam_mammoth`, k=5): Obj1 microcalc (job 4229) + Obj1b patrón CDIS (job 4243,
+    4-jun). Mammoth muestra lean+ leve SOLO en las 2 tareas más balanceadas
+    (microcalc·tejido ~58% Δbal +0.049; patrón·cribiforme ~49% Δbal +0.044±0.048,
+    4+/1−) y es nulo/leve-regresión en las 5 desbalanceadas o hambrientas de positivos
+    (solido, micropapilar, papilar, carcinoma, cdis). En todos los casos std ≳ |media|
+    (banda H0). Régimen "ciego" (micro/papilar, 3 pos/test) se lee **pooled** los ~15
+    positivos de los 5 folds, no fold a fold → ambos brazos casi no detectan (TP global
+    4/15 y 2/15). **Refuerza el cuello = datos / desbalance / contexto espacial** (mismo
+    cierre que Hallazgo 11 para el agregador). Invasión linfática 3-clase (n=2814, mucho
+    más dato) es la 2ª ola natural, no lanzada. Detalle:
+    `sprints/B5_sprint5/objetivo_2_mammoth_patron_invasion/resultados.md` + README
+    consolidado `results/README_experimentos_mammoth_environ.md` §4.b + memoria
+    [[mammoth-investigacion-integracion]].
 
 ## Entorno conda — deps esperadas
 
