@@ -130,10 +130,13 @@ Aplica **por tarea** (5 comparaciones paired independientes):
 - [x] Splits k=5 (`scripts/build_new_tasks_splits.py` → `data/splits_kfold/`; verify rc=0).
 - [x] Fix métricas multiclase (`train_dsmil.py`) + slurm + test CPU (3-clase, pasa).
 - [x] reviewer **GO con observaciones** (2-jun; aplicadas obs 1/2/3).
-- [~] sbatch GROUP=patron **RE-LANZADO 3-jun (job 4243) desde `main`**, sin cambiar de
-  rama durante el job. El intento previo (job 4241, 2-jun) crasheó tras 1/40 runs
-  (cribiforme f0 CLAM OK) porque un branch-switch en el working-tree compartido borró
-  `data/csv_new_tasks/` → `FileNotFoundError` en fold 1 (workaround H de CLAUDE.md,
-  [[working-tree-compartido-job-en-curso]]). En curso (~13h); analizar al terminar.
+- [x] sbatch GROUP=patron (job 4243, 3-jun, desde `main` sin cambiar de rama) → **40 runs
+  COMPLETOS, cerró 4-jun 01:33** sin el crash del 4241. El intento previo (job 4241,
+  2-jun) crasheó tras 1/40 runs (cribiforme f0 CLAM OK) porque un branch-switch en el
+  working-tree compartido borró `data/csv_new_tasks/` → `FileNotFoundError` en fold 1
+  (workaround H, [[working-tree-compartido-job-en-curso]]); parcial segregado en
+  `results/failed_runs/4241_*`.
+- [x] **Resultados patrón analizados** (`resultados.md`, política eval B5): mammoth NO es
+  palanca — lean+ leve solo en cribiforme (balanceada); nulo en el resto. README
+  consolidado `results/README_experimentos_mammoth_environ.md` §4.b COMPLETO.
 - [ ] 2ª ola: invasión 3-clase (GROUP=invasion, ~25h) — no lanzada (con OK + cortesía GPU).
-- [ ] Resultados (`objetivo_2/resultados.md`, política eval B5) + README en `clam_testing/`.
