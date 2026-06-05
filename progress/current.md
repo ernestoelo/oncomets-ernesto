@@ -22,7 +22,7 @@ según los pedidos de Benjamín (1-jun):
 | # | Objetivo | Estado |
 |---|---|---|
 | 1 | **mammoth k=5 paired** sobre las 3 binarias (correr + analizar) | **COMPLETADO** (job 4229, analizado): mammoth NO es palanca en microcalc (cuello=datos). `objetivo_1_mammoth_run/resultados.md` |
-| 1b | **mammoth en patrón arquitectónico (4 binarias) + invasión (3-clase)** k=5 | **PATRÓN COMPLETADO** (job 4243, 40 runs, cerró 4-jun 01:33): mammoth NO es palanca (lean+ leve solo en cribiforme balanceada; nulo en solido/micropapilar/papilar). `objetivo_2_mammoth_patron_invasion/resultados.md`. **Invasión 3-clase = 2ª ola, NO lanzada.** |
+| 1b | **mammoth en patrón arquitectónico (4 binarias) + invasión (3-clase)** k=5 | **COMPLETADO** — PATRÓN (job 4243, 40 runs, 4-jun 01:33) + INVASIÓN (job 4246, 10 runs, 5-jun 06:18): mammoth NO es palanca en ninguna (lean+ leve solo en cribiforme balanceada; invasión = regresión leve consistente vía colapso a mayoritaria). `objetivo_2_mammoth_patron_invasion/{resultados.md,resultados_invasion.md}`. **Cierra el hilo mammoth (8 tareas, 0 palancas).** |
 | 2 | **Magnificación**: investigar (papers) ANTES de implementar | pendiente |
 | 3 | **k=5 folds** en más tasks débiles (no single-split) | pendiente |
 | 4 | **Parches/slides útiles**: selección de los que aportan al train | pendiente |
@@ -31,7 +31,7 @@ según los pedidos de Benjamín (1-jun):
 
 > DSMIL: "entenderlo mejor", menor prioridad (cerrado para microcalc, ver B4).
 
-### Estado inmediato (act. 4-jun, patrón cerrado)
+### Estado inmediato (act. 5-jun, invasión cerrada → hilo mammoth cerrado)
 
 - **mammoth microcalc (Obj 1 de B5) — COMPLETADO Y ANALIZADO**: job **4229**
   (3 binarias × k=5 × 2 brazos, ~9h40m). **Veredicto**: mammoth NO es palanca
@@ -54,8 +54,16 @@ según los pedidos de Benjamín (1-jun):
     en el working-tree COMPARTIDO borró `data/csv_new_tasks/` → `FileNotFoundError` en fold
     1 ([[working-tree-compartido-job-en-curso]], workaround H). Parcial segregado en
     `results/failed_runs/4241_*` (NO usar).
-  - **Invasión linfática 3-clase (GROUP=invasion, ~25h) NO lanzada** — 2ª ola deliberada,
-    con OK + cortesía GPU. Es la mejor chance de señal estable (n=2814 vs ~330).
+  - **Invasión linfática 3-clase (GROUP=invasion) — COMPLETADA Y ANALIZADA**: job **4246**
+    (3-clase × k=5 × 2 brazos = 10 runs, cerró 5-jun 06:18). **Veredicto**: mammoth tampoco
+    es palanca — Δ bal_acc −0.047 ± 0.064 (banda ambigua, lean negativo 4/5) y **regresión
+    leve consistente en AUC** (−0.011 ± 0.005, 5/5 folds−), por **mayor colapso a la
+    mayoritaria** `no_identificado` (recall presente 0.577→0.434). El n más grande del hilo
+    (2814) y el eval más sano no rescataron a mammoth → confirma cuello = datos. Detalle:
+    `objetivo_2_mammoth_patron_invasion/resultados_invasion.md` (análisis
+    `scripts/analyze_invasion.py`; figuras en `figuras/slide_assets/`). **→ Cierra el hilo
+    mammoth: 8 tareas pareadas k=5, 0 palancas.** Próximo foco = ejes de datos (magnificación,
+    parches útiles), no más swaps de modelo.
   > Nota de numeración: la tabla del plan numera por pedido de Benjamín (1=mammoth
   > microcalc, 2=magnificación...). El dir `objetivo_2_mammoth_patron_invasion` es la
   > **continuación del hilo mammoth**, NO el "Objetivo 2 = magnificación" del plan.

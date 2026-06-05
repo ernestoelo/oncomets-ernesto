@@ -719,10 +719,17 @@ re-validar y actualizar `docs/codebase_map.md`.
     (banda H0). Régimen "ciego" (micro/papilar, 3 pos/test) se lee **pooled** los ~15
     positivos de los 5 folds, no fold a fold → ambos brazos casi no detectan (TP global
     4/15 y 2/15). **Refuerza el cuello = datos / desbalance / contexto espacial** (mismo
-    cierre que Hallazgo 11 para el agregador). Invasión linfática 3-clase (n=2814, mucho
-    más dato) es la 2ª ola natural, no lanzada. Detalle:
-    `sprints/B5_sprint5/objetivo_2_mammoth_patron_invasion/resultados.md` + README
-    consolidado `results/README_experimentos_mammoth_environ.md` §4.b + memoria
+    cierre que Hallazgo 11 para el agregador). **2ª ola CERRADA (invasión linfática
+    3-clase, n=2814 — el n más grande del hilo y el eval más sano: cada clase n≥36/test,
+    lectura fold-a-fold; job 4246, 5-jun):** mammoth **tampoco es palanca** — Δ bal_acc
+    −0.047 ± 0.064 (banda ambigua por magnitud, lean negativo 4/5) y **regresión leve
+    consistente en macro-OVR AUC** (−0.011 ± 0.005, **5/5 folds−**), por **mayor colapso a
+    la mayoritaria** `no_identificado` (recall 0.792→0.815) a costa de `presente`
+    (0.577→0.434). El mayor poder estadístico **no rescató** a mammoth: lo afinó (expuso un
+    signo negativo consistente que en las binarias hambrientas quedaba en ruido). **Cierra
+    el hilo mammoth: 8 tareas (3 microcalc + 4 patrón + 1 invasión), 0 palancas.** Detalle:
+    `sprints/B5_sprint5/objetivo_2_mammoth_patron_invasion/{resultados.md,resultados_invasion.md}`
+    + README consolidado `results/README_experimentos_mammoth_environ.md` §4.b/§4.c + memoria
     [[mammoth-investigacion-integracion]].
 
 ## Entorno conda — deps esperadas

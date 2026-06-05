@@ -136,8 +136,10 @@ parches útiles, más positivos) y no hacia más swaps de arquitectura.
 
 Esto **no descarta** mammoth en absoluto: cribiforme deja la puerta abierta a que, con
 una tarea balanceada + más datos, el mecanismo (instance-gradient interference) rinda.
-La 2ª ola natural es **invasión linfática** (3 clases, n=2814 — mucho más dato), aún no
-lanzada.
+La 2ª ola natural fue **invasión linfática** (3 clases, n=2814 — mucho más dato): **CERRADA**
+(job 4246, 5-jun) y la puerta quedó **cerrada** — mammoth tampoco es palanca ahí (regresión
+leve consistente vía colapso a la mayoritaria; el n grande no rescató). Detalle:
+`resultados_invasion.md`. Con eso el hilo mammoth queda cerrado (8 tareas, 0 palancas).
 
 ## Trazabilidad
 

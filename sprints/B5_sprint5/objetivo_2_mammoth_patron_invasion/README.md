@@ -139,4 +139,6 @@ Aplica **por tarea** (5 comparaciones paired independientes):
 - [x] **Resultados patrón analizados** (`resultados.md`, política eval B5): mammoth NO es
   palanca — lean+ leve solo en cribiforme (balanceada); nulo en el resto. README
   consolidado `results/README_experimentos_mammoth_environ.md` §4.b COMPLETO.
-- [ ] 2ª ola: invasión 3-clase (GROUP=invasion, ~25h) — no lanzada (con OK + cortesía GPU).
+- [x] 2ª ola: invasión 3-clase (GROUP=invasion, job 4246, 10 runs) — **CERRADA 5-jun 06:18**:
+  mammoth tampoco es palanca (Δbal −0.047±0.064 lean negativo; ΔAUC −0.011±0.005 5/5−; colapso a
+  la mayoritaria). Cierra el hilo mammoth. Detalle: `resultados_invasion.md`.

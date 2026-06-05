@@ -169,13 +169,25 @@ resultado es el **régimen de datos**, no el agregador/patch-embed → el cuello
 desbalance / contexto espacial**, no la arquitectura. Apunta el esfuerzo a datos
 (magnificación, parches útiles, más positivos), no a más swaps de modelo.
 
-### 4.c Invasión linfática 3-clase (EN CURSO — job 4246, lanzado 4-jun)
+### 4.c Invasión linfática 3-clase (COMPLETO — job 4246, 10 runs, cerró 5-jun 06:18)
 
-> **RUNNING** (`GROUP=invasion`, 10 runs = 3-clase × k=5 × 2 brazos, ~20-25h, ETA ~5-jun).
-> Es la mejor chance de señal estable por el n grande (2814 vs ~330 de las binarias).
-> Vigilar **colapso a `no_identificado`** (mayoritaria 70%, trivial bal_acc 0.333) vía la
-> confusión 3×3. _Tabla pendiente hasta que termine; resultados se leerán con balanced_acc
-> + macro-OVR AUC + confusión 3×3 + n (política eval B5)._
+> **Veredicto: mammoth NO es palanca** (cierra el hilo). El n más grande del hilo (2814) y
+> el eval más sano (cada clase n≥36/test → fold-a-fold, no pooled) **no rescatan** a mammoth.
+
+| brazo | bal_acc (media±std) | macro-OVR AUC | trivial |
+|---|---|---|---|
+| CLAM (baseline) | 0.622 ± 0.028 | 0.828 ± 0.021 | 0.333 |
+| CLAM + Mammoth | 0.575 ± 0.057 | 0.818 ± 0.019 | 0.333 |
+| **Δ pareado (mam − clam)** | **−0.047 ± 0.064** (1+/4−) | **−0.011 ± 0.005** (0+/5−) | — |
+
+> Δ bal_acc en **banda ambigua** por magnitud (std > |media|) pero con **lean negativo**
+> 4/5; Δ AUC **regresión leve consistente** (5/5 folds−, no cruza 0). Mecanismo = **mayor
+> colapso a la mayoritaria** `no_identificado`: recall 0.792→0.815, a costa de `presente`
+> 0.577→0.434 (confusión 3×3 sumada). Encaja con el **efecto gated por balance** (§4.b):
+> invasión es fuertemente desbalanceada (70% mayoritaria) → mammoth inclina a la mayoritaria.
+> Detalle + figuras: `$REPO/sprints/B5_sprint5/objetivo_2_mammoth_patron_invasion/resultados_invasion.md`
+> (análisis `$REPO/scripts/analyze_invasion.py`). _Política eval B5: balanced_acc + macro-OVR
+> AUC + confusión 3×3 + n, sin gate._
 
 ---
 
