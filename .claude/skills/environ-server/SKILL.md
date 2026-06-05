@@ -46,8 +46,8 @@ Referencia del entorno compartido. **Todo bajo `clam_environ/` es READ-ONLY**
 
 | Dir | Slides | Dim | Extractor |
 |---|---|---|---|
-| `environ/features/pt_files/` | **2935** | **512** | **CONCH v1** (principal) |
-| `environ/features/h5_files/` | 2935 | — | coords/patches |
+| `environ/features/pt_files/` | **~3013** | **512** | **CONCH v1** (principal) |
+| `environ/features/h5_files/` | ~3013 | — | coords/patches |
 | `environ/features_resnet/pt_files/` | 344 | 1024 | ResNet50 (legacy) |
 | `environ/features_256/pt_files/` | 344 | 512 | CONCH @ patch 256 |
 
@@ -75,7 +75,7 @@ stale → `--auto-label-dict` los sobre-escribe desde el CSV.
 |---|---|
 | `<task>_100` | privado (`_100` = label_frac 100%) |
 | `<task>_combined_100` | privado + TCGA |
-| `<task>_pth_100` | privado + TCGA + HistAI (**conjunto grande**, ~2935 slides) |
+| `<task>_pth_100` | privado + TCGA + HistAI (**conjunto grande**, ~3013 slides) |
 
 Cada dir: `splits_0.csv` (verdad de campo), `splits_0_bool.csv`,
 `splits_0_descriptor.csv` (puede estar stale → cross-check con `@csv-audit`).

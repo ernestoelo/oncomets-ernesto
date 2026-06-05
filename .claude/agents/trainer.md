@@ -79,7 +79,7 @@ bloquea si la regla no se cumple.
   - `main.py`, `eval.py`, `create_splits_seq.py` en raíz
   - `environ/` con datos: `csv_privado/` / `csv/` (labels) +
     `splits/<task>_{100,combined_100,pth_100}/` +
-    `features/pt_files/` (CONCH 512-dim, 2935 slides)
+    `features/pt_files/` (CONCH 512-dim, ~3013 slides)
   - `run_all_training.sh`, `train_task.slurm`, `run_training.slurm`,
     `run_extract_features.slurm`, `run_eval_comparative.slurm`
 - `main.py` toma **`--split_dir`**, NO `--csv_path`.
@@ -166,7 +166,7 @@ Entender:
 Features `.pt` ya extraídas (NO re-extraer):
 
 ```bash
-ls /media/administrador/Storage1/sdonoso/clam_environ/environ/features/pt_files/ | wc -l   # 2935 (CONCH 512-dim)
+ls /media/administrador/Storage1/sdonoso/clam_environ/environ/features/pt_files/ | wc -l   # ~3013 (CONCH 512-dim; crece)
 ls /media/administrador/Storage1/sdonoso/clam_environ/environ/features_resnet/pt_files/    # 1024-dim legacy
 ```
 

@@ -285,8 +285,8 @@ clam_environ/
 
 ```
 environ/
-├── features/pt_files/        ← 2935 slides, features CONCH v1, [N_parches, 512] float32
-├── features/h5_files/        ← coords/patches (h5), 2935
+├── features/pt_files/        ← ~3013 slides (live 5-jun-2026; crece, `ls|wc -l`), features CONCH v1, [N_parches, 512] float32
+├── features/h5_files/        ← coords/patches (h5), ~3013
 ├── features_resnet/pt_files/ ← 344 slides, ResNet50, [N, 1024]  (LEGACY)
 ├── features_256/pt_files/    ← 344 slides, CONCH @ patch 256, [N, 512]
 ├── csv_privado/              ← labels solo Environn (~533 slides)

@@ -164,3 +164,77 @@ progress/current.md):
 Commits granulares en `chore/audit-coherencia-b5`. **Push y merge a main los
 autoriza Ernesto.** Todas las recomendaciones (A–F) quedaron aplicadas; G no
 requería acción.
+
+---
+
+# Pasada incremental — 5-jun-2026 (post-cierre mammoth + apertura retrieval)
+
+> Generado: 2026-06-05. Contexto: hilo mammoth CERRADO (8 tareas, 0 palancas);
+> nueva dirección de investigación = **retrieval** (deliverable
+> `sprints/B5_sprint5/investigacion_retrieval/analisis.md`). Misión del handoff
+> `handoff_B5_20260605_102938.md` paso 1: coherencia post-mammoth + **capturar**
+> la dirección retrieval como conocimiento descubrible. Sesión documental (no
+> GPU — `squeue` vacío; no modelo). Rama al correr: `main` (en sync con origin).
+
+## Resumen ejecutivo (pasada 5-jun)
+
+| # | Hallazgo | Severidad | Acción |
+|---|---|---|---|
+| H | Conteo de features CONCH **2935** en 4 fuentes canónicas, pero el conteo vivo es **3013** `.pt` (y 3013 `.h5`) — el dataset creció desde el recon (19-may) | stale/error | **FIX** (CLAUDE.md + skill `@environ-server` + `trainer.md` + `docs/environ_server.md`; B4 recon = histórico, NO se toca) |
+| I | Dirección **retrieval** (variantes A/B/C/D, recomendación D primario / B secundario) sin captura descubrible: no hay memoria, `progress/current.md` no la menciona | captura | **FIX** (nueva memoria `retrieval-investigacion-b5` + línea en `MEMORY.md` + nota en `progress/current.md`) |
+| J | Cierre mammoth/invasión: coherente entre `progress/current.md`, CLAUDE.md Hallazgo 12 y memoria `mammoth-investigacion-integracion` | verificado, sin issue | sin acción (el handoff lo predijo: "el cierre de invasión ya se auditó") |
+
+---
+
+## H. Stale/error — conteo de features CONCH (2935 → 3013)
+
+**Qué dice cada fuente** (todas afirman **2935**):
+- `CLAUDE.md:288-289` (estructura de datos: `features/pt_files/` y `h5_files/`).
+- `.claude/skills/environ-server/SKILL.md:49,50,78`.
+- `.claude/agents/trainer.md:82,169` (incl. el comando de verificación con `# 2935`).
+- `docs/environ_server.md:63`.
+- `sprints/B4_sprint4/reconocimiento_entorno.md:167,168,181,205,307` — **HISTÓRICO**
+  (snapshot ddel recon 19-may-2026). **NO se edita**: era verdad esa fecha; reescribir
+  un doc-fecha rompería su valor de registro (criterio "preserve pre-registration").
+
+**Verdad de campo (5-jun-2026):**
+```
+ls .../environ/features/pt_files/*.pt | wc -l  → 3013
+ls .../environ/features/h5_files/*.h5  | wc -l  → 3013
+```
+**Cuál es correcta:** 3013 (conteo vivo, pt y h5 consistentes). El dataset
+**creció** +78 slides desde el recon. No es un error de medición; es drift de un
+dataset compartido y vivo.
+
+**Fix (durable, no hardcodear un número que vuelve a quedar stale):** en las
+fuentes canónicas, poner **~3013 (live 5-jun-2026; el dataset crece — verificar
+con `ls … | wc -l`)**. Severidad baja: lo que define qué slides se usan es el
+**split**, no el conteo crudo; pero la cifra canónica debe reflejar la realidad.
+
+## I. Captura — dirección retrieval como conocimiento descubrible
+
+**Gap:** la investigación retrieval (4 variantes, 2 papers leídos, recomendación
+razonada) vive solo en `investigacion_retrieval/analisis.md`. Sin memoria ni
+puntero en `progress/current.md`, una sesión futura no la "descubre".
+
+**Fix:** (a) memoria `retrieval-investigacion-b5` (type project) con el veredicto
++ punteros; (b) línea en `MEMORY.md`; (c) nota en `progress/current.md`
+ligándola al Eje B (parches útiles = variante C) y marcando D como entregable
+lucible. Captura análoga a la de CAP (Hallazgo cap-fuente-clases-tareas).
+
+## J. Verificado coherente — cierre mammoth/invasión (sin acción)
+
+Cross-lectura: `progress/current.md` (Obj 1/1b COMPLETADOS, "8 tareas, 0
+palancas"), CLAUDE.md Hallazgo 12 (mismo veredicto + números invasión), memoria
+`mammoth-investigacion-integracion` ("HILO MAMMOTH CERRADO"). **Sin
+contradicción** — el cierre ya estaba auditado (commit `0dd32f4`). Confirmado.
+
+## Plan de fixes (pasada 5-jun)
+
+1. **H** — reconciliar conteo en CLAUDE.md + `@environ-server` + `trainer.md` +
+   `docs/environ_server.md` (B4 recon NO se toca).
+2. **I** — memoria `retrieval-investigacion-b5` + `MEMORY.md` + `progress/current.md`.
+
+Edits aplicados en el working-tree (rama `main`). **Commit / branch destino:
+los decide Ernesto** (default CLAUDE.md = commits locales, push lo hace Ernesto;
+y la rama no se asume — se pregunta).

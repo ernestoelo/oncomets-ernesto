@@ -60,7 +60,7 @@ Si algo diverge al primer arranque, anotar en la "Bitácora" al final.
 
 ## Datos y features (resumen — detalle en `@environ-server`)
 
-- Features CONCH v1: `environ/features/pt_files/` — **2935 slides, 512-dim**.
+- Features CONCH v1: `environ/features/pt_files/` — **~3013 slides, 512-dim** (live 5-jun-2026; crece).
 - ResNet legacy: `environ/features_resnet/pt_files/` — 1024-dim.
 - **No hay `.pth`**; el sufijo `_pth` = "privado+TCGA+HistAI".
 - CSVs: `csv_privado/` (Environ), `csv_tcga/`, `csv_histai/`, `csv/` (combinado).

@@ -71,6 +71,19 @@ según los pedidos de Benjamín (1-jun):
   `pip install -e` reapuntado → `import mammoth` resuelve dentro de containment.
 - **GPU**: job ajeno `sgaete` (feature extraction, job 4242) corría al cierre — cortesía.
 
+### Nueva dirección (5-jun): investigación retrieval (fase argumento)
+
+Cerrado el hilo mammoth, Ernesto propuso explorar **retrieval**. Investigación
+**sin código/GPU** (regla 9): deliverable
+`sprints/B5_sprint5/investigacion_retrieval/analisis.md` (4 variantes A/B/C/D,
+2 papers leídos). **Recomendación**: **D (CBIR, buscador de slides parecidas)**
+primario para la presentación (bajo riesgo, usa CONCH as-is, NO entrena, CPU) +
+**B (few-shot estilo PathPT)** secundario para research. **A descartado**
+(mammoth #2); **C = el Eje B "parches útiles" (Obj 4)** ya en plan. Los 2 papers
+(PathPT, Zero-Shot Retrieval) **confirman cuello=datos** (*"ceiling imposed by
+limited data"*). Memoria [[retrieval-investigacion-b5]]. Próximo paso si Ernesto
+elige D: pre-registración regla 9 + branch + reviewer (otra sesión).
+
 ### Reglas que gobiernan el sprint (de CLAUDE.md)
 
 - Argumento antes de código (regla 9) + reviewer antes de commitear modelo/training.
