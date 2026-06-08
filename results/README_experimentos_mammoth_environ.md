@@ -123,6 +123,28 @@ confusión + n por clase. Métrica decisiva = **Δ pareado por fold** (`mammoth 
 media ± std. Sin gate numérico; interpretación cualitativa (consistencia de signo,
 varianza, vs trivial). Binarias = ROC-AUC; invasión = macro one-vs-rest.
 
+### 4.0 Resumen AUC por tarea — media y mejor de los 5 folds (pedido reunión 8-jun)
+
+`test_auc` extraído de `summary.csv` (`folds,test_auc,...`) de cada run, k=5 paired.
+**media** = promedio de los 5 folds; **mejor** = máximo de los 5 folds. Binarias = ROC-AUC;
+invasión = macro one-vs-rest. Ambos brazos (CLAM / CLAM+Mammoth) leen los mismos
+`splits_<f>.csv` (`$REPO/data/splits_kfold/<dir>/`, 5 folds c/u).
+
+| Tarea (`--task`) | Dataset (fuente · n) | Split dir (`$REPO/data/splits_kfold/`) | CLAM media | CLAM mejor | +Mammoth media | +Mammoth mejor |
+|---|---|---|---|---|---|---|
+| `microcalcificaciones_en_carcinoma_invasivo_pth` | _pth (priv+TCGA+HistAI) · 333 | `microcalcificaciones_en_carcinoma_invasivo_pth_100/` | 0.732 | 0.842 | 0.722 | 0.846 |
+| `microcalcificaciones_en_cdis_pth` | _pth · 333 | `microcalcificaciones_en_cdis_pth_100/` | 0.652 | 0.740 | 0.618 | 0.737 |
+| `microcalcificaciones_en_tejido_no_neoplasico_pth` | _pth · 333 | `microcalcificaciones_en_tejido_no_neoplasico_pth_100/` | 0.646 | 0.688 | 0.678 | 0.830 |
+| `cdis_patron_cribiforme_pth` | _pth (HistAI200+TCGA238+Priv75) · 513 | `cdis_patron_cribiforme_pth_100/` | 0.710 | 0.786 | 0.732 | 0.800 |
+| `cdis_patron_solido_pth` | _pth · 513 | `cdis_patron_solido_pth_100/` | 0.700 | 0.763 | 0.679 | 0.776 |
+| `cdis_patron_micropapilar_pth` | _pth · 513 | `cdis_patron_micropapilar_pth_100/` | 0.727 | 0.903 | 0.722 | 0.931 |
+| `cdis_patron_papilar_pth` | _pth · 513 | `cdis_patron_papilar_pth_100/` | 0.616 | 0.722 | 0.570 | 0.722 |
+| `invasion_linfatica_vascular_pth` (macro-OVR) | _pth (HistAI1418+TCGA864+Priv532) · 2814 | `invasion_linfatica_vascular_pth_100/` | 0.828 | 0.867 | 0.818 | 0.848 |
+
+> La media/mejor AUC es **resumen descriptivo**; el **veredicto** del hilo usa el Δ pareado
+> por fold + balanced_acc (§4.a–4.c). Mammoth NO es palanca en ninguna (lean+ leve solo en
+> `tejido` y `cribiforme`, las 2 más balanceadas; regresión leve consistente en invasión).
+
 ### 4.a Microcalcificaciones (COMPLETO — 2-jun)
 
 **Veredicto: Mammoth NO es palanca** (señal dominada por varianza en las 3). Detalle:
