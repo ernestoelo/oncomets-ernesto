@@ -51,7 +51,7 @@ Acceso: **VPN oficial Environ + SSH**. Stack registrado el 19 may 2026
 /media/administrador/Storage1/sdonoso/
 ├── clam_environ/        ← CODEBASE CLAM de Sebastián. READ-ONLY. No tocar.
 │   └── environ/         ← DATOS del proyecto (features .pt, CSVs, splits). READ-ONLY.
-├── clam_testing/        ← workspace de OTRA persona. NO entrar a escribir.
+├── clam_testing/        ← workspace COMPARTIDO y activo (owner sdonoso; Sebastián/sgaete y otros corren ahí). Read-only por defecto; escribir solo si Sebastián lo pide (regla 3.a).
 └── clam_testing2/       ← MI workspace (todo lo mío vive acá; ver "Workspace containment")
     ├── oncomets-ernesto/        ← este repo
     └── CLAM_official_reference/ ← CLAM oficial Mahmood Lab (REFERENCE ONLY — not in PYTHONPATH)
@@ -414,7 +414,20 @@ sbatch. El reviewer lo verifica como parte del checklist.
 2. **NO modificar** nada bajo `clam_environ/` — codebase y datos de
    Sebastián, **read-only absoluto**. Cambios de comportamiento → wrapper o
    copia local en mi workspace.
-3. **NO entrar a escribir** en `clam_testing/` — workspace de otra persona.
+3. **NO entrar a escribir** en `clam_testing/` por defecto — es un workspace
+   **compartido y activo** (owner `sdonoso`; Sebastián/`sgaete` y otros corren jobs
+   ahí, NO es una carpeta durmiente "de otra persona" ni "ex-Eduardo"; el `MAMMOTH/`
+   legacy de Eduardo convive con trabajo vivo del resto). Read-only salvo 3.a.
+   - **3.a — Excepción quirúrgica autorizada por Sebastián.** Si Sebastián pide
+     **explícitamente** dejar un entregable puntual en `clam_testing/` (precedente:
+     `clam_testing/README.md` con los resultados k=5, 8-jun-2026), se permite escribir
+     **solo ese archivo** — mismo molde que la excepción `chmod 600 ~/.ssh/...` (Reglas
+     de commit y push): acotada a *ese* objetivo, NO abre clam_testing a escritura libre.
+     **NO** se commitea en el git de clam_testing (repo ajeno). El árbol es compartido y
+     con jobs vivos → aplica workaround H (no cambiar de rama / no tocar archivos que lean
+     jobs en curso). La **fuente canónica/versionada** de cualquier doc así vive SIEMPRE en
+     este repo (`oncomets-ernesto/`); la copia en clam_testing es derivada. Surfacear +
+     confirmar antes de escribir. Memoria [[clam-testing-workspace-compartido]].
 4. **NO escribir/mover/borrar fuera** de
    `clam_testing2/oncomets-ernesto/`.
 5. **Validación factual**: toda afirmación técnica se valida contra el paper

@@ -238,3 +238,82 @@ contradicción** — el cierre ya estaba auditado (commit `0dd32f4`). Confirmado
 Edits aplicados en el working-tree (rama `main`). **Commit / branch destino:
 los decide Ernesto** (default CLAUDE.md = commits locales, push lo hace Ernesto;
 y la rama no se asume — se pregunta).
+
+---
+
+# Pasada incremental — 8-jun-2026 (reunión Sebastián: registrar resultados en clam_testing)
+
+> Generado: 2026-06-08. Contexto: tras reunión con Sebastián, pedido de **registrar los
+> resultados k=5 (media + mejor AUC por tarea, ruta de split, dataset) en un README de
+> `clam_testing/`**. Al ejecutarlo emergió que la premisa "carpeta ex-Eduardo" no calza con
+> el estado real del árbol. Sesión documental + un write autorizado a `clam_testing/`
+> (excepción a reglas duras, ver L). Rama al correr: `main` (en sync con origin tras
+> `git fetch`). Jobs vivos al momento (`squeue`): 4291 (scontrer), 4296 (gvenegas) RUNNING;
+> 4297 (capstone), 4298 (**sgaete** mammoth_) PENDING — **no se tocan**; los edits son
+> markdown en MI repo + un README nuevo (untracked) en clam_testing → no afectan inputs de
+> ningún job ni cambian de rama (workaround H respetado).
+
+## Resumen ejecutivo (pasada 8-jun)
+
+| # | Hallazgo | Severidad | Acción |
+|---|---|---|---|
+| K | `clam_testing/` descrito como "workspace de **OTRA persona**" (CLAUDE.md:54 + regla 3:417) y como "carpeta de Eduardo… heredada" (memoria `equipo-arquitecturas-mammoth-longnet:14`). Realidad 8-jun: workspace **COMPARTIDO y ACTIVO** — owner `sdonoso`; **`sgaete` (Sebastián, supervisor) corre ahí HOY** (`run_mammoth_5fold_balanced.slurm` 17:48, jobs 4276/4277/4278 + 4298 PENDING), también `jbarraza`. El legacy MAMMOTH/ de Eduardo (may-8) sigue, pero la carpeta NO está durmiente. | stale/error | **FIX** (CLAUDE.md:54 + regla 3 + memoria equipo) |
+| L | Escritura en `clam_testing/` (creado `README.md` con resultados k=5) **autorizada explícitamente por Sebastián** — excepción quirúrgica a reglas duras 3/4 + containment, **sin documentar**. Sin nota, una sesión futura o rechaza un pedido legítimo del supervisor, o (peor) lee "ya escribimos ahí" y trata clam_testing como libremente escribible. | excepción regla dura | **FIX aditivo** (sub-cláusula en regla 3, espejo del precedente `~/.ssh`; memoria nueva) |
+| M | Tras el write hay **dos** READMEs de resultados en clam_testing: el puntero stub `README_experimentos_mammoth_environ.md` ("MOVIDO — editar en repo") y el `README.md` nuevo. Ambos declaran que la **fuente canónica/versionada es el doc del repo** (`results/README_experimentos_mammoth_environ.md`). | redundancia gestionada | sin fix (nota): canónico = repo; copias en clam_testing son derivadas/conveniencia. |
+
+---
+
+## K. Stale/error — `clam_testing/` no es "workspace de otra persona" durmiente
+
+**Qué dice cada fuente:**
+- `CLAUDE.md:54` (Paths críticos): *"clam_testing/ ← workspace de OTRA persona. NO entrar a escribir."*
+- `CLAUDE.md:417` (regla 3): *"NO entrar a escribir en clam_testing/ — workspace de otra persona."*
+- Memoria `equipo-arquitecturas-mammoth-longnet:14`: *"clam_testing/ (carpeta de Eduardo, antes 'otra persona', ahora heredada)."*
+
+**Verdad de campo (8-jun-2026, `ls -la` + `squeue`):** owner `sdonoso`; archivos y jobs
+**activos** de `sgaete` (Sebastián Gaete — supervisor: `run_mammoth_5fold_balanced.slurm`
+tocado 17:48 hoy, `results_mammoth_5fold_balanced/`, jobs 4276/4277/4278, **4298 PENDING**)
+y de `jbarraza` (`analyze_*.py`, `generate_report.py`, `run_*sweep*.slurm`). El `MAMMOTH/`
+de Eduardo (may-8) y `ESTUDIO_papilar_v2.md` siguen ahí, pero la carpeta es un **workspace
+compartido vivo**, no la carpeta durmiente de un ex-colaborador.
+
+**Cuál es correcta:** la realidad observada. El framing "otra persona / ex-Eduardo" llevó a
+tratar la carpeta como dormida cuando el propio Sebastián opera ahí en paralelo. Importa
+operativamente: refuerza workaround H (árbol compartido, jobs vivos) y explica por qué
+escribir ahí necesita cuidado (no es "mi" workspace ni uno muerto).
+
+**Fix:** reescribir CLAUDE.md:54 + regla 3 a "workspace **compartido** (owner `sdonoso`;
+Sebastián y otros operan ahí) — **read-only por defecto**", y corregir la memoria de equipo.
+NO se toca el matiz histórico (mammoth SÍ se heredó de Eduardo — sigue siendo cierto).
+
+## L. Excepción regla dura — write autorizado por Sebastián a `clam_testing/`
+
+- Reglas duras: `CLAUDE.md:417` (regla 3, no escribir en clam_testing), `:418` (regla 4,
+  no escribir fuera de clam_testing2), "Workspace containment" (*"Sin excepción"*).
+- **Acción ejecutada esta sesión**: creado `clam_testing/README.md` (resultados k=5: media +
+  mejor AUC por tarea, ruta de split, dataset) **a pedido explícito de Sebastián** en la
+  reunión. Surfaced antes de escribir (AskUserQuestion ×2: destino + archivo) y autorizado.
+- **Precedente análogo ya en CLAUDE.md**: el `chmod 600 ~/.ssh/...` ("Reglas de commit y
+  push") = excepción **quirúrgica** al containment, legítima por contexto (claves de Ernesto)
+  y acotada a *ese* objetivo. Mismo molde acá: un **entregable puntual que Sebastián pide
+  explícitamente**, acotado a *ese archivo* — NO abre clam_testing a escritura libre.
+- **Fix (aditivo, regla dura → se aclara, no se reescribe el sentido):** sub-cláusula en
+  regla 3 documentando la excepción quirúrgica autorizada por el supervisor (con el
+  precedente `README.md` 8-jun) y reiterando default read-only + cuidado con jobs vivos
+  (workaround H). Memoria nueva `clam-testing-workspace-compartido` como fact atómico.
+
+## M. Redundancia gestionada — dos READMEs de resultados en clam_testing (sin fix)
+
+El `README.md` nuevo y el puntero stub coexisten; ambos apuntan al canónico del repo. No es
+contradicción: la **fuente versionada es el repo** (sobrevive a limpiezas del workspace
+compartido y es citable desde GitHub). Se deja constancia para que una sesión futura edite
+SIEMPRE el doc del repo y trate las copias en clam_testing como derivadas.
+
+## Plan de fixes (pasada 8-jun)
+
+1. **K** — CLAUDE.md:54 + regla 3 (caracterización compartido/activo) + memoria
+   `equipo-arquitecturas-mammoth-longnet:14`.
+2. **L** — sub-cláusula aditiva en regla 3 (excepción quirúrgica autorizada por Sebastián) +
+   memoria nueva `clam-testing-workspace-compartido` + línea en `MEMORY.md`.
+
+Edits en el working-tree (rama `main`). **Commit / branch destino: los decide Ernesto.**
