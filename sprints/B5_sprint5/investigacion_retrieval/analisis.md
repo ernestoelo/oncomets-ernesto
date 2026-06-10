@@ -323,6 +323,25 @@ SOTA); **(b)** el *lever* genuino para el cuello (texto + grounding + few-shot),
 pero **(c)** con la advertencia de que rinde según el modelo base, y CONCH no es
 el campeón → **apuesta de research, no de pista corta**.
 
+> **NOTA (addendum 10-jun-2026 — audit de coherencia, hallazgo O).** El punto 3 de
+> arriba (escrito el 5-jun con lectura parcial) era **demasiado pesimista** sobre CONCH.
+> La lectura *completa* del paper lo matiza con evidencia sólida:
+> - **Fig 1d (caption):** PathPT-**CONCH** es el mejor en **9/11** benchmarks vs los
+>   baselines MIL (incl. **CLAM**); PathPT-KEEP 8/11. → con CONCH, PathPT **le gana a CLAM**
+>   en la mayoría de tareas, no es "moderado/null".
+> - **§4.5 del paper:** el loop de **pseudo-labels (self-training) se habilita SOLO con
+>   CONCH y KEEP** (PLIP/MUSK lo apagan por inestable) → CONCH está en el **tier confiable**.
+> - El *underperform* de CONCH es **específico de EBRAINS** (30 subtipos). Nuestras tareas
+>   son de **2–4 clases** → régimen **favorable** de CONCH.
+>
+> **Reconciliación:** "null #2" aplica a regímenes de *muchos subtipos* con grounding pobre,
+> NO a nuestras 2–4 clases. El riesgo **reformulado** = ¿CONCH groundea zero-shot **nuestra**
+> morfología puntual (necrosis, microcalc, invasión, cribiforme)? — **no testeado, pero
+> barato de chequear** (etiquetado zero-shot CPU = **go/no-go antes de GPU**). *(Cautela: la
+> evidencia firme es Fig 1d + tier de pseudo-labels + fallo específico EBRAINS; no afirmar
+> números por-backbone que el dotplot deja ambiguos.)* Reunión 10-jun: Sebastián elevó PathPT
+> a **prueba activa** → ver `pathpt/funcionamiento_pathpt.md` y [[pathpt-testing-necrosis-mitotic]].
+
 ---
 
 ## 5. Análisis comparativo y recomendación razonada

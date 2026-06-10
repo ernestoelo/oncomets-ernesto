@@ -317,3 +317,128 @@ SIEMPRE el doc del repo y trate las copias en clam_testing como derivadas.
    memoria nueva `clam-testing-workspace-compartido` + línea en `MEMORY.md`.
 
 Edits en el working-tree (rama `main`). **Commit / branch destino: los decide Ernesto.**
+
+---
+
+# Pasada incremental — 10-jun-2026 (reunión Sebastián: PathPT pasa a PRUEBA ACTIVA)
+
+> Disparador: reunión 10-jun cerrada. Sebastián validó PathPT (frame B) y pidió
+> **probarlo ya** — empezar por la tarea **necrosis**, luego **mitotic rate**,
+> generando los embeddings de texto CONCH. Deliverable de Ernesto para el lunes:
+> presentación del FUNCIONAMIENTO de PathPT (con diagramas) + tablas resumen de
+> mammoth + diagrama CLAM con el bloque de capa lineal reemplazado por mammoth.
+> Sesión = estudio + registro (read-only de datos; GPU libre, sin lanzar nada).
+
+## Resumen ejecutivo (pasada 10-jun)
+
+La reunión **cambió la prioridad**: PathPT deja de ser "research del trimestre
+siguiente" (framing del 5-jun) y pasa a **prueba activa**. Eso vuelve **stale** la
+dirección registrada el 5-jun (D primario / B secundario) y obliga a **refinar el
+caveat CONCH≠KEEP**, que la lectura *completa* del paper matiza (era demasiado
+pesimista). Se **registra la base de conocimiento de PathPT** (arquitectura + 7
+ecuaciones + relación CONCH↔PathPT↔CLAM + mecanismo de pseudo-labels + el requisito
+de construir prompts) como doc canónico para el deliverable, y la **verdad de campo**
+de las 2 tareas nuevas. Hallazgo colateral surfaced: el README mammoth tiene cambios
+ajenos sin commitear (no se toca).
+
+| id | hallazgo | sev. | acción |
+|---|---|---|---|
+| N | Stale: dirección retrieval (5-jun) superada por reunión 10-jun | media | update `progress/current.md` + addendum a memoria |
+| O | Reconciliar: caveat CONCH≠KEEP demasiado pesimista vs paper completo | media | NOTA dated en `analisis.md` §4.2 (aditiva) |
+| P | Captura: base de conocimiento PathPT (arquitectura/ecuaciones/relación) | **alta** | nuevo doc `pathpt/funcionamiento_pathpt.md` + memoria |
+| Q | Verdad de campo: CSVs necrosis + mitotic (clases/conteos) | **alta** | tabla en el doc nuevo |
+| R | Surface (sin fix): README mammoth con 91 líneas ajenas sin commitear | info | NO tocar; documentar |
+| S | Verificado coherente: agentes/skills/regla 9 aplican a PathPT | — | sin acción |
+
+## N. Stale — dirección retrieval (5-jun) superada por la reunión 10-jun
+
+- **Dice (stale):** `progress/current.md` §"Nueva dirección (5-jun)" y memoria
+  `retrieval-investigacion-b5` → "**D (CBIR) primario** para la presentación; **B
+  (PathPT) secundario para research trimestre siguiente**".
+- **Realidad (10-jun):** Sebastián validó PathPT y pidió **probarlo ahora**
+  (necrosis → mitotic rate). B sube de "no quick-win" a **candidato activo en prueba**.
+- **Canónico:** `progress/current.md` es el snapshot vivo → se actualiza. La memoria
+  era una recomendación **point-in-time** → **no se reescribe**; se le agrega un
+  **addendum dated** (preservar integridad histórica, criterio del skill).
+- **Fix:** update `progress/current.md` (sección dirección + tabla plan) + addendum a
+  `retrieval-investigacion-b5` + línea en `MEMORY.md`.
+
+## O. Reconciliación — el caveat "CONCH≠KEEP / null #2" era demasiado pesimista
+
+- **Dice:** `analisis.md` §4.2 punto 3 → "con CONCH estaríamos en el brazo *moderado*,
+  no el ganador; riesgo real de **null #2**; para ganar habría que conseguir KEEP".
+  (Escrito el 5-jun con lectura parcial del paper.)
+- **La lectura completa lo matiza (evidencia sólida):**
+  - **Fig 1d (caption explícito):** *PathPT-CONCH es el mejor en **9/11** benchmarks*
+    vs los baselines MIL (incl. CLAM); PathPT-KEEP 8/11. → PathPT-CONCH **le gana a
+    CLAM** en la gran mayoría de tareas.
+  - **§4.5:** el loop completo de **pseudo-labels (self-training) se habilita SOLO con
+    CONCH y KEEP** (con PLIP/MUSK lo apagan por inestable) → CONCH está en el **tier
+    confiable**, no es un base "de segunda".
+  - El *underperform* de CONCH es **específico de EBRAINS** (30 subtipos, el más duro).
+    Nuestras tareas son de **2–4 clases**.
+- **Reconciliación (no es contradicción, es matiz):** el riesgo "null #2" es específico
+  de regímenes de **muchos subtipos** con grounding pobre. En nuestras tareas de 2–4
+  clases, CONCH está en su **régimen favorable**. El riesgo **real reformulado** = el
+  *grounding zero-shot task-específico* de **nuestra** morfología (¿CONCH "ve"
+  microcalcificación / necrosis / invasión / patrón cribiforme?), **no testeado** — pero
+  **barato de chequear** (etiquetado zero-shot CPU = go/no-go antes de GPU).
+- **Fix:** **NOTA dated** al final de §4.2 (aditiva, no reescribe el texto original del
+  5-jun). *Cautela de exactitud:* la afirmación sólida es Fig 1d (9/11) + tier de
+  pseudo-labels + fallo específico EBRAINS; NO afirmar números puntuales por-backbone que
+  el dotplot deja ambiguos (ej. quién logró el 0.820 en UBC-OCEAN).
+
+## P. Captura — base de conocimiento PathPT para el deliverable del lunes
+
+- **Problema:** el entendimiento profundo de PathPT (3 componentes, 7 ecuaciones,
+  relación CONCH↔PathPT↔CLAM, mecanismo de pseudo-labels + 3 pérdidas, el requisito de
+  construir prompts y su riesgo) vivía **disperso en la conversación**, sin doc canónico.
+- **Fix:** nuevo doc `sprints/B5_sprint5/pathpt/funcionamiento_pathpt.md` = **base de
+  estudio + fuente de la presentación** (con diagramas ASCII a convertir luego en assets).
+  Memoria `pathpt-testing-necrosis-mitotic` como fact atómico de la nueva dirección.
+
+## Q. Verdad de campo — CSVs de las 2 tareas nuevas (necrosis, mitotic rate)
+
+Verificado read-only contra `clam_environ/environ/csv/` (10-jun):
+
+- **`dataset_carcinoma_ductal_in_situ_necrosis_label.csv`** — 810 slides:
+  `ausente` 83 · `no_identificado` 414 · `presente_central` 285 · `presente_focal` 28.
+- **`dataset_grado_histologico_tasa_mitotica_label.csv`** — 1870 slides:
+  `no_identificado` 693 · `score_1` 636 · `score_2` 287 · `score_3` 254.
+- **Trampa clave:** los CSVs dan **nombres de clase en español**, NO prompts. PathPT
+  necesita **frases clínicas (en inglés, pool de variantes)** para `Φ_t`. `no_identificado`
+  es **mayoritario** y **mal definido a nivel tile** (= "el reporte CAP no lo menciona",
+  no una apariencia) → rompe el supuesto "clase = algo que se ve en el parche".
+- **Fix:** tabla documentada en `funcionamiento_pathpt.md` §verdad-de-campo.
+
+## R. Surface (sin fix) — README mammoth con cambios ajenos sin commitear
+
+- `git status`: `M results/README_experimentos_mammoth_environ.md` (+91 líneas **no mías**).
+- Contenido: *"Entrenamiento Seba dataset pth balanced + Mammoth"* — lista de tareas
+  (tipo histológico, gh aplica, **necrosis**, dif tubular, pleomorfismo; pendientes:
+  grado nuclear, **mitotic rate**, necrosis 2 clases) + conteos `pth balance`.
+- **Lectura:** Sebastián está corriendo **mammoth sobre las MISMAS tareas** que pidió
+  probar con PathPT (necrosis, mitotic) → **habrá baselines CLAM/mammoth** para el paired.
+- **Acción: NINGUNA.** Trabajo ajeno en árbol compartido + `results/` no se commitea en el
+  audit. NO tocar/revertir/commitear (containment + workaround H). Solo se documenta.
+
+## S. Verificado coherente (sin acción)
+
+- `reviewer` y `trainer` (agentes) siguen válidos. **PathPT toca training** (entrena
+  `θ_v` + `θ_t`, usa GPU) → **regla 9 + reviewer + `sbatch` aplican** (≠ el CBIR que era
+  CPU sin entrenar). El doc nuevo lo deja explícito.
+- Skills sin cambios estructurales. `@mil-model-integration` es la receta si PathPT pasa
+  el go/no-go (pero PathPT es harness propio, no un `--model_type` de CLAM como mammoth).
+
+## Plan de fixes (pasada 10-jun)
+
+1. **N** — `progress/current.md`: nueva subsección dated (reunión 10-jun, PathPT activo,
+   necrosis→mitotic, deliverable lunes) + tabla del plan. Addendum a memoria
+   `retrieval-investigacion-b5` + línea `MEMORY.md`.
+2. **O** — NOTA dated aditiva en `analisis.md` §4.2 (refina caveat, no reescribe).
+3. **P** — nuevo `sprints/B5_sprint5/pathpt/funcionamiento_pathpt.md` + memoria
+   `pathpt-testing-necrosis-mitotic` + línea `MEMORY.md`.
+4. **Q** — tabla verdad-de-campo dentro del doc del fix 3.
+5. **R/S** — sin edición (documentados acá).
+
+Edits en el working-tree (rama `main`, GPU libre). **Commit / branch destino: los decide Ernesto.**

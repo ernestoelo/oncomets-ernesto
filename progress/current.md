@@ -84,6 +84,34 @@ primario para la presentación (bajo riesgo, usa CONCH as-is, NO entrena, CPU) +
 limited data"*). Memoria [[retrieval-investigacion-b5]]. Próximo paso si Ernesto
 elige D: pre-registración regla 9 + branch + reviewer (otra sesión).
 
+### Dirección VIGENTE (10-jun): PathPT (frame B) pasa a PRUEBA ACTIVA
+
+**Reunión 10-jun con Sebastián** (supersede el framing del 5-jun): validó PathPT
+como interesante/viable y pidió **PROBARLO ya** — empezar por **necrosis**, luego
+**mitotic rate**, generando los **embeddings de texto CONCH** de cada tarea. Esto
+**eleva B** de "research del trimestre siguiente" a **candidato activo en prueba**.
+(El CBIR/D no se descarta, pero ya no es el foco primario.)
+
+- **Tarea de Ernesto al lunes:** presentación del **funcionamiento/arquitectura de
+  PathPT** (con diagramas) + **tablas resumen mammoth** (slides por clase, clases,
+  tarea, métricas) + **diagrama copia de `Diagrama_CLAM.pptx`** con el bloque de capa
+  lineal reemplazado por **mammoth**. Restricciones: **sin nombres** (Sebastián),
+  **sin proceso de entrenamiento**, genérico/claro/preciso
+  ([[presentacion-convenciones-benjamin]]).
+- **Base de estudio registrada:** `sprints/B5_sprint5/pathpt/funcionamiento_pathpt.md`
+  (arquitectura + 7 ecuaciones + relación CONCH↔PathPT↔CLAM + pseudo-labels + verdad de
+  campo necrosis/mitotic + go/no-go). Memoria [[pathpt-testing-necrosis-mitotic]].
+- **Caveat CONCH≠KEEP refinado** (lectura completa del paper, audit 10-jun, hallazgo O):
+  PathPT-CONCH gana 9/11 benchmarks vs MIL; CONCH habilita el loop de pseudo-labels;
+  el fallo es específico de EBRAINS (30 subtipos). En nuestras 2–4 clases CONCH está en
+  su régimen favorable. Riesgo real = grounding zero-shot de NUESTRA morfología (no
+  testeado) → **go/no-go barato = etiquetado zero-shot CPU antes de invertir GPU**.
+- **PathPT toca training** (entrena `θ_v` + `θ_t`, usa GPU) → **regla 9 + reviewer +
+  `sbatch`** aplican (≠ el CBIR que era CPU sin entrenar).
+- **Contexto del árbol compartido:** Sebastián está corriendo **mammoth sobre las
+  mismas tareas** (necrosis, mitotic; ver notas ajenas sin commitear en el README
+  mammoth) → habrá baselines CLAM/mammoth para la comparación **paired**.
+
 ### Reglas que gobiernan el sprint (de CLAUDE.md)
 
 - Argumento antes de código (regla 9) + reviewer antes de commitear modelo/training.
