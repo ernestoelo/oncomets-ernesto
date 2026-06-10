@@ -1,0 +1,150 @@
+{
+  "tarea": "mitotic",
+  "promptset": "v1",
+  "n_clases": 3,
+  "prompts": {
+    "classnames": [
+      [
+        "breast carcinoma with a low mitotic count",
+        "few mitotic figures",
+        "rare mitoses"
+      ],
+      [
+        "breast carcinoma with an intermediate mitotic count",
+        "occasional mitotic figures"
+      ],
+      [
+        "breast carcinoma with a high mitotic count",
+        "frequent mitotic figures",
+        "numerous mitoses"
+      ]
+    ],
+    "templates": [
+      "CLASSNAME.",
+      "a photomicrograph showing CLASSNAME.",
+      "a histopathology image of CLASSNAME.",
+      "an H&E stained image showing CLASSNAME.",
+      "breast tissue showing CLASSNAME."
+    ],
+    "labels": [
+      "score_1",
+      "score_2",
+      "score_3"
+    ]
+  },
+  "n_evaluadas": 1177,
+  "n_missing_pt": 0,
+  "n_por_clase": {
+    "score_1": 636,
+    "score_2": 287,
+    "score_3": 254
+  },
+  "trivial_balanced_acc": 0.3333,
+  "por_topj": {
+    "1": {
+      "balanced_acc_argmax": 0.4565,
+      "confusion_argmax": [
+        [
+          497,
+          119,
+          20
+        ],
+        [
+          191,
+          75,
+          21
+        ],
+        [
+          125,
+          46,
+          83
+        ]
+      ],
+      "auc_macro_ovr": 0.6422
+    },
+    "5": {
+      "balanced_acc_argmax": 0.4602,
+      "confusion_argmax": [
+        [
+          523,
+          101,
+          12
+        ],
+        [
+          205,
+          71,
+          11
+        ],
+        [
+          120,
+          55,
+          79
+        ]
+      ],
+      "auc_macro_ovr": 0.6473
+    },
+    "10": {
+      "balanced_acc_argmax": 0.4548,
+      "confusion_argmax": [
+        [
+          536,
+          90,
+          10
+        ],
+        [
+          212,
+          65,
+          10
+        ],
+        [
+          129,
+          50,
+          75
+        ]
+      ],
+      "auc_macro_ovr": 0.6483
+    },
+    "50": {
+      "balanced_acc_argmax": 0.4399,
+      "confusion_argmax": [
+        [
+          547,
+          80,
+          9
+        ],
+        [
+          218,
+          63,
+          6
+        ],
+        [
+          140,
+          53,
+          61
+        ]
+      ],
+      "auc_macro_ovr": 0.6467
+    },
+    "100": {
+      "balanced_acc_argmax": 0.4266,
+      "confusion_argmax": [
+        [
+          553,
+          75,
+          8
+        ],
+        [
+          223,
+          59,
+          5
+        ],
+        [
+          147,
+          55,
+          52
+        ]
+      ],
+      "auc_macro_ovr": 0.6476
+    }
+  }
+}

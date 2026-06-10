@@ -1,0 +1,117 @@
+{
+  "tarea": "necrosis",
+  "promptset": "v2",
+  "n_clases": 2,
+  "prompts": {
+    "classnames": [
+      [
+        "ductal carcinoma in situ without necrosis",
+        "viable tumor cells",
+        "intact ductal epithelium",
+        "benign breast tissue"
+      ],
+      [
+        "comedonecrosis",
+        "central necrosis with karyorrhectic debris",
+        "tumor necrosis",
+        "necrotic ductal carcinoma in situ",
+        "eosinophilic necrotic debris in duct lumen"
+      ]
+    ],
+    "templates": [
+      "CLASSNAME.",
+      "a photomicrograph showing CLASSNAME.",
+      "a histopathology image of CLASSNAME.",
+      "an H&E stained image showing CLASSNAME.",
+      "breast tissue showing CLASSNAME."
+    ],
+    "labels": [
+      "ausente",
+      "presente"
+    ]
+  },
+  "n_evaluadas": 396,
+  "n_missing_pt": 0,
+  "n_por_clase": {
+    "ausente": 83,
+    "presente": 313
+  },
+  "trivial_balanced_acc": 0.5,
+  "por_topj": {
+    "1": {
+      "balanced_acc_argmax": 0.5063,
+      "confusion_argmax": [
+        [
+          79,
+          4
+        ],
+        [
+          294,
+          19
+        ]
+      ],
+      "auc": 0.6214,
+      "balanced_acc_bestthr": 0.617
+    },
+    "5": {
+      "balanced_acc_argmax": 0.5123,
+      "confusion_argmax": [
+        [
+          80,
+          3
+        ],
+        [
+          294,
+          19
+        ]
+      ],
+      "auc": 0.6436,
+      "balanced_acc_bestthr": 0.6421
+    },
+    "10": {
+      "balanced_acc_argmax": 0.5123,
+      "confusion_argmax": [
+        [
+          80,
+          3
+        ],
+        [
+          294,
+          19
+        ]
+      ],
+      "auc": 0.6491,
+      "balanced_acc_bestthr": 0.6421
+    },
+    "50": {
+      "balanced_acc_argmax": 0.5123,
+      "confusion_argmax": [
+        [
+          80,
+          3
+        ],
+        [
+          294,
+          19
+        ]
+      ],
+      "auc": 0.6446,
+      "balanced_acc_bestthr": 0.6496
+    },
+    "100": {
+      "balanced_acc_argmax": 0.5123,
+      "confusion_argmax": [
+        [
+          80,
+          3
+        ],
+        [
+          294,
+          19
+        ]
+      ],
+      "auc": 0.6398,
+      "balanced_acc_bestthr": 0.6504
+    }
+  }
+}
