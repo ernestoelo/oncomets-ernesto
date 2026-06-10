@@ -1,0 +1,114 @@
+{
+  "tarea": "necrosis (binario presente vs ausente, no_identificado excluido)",
+  "prompts": {
+    "classnames": [
+      [
+        "ductal carcinoma in situ without necrosis",
+        "viable tumor cells without necrosis",
+        "benign breast tissue"
+      ],
+      [
+        "tumor necrosis",
+        "comedonecrosis",
+        "necrotic cellular debris",
+        "central necrosis in ductal carcinoma in situ"
+      ]
+    ],
+    "templates": [
+      "CLASSNAME.",
+      "a photomicrograph showing CLASSNAME.",
+      "a histopathology image of CLASSNAME.",
+      "an H&E stained image showing CLASSNAME.",
+      "breast tissue showing CLASSNAME."
+    ],
+    "labels": [
+      "ausente",
+      "presente"
+    ]
+  },
+  "n_total_subset": 396,
+  "n_evaluadas": 396,
+  "n_missing_pt": 0,
+  "n_por_clase": {
+    "ausente": 83,
+    "presente": 313
+  },
+  "trivial_balanced_acc": 0.5,
+  "por_topj": {
+    "1": {
+      "auc": 0.6623,
+      "balanced_acc_bestthr": 0.6349,
+      "balanced_acc_argmax": 0.5796,
+      "confusion_argmax_[rows=true 0,1][cols=pred 0,1]": [
+        [
+          75,
+          8
+        ],
+        [
+          233,
+          80
+        ]
+      ]
+    },
+    "5": {
+      "auc": 0.6772,
+      "balanced_acc_bestthr": 0.6488,
+      "balanced_acc_argmax": 0.5638,
+      "confusion_argmax_[rows=true 0,1][cols=pred 0,1]": [
+        [
+          79,
+          4
+        ],
+        [
+          258,
+          55
+        ]
+      ]
+    },
+    "10": {
+      "auc": 0.6738,
+      "balanced_acc_bestthr": 0.6347,
+      "balanced_acc_argmax": 0.5574,
+      "confusion_argmax_[rows=true 0,1][cols=pred 0,1]": [
+        [
+          79,
+          4
+        ],
+        [
+          262,
+          51
+        ]
+      ]
+    },
+    "50": {
+      "auc": 0.6625,
+      "balanced_acc_bestthr": 0.6402,
+      "balanced_acc_argmax": 0.5318,
+      "confusion_argmax_[rows=true 0,1][cols=pred 0,1]": [
+        [
+          79,
+          4
+        ],
+        [
+          278,
+          35
+        ]
+      ]
+    },
+    "100": {
+      "auc": 0.6567,
+      "balanced_acc_bestthr": 0.6284,
+      "balanced_acc_argmax": 0.5238,
+      "confusion_argmax_[rows=true 0,1][cols=pred 0,1]": [
+        [
+          79,
+          4
+        ],
+        [
+          283,
+          30
+        ]
+      ]
+    }
+  }
+}
