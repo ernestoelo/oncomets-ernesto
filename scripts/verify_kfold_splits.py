@@ -53,6 +53,9 @@ TASKS = {
         os.path.join(_NT, "dataset_carcinoma_ductal_in_situ_patrones_arquitectonicos_papilar_label.csv"),
     "invasion_linfatica_vascular_pth_100":
         os.path.join(_NT, "dataset_invasion_linfovascular_label.csv"),
+    # --- Etapa 1 PathPT: necrosis binaria (presente/ausente, no_identificado excluido) ---
+    "cdis_necrosis_2clases_pth_100":
+        os.path.join(_NT, "dataset_cdis_necrosis_2clases_label.csv"),
 }
 
 

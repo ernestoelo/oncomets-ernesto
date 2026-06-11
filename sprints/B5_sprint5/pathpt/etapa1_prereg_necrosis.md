@@ -1,0 +1,215 @@
+# Etapa 1 — PathPT-CONCH en necrosis: pre-registración (regla 9) + diseño de ingeniería
+
+> **Qué es:** el experimento que entrena PathPT (θ_v + θ_t) y lo compara **paired vs
+> CLAM** sobre los mismos splits k=5, en la tarea **necrosis binaria** (presente/ausente).
+> Es lo que la Etapa 0 (go/no-go) habilitó. **Argumento ANTES de código (regla 9).**
+> Este doc se escribe **antes** de tocar `models_pathpt/` o el driver de training; el
+> `reviewer` lo evalúa, y recién con su GO + test CPU + OK de Ernesto se lanza el `sbatch`.
+>
+> Base conceptual (NO re-derivar): [funcionamiento_pathpt.md](funcionamiento_pathpt.md)
+> (7 ecuaciones, θ_v/θ_t/pseudo-labels). Resultado habilitante:
+> [etapa0_gonogo_necrosis.md](etapa0_gonogo_necrosis.md) §9.
+>
+> **Encuadre (handoff §0):** esto es **ingeniería de ML** — arquitectura, tensores,
+> gradientes, pérdidas, splits, métricas. La validación clínica de los prompts/clases la
+> hace **Sebastián vía CAP**, no esta sesión.
+
+---
+
+## 0. Qué habilita esta etapa (y por qué NO es una decisión revisitada)
+
+- **Etapa 0 = LEAN-GO**: necrosis zero-shot CONCH AUC **0.677** (top-5), bal_acc 0.649
+  (mejor umbral). Señal real ≫ trivial (0.5) → CONCH **groundea** necrosis; H0 (no
+  grounding) descartada. Pero **NO** alcanza la banda GO franca (AUC ≳0.70) → es un
+  **FLOOR moderado**, no un techo (§5 de la honestidad del margen).
+- **Directiva del supervisor (10-jun):** Sebastián elevó PathPT a **prueba activa**,
+  empezar por necrosis. ([[pathpt-testing-necrosis-mitotic]], `progress/current.md` §
+  "Dirección VIGENTE 10-jun".)
+- **No es regla 9.b (decisión revisitada):** PathPT (frame B) nunca tuvo veredicto NO-GO
+  ni quedó en un apéndice "descartado" — fue la recomendación **secundaria** de la
+  investigación de retrieval (5-jun) que el supervisor **re-priorizó** el 10-jun, y la
+  Etapa 0 la validó con señal real. El evento habilitante es **el go/no-go lean-GO + la
+  directiva 10-jun**, citados arriba. (Aun así esta pre-registración cumple regla 9
+  estricta: H primaria + alternativa + regresión, métrica + subset + dirección.)
+
+---
+
+## 1. Mecanismo: por qué PathPT *podría* superar a CLAM (y por qué podría no)
+
+CLAM (baseline) es MIL slide-level: atención sobre los **N parches** → 1 vector de slide →
+clasificador. Usa **solo visión** y supervisión **slide-level**. PathPT cambia 3 cosas:
+
+1. **Calibra el espacio de texto (θ_t, prompt-tuning CoOp).** El go/no-go mostró un
+   `bal_acc@argmax` **degenerado (~0.52–0.58)**: el zero-shot crudo separa por ranking
+   (AUC 0.68) pero **no está calibrado** (los logits de "normal" dominan el argmax).
+   θ_t aprende la frase latente óptima → **debería** convertir ese 0.68 de ranking en
+   una frontera usable. Este es el lever más directo que la Etapa 0 dejó identificado.
+2. **Modela contexto espacial (θ_v).** Refina cada parche con su vecindario (conv 3/5/7 +
+   transformer sobre la grilla de coords) — dependencias vecino-a-vecino que la atención
+   de CLAM **no** modela explícitamente. Necrosis es un hallazgo **regional** (comedonecrosis
+   central en un ducto) → el contexto espacial es plausible-mente informativo.
+3. **Supervisión tile-level (pseudo-labels + 3 pérdidas).** Aprende **por parche** (no solo
+   slide), con un curriculum de confianza que filtra el ruido del profesor CONCH usando el
+   label de slide.
+
+**Riesgo honesto (= la hipótesis nula no es de paja):** el mismo sprint cerró que **ni el
+agregador (DSMIL, Hallazgo 11) ni el patch-embed (mammoth, Hallazgo 12) son palanca** en
+estos regímenes — el cuello fue **datos / desbalance / contexto espacial**, no el método.
+PathPT es una intervención de **otra naturaleza** (agrega lenguaje + supervisión tile-level),
+pero **puede igualmente chocar contra el techo de datos** (n=396, 83 negativos) y caer en
+banda ambigua. El propio paper reporta *"a ceiling imposed by limited data"* a pocos shots.
+La pre-registración **no sobre-promete**: el resultado más probable a priori es señal chica;
+la pregunta es si es **positiva y consistente en signo**.
+
+---
+
+## 2. Hipótesis pre-registrada (regla 9)
+
+Comparación **PAIRED por fold** sobre los **mismos** splits k=5 (Δ_i = PathPT_i − CLAM_i),
+patrón del proyecto ([[patron-paired-comparison-reuso-splits]]): el Δ pareado cancela la
+varianza inter-fold y revela señales chicas que el unpaired aplasta.
+
+- **H1 (primaria):** PathPT mejora la clasificación slide-level de necrosis vs CLAM →
+  **Δ balanced_acc pareado > 0, consistente en signo** (mayoría de los 5 folds positivos,
+  idealmente |media| ≳ std inter-fold). Interpretación: la supervisión tile-level + texto
+  calibrado + contexto espacial **aportan** sobre el MIL slide-level.
+- **H_alt (nula / ambigua):** el Δ pareado **cruza 0** (std ≳ |media|, signo inconsistente
+  entre folds) → PathPT **no aporta** sobre CLAM en este régimen. Lectura: mismo techo de
+  datos que Hallazgos 11/12 — el método no es la palanca, lo es el dato. **Resultado
+  publicable/presentable, no fracaso** (reencuadre del paper).
+- **H_reg (regresión):** Δ pareado **< 0 consistente** (mayoría de folds negativos) →
+  PathPT **regresiona** vs CLAM (p. ej. los pseudo-labels ruidosos contaminan el train, o
+  el tile-level pierde la integración global que CLAM sí hace). Es un hallazgo informativo
+  (acota dónde PathPT-CONCH **no** ayuda), análogo a la regresión leve de mammoth en invasión.
+
+**Métrica + subset + dirección (predefinidos, política B5):**
+
+| | |
+|---|---|
+| **Subset** | necrosis **binaria** presente vs ausente, `no_identificado` **excluido** (mal definido a nivel tile). n=396 (313 presente / 83 ausente). |
+| **Primaria** | **balanced_acc** en el **test** de cada fold; estadístico decisivo = **Δ pareado por fold** (media ± std sobre 5 folds, + signo por fold). |
+| **Secundaria** | **AUC binario** (ROC) en test, mismo Δ pareado. **Reportar SIEMPRE junto a balanced_acc** + matriz de confusión + n por clase ([[eval-reporte-auc-y-umbrales-obj6]]). |
+| **Dirección esperada si H1** | Δ > 0 en ambas, consistente en signo a través de folds. |
+| **Regla de decisión (regla 9.a, interpretada — NO gate mágico)** | Δ>0 consistente y |media|≳std → **PathPT aporta**. Δ cruza 0 / std≳|media| → **ambiguo/null** (techo de datos). Δ<0 consistente → **regresión**. Con n chico mandan **signo + magnitud relativa a la varianza**, no un umbral automático. |
+
+**Caveat de eval (honesto):** con test_frac=0.1 y 83 negativos, cada test-fold tiene ~8
+ausente → balanced_acc del lado negativo es **ruidosa**. Mitigación: (a) el Δ **pareado**
+cancela la varianza de sorteo (ambos brazos ven el mismo test); (b) reportar además la
+**matriz de confusión pooled** sobre los 5 test-folds (≈40 ausente agregados) para leer el
+comportamiento en la clase chica sin depender de un solo fold.
+
+---
+
+## 3. Decisiones de ingeniería (documentadas ANTES de código — para el reviewer)
+
+### 3.1 Splits — generar MC-CV k=5 del binario necrosis
+- **No existe** k=5 de necrosis en `data/splits_kfold/`. El único split de Sebastián
+  (`clam_environ/.../splits/carcinoma_ductal_insitu_necrosis_2clases_pth_balance_100`) es
+  **single-split, READ-ONLY** y su baseline CLAM aún está en sus PENDIENTES (handoff §10)
+  → **genero splits propios** y corro **ambos brazos** sobre ellos (no dependo de la corrida
+  de Sebastián).
+- **Receta:** misma que `scripts/build_new_tasks_splits.py` (reusa
+  `Generic_WSI_Classification_Dataset` + `save_splits` del codebase RO, sin forkearlo):
+  k=5, val_frac=test_frac=0.1, seed=1, patient_strat, estratificado → **paired-consistente**
+  con microcalc/patrón/invasión.
+- **Binarización (el delta vs el generador existente):** el CSV de origen tiene 4 clases
+  {`ausente`, `no_identificado`, `presente_central`, `presente_focal`}. Snapshot binario a
+  `data/csv_new_tasks/` con `no_identificado` **excluido** y `presente_central ∪
+  presente_focal → presente`. label_dict = `{"ausente":0, "presente":1}`.
+- **Salida:** `data/splits_kfold/cdis_necrosis_2clases_pth_100/splits_{0..4}.csv` (+ `_bool`,
+  `_descriptor`).
+- **Verificación obligatoria:** `scripts/verify_kfold_splits.py` + cross-check
+  `splits_i.csv ⨯ CSV binario` (regla 10: el descriptor puede estar stale) + filtrar slides
+  sin `.pt` (las 396 ya tienen features según el go/no-go → drop esperado = 0).
+
+### 3.2 Brazo CLAM (baseline paired) — infra existente, sin código nuevo
+- `scripts/train_dsmil.py --model_type clam` sobre el CSV binario + los splits de §3.1,
+  `--n_classes 2`, args bendecidos (`--drop_out 0.25 --lr 2e-4 --bag_loss ce --inst_loss svm
+  --B 8 --bag_weight 0.7 --embed_dim 512 --early_stopping --weighted_sample`). Produce
+  `summary.csv` / `test_metrics.json` / `split_<fold>_results.pkl` / `test_predictions.csv`.
+
+### 3.3 Brazo PathPT — **harness propio** (`models_pathpt/` + `scripts/train_pathpt.py`)
+PathPT **no** es un `--model_type` de CLAM (clasifica por parche, usa el encoder de texto,
+necesita coords). Diseño del harness:
+- **Entrada:** features `.pt` `[N,512]` (RO) **+ coords** del `h5_files/<id>.h5` (RO) para
+  ordenar los parches en grilla 2D (θ_v).
+- **Espacio contrastivo (CRÍTICO):** las `.pt` cacheadas son `forward_no_head`
+  (pre-proyección). Para el coseno texto-imagen (ec. 6) hay que aplicar
+  `v_contrastivo = normalize(feat @ proj_contrast)` — `proj_contrast` se saca de CONCH
+  (`model.visual.proj_contrast`), igual que en `zeroshot_necrosis_gonogo.py:103`. **Sin esto
+  todo el motor de PathPT compara en el espacio equivocado.**
+- **θ_v (módulo espacial):** conv residual 3×3/5×5/7×7 (local) + transformer (global) sobre
+  la grilla de coords → 1 vector refinado por parche (conserva los N, no colapsa).
+- **θ_t (prompt-tuning, CoOp):** K=32 tokens de contexto aprendibles + `[CLASS]`,
+  inicializados desde los prompts manuales del go/no-go. Solo se entrena esto y θ_v; CONCH
+  (Φ_v, Φ_t) **congelado**.
+- **Pseudo-labels tile-level:** reusar la lógica zero-shot de `zeroshot_necrosis_gonogo.py`
+  (coseno texto-parche) para generar la etiqueta parcial por parche; retener `normal` o
+  consistente-con-slide, descartar el que predice otra clase.
+- **Pérdidas (curriculum):** L_labeled (CE balanceada sobre parches con pseudo-label, peso
+  1.0) + L_unlabeled (ec. 7, etiqueta parcial, 0.5) + L_pseudo (self-training, 0.1, **desde
+  época 10**). 20 épocas, lr 1e-4, warm-up 2.
+- **Agregación tile→slide (eval):** "tumor-ratio" (fracción de parches predichos presente) →
+  score de slide. **Mismo schema de salida** que `train_dsmil.py` (`summary.csv`,
+  `test_metrics.json`, `split_<fold>_results.pkl`, `test_predictions.csv`) → el Δ pareado se
+  construye 1:1 contra el brazo CLAM.
+- **Containment:** `--results_dir` bajo `clam_testing2/`; GPU solo vía `sbatch` con preflight.
+
+### 3.4 Código de referencia (a clonar bajo containment, fase de implementación)
+`github.com/MAGIC-AI4Med/PathPT` → `clam_testing2/PathPT_reference/` (REFERENCE ONLY, **NO**
+al PYTHONPATH del codebase de Sebastián, **NO** mezclar con `clam_environ`). Guía la
+implementación de θ_v/θ_t/pseudo-labels; el código que corre es **nuestro**, en
+`models_pathpt/`.
+
+### 3.5 Prompts
+Reusar el pool del go/no-go (`zeroshot_necrosis_gonogo.py` `CLASSNAMES`/`TEMPLATES`, necrosis
+v1). La **validación clínica** de la redacción la define **Sebastián/CAP** — no es trabajo de
+ingeniería de esta sesión ([[cap-fuente-clases-tareas]]).
+
+---
+
+## 4. Decisión de alcance abierta (para reviewer + Ernesto): MVP vs full
+
+El harness full (θ_v + θ_t + pseudo-labels + 3 pérdidas + grilla espacial transformer) es
+**bastante** código nuevo. Tres caminos:
+
+| | Qué entrena | Costo | Qué testea |
+|---|---|---|---|
+| **A — Full PathPT** | θ_v + θ_t + 3 pérdidas | alto | fidelidad al paper; mejor shot de ganar a CLAM |
+| **B — PathPT-min** | **solo θ_t** (prompt-tuning) + tumor-ratio + L_labeled/L_unlabeled, **sin θ_v** | bajo | si **calibrar el texto** (el gap que la Etapa 0 identificó) ya cierra la brecha a CLAM |
+| **C — Fásico (recomendado)** | **B primero**, agrego θ_v solo si B muestra señal | incremental | el lever más barato primero (filosofía go/no-go); null de B es barato y honesto |
+
+**Recomendación: C** — coherente con el patrón "lever más barato primero" del proyecto
+(la Etapa 0 misma fue eso). Riesgo de C: un null de **B-solo** no condena a PathPT full
+(las ganancias headline del paper usan θ_v). Por eso C deja θ_v como segundo paso, no lo
+descarta. **Esta es la decisión que el reviewer + Ernesto deben cerrar antes de implementar.**
+
+---
+
+## 5. Orden de ejecución (estricto — handoff §6)
+
+1. ✅/⏳ **Splits k=5** del binario (§3.1) + verificación (data prep, no toca training → no
+   dispara reviewer; pero queda pre-registrado acá).
+2. ⏳ **reviewer** sobre esta pre-registración + diseño (§2–4), **antes** de escribir
+   `models_pathpt/` o el driver. Cierra el alcance (A/B/C).
+3. ⏳ **Implementar** el harness elegido + **test CPU** (`tests/`, estilo
+   `test_mammoth_cpu.py`: wiring, shapes, preserva N parches, smoke 1 época). Clonar la
+   referencia (§3.4) en este paso.
+4. ⏳ **`sbatch`** (GPU, branch `feat/pathpt-etapa1`, preflight, cortesía single-GPU) —
+   paired PathPT vs CLAM. **PARAR antes y confirmar con Ernesto.**
+
+**Se PARA antes de:** el `sbatch`/GPU, el merge a `main`, y cualquier escritura en
+`clam_environ/`.
+
+---
+
+## 6. Qué NO afirma / límites
+- Un Δ>0 en necrosis **no** generaliza a mitotic (tarea más sutil, go/no-go 0.648) — esa es
+  un experimento aparte.
+- n chico (396, 83 negativos) → eval ruidosa en la clase chica; el Δ pareado + la confusión
+  pooled mitigan, no eliminan.
+- PathPT-**CONCH**: un null no condena a PathPT con otro encoder (KEEP), que no tenemos.
+
+*Pre-registración (§0–6) escrita ANTES del código de training. Las verificaciones de infra
+(scripts, splits, espacio contrastivo) son read-only sobre datos reales (regla 5). El
+entrenamiento no se ha tocado: requiere reviewer GO + test CPU + OK de Ernesto + `sbatch`.*
