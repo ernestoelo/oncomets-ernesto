@@ -1,0 +1,16 @@
+{
+  "test_auc": 0.703125,
+  "test_acc": 0.8,
+  "balanced_acc": 0.640625,
+  "confusion": [
+    [
+      3,
+      5
+    ],
+    [
+      3,
+      29
+    ]
+  ],
+  "n_test": 40
+}

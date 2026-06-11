@@ -1,0 +1,18 @@
+{
+  "test_auc": 0.587890625,
+  "test_acc": 0.725,
+  "balanced_acc": 0.640625,
+  "confusion": [
+    [
+      4,
+      4
+    ],
+    [
+      7,
+      25
+    ]
+  ],
+  "n_test": 40,
+  "val_threshold": 0.49997517466545105,
+  "teacher_rank_metric": 0.6147325373134328
+}
