@@ -92,11 +92,20 @@ varianza inter-fold y revela señales chicas que el unpaired aplasta.
 | **Dirección esperada si H1** | Δ > 0 en ambas, consistente en signo a través de folds. |
 | **Regla de decisión (regla 9.a, interpretada — NO gate mágico)** | Δ>0 consistente y |media|≳std → **PathPT aporta**. Δ cruza 0 / std≳|media| → **ambiguo/null** (techo de datos). Δ<0 consistente → **regresión**. Con n chico mandan **signo + magnitud relativa a la varianza**, no un umbral automático. |
 
-**Caveat de eval (honesto):** con test_frac=0.1 y 83 negativos, cada test-fold tiene ~8
-ausente → balanced_acc del lado negativo es **ruidosa**. Mitigación: (a) el Δ **pareado**
-cancela la varianza de sorteo (ambos brazos ven el mismo test); (b) reportar además la
-**matriz de confusión pooled** sobre los 5 test-folds (≈40 ausente agregados) para leer el
-comportamiento en la clase chica sin depender de un solo fold.
+**Regla de operating point tumor-ratio (pre-registrada — H-2 reviewer, evita grado de
+libertad post-hoc):** la agregación tile→slide produce un **score continuo** (fracción de
+parches predichos `si`, o top-k pooled de la prob por parche). Ese score continuo alimenta el
+**AUC directo** (threshold-free). El **umbral** que binariza el score para balanced_acc +
+confusión se **selecciona sobre el `val` de cada fold** (Youden / max balanced_acc en val) y
+se **aplica congelado al `test`** de ese fold — **nunca** se calibra sobre test. Es la regla
+simétrica al `argmax` del clasificador de CLAM (que tampoco mira test). Sin esto, "elegir el
+mejor umbral en test" inflaría artificialmente PathPT y rompería el paired.
+
+**Caveat de eval + entregable obligatorio (H-3 reviewer):** con test_frac=0.1 y 83 negativos,
+cada test-fold tiene ~8 ausente → balanced_acc del lado negativo es **ruidosa**. Mitigación:
+(a) el Δ **pareado** cancela la varianza de sorteo (ambos brazos ven el mismo test); (b) la
+**matriz de confusión pooled** sobre los 5 test-folds (≈40 ausente agregados) es **entregable
+obligatorio del experimento** (no opcional) — es la única lectura estable de la clase chica.
 
 ---
 
@@ -114,8 +123,11 @@ comportamiento en la clase chica sin depender de un solo fold.
   con microcalc/patrón/invasión.
 - **Binarización (el delta vs el generador existente):** el CSV de origen tiene 4 clases
   {`ausente`, `no_identificado`, `presente_central`, `presente_focal`}. Snapshot binario a
-  `data/csv_new_tasks/` con `no_identificado` **excluido** y `presente_central ∪
-  presente_focal → presente`. label_dict = `{"ausente":0, "presente":1}`.
+  `data/csv_new_tasks/` con `no_identificado` **excluido**, `ausente → "no"` y
+  `presente_central ∪ presente_focal → "si"`. **label_dict = `{"no":0, "si":1}`** (misma
+  convención que el brazo CLAM `train_dsmil.py` → la matriz de confusión `[[TN,FP],[FN,TP]]`
+  se interpreta idéntica en ambos brazos; 0=ausente/negativo, 1=presente/positivo). *(H-1
+  reviewer: el doc decía `{ausente,presente}`; el CSV real y el harness usan `no`/`si`.)*
 - **Salida:** `data/splits_kfold/cdis_necrosis_2clases_pth_100/splits_{0..4}.csv` (+ `_bool`,
   `_descriptor`).
 - **Verificación obligatoria:** `scripts/verify_kfold_splits.py` + cross-check
@@ -168,21 +180,30 @@ ingeniería de esta sesión ([[cap-fuente-clases-tareas]]).
 
 ---
 
-## 4. Decisión de alcance abierta (para reviewer + Ernesto): MVP vs full
+## 4. Alcance — DECIDIDO: **A (Full PathPT)** (Ernesto, sesión 10-jun)
 
-El harness full (θ_v + θ_t + pseudo-labels + 3 pérdidas + grilla espacial transformer) es
-**bastante** código nuevo. Tres caminos:
+Tres caminos se evaluaron:
 
 | | Qué entrena | Costo | Qué testea |
 |---|---|---|---|
-| **A — Full PathPT** | θ_v + θ_t + 3 pérdidas | alto | fidelidad al paper; mejor shot de ganar a CLAM |
-| **B — PathPT-min** | **solo θ_t** (prompt-tuning) + tumor-ratio + L_labeled/L_unlabeled, **sin θ_v** | bajo | si **calibrar el texto** (el gap que la Etapa 0 identificó) ya cierra la brecha a CLAM |
-| **C — Fásico (recomendado)** | **B primero**, agrego θ_v solo si B muestra señal | incremental | el lever más barato primero (filosofía go/no-go); null de B es barato y honesto |
+| **A — Full PathPT (ELEGIDO)** | θ_v + θ_t + pseudo-labels + 3 pérdidas | alto | fidelidad al paper; **mejor shot de ganar a CLAM** |
+| B — PathPT-min | solo θ_t (prompt-tuning) + tumor-ratio, sin θ_v | bajo | si calibrar el texto ya cierra la brecha |
+| C — Fásico | B primero, θ_v si B muestra señal | incremental | lever más barato primero |
 
-**Recomendación: C** — coherente con el patrón "lever más barato primero" del proyecto
-(la Etapa 0 misma fue eso). Riesgo de C: un null de **B-solo** no condena a PathPT full
-(las ganancias headline del paper usan θ_v). Por eso C deja θ_v como segundo paso, no lo
-descarta. **Esta es la decisión que el reviewer + Ernesto deben cerrar antes de implementar.**
+**Decisión = A.** Razón: el **módulo espacial θ_v es el diferenciador real de PathPT vs
+CLAM** (modela el vecindario entre parches, que la atención de CLAM no captura). Un harness
+**full** da el **test paired más decisivo** — si PathPT no le gana a CLAM ni con su
+componente más fuerte, el veredicto "el método no es la palanca, lo es el dato" (H_alt) queda
+**sólido**, no atribuible a una implementación recortada. Se asume el **mayor costo de
+ingeniería** a cambio de un resultado no-ambiguo en su capacidad de discriminar H1 vs H_alt.
+(B/C quedan como fallback **solo** si el costo de A se vuelve inviable en implementación —
+no como plan A.)
+
+**Criterio de "inviable" (pre-definido — H-4 reviewer, para que la caída a B/C no sea una
+decisión post-hoc bajo presión):** se considera A inviable si (i) el módulo θ_v no pasa el
+test CPU de shapes / preservación de los N parches tras un esfuerzo acotado de debug, o (ii)
+el smoke de 1 época diverge / produce NaN de forma irrecuperable. Solo entonces se cae a B
+(θ_t-solo), documentándolo. Mientras A pase el test CPU y el smoke, se sigue con A.
 
 ---
 
