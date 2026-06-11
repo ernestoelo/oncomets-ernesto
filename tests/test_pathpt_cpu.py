@@ -137,10 +137,87 @@ def test_model_forward_and_grad():
           f"gradiente fluye a θ_v y θ_t (trainable={len(train_names)} tensores)")
 
 
+def test_patchssloss_multiclass_candidate_active():
+    """En 3-clase candidate_loss NO degenera (p0+pk<1) → la maquinaria multiclase se activa
+    (a diferencia del binario, addendum §7 necrosis; prereg mitotic §1)."""
+    torch.manual_seed(0)
+    N = 60
+    raw = torch.rand(N, 3, requires_grad=True)
+    logits = torch.softmax(raw, -1)
+    labels = torch.tensor(([0, 1, -2] * (N // 3))[:N])    # candidatos -2 (tumor_class=2)
+    out = PatchSSLoss(logits, labels, epoch=0, total_epoch=20, weights=(1.0, 0.5, 0.1), balance=True)
+    assert out["candidate_loss"].item() > 1e-4, \
+        f"candidate_loss debería ser >0 en 3-clase, fue {out['candidate_loss'].item()}"
+    out["loss"].backward()
+    assert raw.grad is not None and raw.grad.abs().sum() > 0, "no fluye gradiente"
+    print(f"[OK] PatchSSLoss 3-clase: candidate_loss={out['candidate_loss'].item():.4f} (ACTIVA), "
+          f"loss={out['loss'].item():.4f}")
+
+
+def test_generate_patch_label_multiclass():
+    """generate_patch_label tumor_class=2 (3-clase): confiables {0,2}; la CLASE INTERMEDIA (1)
+    cae a candidato (-2) incluso con thd=0 → así se activa la candidate_loss multiclase (≠ binario,
+    donde no hay clase intermedia). thd alto → ≥ candidatos. (prereg mitotic §1/§3.1.)"""
+    drv = _load_driver()
+    torch.manual_seed(0)
+    probs = torch.softmax(torch.randn(50, 3), -1)
+    lab0 = drv.generate_patch_label(probs, logits_thd=0.0, tumor_class=2)
+    assert set(lab0.tolist()) <= {0, 2, -2}, f"labels fuera de {{0,2,-2}}: {set(lab0.tolist())}"
+    assert (lab0 == -2).any(), \
+        "en 3-clase la clase intermedia debería caer a candidato -2 (activa la candidate_loss)"
+    n0 = int((lab0 == -2).sum())
+    lab_hi = drv.generate_patch_label(probs, logits_thd=0.9, tumor_class=2)
+    assert int((lab_hi == -2).sum()) >= n0, "thd alto debería dar ≥ candidatos"
+    print(f"[OK] generate_patch_label 3-clase (tumor=2): candidatos thd0={n0} → "
+          f"thd0.9={int((lab_hi == -2).sum())} (la clase intermedia activa la candidate_loss)")
+
+
+def test_model_forward_3class():
+    """PathPTCONCH 3-clase (CONCH real): forward [N,512]->[N,3] preserva N, softmax por fila."""
+    from conch.open_clip_custom import create_model_from_pretrained
+    torch.manual_seed(0)
+    conch = create_model_from_pretrained("conch_ViT-B-16", checkpoint_path=CKPT,
+                                         device="cpu", return_transform=False)
+    conch.eval()
+    classnames = [["a low mitotic count", "rare mitoses"],
+                  ["an intermediate mitotic count"],
+                  ["a high mitotic count", "frequent mitotic figures"]]
+    model = PathPTCONCH(classnames, conch, device="cpu", n_ctx=32, vfeat_dim=512)
+    assert model.n_classes == 3, f"n_classes {model.n_classes}"
+    N = 40
+    _, patch_logits = model(torch.randn(N, 512))
+    assert patch_logits.shape == (N, 3), f"patch_logits {tuple(patch_logits.shape)}"
+    assert torch.allclose(patch_logits.sum(-1), torch.ones(N), atol=1e-4), "no softmax por fila"
+    print(f"[OK] PathPTCONCH 3-clase forward [N=40,512]→{tuple(patch_logits.shape)} preserva N, softmax")
+
+
+def test_eval_multiclass_auc():
+    """Lógica de eval multiclase (argmax + macro-OVR AUC + confusión 3x3) corre y da valores válidos."""
+    import numpy as np
+    from sklearn.metrics import roc_auc_score, balanced_accuracy_score, confusion_matrix
+    rng = np.random.RandomState(0)
+    yt = np.array([0] * 12 + [1] * 8 + [2] * 6)
+    st = rng.dirichlet(np.ones(3), size=len(yt))
+    for i, y in enumerate(yt):                            # empuja la diagonal → AUC > 0.5
+        st[i, y] += 0.5
+    st = st / st.sum(1, keepdims=True)
+    yhat = st.argmax(1)
+    auc = roc_auc_score(yt, st, multi_class="ovr", average="macro", labels=[0, 1, 2])
+    bal = balanced_accuracy_score(yt, yhat)
+    cm = confusion_matrix(yt, yhat, labels=[0, 1, 2])
+    assert 0.0 <= auc <= 1.0 and cm.shape == (3, 3), "eval multiclase inválido"
+    print(f"[OK] eval multiclase: macro-OVR AUC={auc:.3f} bal_acc={bal:.3f} conf3x3 N={cm.sum()}")
+
+
 if __name__ == "__main__":
     test_spatial_preserves_N()
     test_patchssloss_binary_candidate_degenerate()
     test_generate_patch_label_threshold()
     test_best_threshold()
     test_model_forward_and_grad()
+    # --- multiclase (Etapa 1 mitotic 3-clase ordinal) ---
+    test_patchssloss_multiclass_candidate_active()
+    test_generate_patch_label_multiclass()
+    test_model_forward_3class()
+    test_eval_multiclass_auc()
     print("\nTodos los smoke tests CPU de PathPT pasaron.")

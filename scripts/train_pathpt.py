@@ -95,6 +95,19 @@ TASK_PROMPTS = {
         # init del contexto aprendible θ_t (CoOp)
         "ctx_init": "a histopathology image of ",
     },
+    "mitotic": {
+        # 3 clases ORDINALES (Nottingham). Clase 0 = score_1 = nivel basal ordinal
+        # (prereg mitotic §3.1: a nivel tile, slides score_1 ≈ baja densidad). Prompts
+        # del go/no-go validado (macro-OVR AUC 0.648), anclados en CAP Invasive.Bx Nota B /
+        # Nottingham (prompts_cap.md §2). Sign-off clínico = Sebastián.
+        # índice 0=score_1 (bajo) · 1=score_2 (intermedio) · 2=score_3 (alto).
+        "classnames": [
+            ["breast carcinoma with a low mitotic count", "few mitotic figures", "rare mitoses"],
+            ["breast carcinoma with an intermediate mitotic count", "occasional mitotic figures"],
+            ["breast carcinoma with a high mitotic count", "frequent mitotic figures", "numerous mitoses"],
+        ],
+        "ctx_init": "a histopathology image of ",
+    },
 }
 TOPJ_TEACHER = 5  # top-j pooling para el score de slide (consistente con el go/no-go)
 
@@ -402,22 +415,37 @@ def main():
             print(f"  [epoch {epoch}] loss={run/max(1,len(order)):.4f} "
                   f"lr={sched.get_last_lr()[0]:.2e} ({time.time()-t0:.0f}s)", flush=True)
 
-    # eval: umbral en val (H-2), congelado a test
+    # eval: binario → umbral en val (H-2) congelado a test; multiclase → argmax (sin umbral).
     yv, sv = slide_scores(model, cache, splits["val"], device, args.n_classes)
     yt, st = slide_scores(model, cache, splits["test"], device, args.n_classes)
-    thr = best_threshold(yv, sv) if args.n_classes == 2 else None
-    yhat = (st > thr).astype(int)
-
     test_auc = float("nan"); val_auc = float("nan")
     if args.n_classes == 2:
+        thr = best_threshold(yv, sv)
+        yhat = (st > thr).astype(int)
+        val_yhat = (sv > thr).astype(int)
         if len(np.unique(yt)) == 2:
             test_auc = float(roc_auc_score(yt, st))
         if len(np.unique(yv)) == 2:
             val_auc = float(roc_auc_score(yv, sv))
+    else:
+        thr = None                                       # argmax, sin grado de libertad de umbral
+        yhat = st.argmax(1)
+        val_yhat = sv.argmax(1)
+        labs = list(range(args.n_classes))
+        try:    # macro-OVR AUC (threshold-free) sobre el score softmax 3-dim
+            test_auc = float(roc_auc_score(yt, st, multi_class="ovr",
+                                           average="macro", labels=labs))
+        except ValueError:
+            test_auc = float("nan")
+        try:
+            val_auc = float(roc_auc_score(yv, sv, multi_class="ovr",
+                                          average="macro", labels=labs))
+        except ValueError:
+            val_auc = float("nan")
+
     bal = float(balanced_accuracy_score(yt, yhat))
     acc = float((yt == yhat).mean())
     cm = confusion_matrix(yt, yhat, labels=list(range(args.n_classes)))
-    val_yhat = (sv > thr).astype(int)
     val_acc = float((yv == val_yhat).mean())
 
     test_metrics = {"test_auc": test_auc, "test_acc": acc, "balanced_acc": bal,
@@ -430,10 +458,17 @@ def main():
     patient_results = {}
     rows = []
     for (sid, y), score, pred in zip(splits["test"], st, yhat):
-        prob = np.array([[1.0 - score, score]])
+        if args.n_classes == 2:
+            prob = np.array([[1.0 - float(score), float(score)]])
+            row = {"slide_id": sid, "y_true": int(y),
+                   "y_prob_si": float(score), "y_pred": int(pred)}
+        else:
+            sc = np.asarray(score, dtype=float)
+            prob = sc.reshape(1, -1)                      # [1, C] softmax por clase
+            row = {"slide_id": sid, "y_true": int(y), "y_pred": int(pred)}
+            row.update({f"y_prob_{c}": float(sc[c]) for c in range(args.n_classes)})
         patient_results[sid] = {"slide_id": np.array(sid), "prob": prob, "label": int(y)}
-        rows.append({"slide_id": sid, "y_true": int(y), "y_prob_si": float(score),
-                     "y_pred": int(pred)})
+        rows.append(row)
     pd.DataFrame({"folds": [args.fold], "test_auc": [test_auc], "val_auc": [val_auc],
                   "test_acc": [acc], "val_acc": [val_acc]}).to_csv(
         results_dir / "summary.csv", index=False)

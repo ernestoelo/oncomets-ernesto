@@ -56,6 +56,9 @@ TASKS = {
     # --- Etapa 1 PathPT: necrosis binaria (presente/ausente, no_identificado excluido) ---
     "cdis_necrosis_2clases_pth_100":
         os.path.join(_NT, "dataset_cdis_necrosis_2clases_label.csv"),
+    # --- Etapa 1 PathPT: tasa mitótica 3-clase ordinal (no_identificado excluido) ---
+    "grado_mitotic_3clases_pth_100":
+        os.path.join(_NT, "dataset_grado_mitotic_3clases_label.csv"),
 }
 
 
