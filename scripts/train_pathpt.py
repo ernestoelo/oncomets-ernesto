@@ -76,15 +76,21 @@ TEMPLATES = [
 ]
 TASK_PROMPTS = {
     "necrosis": {
-        # índice 0 = clase "no"/ausente/normal ; índice 1 = clase "si"/presente
+        # índice 0 = "no"/ausente/normal ; índice 1 = "si"/presente.
+        # Prompts v3 = anclados en CAP Invasive.Bx Nota C (comedo/central/focal +
+        # distinción negativa vs material secretorio "without nuclear debris").
+        # go/no-go: v3 AUC 0.688 > v1 0.677 > v2 0.649. Sign-off clínico = Sebastián.
+        # Detalle/provenance: sprints/B5_sprint5/pathpt/prompts_cap.md
         "classnames": [
             ["ductal carcinoma in situ without necrosis",
-             "viable tumor cells without necrosis",
+             "viable tumor cells",
+             "secretory material without nuclear debris",
              "benign breast tissue"],
-            ["tumor necrosis",
-             "comedonecrosis",
-             "necrotic cellular debris",
-             "central necrosis in ductal carcinoma in situ"],
+            ["comedonecrosis",
+             "central necrosis in a ductal space",
+             "expansive necrosis with ghost cells and karyorrhectic debris",
+             "tumor necrosis",
+             "single cell necrosis"],
         ],
         # init del contexto aprendible θ_t (CoOp)
         "ctx_init": "a histopathology image of ",

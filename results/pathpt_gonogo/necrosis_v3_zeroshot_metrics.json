@@ -1,0 +1,116 @@
+{
+  "tarea": "necrosis (binario presente vs ausente, no_identificado excluido)",
+  "prompts": {
+    "classnames": [
+      [
+        "ductal carcinoma in situ without necrosis",
+        "viable tumor cells",
+        "secretory material without nuclear debris",
+        "benign breast tissue"
+      ],
+      [
+        "comedonecrosis",
+        "central necrosis in a ductal space",
+        "expansive necrosis with ghost cells and karyorrhectic debris",
+        "tumor necrosis",
+        "single cell necrosis"
+      ]
+    ],
+    "templates": [
+      "CLASSNAME.",
+      "a photomicrograph showing CLASSNAME.",
+      "a histopathology image of CLASSNAME.",
+      "an H&E stained image showing CLASSNAME.",
+      "breast tissue showing CLASSNAME."
+    ],
+    "labels": [
+      "ausente",
+      "presente"
+    ]
+  },
+  "n_total_subset": 396,
+  "n_evaluadas": 396,
+  "n_missing_pt": 0,
+  "n_por_clase": {
+    "ausente": 83,
+    "presente": 313
+  },
+  "trivial_balanced_acc": 0.5,
+  "por_topj": {
+    "1": {
+      "auc": 0.6747,
+      "balanced_acc_bestthr": 0.6513,
+      "balanced_acc_argmax": 0.6091,
+      "confusion_argmax_[rows=true 0,1][cols=pred 0,1]": [
+        [
+          73,
+          10
+        ],
+        [
+          207,
+          106
+        ]
+      ]
+    },
+    "5": {
+      "auc": 0.6872,
+      "balanced_acc_bestthr": 0.6652,
+      "balanced_acc_argmax": 0.5948,
+      "confusion_argmax_[rows=true 0,1][cols=pred 0,1]": [
+        [
+          77,
+          6
+        ],
+        [
+          231,
+          82
+        ]
+      ]
+    },
+    "10": {
+      "auc": 0.6875,
+      "balanced_acc_bestthr": 0.664,
+      "balanced_acc_argmax": 0.5789,
+      "confusion_argmax_[rows=true 0,1][cols=pred 0,1]": [
+        [
+          77,
+          6
+        ],
+        [
+          241,
+          72
+        ]
+      ]
+    },
+    "50": {
+      "auc": 0.6745,
+      "balanced_acc_bestthr": 0.6572,
+      "balanced_acc_argmax": 0.5593,
+      "confusion_argmax_[rows=true 0,1][cols=pred 0,1]": [
+        [
+          78,
+          5
+        ],
+        [
+          257,
+          56
+        ]
+      ]
+    },
+    "100": {
+      "auc": 0.6642,
+      "balanced_acc_bestthr": 0.6463,
+      "balanced_acc_argmax": 0.5434,
+      "confusion_argmax_[rows=true 0,1][cols=pred 0,1]": [
+        [
+          78,
+          5
+        ],
+        [
+          267,
+          46
+        ]
+      ]
+    }
+  }
+}

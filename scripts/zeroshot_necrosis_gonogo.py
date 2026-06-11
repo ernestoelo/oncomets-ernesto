@@ -33,17 +33,34 @@ os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
 sys.path.insert(0, CONCH_REPO)
 from conch.open_clip_custom import create_model_from_pretrained, get_tokenizer, tokenize
 
-# ====== PROMPTS — EDITABLE (validar clínicamente / CAP) ======
-# CLASE 0 = ausente/normal ; CLASE 1 = presente (necrosis)
-CLASSNAMES = [
-    ["ductal carcinoma in situ without necrosis",
-     "viable tumor cells without necrosis",
-     "benign breast tissue"],
-    ["tumor necrosis",
-     "comedonecrosis",
-     "necrotic cellular debris",
-     "central necrosis in ductal carcinoma in situ"],
-]
+# ====== PROMPTS — versionados (anclados en CAP Invasive.Bx Nota C; ver
+#        sprints/B5_sprint5/pathpt/prompts_cap.md). CLASE 0 = ausente/normal ; 1 = presente.
+PROMPT_SETS = {
+    # v1: actual del driver — mejor AUC 0.677 (top-5). Ya es lenguaje CAP (comedo/central).
+    "v1": [
+        ["ductal carcinoma in situ without necrosis",
+         "viable tumor cells without necrosis",
+         "benign breast tissue"],
+        ["tumor necrosis",
+         "comedonecrosis",
+         "necrotic cellular debris",
+         "central necrosis in ductal carcinoma in situ"],
+    ],
+    # v3: CAP Nota C — palanca no probada = distinción NEGATIVA vs material secretorio
+    # ("does not include nuclear debris") + firma low-mag del comedo (ghost cells / karyorrhectic).
+    "v3": [
+        ["ductal carcinoma in situ without necrosis",
+         "viable tumor cells",
+         "secretory material without nuclear debris",
+         "benign breast tissue"],
+        ["comedonecrosis",
+         "central necrosis in a ductal space",
+         "expansive necrosis with ghost cells and karyorrhectic debris",
+         "tumor necrosis",
+         "single cell necrosis"],
+    ],
+}
+CLASSNAMES = PROMPT_SETS["v1"]   # default; main() lo re-selecciona según --version
 CLASS_LABELS = ["ausente", "presente"]
 TEMPLATES = [
     "CLASSNAME.",
@@ -91,9 +108,14 @@ def topj_pool(logits, topj):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=0, help="máx slides (0=todas, para smoke-test)")
+    ap.add_argument("--version", default="v1", choices=list(PROMPT_SETS),
+                    help="set de prompts (v1=actual 0.677; v3=CAP Nota C, lado negativo refinado)")
     args = ap.parse_args()
+    global CLASSNAMES
+    CLASSNAMES = PROMPT_SETS[args.version]
     os.makedirs(OUT_DIR, exist_ok=True)
     t0 = time.time()
+    print(f"[prompts] versión={args.version}  presente={CLASSNAMES[1]}", flush=True)
 
     print("[1/4] cargando CONCH (CPU)...", flush=True)
     model = create_model_from_pretrained("conch_ViT-B-16", checkpoint_path=CKPT,
@@ -156,12 +178,13 @@ def main():
             "confusion_argmax_[rows=true 0,1][cols=pred 0,1]": confusion_matrix(ys, p, labels=[0, 1]).tolist(),
         }
 
-    with open(os.path.join(OUT_DIR, "necrosis_zeroshot_metrics.json"), "w") as f:
+    tag = "" if args.version == "v1" else f"_{args.version}"   # v1 preserva el nombre histórico
+    with open(os.path.join(OUT_DIR, f"necrosis{tag}_zeroshot_metrics.json"), "w") as f:
         json.dump(out, f, indent=2, ensure_ascii=False)
     pd.DataFrame([{"topj": j, "auc": out["por_topj"][str(j)]["auc"],
                    "balanced_acc_bestthr": out["por_topj"][str(j)]["balanced_acc_bestthr"],
                    "balanced_acc_argmax": out["por_topj"][str(j)]["balanced_acc_argmax"]} for j in TOPJ]
-                 ).to_csv(os.path.join(OUT_DIR, "necrosis_zeroshot_metrics.csv"), index=False)
+                 ).to_csv(os.path.join(OUT_DIR, f"necrosis{tag}_zeroshot_metrics.csv"), index=False)
 
     print("\n===== RESULTADO go/no-go (necrosis, zero-shot CONCH) =====", flush=True)
     print(f"slides evaluadas: {out['n_evaluadas']}  (ausente {out['n_por_clase']['ausente']} / "
@@ -171,7 +194,7 @@ def main():
         d = out["por_topj"][str(j)]
         print(f"  top-{j:<3d}  AUC={d['auc']:.3f}  bal_acc@bestthr={d['balanced_acc_bestthr']:.3f}  "
               f"(bal_acc@argmax={d['balanced_acc_argmax']:.3f}, degenerado)", flush=True)
-    print(f"\n[done {time.time()-t0:.0f}s] -> {OUT_DIR}/necrosis_zeroshot_metrics.{{json,csv}}", flush=True)
+    print(f"\n[done {time.time()-t0:.0f}s] -> {OUT_DIR}/necrosis{tag}_zeroshot_metrics.{{json,csv}}", flush=True)
 
 
 if __name__ == "__main__":
