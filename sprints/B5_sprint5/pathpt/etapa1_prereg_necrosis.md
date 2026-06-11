@@ -231,6 +231,31 @@ el smoke de 1 época diverge / produce NaN de forma irrecuperable. Solo entonces
   pooled mitigan, no eliminan.
 - PathPT-**CONCH**: un null no condena a PathPT con otro encoder (KEEP), que no tenemos.
 
-*Pre-registración (§0–6) escrita ANTES del código de training. Las verificaciones de infra
-(scripts, splits, espacio contrastivo) son read-only sobre datos reales (regla 5). El
-entrenamiento no se ha tocado: requiere reviewer GO + test CPU + OK de Ernesto + `sbatch`.*
+---
+
+## 7. ADDENDUM — hallazgos de implementación (post-reviewer, 10-jun)
+
+Surgieron al portar `models_pathpt/` (reviewer ya había dado GO sobre la propuesta). NO
+cambian el veredicto ni la hipótesis; refinan la interpretación. Validados con smoke CPU
+sobre CONCH real.
+
+1. **Adaptación del pseudo-etiquetado a presencia/ausencia (no subtyping).** La referencia
+   PathPT es de *subtyping*: toda slide tiene un subtipo positivo (parche clase 0=Normal,
+   1..K=subtipos). Necrosis es **binaria presencia/ausencia**. Adaptación (fiel a la tarea):
+   - slide `presente` (y=1): `generate_patch_label` con clase-tumor=1 → parches en {0, 1, −1}.
+   - slide `ausente` (y=0): **todos los parches = 0** (no hay necrosis en ninguna parte →
+     supervisión negativa fuerte, más informativa que en subtyping).
+   Es una adaptación *requerida* por el binario, consistente con el subset pre-registrado.
+
+2. **`candidate_loss` (ec.7, etiqueta parcial) es DEGENERADA en binario.** `−log(p0+pk)` con
+   k=1 y softmax de 2 clases = `−log(p0+p1) = −log(1) = 0` **siempre**. ⇒ con 2 clases el
+   término "partial-label" es **inerte** (verificado: 0.0000 en el smoke). En binario PathPT
+   queda gobernado por `labeled_loss` (parches confiables) + `pseudo_loss` (self-training
+   época≥10) + θ_v (espacial) + θ_t (prompt-tuning). El mecanismo central sigue activo; solo
+   la componente de curriculum de etiqueta-parcial no aplica al régimen 2-clases. **Implicación
+   para H_alt:** si PathPT no aporta, parte de la lectura es que su maquinaria multi-clase se
+   reduce en binario — un matiz honesto, no una excusa.
+
+*Pre-registración (§0–6) escrita ANTES del código de training; §7 = hallazgos durante la
+implementación (post-reviewer GO), validados read-only/CPU. El entrenamiento GPU sigue
+pendiente: requiere test CPU completo + OK de Ernesto + `sbatch`.*
