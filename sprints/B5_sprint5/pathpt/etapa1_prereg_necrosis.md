@@ -256,6 +256,15 @@ sobre CONCH real.
    para H_alt:** si PathPT no aporta, parte de la lectura es que su maquinaria multi-clase se
    reduce en binario — un matiz honesto, no una excusa.
 
+3. **Prompts refinados y anclados en CAP (supersede §3.5 "pool v1").** §3.5 (histórico) decía
+   reusar el pool v1 del go/no-go. Tras revisar los protocolos CAP oficiales
+   (`papers/Breast.Invasive.Bx_1.2.0.0`, Nota C de necrosis), se construyó un set **v3**
+   anclado en el texto literal CAP — clave la **distinción negativa** (necrosis vs *material
+   secretorio* "without nuclear debris"). go/no-go CPU: **v3 AUC 0.688 > v1 0.677 > v2 0.649**.
+   v3 es el default del driver (`train_pathpt.py`). Bmk PDF = IHC, no aplica a H&E. Provenance:
+   `prompts_cap.md`. Sign-off clínico final = Sebastián. (No reescribe §3.5; la registra
+   superada.) [[cap-fuente-clases-tareas]]
+
 *Pre-registración (§0–6) escrita ANTES del código de training; §7 = hallazgos durante la
 implementación (post-reviewer GO), validados read-only/CPU. El entrenamiento GPU sigue
 pendiente: requiere test CPU completo + OK de Ernesto + `sbatch`.*

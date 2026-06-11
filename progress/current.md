@@ -112,6 +112,19 @@ como interesante/viable y pidió **PROBARLO ya** — empezar por **necrosis**, l
   mismas tareas** (necrosis, mitotic; ver notas ajenas sin commitear en el README
   mammoth) → habrá baselines CLAM/mammoth para la comparación **paired**.
 
+### Etapa 1 PathPT (necrosis) — IMPLEMENTADA + validada CPU, lista para lanzar (10-jun)
+
+Branch `feat/pathpt-etapa1` (mergeada a main este turno). Pre-registración + reviewer
+**GO**, alcance **A (Full PathPT)**. Todo el código escrito y validado **sin GPU**:
+- `models_pathpt/` (θ_v + θ_t + 3 pérdidas, port fiel de PathPT pin 0ab7f1b), `scripts/train_pathpt.py`
+  (driver propio), `tests/test_pathpt_cpu.py` **5/5 PASA**, smoke end-to-end exit 0, `.slurm`
+  paired con 3 gates de preflight. Splits k=5 propios `cdis_necrosis_2clases_pth_100` (396, 83/313).
+- **Prompts anclados en CAP** (Invasive.Bx Nota C): v3 AUC 0.688 > v1 0.677 (go/no-go CPU).
+  Provenance `sprints/B5_sprint5/pathpt/prompts_cap.md`; Bmk PDF = IHC, no aplica.
+- **Dep**: `nystrom_attention`+`einops` en `clam_testing2/.pylibs` (torch de clam_latest).
+- **ÚNICO PENDIENTE = GPU**: `sbatch scripts/run_pathpt_etapa1_necrosis_kfold.slurm` (paired CLAM+PathPT
+  k=5). Correr desde **main**, verificar `squeue` (cortesía single-GPU). [[pathpt-testing-necrosis-mitotic]]
+
 ### Reglas que gobiernan el sprint (de CLAUDE.md)
 
 - Argumento antes de código (regla 9) + reviewer antes de commitear modelo/training.
