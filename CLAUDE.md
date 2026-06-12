@@ -744,6 +744,24 @@ re-validar y actualizar `docs/codebase_map.md`.
     `sprints/B5_sprint5/objetivo_2_mammoth_patron_invasion/{resultados.md,resultados_invasion.md}`
     + README consolidado `results/README_experimentos_mammoth_environ.md` §4.b/§4.c + memoria
     [[mammoth-investigacion-integracion]].
+13. **PathPT-CONCH (texto + visión, prompt-tuning θ_t + módulo espacial θ_v + supervisión
+    tile-level) NO es palanca — cierra un 3er ángulo del MISMO cuello.** Probado paired vs CLAM
+    en 3 tareas (B5, 11-jun): **necrosis** binaria (job 4309) → **H_alt**, no aporta (Δbal_acc
+    −0.020 ± 0.078, Δmacro-OVR-AUC −0.066 ± 0.094; el entrenamiento apenas se despega del teacher
+    zero-shot ~0.62 mientras CLAM 0.727). **mitotic** 3-clase ordinal (job 4326) → **COLAPSO de
+    formulación**: PathPT predice siempre la mayoritaria `score_1` (bal_acc 0.333 EXACTO, 0 preds
+    de score_2/3), por la dominancia de la clase basal en el pseudo-etiquetado tile (formulación
+    "clase 0 = score_1 basal", sign-off Sebastián pendiente) — **NO es bug** (eval validado test
+    CPU 9/9; CLAM no colapsa, bal 0.494); el macro-OVR AUC NO colapsa (ranking latente). **microcalc**
+    3 binarias (go/no-go CPU) → **NO-GO**: CONCH no groundea microcalcificaciones (AUC 0.44–0.63;
+    iterar prompts v2/v3 con más morfología EMPEORÓ — mismo patrón necrosis v2<v1; CONCH prefiere
+    términos simples). **Cierre: cuello = CONCH / datos / desbalance / calibración, no el método** —
+    converge con Hallazgos 11 (agregador/DSMIL) y 12 (patch-embed/mammoth): 3 ejes distintos
+    (agregador, patch-embed, lenguaje+tile), 0 palancas. El go/no-go barato (CPU, ~min) ahorró
+    ~18–24h de GPU al descartar microcalc — patrón Etapa 0 (zero-shot) ANTES de Etapa 1 (GPU + reviewer).
+    Detalle: memoria [[pathpt-testing-necrosis-mitotic]] + `sprints/B5_sprint5/pathpt/{resultados_necrosis.md,
+    resultados_mitotic.md,etapa1_prereg_necrosis.md,etapa1_prereg_mitotic.md}` + auditoría
+    `sprints/B5_sprint5/auditoria_coherencia/hallazgos_pathpt.md`.
 
 ## Entorno conda — deps esperadas
 
