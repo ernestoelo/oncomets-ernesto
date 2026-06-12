@@ -80,10 +80,22 @@ TASKS = {
     "microcalc_carcinoma": {
         "csv": "dataset_microcalcificaciones_en_carcinoma_invasivo_label.csv",
         "binary": True, "keep": ["no", "si"], "pos_labels": ["si"], "class_labels": ["no", "si"],
-        "prompts": {"v1": [
-            ["invasive breast carcinoma without calcifications", "tumor without calcium deposits", "no microcalcifications"],
-            ["microcalcifications within invasive carcinoma", "calcifications in invasive breast carcinoma", "calcium deposits in invasive tumor"],
-        ]},
+        "prompts": {
+            "v1": [
+                ["invasive breast carcinoma without calcifications", "tumor without calcium deposits", "no microcalcifications"],
+                ["microcalcifications within invasive carcinoma", "calcifications in invasive breast carcinoma", "calcium deposits in invasive tumor"],
+            ],
+            # v2: morfología H&E de la calcificación (basófila, amorfa, granular)
+            "v2": [
+                ["invasive breast carcinoma without calcifications", "invasive carcinoma without calcium deposits", "tumor without calcific debris"],
+                ["basophilic microcalcifications within invasive carcinoma", "amorphous calcium deposits within invasive tumor", "granular calcific debris in invasive carcinoma", "calcifications within invasive breast carcinoma"],
+            ],
+            # v3: apariencia H&E (depósitos púrpura/laminados, psammomatous) + negativo explícito
+            "v3": [
+                ["invasive breast carcinoma with no calcifications", "viable invasive tumor without calcium", "invasive carcinoma without basophilic deposits"],
+                ["dark basophilic calcifications within invasive carcinoma", "purple amorphous microcalcifications in invasive tumor", "laminated psammomatous calcification in carcinoma", "calcific debris within invasive breast carcinoma"],
+            ],
+        },
     },
     "microcalc_cdis": {
         "csv": "dataset_microcalcificaciones_en_cdis_label.csv",

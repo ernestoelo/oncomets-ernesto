@@ -1,0 +1,115 @@
+{
+  "tarea": "microcalc_carcinoma",
+  "promptset": "v2",
+  "n_clases": 2,
+  "prompts": {
+    "classnames": [
+      [
+        "invasive breast carcinoma without calcifications",
+        "invasive carcinoma without calcium deposits",
+        "tumor without calcific debris"
+      ],
+      [
+        "basophilic microcalcifications within invasive carcinoma",
+        "amorphous calcium deposits within invasive tumor",
+        "granular calcific debris in invasive carcinoma",
+        "calcifications within invasive breast carcinoma"
+      ]
+    ],
+    "templates": [
+      "CLASSNAME.",
+      "a photomicrograph showing CLASSNAME.",
+      "a histopathology image of CLASSNAME.",
+      "an H&E stained image showing CLASSNAME.",
+      "breast tissue showing CLASSNAME."
+    ],
+    "labels": [
+      "no",
+      "si"
+    ]
+  },
+  "n_evaluadas": 328,
+  "n_missing_pt": 0,
+  "n_por_clase": {
+    "no": 260,
+    "si": 68
+  },
+  "trivial_balanced_acc": 0.5,
+  "por_topj": {
+    "1": {
+      "balanced_acc_argmax": 0.4688,
+      "confusion_argmax": [
+        [
+          87,
+          173
+        ],
+        [
+          27,
+          41
+        ]
+      ],
+      "auc": 0.4368,
+      "balanced_acc_bestthr": 0.5253
+    },
+    "5": {
+      "balanced_acc_argmax": 0.4689,
+      "confusion_argmax": [
+        [
+          110,
+          150
+        ],
+        [
+          33,
+          35
+        ]
+      ],
+      "auc": 0.4681,
+      "balanced_acc_bestthr": 0.518
+    },
+    "10": {
+      "balanced_acc_argmax": 0.5035,
+      "confusion_argmax": [
+        [
+          128,
+          132
+        ],
+        [
+          33,
+          35
+        ]
+      ],
+      "auc": 0.4873,
+      "balanced_acc_bestthr": 0.5222
+    },
+    "50": {
+      "balanced_acc_argmax": 0.5152,
+      "confusion_argmax": [
+        [
+          157,
+          103
+        ],
+        [
+          39,
+          29
+        ]
+      ],
+      "auc": 0.5169,
+      "balanced_acc_bestthr": 0.535
+    },
+    "100": {
+      "balanced_acc_argmax": 0.5405,
+      "confusion_argmax": [
+        [
+          174,
+          86
+        ],
+        [
+          40,
+          28
+        ]
+      ],
+      "auc": 0.5331,
+      "balanced_acc_bestthr": 0.5507
+    }
+  }
+}
