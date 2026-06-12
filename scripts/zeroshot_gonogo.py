@@ -75,6 +75,32 @@ TASKS = {
             ],
         },
     },
+    # --- microcalcificaciones (3 binarias; CAP Invasive.Bx Nota D). clase 0=no, 1=si.
+    #     Sign-off clínico de los prompts = Sebastián. no_identificado ya excluido del CSV (328 ident.).
+    "microcalc_carcinoma": {
+        "csv": "dataset_microcalcificaciones_en_carcinoma_invasivo_label.csv",
+        "binary": True, "keep": ["no", "si"], "pos_labels": ["si"], "class_labels": ["no", "si"],
+        "prompts": {"v1": [
+            ["invasive breast carcinoma without calcifications", "tumor without calcium deposits", "no microcalcifications"],
+            ["microcalcifications within invasive carcinoma", "calcifications in invasive breast carcinoma", "calcium deposits in invasive tumor"],
+        ]},
+    },
+    "microcalc_cdis": {
+        "csv": "dataset_microcalcificaciones_en_cdis_label.csv",
+        "binary": True, "keep": ["no", "si"], "pos_labels": ["si"], "class_labels": ["no", "si"],
+        "prompts": {"v1": [
+            ["ductal carcinoma in situ without calcifications", "DCIS without calcium deposits", "no microcalcifications"],
+            ["microcalcifications within ductal carcinoma in situ", "calcifications in DCIS", "calcium deposits in ductal carcinoma in situ"],
+        ]},
+    },
+    "microcalc_tejido": {
+        "csv": "dataset_microcalcificaciones_en_tejido_no_neoplasico_label.csv",
+        "binary": True, "keep": ["no", "si"], "pos_labels": ["si"], "class_labels": ["no", "si"],
+        "prompts": {"v1": [
+            ["non-neoplastic breast tissue without calcifications", "benign breast tissue without calcium deposits", "no microcalcifications"],
+            ["microcalcifications in benign breast tissue", "calcifications in non-neoplastic breast tissue", "calcium deposits in benign breast tissue"],
+        ]},
+    },
 }
 # =====================================================================
 

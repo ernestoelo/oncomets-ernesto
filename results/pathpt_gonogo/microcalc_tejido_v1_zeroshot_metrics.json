@@ -1,0 +1,114 @@
+{
+  "tarea": "microcalc_tejido",
+  "promptset": "v1",
+  "n_clases": 2,
+  "prompts": {
+    "classnames": [
+      [
+        "non-neoplastic breast tissue without calcifications",
+        "benign breast tissue without calcium deposits",
+        "no microcalcifications"
+      ],
+      [
+        "microcalcifications in benign breast tissue",
+        "calcifications in non-neoplastic breast tissue",
+        "calcium deposits in benign breast tissue"
+      ]
+    ],
+    "templates": [
+      "CLASSNAME.",
+      "a photomicrograph showing CLASSNAME.",
+      "a histopathology image of CLASSNAME.",
+      "an H&E stained image showing CLASSNAME.",
+      "breast tissue showing CLASSNAME."
+    ],
+    "labels": [
+      "no",
+      "si"
+    ]
+  },
+  "n_evaluadas": 328,
+  "n_missing_pt": 0,
+  "n_por_clase": {
+    "no": 136,
+    "si": 192
+  },
+  "trivial_balanced_acc": 0.5,
+  "por_topj": {
+    "1": {
+      "balanced_acc_argmax": 0.4831,
+      "confusion_argmax": [
+        [
+          62,
+          74
+        ],
+        [
+          94,
+          98
+        ]
+      ],
+      "auc": 0.4769,
+      "balanced_acc_bestthr": 0.5165
+    },
+    "5": {
+      "balanced_acc_argmax": 0.4856,
+      "confusion_argmax": [
+        [
+          74,
+          62
+        ],
+        [
+          110,
+          82
+        ]
+      ],
+      "auc": 0.4632,
+      "balanced_acc_bestthr": 0.519
+    },
+    "10": {
+      "balanced_acc_argmax": 0.4566,
+      "confusion_argmax": [
+        [
+          81,
+          55
+        ],
+        [
+          131,
+          61
+        ]
+      ],
+      "auc": 0.4534,
+      "balanced_acc_bestthr": 0.5152
+    },
+    "50": {
+      "balanced_acc_argmax": 0.4545,
+      "confusion_argmax": [
+        [
+          96,
+          40
+        ],
+        [
+          153,
+          39
+        ]
+      ],
+      "auc": 0.4414,
+      "balanced_acc_bestthr": 0.5147
+    },
+    "100": {
+      "balanced_acc_argmax": 0.4688,
+      "confusion_argmax": [
+        [
+          102,
+          34
+        ],
+        [
+          156,
+          36
+        ]
+      ],
+      "auc": 0.4441,
+      "balanced_acc_bestthr": 0.5184
+    }
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "tarea": "microcalc_cdis",
+  "promptset": "v1",
+  "n_clases": 2,
+  "prompts": {
+    "classnames": [
+      [
+        "ductal carcinoma in situ without calcifications",
+        "DCIS without calcium deposits",
+        "no microcalcifications"
+      ],
+      [
+        "microcalcifications within ductal carcinoma in situ",
+        "calcifications in DCIS",
+        "calcium deposits in ductal carcinoma in situ"
+      ]
+    ],
+    "templates": [
+      "CLASSNAME.",
+      "a photomicrograph showing CLASSNAME.",
+      "a histopathology image of CLASSNAME.",
+      "an H&E stained image showing CLASSNAME.",
+      "breast tissue showing CLASSNAME."
+    ],
+    "labels": [
+      "no",
+      "si"
+    ]
+  },
+  "n_evaluadas": 328,
+  "n_missing_pt": 0,
+  "n_por_clase": {
+    "no": 210,
+    "si": 118
+  },
+  "trivial_balanced_acc": 0.5,
+  "por_topj": {
+    "1": {
+      "balanced_acc_argmax": 0.4913,
+      "confusion_argmax": [
+        [
+          80,
+          130
+        ],
+        [
+          47,
+          71
+        ]
+      ],
+      "auc": 0.4922,
+      "balanced_acc_bestthr": 0.5492
+    },
+    "5": {
+      "balanced_acc_argmax": 0.464,
+      "confusion_argmax": [
+        [
+          81,
+          129
+        ],
+        [
+          54,
+          64
+        ]
+      ],
+      "auc": 0.4767,
+      "balanced_acc_bestthr": 0.5298
+    },
+    "10": {
+      "balanced_acc_argmax": 0.4759,
+      "confusion_argmax": [
+        [
+          86,
+          124
+        ],
+        [
+          54,
+          64
+        ]
+      ],
+      "auc": 0.4866,
+      "balanced_acc_bestthr": 0.5438
+    },
+    "50": {
+      "balanced_acc_argmax": 0.537,
+      "confusion_argmax": [
+        [
+          117,
+          93
+        ],
+        [
+          57,
+          61
+        ]
+      ],
+      "auc": 0.5236,
+      "balanced_acc_bestthr": 0.5531
+    },
+    "100": {
+      "balanced_acc_argmax": 0.5487,
+      "confusion_argmax": [
+        [
+          129,
+          81
+        ],
+        [
+          61,
+          57
+        ]
+      ],
+      "auc": 0.5334,
+      "balanced_acc_bestthr": 0.5544
+    }
+  }
+}
