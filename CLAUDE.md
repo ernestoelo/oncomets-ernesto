@@ -825,6 +825,20 @@ duplicar trabajo. **NO** intentar editar el `.pptx` ni el PDF del deck
 > Para math bonito en diagramas usar **mathtext** (`$...$`), NO mermaid (texto
 > plano, feo) ni `usetex` (requiere LaTeX instalado).
 
+> **ADDENDUM B5 (14-jun-2026) — el deck SÍ se construye end-to-end con python-pptx,
+> y TODO va NATIVO (no imágenes).** Supera el "Claude no puede editar el `.pptx` / NO
+> intentar editar el `.pptx`" de arriba (que valía cuando solo se entregaban PNG): con
+> python-pptx (`.pylibs`) se arma el deck branded completo y **todo elemento es nativo y
+> editable** — tablas reales (`add_table`), gráficos reales (`add_chart`), matrices de
+> confusión como tabla-heatmap nativa (`add_confusion`), diagramas de bloques (shapes /
+> copia de spTree) y esquemas (`draw_*`). **Regla de ahora en más: tablas, gráficos y
+> diagramas = NATIVOS de PowerPoint, NO PNG matplotlib** (Ernesto quiere agrandar/editar).
+> Única excepción: **figuras externas de un paper** (van como imagen). Los PNG de
+> `generate_slide_assets.py` quedan como respaldo, no como entrega por defecto. Receta y
+> branding completos: `sprints/B5_sprint5/presentacion_b5/convenciones_deck_b5.md` +
+> memoria [[deck-completo-pptx-buildable]]. Diagramas de arquitectura: estilo
+> `Diagrama_CLAM.pptx` (fórmula + dimensiones por bloque, sin bullets, sin solapes).
+
 ## Subagentes disponibles
 
 | Agente | Foco | Cuándo invocarlo |
