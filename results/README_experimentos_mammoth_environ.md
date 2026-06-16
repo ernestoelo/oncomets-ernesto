@@ -230,3 +230,94 @@ GROUP=invasion sbatch $REPO/scripts/run_obj2_mammoth_patron_invasion_kfold.slurm
 - Port de Mammoth: `$REPO/models_mammoth/clam_mammoth.py` (clase `CLAM_MB_Mammoth`,
   subclase de `CLAM_MB`, único delta = la 1ª capa lineal → `MammothPatchEmbed`). Paquete
   `mammoth` vendorizado en `clam_testing2/MAMMOTH` (pin `fe36d4e`).
+
+
+
+# Entrenamiento Seba dataset pth balanced + Mammoth 
+Tareas:
+tipo histologico
+gh. aplica
+gh grado general
+cdi presente
+necrosis
+dif tubular
+pleomorfismo nuclear
+---
+pendientes:
+grado nuclear 
+mitotic rate
+necrosis 2 clases
+
+## Dataset:
+pth balance
+tipo histologico:
+carcinoma invasivo TNE: 1610
+carcinoma lobulillar invasivo: 240
+no id: 788
+otros: 177
+
+gh. aplica:
+no: 797
+no se puede determina: 122
+si: 976
+
+gh grado general
+grado 1: 208
+grado 2: 873
+grado 3: 625
+no identificado: 164
+
+
+cdi presente
+no: 636
+no identificado 1369
+si: 810
+
+necrosis
+ausente: 83
+no identificado: 224
+presente central: 224
+presente focal: 28
+
+dif tubular
+no identificado: 376
+score 1: 47
+score 2: 196
+score 3: 376
+
+pleomorfismo nuclear
+no identificado: 465
+score 1: 62
+score 2: 465
+score 3: 465
+
+## Resultados
+tipo histologico
+mejor: 0,91
+5 fold: 0,88 ± 0,023
+
+gh. aplica
+mejor: 0,9
+5 fold: 0,87 ± 0,024
+
+gh grado general
+mejor: 0,79
+5 fold: 0,74 ± 0,046
+
+cdi presente
+mejor: 0,85
+5 fold: 0,83 ± 0,015
+
+necrosis
+mejor: 0,74
+5 fold: 0,65 ±  0,093
+
+dif tubular
+mejor: 0,87
+5 fold: 0,82 ± 0,062
+
+pleomorfismo nuclear
+mejor: 0,78
+5 fold: 0,77 ± 0,046
+
+
