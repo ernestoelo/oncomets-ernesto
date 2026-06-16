@@ -1,25 +1,21 @@
 #!/usr/bin/env python
 """generate_pathpt_pptx.py — diagrama de ARQUITECTURA de PathPT (.pptx EDITABLE).
 
-Entrega un .pptx editable a mano (NO PNG), mismo estilo que Diagrama_CLAM.pptx
-(rounded-rect teal B8D4D9, fuente Carlito, flechas block). Fuente conceptual:
-sprints/B5_sprint5/pathpt/funcionamiento_pathpt.md (7 ecuaciones, 3 componentes).
+Rev. 5 (feedback Ernesto): MÁS ecuaciones + dimensiones de entrada/salida por bloque y
+SIN solapamientos. Estilo calcado de Diagrama_CLAM.pptx: cascada central de bloques con
+fórmula + dim, callouts de expansión a izquierda (dims visión) y derecha (ecuaciones del
+matching), rama de texto a la derecha. Sin título interno (lo pone el header del deck),
+sin bullets.
 
-Idea central que comunica el diagrama:
-  PathPT clasifica PARCHE por PARCHE sobre CONCH CONGELADO (Φ_v + Φ_t). Reusa las
-  features visuales Φ_v ya extraídas, ENCIENDE el encoder de texto Φ_t (que CLAM
-  ignora) y entrena solo 2 módulos chicos: θ_v (contexto espacial) y θ_t (prompts).
-  Salida doble: clase de slide + mapa de localización.
+Ecuaciones (paper He et al. 2025, validadas en funcionamiento_pathpt.md §2; Fig 1b):
+  vᵢ = Φᵥ(xᵢ)                          (extractor visión, congelado)
+  ṽ = Ψ(v ; θᵥ)                        (módulo espacial: grilla 2D, conv 3/5/7 + transf.)
+  c̄ⱼ = [T]₁…[T]ₖ [CLSⱼ] ;  tⱼ = Φₜ(c̄ⱼ)  (prompt-tuning + extractor texto, congelado)
+  Pᵢⱼ = softmaxⱼ( ⟨tⱼ, ṽᵢ⟩ / τ )       (clasificación por parche; coseno texto–visión)
+  ŷ = tumor-ratio_i(P) ;  mᵢ = argmaxⱼ Pᵢⱼ   (clase de slide + mapa de localización)
 
-Código de color (lectura inmediata):
-  - TEAL  = bloque estándar del pipeline (igual que la referencia CLAM).
-  - GRIS  = CONGELADO (encoders de CONCH; no se entrenan).
-  - NARANJO = ENTRENABLE (θ_v, θ_t; lo único que se aprende).
+Color: azul = pipeline (como CLAM); gris = CONGELADO (CONCH); naranjo = ENTRENABLE (θ).
 
-Convenciones de la presentación: SIN nombres, SIN proceso de entrenamiento
-(no losses/épocas/optimizador) — solo la arquitectura del forward.
-
-Requiere python-pptx (en /media/administrador/Storage1/sdonoso/clam_testing2/.pylibs).
 Uso: PYTHONPATH=/media/administrador/Storage1/sdonoso/clam_testing2/.pylibs \
      /home/sdonoso/miniconda3/envs/clam_latest/bin/python scripts/generate_pathpt_pptx.py
 """
@@ -27,153 +23,202 @@ import os
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
-from pptx.enum.shapes import MSO_SHAPE
+from pptx.enum.shapes import MSO_SHAPE, MSO_CONNECTOR
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 
 REPO = "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto"
 DST = os.path.join(REPO, "papers/presentations/Diagrama_PathPT.pptx")
 
-# ---- paleta (alineada con Diagrama_CLAM.pptx / generate_clam_mammoth_pptx.py) ----
-TEAL_F = RGBColor(0xB8, 0xD4, 0xD9)   # bloque estándar del pipeline
-TEAL_E = RGBColor(0x2C, 0x7A, 0x8C)
-ORA_F  = RGBColor(0xFC, 0xE5, 0xCD)   # ENTRENABLE (θ_v, θ_t)
-ORA_E  = RGBColor(0xE2, 0x72, 0x3B)
-FRZ_F  = RGBColor(0xE3, 0xE7, 0xEB)   # CONGELADO (encoders CONCH)
+BLUE_F = RGBColor(0x6E, 0x9B, 0xC5)
+BLUE_E = RGBColor(0x3C, 0x6A, 0x95)
+NAVY   = RGBColor(0x14, 0x2A, 0x42)
+FRZ_F  = RGBColor(0xE3, 0xE7, 0xEB)
 FRZ_E  = RGBColor(0x9A, 0xA6, 0xB2)
-FRZ_T  = RGBColor(0x5A, 0x64, 0x70)
-OUT_E  = RGBColor(0x1F, 0x4E, 0x5F)   # borde del bloque de salida
+FRZ_T  = RGBColor(0x4A, 0x54, 0x60)
+ORA_F  = RGBColor(0xFB, 0xE2, 0xC8)
+ORA_E  = RGBColor(0xE2, 0x72, 0x3B)
+ORA_T  = RGBColor(0xB4, 0x52, 0x1E)
+DIMF   = RGBColor(0xEC, 0xF1, 0xF5)
+DIME   = RGBColor(0xB7, 0xC6, 0xD4)
+DIM_T  = RGBColor(0x1F, 0x4E, 0x5F)
 INK    = RGBColor(0x22, 0x22, 0x22)
 GREY_T = RGBColor(0x55, 0x55, 0x55)
-TITLE  = RGBColor(0x1F, 0x4E, 0x5F)
 CARLITO = "Carlito"
 
 
 def set_text(shape, lines, align=PP_ALIGN.CENTER):
-    """lines = [(text, size, bold, color), ...] -> párrafos."""
     tf = shape.text_frame
-    tf.word_wrap = True
-    tf.vertical_anchor = MSO_ANCHOR.MIDDLE
-    tf.margin_left = tf.margin_right = Pt(3)
-    tf.margin_top = tf.margin_bottom = Pt(1)
+    tf.word_wrap = True; tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+    tf.margin_left = tf.margin_right = Pt(3); tf.margin_top = tf.margin_bottom = Pt(1)
     for i, (txt, sz, bold, col) in enumerate(lines):
         p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
         p.alignment = align
         r = p.add_run(); r.text = txt
-        r.font.size = Pt(sz); r.font.bold = bold; r.font.name = CARLITO
-        r.font.color.rgb = col
+        r.font.size = Pt(sz); r.font.bold = bold; r.font.name = CARLITO; r.font.color.rgb = col
 
 
-def add_box(slide, l, t, w, h, lines, fill, edge, lw=1.5, align=PP_ALIGN.CENTER):
-    sp = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
-                                Inches(l), Inches(t), Inches(w), Inches(h))
+def box(slide, l, t, w, h, lines, fill, edge, lw=1.5):
+    sp = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(l), Inches(t), Inches(w), Inches(h))
     sp.fill.solid(); sp.fill.fore_color.rgb = fill
-    sp.line.color.rgb = edge; sp.line.width = Pt(lw)
-    sp.shadow.inherit = False
-    set_text(sp, lines, align=align)
+    sp.line.color.rgb = edge; sp.line.width = Pt(lw); sp.shadow.inherit = False
+    set_text(sp, lines)
     return sp
 
 
-def add_arrow(slide, l, t, w, h, down=False):
-    shp = MSO_SHAPE.DOWN_ARROW if down else MSO_SHAPE.RIGHT_ARROW
+def callout(slide, l, t, w, h, lines):
+    return box(slide, l, t, w, h, lines, DIMF, DIME, lw=1)
+
+
+def arrow(slide, l, t, w, h, direction="down"):
+    shp = {"down": MSO_SHAPE.DOWN_ARROW, "right": MSO_SHAPE.RIGHT_ARROW,
+           "left": MSO_SHAPE.LEFT_ARROW}[direction]
     a = slide.shapes.add_shape(shp, Inches(l), Inches(t), Inches(w), Inches(h))
-    a.fill.solid(); a.fill.fore_color.rgb = RGBColor(0x8A, 0x8A, 0x8A)
+    a.fill.solid(); a.fill.fore_color.rgb = BLUE_E
     a.line.fill.background(); a.shadow.inherit = False
     return a
 
 
-def add_textbox(slide, l, t, w, h, lines, align=PP_ALIGN.LEFT):
+def connector(slide, x1, y1, x2, y2):
+    c = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, Inches(x1), Inches(y1), Inches(x2), Inches(y2))
+    c.line.color.rgb = DIME; c.line.width = Pt(1.25); c.shadow.inherit = False
+    return c
+
+
+def textbox(slide, l, t, w, h, lines, align=PP_ALIGN.LEFT):
     tb = slide.shapes.add_textbox(Inches(l), Inches(t), Inches(w), Inches(h))
     set_text(tb, lines, align=align)
     return tb
 
 
-def build(prs):
-    s = prs.slides.add_slide(prs.slide_layouts[6])   # blank
+# ============================================================================
+# Slide 1 — cascada matemática (forward), callouts a ambos lados (sin solape)
+# ============================================================================
 
-    # ---- título ----
-    add_textbox(s, 0.4, 0.18, 12.5, 0.6,
-                [("PathPT — arquitectura: clasificación por parche sobre CONCH congelado",
-                  20, True, TITLE)])
+def build_slide1(prs):
+    s = prs.slides.add_slide(prs.slide_layouts[6])
+    cx, cw = 3.55, 3.35
+    cmid = cx + cw / 2
+    aw = 0.42
 
-    # ---- leyenda (los colores se explican solos) ----
-    add_box(s, 0.4, 1.0, 2.85, 0.34,
-            [("CONGELADO — no se entrena", 9, True, FRZ_T)], FRZ_F, FRZ_E, lw=1)
-    add_box(s, 3.4, 1.0, 2.85, 0.34,
-            [("ENTRENABLE — θ_v , θ_t", 9, True, ORA_E)], ORA_F, ORA_E, lw=1)
+    # ----- cascada central (visión → matching → salida) -----
+    box(s, cx, 0.95, cw, 0.74,
+        [("INPUT — N PARCHES", 12.5, True, NAVY),
+         ("xₖ , k = 1..N   ·   coords (x, y)", 10.5, False, NAVY)], BLUE_F, BLUE_E)
+    arrow(s, cmid - aw / 2, 1.70, aw, 0.26)
 
-    # ============ RAMA DE TEXTO (arriba): θ_t -> Φ_t -> (baja a clasificación) ====
-    add_box(s, 4.7, 1.55, 2.45, 1.15,
-            [("θ_t · PROMPTS APRENDIBLES", 10, True, ORA_E),
-             ("[T]₁ … [T]₃₂  [CLASE]", 9.5, False, INK),
-             ("frase de clase optimizada", 8, False, GREY_T)],
-            ORA_F, ORA_E, lw=2)
-    add_arrow(s, 7.18, 1.96, 0.34, 0.32)
-    add_box(s, 7.55, 1.55, 2.45, 1.15,
-            [("Φ_t · CONCH TEXTO", 10, True, FRZ_T),
-             ("CONGELADO", 8.5, True, FRZ_E),
-             ("t_j ∈ ℝ⁵¹²", 9.5, False, INK)],
-            FRZ_F, FRZ_E)
-    add_arrow(s, 8.60, 2.74, 0.36, 0.40, down=True)   # Φ_t -> clasificación
+    box(s, cx, 1.99, cw, 0.92,
+        [("Φᵥ · EXTRACTOR VISIÓN  (congelado)", 11.5, True, FRZ_T),
+         ("vᵢ = Φᵥ(xᵢ)   ·   vᵢ ∈ ℝ⁵¹²", 12, True, INK)], FRZ_F, FRZ_E)
+    arrow(s, cmid - aw / 2, 2.92, aw, 0.26)
 
-    # ============ RAMA VISUAL (fila principal): WSI -> Φ_v -> θ_v -> clasif ======
-    add_box(s, 0.40, 3.15, 2.15, 1.25,
-            [("WSI → N PARCHES", 10.5, True, INK),
-             ("+ coordenadas (x , y)", 9, False, GREY_T)],
-            TEAL_F, TEAL_E)
-    add_arrow(s, 2.62, 3.56, 0.34, 0.32)
-    add_box(s, 3.05, 3.15, 2.30, 1.25,
-            [("Φ_v · CONCH VISIÓN", 10.5, True, FRZ_T),
-             ("CONGELADO", 8.5, True, FRZ_E),
-             ("v_i ∈ ℝ⁵¹²  (features .pt)", 9, False, INK)],
-            FRZ_F, FRZ_E)
-    add_arrow(s, 5.42, 3.56, 0.34, 0.32)
-    add_box(s, 5.85, 3.15, 2.60, 1.25,
-            [("θ_v · AGREGACIÓN ESPACIAL", 10, True, ORA_E),
-             ("grilla 2D · conv 3/5/7 + transformer", 7.5, False, GREY_T),
-             ("→ vector refinado por parche", 8.5, False, INK)],
-            ORA_F, ORA_E, lw=2)
-    add_arrow(s, 8.52, 3.56, 0.34, 0.32)
-    add_box(s, 8.95, 3.15, 2.60, 1.25,
-            [("CLASIFICACIÓN POR PARCHE", 10, True, INK),
-             ("p(clase | parche) =", 8.5, False, GREY_T),
-             ("softmax( cos(t_j , ṽ) / τ )", 8.5, False, GREY_T)],
-            TEAL_F, TEAL_E)
+    box(s, cx, 3.21, cw, 1.12,
+        [("θᵥ · AGREGACIÓN ESPACIAL  (entrenable)", 11, True, ORA_T),
+         ("ṽ = Ψ(v ; θᵥ)", 12.5, True, INK),
+         ("ṽ ∈ ℝ^(N×512)", 11, True, DIM_T)], ORA_F, ORA_E, lw=2)
+    arrow(s, cmid - aw / 2, 4.34, aw, 0.26)
 
-    # ============ SALIDA (abajo-derecha) ============
-    add_arrow(s, 10.07, 4.50, 0.36, 0.78, down=True)   # clasif -> salida
-    add_box(s, 8.60, 5.35, 3.50, 1.25,
-            [("AGREGACIÓN tumor-ratio", 10, True, INK),
-             ("→ CLASE DE LA SLIDE", 9.5, True, INK),
-             ("+ MAPA DE LOCALIZACIÓN", 9.5, True, TEAL_E)],
-            TEAL_F, OUT_E, lw=2.25)
+    box(s, cx, 4.63, cw, 1.12,
+        [("MATCHING POR PARCHE", 12, True, NAVY),
+         ("Pᵢⱼ = softmaxⱼ( ⟨ tⱼ , ṽᵢ ⟩ / τ )", 12.5, True, NAVY),
+         ("P ∈ ℝ^(N×C)", 11, True, DIM_T)], BLUE_F, BLUE_E)
+    arrow(s, cmid - aw / 2, 5.76, aw, 0.26)
 
-    # ============ caption (abajo-izquierda) ============
-    cap = ("PathPT clasifica PARCHE por PARCHE usando el encoder de TEXTO de CONCH (Φ_t), "
-           "que un MIL clásico como CLAM ignora. Reusa las features visuales Φ_v ya extraídas "
-           "y entrena solo dos módulos chicos — θ_v (contexto espacial entre parches vecinos) "
-           "y θ_t (prompts de clase) — con los encoders de CONCH congelados → apto para pocos "
-           "datos. Da la clase de la slide y, además, un mapa de localización del hallazgo que "
-           "CLAM no entrega.")
-    cb = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
-                            Inches(0.40), Inches(5.35), Inches(7.95), Inches(1.25))
-    cb.fill.solid(); cb.fill.fore_color.rgb = RGBColor(0xF7, 0xF8, 0xFA)
-    cb.line.color.rgb = RGBColor(0xC9, 0xCD, 0xD2); cb.line.width = Pt(1)
-    cb.shadow.inherit = False
-    set_text(cb, [(cap, 10.5, False, RGBColor(0x33, 0x33, 0x33))], align=PP_ALIGN.LEFT)
+    box(s, cx, 6.05, cw, 0.95,
+        [("AGREGACIÓN tumor-ratio", 12, True, NAVY),
+         ("ŷ ∈ ℝ^C  (clase slide)   ·   mapa loc. ∈ ℝ^N", 10.5, True, NAVY)], BLUE_F, BLUE_E)
+
+    # ----- callouts de dimensión a la IZQUIERDA (visión) -----
+    lx, lw_ = 0.42, 2.75
+    connector(s, lx + lw_, 2.45, cx, 2.45)
+    callout(s, lx, 2.15, lw_, 0.62, [("v ∈ ℝ^(N×512)  ·  features .pt", 11.5, True, DIM_T),
+                                      ("(ya extraídas, no se recalculan)", 9.5, False, GREY_T)])
+    connector(s, lx + lw_, 3.77, cx, 3.77)
+    callout(s, lx, 3.40, lw_, 0.78, [("ordena parches por coords → grilla 2D", 10.5, True, INK),
+                                      ("conv 3/5/7 (local) ⊕ transformer (global)", 9.5, False, GREY_T)])
+    connector(s, lx + lw_, 5.19, cx, 5.19)
+    callout(s, lx, 4.88, lw_, 0.62, [("UNA predicción por CADA parche", 11, True, INK),
+                                      ("(C = nº de clases)", 9.5, False, GREY_T)])
+
+    # ----- rama de TEXTO a la derecha (alimenta el matching) -----
+    tx, tw = 7.55, 3.30
+    box(s, tx, 3.20, tw, 1.00,
+        [("θₜ · PROMPTS  (entrenable)", 11.5, True, ORA_T),
+         ("c̄ⱼ = [T]₁ … [T]ₖ [CLSⱼ]", 11.5, True, INK)], ORA_F, ORA_E, lw=2)
+    arrow(s, tx + tw / 2 - aw / 2, 4.21, aw, 0.26)
+    box(s, tx, 4.50, tw, 1.05,
+        [("Φₜ · EXTRACTOR TEXTO  (congelado)", 11, True, FRZ_T),
+         ("tⱼ = Φₜ(c̄ⱼ)", 12, True, INK),
+         ("t ∈ ℝ^(C×512)", 11, True, DIM_T)], FRZ_F, FRZ_E)
+    # Φ_t → matching (flecha a la izquierda)
+    arrow(s, cx + cw + 0.02, 4.92, tx - (cx + cw) - 0.06, 0.30, direction="left")
+
+    # ----- callouts de ECUACIÓN a la derecha -----
+    rx, rw = 11.05, 2.20
+    callout(s, rx, 3.22, rw, 0.95, [("K = 32 tokens", 11, True, INK),
+                                    ("aprendidos (CoOp)", 9.5, False, GREY_T),
+                                    ("init. desde frase clínica", 9, False, GREY_T)])
+    callout(s, rx, 4.55, rw, 0.98, [("⟨tⱼ, ṽᵢ⟩ = coseno", 11, True, DIM_T),
+                                    ("texto ↔ visión", 9.5, False, GREY_T),
+                                    ("τ = temperatura", 10, True, DIM_T)])
+
+    # ----- callout tumor-ratio (abajo-derecha, junto a la salida) -----
+    callout(s, 7.10, 6.05, 3.9, 0.95,
+            [("tumor-ratio = fracción de parches positivos → clase de slide", 11, True, INK),
+             ("mᵢ = argmaxⱼ Pᵢⱼ  →  mapa de localización ∈ ℝ^N", 10.5, True, DIM_T)])
+    connector(s, cx + cw, 6.52, 7.10, 6.52)
+
+    return s
+
+
+# ============================================================================
+# Slide 2 — los 3 componentes entrenables (zoom, referencia)
+# ============================================================================
+
+def _panel(s, x, header, steps):
+    W = 4.0
+    box(s, x, 1.20, W, 0.72, [(header, 14, True, ORA_T)], ORA_F, ORA_E, lw=2.25)
+    y = 2.30
+    for i, st in enumerate(steps):
+        h = 0.82
+        box(s, x + 0.25, y, W - 0.5, h, st, DIMF, DIME, lw=1)
+        y += h
+        if i < len(steps) - 1:
+            arrow(s, x + W / 2 - 0.17, y - 0.02, 0.34, 0.30)
+            y += 0.30
+
+
+def build_slide2(prs):
+    s = prs.slides.add_slide(prs.slide_layouts[6])
+    _panel(s, 0.45, "θᵥ · MÓDULO ESPACIAL", [
+        [("parches en grilla 2D (x, y)", 12, True, INK)],
+        [("conv 3×3 / 5×5 / 7×7", 12, True, INK), ("vecindario local", 9.5, False, GREY_T)],
+        [("transformer (global)", 12, True, INK)],
+        [("ṽᵢ refinado · N×512", 12, True, DIM_T)],
+    ])
+    _panel(s, 4.65, "θₜ · PROMPT-TUNING", [
+        [("[T]₁ [T]₂ ⋯ [T]ₖ [CLASE]", 12, True, INK)],
+        [("Φₜ · CONCH texto (congelado)", 11.5, True, FRZ_T)],
+        [("tⱼ vector de clase · C×512", 12, True, DIM_T)],
+        [("aprende la frase, no la escribe", 11, True, ORA_T)],
+    ])
+    _panel(s, 8.85, "PSEUDO-LABELS (tile)", [
+        [("coseno( parche , frase )", 12, True, INK)],
+        [("clase tentativa del parche", 12, True, INK)],
+        [("retener si concuerda con slide", 11.5, True, INK)],
+        [("→ CE balanceada por clase", 12, True, DIM_T)],
+    ])
     return s
 
 
 def main():
     prs = Presentation()
-    prs.slide_width = Inches(13.333)
-    prs.slide_height = Inches(7.5)
-    build(prs)
+    prs.slide_width = Inches(13.333); prs.slide_height = Inches(7.5)
+    build_slide1(prs); build_slide2(prs)
     prs.save(DST)
     chk = Presentation(DST)
-    sh = chk.slides[0].shapes
-    has_pathpt = any(x.has_text_frame and "POR PARCHE" in x.text for x in sh)
+    has = any(x.has_text_frame and "MATCHING" in x.text for x in chk.slides[0].shapes)
     print(f"OK  {os.path.relpath(DST, REPO)}  slides={len(chk.slides)}  "
-          f"shapes={len(sh)}  clasif_por_parche={has_pathpt}")
+          f"s1_shapes={len(chk.slides[0].shapes)}  matching={has}")
 
 
 if __name__ == "__main__":

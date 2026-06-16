@@ -93,8 +93,25 @@ def edit_slide1(slide):
             break
 
 
+def add_connector(slide, x1, y1, x2, y2, color=RGBColor(0x8A, 0x8A, 0x8A), w=1.75):
+    """Conector recto con punta de flecha (para el abanico router<->expertos)."""
+    from pptx.enum.shapes import MSO_CONNECTOR
+    from pptx.oxml.ns import qn
+    cxn = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT,
+                                     Inches(x1), Inches(y1), Inches(x2), Inches(y2))
+    cxn.line.color.rgb = color; cxn.line.width = Pt(w)
+    cxn.shadow.inherit = False
+    ln = cxn.line._get_or_add_ln()
+    tail = ln.makeelement(qn("a:tailEnd"), {"type": "triangle", "w": "med", "len": "med"})
+    ln.append(tail)
+    return cxn
+
+
 def build_slide2(prs):
-    """Zoom limpio: qué hace mammoth (router + expertos -> suma ponderada)."""
+    """Zoom limpio: qué hace mammoth (router + expertos -> suma ponderada).
+
+    Layout en abanico con conectores rectos (sin flechas sueltas) y sin caption.
+    """
     blank = None
     for lay in prs.slide_layouts:
         if lay.name and "blank" in lay.name.lower():
@@ -102,50 +119,46 @@ def build_slide2(prs):
     blank = blank or prs.slide_layouts[-1]
     s = prs.slides.add_slide(blank)
 
-    # título
-    tb = s.shapes.add_textbox(Inches(0.5), Inches(0.25), Inches(12.3), Inches(0.7))
-    set_text(tb, [("MAMMOTH — qué hace (zoom de la 1ª capa de CLAM)", 20, True, RGBColor(0x1F,0x4E,0x5F))],
-             align=PP_ALIGN.LEFT)
+    # (sin título interno: el header del deck pone el título branded coincidente)
+
+    # geometría (contenido bajo el header del deck, centrado)
+    feat = (0.7, 2.95, 2.6, 1.35)
+    rout = (3.9, 2.95, 2.6, 1.35)
+    ex_x, ex_w, ex_h = 7.1, 2.95, 1.2
+    ex_y = [1.45, 3.05, 4.65]
+    summ = (10.55, 2.95, 2.55, 1.35)
+    cyc = 3.625                              # centro vertical de la fila principal
 
     # entrada
-    add_box(s, 0.6, 3.05, 2.5, 1.1,
-            [("FEATURE DEL PARCHE", 11, True, INK), ("z ∈ ℝ⁵¹²  (CONCH)", 10, False, GREY_T)],
-            TEAL_F, RGBColor(0x2C,0x7A,0x8C))
-    add_arrow(s, 3.2, 3.42, 0.55, 0.38)
+    add_box(s, *feat,
+            [("FEATURE DEL PARCHE", 16, True, INK), ("z ∈ ℝ⁵¹²  (CONCH)", 14, False, GREY_T)],
+            TEAL_F, RGBColor(0x2C, 0x7A, 0x8C))
+    add_connector(s, feat[0] + feat[2], cyc, rout[0], cyc)
 
     # router
-    add_box(s, 3.9, 3.05, 2.2, 1.1,
-            [("ROUTER / GATING", 11, True, ORA_E), ("g(z) → pesos por experto", 9.5, False, GREY_T)],
-            ORA_F, ORA_E, lw=2)
+    add_box(s, *rout,
+            [("ROUTER", 18, True, ORA_E), ("g(z) → pesos por experto", 13, False, GREY_T)],
+            ORA_F, ORA_E, lw=2.5)
 
-    # expertos (3 representativos + "…")
-    ex_x = 6.55
+    # expertos (3 representativos)
     for i, lab in enumerate(["EXPERTO 1", "EXPERTO 2", "EXPERTO E"]):
-        add_box(s, ex_x, 1.6 + i*1.5, 2.5, 1.05,
-                [(lab + "  (bajo rango)", 10, True, INK), ("z · Wₑ ,  rank ≪ 512", 9, False, GREY_T)],
+        add_box(s, ex_x, ex_y[i], ex_w, ex_h,
+                [(lab, 16, True, INK), ("z · Wₑ ,  rank ≪ 512", 13, False, GREY_T)],
                 BLU_F, BLU_E)
-    tb2 = s.shapes.add_textbox(Inches(ex_x), Inches(4.15), Inches(2.5), Inches(0.4))
-    set_text(tb2, [("⋮", 16, True, GREY_T)])
-    # router -> expertos (3 flechitas)
-    for i in range(3):
-        add_arrow(s, 6.05, 1.95 + i*1.5, 0.45, 0.32)
+        cy = ex_y[i] + ex_h / 2
+        add_connector(s, rout[0] + rout[2], cyc, ex_x, cy)
+        add_connector(s, ex_x + ex_w, cy, summ[0], cyc)
+
+    # etiqueta
+    lb = s.shapes.add_textbox(Inches(ex_x), Inches(6.15), Inches(ex_w), Inches(0.4))
+    set_text(lb, [("expertos de bajo rango (especializados)", 13, False, GREY_T)],
+             align=PP_ALIGN.CENTER)
 
     # suma ponderada
-    add_box(s, 9.55, 3.05, 2.55, 1.15,
-            [("SUMA PONDERADA", 11, True, INK), ("h = Σₑ gₑ(z) · (z Wₑ)", 10, False, GREY_T),
-             ("h ∈ ℝ⁵¹²", 9.5, False, GREY_T)],
-            TEAL_F, RGBColor(0x2C,0x7A,0x8C))
-    for i in range(3):
-        add_arrow(s, 9.1, 1.95 + i*1.5, 0.42, 0.30)
-
-    # caption
-    cap = ("En CLAM, la 1ª capa es UNA proyección lineal (H = ReLU(Z·W₁ᵀ)). Mammoth la reemplaza por una "
-           "MEZCLA DE EXPERTOS de bajo rango con un router que enruta cada parche a expertos especializados "
-           "(mitiga la interferencia de gradientes entre instancias). El resto de CLAM no cambia.")
-    cb = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.6), Inches(5.55), Inches(12.1), Inches(1.25))
-    cb.fill.solid(); cb.fill.fore_color.rgb = RGBColor(0xF7,0xF8,0xFA)
-    cb.line.color.rgb = RGBColor(0xC9,0xCD,0xD2); cb.line.width = Pt(1); cb.shadow.inherit = False
-    set_text(cb, [(cap, 11, False, RGBColor(0x33,0x33,0x33))], align=PP_ALIGN.LEFT)
+    add_box(s, *summ,
+            [("SUMA PONDERADA", 16, True, INK), ("h = Σₑ gₑ(z)·(z Wₑ)", 14, False, GREY_T),
+             ("h ∈ ℝ⁵¹²", 13, False, GREY_T)],
+            TEAL_F, RGBColor(0x2C, 0x7A, 0x8C))
     return s
 
 
