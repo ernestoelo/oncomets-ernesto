@@ -1,18 +1,20 @@
 #!/usr/bin/env python
 """generate_pathpt_pptx.py — diagrama de ARQUITECTURA de PathPT (.pptx EDITABLE).
 
-Rev. 5 (feedback Ernesto): MÁS ecuaciones + dimensiones de entrada/salida por bloque y
-SIN solapamientos. Estilo calcado de Diagrama_CLAM.pptx: cascada central de bloques con
-fórmula + dim, callouts de expansión a izquierda (dims visión) y derecha (ecuaciones del
-matching), rama de texto a la derecha. Sin título interno (lo pone el header del deck),
-sin bullets.
+Rev. 6 (feedback Ernesto 15-jun): RAIL DE ÁLGEBRA DE DIMENSIONES a la derecha de la
+cascada — la transformación de forma en CADA flecha/transición, estilo CLAM
+(`[N×512]·[512×C]=[N×C]`), que es lo que faltaba. Rama de texto a la IZQUIERDA (como en
+Fig 1b del paper, donde converge en el matching). Cada bloque lleva su ECUACIÓN del paper
+(ec. 4/5/6/8). Sin título interno (lo pone el header del deck), sin bullets, sin solapes.
 
-Ecuaciones (paper He et al. 2025, validadas en funcionamiento_pathpt.md §2; Fig 1b):
-  vᵢ = Φᵥ(xᵢ)                          (extractor visión, congelado)
-  ṽ = Ψ(v ; θᵥ)                        (módulo espacial: grilla 2D, conv 3/5/7 + transf.)
-  c̄ⱼ = [T]₁…[T]ₖ [CLSⱼ] ;  tⱼ = Φₜ(c̄ⱼ)  (prompt-tuning + extractor texto, congelado)
-  Pᵢⱼ = softmaxⱼ( ⟨tⱼ, ṽᵢ⟩ / τ )       (clasificación por parche; coseno texto–visión)
-  ŷ = tumor-ratio_i(P) ;  mᵢ = argmaxⱼ Pᵢⱼ   (clase de slide + mapa de localización)
+Ecuaciones (paper He et al. 2025 — Methods §4.3-4.8, Fig 1b; verbatim del PDF):
+  vᵢ = Φᵥ(xᵢ) ∈ ℝ^d                                            (4.1/4.2, extractor visión, congelado)
+  v̄₁..v̄_M = Ψ(Φᵥ(x₁)..Φᵥ(x_M))                                (ec. 4, módulo espacial: conv 3/5/7 ⊕ transformer)
+  c̄ = [T]₁…[T]ₖ [CLASS] ; [T]ᵢ ∈ ℝ^(d×1) ; K=32               (ec. 5, prompt-tuning CoOp)
+  p(y=j|xᵢ) = softmaxⱼ( ⟨Φₜ(c̄ⱼ), v̄ᵢ⟩ / τ )                    (ec. 6, clasificación por parche)
+  ŷ = tumor-ratio(P) ;  mᵢ = argmaxⱼ Pᵢⱼ                       (ec. 8 BACC eval-protocol + grounding)
+Notación del paper: M=nº tiles, d=dim, N=nº clases. En el deck usamos N=nº parches,
+512=d (CONCH), C=nº clases (coherente con Diagrama_CLAM.pptx que usa N=parches).
 
 Color: azul = pipeline (como CLAM); gris = CONGELADO (CONCH); naranjo = ENTRENABLE (θ).
 
@@ -25,6 +27,7 @@ from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE, MSO_CONNECTOR
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
+from pptx.oxml.ns import qn
 
 REPO = "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto"
 DST = os.path.join(REPO, "papers/presentations/Diagrama_PathPT.pptx")
@@ -84,6 +87,15 @@ def connector(slide, x1, y1, x2, y2):
     return c
 
 
+def edge(slide, x1, y1, x2, y2, color=BLUE_E, w=2.25):
+    """Conector recto con punta de flecha al final (aristas del árbol/cascada)."""
+    c = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, Inches(x1), Inches(y1), Inches(x2), Inches(y2))
+    c.line.color.rgb = color; c.line.width = Pt(w); c.shadow.inherit = False
+    ln = c.line._get_or_add_ln()
+    ln.append(ln.makeelement(qn('a:tailEnd'), {'type': 'triangle', 'w': 'med', 'len': 'med'}))
+    return c
+
+
 def textbox(slide, l, t, w, h, lines, align=PP_ALIGN.LEFT):
     tb = slide.shapes.add_textbox(Inches(l), Inches(t), Inches(w), Inches(h))
     set_text(tb, lines, align=align)
@@ -91,81 +103,109 @@ def textbox(slide, l, t, w, h, lines, align=PP_ALIGN.LEFT):
 
 
 # ============================================================================
-# Slide 1 — cascada matemática (forward), callouts a ambos lados (sin solape)
+# Slide 1 — CASCADA / 3 RAMAS (rev 14): igual que rev 13 (modular + callouts + paneles)
+# pero TEXTO MÁS GRANDE y bloques más grandes (visión fusiona Φᵥ+W_proj → 4 bloques,
+# simétrico con texto), y el centro vacío se llena con el BACKBONE CONCH compartido
+# (Φᵥ y Φₜ = los dos encoders del mismo CONCH congelado), conectado a ambas ramas.
+# Fuentes de código: spatial.py / prompt.py / pathpt.py (pin 0ab7f1b).
 # ============================================================================
+
+PVIS = RGBColor(0xEC, 0xF2, 0xF8)   # panel visión (azul claro)
+PTXT = RGBColor(0xFB, 0xF3, 0xEA)   # panel texto (naranjo claro)
+PMAT = RGBColor(0xEE, 0xF1, 0xF3)   # panel matching (gris claro)
+
 
 def build_slide1(prs):
     s = prs.slides.add_slide(prs.slide_layouts[6])
-    cx, cw = 3.55, 3.35
-    cmid = cx + cw / 2
-    aw = 0.42
+    hb, pit = 0.66, 0.88
 
-    # ----- cascada central (visión → matching → salida) -----
-    box(s, cx, 0.95, cw, 0.74,
-        [("INPUT — N PARCHES", 12.5, True, NAVY),
-         ("xₖ , k = 1..N   ·   coords (x, y)", 10.5, False, NAVY)], BLUE_F, BLUE_E)
-    arrow(s, cmid - aw / 2, 1.70, aw, 0.26)
+    def mod(x, t, w, label, kind):
+        f, e, tc = {"b": (BLUE_F, BLUE_E, NAVY), "f": (FRZ_F, FRZ_E, FRZ_T),
+                    "o": (ORA_F, ORA_E, ORA_T)}[kind]
+        box(s, x, t, w, hb, [(label, 13, True, tc)], f, e, lw=2)
 
-    box(s, cx, 1.99, cw, 0.92,
-        [("Φᵥ · EXTRACTOR VISIÓN  (congelado)", 11.5, True, FRZ_T),
-         ("vᵢ = Φᵥ(xᵢ)   ·   vᵢ ∈ ℝ⁵¹²", 12, True, INK)], FRZ_F, FRZ_E)
-    arrow(s, cmid - aw / 2, 2.92, aw, 0.26)
+    def panel(x, t, w, h, fill, title, tcol):
+        box(s, x, t, w, h, [], fill, DIME, lw=1)
+        textbox(s, x, t + 0.07, w, 0.34, [(title, 14, True, tcol)], align=PP_ALIGN.CENTER)
 
-    box(s, cx, 3.21, cw, 1.12,
-        [("θᵥ · AGREGACIÓN ESPACIAL  (entrenable)", 11, True, ORA_T),
-         ("ṽ = Ψ(v ; θᵥ)", 12.5, True, INK),
-         ("ṽ ∈ ℝ^(N×512)", 11, True, DIM_T)], ORA_F, ORA_E, lw=2)
-    arrow(s, cmid - aw / 2, 4.34, aw, 0.26)
+    # ===================== RAMA VISIÓN (panel izq) =====================
+    panel(0.10, 0.92, 5.05, 4.36, PVIS, "RAMA VISIÓN · θᵥ", BLUE_E)
+    xV, wV, cV = 2.66, 2.32, 3.82
+    xLc, wLc = 0.24, 2.28
+    yv = [1.55 + i * pit for i in range(4)]
+    mod(xV, yv[0], wV, "N parches + coords", "b")
+    mod(xV, yv[1], wV, "Φᵥ · CONCH + W_proj", "f")
+    mod(xV, yv[2], wV, "θᵥ · conv 3/5/7 (local)", "o")
+    mod(xV, yv[3], wV, "θᵥ · NyströmAttn (global)", "o")
+    for i in range(3):
+        edge(s, cV, yv[i] + hb, cV, yv[i + 1])
+    for i, lines in [
+        (0, [("xₖ ∈ ℝ^(256×256×3)", 10.5, True, INK), ("+ coords (x,y)", 9.5, False, GREY_T)]),
+        (1, [("vᵢ = hᵢ · W_proj ∈ ℝ⁵¹²", 10.5, True, INK), ("V ∈ ℝ^(N×512)", 9.5, True, DIM_T)]),
+        (2, [("oₖ = ReLU(LN(Convₖ V))", 10, True, INK), ("k=3,5,7 · o₁+o₂+o₃+V", 9, False, GREY_T)]),
+        (3, [("V̄ = LN(NyströmAttn(·))", 10, True, INK), ("8h · 256 landmk · 6 pinv", 9, False, GREY_T)]),
+    ]:
+        yc = yv[i] + hb / 2
+        callout(s, xLc, yv[i] + 0.02, wLc, 0.62, lines)
+        connector(s, xLc + wLc, yc, xV, yc)
 
-    box(s, cx, 4.63, cw, 1.12,
-        [("MATCHING POR PARCHE", 12, True, NAVY),
-         ("Pᵢⱼ = softmaxⱼ( ⟨ tⱼ , ṽᵢ ⟩ / τ )", 12.5, True, NAVY),
-         ("P ∈ ℝ^(N×C)", 11, True, DIM_T)], BLUE_F, BLUE_E)
-    arrow(s, cmid - aw / 2, 5.76, aw, 0.26)
+    # ===================== RAMA TEXTO (panel der) =====================
+    panel(8.18, 0.92, 5.04, 4.36, PTXT, "RAMA TEXTO · θₜ", ORA_T)
+    xT, wT, cT = 8.38, 2.32, 9.54
+    xRc, wRc = 10.88, 2.30
+    yt = [1.55 + i * pit for i in range(4)]
+    mod(xT, yt[0], wT, "θₜ · ctx CoOp", "o")
+    mod(xT, yt[1], wT, "ensamblar prompt", "o")
+    mod(xT, yt[2], wT, "Φₜ · text-transformer", "f")
+    mod(xT, yt[3], wT, "proyección · W_text", "f")
+    for i in range(3):
+        edge(s, cT, yt[i] + hb, cT, yt[i + 1])
+    for i, lines in [
+        (0, [("ctx ∈ ℝ^(C×32×768)", 10.5, True, INK), ('init "a histopath. image of"', 9, False, GREY_T)]),
+        (1, [("[SOS | ctx×32 | CLS+EOS]", 10, True, INK), ("→ ℝ^(C×127×768)", 9.5, True, DIM_T)]),
+        (2, [("+pos +CLS +attn causal", 10, True, INK), ("ln_final · pooled ∈ ℝ⁷⁶⁸", 9, False, GREY_T)]),
+        (3, [("tⱼ = pooled · W_text ∈ ℝ⁵¹²", 10, True, INK), ("T ∈ ℝ^(C×512)", 9.5, True, DIM_T)]),
+    ]:
+        yc = yt[i] + hb / 2
+        callout(s, xRc, yt[i] + 0.02, wRc, 0.62, lines)
+        connector(s, xT + wT, yc, xRc, yc)
 
-    box(s, cx, 6.05, cw, 0.95,
-        [("AGREGACIÓN tumor-ratio", 12, True, NAVY),
-         ("ŷ ∈ ℝ^C  (clase slide)   ·   mapa loc. ∈ ℝ^N", 10.5, True, NAVY)], BLUE_F, BLUE_E)
+    # ===================== BACKBONE CONCH (centro-arriba, llena el medio) =====================
+    box(s, 5.45, 1.55, 2.42, 1.34,
+        [("CONCH", 16, True, NAVY), ("modelo visión–lenguaje", 10.5, False, GREY_T),
+         ("Φᵥ + Φₜ · congelados", 11, True, FRZ_T)], FRZ_F, FRZ_E, lw=2)
+    connector(s, 4.98, yv[1] + hb / 2, 5.45, 2.10)   # CONCH → Φᵥ (visión)
+    connector(s, 7.87, 2.30, 8.38, yt[2] + hb / 2)   # CONCH → Φₜ (texto)
 
-    # ----- callouts de dimensión a la IZQUIERDA (visión) -----
-    lx, lw_ = 0.42, 2.75
-    connector(s, lx + lw_, 2.45, cx, 2.45)
-    callout(s, lx, 2.15, lw_, 0.62, [("v ∈ ℝ^(N×512)  ·  features .pt", 11.5, True, DIM_T),
-                                      ("(ya extraídas, no se recalculan)", 9.5, False, GREY_T)])
-    connector(s, lx + lw_, 3.77, cx, 3.77)
-    callout(s, lx, 3.40, lw_, 0.78, [("ordena parches por coords → grilla 2D", 10.5, True, INK),
-                                      ("conv 3/5/7 (local) ⊕ transformer (global)", 9.5, False, GREY_T)])
-    connector(s, lx + lw_, 5.19, cx, 5.19)
-    callout(s, lx, 4.88, lw_, 0.62, [("UNA predicción por CADA parche", 11, True, INK),
-                                      ("(C = nº de clases)", 9.5, False, GREY_T)])
+    # ===================== RAMA MATCHING (panel centro-abajo) =====================
+    panel(4.96, 5.00, 3.40, 2.42, PMAT, "RAMA MATCHING", NAVY)
+    xM, wM, cM = 5.14, 3.04, 6.66
+    ym = [5.46 + i * 0.62 for i in range(3)]
+    box(s, xM, ym[0], wM, 0.54,
+        [("MATCHING POR PARCHE · ec. 6", 11.5, True, NAVY),
+         ("L2-norm → logits = V̄·Tᵀ ∈ ℝ^(N×C)", 10, True, DIM_T)], BLUE_F, BLUE_E, lw=2)
+    box(s, xM, ym[1], wM, 0.54,
+        [("P = softmax(logits · 10)", 12, True, NAVY), ("τ = 0.1", 9.5, False, NAVY)], BLUE_F, BLUE_E, lw=2)
+    box(s, xM, ym[2], wM, 0.54,
+        [("P ∈ ℝ^(N×C) — una clase por parche", 11, True, NAVY)], DIMF, DIME, lw=1.5)
+    edge(s, cM, ym[0] + 0.54, cM, ym[1])
+    edge(s, cM, ym[1] + 0.54, cM, ym[2])
 
-    # ----- rama de TEXTO a la derecha (alimenta el matching) -----
-    tx, tw = 7.55, 3.30
-    box(s, tx, 3.20, tw, 1.00,
-        [("θₜ · PROMPTS  (entrenable)", 11.5, True, ORA_T),
-         ("c̄ⱼ = [T]₁ … [T]ₖ [CLSⱼ]", 11.5, True, INK)], ORA_F, ORA_E, lw=2)
-    arrow(s, tx + tw / 2 - aw / 2, 4.21, aw, 0.26)
-    box(s, tx, 4.50, tw, 1.05,
-        [("Φₜ · EXTRACTOR TEXTO  (congelado)", 11, True, FRZ_T),
-         ("tⱼ = Φₜ(c̄ⱼ)", 12, True, INK),
-         ("t ∈ ℝ^(C×512)", 11, True, DIM_T)], FRZ_F, FRZ_E)
-    # Φ_t → matching (flecha a la izquierda)
-    arrow(s, cx + cw + 0.02, 4.92, tx - (cx + cw) - 0.06, 0.30, direction="left")
+    # convergencia VISIÓN/TEXTO → MATCHING
+    edge(s, cV, yv[3] + hb, cM - 0.95, ym[0])
+    edge(s, cT, yt[3] + hb, cM + 0.95, ym[0])
+    textbox(s, 3.55, 4.86, 1.50, 0.26, [("V̄ : N×512", 10.5, True, DIM_T)], align=PP_ALIGN.CENTER)
+    textbox(s, 8.30, 4.86, 1.50, 0.26, [("T : C×512", 10.5, True, DIM_T)], align=PP_ALIGN.CENTER)
 
-    # ----- callouts de ECUACIÓN a la derecha -----
-    rx, rw = 11.05, 2.20
-    callout(s, rx, 3.22, rw, 0.95, [("K = 32 tokens", 11, True, INK),
-                                    ("aprendidos (CoOp)", 9.5, False, GREY_T),
-                                    ("init. desde frase clínica", 9, False, GREY_T)])
-    callout(s, rx, 4.55, rw, 0.98, [("⟨tⱼ, ṽᵢ⟩ = coseno", 11, True, DIM_T),
-                                    ("texto ↔ visión", 9.5, False, GREY_T),
-                                    ("τ = temperatura", 10, True, DIM_T)])
-
-    # ----- callout tumor-ratio (abajo-derecha, junto a la salida) -----
-    callout(s, 7.10, 6.05, 3.9, 0.95,
-            [("tumor-ratio = fracción de parches positivos → clase de slide", 11, True, INK),
-             ("mᵢ = argmaxⱼ Pᵢⱼ  →  mapa de localización ∈ ℝ^N", 10.5, True, DIM_T)])
-    connector(s, cx + cw, 6.52, 7.10, 6.52)
+    # ===================== leyenda (esquina inf-izq) =====================
+    box(s, 0.34, 5.62, 0.30, 0.26, [], FRZ_F, FRZ_E, lw=1)
+    textbox(s, 0.72, 5.56, 2.6, 0.38, [("congelado (CONCH)", 11.5, False, GREY_T)], align=PP_ALIGN.LEFT)
+    box(s, 0.34, 6.16, 0.30, 0.26, [], ORA_F, ORA_E, lw=1)
+    textbox(s, 0.72, 6.10, 2.8, 0.38, [("entrenable (θᵥ, θₜ)", 11.5, False, GREY_T)], align=PP_ALIGN.LEFT)
+    textbox(s, 0.34, 6.66, 4.4, 0.60,
+            [("N = parches · C = clases · 512 = dim contrastivo", 10, False, GREY_T),
+             ("768 = dim token (ctx) · τ = 0.1 (escala = 10)", 10, False, GREY_T)],
+            align=PP_ALIGN.LEFT)
 
     return s
 
