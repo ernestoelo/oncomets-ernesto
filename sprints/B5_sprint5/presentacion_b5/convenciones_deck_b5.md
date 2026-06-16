@@ -68,13 +68,41 @@ Entorno: `PYTHONPATH=/media/administrador/Storage1/sdonoso/clam_testing2/.pylibs
 
 ## 5. Diagramas de arquitectura (estilo Diagrama_CLAM.pptx)
 
-- **Matemáticos**: cada bloque lleva TÍTULO (mayúsculas) + FÓRMULA + DIMENSIONES de
-  entrada/salida (`v ∈ ℝ^(N×512)`, `P ∈ ℝ^(N×C)`, `ŷ ∈ ℝ^C`).
+- **Matemáticos Y code-accurate**: cada bloque lleva TÍTULO (mayúsculas) + FÓRMULA +
+  DIMENSIONES (`v ∈ ℝ^(N×512)`, `P ∈ ℝ^(N×C)`). Las ecuaciones salen del **paper**, pero
+  los **parámetros reales** (kernels, heads, landmarks, dims, escalas) salen del **código
+  del modelo**, no del paper. Caso PathPT: `models_pathpt/{spatial,prompt,pathpt}.py` (pin
+  `0ab7f1b`). Distinción a no perder: `512` = dim contrastivo vs `768` = dim token (`ctx`).
 - **Callouts** de dimensión/ecuación a los lados de la cascada (no encima → sin solapes).
 - **Cero bullets, cero caption largo.** Color: azul=pipeline, gris=CONGELADO, naranjo=ENTRENABLE.
 - Texto en **Carlito + Unicode plano** (`ℝ⁵¹²`, `θ`, `τ`, `⟨⟩`) → rasteriza limpio
   (el OMML/Cambria del CLAM original se ve roto en LibreOffice, OK en PowerPoint —
   [[pptx-qa-omml-libreoffice]]).
+
+### 5.b Molde "cascada de 3 ramas" (modelo multi-stream, aprobado 16-jun-2026)
+
+Para un modelo de **2+ streams que convergen** (visión + lenguaje, tipo PathPT) el diagrama
+de arquitectura converge a este molde (slide 11, `generate_pathpt_pptx.py build_slide1`):
+
+- **3 ramas en paneles etiquetados** con fondo tenue: VISIÓN (`θᵥ`, azul `#ECF2F8`),
+  TEXTO (`θₜ`, naranjo `#FBF3EA`), MATCHING (gris `#EEF1F3`); título de panel 14pt.
+- **Cascada hacia abajo**: VISIÓN (izq) + TEXTO (der) descienden y **convergen** en
+  MATCHING (centro-abajo), que es **su propia mini-cascada** (≥2 bloques, no uno solo).
+- **Bloques modulares** (1 operación, nombre corto, fuente ≥13pt) + **callouts laterales**
+  con la **fórmula del traspaso** (estilo expansión CLAM: izq visión, der texto), unidos por
+  conector fino.
+- **Nodo backbone compartido al centro** (`CONCH`, Φᵥ+Φₜ congelados) para llenar el hueco
+  medio del árbol sin romper el minimalismo, conectado con líneas finas a ambas ramas
+  (arquitectónicamente correcto: son los 2 encoders del mismo modelo congelado).
+- **Aristas con flecha**: helper `edge()` (conector + `a:tailEnd` triangle). Dims del
+  traspaso sobre las aristas convergentes (`V̄ : N×512`, `T : C×512`).
+- **Forward puro**: el diagrama termina en la salida del modelo (`P ∈ ℝ^(N×C)`). La
+  **lectura/agregación** (tumor-ratio → clase de slide, mapa de localización) y el
+  **training** (pseudo-labels, losses) NO van acá — son de otras slides
+  ([[presentacion-convenciones-benjamin]]: sin proceso de entrenamiento).
+- **Leyenda en una esquina** (color congelado/entrenable + glosario de dims), fuera de las ramas.
+- Detalle del proceso e iteración: `auditoria_coherencia/hallazgos_diagrama_pathpt.md`,
+  memoria [[diagramas-arquitectura-pptx-editable]].
 
 ## 6. QA
 
