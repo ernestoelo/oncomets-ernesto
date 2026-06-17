@@ -111,7 +111,7 @@ Mammoth muestra un lean **positivo** SOLO en las **dos tareas más balanceadas**
 | **patrón · cribiforme** | **~49%** | **+0.044 ± 0.048 (4+/1−)** | **leve mejora** |
 | microcalc · carcinoma | ~22% | −0.054 ± 0.125 | nulo |
 | patrón · solido | desbalance 3:1 | −0.014 ± 0.064 | nulo |
-| microcalc · cdis | ~20% | −0.086 ± 0.113 | leve regresión |
+| microcalc · cdis | ~36% | −0.086 ± 0.113 | leve regresión |
 | patrón · micropapilar | 7% (ciego) | −0.056 (pool) | nulo/regresión |
 | patrón · papilar | 6% (ciego) | −0.025 (pool) | nulo |
 
