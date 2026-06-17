@@ -38,8 +38,41 @@ GREY_T = RGBColor(0x55, 0x55, 0x55)
 CARLITO = "Carlito"
 
 
+def _add_runs(p, text, size, bold, color):
+    """Renderiza `text` con mini-markup de sub/superíndices REALES (baseline OOXML,
+    no caracteres Unicode → consistente para cualquier letra y limpio en PowerPoint
+    y LibreOffice):  `_x` / `_(xx)` = subíndice ;  `^x` / `^(xx)` = superíndice.
+    (No usar `_`/`^` literales en los strings fuente; ej. 'auto_rank' → 'automático'.)"""
+    def emit(s, base=None):
+        if not s:
+            return
+        r = p.add_run(); r.text = s
+        r.font.name = CARLITO; r.font.bold = bold; r.font.color.rgb = color
+        r.font.size = Pt(size * 0.62 if base is not None else size)
+        if base is not None:
+            r._r.get_or_add_rPr().set("baseline", str(base))
+    i, n, buf = 0, len(text), ""
+    while i < n:
+        c = text[i]
+        if c in "_^" and i + 1 < n:
+            base = -25000 if c == "_" else 30000
+            nxt = text[i + 1]
+            if nxt == "(":
+                j = text.find(")", i + 2)
+                if j != -1:
+                    emit(buf); buf = ""
+                    emit(text[i + 2:j], base)
+                    i = j + 1; continue
+                buf += c; i += 1; continue
+            emit(buf); buf = ""
+            emit(nxt, base)
+            i += 2; continue
+        buf += c; i += 1
+    emit(buf)
+
+
 def set_text(shape, lines, align=PP_ALIGN.CENTER):
-    """lines = [(text, size, bold, color), ...] -> párrafos."""
+    """lines = [(text, size, bold, color), ...] -> párrafos (con markup _/^)."""
     tf = shape.text_frame
     tf.word_wrap = True
     tf.vertical_anchor = MSO_ANCHOR.MIDDLE
@@ -48,9 +81,7 @@ def set_text(shape, lines, align=PP_ALIGN.CENTER):
     for i, (txt, sz, bold, col) in enumerate(lines):
         p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
         p.alignment = align
-        r = p.add_run(); r.text = txt
-        r.font.size = Pt(sz); r.font.bold = bold; r.font.name = CARLITO
-        r.font.color.rgb = col
+        _add_runs(p, txt, sz, bold, col)
 
 
 def add_box(slide, l, t, w, h, lines, fill, edge, lw=1.5, shape=MSO_SHAPE.ROUNDED_RECTANGLE):
@@ -122,6 +153,36 @@ def add_label(slide, l, t, w, h, lines, align=PP_ALIGN.LEFT):
     return tb
 
 
+def add_heads_panel(slide, l, t, w, h):
+    """Panel 'lentes paralelas' que explica las CABEZAS (multi-head): el MISMO query
+    mirado por varios criterios en paralelo (textura/forma/densidad ... ×16) que luego
+    se concatenan. Misma familia naranja del query (vs azul de los expertos)."""
+    PANEL_F = RGBColor(0xFD, 0xF1, 0xE5)
+    BLU_F2  = RGBColor(0xEA, 0xF2, 0xFB)
+    GREYF   = RGBColor(0x7A, 0x86, 0x92)
+    box = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
+                                 Inches(l), Inches(t), Inches(w), Inches(h))
+    box.fill.solid(); box.fill.fore_color.rgb = PANEL_F
+    box.line.color.rgb = ORA_E; box.line.width = Pt(2); box.shadow.inherit = False
+    add_label(slide, l + 0.12, t + 0.05, w - 0.24, 0.34,
+              [("16 CABEZAS = 16 criterios", 13, True, ORA_E)], align=PP_ALIGN.CENTER)
+    y0, gap = t + 0.46, 0.30
+    for i, cr in enumerate(["textura", "forma", "densidad"]):
+        yy = y0 + i * gap
+        add_label(slide, l + 0.18, yy, 1.10, 0.24, [(cr, 11.5, False, INK)], align=PP_ALIGN.LEFT)
+        bar = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
+                                     Inches(l + 1.30), Inches(yy + 0.02),
+                                     Inches(w - 1.52), Inches(0.18))
+        bar.fill.solid(); bar.fill.fore_color.rgb = BLU_F2
+        bar.line.color.rgb = BLU_E; bar.line.width = Pt(1); bar.shadow.inherit = False
+    add_label(slide, l + 0.12, y0 + 3 * gap - 0.02, w - 0.24, 0.26,
+              [("· · ·   (×16 lentes)", 11.5, True, GREYF)], align=PP_ALIGN.CENTER)
+    add_label(slide, l + 0.10, t + h - 0.46, w - 0.20, 0.44,
+              [("mismo query · 16 criterios", 10.5, False, GREY_T),
+               ("→ se concatenan = 512", 10.5, False, GREY_T)], align=PP_ALIGN.CENTER)
+    return box
+
+
 def build_slide2(prs):
     """Zoom CODE-ACCURATE de mammoth como GRAFO RAMIFICADO (árbol).
 
@@ -146,18 +207,18 @@ def build_slide2(prs):
     cx = 6.40
     tw = 3.7; tl = cx - tw / 2
     add_box(s, tl, 0.98, tw, 0.80,
-            [("PARCHES DE LA SLIDE  (CONCH)", 14, True, INK),
-             ("z ∈ ℝ⁵¹²   ·   N parches", 13, False, GREY_T)],
+            [("PARCHES DE LA SLIDE  (CONCH)", 16, True, INK),
+             ("z ∈ ℝ^(512)   ·   N parches", 14, False, GREY_T)],
             TEAL_F, TEAL_E)
     add_box(s, tl, 2.02, tw, 0.96,
-            [("PROYECCIÓN A QUERY", 14, True, ORA_E),
-             ("q = LN(Wq · z) ∈ ℝ²⁵⁶", 13, False, INK),
-             ("Wq : 512 → 256   ·   16 cabezas", 11, False, GREY_T)],
+            [("PROYECCIÓN A QUERY", 16, True, ORA_E),
+             ("q = LN(W_q · z) ∈ ℝ^(256)", 15, False, INK),
+             ("W_q : 512 → 256   ·   16 cabezas →", 13, False, GREY_T)],
             ORA_F, ORA_E, lw=2)
     add_box(s, tl, 3.24, tw, 1.00,
-            [("RUTEO POR SLOTS", 14, True, ORA_E),
-             ("uₑₛ = Σₙ Dₙ · qₙ", 13, False, INK),
-             ("D = softmaxₙ ⟨q, S⟩   ·   300 slots", 11, False, GREY_T)],
+            [("RUTEO POR SLOTS", 16, True, ORA_E),
+             ("u_(es) = Σ_n D_n · q_n", 15, False, INK),
+             ("D = softmax_n ⟨q, S⟩   ·   300 slots", 13, False, GREY_T)],
             ORA_F, ORA_E, lw=2)
 
     # ---- conectores del tronco ----
@@ -168,56 +229,60 @@ def build_slide2(prs):
     ex_cx = [cx - 2.30, cx, cx + 2.30]      # 4.10, 6.40, 8.70
     ew, eh, ey = 1.98, 1.22, 4.62
     labels = ["EXPERTO 1", "EXPERTO 2", "EXPERTO 30"]
-    add_label(s, cx - 1.4, 4.30, 2.8, 0.26,
-              [("300 slots = 30 expertos × 10", 11, True, FAN)], align=PP_ALIGN.CENTER)
+    add_label(s, cx - 1.6, 4.28, 3.2, 0.28,
+              [("300 slots = 30 expertos × 10", 13, True, FAN)], align=PP_ALIGN.CENTER)
     for xc, lab in zip(ex_cx, labels):
         add_connector(s, cx, 4.24, xc, ey, color=FAN, w=1.75)        # fan-out
         add_box(s, xc - ew / 2, ey, ew, eh,
-                [(lab, 13, True, BLU_E), ("10 slots", 11, False, GREY_T),
-                 ("oₑ = (uₑ·A)·Bₑ", 12, False, INK), ("→ ℝ⁵¹²", 11, False, GREY_T)],
+                [(lab, 14, True, BLU_E), ("10 slots", 12, False, GREY_T),
+                 ("o_e = (u_e·A)·B_e", 13.5, False, INK), ("→ ℝ^(512)", 12, False, GREY_T)],
                 BLU_F, BLU_E, lw=1.75)
         add_connector(s, xc, ey + eh, cx, 6.18, color=FAN, w=1.75)   # fan-in
     # puntos suspensivos entre experto 2 y 30
     add_label(s, (ex_cx[1] + ew / 2), ey + 0.30, (ex_cx[2] - ew / 2) - (ex_cx[1] + ew / 2),
-              0.5, [("· · ·", 26, True, FAN)], align=PP_ALIGN.CENTER)
+              0.5, [("· · ·", 28, True, FAN)], align=PP_ALIGN.CENTER)
 
     # ---- COMBINACIÓN (fan-in) → salida ----
-    add_label(s, cx - 1.6, 5.86, 3.2, 0.24,
-              [("C = softmax₃₀₀ ⟨q, S⟩", 11, True, FAN)], align=PP_ALIGN.CENTER)
+    add_label(s, cx - 1.8, 5.84, 3.6, 0.26,
+              [("C = softmax_(300) ⟨q, S⟩", 13, True, FAN)], align=PP_ALIGN.CENTER)
     add_box(s, tl, 6.18, tw, 0.92,
-            [("COMBINACIÓN", 14, True, INK),
-             ("hₙ = Σₑₛ Cₙ · oₑₛ ∈ ℝ⁵¹²", 13, False, INK),
-             ("N parches  →  resto de CLAM", 11, False, GREY_T)],
+            [("COMBINACIÓN", 16, True, INK),
+             ("h_n = Σ_(es) C_n · o_(es) ∈ ℝ^(512)", 15, False, INK),
+             ("N parches  →  resto de CLAM", 12.5, False, GREY_T)],
             TEAL_F, TEAL_E)
 
     # ---- callout MATEMÁTICO: experto LoRA de bajo rango (izquierda, a la altura del fan) ----
-    add_box(s, 0.30, 4.30, 2.62, 1.55,
-            [("EXPERTO = LoRA bajo rango", 11.5, True, BLU_E),
-             ("A : 16 → 8   (compartido)", 11.5, False, INK),
-             ("Bₑ : 8 → 32   (por experto)", 11.5, False, INK),
-             ("16 cabezas → concat = 512", 10.5, False, GREY_T),
-             ("rank r = 8 (auto_rank)", 11, True, GREY_T)],
+    add_box(s, 0.28, 4.22, 2.74, 1.70,
+            [("EXPERTO = LoRA bajo rango", 13, True, BLU_E),
+             ("A : 16 → 8   (compartido)", 13, False, INK),
+             ("B_e : 8 → 32   (por experto)", 13, False, INK),
+             ("16 cabezas → concat = 512", 12, False, GREY_T),
+             ("rank r = 8 (automático)", 12.5, True, GREY_T)],
             RGBColor(0xF1, 0xF6, 0xFB), BLU_E, lw=1)
-    add_connector(s, 2.92, 5.05, ex_cx[0] - ew / 2, 5.05, color=BLU_E, w=1.0, arrow=False)
+    add_connector(s, 3.02, 5.05, ex_cx[0] - ew / 2, 5.05, color=BLU_E, w=1.0, arrow=False)
+
+    # ---- panel 'lentes paralelas': qué son las CABEZAS (derecha, simétrico al callout LoRA) ----
+    add_heads_panel(s, 9.82, 2.22, 3.18, 2.20)
+    add_connector(s, tl + tw, 2.52, 9.82, 2.95, color=ORA_E, w=1.1, arrow=False)
 
     # ---- banner: mismo presupuesto de parámetros (top-derecha) ----
     add_box(s, 9.55, 0.98, 3.45, 1.06,
-            [("MISMO PRESUPUESTO", 13, True, ORA_E),
-             ("DE PARÁMETROS", 13, True, ORA_E),
-             ("#params(MoE) ≈ FC 512×512", 11, False, INK)],
+            [("MISMO PRESUPUESTO", 14, True, ORA_E),
+             ("DE PARÁMETROS", 14, True, ORA_E),
+             ("#params(MoE) ≈ FC 512×512", 12.5, False, INK)],
             BANNER_F, ORA_E, lw=2.25)
     # ---- nota integración (top-izquierda) ----
     add_box(s, 0.35, 0.98, 3.45, 1.06,
-            [("MAMMOTH = MoE bajo rango", 13, True, ORA_E),
-             ("reemplaza la 1ª capa lineal (FC)", 12, False, INK),
-             ("drop-in:  ℝ⁵¹² → ℝ⁵¹²", 11, False, GREY_T)],
+            [("MAMMOTH = MoE bajo rango", 14, True, ORA_E),
+             ("reemplaza la 1ª capa lineal (FC)", 13, False, INK),
+             ("drop-in:  ℝ^(512) → ℝ^(512)", 12.5, False, GREY_T)],
             BANNER_F, ORA_E, lw=2.25)
 
     # ---- leyenda compacta (esquina inferior izquierda) ----
     add_label(s, 0.35, 6.5, 3.6, 0.7,
-              [("teal = features (in/out)", 10, False, TEAL_E),
-               ("naranjo = MAMMOTH (entrenable)", 10, False, ORA_E),
-               ("azul = expertos", 10, False, BLU_E)], align=PP_ALIGN.LEFT)
+              [("teal = features (in/out)", 11, False, TEAL_E),
+               ("naranjo = MAMMOTH (entrenable)", 11, False, ORA_E),
+               ("azul = expertos", 11, False, BLU_E)], align=PP_ALIGN.LEFT)
     return s
 
 
