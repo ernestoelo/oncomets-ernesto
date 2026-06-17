@@ -49,6 +49,15 @@ Entorno: `PYTHONPATH=/media/administrador/Storage1/sdonoso/clam_testing2/.pylibs
 - Bullets visuales = **tarjetas** redondeadas con número en círculo teal (no viñetas planas).
 - Tablas nativas: fontsize **15–18**, header 13–16.
 
+### 3.b Notas del presentador (formato del deck B5)
+
+`PROPÓSITO — <una frase>` / narrativa (párrafo/s) / `PUNTOS CLAVE` (viñetas), **texto BLANCO
+`#FFFFFF`** (Ernesto las lee sobre panel oscuro). Las 17 slides lo usan (`set_notes` en
+`generate_b5_deck.py`). Sin nº de job, sin nombres. **Supera el formato B2** "BLOQUE N —
+Título" de CLAUDE.md *para este deck*: más legible y orientado a **exponer**, no a re-explicar
+el gráfico ([[presentacion-convenciones-benjamin]]). La primera línea (`PROPÓSITO —`) resume
+además el objetivo de cada slide.
+
 ## 4. Elementos NATIVOS (helpers en generate_b5_deck.py)
 
 - **Tablas** → `add_table()` (GraphicFrame). Se quita el `<a:tableStyleId>` del tema y se
@@ -78,6 +87,16 @@ Entorno: `PYTHONPATH=/media/administrador/Storage1/sdonoso/clam_testing2/.pylibs
 - Texto en **Carlito + Unicode plano** (`ℝ⁵¹²`, `θ`, `τ`, `⟨⟩`) → rasteriza limpio
   (el OMML/Cambria del CLAM original se ve roto en LibreOffice, OK en PowerPoint —
   [[pptx-qa-omml-libreoffice]]).
+- **ADDENDUM 17-jun — subíndices/superíndices con baseline REAL (no solo Unicode plano).**
+  El Unicode plano cubre lo que Unicode TIENE (`ℝ⁵¹²`, `θ`, `⟨⟩`), pero **no hay subíndice
+  Unicode para muchas letras** (`q`, `w`, …) → `Wq` quedaba con la `q` a tamaño normal. Para
+  esos casos `generate_clam_mammoth_pptx.py` trae un mini-markup —`_x`/`_(xx)` subíndice,
+  `^x`/`^(xx)` superíndice— y el helper `_add_runs` emite runs con `baseline` OOXML real
+  (−25%/+30%, tamaño 0.62×): funciona para **cualquier** letra, rasteriza limpio en
+  **LibreOffice y PowerPoint**, y queda editable. Regla: Unicode plano cuando alcanza;
+  baseline real (`_add_runs`) para los subíndices que Unicode no representa. **Evitar `_`/`^`
+  literales** en los strings fuente (`auto_rank` → `automático`). Detalle:
+  `auditoria_coherencia/hallazgos_diagrama_mammoth.md` §N1.
 
 ### 5.b Molde "cascada de 3 ramas" (modelo multi-stream, aprobado 16-jun-2026)
 
@@ -103,6 +122,29 @@ de arquitectura converge a este molde (slide 11, `generate_pathpt_pptx.py build_
 - **Leyenda en una esquina** (color congelado/entrenable + glosario de dims), fuera de las ramas.
 - Detalle del proceso e iteración: `auditoria_coherencia/hallazgos_diagrama_pathpt.md`,
   memoria [[diagramas-arquitectura-pptx-editable]].
+
+### 5.c Molde "árbol ramificado" (fan-out/fan-in) + panel "lentes paralelas" (zoom MoE, slide 6)
+
+Para un modelo con un cuello que **se ABRE** a N unidades paralelas y **se vuelve a CERRAR**
+(MoE: ruteo → expertos → combinación), el zoom converge a este molde
+(`generate_clam_mammoth_pptx.py build_slide2`, aprobado 17-jun — *"así me gusta más"*):
+
+- **Tronco vertical** (entrada → query → ruteo) que **se ramifica** (fan-out) a 3 nodos
+  representativos (`EXPERTO 1 / 2 / 30` + `· · ·`) y **converge** (fan-in) en la combinación →
+  salida. Cada bloque: TÍTULO + fórmula + dims. Convención de lectura: el renglón gris chico
+  es **definición** ("donde `D = …`"), NO el paso siguiente (el orden de cómputo lo pone el
+  lector). Aristas con flecha (`add_connector`).
+- **Callouts laterales matemáticos** (estilo expansión CLAM, sin solapes): LoRA a la
+  izquierda (familia **azul** = expertos), banner "MISMO PRESUPUESTO" arriba-derecha, nota
+  integración arriba-izquierda.
+- **Panel "lentes paralelas"** (`add_heads_panel`) para volver visual un concepto fino —acá
+  las **CABEZAS / multi-head**—: recuadro con 3 criterios de ejemplo (textura/forma/densidad)
+  + `· · · ×16 lentes` + remate "mismo query, N criterios → se concatenan". Va del lado
+  **opuesto** al callout LoRA y en la **familia de color del bloque que anota** (naranja =
+  query). Reusable para cualquier concepto que necesite un mini-zoom pedagógico.
+- **Distinto del molde "cascada de 3 ramas"** (§5.b, multi-stream visión+texto que CONVERGEN):
+  acá es **1 stream que se abre y se cierra**. Forward puro, sin training, sin nº de job ni
+  nombres ([[presentacion-convenciones-benjamin]]). Detalle: `hallazgos_diagrama_mammoth.md` §N2/N3.
 
 ## 6. QA
 

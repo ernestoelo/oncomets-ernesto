@@ -801,6 +801,9 @@ plano. Estilo visual: `Modelo_OncoMets_Spatial_V1.pdf`. Estructura:
 sub-items con `-> `, fórmulas inline sin LaTeX (`h_k = ReLU(W₁·z_k)`), sin
 emojis ni corchetes de gesto, destacados en línea propia (`Punto clave:` /
 `Detalle crítico:`), ultra-minimalista para copy-paste a OnlyOffice.
+> **Deck B5**: el formato de notas evolucionó a `PROPÓSITO — …` / narrativa /
+> `PUNTOS CLAVE`, **texto blanco** (se leen sobre panel oscuro) — ver
+> `sprints/B5_sprint5/presentacion_b5/convenciones_deck_b5.md` §3.b.
 
 **Assets PNG insertables para slides (patrón Obj 5)**. Cuando el deck vive
 en OnlyOffice (o cualquier herramienta con branding Environ — logo, header
