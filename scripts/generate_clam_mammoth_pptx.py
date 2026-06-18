@@ -48,7 +48,7 @@ def _add_runs(p, text, size, bold, color):
             return
         r = p.add_run(); r.text = s
         r.font.name = CARLITO; r.font.bold = bold; r.font.color.rgb = color
-        r.font.size = Pt(size * 0.62 if base is not None else size)
+        r.font.size = Pt(size * 0.74 if base is not None else size)
         if base is not None:
             r._r.get_or_add_rPr().set("baseline", str(base))
     i, n, buf = 0, len(text), ""
@@ -218,7 +218,7 @@ def build_slide2(prs):
     add_box(s, tl, 3.24, tw, 1.00,
             [("RUTEO POR SLOTS", 16, True, ORA_E),
              ("u_(es) = Σ_n D_n · q_n   →   [300 slots]", 14, False, INK),
-             ("S : [30,16,10,16]   ·   D = softmax_n ↓ N", 11.5, False, GREY_T)],
+             ("D = softmax_n ⟨q, S⟩   (sobre los N parches)", 12, False, GREY_T)],
             ORA_F, ORA_E, lw=2)
 
     # ---- conectores del tronco ----
@@ -229,8 +229,9 @@ def build_slide2(prs):
     ex_cx = [cx - 2.30, cx, cx + 2.30]      # 4.10, 6.40, 8.70
     ew, eh, ey = 1.98, 1.22, 4.62
     labels = ["EXPERTO 1", "EXPERTO 2", "EXPERTO 30"]
-    add_label(s, cx - 1.6, 4.28, 3.2, 0.28,
-              [("300 slots = 30 expertos × 10", 13, True, FAN)], align=PP_ALIGN.CENTER)
+    add_label(s, cx - 2.3, 4.28, 4.6, 0.28,
+              [("300 slots = 30 expertos × 10   ·   S : [30,16,10,16]", 12.5, True, FAN)],
+              align=PP_ALIGN.CENTER)
     for xc, lab in zip(ex_cx, labels):
         add_connector(s, cx, 4.24, xc, ey, color=FAN, w=1.75)        # fan-out
         add_box(s, xc - ew / 2, ey, ew, eh,

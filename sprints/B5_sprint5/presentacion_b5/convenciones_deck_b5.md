@@ -92,7 +92,7 @@ además el objetivo de cada slide.
   Unicode para muchas letras** (`q`, `w`, …) → `Wq` quedaba con la `q` a tamaño normal. Para
   esos casos `generate_clam_mammoth_pptx.py` trae un mini-markup —`_x`/`_(xx)` subíndice,
   `^x`/`^(xx)` superíndice— y el helper `_add_runs` emite runs con `baseline` OOXML real
-  (−25%/+30%, tamaño 0.62×): funciona para **cualquier** letra, rasteriza limpio en
+  (−25%/+30%, tamaño 0.74×): funciona para **cualquier** letra, rasteriza limpio en
   **LibreOffice y PowerPoint**, y queda editable. Regla: Unicode plano cuando alcanza;
   baseline real (`_add_runs`) para los subíndices que Unicode no representa. **Evitar `_`/`^`
   literales** en los strings fuente (`auto_rank` → `automático`). Detalle:
