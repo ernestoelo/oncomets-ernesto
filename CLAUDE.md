@@ -842,6 +842,15 @@ duplicar trabajo. **NO** intentar editar el `.pptx` ni el PDF del deck
 > memoria [[deck-completo-pptx-buildable]]. Diagramas de arquitectura: estilo
 > `Diagrama_CLAM.pptx` (fórmula + dimensiones por bloque, sin bullets, sin solapes).
 
+**READMEs de resultados (`results/README_*.md` y la copia derivada en `clam_testing/`)** —
+formato **minimalista estilo Sebastián** (fijado 18-jun-2026): secciones **Tareas / Dataset /
+Splits / Comando / Resultados** (tabla con **balanced_acc Y AUC juntos** — regla eval B5,
+[[eval-reporte-auc-y-umbrales-obj6]]) + **una línea de resumen**. SIN política de eval, hallazgo
+crítico, lectura del hilo, mecanismos ni provenance: ese detalle vive en los
+`sprints/.../resultados.md`, referenciados en una línea, y **no se duplica** en el README
+canónico. Números exactos (no redondear en el canónico). El minimalismo recorta **prosa**, nunca
+el balanced. Memoria [[readme-resultados-formato-minimalista]].
+
 ## Subagentes disponibles
 
 | Agente | Foco | Cuándo invocarlo |
