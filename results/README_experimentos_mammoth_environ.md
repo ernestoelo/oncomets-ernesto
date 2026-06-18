@@ -1,26 +1,26 @@
-# Experimentos Mammoth en CLAM — OncoMets / Environ (config, datasets, splits, resultados)
+# Experimentos Mammoth en CLAM — OncoMets / Environ
 
-> Autor: Ernesto Gamero · Sprint B5 (cierre trimestre jun-2026).
-> **FUENTE CANÓNICA Y VERSIONADA** de este doc (vive en el repo, sobrevive a una
-> pérdida del workspace y es citable desde GitHub). Si existe una copia en
-> `clam_testing/`, es un stub/derivado — editá SIEMPRE acá.
-> Doc de referencia para el equipo (Sebastián). Documenta, por tarea: la **config
-> fija** de entrenamiento, el **dataset de origen** y el **n por clase**, el **split**
-> usado (con rutas a los archivos), y los **resultados**.
->
-> **Comparación central:** CLAM (baseline) **vs** CLAM+Mammoth, **k=5 paired** (mismos
-> splits ambos brazos, único delta = la 1ª capa lineal → Mixture-of-Experts). Mismo
-> harness `train_dsmil.py` (`--model_type clam | clam_mammoth`) → comparación
-> apples-to-apples sin confound de training-loop.
->
-> Todo el código/datos/resultados viven en `clam_testing2/oncomets-ernesto/`
-> (este repo). Rutas de abajo: relativas al repo o con `$REPO`.
+Autor: Ernesto Gamero. Sprint B5 (cierre de trimestre, junio 2026).
+
+Esta es la fuente canónica y versionada de este doc: vive en el repo, sobrevive a una pérdida
+del workspace y se puede citar desde GitHub. Si hay una copia en `clam_testing/`, es derivada;
+editar siempre acá. Por cada tarea anoto la config de entrenamiento, el dataset de origen con
+el n por clase, el split usado (con rutas) y los resultados.
+
+La comparación central es CLAM como baseline contra CLAM+Mammoth, con validación cruzada k=5
+pareada: los dos brazos leen los mismos splits, y lo único que cambia entre ellos es la primera
+capa lineal, que pasa a ser una mezcla de expertos (MoE). Uso el mismo harness para los dos
+(`train_dsmil.py` con `--model_type clam | clam_mammoth`), así que la comparación es limpia, sin
+que el bucle de entrenamiento confunda.
+
+Todo el código, los datos y los resultados viven en `clam_testing2/oncomets-ernesto/`. Las
+rutas de abajo son relativas al repo o usan `$REPO`.
 
 ---
 
-## 1. Config fija de entrenamiento (idéntica en TODAS las tareas y ambos brazos)
+## 1. Config de entrenamiento (igual en todas las tareas y los dos brazos)
 
-Args "bendecidos" (mismos que el baseline oficial Environ y que el run de microcalc):
+Args bendecidos, los mismos del baseline oficial de Environ y del run de microcalc:
 
 | Arg | Valor | | Arg | Valor |
 |---|---|---|---|---|
@@ -31,32 +31,33 @@ Args "bendecidos" (mismos que el baseline oficial Environ y que el run de microc
 | `--reg` | 1e-5 | | `--seed` | 1 |
 | `--drop_out` | 0.25 | | `--embed_dim` (CONCH) | 512 |
 
-**Hiperparámetros de Mammoth** (solo brazo `clam_mammoth`; defaults recomendados del
-paper, `auto_rank` mantiene el conteo de params comparable a la lineal original):
+Hiperparámetros de Mammoth (solo en el brazo `clam_mammoth`). Son los defaults que recomienda
+el paper; `auto_rank` mantiene la cantidad de parámetros parecida a la de la capa lineal
+original:
 
 | `num_experts` | `num_slots` | `num_heads` | `slot_dim` | `dropout` | `keep_slots` | `share_lora_weights` | `auto_rank` |
 |---|---|---|---|---|---|---|---|
 | 30 | 10 | 16 | 256 | 0.1 | **False** | True | True |
 
-> `keep_slots=False` → Mammoth devuelve los N parches transformados (misma semántica
-> de attention/instance-loss que el baseline → comparación limpia).
-> Features: **CONCH 512-dim** (todas las slides). Instance-loss: `SmoothTop1SVM`.
-> Sampler de train: `weighted` (corrige desbalance de clases).
+Con `keep_slots=False`, Mammoth devuelve los N parches transformados, o sea la misma semántica
+de atención e instance-loss que el baseline, lo que deja la comparación limpia. Features CONCH
+de 512 dimensiones en todas las slides, instance-loss `SmoothTop1SVM` y sampler de train
+`weighted` para corregir el desbalance de clases.
 
 ---
 
 ## 2. Tareas, clases, n por clase y dataset de origen
 
-**Cohorte `_pth` = Privado (Environ) + TCGA + HistAI** (la unión grande). Para las
-binarias de patrón se excluye `no_identificado` (slides cuyo reporte CAP no menciona
-el patrón) → universo = DCIS **identificado**.
+La cohorte _pth es Privado (Environ) + TCGA + HistAI. En las binarias de patrón se sacan las
+slides cuyo reporte CAP no menciona el patrón (`no_identificado`), así que el universo queda en
+el DCIS identificado.
 
-### 2.a Patrón arquitectónico de CDIS — 4 tareas BINARIAS (si/no)
+### 2.a Patrón arquitectónico de CDIS: 4 tareas binarias (si/no)
 
-Clases = patrones del protocolo CAP (`papers/Breast.Invasive.Bx_1.2.0.0.REL_CAPCP.pdf`,
-*DCIS → Architectural Patterns*, "select all that apply" → multi-label → 1 binaria por
-patrón). n total por tarea = **513** (idéntico universo; cada slide es si/no para cada
-patrón). Fuente: **HistAI 200 + TCGA 238 + Privado 75**.
+Las clases son los patrones del protocolo CAP (`papers/Breast.Invasive.Bx_1.2.0.0.REL_CAPCP.pdf`,
+sección de patrones arquitectónicos de DCIS). Como en el CAP es "marque todos los que apliquen",
+queda multi-label y lo abro en una binaria por patrón. El n por tarea es 513, el mismo universo
+en las cuatro (cada slide es si/no para cada patrón). Fuente: HistAI 200 + TCGA 238 + Privado 75.
 
 | Tarea (`--task`) | clase `si` | clase `no` | desbalance | régimen |
 |---|---|---|---|---|
@@ -68,11 +69,11 @@ patrón). Fuente: **HistAI 200 + TCGA 238 + Privado 75**.
 CSV de labels (snapshot filtrado a slides con `.pt`):
 `$REPO/data/csv_new_tasks/dataset_carcinoma_ductal_in_situ_patrones_arquitectonicos_<patrón>_label.csv`
 
-### 2.b Invasión linfática (linfovascular) — 1 tarea de 3 CLASES
+### 2.b Invasión linfática (linfovascular): 1 tarea de 3 clases
 
-Clases = CAP *Lymphatic and/or Vascular Invasion* (Not identified / Present / Cannot
-be determined). n total = **2814** (1 slide HistAI `histai_1132_slide_H&E_0` sin `.pt`,
-excluida del crudo 2815). Fuente: **HistAI 1418 + TCGA 864 + Privado 532**.
+Las clases son las del CAP para invasión linfovascular (no identificada, presente, no se puede
+determinar). El n total es 2814; hay una slide de HistAI (`histai_1132_slide_H&E_0`) sin `.pt`
+que se cae del crudo de 2815. Fuente: HistAI 1418 + TCGA 864 + Privado 532.
 
 | Tarea (`--task`) | `no_identificado` | `ausente` | `presente` | trivial bal_acc |
 |---|---|---|---|---|
@@ -81,7 +82,7 @@ excluida del crudo 2815). Fuente: **HistAI 1418 + TCGA 864 + Privado 532**.
 `label_dict = {"ausente":0, "no_identificado":1, "presente":2}` (`--n_classes 3`).
 CSV: `$REPO/data/csv_new_tasks/dataset_invasion_linfovascular_label.csv`
 
-### 2.c Referencia: microcalcificaciones — 3 tareas BINARIAS (ya corridas)
+### 2.c Microcalcificaciones: 3 binarias, como referencia (ya corridas)
 
 | Tarea | `si` | `no` | n_test/fold (pos) | fuente |
 |---|---|---|---|---|
@@ -91,14 +92,14 @@ CSV: `$REPO/data/csv_new_tasks/dataset_invasion_linfovascular_label.csv`
 
 ---
 
-## 3. Splits (verdad de campo — referencias exactas)
+## 3. Splits (verdad de campo)
 
-**Esquema:** Monte-Carlo CV **k=5** estratificado, `patient_strat`, `val_frac=test_frac=0.1`,
-`seed=1`. Generados con `scripts/build_new_tasks_splits.py` (reusa
-`Generic_WSI_Classification_Dataset` de CLAM sin forkear). Verificados con
-`scripts/verify_kfold_splits.py` (disjuntos, total constante, `.pt` presente) → **rc=0**.
+El esquema es Monte-Carlo k=5 estratificada, con `patient_strat`, val y test al 10% y seed 1.
+Los genera `scripts/build_new_tasks_splits.py` (que reusa `Generic_WSI_Classification_Dataset`
+de CLAM sin forkearlo) y los verifica `scripts/verify_kfold_splits.py`, que chequea que sean
+disjuntos, que el total se mantenga y que el `.pt` esté presente (terminó con rc=0).
 
-Archivos por tarea (5 folds: `splits_0.csv` … `splits_4.csv`, + `_bool` y `_descriptor`):
+Archivos por tarea (5 folds: `splits_0.csv` … `splits_4.csv`, más `_bool` y `_descriptor`):
 
 ```
 $REPO/data/splits_kfold/
@@ -109,26 +110,25 @@ $REPO/data/splits_kfold/
 └── invasion_linfatica_vascular_pth_100/   splits_{0..4}.csv
 ```
 
-Columnas de `splits_<f>.csv`: `,train,val,test` (un `slide_id` por celda). Ambos brazos
-(CLAM y CLAM+Mammoth) leen **el mismo** `splits_<f>.csv` → Δ pareado por fold.
-
-> Splits de microcalc (referencia): `$REPO/data/splits_kfold/microcalcificaciones_en_<tejido>_pth_100/`.
+Las columnas de `splits_<f>.csv` son `,train,val,test`, con un `slide_id` por celda. Los dos
+brazos leen el mismo `splits_<f>.csv`, de ahí el Δ pareado por fold. Los splits de microcalc,
+como referencia, están en `$REPO/data/splits_kfold/microcalcificaciones_en_<tejido>_pth_100/`.
 
 ---
 
 ## 4. Resultados
 
-Política de evaluación (B5): se reporta **balanced_acc Y AUC juntos** (test) + matriz de
-confusión + n por clase. Métrica decisiva = **Δ pareado por fold** (`mammoth − clam`),
-media ± std. Sin gate numérico; interpretación cualitativa (consistencia de signo,
-varianza, vs trivial). Binarias = ROC-AUC; invasión = macro one-vs-rest.
+Para evaluar (política B5) reporto balanced_acc y AUC juntos en test, más la matriz de confusión
+y el n por clase. La métrica con la que decido es el Δ pareado por fold (mammoth menos clam, en
+media ± std). No uso un umbral numérico de éxito o fracaso: leo la consistencia de signo, la
+varianza y la comparación contra el trivial. Las binarias usan ROC-AUC y la invasión macro
+one-vs-rest.
 
-### 4.0 Resumen AUC por tarea — media y mejor de los 5 folds (pedido reunión 8-jun)
+### 4.0 Resumen de AUC por tarea (media y mejor de los 5 folds, pedido en la reunión del 8-jun)
 
-`test_auc` extraído de `summary.csv` (`folds,test_auc,...`) de cada run, k=5 paired.
-**media** = promedio de los 5 folds; **mejor** = máximo de los 5 folds. Binarias = ROC-AUC;
-invasión = macro one-vs-rest. Ambos brazos (CLAM / CLAM+Mammoth) leen los mismos
-`splits_<f>.csv` (`$REPO/data/splits_kfold/<dir>/`, 5 folds c/u).
+El AUC sale del `summary.csv` de cada run. La media es el promedio de los 5 folds y "mejor" el
+máximo. Los dos brazos leen los mismos `splits_<f>.csv` (en `$REPO/data/splits_kfold/<dir>/`,
+5 folds cada uno).
 
 | Tarea (`--task`) | Dataset (fuente · n) | Split dir (`$REPO/data/splits_kfold/`) | CLAM media | CLAM mejor | +Mammoth media | +Mammoth mejor |
 |---|---|---|---|---|---|---|
@@ -141,13 +141,14 @@ invasión = macro one-vs-rest. Ambos brazos (CLAM / CLAM+Mammoth) leen los mismo
 | `cdis_patron_papilar_pth` | _pth · 513 | `cdis_patron_papilar_pth_100/` | 0.616 | 0.722 | 0.570 | 0.722 |
 | `invasion_linfatica_vascular_pth` (macro-OVR) | _pth (HistAI1418+TCGA864+Priv532) · 2814 | `invasion_linfatica_vascular_pth_100/` | 0.828 | 0.867 | 0.818 | 0.848 |
 
-> La media/mejor AUC es **resumen descriptivo**; el **veredicto** del hilo usa el Δ pareado
-> por fold + balanced_acc (§4.a–4.c). Mammoth NO es palanca en ninguna (lean+ leve solo en
-> `tejido` y `cribiforme`, las 2 más balanceadas; regresión leve consistente en invasión).
+La media y el mejor AUC son descriptivos; el veredicto del hilo sale del Δ pareado por fold y
+el balanced_acc (secciones 4.a a 4.c). Mammoth no es palanca en ninguna tarea: hay una mejora
+leve solo en tejido y cribiforme, las dos más balanceadas, y una regresión leve pero
+consistente en invasión.
 
-### 4.a Microcalcificaciones (COMPLETO — 2-jun)
+### 4.a Microcalcificaciones (cerrado el 2-jun)
 
-**Veredicto: Mammoth NO es palanca** (señal dominada por varianza en las 3). Detalle:
+Mammoth no es palanca: en las tres la señal queda dominada por la varianza. Detalle en
 `$REPO/sprints/B5_sprint5/objetivo_1_mammoth_run/resultados.md`.
 
 | Binaria | CLAM bal_acc | +Mammoth bal_acc | Δ pareado bal_acc | Δ pareado AUC | signo |
@@ -156,21 +157,21 @@ invasión = macro one-vs-rest. Ambos brazos (CLAM / CLAM+Mammoth) leen los mismo
 | cdis | 0.595 ± 0.077 | 0.509 ± 0.117 | −0.086 ± 0.113 | −0.035 ± 0.104 | 1+/4− (leve regresión) |
 | tejido | 0.577 ± 0.030 | 0.626 ± 0.096 | +0.049 ± 0.077 | +0.032 ± 0.084 | 4+/1− (leve mejora) |
 
-### 4.b Patrón arquitectónico (COMPLETO — 4-jun, job 4243, 40 runs)
+### 4.b Patrón arquitectónico (cerrado el 4-jun, job 4243, 40 runs)
 
-**Veredicto: Mammoth NO es palanca** (igual que microcalc). Lean positivo leve solo en
-**cribiforme** (la única binaria balanceada); nulo en el resto. Detalle:
+Mismo resultado que microcalc: Mammoth no es palanca. Hay una mejora leve solo en cribiforme,
+que es la única binaria balanceada, y nada en el resto. Detalle en
 `$REPO/sprints/B5_sprint5/objetivo_2_mammoth_patron_invasion/resultados.md`.
 
-**Régimen sano** (cribiforme/solido — fold a fold, k=5, std poblacional):
+Régimen sano (cribiforme y solido, leído fold a fold con k=5 y std poblacional):
 
 | Binaria | CLAM bal_acc | +Mammoth bal_acc | Δ pareado bal_acc | Δ pareado AUC | signo |
 |---|---|---|---|---|---|
 | cribiforme | 0.650 ± 0.057 | 0.694 ± 0.078 | +0.044 ± 0.048 | +0.022 ± 0.042 | 4+/1− (leve mejora) |
 | solido | 0.647 ± 0.065 | 0.632 ± 0.067 | −0.014 ± 0.064 | −0.022 ± 0.055 | 3+/2− (nulo) |
 
-**Régimen ciego** (micropapilar/papilar — 3 pos/test → **pooled** los 15 positivos de los
-5 folds; sens/spec/AUC global, NO fold a fold):
+Régimen ciego (micropapilar y papilar, con 3 positivos por test). Acá junto los 15 positivos de
+los 5 folds y miro sens, spec y AUC globales, no fold a fold:
 
 | Binaria | brazo | pooled n (pos) | sens | spec | bal_acc (pool) | AUC (pool) |
 |---|---|---|---|---|---|---|
@@ -179,22 +180,23 @@ invasión = macro one-vs-rest. Ambos brazos (CLAM / CLAM+Mammoth) leen los mismo
 | papilar | CLAM | 256 (15) | 0.133 | 0.929 | 0.531 | 0.583 |
 | papilar | +Mammoth | 256 (15) | 0.067 | 0.946 | 0.506 | 0.599 |
 
-> Ambos brazos casi no detectan el patrón (TP global 4/15 y 2/15; mammoth 3/15 y 1/15) →
-> tareas hambrientas de positivos (32–34 en toda la cohorte). MC-CV: los folds solapan,
-> el pool es descriptivo. El re-run 4243 cerró los 40 runs sin el crash del 4241
-> (corrió desde `main`, sin branch-switch — workaround H).
+Los dos brazos casi no detectan el patrón (los TP globales son 4/15 y 2/15 en CLAM, y 3/15 y
+1/15 en mammoth): son tareas con muy pocos positivos, apenas 32 a 34 en toda la cohorte. Como
+los folds de Monte-Carlo se solapan, el pool es solo descriptivo. El re-run 4243 cerró los 40
+runs sin el crash del 4241, porque corrió desde `main` y sin cambiar de rama (workaround H).
 
-**Hallazgo crítico (cruce Obj1+Obj2 = 7 binarias):** el lean positivo de mammoth aparece
-**solo en las 2 tareas más balanceadas** (microcalc·tejido ~58% +0.049; patrón·cribiforme
-~49% +0.044) y se apaga en cuanto domina el desbalance o faltan positivos. El predictor del
-resultado es el **régimen de datos**, no el agregador/patch-embed → el cuello es **datos /
-desbalance / contexto espacial**, no la arquitectura. Apunta el esfuerzo a datos
-(magnificación, parches útiles, más positivos), no a más swaps de modelo.
+Cruzando Obj1 y Obj2 quedan 7 binarias, y el hallazgo principal es este: la mejora leve de
+mammoth aparece solo en las dos tareas más balanceadas (tejido al 58% con +0.049, y cribiforme
+al 49% con +0.044), y se apaga apenas manda el desbalance o faltan positivos. Lo que predice el
+resultado es el régimen de datos, no el agregador ni el patch-embed. El cuello son los datos, el
+desbalance y el contexto espacial, no la arquitectura, así que conviene apuntar el esfuerzo a
+los datos (magnificación, parches útiles, más positivos) y no a seguir cambiando de modelo.
 
-### 4.c Invasión linfática 3-clase (COMPLETO — job 4246, 10 runs, cerró 5-jun 06:18)
+### 4.c Invasión linfática de 3 clases (job 4246, 10 runs, cerró el 5-jun a las 06:18)
 
-> **Veredicto: mammoth NO es palanca** (cierra el hilo). El n más grande del hilo (2814) y
-> el eval más sano (cada clase n≥36/test → fold-a-fold, no pooled) **no rescatan** a mammoth.
+Esto cierra el hilo, y mammoth tampoco es palanca. Es el n más grande del hilo (2814) y la
+evaluación más sana (cada clase tiene al menos 36 por test, así que se lee fold a fold y no
+pooled), y aun así no lo rescata.
 
 | brazo | bal_acc (media±std) | macro-OVR AUC | trivial |
 |---|---|---|---|
@@ -202,34 +204,41 @@ desbalance / contexto espacial**, no la arquitectura. Apunta el esfuerzo a datos
 | CLAM + Mammoth | 0.575 ± 0.057 | 0.818 ± 0.019 | 0.333 |
 | **Δ pareado (mam − clam)** | **−0.047 ± 0.064** (1+/4−) | **−0.011 ± 0.005** (0+/5−) | — |
 
-> Δ bal_acc en **banda ambigua** por magnitud (std > |media|) pero con **lean negativo**
-> 4/5; Δ AUC **regresión leve consistente** (5/5 folds−, no cruza 0). Mecanismo = **mayor
-> colapso a la mayoritaria** `no_identificado`: recall 0.792→0.815, a costa de `presente`
-> 0.577→0.434 (confusión 3×3 sumada). Encaja con el **efecto gated por balance** (§4.b):
-> invasión es fuertemente desbalanceada (70% mayoritaria) → mammoth inclina a la mayoritaria.
-> Detalle + figuras: `$REPO/sprints/B5_sprint5/objetivo_2_mammoth_patron_invasion/resultados_invasion.md`
-> (análisis `$REPO/scripts/analyze_invasion.py`). _Política eval B5: balanced_acc + macro-OVR
-> AUC + confusión 3×3 + n, sin gate._
+El Δ de balanced_acc queda en banda ambigua por magnitud (la std es mayor que la media), pero
+con lean negativo en 4 de 5 folds; el Δ de AUC es una regresión leve pero consistente (los 5
+folds en negativo, sin cruzar cero). El mecanismo es que mammoth colapsa todavía más hacia la
+clase mayoritaria, `no_identificado`: el recall sube de 0.792 a 0.815 a costa de `presente`, que
+cae de 0.577 a 0.434 (en la confusión 3×3 sumada). Encaja con el efecto gobernado por el balance
+de la sección 4.b: invasión está muy desbalanceada (70% en la mayoritaria), así que mammoth se
+inclina hacia ella. Detalle y figuras en
+`$REPO/sprints/B5_sprint5/objetivo_2_mammoth_patron_invasion/resultados_invasion.md` (análisis en
+`$REPO/scripts/analyze_invasion.py`). La evaluación sigue la política B5: balanced_acc, macro-OVR
+AUC, confusión 3×3 y n, sin umbral.
 
 ---
 
-## 5. Reproducir / trazabilidad
+## 5. Reproducir
+
+El bloque de abajo arma los splits, los verifica y lanza el entrenamiento por SLURM (`$PY` es el
+binario absoluto del env `clam_latest`; ojo con no cambiar de rama mientras el job corre,
+workaround H):
 
 ```bash
 REPO=/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto
 # (1) splits:   $PY $REPO/scripts/build_new_tasks_splits.py   ($PY = binario absoluto env clam_latest)
 # (2) verificar:$PY $REPO/scripts/verify_kfold_splits.py
-# (3) entrenar (GPU, vía SLURM; NO cambiar de rama mientras corre — workaround H):
+# (3) entrenar (GPU, vía SLURM; NO cambiar de rama mientras corre, workaround H):
 GROUP=patron   sbatch $REPO/scripts/run_obj2_mammoth_patron_invasion_kfold.slurm   # 4 binarias
 GROUP=invasion sbatch $REPO/scripts/run_obj2_mammoth_patron_invasion_kfold.slurm   # 3-clase
 ```
 
-- Hipótesis pre-registrada + diseño: `$REPO/sprints/B5_sprint5/objetivo_2_mammoth_patron_invasion/README.md`.
-- Salidas por run: `$REPO/results/obj2_mammoth/<task>/<modelo>_<task>_f<0..4>_*_s1/`
-  (`test_metrics.json`: balanced_acc + AUC + confusión + n; `test_predictions.csv`: `y_prob_<c>`).
-- Port de Mammoth: `$REPO/models_mammoth/clam_mammoth.py` (clase `CLAM_MB_Mammoth`,
-  subclase de `CLAM_MB`, único delta = la 1ª capa lineal → `MammothPatchEmbed`). Paquete
-  `mammoth` vendorizado en `clam_testing2/MAMMOTH` (pin `fe36d4e`).
+La hipótesis pre-registrada y el diseño están en
+`$REPO/sprints/B5_sprint5/objetivo_2_mammoth_patron_invasion/README.md`. Las salidas de cada run
+quedan en `$REPO/results/obj2_mammoth/<task>/<modelo>_<task>_f<0..4>_*_s1/`, con `test_metrics.json`
+(balanced_acc, AUC, confusión y n) y `test_predictions.csv` (`y_prob_<c>`). El port de Mammoth
+está en `$REPO/models_mammoth/clam_mammoth.py` (la clase `CLAM_MB_Mammoth`, subclase de `CLAM_MB`,
+cuyo único cambio es la primera capa lineal, que pasa a ser `MammothPatchEmbed`); el paquete
+`mammoth` está vendorizado en `clam_testing2/MAMMOTH` con el pin `fe36d4e`.
 
 
 
@@ -319,5 +328,3 @@ mejor: 0,87
 pleomorfismo nuclear
 mejor: 0,78
 5 fold: 0,77 ± 0,046
-
-

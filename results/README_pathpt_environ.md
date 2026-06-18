@@ -1,31 +1,26 @@
-# Experimentos PathPT-CONCH en CLAM — OncoMets / Environ (config, datasets, splits, resultados)
+# Experimentos PathPT-CONCH en CLAM — OncoMets / Environ
 
-> Autor: Ernesto Gamero · Sprint B5 (cierre trimestre jun-2026).
-> **FUENTE CANÓNICA Y VERSIONADA** de este doc (vive en el repo, sobrevive a una
-> pérdida del workspace y es citable desde GitHub). Si existe una copia en
-> `clam_testing/`, es un stub/derivado — editá SIEMPRE acá.
-> Doc de referencia para el equipo (Sebastián). Documenta, por tarea: la **config
-> fija**, el **dataset de origen** y el **n por clase**, el **split** usado, y los
-> **resultados** (con balanced_acc + AUC, política B5).
->
-> **Qué es PathPT** (alcance A, "full"): CONCH **congelado** + un módulo espacial
-> entrenable θ_v + prompt-tuning θ_t (CoOp) sobre descripciones clínicas en texto +
-> supervisión a nivel **tile** (pseudo-labels) con un currículum de pérdidas. **Reusa
-> las features de visión CONCH ya generadas** (no se regeneran features); solo se
-> "enciende" el encoder de **texto** de CONCH para los prompts.
->
-> **Comparación central:** PathPT (`train_pathpt.py`) **vs** CLAM (baseline,
-> `train_dsmil.py --model_type clam`), **k=5 paired** (mismos splits ambos brazos) →
-> Δ pareado por fold, sin confound de sorteo.
->
-> Todo el código/datos/resultados viven en `clam_testing2/oncomets-ernesto/` (este
-> repo). Detalle largo por tarea: `sprints/B5_sprint5/pathpt/resultados_{necrosis,mitotic}.md`.
+Autor: Ernesto Gamero. Sprint B5 (cierre de trimestre, junio 2026).
 
----
+Esta es la fuente canónica y versionada del resumen del hilo PathPT: vive en el repo,
+sobrevive a una pérdida del workspace y se puede citar desde GitHub. Si hay una copia en
+`clam_testing/`, es derivada; editar siempre acá. El detalle largo por tarea está en
+`sprints/B5_sprint5/pathpt/resultados_{necrosis,mitotic}.md`.
 
-## 1. Config fija de entrenamiento
+Qué es PathPT (en el alcance que probé, el completo): CONCH queda congelado y solo se
+entrena un módulo espacial y los prompts de texto (CoOp), con supervisión a nivel de parche.
+Lo importante para nosotros es que reusa las features de visión de CONCH que ya teníamos
+generadas, no las vuelve a calcular; lo único que enciende es el encoder de texto de CONCH
+para los prompts.
 
-Brazo **CLAM** (baseline) — args "bendecidos" Environ:
+La comparación central es PathPT (`train_pathpt.py`) contra CLAM como baseline
+(`train_dsmil.py --model_type clam`), con validación cruzada k=5 pareada: los dos brazos leen
+los mismos splits, así que puedo mirar la diferencia fold a fold sin que el sorteo confunda.
+
+
+## 1. Config de entrenamiento
+
+CLAM (baseline) corre con los args bendecidos de Environ:
 
 | Arg | Valor | | Arg | Valor |
 |---|---|---|---|---|
@@ -35,125 +30,127 @@ Brazo **CLAM** (baseline) — args "bendecidos" Environ:
 | `--lr` | 2e-4 | | `--drop_out` | 0.25 |
 | `--reg` | 1e-5 | | `--embed_dim` (CONCH) | 512 |
 
-Brazo **PathPT** (`train_pathpt.py`, alcance A full): θ_v (espacial) + θ_t (prompt-tuning
-CoOp) + pseudo-labels tile-level + currículum de pérdidas. **20 épocas, lr 1e-4.** Prompts
-**v3 anclados en CAP** (`Breast.Invasive.Bx_1.2.0.0`, necrosis = Nota C; mitótica =
-Nottingham). Umbral de decisión de PathPT elegido sobre `val` y congelado a `test` (sin
-DoF post-hoc). Features: **CONCH 512-dim** (las mismas .pt ya extraídas).
+PathPT (`train_pathpt.py`, alcance completo) entrena el módulo espacial, los prompts (CoOp) y
+la supervisión por parche durante 20 épocas con lr 1e-4. Los prompts los redacté a partir del
+protocolo CAP (`Breast.Invasive.Bx_1.2.0.0`): la Nota C para necrosis y el sistema Nottingham
+para la tasa mitótica. El umbral de decisión de PathPT lo elijo en validación y lo congelo
+para test, así no hago trampa eligiéndolo después. Features CONCH de 512 dimensiones, las
+mismas .pt que ya estaban.
 
-> Política de evaluación (B5): se reporta **balanced_acc Y AUC juntos** (test) + matriz de
-> confusión + n por clase. Métrica decisiva = **Δ pareado por fold** (`pathpt − clam`),
-> media ± std; interpretación cualitativa (consistencia de signo, varianza, vs trivial).
+Para la evaluación reporto balanced_acc y AUC juntos (más matriz de confusión y n por clase),
+y la decisión la tomo con el Δ pareado por fold (PathPT menos CLAM), mirando consistencia de
+signo y varianza, sin un umbral mágico de éxito/fracaso.
 
----
 
-## 2. Tareas, clases, n por clase y dataset de origen
+## 2. Tareas, clases y dataset
 
-**Cohorte `_pth` = Privado (Environ) + TCGA + HistAI.** Se excluye `no_identificado`
-(slides cuyo reporte CAP no menciona el ítem) → universo identificado.
+La cohorte _pth es Privado (Environ) + TCGA + HistAI. Se sacan las slides cuyo reporte CAP no
+menciona el ítem (`no_identificado`), así que el universo queda en lo identificado.
 
 | Tarea (`--task`) | tipo | clases (n por clase) | n total |
 |---|---|---|---|
 | `cdis_necrosis_2clases_pth` | binaria | `no`=83 / `si`=313 | 396 |
 | `grado_mitotic_3clases_pth` | 3 clases ordinales (Nottingham) | `score_1`=636 / `score_2`=287 / `score_3`=254 | 1177 |
 
-CSV de labels y splits: `$REPO/data/splits_kfold/<task>_100/splits_{0..4}.csv`.
+Los CSV de labels y los splits están en `data/splits_kfold/<task>_100/splits_{0..4}.csv`.
 
----
 
-## 3. Splits (verdad de campo)
+## 3. Splits
 
-**Esquema:** Monte-Carlo CV **k=5** estratificado, `patient_strat`, `val_frac=test_frac=0.1`,
-`seed=1`. Ambos brazos (CLAM y PathPT) leen **el mismo** `splits_<f>.csv` → Δ pareado por fold.
+Validación Monte-Carlo k=5 estratificada, con `patient_strat`, val y test al 10% cada uno y
+seed 1. Los dos brazos (CLAM y PathPT) leen el mismo `splits_<f>.csv`, de ahí que la diferencia
+sea pareada fold a fold.
 
 ```
-$REPO/data/splits_kfold/
+data/splits_kfold/
 ├── cdis_necrosis_2clases_pth_100/    splits_{0..4}.csv
 └── grado_mitotic_3clases_pth_100/    splits_{0..4}.csv
 ```
 
----
 
 ## 4. Resultados
 
-### 4.0 Resumen AUC por tarea — media y mejor de los 5 folds
+### 4.0 Resumen de AUC por tarea
 
-`test_auc` de `test_metrics.json` de cada run, k=5 paired. **media** = promedio de los 5 folds;
-**mejor** = máximo. Necrosis = ROC-AUC; mitótica = macro one-vs-rest.
+El AUC sale del `test_metrics.json` de cada run. La media es el promedio de los 5 folds y
+"mejor" el máximo. Necrosis usa ROC-AUC y la mitótica macro one-vs-rest.
 
-| Tarea (`--task`) | Dataset (n) | Split dir (`$REPO/data/splits_kfold/`) | CLAM media | CLAM mejor | PathPT media | PathPT mejor |
+| Tarea (`--task`) | Dataset (n) | Split dir | CLAM media | CLAM mejor | PathPT media | PathPT mejor |
 |---|---|---|---|---|---|---|
 | `cdis_necrosis_2clases_pth` | _pth · 396 (313 si/83 no) | `cdis_necrosis_2clases_pth_100/` | 0.727 | 0.798 | 0.661 | 0.798 |
 | `grado_mitotic_3clases_pth` (macro-OVR) | _pth · 1177 (636/287/254) | `grado_mitotic_3clases_pth_100/` | 0.724 | 0.765 | 0.662 | 0.714 |
 
-> El AUC media/mejor es **resumen descriptivo**; el veredicto usa Δ pareado + balanced_acc
-> (§4.a–4.b). **PathPT no es palanca en ninguna.**
+Esta tabla es descriptiva; el veredicto sale del Δ pareado y el balanced_acc de abajo. PathPT
+no aporta en ninguna de las dos. Detalle en `sprints/B5_sprint5/pathpt/`.
 
-### 4.a Necrosis binaria (COMPLETO — job 4309, 11-jun)
+### 4.a Necrosis binaria (job 4309, 11-jun)
 
-**Veredicto: H_alt — PathPT no aporta sobre CLAM.** Detalle:
-`$REPO/sprints/B5_sprint5/pathpt/resultados_necrosis.md`.
+CLAM saca 0.633 de balanced_acc y PathPT 0.613.
 
-| brazo | bal_acc (media±std) | AUC (media±std) |
+| brazo | bal_acc (media) | AUC (media) |
 |---|---|---|
 | CLAM (baseline) | 0.633 | 0.727 |
 | PathPT | 0.613 | 0.661 |
-| **Δ pareado (pathpt − clam)** | **−0.020 ± 0.078** (2+/3−, cruza 0) | **−0.066 ± 0.094** (lean negativo) |
+| Δ pareado (pathpt − clam) | −0.020 ± 0.078 (2+/3−, cruza 0) | −0.066 ± 0.094 (lean negativo) |
 
-> El Δ cruza 0 con std ≫ |media| → ambiguo/null. PathPT entrenado apenas se despega del
-> CONCH zero-shot (~0.62) mientras CLAM le gana (0.727). Confusión pooled: PathPT redistribuye
-> el trade-off (detecta algo mejor la clase chica a costa de la mayoritaria), no rompe nada.
+El Δ cruza cero con una varianza más grande que la media, así que es ambiguo y se lee como
+nulo. El modelo entrenado se queda casi pegado al CONCH zero-shot (~0.62), mientras que CLAM
+sí le gana. En la confusión sumada PathPT solo redistribuye el trade-off: detecta un poco
+mejor la clase chica a costa de la mayoritaria, y no rompe nada.
 
-### 4.b Tasa mitótica 3-clase (COMPLETO — job 4326, 11-jun)
+### 4.b Tasa mitótica de 3 grados (job 4326, 11-jun)
 
-**Veredicto: PathPT COLAPSA al argmax de la clase mayoritaria (`score_1`)** — la comparación
-de balanced_acc no es pareja. Detalle:
-`$REPO/sprints/B5_sprint5/pathpt/resultados_mitotic.md`.
+Acá PathPT colapsa: predice siempre el grado más bajo (`score_1`) y no emite una sola
+predicción de `score_2` ni `score_3` en las 588 slides de test, así que su balanced_acc cae
+al 0.333 trivial. CLAM, con los mismos datos, sí usa los tres grados.
 
-| brazo | bal_acc (media±std) | macro-OVR AUC | confusión pooled (s1/s2/s3) |
+| brazo | bal_acc (media) | macro-OVR AUC | confusión sumada (s1/s2/s3) |
 |---|---|---|---|
 | CLAM (baseline) | 0.494 | 0.724 | `[[231,53,36],[77,27,38],[26,28,72]]` |
-| PathPT | **0.333** (trivial exacto) | 0.662 | `[[320,0,0],[142,0,0],[126,0,0]]` |
-| **Δ pareado (pathpt − clam)** | **−0.160 ± 0.049** (5/5−) | **−0.062 ± 0.062** (3−/2+, amb) | — |
+| PathPT | 0.333 (trivial exacto) | 0.662 | `[[320,0,0],[142,0,0],[126,0,0]]` |
+| Δ pareado (pathpt − clam) | −0.160 ± 0.049 (5/5−) | −0.062 ± 0.062 (amb) | — |
 
-> PathPT manda **todo a `score_1`** (0 predicciones de score_2/score_3 en 588 slides). El
-> macro-OVR AUC NO colapsa (el ranking continuo retiene señal), pero el **argmax es inusable**
-> bajo este desbalance. **Causa = la formulación ordinal "clase 0 = score_1 basal"** (los tiles
-> de baja densidad mitótica dominan todas las slides), **NO un bug** (eval validado test CPU 9/9;
-> CLAM con los mismos splits no colapsa, bal 0.494). **El sign-off clínico de esa formulación es
-> de Sebastián (pendiente)** antes de cualquier re-corrida.
+El AUC macro mide el ranking y no la decisión final, y ahí no colapsa (0.662): la señal
+existe, pero el punto de operación (el argmax) es inservible bajo este desbalance. La causa
+está en cómo definí la tarea. Tomé el grado más bajo (`score_1`) como clase base, y como PathPT
+etiqueta parche por parche, la mayoría de los parches caen en ese grado incluso en slides de
+grado alto (las mitosis son eventos raros y localizados), así que el modelo termina contestando
+siempre el grado bajo. No es un bug: el eval está validado (test CPU 9/9) y CLAM con los mismos
+splits no colapsa, porque clasifica a nivel slide y corrige el desbalance con `weighted_sample`.
+Esa decisión de formulación es justo la que dejé con sign-off pendiente de Sebastián, así que
+antes de re-correrla hay que revisarla con él.
 
-### 4.c Microcalcificaciones — go/no-go zero-shot (NO entrenado)
+### 4.c Microcalcificaciones: prueba previa sin entrenar
 
-Prueba barata (CPU, ~minutos, **sin GPU**): clasificar cada slide por similitud CONCH
-imagen↔texto de los prompts, sin entrenar nada. AUC mejor sobre top-j parches (top-j=100):
+Antes de gastar GPU hice una prueba rápida en CPU para decidir si valía la pena entrenar:
+clasificar cada slide solo por la similitud entre CONCH y el texto de los prompts, sin entrenar
+nada. Tomé el mejor AUC sobre los parches más parecidos (top-100).
 
-| Binaria (`microcalcificaciones_en_..._pth`) | n (no/si) | AUC zero-shot (mejor) |
+| Binaria (`microcalcificaciones_en_..._pth`) | n (no/si) | AUC sin entrenar (mejor) |
 |---|---|---|
 | `..._carcinoma_invasivo_pth` | 260 / 68 | 0.629 |
 | `..._cdis_pth` | 210 / 118 | 0.533 |
 | `..._tejido_no_neoplasico_pth` | 136 / 192 | 0.444 |
 
-> **NO-GO**: CONCH no "groundea" microcalcificaciones desde el texto (AUC ≈ trivial 0.5).
-> Iterar los prompts de carcinoma con más morfología (v2/v3) **empeoró** (0.533 / 0.552 < 0.629)
-> → CONCH prefiere términos simples. No se llevó a entrenamiento GPU (ahorro ~18–24 h GPU).
-> JSON: `$REPO/results/pathpt_gonogo/microcalc_*_zeroshot_metrics.json`.
+Quedaron cerca del azar (0.5). CONCH no reconoce las microcalcificaciones desde el texto, y
+cuando le metí más morfología a los prompts de carcinoma la cosa empeoró (las versiones v2 y
+v3 bajaron a 0.533 y 0.552). Por eso no lo llevé a entrenamiento, que nos habría costado del
+orden de 18 a 24 horas de GPU. Los JSON están en `results/pathpt_gonogo/`.
 
----
 
-## 5. Lectura del hilo PathPT
+## 5. Lectura del hilo
 
-**PathPT-CONCH no resultó ser palanca.** Converge con Mammoth (patch-embed) y DSMIL
-(agregador): 3 ejes distintos, 0 palancas → **el cuello es el dato / desbalance / CONCH /
-calibración, no el método**. El go/no-go zero-shot barato (CPU) demostró su valor: descartó
-microcalc antes de gastar GPU.
+PathPT no movió la aguja. Es el tercer enfoque que probamos junto con Mammoth (que cambia el
+patch-embed) y DSMIL (que cambia el agregador), y los tres apuntan a lo mismo: el límite está
+en los datos, el desbalance y CONCH, no en el modelo que le pongamos encima. La prueba previa
+barata para microcalc valió la pena, porque lo descartó sin gastar GPU.
 
-## 6. Reproducir / trazabilidad
+## 6. Reproducir
 
-- Hipótesis pre-registrada (regla 9, reviewer GO): `$REPO/sprints/B5_sprint5/pathpt/etapa1_prereg_{necrosis,mitotic}.md`.
-- Resultados largos: `$REPO/sprints/B5_sprint5/pathpt/resultados_{necrosis,mitotic}.md`.
-- Prompts CAP: `$REPO/sprints/B5_sprint5/pathpt/prompts_cap.md`.
-- Port PathPT: `$REPO/models_pathpt/` (pin `0ab7f1b`); driver `$REPO/train_pathpt.py`;
-  test CPU `$REPO/tests/test_pathpt_cpu.py`.
-- Salidas por run: `$REPO/results/pathpt_etapa1/<tarea>/<modelo>_<task>_f<0..4>_*_s1/`
-  (`test_metrics.json`: balanced_acc + AUC + confusión + n).
+- Hipótesis pre-registrada (regla 9, reviewer aprobado): `sprints/B5_sprint5/pathpt/etapa1_prereg_{necrosis,mitotic}.md`.
+- Resultados largos: `sprints/B5_sprint5/pathpt/resultados_{necrosis,mitotic}.md`.
+- Prompts CAP: `sprints/B5_sprint5/pathpt/prompts_cap.md`.
+- Port de PathPT: `models_pathpt/` (pin `0ab7f1b`); driver `train_pathpt.py`; test CPU
+  `tests/test_pathpt_cpu.py`.
+- Salidas por run: `results/pathpt_etapa1/<tarea>/<modelo>_<task>_f<0..4>_*_s1/`
+  (`test_metrics.json` con balanced_acc, AUC, confusión y n).
