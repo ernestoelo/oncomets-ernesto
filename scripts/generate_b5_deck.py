@@ -532,17 +532,22 @@ def build():
 
     s = copy_diagram(prs, DIAG_MAM, 1, "MAMMOTH — qué hace (zoom de la 1ª capa)")
     set_notes(s,
-        "abrir la caja negra y mostrar QUÉ HACE MAMMOTH por dentro, con sus parámetros reales.",
-        "Por dentro no es un mixture-of-experts de libro. Cada parche se proyecta a un query, y 300 "
-        "'slots' aprendidos (30 expertos × 10 slots) se reparten los parches de la slide vía "
-        "softmax. Cada experto los transforma con una factorización de bajo rango, y al final cada "
-        "parche recompone su salida como una mezcla ponderada de los 300 slots. Lo crucial para "
-        "nuestra comparación: el rank se fija automáticamente para que MAMMOTH use casi los mismos "
-        "parámetros que la capa lineal que reemplaza.",
-        ["Entra y sale ℝ⁵¹² por parche: drop-in exacto de la capa lineal.",
-         "Ruteo por slots (no 'un experto por parche'): 300 slots reparten los N parches.",
-         "Expertos de bajo rango (rank 8, automático) → mismo presupuesto de parámetros.",
-         "Conclusión clave: si MAMMOTH no mejora, NO es por falta de capacidad."])
+        "abrir la caja negra y mostrar QUÉ HACE MAMMOTH por dentro, con dimensiones reales; "
+        "dejar claro que cuesta el mismo presupuesto de parámetros que la capa lineal.",
+        "Cada parche entra como una ficha CONCH de 512 números. W_q la reescribe contra 256 'varas' "
+        "aprendidas y LayerNorm la normaliza: queda el query q, una ficha de búsqueda de 256 vista "
+        "como 16 cabezas de 16. Hay 300 'slots' aprendidos (30 expertos x 10), cada uno con una "
+        "clave S de 16 números por cabeza; comparamos q con cada clave por producto interno (puntaje "
+        "de parecido). Atención a las DOS softmax distintas: el reparto D normaliza sobre los N "
+        "parches (para cada slot, qué parches junta); la mezcla C normaliza sobre los 300 slots "
+        "(para cada parche, a qué expertos escucha). Misma matriz de puntajes, dos normalizaciones "
+        "por ejes opuestos.",
+        ["Entra y sale [N, 512]: drop-in exacto de la 1a capa lineal.",
+         "Query: q = LN(W_q z), 256 dims = 16 cabezas x 16 (las 'lentes' del panel derecho).",
+         "DOS softmax: reparto D baja por los N parches; mezcla C baja por los 300 slots.",
+         "Experto = LoRA: bajada COMPARTIDA 16->8 (rank 8) + subida PROPIA 8->32 (x16 cab = 512).",
+         "rank 8 automatico => MoE pesa casi lo mismo que la FC 512x512 que reemplaza.",
+         "Si MAMMOTH no mejora, NO es por falta de capacidad (ver resultados)."])
 
     # 7 · Resultados 8 tareas (TABLA NATIVA)
     s = content(prs, "MAMMOTH — resultados (8 tareas, k=5)")

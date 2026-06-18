@@ -142,6 +142,17 @@ Para un modelo con un cuello que **se ABRE** a N unidades paralelas y **se vuelv
   + `· · · ×16 lentes` + remate "mismo query, N criterios → se concatenan". Va del lado
   **opuesto** al callout LoRA y en la **familia de color del bloque que anota** (naranja =
   query). Reusable para cualquier concepto que necesite un mini-zoom pedagógico.
+- **Dimensiones POR BLOQUE, sobre el flujo** (no en un glosario único — Ernesto, 18-jun:
+  *"así está mucho mejor"*): cada caja lleva la forma del tensor que produce (`z:[N×512]` →
+  `q:[N×256]` → `u→[300 slots]` → `o:[10×512]` → `h:[N×512]`), code-accurate contra
+  `mammoth.py` (`forward`/`get_logits`/`get_weights`). Las **dos softmax** se anotan **en su
+  propio bloque**: reparto `D = softmax_n ↓ N parches` en RUTEO; mezcla `C softmax ↓ 300
+  slots` en COMBINACIÓN (matar la confusión "¿sobre qué eje normaliza?"). `S:[30,16,10,16]`
+  va donde se usa, para dejar claro que es **tensor de claves aprendidas, no un escalar**.
+  Notación: `[.] = forma del tensor` en la leyenda. **Se probó un panel-glosario único y se
+  descartó**: rompe la lectura del flujo (el dato debe verse pasar bloque a bloque). Las
+  formas 4-eje van compactas y solo donde aportan; el detalle conceptual queda para las notas
+  del presentador, no para el lienzo.
 - **Distinto del molde "cascada de 3 ramas"** (§5.b, multi-stream visión+texto que CONVERGEN):
   acá es **1 stream que se abre y se cierra**. Forward puro, sin training, sin nº de job ni
   nombres ([[presentacion-convenciones-benjamin]]). Detalle: `hallazgos_diagrama_mammoth.md` §N2/N3.

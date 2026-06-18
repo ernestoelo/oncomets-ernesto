@@ -208,17 +208,17 @@ def build_slide2(prs):
     tw = 3.7; tl = cx - tw / 2
     add_box(s, tl, 0.98, tw, 0.80,
             [("PARCHES DE LA SLIDE  (CONCH)", 16, True, INK),
-             ("z ∈ ℝ^(512)   ·   N parches", 14, False, GREY_T)],
+             ("z : [N × 512]   (N parches × 512)", 14, False, GREY_T)],
             TEAL_F, TEAL_E)
     add_box(s, tl, 2.02, tw, 0.96,
             [("PROYECCIÓN A QUERY", 16, True, ORA_E),
-             ("q = LN(W_q · z) ∈ ℝ^(256)", 15, False, INK),
-             ("W_q : 512 → 256   ·   16 cabezas →", 13, False, GREY_T)],
+             ("q = LN(W_q · z) : [N × 256]", 15, False, INK),
+             ("W_q : 512 → 256   ·   256 = 16 cab × 16 →", 12, False, GREY_T)],
             ORA_F, ORA_E, lw=2)
     add_box(s, tl, 3.24, tw, 1.00,
             [("RUTEO POR SLOTS", 16, True, ORA_E),
-             ("u_(es) = Σ_n D_n · q_n", 15, False, INK),
-             ("D = softmax_n ⟨q, S⟩   ·   300 slots", 13, False, GREY_T)],
+             ("u_(es) = Σ_n D_n · q_n   →   [300 slots]", 14, False, INK),
+             ("S : [30,16,10,16]   ·   D = softmax_n ↓ N", 11.5, False, GREY_T)],
             ORA_F, ORA_E, lw=2)
 
     # ---- conectores del tronco ----
@@ -234,8 +234,8 @@ def build_slide2(prs):
     for xc, lab in zip(ex_cx, labels):
         add_connector(s, cx, 4.24, xc, ey, color=FAN, w=1.75)        # fan-out
         add_box(s, xc - ew / 2, ey, ew, eh,
-                [(lab, 14, True, BLU_E), ("10 slots", 12, False, GREY_T),
-                 ("o_e = (u_e·A)·B_e", 13.5, False, INK), ("→ ℝ^(512)", 12, False, GREY_T)],
+                [(lab, 14, True, BLU_E), ("10 slots → [10 × 512]", 11.5, False, GREY_T),
+                 ("o_e = (u_e·A)·B_e", 13, False, INK), ("rank 8  ·  ℝ^(512)", 11.5, False, GREY_T)],
                 BLU_F, BLU_E, lw=1.75)
         add_connector(s, xc, ey + eh, cx, 6.18, color=FAN, w=1.75)   # fan-in
     # puntos suspensivos entre experto 2 y 30
@@ -247,8 +247,8 @@ def build_slide2(prs):
               [("C = softmax_(300) ⟨q, S⟩", 13, True, FAN)], align=PP_ALIGN.CENTER)
     add_box(s, tl, 6.18, tw, 0.92,
             [("COMBINACIÓN", 16, True, INK),
-             ("h_n = Σ_(es) C_n · o_(es) ∈ ℝ^(512)", 15, False, INK),
-             ("N parches  →  resto de CLAM", 12.5, False, GREY_T)],
+             ("h_n = Σ_(es) C_n · o_(es)   :   [N × 512]", 14.5, False, INK),
+             ("C : [N,16,300]  softmax ↓ 300 slots  →  CLAM", 11, False, GREY_T)],
             TEAL_F, TEAL_E)
 
     # ---- callout MATEMÁTICO: experto LoRA de bajo rango (izquierda, a la altura del fan) ----
@@ -282,7 +282,7 @@ def build_slide2(prs):
     add_label(s, 0.35, 6.5, 3.6, 0.7,
               [("teal = features (in/out)", 11, False, TEAL_E),
                ("naranjo = MAMMOTH (entrenable)", 11, False, ORA_E),
-               ("azul = expertos", 11, False, BLU_E)], align=PP_ALIGN.LEFT)
+               ("azul = expertos  ·  [.] = forma del tensor", 11, False, BLU_E)], align=PP_ALIGN.LEFT)
     return s
 
 
