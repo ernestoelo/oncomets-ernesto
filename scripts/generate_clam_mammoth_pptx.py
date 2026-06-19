@@ -35,6 +35,8 @@ BLU_E  = RGBColor(0x5B, 0x8F, 0xB9)
 GREY_E = RGBColor(0x9A, 0xA6, 0xB2)
 INK    = RGBColor(0x22, 0x22, 0x22)
 GREY_T = RGBColor(0x55, 0x55, 0x55)
+DIM_F  = RGBColor(0xE7, 0xF1, 0xF2)   # fill teal claro = callout de dimensiones (forma del tensor)
+DIM_E  = RGBColor(0x2C, 0x7A, 0x8C)   # borde teal (= "features in/out" de la leyenda)
 CARLITO = "Carlito"
 
 
@@ -183,6 +185,15 @@ def add_heads_panel(slide, l, t, w, h):
     return box
 
 
+def add_dim_callout(slide, x, y, w, h, lines, attach_y):
+    """Callout de DIMENSIONES pegado a la derecha del bloque (estilo expansión CLAM,
+    convención §5.c): entrada → operación → salida con la forma del tensor. La familia
+    teal = 'forma del tensor / features in-out' de la leyenda. Conector fino al bloque."""
+    box = add_box(slide, x, y, w, h, lines, DIM_F, DIM_E, lw=1.25)
+    add_connector(slide, x - 0.07, attach_y, x, y + h / 2, color=DIM_E, w=1.0, arrow=False)
+    return box
+
+
 def build_slide2(prs):
     """Zoom CODE-ACCURATE de mammoth como GRAFO RAMIFICADO (árbol).
 
@@ -252,19 +263,37 @@ def build_slide2(prs):
              ("C : [N,16,300]  softmax ↓ 300 slots  →  CLAM", 11, False, GREY_T)],
             TEAL_F, TEAL_E)
 
+    # ---- callouts de DIMENSIONES por bloque (entrada → operación → salida), a la
+    #      derecha del tronco, estilo expansión CLAM (convención §5.c) ----
+    DXL, DCW = tl + tw + 0.07, 1.40          # x pegado al tronco · ancho del chip
+    add_dim_callout(s, DXL, 2.06, DCW, 0.88,
+                    [("[N, 512]", 10.5, False, GREY_T),
+                     ("W_q : 512 → 256", 9.5, False, INK),
+                     ("[N, 256]", 12.5, True, TEAL_E)], 2.50)
+    add_dim_callout(s, DXL, 3.30, DCW, 0.88,
+                    [("[N, 256]", 10.5, False, GREY_T),
+                     ("⟨q, S⟩  ·  D ↓ N", 9.5, False, INK),
+                     ("[30, 16, 10, 16]", 11.5, True, TEAL_E)], 3.74)
+    add_dim_callout(s, DXL, 6.20, DCW, 0.88,
+                    [("[300, 512]", 10.5, False, GREY_T),
+                     ("C ↓ 300 slots", 9.5, False, INK),
+                     ("[N, 512]", 12.5, True, TEAL_E)], 6.64)
+
     # ---- callout MATEMÁTICO: experto LoRA de bajo rango (izquierda, a la altura del fan) ----
-    add_box(s, 0.28, 4.22, 2.74, 1.70,
+    add_box(s, 0.28, 4.06, 2.74, 1.94,
             [("EXPERTO = LoRA bajo rango", 13, True, BLU_E),
-             ("A : 16 → 8   (compartido)", 13, False, INK),
-             ("B_e : 8 → 32   (por experto)", 13, False, INK),
-             ("16 cabezas → concat = 512", 12, False, GREY_T),
-             ("rank r = 8 (automático)", 12.5, True, GREY_T)],
+             ("[30,16,10,16] → [300 × 512]", 11, True, DIM_E),
+             ("A : 16 → 8   (compartido)", 12.5, False, INK),
+             ("B_e : 8 → 32   (por experto)", 12.5, False, INK),
+             ("16 cabezas → concat = 512", 11.5, False, GREY_T),
+             ("rank r = 8 (automático)", 12, True, GREY_T)],
             RGBColor(0xF1, 0xF6, 0xFB), BLU_E, lw=1)
     add_connector(s, 3.02, 5.05, ex_cx[0] - ew / 2, 5.05, color=BLU_E, w=1.0, arrow=False)
 
     # ---- panel 'lentes paralelas': qué son las CABEZAS (derecha, simétrico al callout LoRA) ----
+    #      (sin conector al tronco: ahora la lane derecha la ocupan los callouts de dims;
+    #       el panel queda asociado por color naranja = query y por proximidad)
     add_heads_panel(s, 9.82, 2.22, 3.18, 2.20)
-    add_connector(s, tl + tw, 2.52, 9.82, 2.95, color=ORA_E, w=1.1, arrow=False)
 
     # ---- banner: mismo presupuesto de parámetros (top-derecha) ----
     add_box(s, 9.55, 0.98, 3.45, 1.06,
@@ -281,7 +310,7 @@ def build_slide2(prs):
 
     # ---- leyenda compacta (esquina inferior izquierda) ----
     add_label(s, 0.35, 6.5, 3.6, 0.7,
-              [("teal = features (in/out)", 11, False, TEAL_E),
+              [("teal = dimensiones (forma in → out)", 11, False, TEAL_E),
                ("naranjo = MAMMOTH (entrenable)", 11, False, ORA_E),
                ("azul = expertos  ·  [.] = forma del tensor", 11, False, BLU_E)], align=PP_ALIGN.LEFT)
     return s
