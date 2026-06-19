@@ -52,6 +52,9 @@ MAMMOTH_DEFAULTS = dict(
     num_heads=16,
     slot_dim=256,
     dropout=0.1,
+    slot_dropout=0.0,   # Obj 3 B5: regularizador del ruteo. Default 0.0 = retro-
+                        # compatible con los baselines (keep_slots=False, jobs 4229/4246)
+                        # y mantiene el Brazo 1 (keep_slots=True) PURO. Brazo 2 pasa 0.1.
     keep_slots=False,
     share_lora_weights=True,
     auto_rank=True,
@@ -77,6 +80,7 @@ class MammothPatchEmbed(nn.Module):
         num_heads=MAMMOTH_DEFAULTS["num_heads"],
         slot_dim=MAMMOTH_DEFAULTS["slot_dim"],
         dropout=MAMMOTH_DEFAULTS["dropout"],
+        slot_dropout=MAMMOTH_DEFAULTS["slot_dropout"],
         keep_slots=MAMMOTH_DEFAULTS["keep_slots"],
         share_lora_weights=MAMMOTH_DEFAULTS["share_lora_weights"],
         auto_rank=MAMMOTH_DEFAULTS["auto_rank"],
@@ -97,6 +101,7 @@ class MammothPatchEmbed(nn.Module):
             num_heads=num_heads,
             slot_dim=slot_dim,
             dropout=dropout,
+            slot_dropout=slot_dropout,   # solo actúa en training (Mammoth.get_weights)
             keep_slots=keep_slots,
             share_lora_weights=share_lora_weights,
             auto_rank=auto_rank,
@@ -136,6 +141,7 @@ class CLAM_MB_Mammoth(CLAM_MB):
         mammoth_num_slots=MAMMOTH_DEFAULTS["num_slots"],
         mammoth_num_heads=MAMMOTH_DEFAULTS["num_heads"],
         mammoth_slot_dim=MAMMOTH_DEFAULTS["slot_dim"],
+        mammoth_slot_dropout=MAMMOTH_DEFAULTS["slot_dropout"],
         mammoth_keep_slots=MAMMOTH_DEFAULTS["keep_slots"],
     ):
         nn.Module.__init__(self)
@@ -152,6 +158,7 @@ class CLAM_MB_Mammoth(CLAM_MB):
                 num_heads=mammoth_num_heads,
                 slot_dim=mammoth_slot_dim,
                 dropout=dropout,
+                slot_dropout=mammoth_slot_dropout,
                 keep_slots=mammoth_keep_slots,
                 share_lora_weights=True,
                 auto_rank=True,

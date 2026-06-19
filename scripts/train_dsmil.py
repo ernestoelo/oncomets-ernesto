@@ -141,6 +141,10 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--mammoth_num_slots", type=int, default=10)
     p.add_argument("--mammoth_num_heads", type=int, default=16)
     p.add_argument("--mammoth_slot_dim", type=int, default=256)
+    p.add_argument("--mammoth_slot_dropout", type=float, default=0.0,
+                   help="Obj 3 B5: dropout sobre el ruteo de slots (solo training). "
+                        "Default 0.0 = retro-compatible (baselines jobs 4229/4246) y "
+                        "Brazo 1 (keep_slots) puro. Brazo 2 pasa 0.1.")
     p.add_argument("--mammoth_keep_slots", action="store_true",
                    help="si se pasa, Mammoth devuelve E·S features agregadas en "
                         "vez de los N parches (cambia la semántica de attention/"
@@ -199,6 +203,7 @@ def build_model(args: argparse.Namespace, device: torch.device) -> nn.Module:
             mammoth_num_slots=args.mammoth_num_slots,
             mammoth_num_heads=args.mammoth_num_heads,
             mammoth_slot_dim=args.mammoth_slot_dim,
+            mammoth_slot_dropout=args.mammoth_slot_dropout,
             mammoth_keep_slots=args.mammoth_keep_slots,
         )
     else:
