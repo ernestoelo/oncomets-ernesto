@@ -35,7 +35,10 @@ El ángulo legítimo, dicho con precisión:
 2. **`keep_slots=True` es una arquitectura materialmente distinta**, no un re-tuneo: deja de ser
    un drop-in de la lineal (cardinalidad N→N) y pasa a ser un **cuello de botella de slots**
    (N→300 tokens dependientes del contenido) tipo Perceiver/Set-Transformer. Es discutible que
-   sea "la misma decisión" descartada.
+   sea "la misma decisión" descartada. **El reviewer (§7) resolvió este punto: NO es 9.b
+   estricta (no reabre el mecanismo descartado con un valor nuevo) sino un punto no testeado
+   del espacio de config con semántica arquitectónica distinta** — por eso no se exige el
+   habilitante job-posterior, pero sí la carga de regla 9 completa (cumplida, §2).
 3. El mecanismo de 4246 **no habilita la reapertura, pero sí define el blanco**: la intervención
    se diseña apuntada al **colapso a la mayoritaria** (recuperar recall de la minoritaria), no a
    un tuneo genérico de capacidad. Eso es lo que separa esto de "vamos a probarlo igual" (que
@@ -63,6 +66,11 @@ top-k operan sobre los N parches, igual que el baseline.
 Es un **cuello de botella aprendido ANTES** de la atención de CLAM → atención de dos etapas
 (mammoth-slots → CLAM-gated). Traza verificada (CONCH 512, `auto_rank→8`):
 `[N,512] → wq → [N,256] → dispatch(softmax_N) → slots [30,16,10,16] → expert_heads → [300,512]`.
+La dim final **512 = num_heads·(dim/num_heads) = 16·32** (reconstrucción de `input_dim` vía heads,
+`mammoth.py:351-357`), **NO** el `slot_dim=256` ni la fórmula confusa de la docstring del vendor
+(`mammoth.py:334`). Aquí 512(out)=512(in) porque CONCH y la dim interna coinciden; si se cambiara
+`dim`, esa igualdad se rompe → el test CPU (§3.6) verifica la forma por el rearrange real, no por
+la coincidencia numérica.
 
 **El `forward` de CLAM_MB es genérico en el nº de tokens M** ([clam_environ model_clam.py:207](../../../../clam_environ/models/model_clam.py)):
 `A,h = attention_net(h)` con `h:[M,512]`, `inst_eval` top-k sobre M, `M_pool = A@h`. Flipear
@@ -131,11 +139,11 @@ lo que el mecanismo de 4246 puso en evidencia. Pre-registrado:
 | | |
 |---|---|
 | **Subset A** | **invasión linfática vascular**, 3 clases (`no_identificado` 1967 / `ausente` 479 / `presente` 368), n=2814. **El de más poder y eval más sano del hilo** (cada clase n≥36/test → lectura **fold-a-fold**). Es donde mammoth-F mostró la regresión más nítida (5/5−) → testbed natural de la intervención. |
-| **Subset B** | **microcalc en tejido no neoplásico**, binaria (si 195 / no 138), n=333. La tarea **más balanceada** del hilo y donde mammoth-F tuvo el único lean+ leve (Δbal +0.049) → **control positivo**. |
+| **Subset B** | **microcalc en tejido no neoplásico**, binaria (si 195 / no 138), n=333. La tarea **más balanceada** del hilo y donde mammoth-F tuvo el único lean+ leve (Δbal +0.049) → **régimen balanceado / mejor caso a priori** (NO "control positivo": el +0.049 venía con std≳\|media\|, banda H0 — no es un efecto establecido que `keep_slots=True` deba *reproducir*; Obs 2.a reviewer). |
 | **Primaria** | **balanced_acc** en el **test** de cada fold; estadístico = **Δ pareado por fold** (media ± std + signo por fold), para C1 y C2. |
 | **Secundaria** | invasión: **macro-OVR AUC**; tejido: **ROC-AUC**. **Reportar SIEMPRE junto a balanced_acc** + matriz de confusión + **recall por clase con n** ([[eval-reporte-auc-y-umbrales-obj6]]). |
 | **Dirección si H1** | Δ>0 consistente en signo en bal_acc; gap de recall se angosta (diagnóstico arriba). |
-| **Regla de decisión (regla 9.a — NO gate mágico)** | Δ>0 consistente y |media|≳std **y** gap se angosta → **aporta**. Δ cruza 0 / std≳|media| → **ambiguo** (techo de datos). Δ<0 consistente / gap se ensancha → **regresión**. Con n chico mandan **signo + magnitud relativa a la varianza + el gap de recall**, no un umbral automático. |
+| **Regla de decisión (regla 9.a — NO gate mágico)** | Δ>0 consistente y |media|≳std **y** gap se angosta → **aporta**. Δ cruza 0 / std≳|media| → **ambiguo** (techo de datos). Δ<0 consistente / gap se ensancha → **regresión**. Con n chico mandan **signo + magnitud relativa a la varianza + el gap de recall**, no un umbral automático. **Desempate (Obs 4.a reviewer):** ante conflicto balanced_acc↔gap-de-recall, **manda el gap de recall** (es el mecanismo); bal_acc subiendo SIN angostar el gap se lee **H_alt, no H1**. |
 
 **Entregable obligatorio:** matriz de confusión **por clase con n** — fold-a-fold en invasión
 (eval sano) y **pooled** en tejido (test chico). Es la única lectura estable del mecanismo.
@@ -207,7 +215,7 @@ en `train()` y es no-op en `eval()`.
 | **Brazo 2** | `keep_slots=True + slot_dropout` | aditivo (~4 puntos) | **SÍ** (acoplado) |
 | aux-loss cobertura | dispatch anti-starvation | patrón existente | **NO** (2ª iteración, condicionada) |
 
-Sobre **2 tareas** (invasión = testbed de la regresión; tejido = control positivo balanceado).
+Sobre **2 tareas** (invasión = testbed de la regresión; tejido = régimen balanceado / mejor caso a priori).
 Razón del acople 1+2: `slot_dropout` es barato y ataca el mismo mecanismo (sobreajuste a la
 mayoritaria); correrlo junto evita una 2ª tanda de GPU. La aux-loss se difiere porque es la de
 más código e incertidumbre, y su mejor formulación (cobertura sobre dispatch) **solo cobra
@@ -225,6 +233,8 @@ sentido con `keep_slots=True`** — primero confirmamos que el bottleneck mueve 
 4. ⏳ **`sbatch`** (GPU, branch `feat/mammoth-keepslots`, preflight, cortesía single-GPU) —
    solo los brazos nuevos sobre los splits reusados. **PARAR antes y confirmar con Ernesto.**
 5. ⏳ Análisis paired (C1, C2) + diagnóstico de recall + `resultados.md` + memoria/Hallazgo.
+   El `resultados.md` reporta los **3 puntos** (KSF baseline / Brazo 1 / Brazo 2) para que el
+   efecto de `slot_dropout` sea **atribuible** (Brazo 2 vs Brazo 1 aísla el regularizador; Obs 4.b reviewer).
 
 **Se PARA antes de:** el `sbatch`/GPU, el merge a `main`, y cualquier escritura en `clam_environ/`.
 
@@ -247,3 +257,25 @@ sentido con `keep_slots=True`** — primero confirmamos que el bottleneck mueve 
 *Pre-registración escrita ANTES de cualquier código de training/modelo. El Brazo 1 es config-only
 pero la reapertura (§0) exige reviewer + OK antes del `sbatch`. El Brazo 2 (slot_dropout) y el
 `.slurm` se implementan recién tras el GO del reviewer.*
+
+---
+
+## 7. ADDENDUM — reviewer (2026-06-19)
+
+**Veredicto: GO con observaciones.** El reviewer resolvió el punto de gobernanza 9.b: esto **NO
+es una decisión revisitada 9.b estricta** (no reabre el mecanismo descartado con un valor nuevo —
+eso lo habría bloqueado por falta de habilitante job-posterior), sino una **variante arquitectónica
+materialmente distinta y no testeada** del patch-embed (`keep_slots=True` cambia el mecanismo:
+cardinalidad N→300, salta la recombinación, introduce cuello de botella aprendido), **apuntada a un
+modo de falla concreto y pre-registrado** (colapso a la mayoritaria, job 4246) — lo que la separa de
+"vamos a probarlo igual". Carga de regla 9 estricta cumplida; paired verificado contra el código
+real (flag cableado, `forward` genérico en M, baselines con predicciones por fold en disco).
+
+**Observaciones incorporadas en este doc:** 2.a (rótulo tejido → "régimen balanceado", §2), 3.a
+(traza de dims anclada al rearrange real, §1 + test CPU §3.6), 4.a (desempate bal_acc↔gap-recall →
+manda el gap, §2), 4.b (reportar 3 puntos KSF/B1/B2, §5.5).
+
+**Condiciones que QUEDAN PENDIENTES antes del `sbatch`** (no bloquean implementar Brazo 2 + test CPU):
+1. **Co-firma de Sebastián** del encuadre "variante no testeada, no reapertura 9.b" — el GO del
+   reviewer es necesario, **no suficiente** (gobernanza compartida, §0). **← decisión de Ernesto/Sebastián.**
+2. **GPU libre** — hay jobs de `nschiaff` (4383 R, 4384 PD por Resources); aplica cortesía single-GPU.
