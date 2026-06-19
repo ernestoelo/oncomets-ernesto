@@ -84,6 +84,28 @@ primario para la presentación (bajo riesgo, usa CONCH as-is, NO entrena, CPU) +
 limited data"*). Memoria [[retrieval-investigacion-b5]]. Próximo paso si Ernesto
 elige D: pre-registración regla 9 + branch + reviewer (otra sesión).
 
+### Dirección VIGENTE (19-jun): Obj 3 — mammoth keep_slots=True + slot_dropout (REABRE el patch-embed)
+
+**PathPT CERRADO en diagnóstico (11-jun)** — necrosis H_alt + mitotic colapso de formulación +
+microcalc NO-GO → cuello = CONCH/datos, no el método (CLAUDE.md Hallazgo 13,
+[[pathpt-testing-necrosis-mitotic]]). El frame PathPT ya no es trabajo activo.
+
+**Trabajo activo:** Obj 3 reabre el patch-embed de mammoth con una **variante NO testeada**
+(`keep_slots=True` = cuello de botella de 300 slot-tokens en vez de drop-in N→N; + el arg nuevo
+`--mammoth_slot_dropout`). El hilo mammoth estaba "cerrado" para la config drop-in (`keep_slots=False`,
+8 tareas, 0 palancas, Hallazgo 12) — esto **NO lo contradice**: prueba un punto NO testeado del espacio
+de config, apuntado al modo de falla del 4246 (colapso a la mayoritaria). **Reviewer GO-con-obs** (NO
+9.b estricta sino variante no testeada). Gobernanza: Ernesto asumió el gate (no molestar a Sebastián;
+maximizar mammoth = prioridad de Benjamín; co-firma recomendable a posteriori).
+
+- **Estado:** pre-reg + reviewer GO + código (slot_dropout expuesto, CLI, `.slurm`) + **test CPU 7/7**
+  sobre branch `feat/mammoth-keepslots`. **Job 4387 ENCOLADO** (GROUP=all: tejido luego invasión;
+  brazos `kst`/`kst_sd`; paired vs baselines en disco). Arranca cuando se liberen los jobs de `nschiaff`.
+- **Resultado:** PENDIENTE (sin números — regla 7). Al terminar: análisis paired (C1 kst vs keep_slots=False,
+  C2 kst vs CLAM) + diagnóstico de gap de recall + `resultados.md`.
+- **Workaround H VIGENTE:** con 4387 encolado, NO cambiar de branch ni editar `scripts/`/`models_mammoth/`/`data/`.
+- Pre-reg + detalle: `sprints/B5_sprint5/objetivo_3_mammoth_keepslots/prereg.md`.
+
 ### Dirección VIGENTE (10-jun): PathPT (frame B) pasa a PRUEBA ACTIVA
 
 **Reunión 10-jun con Sebastián** (supersede el framing del 5-jun): validó PathPT

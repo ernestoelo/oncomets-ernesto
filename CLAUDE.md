@@ -744,6 +744,14 @@ re-validar y actualizar `docs/codebase_map.md`.
     `sprints/B5_sprint5/objetivo_2_mammoth_patron_invasion/{resultados.md,resultados_invasion.md}`
     + README consolidado `results/README_experimentos_mammoth_environ.md` §4.b/§4.c + memoria
     [[mammoth-investigacion-integracion]].
+    **ADDENDUM 19-jun (Obj 3) — el cierre vale para la config DROP-IN testeada, NO para todo
+    mammoth.** Las 8 tareas probaron un solo punto del espacio de config (`keep_slots=False`,
+    `slot_dropout=0`). Obj 3 reabre con una **variante arquitectónica NO testeada**: `keep_slots=True`
+    (cambia el mecanismo — N→300 slot-tokens, cuello de botella aprendido) + `slot_dropout`, apuntada
+    al modo de falla pre-registrado (colapso a la mayoritaria del 4246). **Reviewer GO-con-obs** (NO es
+    reapertura 9.b estricta sino variante no testeada — ver regla 9.b / [[meta-regla-decisiones-revisitadas]]).
+    **Resultado PENDIENTE** (job 4387 encolado, sin números). Pre-reg:
+    `sprints/B5_sprint5/objetivo_3_mammoth_keepslots/prereg.md`.
 13. **PathPT-CONCH (texto + visión, prompt-tuning θ_t + módulo espacial θ_v + supervisión
     tile-level) NO es palanca — cierra un 3er ángulo del MISMO cuello.** Probado paired vs CLAM
     en 3 tareas (B5, 11-jun): **necrosis** binaria (job 4309) → **H_alt**, no aporta (Δbal_acc
