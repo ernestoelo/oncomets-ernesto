@@ -170,7 +170,9 @@ El flag **ya existe y está cableado**: `--mammoth_keep_slots`
 
 ### 3.3 Brazo 2 — `+ slot_dropout` — **toca código (aditivo, ~4 puntos)**
 `slot_dropout` existe en `Mammoth.__init__` pero **el wrapper no lo expone**. Cambio aditivo:
-1. `MAMMOTH_DEFAULTS` += `slot_dropout=0.1` (default sugerido del paper para training).
+1. `MAMMOTH_DEFAULTS` += `slot_dropout=0.0` (**default 0.0**, NO 0.1: preserva la
+   reproducibilidad de los baselines `keep_slots=False` y mantiene el Brazo 1 puro;
+   el Brazo 2 pasa 0.1 explícito vía CLI).
 2. `MammothPatchEmbed.__init__` → param + pasarlo a `Mammoth(...)`.
 3. `CLAM_MB_Mammoth.__init__` → param `mammoth_slot_dropout` + pasarlo a `MammothPatchEmbed`.
 4. `train_dsmil.py` → `--mammoth_slot_dropout` (default 0.0, retro-compatible) + cableado en
