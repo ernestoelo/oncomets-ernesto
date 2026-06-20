@@ -281,3 +281,50 @@ manda el gap, §2), 4.b (reportar 3 puntos KSF/B1/B2, §5.5).
 1. **Co-firma de Sebastián** del encuadre "variante no testeada, no reapertura 9.b" — el GO del
    reviewer es necesario, **no suficiente** (gobernanza compartida, §0). **← decisión de Ernesto/Sebastián.**
 2. **GPU libre** — hay jobs de `nschiaff` (4383 R, 4384 PD por Resources); aplica cortesía single-GPU.
+
+---
+
+## 8. ADDENDUM — extensión a las 3 binarias de microcalc para matriz completa (2026-06-19, post-prereg, pre-resultados)
+
+**Decisión (pre-registrada ANTES de ver los números del job 4387):** la próxima tanda extiende
+`keep_slots=True` (ambos brazos `kst` y `kst_sd`) a las **otras 2 binarias de microcalcificaciones**
+— `microcalcificaciones_en_carcinoma_invasivo_pth` y `microcalcificaciones_en_cdis_pth` — de modo que
+las **3 binarias de microcalc** queden cubiertas (tejido ya va en el 4387). Resultado: una **matriz de
+ablation completa** keep_slots × {carcinoma, cdis, tejido} para el deck.
+
+**Por qué esto NO es "vamos a probarlo igual" (regla 9.b) — el encuadre que lo habilita:**
+1. **No es reapertura de un eje descartado.** `keep_slots=True` es una **variante ya aprobada** por el
+   reviewer (§7, GO-con-obs). Esto **no abre un experimento nuevo**: es **expansión de alcance** del
+   experimento aprobado a 2 tareas más del mismo tipo (binarias de microcalc). La carga de regla 9
+   (H1/H_alt/H_reg + métrica + subset + dirección) **ya está cumplida en §2 y aplica por tarea**.
+2. **El driver es completitud/defensibilidad, NO optimismo de efecto.** El objetivo es **cerrar el
+   espacio de config del todo** y poder mostrar una tabla comparativa completa, en vez de dejar un hueco
+   *"no lo probé porque asumí que no mejoraría"*. Esto es **coherente con la lógica del propio prereg**:
+   §2 ya declara que **H_alt es resultado presentable** (*"cierra el espacio de config de mammoth de
+   forma más completa"*). Correr las 3 documenta el negativo de forma **defendible**, no lo esconde.
+3. **Expectativa mecanística honesta (pre-registrada para que un null sea cierre, no pesca):** por
+   Hallazgo 12, el lean+ de mammoth apareció **solo en tareas balanceadas**; carcinoma (~21% pos) y cdis
+   (~36% pos) son **desbalanceadas** → a priori lo **más probable es H_alt/H_reg**. Pre-registrar esta
+   expectativa es lo que separa "completar la ablation" de "fishing": un null **confirma** Hallazgo 12 y
+   cierra; un H1 (gap de recall se angosta) sería un **positivo pre-registrado** que **contradice**
+   Hallazgo 12 — interesante justamente por inesperado.
+
+**Interpretación (misma regla §2, por tarea, sin gate mágico):** signo consistente + |media|≳std + el
+**gap de recall** manda (Obs 4.a). NO se gatilla sobre el resultado de invasión: las 3 binarias se
+corren **igual, por completitud** (decoupled de mi propuesta condicional anterior). Si invasión **o**
+alguna binaria muestra H1, es un positivo a destacar; si todo es null, es el cierre completo.
+
+**Costo / paired:** baselines `keep_slots=False` + CLAM de carcinoma y cdis **ya en disco**
+(`results/obj6_mammoth_binarias_carcinoma_invasivo/`, `results/obj6_mammoth_binarias_cdis/`, 5+5 folds
+c/u, job 4229/Obj1, 2-jun) → **solo van a GPU los 2 brazos nuevos × 2 tareas × 5 folds = 20 runs**,
+pareados por construcción contra esas predicciones por fold. Nuevos resultados →
+`results/obj3_mammoth_keepslots/microcalcificaciones_en_{carcinoma_invasivo,cdis}_pth/`.
+
+**Gobernanza / proceso (PENDIENTE antes del `sbatch`):**
+- **Espera a que termine el job 4387** (no encolar detrás monopolizando; sábado la GPU está más libre,
+  pero **cortesía single-GPU sigue** → `squeue` antes).
+- **Workaround H:** no cambiar de rama mientras 4387 corra. La rama destino se decide al lanzar (esta
+  branch o nueva), una vez 4387 terminó.
+- **Reviewer-check liviano** del addendum (expansión de alcance) + **co-firma de Sebastián asumida**
+  ([[gobernanza-gate-cofirma-sebastian]]) + **OK explícito de Ernesto** antes del `sbatch`. El `.slurm`
+  reusa el de obj3 cambiando solo `GROUP`/tareas; preflight obligatorio (Workaround G).
