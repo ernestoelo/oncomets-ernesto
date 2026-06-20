@@ -32,6 +32,12 @@ sinfo                   # estado del nodo
 Si hay jobs ajenos esperando por `Resources`, **no monopolizar**: esperar o
 coordinar con el equipo. No enviar jobs grandes a ciegas.
 
+**Encolar al FINAL (cortesía):** para correr "después de la cola actual" sin saltar
+turno ajeno, `sbatch --nice=100 <job>.slurm` (baja la prioridad → queda último). La
+prioridad de este cluster es ≈ FIFO por orden de envío, pero `--nice` lo garantiza.
+Evitar `--dependency=afterany:<id>` para esto: si el job-padre termina entre el commit
+y el sbatch queda en `DependencyNeverSatisfied`. Caso: job 4400 (19-jun).
+
 ## Plantilla `.slurm` (espejo de `clam_environ/run_training.slurm`, con MIS paths)
 
 Logs van a `logs/` del repo; `--chdir` apunta al codebase de Sebastián para

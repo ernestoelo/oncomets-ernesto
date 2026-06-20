@@ -98,13 +98,19 @@ de config, apuntado al modo de falla del 4246 (colapso a la mayoritaria). **Revi
 9.b estricta sino variante no testeada). Gobernanza: Ernesto asumió el gate (no molestar a Sebastián;
 maximizar mammoth = prioridad de Benjamín; co-firma recomendable a posteriori).
 
-- **Estado:** pre-reg + reviewer GO + código (slot_dropout expuesto, CLI, `.slurm`) + **test CPU 7/7**
-  sobre branch `feat/mammoth-keepslots`. **Job 4387 ENCOLADO** (GROUP=all: tejido luego invasión;
-  brazos `kst`/`kst_sd`; paired vs baselines en disco). Arranca cuando se liberen los jobs de `nschiaff`.
+- **Estado (act. 19-jun ~17h):** pre-reg + reviewer GO + código + **test CPU 7/7** sobre branch
+  `feat/mammoth-keepslots`. **Job 4387 CORRIENDO** (GROUP=all; **tejido 10/10 runs done** ambos brazos,
+  **invasión en curso** 0/5). **Job 4400 ENCOLADO** = **extensión §8** (`scripts/run_obj3_mammoth_binarias_carcinoma_cdis_kfold.slurm`,
+  commit `ae1e3c0`): keep_slots a las **2 binarias faltantes** (carcinoma, cdis) → **matriz completa de
+  las 3 binarias de microcalc** (20 runs, paired vs baselines del 4229; `--nice` → final de la cola). Es
+  **expansión de alcance** de la variante ya GO (driver = completitud/defensibilidad, no 9.b "probarlo
+  igual"; expectativa honesta pre-registrada = probable null en las desbalanceadas). Ver prereg §8.
 - **Resultado:** PENDIENTE (sin números — regla 7). Al terminar: análisis paired (C1 kst vs keep_slots=False,
-  C2 kst vs CLAM) + diagnóstico de gap de recall + `resultados.md`.
-- **Workaround H VIGENTE:** con 4387 encolado, NO cambiar de branch ni editar `scripts/`/`models_mammoth/`/`data/`.
-- Pre-reg + detalle: `sprints/B5_sprint5/objetivo_3_mammoth_keepslots/prereg.md`.
+  C2 kst vs CLAM) + diagnóstico de gap de recall + `resultados.md` (tejido+invasión del 4387, carcinoma+cdis del 4400).
+- **`val_auc=nan` en invasión (3-clase) = normal**, no bug (baseline 4246 igual; checkpoint por val_loss). Ver CLAUDE.md core_utils.
+- **Workaround H VIGENTE:** con 4387 corriendo **y 4400 encolado**, NO cambiar de branch ni editar
+  `scripts/train_dsmil.py`/`models_mammoth/`/`data/` ni los gates hasta que AMBOS terminen (commit/push SÍ son seguros).
+- Pre-reg + detalle: `sprints/B5_sprint5/objetivo_3_mammoth_keepslots/prereg.md` (§8 = extensión).
 
 ### Dirección VIGENTE (10-jun): PathPT (frame B) pasa a PRUEBA ACTIVA
 

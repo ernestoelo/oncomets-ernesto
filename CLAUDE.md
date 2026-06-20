@@ -590,8 +590,12 @@ re-validar y actualizar `docs/codebase_map.md`.
 - `total_loss = bag_weight * loss + (1-bag_weight) * instance_loss`: **L271**.
 - `bag_weight` default 0.7 (slide-level 70% / instance 30%).
 - "clustering loss" en prints == instance loss.
-
-### `main.py`
+- **`val_auc=nan` en el log de training de tasks multiclase (3-clase) es NORMAL, no bug.** El AUC de
+  validación OVR sale `nan` época a época (verificado: el baseline invasión job 4246 lo logueaba en las
+  310 épocas); el checkpoint se guarda por `val_loss` y el `test_auc` final se computa bien (4246 cerró
+  macro-OVR 0.80–0.86). Una variante en prueba (ej. mammoth `keep_slots`) **no** lo introduce → no
+  declarar el run roto ni culpar al brazo nuevo (es apples-to-apples: baseline y brazo comparten el nan
+  en val). Verificado 19-jun (Obj 3, job 4387).
 
 - Parser de args desde **L446**. Defaults: `embed_dim=1024`, `lr=1e-4`,
   `max_epochs=200`, `bag_weight=0.7`, `B=8`, `model_type=clam_sb`, `k=10`.
@@ -750,7 +754,12 @@ re-validar y actualizar `docs/codebase_map.md`.
     (cambia el mecanismo — N→300 slot-tokens, cuello de botella aprendido) + `slot_dropout`, apuntada
     al modo de falla pre-registrado (colapso a la mayoritaria del 4246). **Reviewer GO-con-obs** (NO es
     reapertura 9.b estricta sino variante no testeada — ver regla 9.b / [[meta-regla-decisiones-revisitadas]]).
-    **Resultado PENDIENTE** (job 4387 encolado, sin números). Pre-reg:
+    **Resultado PENDIENTE** (sin números — regla 7). Estado 19-jun: **job 4387 CORRIENDO** (tejido 10/10
+    runs done, invasión en curso); **job 4400 ENCOLADO** = **extensión §8 del prereg** = keep_slots a las
+    **2 binarias de microcalc faltantes** (carcinoma, cdis) para cerrar la **matriz completa de las 3
+    binarias** (paired vs baselines del 4229 en disco; `--nice` → final de la cola, cortesía single-GPU).
+    Es **expansión de alcance** de la variante ya GO, no 9.b (driver = completitud, no optimismo; ver
+    [[meta-regla-decisiones-revisitadas]]). Pre-reg + §8:
     `sprints/B5_sprint5/objetivo_3_mammoth_keepslots/prereg.md`.
 13. **PathPT-CONCH (texto + visión, prompt-tuning θ_t + módulo espacial θ_v + supervisión
     tile-level) NO es palanca — cierra un 3er ángulo del MISMO cuello.** Probado paired vs CLAM
