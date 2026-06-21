@@ -22,7 +22,7 @@ según los pedidos de Benjamín (1-jun):
 | # | Objetivo | Estado |
 |---|---|---|
 | 1 | **mammoth k=5 paired** sobre las 3 binarias (correr + analizar) | **COMPLETADO** (job 4229, analizado): mammoth NO es palanca en microcalc (cuello=datos). `objetivo_1_mammoth_run/resultados.md` |
-| 1b | **mammoth en patrón arquitectónico (4 binarias) + invasión (3-clase)** k=5 | **COMPLETADO** — PATRÓN (job 4243, 40 runs, 4-jun 01:33) + INVASIÓN (job 4246, 10 runs, 5-jun 06:18): mammoth NO es palanca en ninguna (lean+ leve solo en cribiforme balanceada; invasión = regresión leve consistente vía colapso a mayoritaria). `objetivo_2_mammoth_patron_invasion/{resultados.md,resultados_invasion.md}`. **Cierra el hilo mammoth (8 tareas, 0 palancas).** |
+| 1b | **mammoth en patrón arquitectónico (4 binarias) + invasión (3-clase)** k=5 | **COMPLETADO** — PATRÓN (job 4243, 40 runs, 4-jun 01:33) + INVASIÓN (job 4246, 10 runs, 5-jun 06:18): mammoth NO es palanca en ninguna (lean+ leve solo en cribiforme balanceada; invasión = regresión leve consistente vía colapso a mayoritaria). `objetivo_2_mammoth_patron_invasion/{resultados.md,resultados_invasion.md}`. **Cierra el hilo mammoth drop-in (8 tareas, 0 palancas)** — extendido luego por Obj 3 keep_slots (+4 tareas, también 0 palancas; ver sección Obj 3 abajo). |
 | 2 | **Magnificación**: investigar (papers) ANTES de implementar | pendiente |
 | 3 | **k=5 folds** en más tasks débiles (no single-split) | pendiente |
 | 4 | **Parches/slides útiles**: selección de los que aportan al train | pendiente |

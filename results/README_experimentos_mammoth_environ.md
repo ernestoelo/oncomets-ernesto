@@ -16,9 +16,9 @@ confusión, Δ pareado) en `sprints/B5_sprint5/objetivo_1_mammoth_run/resultados
 
 Cohorte `_pth` = Privado (Environ) + TCGA + HistAI. En las binarias se excluye `no_identificado`.
 
-- microcalc carcinoma: si 121 / no 212 (n 333)
-- microcalc cdis: si 68 / no 265 (n 333)
-- microcalc tejido: si 195 / no 138 (n 333)
+- microcalc carcinoma: si 68 / no 260 (n 328)
+- microcalc cdis: si 118 / no 210 (n 328)
+- microcalc tejido: si 192 / no 136 (n 328)
 - cribiforme: si 252 / no 261 (n 513)
 - sólido: si 388 / no 125 (n 513)
 - micropapilar: si 34 / no 479 (n 513)

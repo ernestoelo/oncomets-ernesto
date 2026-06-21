@@ -24,8 +24,9 @@ si está en cola).
 > **Sprint de cierre de trimestre** (Benjamín vuelve ~21-jun; decide la
 > continuidad de Ernesto). Equipo = **Ernesto + Sebastián** (Eduardo renunció).
 > Consigna: avanzar más rápido. Objetivos priorizados: (1) **mammoth k=5 paired**
-> sobre las 3 binarias de microcalc [COMPLETADO job 4229: no es palanca, cuello=datos]
-> → extendido a patrón/invasión (Obj 2, job 4243 corriendo), (2) magnificación
+> [HILO CERRADO 21-jun: 8 drop-in (jobs 4229/4243/4246) + 4 keep_slots (Obj 3, jobs
+> 4387/4400) = 12 tareas, 0 palancas; NO es palanca, cuello=datos. Ver
+> [[mammoth-investigacion-integracion]]], (2) magnificación
 > (research-first), (3) k=5 en más tasks, (4) parches/slides útiles, (5) pregunta
 > CAP, (6) PCGrad (eje separado).
 
