@@ -754,18 +754,22 @@ re-validar y actualizar `docs/codebase_map.md`.
     (cambia el mecanismo — N→300 slot-tokens, cuello de botella aprendido) + `slot_dropout`, apuntada
     al modo de falla pre-registrado (colapso a la mayoritaria del 4246). **Reviewer GO-con-obs** (NO es
     reapertura 9.b estricta sino variante no testeada — ver regla 9.b / [[meta-regla-decisiones-revisitadas]]).
-    **Resultado INTERIM 20-jun (2/4 tareas — job 4387 CERRADO, invasión+tejido; ADDENDUM ABIERTO):**
-    sobre **invasión** (la decisiva, eval sano fold-a-fold) `keep_slots=True` **NO es palanca vs CLAM**
-    (C2 Δ bAcc −0.031 ± 0.047, 4/5−) → a nivel performance **refuerza** este Hallazgo 12. Matiz
-    mecanístico nuevo: el cuello de botella de slots **recupera PARCIALMENTE el propio colapso de mammoth-F**
-    (within-mammoth C1: `presente` recall 0.434→0.516 hacia CLAM 0.577, `no_id` 0.815→0.808 → gap
-    angostado, lean H1, pero banda ambigua en magnitud Δ bAcc +0.016 ± 0.023). **`slot_dropout` net-negativo**
-    (re-colapsa `presente` a 0.385 → descartado). **Tejido** = null (test ~50). **NO se cierra el hilo
-    todavía**: faltan **carcinoma + cdis** (job **4400 SIGUE PD, no arrancó**; expectativa pre-reg §8 =
-    probable null en desbalanceadas) para la **matriz completa de las 3 binarias**. Cierre del ADDENDUM
-    cuando 4400 dé `kst`/`kst_sd` 5/5. Resultados (números exactos):
-    `sprints/B5_sprint5/objetivo_3_mammoth_keepslots/resultados.md` (§0 veredicto interim); pre-reg + §8:
-    `.../prereg.md`; análisis `scripts/analyze_obj3.py`.
+    **Resultado FINAL 21-jun (4/4 tareas — jobs 4387 + 4400 CERRADOS; matriz completa 4 brazos × 4
+    tareas, 5/5; ADDENDUM CERRADO):** `keep_slots=True` **NO es palanca vs CLAM en NINGUNA de las 4
+    tareas** (C2 Δ bAcc: invasión −0.031, carcinoma −0.020, cdis −0.023, tejido +0.046-ruido → **0/4
+    supera a CLAM** de forma decidible) → **confirma este Hallazgo 12**: el patch-embed, ahora con la
+    variante de mecanismo cambiado incluida, no es la palanca. **Matiz mecanístico nuevo y reproducible
+    (3/4 tareas):** el cuello de botella de slots aprendido **mitiga consistentemente el colapso a la
+    mayoritaria** que el drop-in (`keep_slots=False`) introducía — lean+ within-mammoth (C1 Δ bAcc:
+    invasión +0.016, carcinoma +0.035, cdis +0.063; tejido null) y gap de recall de la minoritaria a
+    favor en las 3 desbalanceadas/multiclase (invasión `presente` 0.434→0.516; carcinoma `si`
+    0.286→0.314; cdis `si` 0.279→0.443, este supera a CLAM 0.377 **pero a costa de la mayoritaria**) →
+    **insuficiente para superar al baseline**. **`slot_dropout` descartado** (net-negativo en las 4;
+    re-colapsa `presente` a 0.385). Gotcha confirmado: `val_auc=nan` en invasión (3-clase) es normal.
+    **Cierra el hilo mammoth completo: 8 tareas drop-in + 4 keep_slots = 0 palancas** (la variante de
+    mecanismo NO testeada tampoco gana; solo aporta el matiz mecanístico). Resultados (números exactos):
+    `sprints/B5_sprint5/objetivo_3_mammoth_keepslots/resultados.md` (§0 veredicto FINAL + §6.3 matriz);
+    pre-reg + §8: `.../prereg.md`; análisis `scripts/analyze_obj3.py`.
 13. **PathPT-CONCH (texto + visión, prompt-tuning θ_t + módulo espacial θ_v + supervisión
     tile-level) NO es palanca — cierra un 3er ángulo del MISMO cuello.** Probado paired vs CLAM
     en 3 tareas (B5, 11-jun): **necrosis** binaria (job 4309) → **H_alt**, no aporta (Δbal_acc

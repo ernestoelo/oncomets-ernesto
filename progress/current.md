@@ -84,7 +84,7 @@ primario para la presentación (bajo riesgo, usa CONCH as-is, NO entrena, CPU) +
 limited data"*). Memoria [[retrieval-investigacion-b5]]. Próximo paso si Ernesto
 elige D: pre-registración regla 9 + branch + reviewer (otra sesión).
 
-### Dirección VIGENTE (19-jun): Obj 3 — mammoth keep_slots=True + slot_dropout (REABRE el patch-embed)
+### Obj 3 CERRADO (21-jun): mammoth keep_slots=True + slot_dropout — matriz completa, 0 palancas
 
 **PathPT CERRADO en diagnóstico (11-jun)** — necrosis H_alt + mitotic colapso de formulación +
 microcalc NO-GO → cuello = CONCH/datos, no el método (CLAUDE.md Hallazgo 13,
@@ -98,25 +98,22 @@ de config, apuntado al modo de falla del 4246 (colapso a la mayoritaria). **Revi
 9.b estricta sino variante no testeada). Gobernanza: Ernesto asumió el gate (no molestar a Sebastián;
 maximizar mammoth = prioridad de Benjamín; co-firma recomendable a posteriori).
 
-- **Estado (act. 20-jun ~21h):** pre-reg + reviewer GO + código + **test CPU 7/7** sobre branch
-  `feat/mammoth-keepslots`. **Job 4387 CERRADO** (20-jun 17:28, 20 runs invasión+tejido × 2 brazos,
-  5 gates OK, sin errores). **Job 4400 SIGUE ENCOLADO (PD, no arrancó)** = **extensión §8**
-  (`scripts/run_obj3_mammoth_binarias_carcinoma_cdis_kfold.slurm`, commit `ae1e3c0`): keep_slots a las
-  **2 binarias faltantes** (carcinoma, cdis) → **matriz completa de las 3 binarias** (20 runs, paired vs
-  baselines del 4229; `--nice` → final de la cola, detrás de jobs ajenos). Es **expansión de alcance** de
-  la variante ya GO (completitud/defensibilidad, no 9.b; expectativa honesta = probable null en las
-  desbalanceadas). Ver prereg §8.
-- **Resultado INTERIM (2/4 tareas, 4387) — `resultados.md` escrito:** sobre invasión (decisiva, eval sano)
-  `keep_slots=True` **recupera PARCIALMENTE su propio colapso** a la mayoritaria (`presente` recall
-  0.434→0.516 hacia CLAM 0.577; gap angostado → lean **H1** en C1 within-mammoth) **pero NO supera a
-  CLAM** (C2 Δ bAcc −0.031 ± 0.047, 4/5−). `slot_dropout` **net-negativo** (re-colapsa `presente` a 0.385
-  → descartado). Tejido = **null** (test ~50, std≫|media|). **A nivel palanca vs baseline refuerza
-  Hallazgo 12**, con matiz mecanístico nuevo. **NO cierra el ADDENDUM** del Hallazgo 12 — espera
-  carcinoma/cdis (4400). Análisis: `scripts/analyze_obj3.py`.
+- **Estado (act. 21-jun):** pre-reg + reviewer GO + código + test CPU 7/7 sobre branch
+  `feat/mammoth-keepslots`. **Jobs 4387 (invasión+tejido) + 4400 (carcinoma+cdis) CERRADOS** →
+  **matriz completa 4 brazos × 4 tareas, 5/5** (verificado `scripts/analyze_obj3.py`). 4400 fue la
+  **extensión §8** (expansión de alcance por completitud/defensibilidad, no 9.b; expectativa honesta
+  pre-reg = probable null en desbalanceadas → CONFIRMADA).
+- **Resultado FINAL (4/4 tareas, `resultados.md` §0 FINAL + §6.3):** `keep_slots=True` **NO es palanca
+  vs CLAM en NINGUNA tarea** (C2 Δ bAcc: invasión −0.031, carcinoma −0.020, cdis −0.023, tejido
+  +0.046-ruido → 0/4 supera a CLAM) → **refuerza Hallazgo 12**. **Matiz mecanístico nuevo (3/4):** el
+  cuello de botella de slots **mitiga consistentemente su propio colapso a la mayoritaria** (gap de
+  recall de la minoritaria a favor: invasión `presente` 0.434→0.516, carcinoma `si` 0.286→0.314, cdis
+  `si` 0.279→0.443 — supera a CLAM pero a costa de la mayoritaria) **pero insuficiente para superar al
+  baseline**. `slot_dropout` **descartado** (net-negativo en las 4). **ADDENDUM Hallazgo 12 CERRADO**
+  en CLAUDE.md + memoria + MEMORY.md. **Hilo mammoth completo: 8 drop-in + 4 keep_slots = 0 palancas.**
 - **`val_auc=nan` en invasión (3-clase) = normal**, no bug (baseline 4246 igual; checkpoint por val_loss). Ver CLAUDE.md core_utils.
-- **Workaround H VIGENTE:** 4387 cerró pero **4400 sigue encolado** y releerá el working-tree al arrancar →
-  NO cambiar de branch ni editar `scripts/train_dsmil.py`/`models_mammoth/`/`data/` ni los gates hasta que 4400 termine
-  (commit/push de docs/análisis SÍ son seguros — no tocan esos archivos).
+- **Workaround H ya NO vigente** (4400 cerró, cola vacía) — branch/edición libres de nuevo.
+  Pendiente: commit de docs (resultados.md §6 + cierres) en `feat/mammoth-keepslots`; push lo hace Ernesto.
 - Pre-reg + detalle: `sprints/B5_sprint5/objetivo_3_mammoth_keepslots/prereg.md` (§8 = extensión).
 
 ### Dirección VIGENTE (10-jun): PathPT (frame B) pasa a PRUEBA ACTIVA

@@ -1,13 +1,12 @@
 # Obj 3 B5 — Resultados: Mammoth `keep_slots=True` (+ `slot_dropout`), k=5 paired
 
-> **ESTADO: PARCIAL / INTERIM (2 de 4 tareas).** Job **4387** CERRADO (RTX A6000, lanzado
+> **ESTADO: COMPLETO / FINAL (4 de 4 tareas).** Job **4387** CERRADO (RTX A6000, lanzado
 > 19-jun ~15:43, cerró **20-jun 17:28:09**, 20 runs = invasión + tejido × k=5 × 2 brazos
-> `kst`/`kst_sd`, todas COMPLETAS, 5 gates OK por tarea, sin errores en `.err`). Job **4400**
-> (extensión §8 = `carcinoma` + `cdis`, 20 runs) **AÚN ENCOLADO (PD, no arrancó)** detrás de
-> jobs ajenos + `--nice=100` → **carcinoma y cdis PENDIENTES**. **Este documento NO es el
-> veredicto final del Obj 3** ni cierra el ADDENDUM del Hallazgo 12: la matriz de las 3 binarias
-> se cierra cuando 4400 dé `kst`/`kst_sd` 5/5 en carcinoma y cdis. Secciones 1–5 (invasión,
-> tejido) son **definitivas**; §6 (binarias) queda como placeholder hasta 4400.
+> `kst`/`kst_sd`, 5 gates OK por tarea). Job **4400** (extensión §8 = `carcinoma` + `cdis`, 20
+> runs) **CERRADO 21-jun** (gates + 10 preflights OK, `.err` solo FutureWarnings) → **matriz
+> COMPLETA 4 brazos × 4 tareas, 5/5 (verificado con `scripts/analyze_obj3.py`)**. **Este documento
+> ES el veredicto final del Obj 3** y CIERRA el ADDENDUM del Hallazgo 12. Todas las secciones
+> (1–6) son definitivas.
 >
 > Análisis reproducible: `scripts/analyze_obj3.py` (solo lectura de `test_metrics.json`; no toca
 > `clam_environ` ni inputs de ningún job). Pre-registración (regla 9, NO reescribir):
@@ -20,7 +19,29 @@
 
 ---
 
-## 0. Veredicto interim (lo que SÍ se puede afirmar con 4387)
+## 0. Veredicto FINAL (matriz completa 4387 + 4400)
+
+- **Matriz de las 3 binarias + invasión cerrada (4 brazos × 4 tareas, 5/5):** `keep_slots=True`
+  **NO es palanca vs CLAM en ninguna tarea** (C2 Δ bAcc: invasión −0.031, carcinoma −0.020,
+  cdis −0.023, tejido +0.046-ruido → **0/4 supera a CLAM** de forma decidible) → **confirma el
+  Hallazgo 12**: el patch-embed, ahora con la variante de mecanismo cambiado incluida, no es la
+  palanca; cuello = datos / desbalance / contexto espacial.
+- **Matiz mecanístico nuevo (real y reproducible):** el cuello de botella de slots aprendido
+  **mitiga consistentemente el colapso a la mayoritaria** que el drop-in (`keep_slots=False`)
+  introducía — lean+ within-mammoth (C1) en **3/4** tareas y gap de recall de la minoritaria a
+  favor en las 3 desbalanceadas/multiclase (invasión `presente` 0.434→0.516; carcinoma `si`
+  0.286→0.314; cdis `si` 0.279→0.443, este último incluso supera a CLAM pero a costa de la
+  mayoritaria). **Insuficiente para superar al baseline.**
+- **`slot_dropout` descartado** (net-negativo en las 4 tareas; en invasión re-colapsa la
+  minoritaria a 0.385).
+- **Cierra el hilo mammoth completo:** 8 tareas drop-in (Hallazgo 12) + 4 tareas keep_slots
+  (Obj 3) → **0 palancas**. La variante de mecanismo NO testeada (keep_slots) tampoco gana; solo
+  aporta un matiz mecanístico (recupera su propia regresión). Detalle por tarea: §2 (invasión),
+  §3 (tejido), §6 (carcinoma + cdis), síntesis §6.3.
+
+---
+
+## 0-bis. Veredicto interim original (con 4387, invasión+tejido) — conservado por trazabilidad
 
 - **Invasión (3-clase, n=2814, eval sano fold-a-fold — el subset decisivo del prereg):**
   `keep_slots=True` **recupera PARCIALMENTE el colapso a la mayoritaria que `keep_slots=False`
@@ -168,9 +189,15 @@ test el Δ pareado cruza 0 en C1. **Tejido = null**, como se esperaba para un te
 | invasión bAcc | 0.575 | **0.591** | 0.550 | **−0.041 (perjudica)** |
 | invasión `presente` recall | 0.434 | **0.516** | 0.385 | **re-colapsa** |
 | tejido bAcc | 0.626 | **0.623** | 0.610 | −0.012 (ruido) |
+| carcinoma bAcc | 0.585 | **0.620** | 0.611 | −0.009 (null) |
+| carcinoma `si` recall | 0.286 | **0.314** | 0.314 | ≈0 |
+| cdis bAcc | 0.509 | **0.572** | 0.556 | −0.016 (null) |
+| cdis `si` recall | 0.279 | **0.443** | 0.459 | ≈0 |
 
-`slot_dropout` **no ayuda en ningún caso** y daña la minoritaria de invasión → **descartado**.
-El Brazo 1 (`keep_slots=True` puro) es la única variante con señal mecanística (y solo within-mammoth).
+`slot_dropout` **no ayuda en ninguna de las 4 tareas** y daña la minoritaria de invasión →
+**descartado**. El Brazo 1 (`keep_slots=True` puro) es la única variante con señal mecanística:
+recupera consistentemente el `si`/`presente` recall que KSF colapsaba (3/4 tareas), **pero solo
+within-mammoth** — no supera a CLAM (ver §6.3, veredicto de la matriz completa).
 
 ---
 
@@ -183,27 +210,150 @@ El Brazo 1 (`keep_slots=True` puro) es la única variante con señal mecanístic
 - **C2 invasión:** Δ bAcc −0.031 (4/5−) → `keep_slots=True` **no supera a CLAM**. **H_alt como
   palanca** (no es lever vs baseline real), aunque el gap vs CLAM se angostó respecto de ksf.
 - **Tejido:** **H_alt** (Δ cruza 0, std≫|media|).
-- **slot_dropout:** **H_reg** acotado al regularizador (re-colapsa la minoritaria).
+- **Carcinoma:** C1 lean+ (Δ bAcc +0.035, 3+/1−) con gap de recall a favor leve (`si` 0.286→0.314)
+  → **H1 within-mammoth débil**; C2 cruza 0 (−0.020 ± 0.121) → **H_alt como palanca**.
+- **CDIS:** C1 el lean+ más marcado (Δ bAcc +0.063, 3+/1−), `si` recall rescatado hasta superar a
+  CLAM (0.279→0.443 vs 0.377) **pero a costa de la mayoritaria** → **H1 within-mammoth** claro en
+  el mecanismo; C2 sigue bajo CLAM (−0.023 ± 0.120, 1+/4−) → **H_alt como palanca**.
+- **slot_dropout:** **H_reg** acotado al regularizador (net-negativo/null en las 4; re-colapsa la
+  minoritaria de invasión).
 
-Convergencia con el hilo: a nivel **performance vs baseline**, refuerza Hallazgo 12 (el
-patch-embed no es la palanca; cuello = datos/desbalance). Matiz nuevo: el **cuello de botella de
-slots** sí toca el mecanismo del colapso, solo que insuficiente para superar a CLAM.
+Convergencia con el hilo (matriz completa): a nivel **performance vs baseline**, refuerza el
+Hallazgo 12 (el patch-embed no es la palanca; cuello = datos/desbalance). Matiz nuevo y
+reproducible en 3/4 tareas: el **cuello de botella de slots** sí toca el mecanismo del colapso
+(recupera capacidad para la minoritaria), solo que insuficiente para superar a CLAM. Veredicto
+final en §6.3.
 
 ---
 
-## 6. Microcalc carcinoma + cdis (extensión §8) — **PENDIENTE job 4400**
+## 6. Microcalc carcinoma + cdis (extensión §8) — **job 4400 CERRADO, 5/5**
 
-> Placeholder. `kst`/`kst_sd` en **0/5** para ambas (4400 aún PD). Baselines CLAM/ksf ya en disco
-> (referencia para el Δ paired cuando lleguen los brazos nuevos):
->
-> | tarea | CLAM `si` recall | ksf `si` recall | %pos | expectativa pre-reg (§8) |
-> |---|---|---|---|---|
-> | carcinoma (~21% pos) | 0.371 | 0.286 | desbalanceada | H_alt/H_reg probable |
-> | cdis (~36% pos) | 0.377 | 0.279 | desbalanceada | H_alt/H_reg probable |
->
-> Cuando 4400 cierre: re-correr `scripts/analyze_obj3.py` (completeness 5/5 en 4 brazos × 4
-> tareas), completar esta sección con el mismo formato (§2/§3), y **recién ahí** cerrar el
-> ADDENDUM del Hallazgo 12 con el veredicto de la matriz completa de las 3 binarias.
+> Job **4400** (`eg_mammoth_kst_binarias`) cerró sin errores (gates + 10 preflights OK, `.err`
+> solo FutureWarnings). `kst`/`kst_sd` **5/5** en carcinoma y cdis → **matriz completa 4 brazos ×
+> 4 tareas**. Mismas dos binarias desbalanceadas que el resto del hilo microcalc. Test chico →
+> confusión **pooled** (5 folds), no fold-a-fold.
+
+### 6.1 Microcalc en carcinoma invasivo (binaria, ~21% pos) — n=328, test ~33
+
+Clases `{no:260, si:68}` (la más desbalanceada de las 3). Trivial bAcc 0.500.
+
+**Balanced accuracy y AUC (ROC) por fold**
+
+| brazo | f0 | f1 | f2 | f3 | f4 | **media ± std** | métrica |
+|---|---|---|---|---|---|---|---|
+| clam   | 0.531 | 0.746 | 0.583 | 0.640 | 0.697 | **0.639 ± 0.077** | bAcc |
+| ksf    | 0.511 | 0.500 | 0.686 | 0.675 | 0.554 | **0.585 ± 0.080** | bAcc |
+| kst    | 0.551 | 0.500 | 0.654 | 0.730 | 0.663 | **0.620 ± 0.083** | bAcc |
+| kst_sd | 0.531 | 0.500 | 0.614 | 0.802 | 0.608 | **0.611 ± 0.105** | bAcc |
+| clam   | 0.406 | 0.834 | 0.743 | 0.836 | 0.842 | **0.732 ± 0.167** | AUC |
+| ksf    | 0.480 | 0.846 | 0.737 | 0.709 | 0.837 | **0.722 ± 0.132** | AUC |
+| kst    | 0.583 | 0.777 | 0.726 | 0.799 | 0.803 | **0.738 ± 0.082** | AUC |
+| kst_sd | 0.577 | 0.771 | 0.720 | 0.804 | 0.808 | **0.736 ± 0.086** | AUC |
+
+**Δ pareados por fold**
+
+| contraste | Δ bAcc | signo | Δ AUC | signo |
+|---|---|---|---|---|
+| **C1** (kst − ksf, primario) | **+0.035 ± 0.048** | 3+/1− | +0.016 ± 0.069 | 2+/3− |
+| **C2** (kst − CLAM) | **−0.020 ± 0.121** | 3+/2− | +0.005 ± 0.087 | 1+/4− |
+| slot_dropout (kst_sd − kst) | −0.009 ± 0.044 | 1+/3− | −0.001 ± 0.005 | 2+/3− |
+
+**Confusión pooled (rows=true) + recall**
+
+| brazo | no (recall) | si (recall) |
+|---|---|---|
+| clam   | [119, 12] **0.908** | [22, 13] **0.371** |
+| ksf    | [116, 15] **0.885** | [25, 10] **0.286** |
+| **kst**    | [121, 10] **0.924** | [24, 11] **0.314** |
+| kst_sd | [119, 12] **0.908** | [24, 11] **0.314** |
+
+**Lectura:** `kst` recupera **parcialmente** el `si` recall que `ksf` había colapsado (0.286 →
+0.314) pero queda **muy por debajo de CLAM** (0.371), mientras la mayoritaria `no` sube (0.885 →
+0.924). C2 cruza 0 (banda ambigua). El AUC casi no se mueve (~0.73 en los 4). Mismo patrón que
+invasión: recuperación parcial within-mammoth, **no palanca vs CLAM**.
+
+### 6.2 Microcalc en CDIS (binaria, ~36% pos) — n=328, test ~33
+
+Clases `{no:210, si:118}`. Trivial bAcc 0.500.
+
+**Balanced accuracy y AUC (ROC) por fold**
+
+| brazo | f0 | f1 | f2 | f3 | f4 | **media ± std** | métrica |
+|---|---|---|---|---|---|---|---|
+| clam   | 0.718 | 0.494 | 0.588 | 0.636 | 0.541 | **0.595 ± 0.077** | bAcc |
+| ksf    | 0.666 | 0.613 | 0.412 | 0.500 | 0.355 | **0.509 ± 0.117** | bAcc |
+| kst    | 0.614 | 0.699 | 0.536 | 0.500 | 0.513 | **0.572 ± 0.075** | bAcc |
+| kst_sd | 0.558 | 0.699 | 0.536 | 0.500 | 0.489 | **0.556 ± 0.076** | bAcc |
+| clam   | 0.692 | 0.528 | 0.627 | 0.740 | 0.675 | **0.652 ± 0.072** | AUC |
+| ksf    | 0.737 | 0.615 | 0.575 | 0.702 | 0.459 | **0.618 ± 0.098** | AUC |
+| kst    | 0.653 | 0.740 | 0.565 | 0.715 | 0.589 | **0.652 ± 0.068** | AUC |
+| kst_sd | 0.640 | 0.762 | 0.565 | 0.727 | 0.576 | **0.654 ± 0.079** | AUC |
+
+**Δ pareados por fold**
+
+| contraste | Δ bAcc | signo | Δ AUC | signo |
+|---|---|---|---|---|
+| **C1** (kst − ksf, primario) | **+0.063 ± 0.078** | 3+/1− | +0.035 ± 0.082 | 3+/2− |
+| **C2** (kst − CLAM) | **−0.023 ± 0.120** | 1+/4− | +0.000 ± 0.108 | 1+/4− |
+| slot_dropout (kst_sd − kst) | −0.016 ± 0.022 | 0+/2− | +0.002 ± 0.014 | 2+/2− |
+
+**Confusión pooled (rows=true) + recall**
+
+| brazo | no (recall) | si (recall) |
+|---|---|---|
+| clam   | [89, 19] **0.824** | [38, 23] **0.377** |
+| ksf    | [82, 26] **0.759** | [44, 17] **0.279** |
+| **kst**    | [77, 31] **0.713** | [34, 27] **0.443** |
+| kst_sd | [72, 36] **0.667** | [33, 28] **0.459** |
+
+**Lectura:** el caso más nítido del mecanismo. `kst` rescata el `si` recall de forma fuerte
+(ksf 0.279 → **0.443**) e incluso **supera a CLAM** (0.377), pero **a costa de la mayoritaria**
+`no` (0.824 → 0.713) → re-balanceo, no mejora neta: la bAcc total queda **por debajo de CLAM**
+(0.572 vs 0.595, C2 1+/4−). AUC empatado con CLAM (0.652). Confirma el patrón: el cuello de
+botella de slots redistribuye capacidad hacia la minoritaria, **sin ganar al baseline**.
+
+### 6.3 Síntesis de la matriz COMPLETA (3 binarias + invasión) — veredicto final
+
+**C1 (within-mammoth, kst − ksf) Δ bAcc** — ¿recupera keep_slots=True el colapso del drop-in?
+
+| tarea | Δ bAcc C1 | signo | gap de recall minoritaria (ksf → kst) |
+|---|---|---|---|
+| invasión | +0.016 ± 0.023 | 4+/1− | `presente` 0.434 → 0.516 (↑ hacia CLAM 0.577) |
+| carcinoma | +0.035 ± 0.048 | 3+/1− | `si` 0.286 → 0.314 (↑ leve, CLAM 0.371) |
+| cdis | +0.063 ± 0.078 | 3+/1− | `si` 0.279 → 0.443 (↑ fuerte, supera CLAM 0.377) |
+| tejido | −0.003 ± 0.072 | 2+/3− | null (test balanceado chico) |
+
+→ **3 de 4 con lean+ consistente y gap de recall a favor.** `keep_slots=True` **deshace de forma
+reproducible parte del colapso a la mayoritaria** que `keep_slots=False` introducía. Es el
+hallazgo **mecanístico** nuevo del Obj 3.
+
+**C2 (vs baseline real, kst − CLAM) Δ bAcc** — ¿es palanca?
+
+| tarea | Δ bAcc C2 | signo |
+|---|---|---|
+| invasión | −0.031 ± 0.047 | 1+/4− |
+| carcinoma | −0.020 ± 0.121 | 3+/2− |
+| cdis | −0.023 ± 0.120 | 1+/4− |
+| tejido | +0.046 ± 0.106 | 3+/2− (ruido) |
+
+→ **0 de 4 supera a CLAM de forma decidible.** Las binarias cruzan 0 (banda H_alt por magnitud);
+invasión lean negativo consistente. **`keep_slots=True` NO es palanca vs CLAM.**
+
+**slot_dropout (kst_sd − kst):** net-negativo o null en las 4 tareas (invasión −0.041, carcinoma
+−0.009, cdis −0.016, tejido −0.012) y en invasión re-colapsa la minoritaria → **descartado.**
+
+**VEREDICTO FINAL del Obj 3 (matriz completa, regla 9 / prereg §2 + §8):**
+- A nivel **palanca de performance**, `keep_slots=True` **NO supera a CLAM en ninguna de las 4
+  tareas** → **confirma el Hallazgo 12** (el patch-embed, ahora con la variante de mecanismo
+  cambiado incluida, no es la palanca; cuello = datos / desbalance / contexto espacial).
+- El **matiz mecanístico nuevo y real**: el cuello de botella de slots aprendido (`keep_slots=True`)
+  **mitiga consistentemente el colapso a la mayoritaria** que el drop-in (`keep_slots=False`)
+  introducía — lean+ within-mammoth (C1) en 3/4 tareas y gap de recall a favor en las 3
+  desbalanceadas/multiclase. Pero la redistribución de capacidad hacia la minoritaria es
+  **insuficiente para superar al baseline**.
+- `slot_dropout` **descartado** (net-negativo en las 4).
+- Expectativa pre-registrada §8 (probable null/H_alt en carcinoma/cdis por desbalance):
+  **CONFIRMADA** para la pregunta de palanca, con el mismo matiz mecanístico que invasión.
 
 ---
 
