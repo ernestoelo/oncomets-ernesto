@@ -22,7 +22,7 @@ según los pedidos de Benjamín (1-jun):
 | # | Objetivo | Estado |
 |---|---|---|
 | 1 | **mammoth k=5 paired** sobre las 3 binarias (correr + analizar) | **COMPLETADO** (job 4229, analizado): mammoth NO es palanca en microcalc (cuello=datos). `objetivo_1_mammoth_run/resultados.md` |
-| 1b | **mammoth en patrón arquitectónico (4 binarias) + invasión (3-clase)** k=5 | **COMPLETADO** — PATRÓN (job 4243, 40 runs, 4-jun 01:33) + INVASIÓN (job 4246, 10 runs, 5-jun 06:18): mammoth NO es palanca en ninguna (lean+ leve solo en cribiforme balanceada; invasión = regresión leve consistente vía colapso a mayoritaria). `objetivo_2_mammoth_patron_invasion/{resultados.md,resultados_invasion.md}`. **Cierra el hilo mammoth (8 tareas, 0 palancas).** |
+| 1b | **mammoth en patrón arquitectónico (4 binarias) + invasión (3-clase)** k=5 | **COMPLETADO** — PATRÓN (job 4243, 40 runs, 4-jun 01:33) + INVASIÓN (job 4246, 10 runs, 5-jun 06:18): mammoth NO es palanca en ninguna (lean+ leve solo en cribiforme balanceada; invasión = regresión leve consistente vía colapso a mayoritaria). `objetivo_2_mammoth_patron_invasion/{resultados.md,resultados_invasion.md}`. **Cierra el hilo mammoth drop-in (8 tareas, 0 palancas)** — extendido luego por Obj 3 keep_slots (+4 tareas, también 0 palancas; ver sección Obj 3 abajo). |
 | 2 | **Magnificación**: investigar (papers) ANTES de implementar | pendiente |
 | 3 | **k=5 folds** en más tasks débiles (no single-split) | pendiente |
 | 4 | **Parches/slides útiles**: selección de los que aportan al train | pendiente |
@@ -83,6 +83,38 @@ primario para la presentación (bajo riesgo, usa CONCH as-is, NO entrena, CPU) +
 (PathPT, Zero-Shot Retrieval) **confirman cuello=datos** (*"ceiling imposed by
 limited data"*). Memoria [[retrieval-investigacion-b5]]. Próximo paso si Ernesto
 elige D: pre-registración regla 9 + branch + reviewer (otra sesión).
+
+### Obj 3 CERRADO (21-jun): mammoth keep_slots=True + slot_dropout — matriz completa, 0 palancas
+
+**PathPT CERRADO en diagnóstico (11-jun)** — necrosis H_alt + mitotic colapso de formulación +
+microcalc NO-GO → cuello = CONCH/datos, no el método (CLAUDE.md Hallazgo 13,
+[[pathpt-testing-necrosis-mitotic]]). El frame PathPT ya no es trabajo activo.
+
+**Trabajo activo:** Obj 3 reabre el patch-embed de mammoth con una **variante NO testeada**
+(`keep_slots=True` = cuello de botella de 300 slot-tokens en vez de drop-in N→N; + el arg nuevo
+`--mammoth_slot_dropout`). El hilo mammoth estaba "cerrado" para la config drop-in (`keep_slots=False`,
+8 tareas, 0 palancas, Hallazgo 12) — esto **NO lo contradice**: prueba un punto NO testeado del espacio
+de config, apuntado al modo de falla del 4246 (colapso a la mayoritaria). **Reviewer GO-con-obs** (NO
+9.b estricta sino variante no testeada). Gobernanza: Ernesto asumió el gate (no molestar a Sebastián;
+maximizar mammoth = prioridad de Benjamín; co-firma recomendable a posteriori).
+
+- **Estado (act. 21-jun):** pre-reg + reviewer GO + código + test CPU 7/7 sobre branch
+  `feat/mammoth-keepslots`. **Jobs 4387 (invasión+tejido) + 4400 (carcinoma+cdis) CERRADOS** →
+  **matriz completa 4 brazos × 4 tareas, 5/5** (verificado `scripts/analyze_obj3.py`). 4400 fue la
+  **extensión §8** (expansión de alcance por completitud/defensibilidad, no 9.b; expectativa honesta
+  pre-reg = probable null en desbalanceadas → CONFIRMADA).
+- **Resultado FINAL (4/4 tareas, `resultados.md` §0 FINAL + §6.3):** `keep_slots=True` **NO es palanca
+  vs CLAM en NINGUNA tarea** (C2 Δ bAcc: invasión −0.031, carcinoma −0.020, cdis −0.023, tejido
+  +0.046-ruido → 0/4 supera a CLAM) → **refuerza Hallazgo 12**. **Matiz mecanístico nuevo (3/4):** el
+  cuello de botella de slots **mitiga consistentemente su propio colapso a la mayoritaria** (gap de
+  recall de la minoritaria a favor: invasión `presente` 0.434→0.516, carcinoma `si` 0.286→0.314, cdis
+  `si` 0.279→0.443 — supera a CLAM pero a costa de la mayoritaria) **pero insuficiente para superar al
+  baseline**. `slot_dropout` **descartado** (net-negativo en las 4). **ADDENDUM Hallazgo 12 CERRADO**
+  en CLAUDE.md + memoria + MEMORY.md. **Hilo mammoth completo: 8 drop-in + 4 keep_slots = 0 palancas.**
+- **`val_auc=nan` en invasión (3-clase) = normal**, no bug (baseline 4246 igual; checkpoint por val_loss). Ver CLAUDE.md core_utils.
+- **Workaround H ya NO vigente** (4400 cerró, cola vacía) — branch/edición libres de nuevo.
+  Pendiente: commit de docs (resultados.md §6 + cierres) en `feat/mammoth-keepslots`; push lo hace Ernesto.
+- Pre-reg + detalle: `sprints/B5_sprint5/objetivo_3_mammoth_keepslots/prereg.md` (§8 = extensión).
 
 ### Dirección VIGENTE (10-jun): PathPT (frame B) pasa a PRUEBA ACTIVA
 

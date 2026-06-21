@@ -108,6 +108,64 @@ def test_keep_slots_true_changes_cardinality():
     print(f"[OK] keep_slots=True: A={tuple(A.shape)} (E·S, no N={N}) — documentado")
 
 
+def test_keep_slots_true_shape_real_config():
+    """Obj 3 B5 (Obs 3.a reviewer): con la CONFIG REAL (E=30, S=10, heads=16,
+    slot_dim=256, embed_dim=512), keep_slots=True produce E·S = 300 slot-tokens de
+    dim 512. Verifica la forma por el rearrange real (e·s y h·(dim/h)), NO por la
+    coincidencia numérica 512(in)=512(out)."""
+    torch.manual_seed(0)
+    N, E, S = 250, 30, 10            # config recomendada del paper; E·S = 300 != N
+    model = CLAM_MB_Mammoth(
+        n_classes=3, embed_dim=512, dropout=0.0, k_sample=8,
+        mammoth_num_experts=E, mammoth_num_slots=S, mammoth_num_heads=16,
+        mammoth_slot_dim=256, mammoth_keep_slots=True,
+    )
+    model.eval()
+    bag = torch.randn(N, 512)
+    logits, _, _, A, results = model(
+        bag, label=torch.tensor([2]), instance_eval=False, return_features=True,
+    )
+    # Cardinalidad de tokens = E·S = 300 (no N), por el rearrange "b (e s) (h d)".
+    assert A.shape == (3, E * S), \
+        f"A={tuple(A.shape)}, esperaba (3, {E*S}=E·S) con keep_slots=True config real"
+    # La dim del slot-token reconstruye output_dim=512 = num_heads·(dim/num_heads),
+    # no slot_dim=256. M agrupado = [n_classes, 512].
+    M = results['features']
+    assert M.shape == (3, 512), f"M={tuple(M.shape)}, esperaba (3, 512) (output_dim)"
+    assert not torch.isnan(logits).any(), "logits NaN con keep_slots=True"
+    print(f"[OK] keep_slots=True config real: A={tuple(A.shape)} (E·S=300), "
+          f"M={tuple(M.shape)} (dim 512 = heads·d, no slot_dim)")
+
+
+def test_slot_dropout_wiring():
+    """Obj 3 B5 (Brazo 2): slot_dropout cablea hasta el ruteo de Mammoth y SOLO
+    actúa en training. Con dropout=0.0, la única fuente estocástica es slot_dropout
+    → dos forwards en train() difieren; en eval() son idénticos."""
+    torch.manual_seed(0)
+    N = 200
+    model = CLAM_MB_Mammoth(
+        n_classes=2, embed_dim=512, dropout=0.0, k_sample=8,
+        mammoth_slot_dropout=0.5, mammoth_keep_slots=True,
+    )
+    bag = torch.randn(N, 512)
+    lbl = torch.tensor([1])
+
+    model.eval()                      # slot_dropout no-op
+    with torch.no_grad():
+        l1, _, _, _, _ = model(bag, label=lbl, instance_eval=False)
+        l2, _, _, _, _ = model(bag, label=lbl, instance_eval=False)
+    assert torch.allclose(l1, l2, atol=1e-6), \
+        "en eval() slot_dropout NO debe ser estocástico (debe ser no-op)"
+
+    model.train()                     # slot_dropout activo (única fuente estocástica)
+    with torch.no_grad():
+        t1, _, _, _, _ = model(bag, label=lbl, instance_eval=False)
+        t2, _, _, _, _ = model(bag, label=lbl, instance_eval=False)
+    assert not torch.allclose(t1, t2, atol=1e-6), \
+        "en train() con slot_dropout=0.5 y dropout=0.0 los forwards deben diferir"
+    print("[OK] slot_dropout: estocástico en train(), no-op en eval() — cableado")
+
+
 def test_forward_real_pt():
     """Forward CPU con un .pt real de clam_environ (CONCH 512)."""
     pt_path = Path(
@@ -233,6 +291,8 @@ if __name__ == "__main__":
     test_swap_took_effect()
     test_forward_random_bag()
     test_keep_slots_true_changes_cardinality()
+    test_keep_slots_true_shape_real_config()
+    test_slot_dropout_wiring()
     test_forward_real_pt()
     test_compute_test_metrics_with_mammoth()
     test_compute_test_metrics_multiclase()

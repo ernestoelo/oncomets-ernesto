@@ -51,6 +51,17 @@ conteo de parámetros comparable a la capa lineal. Con e30/s256/d512 → rank 8.
   en la 1ª pasada** (comparación limpia).
 - `True`: la salida son E·S features agregadas (pseudo-instancias). Cambia el
   pooling y el top-k. Variante posterior, no en la primera comparación.
+  - **Obj 3 B5 (19-jun) ES esa variante posterior** (REABRE el hilo "cerrado" como
+    variante NO testeada, no 9.b estricta): prueba `keep_slots=True` + el arg nuevo
+    `--mammoth_slot_dropout` (default 0.0, retro-compatible; Brazo 2 = 0.1), paired vs el
+    baseline `keep_slots=False` (job 4387). El test CPU ya cubre la config real
+    `[300,512]` + el wiring de slot_dropout. Pre-reg + reviewer GO:
+    `sprints/B5_sprint5/objetivo_3_mammoth_keepslots/prereg.md`.
+  - **CERRADO (21-jun, jobs 4387+4400, matriz 4 brazos × 4 tareas):** `keep_slots=True`
+    **NO es palanca vs CLAM** (0/4); mitiga su propio colapso a la mayoritaria pero no
+    gana al baseline; `slot_dropout` descartado. **Hilo mammoth completo: 8 drop-in + 4
+    keep_slots = 0 palancas.** Veredicto: `objetivo_3_mammoth_keepslots/resultados.md`
+    (§0 + §6.3) + [[mammoth-investigacion-integracion]].
 
 ## Correr (SOLO vía sbatch — workaround B/cortesía single-GPU)
 

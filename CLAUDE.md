@@ -590,8 +590,12 @@ re-validar y actualizar `docs/codebase_map.md`.
 - `total_loss = bag_weight * loss + (1-bag_weight) * instance_loss`: **L271**.
 - `bag_weight` default 0.7 (slide-level 70% / instance 30%).
 - "clustering loss" en prints == instance loss.
-
-### `main.py`
+- **`val_auc=nan` en el log de training de tasks multiclase (3-clase) es NORMAL, no bug.** El AUC de
+  validación OVR sale `nan` época a época (verificado: el baseline invasión job 4246 lo logueaba en las
+  310 épocas); el checkpoint se guarda por `val_loss` y el `test_auc` final se computa bien (4246 cerró
+  macro-OVR 0.80–0.86). Una variante en prueba (ej. mammoth `keep_slots`) **no** lo introduce → no
+  declarar el run roto ni culpar al brazo nuevo (es apples-to-apples: baseline y brazo comparten el nan
+  en val). Verificado 19-jun (Obj 3, job 4387).
 
 - Parser de args desde **L446**. Defaults: `embed_dim=1024`, `lr=1e-4`,
   `max_epochs=200`, `bag_weight=0.7`, `B=8`, `model_type=clam_sb`, `k=10`.
@@ -744,6 +748,28 @@ re-validar y actualizar `docs/codebase_map.md`.
     `sprints/B5_sprint5/objetivo_2_mammoth_patron_invasion/{resultados.md,resultados_invasion.md}`
     + README consolidado `results/README_experimentos_mammoth_environ.md` §4.b/§4.c + memoria
     [[mammoth-investigacion-integracion]].
+    **ADDENDUM 19-jun (Obj 3) — el cierre vale para la config DROP-IN testeada, NO para todo
+    mammoth.** Las 8 tareas probaron un solo punto del espacio de config (`keep_slots=False`,
+    `slot_dropout=0`). Obj 3 reabre con una **variante arquitectónica NO testeada**: `keep_slots=True`
+    (cambia el mecanismo — N→300 slot-tokens, cuello de botella aprendido) + `slot_dropout`, apuntada
+    al modo de falla pre-registrado (colapso a la mayoritaria del 4246). **Reviewer GO-con-obs** (NO es
+    reapertura 9.b estricta sino variante no testeada — ver regla 9.b / [[meta-regla-decisiones-revisitadas]]).
+    **Resultado FINAL 21-jun (4/4 tareas — jobs 4387 + 4400 CERRADOS; matriz completa 4 brazos × 4
+    tareas, 5/5; ADDENDUM CERRADO):** `keep_slots=True` **NO es palanca vs CLAM en NINGUNA de las 4
+    tareas** (C2 Δ bAcc: invasión −0.031, carcinoma −0.020, cdis −0.023, tejido +0.046-ruido → **0/4
+    supera a CLAM** de forma decidible) → **confirma este Hallazgo 12**: el patch-embed, ahora con la
+    variante de mecanismo cambiado incluida, no es la palanca. **Matiz mecanístico nuevo y reproducible
+    (3/4 tareas):** el cuello de botella de slots aprendido **mitiga consistentemente el colapso a la
+    mayoritaria** que el drop-in (`keep_slots=False`) introducía — lean+ within-mammoth (C1 Δ bAcc:
+    invasión +0.016, carcinoma +0.035, cdis +0.063; tejido null) y gap de recall de la minoritaria a
+    favor en las 3 desbalanceadas/multiclase (invasión `presente` 0.434→0.516; carcinoma `si`
+    0.286→0.314; cdis `si` 0.279→0.443, este supera a CLAM 0.377 **pero a costa de la mayoritaria**) →
+    **insuficiente para superar al baseline**. **`slot_dropout` descartado** (net-negativo en las 4;
+    re-colapsa `presente` a 0.385). Gotcha confirmado: `val_auc=nan` en invasión (3-clase) es normal.
+    **Cierra el hilo mammoth completo: 8 tareas drop-in + 4 keep_slots = 0 palancas** (la variante de
+    mecanismo NO testeada tampoco gana; solo aporta el matiz mecanístico). Resultados (números exactos):
+    `sprints/B5_sprint5/objetivo_3_mammoth_keepslots/resultados.md` (§0 veredicto FINAL + §6.3 matriz);
+    pre-reg + §8: `.../prereg.md`; análisis `scripts/analyze_obj3.py`.
 13. **PathPT-CONCH (texto + visión, prompt-tuning θ_t + módulo espacial θ_v + supervisión
     tile-level) NO es palanca — cierra un 3er ángulo del MISMO cuello.** Probado paired vs CLAM
     en 3 tareas (B5, 11-jun): **necrosis** binaria (job 4309) → **H_alt**, no aporta (Δbal_acc

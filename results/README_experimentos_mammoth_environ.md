@@ -16,9 +16,9 @@ confusión, Δ pareado) en `sprints/B5_sprint5/objetivo_1_mammoth_run/resultados
 
 Cohorte `_pth` = Privado (Environ) + TCGA + HistAI. En las binarias se excluye `no_identificado`.
 
-- microcalc carcinoma: si 121 / no 212 (n 333)
-- microcalc cdis: si 68 / no 265 (n 333)
-- microcalc tejido: si 195 / no 138 (n 333)
+- microcalc carcinoma: si 68 / no 260 (n 328)
+- microcalc cdis: si 118 / no 210 (n 328)
+- microcalc tejido: si 192 / no 136 (n 328)
 - cribiforme: si 252 / no 261 (n 513)
 - sólido: si 388 / no 125 (n 513)
 - micropapilar: si 34 / no 479 (n 513)
@@ -62,6 +62,24 @@ positivos de los 5 folds juntos, no fold a fold).
 
 Resumen: Mammoth no supera a CLAM de forma consistente. Hay una mejora leve solo en tejido y
 cribiforme, las dos tareas más balanceadas.
+
+## Variante keep_slots=True (Obj 3)
+
+Mismo harness y splits, pero Mammoth con `keep_slots=True` (la 1ª capa devuelve E·S=300
+slot-tokens en vez de los N parches — cuello de botella aprendido) sobre 4 tareas. Detalle por
+fold, confusión y Δ pareado en `sprints/B5_sprint5/objetivo_3_mammoth_keepslots/resultados.md`.
+
+| Tarea | CLAM AUC | +Mam(kst) AUC | CLAM bal | +Mam(kst) bal |
+|---|---|---|---|---|
+| microcalc carcinoma | 0.732 / 0.842 | 0.738 / 0.803 | 0.639 ± 0.077 | 0.620 ± 0.083 |
+| microcalc cdis | 0.652 / 0.740 | 0.652 / 0.740 | 0.595 ± 0.077 | 0.572 ± 0.075 |
+| microcalc tejido | 0.646 / 0.688 | 0.647 / 0.763 | 0.577 ± 0.030 | 0.623 ± 0.117 |
+| invasión | 0.828 / 0.867 | 0.825 / 0.839 | 0.622 ± 0.028 | 0.591 ± 0.040 |
+
+Resumen: `keep_slots=True` tampoco supera a CLAM (0/4 tareas). Mitiga el colapso a la clase
+mayoritaria que tenía la versión drop-in (recupera recall de la minoritaria), pero no alcanza al
+baseline. La variante con `slot_dropout` queda descartada (net-negativa). Con esto el hilo
+Mammoth queda cerrado: 8 tareas drop-in + 4 keep_slots, sin palanca.
 
 
 
