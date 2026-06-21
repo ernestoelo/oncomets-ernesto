@@ -754,13 +754,18 @@ re-validar y actualizar `docs/codebase_map.md`.
     (cambia el mecanismo — N→300 slot-tokens, cuello de botella aprendido) + `slot_dropout`, apuntada
     al modo de falla pre-registrado (colapso a la mayoritaria del 4246). **Reviewer GO-con-obs** (NO es
     reapertura 9.b estricta sino variante no testeada — ver regla 9.b / [[meta-regla-decisiones-revisitadas]]).
-    **Resultado PENDIENTE** (sin números — regla 7). Estado 19-jun: **job 4387 CORRIENDO** (tejido 10/10
-    runs done, invasión en curso); **job 4400 ENCOLADO** = **extensión §8 del prereg** = keep_slots a las
-    **2 binarias de microcalc faltantes** (carcinoma, cdis) para cerrar la **matriz completa de las 3
-    binarias** (paired vs baselines del 4229 en disco; `--nice` → final de la cola, cortesía single-GPU).
-    Es **expansión de alcance** de la variante ya GO, no 9.b (driver = completitud, no optimismo; ver
-    [[meta-regla-decisiones-revisitadas]]). Pre-reg + §8:
-    `sprints/B5_sprint5/objetivo_3_mammoth_keepslots/prereg.md`.
+    **Resultado INTERIM 20-jun (2/4 tareas — job 4387 CERRADO, invasión+tejido; ADDENDUM ABIERTO):**
+    sobre **invasión** (la decisiva, eval sano fold-a-fold) `keep_slots=True` **NO es palanca vs CLAM**
+    (C2 Δ bAcc −0.031 ± 0.047, 4/5−) → a nivel performance **refuerza** este Hallazgo 12. Matiz
+    mecanístico nuevo: el cuello de botella de slots **recupera PARCIALMENTE el propio colapso de mammoth-F**
+    (within-mammoth C1: `presente` recall 0.434→0.516 hacia CLAM 0.577, `no_id` 0.815→0.808 → gap
+    angostado, lean H1, pero banda ambigua en magnitud Δ bAcc +0.016 ± 0.023). **`slot_dropout` net-negativo**
+    (re-colapsa `presente` a 0.385 → descartado). **Tejido** = null (test ~50). **NO se cierra el hilo
+    todavía**: faltan **carcinoma + cdis** (job **4400 SIGUE PD, no arrancó**; expectativa pre-reg §8 =
+    probable null en desbalanceadas) para la **matriz completa de las 3 binarias**. Cierre del ADDENDUM
+    cuando 4400 dé `kst`/`kst_sd` 5/5. Resultados (números exactos):
+    `sprints/B5_sprint5/objetivo_3_mammoth_keepslots/resultados.md` (§0 veredicto interim); pre-reg + §8:
+    `.../prereg.md`; análisis `scripts/analyze_obj3.py`.
 13. **PathPT-CONCH (texto + visión, prompt-tuning θ_t + módulo espacial θ_v + supervisión
     tile-level) NO es palanca — cierra un 3er ángulo del MISMO cuello.** Probado paired vs CLAM
     en 3 tareas (B5, 11-jun): **necrosis** binaria (job 4309) → **H_alt**, no aporta (Δbal_acc

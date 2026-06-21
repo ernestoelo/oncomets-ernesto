@@ -98,18 +98,25 @@ de config, apuntado al modo de falla del 4246 (colapso a la mayoritaria). **Revi
 9.b estricta sino variante no testeada). Gobernanza: Ernesto asumió el gate (no molestar a Sebastián;
 maximizar mammoth = prioridad de Benjamín; co-firma recomendable a posteriori).
 
-- **Estado (act. 19-jun ~17h):** pre-reg + reviewer GO + código + **test CPU 7/7** sobre branch
-  `feat/mammoth-keepslots`. **Job 4387 CORRIENDO** (GROUP=all; **tejido 10/10 runs done** ambos brazos,
-  **invasión en curso** 0/5). **Job 4400 ENCOLADO** = **extensión §8** (`scripts/run_obj3_mammoth_binarias_carcinoma_cdis_kfold.slurm`,
-  commit `ae1e3c0`): keep_slots a las **2 binarias faltantes** (carcinoma, cdis) → **matriz completa de
-  las 3 binarias de microcalc** (20 runs, paired vs baselines del 4229; `--nice` → final de la cola). Es
-  **expansión de alcance** de la variante ya GO (driver = completitud/defensibilidad, no 9.b "probarlo
-  igual"; expectativa honesta pre-registrada = probable null en las desbalanceadas). Ver prereg §8.
-- **Resultado:** PENDIENTE (sin números — regla 7). Al terminar: análisis paired (C1 kst vs keep_slots=False,
-  C2 kst vs CLAM) + diagnóstico de gap de recall + `resultados.md` (tejido+invasión del 4387, carcinoma+cdis del 4400).
+- **Estado (act. 20-jun ~21h):** pre-reg + reviewer GO + código + **test CPU 7/7** sobre branch
+  `feat/mammoth-keepslots`. **Job 4387 CERRADO** (20-jun 17:28, 20 runs invasión+tejido × 2 brazos,
+  5 gates OK, sin errores). **Job 4400 SIGUE ENCOLADO (PD, no arrancó)** = **extensión §8**
+  (`scripts/run_obj3_mammoth_binarias_carcinoma_cdis_kfold.slurm`, commit `ae1e3c0`): keep_slots a las
+  **2 binarias faltantes** (carcinoma, cdis) → **matriz completa de las 3 binarias** (20 runs, paired vs
+  baselines del 4229; `--nice` → final de la cola, detrás de jobs ajenos). Es **expansión de alcance** de
+  la variante ya GO (completitud/defensibilidad, no 9.b; expectativa honesta = probable null en las
+  desbalanceadas). Ver prereg §8.
+- **Resultado INTERIM (2/4 tareas, 4387) — `resultados.md` escrito:** sobre invasión (decisiva, eval sano)
+  `keep_slots=True` **recupera PARCIALMENTE su propio colapso** a la mayoritaria (`presente` recall
+  0.434→0.516 hacia CLAM 0.577; gap angostado → lean **H1** en C1 within-mammoth) **pero NO supera a
+  CLAM** (C2 Δ bAcc −0.031 ± 0.047, 4/5−). `slot_dropout` **net-negativo** (re-colapsa `presente` a 0.385
+  → descartado). Tejido = **null** (test ~50, std≫|media|). **A nivel palanca vs baseline refuerza
+  Hallazgo 12**, con matiz mecanístico nuevo. **NO cierra el ADDENDUM** del Hallazgo 12 — espera
+  carcinoma/cdis (4400). Análisis: `scripts/analyze_obj3.py`.
 - **`val_auc=nan` en invasión (3-clase) = normal**, no bug (baseline 4246 igual; checkpoint por val_loss). Ver CLAUDE.md core_utils.
-- **Workaround H VIGENTE:** con 4387 corriendo **y 4400 encolado**, NO cambiar de branch ni editar
-  `scripts/train_dsmil.py`/`models_mammoth/`/`data/` ni los gates hasta que AMBOS terminen (commit/push SÍ son seguros).
+- **Workaround H VIGENTE:** 4387 cerró pero **4400 sigue encolado** y releerá el working-tree al arrancar →
+  NO cambiar de branch ni editar `scripts/train_dsmil.py`/`models_mammoth/`/`data/` ni los gates hasta que 4400 termine
+  (commit/push de docs/análisis SÍ son seguros — no tocan esos archivos).
 - Pre-reg + detalle: `sprints/B5_sprint5/objetivo_3_mammoth_keepslots/prereg.md` (§8 = extensión).
 
 ### Dirección VIGENTE (10-jun): PathPT (frame B) pasa a PRUEBA ACTIVA
