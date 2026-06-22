@@ -21,7 +21,7 @@ de una tabla se pixela y no se edita; una tabla nativa sí.
 
 | Script | Produce |
 |---|---|
-| `scripts/generate_b5_deck.py` | **ensambla el deck** end-to-end (17 slides) |
+| `scripts/generate_b5_deck.py` | **ensambla el deck** end-to-end (20 slides) |
 | `scripts/generate_clam_mammoth_pptx.py` | diagrama CLAM+MoE (slide 1 = integración, slide 2 = zoom MoE) |
 | `scripts/generate_pathpt_pptx.py` | diagrama PathPT (slide 1 = arquitectura forward, slide 2 = 3 componentes) |
 | `scripts/generate_b5_extra_assets.py` | (legado) PNG de respaldo; el deck ya NO los usa salvo la fig del paper |
@@ -171,11 +171,12 @@ hacer pixel-QA de slides con OMML (falso positivo de LibreOffice). Verificar fid
 diagramas copiados por conteo de shapes + oMath + IDs únicos. Abrir el deck final en
 **PowerPoint/OnlyOffice**, no LibreOffice.
 
-## 7. Estructura del deck B5 (17 slides)
+## 7. Estructura del deck B5 (20 slides)
 
 Portada · Objetivos · [div MAMMOTH] · qué es (tarjetas + concepto nativo) · diagrama
-integración · diagrama zoom MoE · **tabla** 8 tareas (+AUC) · invasión (**chart** +
-**confusión** nativos) · [div PathPT] · idea (fig paper) + 3 componentes · diagrama
-arquitectura (matemático) · necrosis (**tabla** + **confusión**) · mitótica (2
-**confusiones**) · microcalc (**tabla**) · [div Cierre] · cierre 3 ejes (**tabla**) ·
-próximos pasos.
+integración · diagrama zoom MoE · figura oficial fused (dims overlay) · variante keep_slots
+(fused) · **tabla** 8 tareas drop-in (+AUC) · invasión (**chart** + **confusión** nativos) ·
+**tabla** keep_slots 4 tareas (cierre 12 tareas) · [div PathPT] · idea (fig paper) + 3
+componentes · diagrama arquitectura (matemático) · necrosis (**tabla** + **confusión**) ·
+mitótica (2 **confusiones**) · microcalc (**tabla**) · [div Cierre] · cierre 3 ejes
+(**tabla**) · próximos pasos.
