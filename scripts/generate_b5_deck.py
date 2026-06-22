@@ -103,9 +103,13 @@ def add_notes(slide, text):
     slide.notes_slide.notes_text_frame.text = text
 
 
-def set_notes(slide, proposito, narrativa, puntos=None, nsz=13):
-    """Notas del presentador estructuradas y legibles:
-       PROPÓSITO — <una frase>  +  narrativa (párrafo/s)  +  PUNTOS CLAVE (viñetas).
+def set_notes(slide, proposito, sections, nsz=13):
+    """Notas del presentador como GUION DIDÁCTICO por fases (texto BLANCO sobre panel oscuro).
+       proposito : frase que sigue a 'PROPÓSITO — ' (objetivo de la slide en una línea).
+       sections  : lista ORDENADA de (LABEL, body) — el guion para exponer enseñando:
+           body str        -> párrafo (frase literal, lista para leer/decir).
+           body list[str]  -> ítems con marcador '→  ' (pasos / puntos).
+       Etiquetas habituales: ABRIR · EXPLICAR · ANALOGÍA · EJEMPLO · PUNTO CLAVE · TRANSICIÓN.
     Sin nº de job, sin nombres (convención de la presentación)."""
     tf = slide.notes_slide.notes_text_frame
     tf.clear(); tf.word_wrap = True
@@ -113,29 +117,22 @@ def set_notes(slide, proposito, narrativa, puntos=None, nsz=13):
     def _para(first=False):
         return tf.paragraphs[0] if first else tf.add_paragraph()
 
-    # Todo el texto en BLANCO (las notas se leen sobre fondo oscuro) — pedido de Ernesto.
+    def _run(p, text, bold=False):
+        r = p.add_run(); r.text = text
+        r.font.bold = bold; r.font.size = Pt(nsz); r.font.name = F_BODY; r.font.color.rgb = WHITE
+
     # PROPÓSITO (etiqueta + frase)
-    p = _para(first=True); p.space_after = Pt(9)
-    r = p.add_run(); r.text = "PROPÓSITO — "
-    r.font.bold = True; r.font.size = Pt(nsz); r.font.name = F_BODY; r.font.color.rgb = WHITE
-    r2 = p.add_run(); r2.text = proposito
-    r2.font.size = Pt(nsz); r2.font.name = F_BODY; r2.font.color.rgb = WHITE
+    p = _para(first=True); p.space_after = Pt(8)
+    _run(p, "PROPÓSITO — ", bold=True); _run(p, proposito)
 
-    # narrativa (uno o más párrafos bien elaborados)
-    for para in (narrativa if isinstance(narrativa, (list, tuple)) else [narrativa]):
-        pp = _para(); pp.space_after = Pt(9)
-        rr = pp.add_run(); rr.text = para
-        rr.font.size = Pt(nsz); rr.font.name = F_BODY; rr.font.color.rgb = WHITE
-
-    # PUNTOS CLAVE (viñetas)
-    if puntos:
-        ph = _para(); ph.space_before = Pt(3); ph.space_after = Pt(4)
-        rh = ph.add_run(); rh.text = "PUNTOS CLAVE"
-        rh.font.bold = True; rh.font.size = Pt(nsz); rh.font.name = F_BODY; rh.font.color.rgb = WHITE
-        for pt in puntos:
-            pb = _para(); pb.space_after = Pt(3)
-            rb = pb.add_run(); rb.text = "•  " + pt
-            rb.font.size = Pt(nsz); rb.font.name = F_BODY; rb.font.color.rgb = WHITE
+    # Fases del guion: etiqueta en negrita + cuerpo (párrafo literal o ítems con flecha).
+    for label, body in sections:
+        ph = _para(); ph.space_before = Pt(7); ph.space_after = Pt(2)
+        _run(ph, label, bold=True)
+        is_list = isinstance(body, (list, tuple))
+        for item in (body if is_list else [body]):
+            pb = _para(); pb.space_after = Pt(2)
+            _run(pb, ("→  " + item) if is_list else item)
 
 
 def _rect(slide, l, t, w, h, color):
@@ -485,14 +482,20 @@ def build():
                 [("Sprint B5 — Integración de MAMMOTH y PathPT", 34, True, WHITE, F_TITLE, PP_ALIGN.CENTER),
                  ("OncoMets · CLAM sobre features CONCH · junio 2026", 17, False, WHITE, F_BODY, PP_ALIGN.CENTER)])
     set_notes(s,
-        "abrir la presentación y encuadrar el sprint en una sola frase.",
-        "Este es el cierre del sprint B5. El trimestre giró en torno a una pregunta concreta: "
-        "¿alguna modificación de la arquitectura de CLAM mueve la aguja en nuestras tareas "
-        "clínicas? Para responderla integramos y medimos dos modelos —MAMMOTH y PathPT— con un "
-        "protocolo de evaluación común y honesto.",
-        ["Dos encargos: integrar y medir MAMMOTH; integrar y explicar PathPT (visión + lenguaje).",
-         "Todo corre sobre features CONCH y se compara contra CLAM como baseline.",
-         "El hilo conductor del deck: separar el 'efecto del modelo' del 'efecto del dato'."])
+        "abrir la presentación y encuadrar todo el sprint en una sola pregunta.",
+        [("ABRIR",
+          "\"Esto es el cierre del sprint B5. Todo el trimestre giró en torno a una sola pregunta, "
+          "y quiero que se la lleven desde el primer minuto.\""),
+         ("EXPLICAR",
+          ["La pregunta: ¿alguna modificación de la ARQUITECTURA de CLAM mueve la aguja en nuestras "
+           "tareas clínicas, o el límite está en otro lado?",
+           "Para responderla integramos y medimos dos modelos —MAMMOTH y PathPT— con un mismo "
+           "protocolo de evaluación, común y honesto.",
+           "Ambos corren sobre las mismas features CONCH y se comparan siempre contra CLAM, el baseline."]),
+         ("PUNTO CLAVE",
+          "El hilo conductor del deck es uno solo: separar el 'efecto del modelo' del 'efecto del dato'."),
+         ("TRANSICIÓN",
+          "\"Antes de cualquier número, dejemos clara la vara con la que vamos a medir.\"")])
 
     # 2 · Objetivos
     s = content(prs, "Objetivos del sprint")
@@ -505,24 +508,38 @@ def build():
     ], size=30, sub_size=25, anchor=MSO_ANCHOR.MIDDLE)
     set_notes(s,
         "fijar la vara de medición ANTES de mostrar cualquier resultado.",
-        "Antes de los números conviene dejar claro cómo vamos a juzgarlos. Cada modelo se compara "
-        "contra CLAM sobre exactamente los mismos splits (comparación pareada), con validación "
-        "cruzada k=5 para no fiarnos de un único sorteo. Y reportamos siempre balanced accuracy "
-        "junto al AUC y la matriz de confusión, porque con clases desbalanceadas una sola métrica "
-        "engaña.",
-        ["Comparación PAREADA: el Δ por fold cancela la varianza del sorteo y revela señales chicas.",
-         "k=5 (validación cruzada) en lugar de un solo split optimista.",
-         "Métrica honesta = balanced_acc + AUC + matriz de confusión, nunca el AUC a secas."])
+        [("ABRIR",
+          "\"Antes de los resultados, cómo los vamos a juzgar. Esto es lo que hace creíble todo lo "
+          "que viene después.\""),
+         ("EXPLICAR",
+          ["Dos encargos concretos: integrar y medir MAMMOTH, e integrar y explicar PathPT (visión + lenguaje).",
+           "Comparación PAREADA: cada modelo se mide contra CLAM sobre exactamente los mismos splits, "
+           "fold a fold; así el Δ por fold cancela la suerte del sorteo y deja ver señales chicas.",
+           "Validación cruzada k=5, no un único split optimista.",
+           "Métrica honesta: siempre balanced accuracy junto al AUC y la matriz de confusión."]),
+         ("EJEMPLO",
+          "Con clases desbalanceadas, un modelo que dice siempre 'lo más común' puede tener accuracy "
+          "alto y ser inútil; la balanced accuracy lo desenmascara."),
+         ("PUNTO CLAVE",
+          "Comparación pareada + k=5 + balanced_acc/AUC/confusión = no nos engañamos solos."),
+         ("TRANSICIÓN",
+          "\"Con la vara fijada, abrimos el primer eje: MAMMOTH.\"")])
 
     # ===== MAMMOTH =====
     s = divider(prs, "MAMMOTH", "Mixture-of-Experts en la primera capa de CLAM (patch-embed)")
     set_notes(s,
-        "abrir el primer bloque y anticipar el eje que ataca MAMMOTH.",
-        "Empezamos por MAMMOTH, una intervención en la primera capa de CLAM (el patch-embed). La "
-        "pregunta de este bloque: reemplazar esa capa por una mezcla de expertos, ¿reduce la "
-        "interferencia de gradientes y mejora la predicción?",
-        ["Eje atacado: la capa de proyección de los parches.",
-         "Estructura del bloque: qué es → dónde va → qué hace → resultados."])
+        "abrir el primer bloque y anticipar exactamente qué eje ataca MAMMOTH.",
+        [("ABRIR",
+          "\"Primer eje: MAMMOTH. Una intervención quirúrgica en la PRIMERA capa de CLAM, la que "
+          "proyecta los parches.\""),
+         ("EXPLICAR",
+          ["La pregunta del bloque: si reemplazamos esa capa por una mezcla de expertos, ¿bajamos la "
+           "interferencia de gradientes y mejora la predicción?",
+           "El recorrido va a ser: qué es → dónde entra → qué hace por dentro → resultados."]),
+         ("PUNTO CLAVE",
+          "Eje atacado = la capa de proyección de los parches (el patch-embed)."),
+         ("TRANSICIÓN",
+          "\"Empecemos por la intuición, sin una sola fórmula.\"")])
 
     s = content(prs, "MAMMOTH — qué es y por qué")
     cards = [
@@ -537,72 +554,106 @@ def build():
     draw_mammoth_concept(s, 7.05, 1.7)   # bloques nativos (no imagen)
     set_notes(s,
         "dar la intuición de MAMMOTH y por qué podría ayudar, sin matemática.",
-        "En CLAM, una única capa lineal proyecta todos los parches al espacio interno del MIL. El "
-        "problema: parches de fenotipos muy distintos en la misma slide empujan gradientes en "
-        "conflicto sobre esa capa —la 'interferencia de gradientes'—. MAMMOTH la reemplaza por una "
-        "mezcla de expertos, de modo que cada experto puede especializarse en un sub-fenotipo sin "
-        "pisar a los demás.",
-        ["Reemplaza SOLO la 1ª capa lineal; el resto de CLAM queda intacto → comparación limpia.",
-         "Motivación: desacoplar los gradientes de parches heterogéneos.",
-         "Es un cambio quirúrgico: cualquier diferencia es atribuible a esa capa."])
+        [("ABRIR",
+          "\"En CLAM, una sola capa lineal proyecta TODOS los parches al espacio interno del modelo. "
+          "Esa única capa es el cuello que MAMMOTH ataca.\""),
+         ("EXPLICAR",
+          ["El problema: en una misma slide hay parches de fenotipos muy distintos, y todos tiran de "
+           "esa misma capa con gradientes en conflicto. Eso es la 'interferencia de gradientes'.",
+           "La idea: reemplazar la capa por una mezcla de expertos —un router manda cada parche a "
+           "expertos especializados— para que cada uno se especialice sin pisar a los demás.",
+           "Clave del diseño: el resto de CLAM no se toca. Cualquier diferencia es atribuible SOLO "
+           "a esta capa."]),
+         ("ANALOGÍA",
+          "Un solo traductor para diez idiomas termina contradiciéndose; diez traductores "
+          "especializados, cada uno en lo suyo, no."),
+         ("PUNTO CLAVE",
+          "Cambio quirúrgico en una sola capa → comparación limpia contra CLAM."),
+         ("TRANSICIÓN",
+          "\"Veamos en el pipeline DÓNDE entra exactamente esa capa.\"")])
 
     s = copy_diagram(prs, DIAG_MAM, 0, None, bar=False)   # sin título: tapaba el diagrama
     set_notes(s,
         "ubicar visualmente DÓNDE entra MAMMOTH en el pipeline de CLAM.",
-        "Sobre nuestro diagrama de CLAM, el bloque naranja marca el único punto que cambia: la "
-        "primera capa totalmente conectada, justo después del extractor CONCH. Todo lo de aguas "
-        "abajo —atención, pooling, clasificadores— es CLAM sin tocar.",
-        ["El bloque naranja = la capa que MAMMOTH sustituye.",
-         "OJO: no es la capa lineal FINAL (esa es el clasificador por clase).",
-         "Drop-in: misma forma de entrada y de salida."])
+        [("ABRIR",
+          "\"Este es nuestro diagrama de CLAM completo. El bloque naranja es el ÚNICO punto que cambia.\""),
+         ("EXPLICAR",
+          ["Ese bloque es la primera capa totalmente conectada, justo después del extractor CONCH.",
+           "Todo lo de aguas abajo —atención, pooling, clasificadores— es CLAM sin tocar.",
+           "Ojo con una confusión típica: NO es la capa lineal FINAL (esa es el clasificador por "
+           "clase). MAMMOTH cambia la de ENTRADA."]),
+         ("PUNTO CLAVE",
+          "Es un drop-in: misma forma de entrada y de salida que la capa que reemplaza."),
+         ("TRANSICIÓN",
+          "\"Ahora abramos esa caja naranja y veamos qué hace por dentro.\"")])
 
     s = copy_diagram(prs, DIAG_MAM, 1, "MAMMOTH — qué hace (zoom de la 1ª capa)")
     set_notes(s,
-        "abrir la caja negra y mostrar QUÉ HACE MAMMOTH por dentro, con dimensiones reales; "
-        "dejar claro que cuesta el mismo presupuesto de parámetros que la capa lineal.",
-        "Cada parche entra como una ficha CONCH de 512 números. W_q la reescribe contra 256 'varas' "
-        "aprendidas y LayerNorm la normaliza: queda el query q, una ficha de búsqueda de 256 vista "
-        "como 16 cabezas de 16. Hay 300 'slots' aprendidos (30 expertos x 10), cada uno con una "
-        "clave S de 16 números por cabeza; comparamos q con cada clave por producto interno (puntaje "
-        "de parecido). Atención a las DOS softmax distintas: el reparto D normaliza sobre los N "
-        "parches (para cada slot, qué parches junta); la mezcla C normaliza sobre los 300 slots "
-        "(para cada parche, a qué expertos escucha). Misma matriz de puntajes, dos normalizaciones "
-        "por ejes opuestos.",
-        ["Entra y sale [N, 512]: drop-in exacto de la 1a capa lineal.",
-         "Query: q = LN(W_q z), 256 dims = 16 cabezas x 16 (las 'lentes' del panel derecho).",
-         "DOS softmax: reparto D baja por los N parches; mezcla C baja por los 300 slots.",
-         "Experto = LoRA: bajada COMPARTIDA 16->8 (rank 8) + subida PROPIA 8->32 (x16 cab = 512).",
-         "rank 8 automatico => MoE pesa casi lo mismo que la FC 512x512 que reemplaza.",
-         "Si MAMMOTH no mejora, NO es por falta de capacidad (ver resultados)."])
+        "abrir la caja negra y mostrar QUÉ HACE MAMMOTH por dentro, con dimensiones reales — y que "
+        "cuesta casi los mismos parámetros que la capa lineal.",
+        [("ABRIR",
+          "\"Cada parche entra como una ficha CONCH de 512 números. Sigamos esa ficha paso a paso.\""),
+         ("EXPLICAR",
+          ["Primero, la matriz W_q reescribe la ficha contra 256 'varas' aprendidas y LayerNorm la "
+           "normaliza: queda el 'query' q, una ficha de búsqueda de 256, que miramos como 16 cabezas "
+           "de 16 (las 'lentes' del panel derecho).",
+           "Hay 300 'slots' aprendidos —30 expertos por 10—, cada uno con una clave; comparamos el "
+           "query contra cada clave con un producto interno: un puntaje de parecido parche-slot.",
+           "Atención a las DOS softmax distintas, sobre la MISMA matriz de puntajes: el reparto D "
+           "normaliza sobre los N parches (para cada slot, qué parches junta); la mezcla C normaliza "
+           "sobre los 300 slots (para cada parche, a qué expertos escucha).",
+           "Cada experto es un LoRA: una bajada COMPARTIDA de 16 a 8 (rango 8) y una subida PROPIA de "
+           "8 a 32; por las 16 cabezas, recompone los 512."]),
+         ("EJEMPLO",
+          ["Producto interno = cuánto se parecen dos fichas: súmense los productos número a número; "
+           "más alto, más parecido.",
+           "Softmax = convertir esos puntajes en porcentajes que suman 100%."]),
+         ("PUNTO CLAVE",
+          "Entra y sale [N, 512] (drop-in exacto), y con rango 8 automático pesa casi lo mismo que la "
+          "capa lineal 512×512 → si no mejora, NO es por falta de capacidad."),
+         ("TRANSICIÓN",
+          "\"Esto mismo, ahora sobre la figura oficial del paper, con las dimensiones reales.\"")])
 
     # 6b · La MISMA mecánica del zoom, ahora sobre la figura OFICIAL del paper (+ dims overlay)
     s = copy_diagram(prs, DIAG_FUSED, 0, None, bar=False)   # full-bleed (lleva su propio título); logo only
     set_notes(s,
-        "cerrar el lazo entre NUESTRO zoom y la figura oficial del paper: es el mismo pipeline, "
-        "ahora con las dimensiones reales anotadas paso a paso encima de la figura de los autores.",
-        "Esta es la figura oficial de MAMMOTH. Es exactamente lo que abrimos en el zoom anterior, pero "
-        "vista de punta a punta: el encoder CONCH entrega z de 512; W_q proyecta al query; el ruteo por "
-        "slots arma los 300 slots; los expertos de bajo rango los transforman; la combinación cross-head "
-        "recompone y CLAM clasifica. Cada cartel verde es la forma del tensor que entra y sale de ese paso.",
-        ["Es la MISMA 1ª capa del zoom anterior, ahora en la figura de los autores.",
-         "Los carteles = forma del tensor entrada → salida por paso (verificados contra el código).",
-         "Abajo a la izquierda: el experto por dentro (LoRA, slots → Φ·W → no-linealidad)."])
+        "cerrar el lazo entre nuestro zoom y la figura oficial del paper, con las dimensiones reales "
+        "anotadas paso a paso.",
+        [("ABRIR",
+          "\"Esta es la figura oficial de MAMMOTH. Es exactamente lo que abrimos en el zoom, pero de "
+          "punta a punta.\""),
+         ("EXPLICAR",
+          ["El encoder CONCH entrega z de 512; W_q proyecta al query; el ruteo por slots arma los 300 "
+           "slots; los expertos de bajo rango los transforman; la combinación cross-head recompone y "
+           "CLAM clasifica.",
+           "Cada cartel verde es la FORMA del tensor que entra y sale de ese paso —verificados contra "
+           "el código, no inventados.",
+           "Abajo a la izquierda está el experto por dentro: el LoRA, slots → Φ·W → no-linealidad."]),
+         ("PUNTO CLAVE",
+          "Es la MISMA primera capa del zoom, ahora en el lenguaje visual de los autores."),
+         ("TRANSICIÓN",
+          "\"Y de esta misma figura sale una variante que también medimos: keep_slots.\"")])
 
     # 6c · La variante keep_slots que también medimos (mismo tronco, bifurca la salida)
     s = copy_diagram(prs, DIAG_FUSED, 1, None, bar=False)   # nativo (lleva su propio título); logo only
     set_notes(s,
-        "presentar la variante que también medimos: cambia SOLO la salida de MAMMOTH, no el tronco; "
-        "anticipa el modo de falla que ataca (colapso a la mayoritaria).",
-        "El tronco —encoder, query, ruteo, expertos— es idéntico al de la slide anterior. La variante "
-        "cambia un único interruptor, keep_slots. En FALSE (el drop-in que medimos primero) MAMMOTH "
-        "recombina los 300 slots de vuelta a los N parches: es un reemplazo transparente de la capa "
-        "lineal. En TRUE (lo que también medimos) se queda con los 300 slot-tokens: un cuello de botella "
-        "aprendido, más slot_dropout, pensado para darle capacidad dedicada a la clase minoritaria. Misma "
-        "cabeza CLAM y misma pérdida: cambia solo qué se agrega, N parches o 300 slots.",
-        ["keep_slots decide la salida: recombinar a N parches (False) o quedarse con 300 slots (True).",
-         "TRUE = cuello de botella aprendido N→300 + slot_dropout (atención en 2 etapas).",
-         "Motivación: recuperar recall de la clase rara que la variante drop-in colapsa.",
-         "Evaluación pareada k=5 completada → resultados en las dos slides siguientes."])
+        "presentar la variante keep_slots que también medimos: cambia SOLO la salida, no el tronco; "
+        "anticipa el modo de falla que ataca.",
+        [("ABRIR",
+          "\"El tronco —encoder, query, ruteo, expertos— es idéntico a la slide anterior. Cambia un "
+          "único interruptor: keep_slots.\""),
+         ("EXPLICAR",
+          ["En FALSE (el drop-in que medimos primero) MAMMOTH recombina los 300 slots de vuelta a los "
+           "N parches: un reemplazo transparente de la capa lineal.",
+           "En TRUE (lo que también medimos) se queda con los 300 slot-tokens: un cuello de botella "
+           "aprendido, más slot_dropout.",
+           "La motivación: darle capacidad dedicada a la clase minoritaria, esa que la variante base "
+           "tiende a colapsar.",
+           "Misma cabeza CLAM y misma pérdida: cambia solo QUÉ se agrega, N parches o 300 slots."]),
+         ("PUNTO CLAVE",
+          "Un solo interruptor decide la salida; ya medimos las dos posiciones en pareado k=5."),
+         ("TRANSICIÓN",
+          "\"Empecemos por los resultados de la variante base, el drop-in, en ocho tareas.\"")])
 
     # 7 · Resultados 8 tareas drop-in (TABLA NATIVA)
     s = content(prs, "MAMMOTH drop-in — resultados (8 tareas, k=5)")
@@ -618,14 +669,20 @@ def build():
                   "balanceadas (tejido, cribiforme) → lo gobierna el balance, no la arquitectura.",
                   14, False, GRIS_TXT)])
     set_notes(s,
-        "mostrar la evidencia agregada: MAMMOTH no es palanca en 8 tareas.",
-        "Ocho tareas pareadas, y el patrón es nítido: cero palancas consistentes. El único lean "
-        "positivo —y leve— aparece en las dos tareas más balanceadas (tejido no neoplásico y patrón "
-        "cribiforme). En el resto el efecto es nulo o una leve regresión, y en todas la varianza "
-        "entre folds es mayor o igual al efecto medio.",
-        ["Lo que predice el signo del efecto es el BALANCE de la clase, no la arquitectura.",
-         "Donde hay pocos positivos, MAMMOTH no rescata nada.",
-         "Varianza ≳ |efecto| → no hay señal por encima del ruido."])
+        "mostrar la evidencia agregada: la variante drop-in de MAMMOTH no es palanca en 8 tareas.",
+        [("ABRIR",
+          "\"Ocho tareas, todas pareadas. Lean la última columna y van a ver el patrón de una.\""),
+         ("EXPLICAR",
+          ["Cero palancas consistentes. El único lean positivo —y leve— aparece en las dos tareas más "
+           "balanceadas: tejido no neoplásico y patrón cribiforme.",
+           "En el resto, efecto nulo o leve regresión.",
+           "Y en TODAS la varianza entre folds es mayor o igual al efecto medio: no hay señal por "
+           "encima del ruido."]),
+         ("PUNTO CLAVE",
+          "Lo que predice el signo del efecto es el BALANCE de la clase, no la arquitectura: donde "
+          "hay pocos positivos, MAMMOTH no rescata nada."),
+         ("TRANSICIÓN",
+          "\"Vamos al caso con más datos y la medición más limpia: invasión linfovascular.\"")])
 
     # 8 · Invasión (gráfico nativo + confusión nativa)
     s = content(prs, "MAMMOTH — invasión linfovascular")
@@ -642,14 +699,20 @@ def build():
                   "siguiente slide.", 15, False, GRIS_TXT)])
     set_notes(s,
         "mostrar el modo de falla del drop-in en el caso más favorable a la medición.",
-        "Esta es la tarea con más datos y la evaluación más sana (cada clase con suficientes casos "
-        "por fold). Si MAMMOTH iba a brillar, sería acá. En cambio el drop-in agrava el colapso hacia "
-        "la clase mayoritaria 'no identificado': sube su recall a costa de la clase 'presente', y tanto "
-        "balanced accuracy como AUC bajan levemente en los 5 folds. Más poder estadístico no lo "
-        "rescató: lo afinó. Este colapso es exactamente lo que la variante keep_slots intenta revertir.",
-        ["n = 2814 y evaluación fold-a-fold: el escenario más limpio de todo el hilo.",
-         "bal_acc 0.622 → 0.575 y AUC 0.828 → 0.818 (5/5 folds a la baja).",
-         "El colapso a la mayoritaria es el modo de falla que ataca keep_slots (siguiente slide)."])
+        [("ABRIR",
+          "\"Esta es la tarea con más datos y la evaluación más sana: cada clase con casos suficientes "
+          "en cada fold. Si MAMMOTH iba a brillar, sería acá.\""),
+         ("EXPLICAR",
+          ["En cambio, el drop-in AGRAVA el colapso hacia la clase mayoritaria 'no identificado': le "
+           "sube el recall a costa de la clase 'presente'.",
+           "Balanced accuracy 0.622 → 0.575 y AUC 0.828 → 0.818, a la baja en los 5 folds.",
+           "Más poder estadístico no lo rescató: lo afinó —dejó ver un signo negativo consistente que "
+           "en las tareas chicas quedaba tapado por el ruido."]),
+         ("PUNTO CLAVE",
+          "El colapso a la mayoritaria es exactamente el modo de falla que la variante keep_slots fue "
+          "diseñada para revertir."),
+         ("TRANSICIÓN",
+          "\"Veamos entonces si keep_slots lo revierte.\"")])
 
     # 8b · keep_slots=True — resultados (4 tareas, TABLA NATIVA) → cierre del hilo MAMMOTH
     s = content(prs, "MAMMOTH keep_slots — resultados (4 tareas, k=5)")
@@ -671,24 +734,39 @@ def build():
                   "de la mayoritaria → la bal_acc total no mejora.", 12, False, GRIS_TXT)])
     set_notes(s,
         "mostrar el resultado de la variante keep_slots y cerrar el hilo MAMMOTH en 12 tareas.",
-        "Esta es la variante diseñada para atacar justo el modo de falla anterior: el colapso a la "
-        "clase mayoritaria. Y en parte lo logra: el cuello de botella de slots recupera recall de la "
-        "clase rara en tres de las cuatro tareas. Pero esa redistribución no alcanza para superar a "
-        "CLAM en ninguna —en balanced accuracy queda por debajo o en empate ruidoso—. El regularizador "
-        "slot_dropout no aporta y se descarta. Con esto el hilo cierra en doce tareas y cero palancas.",
-        ["keep_slots revierte PARCIALMENTE el colapso a la mayoritaria (3/4 tareas).",
-         "Recupera recall de la clase rara, pero NO supera a CLAM en bal_acc en ninguna.",
-         "slot_dropout descartado: net-negativo en las 4 tareas.",
-         "Cierre del hilo MAMMOTH: 12 tareas, 0 palancas → el cuello sigue siendo el dato."])
+        [("ABRIR",
+          "\"Esta es la variante hecha a medida para atacar ese colapso. Y la lectura tiene dos capas.\""),
+         ("EXPLICAR",
+          ["Capa mecanística (la buena noticia parcial): el cuello de botella de slots recupera recall "
+           "de la clase rara en tres de las cuatro tareas. La columna del medio lo muestra: el recall "
+           "sube desde la variante drop-in.",
+           "Capa de veredicto (lo que importa): esa redistribución NO alcanza para superar a CLAM en "
+           "ninguna de las cuatro tareas en balanced accuracy —queda por debajo o en empate ruidoso.",
+           "El caso CDIS es ilustrativo: sube el recall de la clase rara incluso por encima de CLAM, "
+           "pero a costa de la mayoritaria, así que la balanced accuracy total no mejora.",
+           "El regularizador slot_dropout no aporta en ninguna y se descarta."]),
+         ("PUNTO CLAVE",
+          "Con esto el hilo MAMMOTH cierra en 12 tareas (8 drop-in + 4 keep_slots) y cero palancas → "
+          "el cuello sigue siendo el dato, no la arquitectura."),
+         ("TRANSICIÓN",
+          "\"Cambiamos de eje por completo: ahora visión + lenguaje, con PathPT.\"")])
 
     # ===== PATHPT =====
     s = divider(prs, "PathPT", "Visión + lenguaje: clasificación parche-a-parche sobre CONCH congelado")
     set_notes(s,
-        "abrir el segundo bloque y marcar que cambiamos de eje.",
-        "Cambiamos de eje: PathPT no toca el agregador ni la capa de proyección. Suma una palanca "
-        "distinta —lenguaje y supervisión a nivel de parche— sobre el mismo CONCH congelado.",
-        ["Visión + texto: cada parche se compara contra descripciones de clase.",
-         "Clasifica parche a parche (y localiza), no solo la slide entera."])
+        "abrir el segundo bloque y marcar que cambiamos de eje por completo.",
+        [("ABRIR",
+          "\"Segundo eje, y es uno totalmente distinto: PathPT no toca el agregador ni la capa de "
+          "proyección.\""),
+         ("EXPLICAR",
+          ["Suma una palanca nueva: lenguaje y supervisión a nivel de parche, sobre el mismo CONCH "
+           "congelado.",
+           "Mientras CLAM clasifica la slide entera, PathPT clasifica parche a parche comparando "
+           "contra texto, y además localiza el hallazgo."]),
+         ("PUNTO CLAVE",
+          "Eje atacado = visión + lenguaje + supervisión por parche, no el flujo de CLAM."),
+         ("TRANSICIÓN",
+          "\"Veamos la idea completa con la figura del paper.\"")])
 
     # 10 · Figura 1 COMPLETA del paper (a=MIL · b=PathPT · c=tareas · d=benchmarks) + caption de las 3 piezas
     s = content(prs, "PathPT — la idea y el alcance (figura del paper)")
@@ -702,26 +780,39 @@ def build():
                 anchor=MSO_ANCHOR.MIDDLE)
     set_notes(s,
         "presentar la idea de PathPT y su alcance con la figura oficial completa del paper.",
-        "Esta es la figura del paper completa. Arriba, la comparación: a la izquierda el MIL clásico "
-        "—comprime la slide a un vector y clasifica la slide entera—; a la derecha PathPT, que clasifica "
-        "parche a parche comparando contra texto y además localiza el hallazgo. Abajo, el alcance: el "
-        "abanico de tareas que cubre y los benchmarks donde PathPT compite contra los MIL. Todo corre "
-        "sobre CONCH congelado; solo se entrenan tres piezas livianas.",
-        ["a) MIL clásico  vs  b) PathPT (parche-a-parche, visión + texto).",
-         "c) abanico de tareas  ·  d) benchmarks del paper (PathPT vs MIL).",
-         "Solo se entrenan θᵥ (contexto espacial), θₜ (prompt) + pseudo-labels tile; CONCH congelado."])
+        [("ABRIR",
+          "\"Esta es la figura del paper, completa. La leemos en dos mitades.\""),
+         ("EXPLICAR",
+          ["Arriba, la comparación: a la izquierda el MIL clásico, que comprime la slide a un vector y "
+           "clasifica la slide entera; a la derecha PathPT, que clasifica parche a parche contra texto "
+           "y localiza el hallazgo.",
+           "Abajo, el alcance: el abanico de tareas que cubre y los benchmarks donde compite contra "
+           "los MIL.",
+           "Todo corre sobre CONCH congelado; solo se entrenan tres piezas livianas: θᵥ (contexto "
+           "espacial), θₜ (prompt-tuning) y los pseudo-labels a nivel de tile."]),
+         ("PUNTO CLAVE",
+          "PathPT = CONCH congelado + tres piezas chicas entrenables; es barato de entrenar."),
+         ("TRANSICIÓN",
+          "\"Abramos el forward completo, con el mismo estilo de diagrama que usamos para CLAM.\"")])
 
     # 11 · Diagrama arquitectura (matemático)
     s = copy_diagram(prs, DIAG_PPT, 0, "PathPT — arquitectura (forward)")
     set_notes(s,
-        "mostrar el forward completo de PathPT, code-accurate, con el mismo estilo que el de CLAM.",
-        "El diagrama tiene tres ramas que convergen: visión, texto y matching. Lo gris está "
-        "congelado (los encoders CONCH); lo naranja se entrena (θᵥ y θₜ). La clase de cada parche "
-        "sale del coseno texto-visión y luego se agrega a una predicción de slide más un mapa de "
-        "localización del hallazgo.",
-        ["Φᵥ / Φₜ congelados; θᵥ / θₜ entrenables.",
-         "512 = dimensión contrastiva (matching); 768 = dimensión del token donde viven los ctx.",
-         "Es el forward puro: la lectura/agregación y el entrenamiento van en otras slides."])
+        "mostrar el forward completo de PathPT, fiel al código, con el mismo estilo que el de CLAM.",
+        [("ABRIR",
+          "\"Tres ramas que convergen: visión, texto y matching. Sigámoslas.\""),
+         ("EXPLICAR",
+          ["Lo gris está congelado (los encoders CONCH); lo naranja se entrena (θᵥ y θₜ).",
+           "La clase de cada parche sale del coseno entre su vector de texto y su vector de visión.",
+           "Eso luego se agrega a una predicción de slide, más un mapa de localización del hallazgo."]),
+         ("EJEMPLO",
+          "Coseno = parecido de dirección entre dos vectores: 1 si apuntan igual, 0 si no tienen "
+          "relación. Acá: cuánto se parece un parche a la descripción en texto de una clase."),
+         ("PUNTO CLAVE",
+          "Dos dimensiones a no confundir: 512 es la dimensión contrastiva (el matching); 768 es la "
+          "del token donde viven los contextos."),
+         ("TRANSICIÓN",
+          "\"Con el modelo claro, vamos a los tres resultados. Primero, necrosis.\"")])
 
     # 12 · Necrosis (tabla nativa + confusión nativa)
     s = content(prs, "PathPT — Necrosis")
@@ -743,12 +834,19 @@ def build():
                   "zero-shot ~0.62, mientras CLAM llega a 0.727.", 15, False, GRIS_TXT)])
     set_notes(s,
         "primer resultado de PathPT — no aporta sobre CLAM.",
-        "En necrosis el veredicto es H_alt: PathPT no aporta. El Δ pareado de balanced accuracy "
-        "cruza el cero y el de AUC es levemente negativo. De hecho el modelo apenas se despega de "
-        "su 'teacher' zero-shot (~0.62), mientras CLAM llega a 0.727.",
-        ["Δ bal_acc −0.020 ± 0.078;  Δ AUC −0.066 ± 0.094 (cruzan o rozan el 0).",
-         "El entrenamiento casi no mejora sobre el etiquetado zero-shot de partida.",
-         "Mismo split que CLAM (pareado) → la comparación es limpia."])
+        [("ABRIR",
+          "\"Necrosis, comparación pareada contra CLAM sobre los mismos splits. El veredicto es H_alt: "
+          "PathPT no aporta.\""),
+         ("EXPLICAR",
+          ["El Δ pareado de balanced accuracy cruza el cero (−0.020 ± 0.078); el de AUC es levemente "
+           "negativo (−0.066 ± 0.094).",
+           "El dato revelador: el modelo apenas se despega de su 'teacher' zero-shot, que ya estaba en "
+           "~0.62; CLAM, en cambio, llega a 0.727.",
+           "O sea, el entrenamiento casi no agrega sobre el etiquetado de partida."]),
+         ("PUNTO CLAVE",
+          "Mismo split que CLAM (pareado) → la comparación es limpia, y PathPT no mueve la aguja."),
+         ("TRANSICIÓN",
+          "\"El segundo caso es más instructivo, porque colapsa: tasa mitótica.\"")])
 
     # 13 · Mitótica (dos confusiones nativas)
     s = content(prs, "PathPT — Tasa mitótica")
@@ -763,15 +861,21 @@ def build():
                   "(clase 0 = score_1 basal). El AUC (0.66) sobrevive → calibración del punto de operación.",
                   15, False, GRIS_TXT)])
     set_notes(s,
-        "mostrar un colapso instructivo y de dónde sale la próxima palanca.",
-        "Acá PathPT colapsa: predice siempre la clase mayoritaria (score_1), con balanced accuracy "
-        "exactamente 0.333 y cero predicciones de score_2 o 3. No es un bug —CLAM, sobre los mismos "
-        "splits, no colapsa—. Es la formulación ordinal (clase 0 = score basal) la que domina el "
-        "pseudo-etiquetado. Lo interesante: el AUC sobrevive (~0.66), o sea el ranking latente está "
-        "pero el punto de corte está mal.",
-        ["bal_acc 0.333 (trivial) vs CLAM 0.494, sobre los mismos splits.",
-         "No es bug: es la formulación; pendiente de sign-off clínico.",
-         "El AUC sobrevive → el cuello es la CALIBRACIÓN del punto de operación."])
+        "mostrar un colapso instructivo — y de dónde sale la próxima palanca real.",
+        [("ABRIR",
+          "\"Comparen las dos matrices. A la izquierda CLAM usa las tres clases; a la derecha PathPT "
+          "predice SIEMPRE la mayoritaria.\""),
+         ("EXPLICAR",
+          ["PathPT colapsa: balanced accuracy exactamente 0.333 y cero predicciones de score_2 o score_3.",
+           "No es un bug: CLAM, sobre los mismos splits, no colapsa. Es la formulación ordinal —clase "
+           "0 = score basal— la que domina el pseudo-etiquetado; queda pendiente el sign-off clínico.",
+           "Lo interesante: el AUC sobrevive (~0.66). El ranking latente está bien; lo que está mal es "
+           "el punto de corte."]),
+         ("PUNTO CLAVE",
+          "Que el AUC sobreviva mientras el argmax colapsa señala la próxima palanca real: CALIBRAR el "
+          "punto de operación, no cambiar de modelo."),
+         ("TRANSICIÓN",
+          "\"Tercer caso, y un ejemplo de cómo descartar barato: microcalcificaciones.\"")])
 
     # 14 · Microcalc (TABLA NATIVA)
     s = content(prs, "PathPT — Microcalcificaciones (go/no-go)")
@@ -788,23 +892,34 @@ def build():
                  ("Iterar prompts con más morfología EMPEORÓ. NO-GO → ahorró ~18–24 h de GPU.",
                   16, False, GRIS_BODY)])
     set_notes(s,
-        "mostrar un descarte barato y bien hecho — el patrón Etapa 0 (CPU antes que GPU).",
-        "Antes de gastar GPU probamos un etiquetado zero-shot en CPU, en minutos. CONCH no logra "
-        "separar microcalcificaciones: el AUC va de 0.44 a 0.63 según la tarea y —contraintuitivo— "
-        "afinar los prompts con más morfología lo empeoró. Veredicto NO-GO, sin quemar ~18–24 h de "
-        "GPU.",
-        ["Patrón Etapa 0: zero-shot barato ANTES del entrenamiento caro.",
-         "CONCH no 'groundea' microcalcificaciones (AUC ≤ 0.63).",
-         "Iterar prompts con más detalle morfológico no ayudó (mismo patrón que necrosis)."])
+        "mostrar un descarte barato y bien hecho — el patrón 'CPU antes que GPU'.",
+        [("ABRIR",
+          "\"Antes de gastar GPU, hicimos un chequeo zero-shot en CPU, en minutos. Y nos ahorró el viaje.\""),
+         ("EXPLICAR",
+          ["CONCH no logra separar microcalcificaciones: el AUC va de 0.44 a 0.63 según la tarea.",
+           "Y algo contraintuitivo: afinar los prompts con más morfología lo EMPEORÓ —el mismo patrón "
+           "que vimos en necrosis.",
+           "Veredicto NO-GO, sin quemar las ~18 a 24 horas de GPU que habría costado entrenarlo."]),
+         ("PUNTO CLAVE",
+          "Patrón a institucionalizar: un zero-shot barato ANTES del entrenamiento caro; si CONCH no "
+          "'groundea' el hallazgo, no vale la GPU."),
+         ("TRANSICIÓN",
+          "\"Con los tres ejes ya medidos, juntemos todo en una sola lectura.\"")])
 
     # ===== CIERRE =====
     s = divider(prs, "Cierre y próximos pasos", "Tres ejes de arquitectura → dónde sí hay palanca")
     set_notes(s,
         "abrir la síntesis y los próximos pasos.",
-        "Con los tres ejes ya medidos, toca juntar el resultado en una sola lectura y decir, a "
-        "partir de eso, dónde sí conviene invertir esfuerzo.",
-        ["Cierra los 3 ejes de arquitectura del sprint.",
-         "La conclusión converge: por eso el último mensaje son los próximos pasos."])
+        [("ABRIR",
+          "\"Hasta acá medimos tres ejes de arquitectura distintos. Toca juntarlos en una sola "
+          "conclusión.\""),
+         ("EXPLICAR",
+          "La idea: poner los tres veredictos lado a lado y, a partir de eso, decir dónde SÍ conviene "
+          "invertir esfuerzo."),
+         ("PUNTO CLAVE",
+          "La conclusión converge — por eso el último mensaje del deck son los próximos pasos."),
+         ("TRANSICIÓN",
+          "\"La tesis del sprint cabe en una sola tabla.\"")])
 
     # 16 · Cierre 3 ejes (TABLA NATIVA)
     s = content(prs, "Cierre — 3 ejes, 0 palancas → el cuello es el dato")
@@ -820,13 +935,21 @@ def build():
                   15, False, GRIS_BODY)])
     set_notes(s,
         "la tesis del sprint en una sola tabla — 3 ejes independientes, 0 palancas.",
-        "Atacamos tres familias independientes de cambio arquitectónico —el agregador (DSMIL), la "
-        "capa de proyección (MAMMOTH) y el lenguaje + supervisión tile (PathPT)—, todas pareadas y "
-        "con evaluación honesta. Ninguna mueve la aguja. Esa triangulación ES el resultado: el "
-        "cuello de botella no es el modelo, es el dato.",
-        ["Tres ejes distintos, mismo veredicto → conclusión robusta, no un accidente de una prueba.",
-         "El cuello convergente: desbalance, pocos positivos y contexto espacial.",
-         "Deja de tener sentido buscar la palanca dentro de la arquitectura."])
+        [("ABRIR",
+          "\"Tres familias de cambio arquitectónico, completamente independientes entre sí. Una fila "
+          "cada una.\""),
+         ("EXPLICAR",
+          ["El agregador, con DSMIL. La capa de proyección, con MAMMOTH. El lenguaje + supervisión por "
+           "parche, con PathPT.",
+           "Las tres pareadas y con evaluación honesta. Las tres con el mismo veredicto: ninguna mueve "
+           "la aguja.",
+           "Esa triangulación ES el resultado: tres caminos distintos, mismo destino, no es accidente "
+           "de una sola prueba."]),
+         ("PUNTO CLAVE",
+          "El cuello de botella no es el modelo, es el DATO: desbalance, pocos positivos, contexto "
+          "espacial. Deja de tener sentido buscar la palanca dentro de la arquitectura."),
+         ("TRANSICIÓN",
+          "\"Y eso, lejos de dejarnos sin jugadas, nos las reordena. Próximos pasos.\"")])
 
     # 17 · Próximos pasos
     s = content(prs, "Próximos pasos — dónde sí hay palanca")
@@ -839,13 +962,20 @@ def build():
     ], size=24, anchor=MSO_ANCHOR.MIDDLE)
     set_notes(s,
         "convertir el 'no-resultado' en una agenda con palancas reales.",
-        "Que la arquitectura no sea palanca no nos deja sin jugadas; nos las reordena hacia cosas "
-        "ortogonales al modelo. La más barata salió del colapso mitótico: calibrar el punto de "
-        "operación, porque el AUC ya está pero el argmax no. Después, recuperación de casos "
-        "similares (valor clínico sin re-entrenar) y, sobre todo, atacar el dato.",
-        ["Calibración del umbral por clase: barata, sin re-entrenar.",
-         "CBIR sobre features CONCH: valor clínico inmediato.",
-         "Magnificación / nº de parches y más positivos: atacar el cuello REAL = el dato."])
+        [("ABRIR",
+          "\"Que la arquitectura no sea palanca no nos deja sin jugadas: nos las empuja hacia cosas "
+          "ORTOGONALES al modelo.\""),
+         ("EXPLICAR",
+          ["La más barata salió sola del colapso mitótico: calibrar el punto de operación, el umbral "
+           "por clase. El AUC ya está; el argmax no. Se re-umbraliza sin re-entrenar.",
+           "Recuperación de casos similares (CBIR) sobre las features CONCH: valor clínico inmediato, "
+           "sin re-entrenar.",
+           "Y el cuello REAL: magnificación y número de parches (contexto espacial), y más positivos y "
+           "mejor balance en las tareas hambrientas de datos."]),
+         ("PUNTO CLAVE",
+          "El sprint cambia la pregunta: no '¿qué modelo?', sino '¿qué dato y qué punto de operación?'."),
+         ("TRANSICIÓN",
+          "\"Con eso cierro. Quedo para preguntas.\"")])
 
     prs.save(DST)
     return prs

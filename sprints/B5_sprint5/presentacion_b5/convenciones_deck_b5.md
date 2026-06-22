@@ -49,14 +49,21 @@ Entorno: `PYTHONPATH=/media/administrador/Storage1/sdonoso/clam_testing2/.pylibs
 - Bullets visuales = **tarjetas** redondeadas con número en círculo teal (no viñetas planas).
 - Tablas nativas: fontsize **15–18**, header 13–16.
 
-### 3.b Notas del presentador (formato del deck B5)
+### 3.b Notas del presentador (formato del deck B5 — GUION DIDÁCTICO por fases)
 
-`PROPÓSITO — <una frase>` / narrativa (párrafo/s) / `PUNTOS CLAVE` (viñetas), **texto BLANCO
-`#FFFFFF`** (Ernesto las lee sobre panel oscuro). Las 17 slides lo usan (`set_notes` en
-`generate_b5_deck.py`). Sin nº de job, sin nombres. **Supera el formato B2** "BLOQUE N —
-Título" de CLAUDE.md *para este deck*: más legible y orientado a **exponer**, no a re-explicar
-el gráfico ([[presentacion-convenciones-benjamin]]). La primera línea (`PROPÓSITO —`) resume
-además el objetivo de cada slide.
+`set_notes(slide, proposito, sections)` rinde un GUION para **exponer enseñando**, no solo
+leer: `PROPÓSITO — <una frase>` + una lista ORDENADA de fases con etiqueta en negrita —
+**ABRIR** (frase literal de apertura, entre comillas) · **EXPLICAR** (pasos con marcador
+`→ `, construidos de lo simple a lo complejo) · **ANALOGÍA** / **EJEMPLO** (solo donde hay un
+concepto que aterrizar — query, softmax, coseno, producto interno;
+[[pedagogia-nomenclatura-desde-cero]]) · **PUNTO CLAVE** (el takeaway a fijar) ·
+**TRANSICIÓN** (puente literal al siguiente slide). En `sections`, cada par es
+`("LABEL", body)`: `body` str → párrafo literal (listo para decir); `body` list → ítems con
+flecha. **Texto BLANCO `#FFFFFF`** (se leen sobre panel oscuro). Las 20 slides lo usan. Sin
+nº de job, sin nombres ([[presentacion-convenciones-benjamin]]). **Supera el formato previo**
+(`PROPÓSITO`/narrativa/`PUNTOS CLAVE`) y el B2 "BLOQUE N —" de CLAUDE.md *para este deck*:
+autosuficiente (si te quedás en blanco, leyéndolo explicás la slide entera) y escaneable
+mientras se presenta. La primera línea (`PROPÓSITO —`) resume además el objetivo de cada slide.
 
 ## 4. Elementos NATIVOS (helpers en generate_b5_deck.py)
 
