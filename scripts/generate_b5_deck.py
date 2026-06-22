@@ -13,6 +13,7 @@ Uso: PYTHONPATH=/media/administrador/Storage1/sdonoso/clam_testing2/.pylibs \
      /home/sdonoso/miniconda3/envs/clam_latest/bin/python scripts/generate_b5_deck.py
 """
 import copy
+import io
 import os
 
 from pptx import Presentation
@@ -33,6 +34,12 @@ A_MAM = os.path.join(REPO, "sprints/B5_sprint5/objetivo_2_mammoth_patron_invasio
 A_PPT = os.path.join(REPO, "sprints/B5_sprint5/pathpt/figuras/slide_assets")
 DIAG_MAM = os.path.join(PRES, "Diagrama_CLAM_mammoth.pptx")
 DIAG_PPT = os.path.join(PRES, "Diagrama_PathPT.pptx")
+# slide 0 = figura oficial fusionada (overlay de dims) · slide 1 = variante keep_slots.
+# Generado por scripts/generate_mammoth_fused_slide.py (correr ANTES del deck).
+DIAG_FUSED = os.path.join(PRES, "Diagrama_mammoth_fused.pptx")
+# figura oficial de PathPT (panel b) con callouts overlay del forward.
+# Generado por scripts/generate_pathpt_fused_slide.py (correr ANTES del deck).
+DIAG_PPT_FUSED = os.path.join(PRES, "Diagrama_pathpt_fused.pptx")
 
 # ---- paleta ----
 TEAL_TITLE = RGBColor(0x21, 0x75, 0x89)
@@ -185,13 +192,13 @@ def add_card(slide, l, t, w, h, text, idx=0, size=21):
     _set_runs(tb.text_frame, [(text, size, True, INK, F_BODY)], anchor=MSO_ANCHOR.MIDDLE)
 
 
-def add_vcard(slide, l, t, w, h, title, body, tcol=ORA_T):
+def add_vcard(slide, l, t, w, h, title, body, tcol=ORA_T, tsize=17, bsize=14):
     """Tarjeta vertical: título color + cuerpo gris (para los 3 componentes)."""
     sp = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(l), Inches(t), Inches(w), Inches(h))
     sp.fill.solid(); sp.fill.fore_color.rgb = TEAL_CARD2
     sp.line.color.rgb = TEAL_SQ; sp.line.width = Pt(1.5); sp.shadow.inherit = False
-    _set_runs(sp.text_frame, [(title, 17, True, tcol, F_BODY, PP_ALIGN.CENTER),
-                              (body, 14, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)],
+    _set_runs(sp.text_frame, [(title, tsize, True, tcol, F_BODY, PP_ALIGN.CENTER),
+                              (body, bsize, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)],
               anchor=MSO_ANCHOR.MIDDLE)
 
 
@@ -403,11 +410,20 @@ def content(prs, title):
 def copy_diagram(prs, src_path, idx, title, notes=None, bar=True):
     s = prs.slides.add_slide(_blank(prs))
     src = Presentation(src_path)
+    src_slide = src.slides[idx]
     spTree = s.shapes._spTree
-    for shp in src.slides[idx].shapes:
+    for shp in src_slide.shapes:
         el = copy.deepcopy(shp._element)
         for cNvPr in el.iter(qn("p:cNvPr")):
             _uid[0] += 1; cNvPr.set("id", str(_uid[0]))
+        # imágenes embebidas: el deepcopy NO arrastra la relación r:embed → copiar el
+        # image part al slide destino y remapear el rId (si no, la figura desaparece).
+        for blip in el.iter(qn("a:blip")):
+            r_embed = blip.get(qn("r:embed"))
+            if r_embed:
+                img_part = src_slide.part.related_part(r_embed)
+                _, new_rid = s.part.get_or_add_image_part(io.BytesIO(img_part.blob))
+                blip.set(qn("r:embed"), new_rid)
         spTree.append(el)
     header(s, title, bar=bar)
     if notes:
@@ -431,6 +447,16 @@ MAM8 = [
     ("Patrón · papilar", "6%", "0.531 → 0.506", "0.583 → 0.599", "−0.025 ‡", "nulo", GRIS_TXT),
     ("Invasión linfovascular (3 cl.)", "may. 70%", "0.622 → 0.575", "0.828 → 0.818", "−0.047 ± 0.064", "regresión leve", ROJO),
 ]
+# keep_slots=True (cuello de botella aprendido N→300, vs el drop-in keep_slots=False de MAM8).
+# C2 = Δ bal_acc vs CLAM (¿palanca?) · recall clase rara drop-in→keep_slots · CLAM (ref.).
+MAM_KST_HEAD = ["Tarea  (config keep_slots = True)", "Δ bal_acc\nvs CLAM", "Recall clase rara\ndrop-in → keep_slots",
+                "CLAM\n(ref.)", "Lectura"]
+MAM_KST = [
+    ("Invasión linfovascular (3 cl.)", "−0.031 ± 0.047", "presente  0.43 → 0.52", "0.58", "no supera", GRIS_TXT),
+    ("Microcalc · carcinoma inv.",     "−0.020 ± 0.121", "sí  0.29 → 0.31",        "0.37", "no supera", GRIS_TXT),
+    ("Microcalc · CDIS",               "−0.023 ± 0.120", "sí  0.28 → 0.44",        "0.38", "no supera *", AMBAR),
+    ("Microcalc · tejido no neopl.",   "+0.046 ± 0.106", "balanceada (sin rara)",  "—",    "ruido", GRIS_TXT),
+]
 MICRO_HEAD = ["Tarea binaria (microcalc)", "n  (sí / no)", "AUC zero-shot\n(mejor prompt)", "vs azar (0.5)", "Veredicto"]
 MICRO = [
     ("en carcinoma invasivo", "68 / 260", "0.629", "leve", "NO-GO", AMBAR),
@@ -440,7 +466,7 @@ MICRO = [
 EJES_HEAD = ["Eje atacado", "Modelo / mecanismo", "Tareas (pareadas, MC-CV)", "Resultado"]
 EJES = [
     ("Agregador\n(cómo se fusionan los parches)", "DSMIL\n(dual-stream)", "microcalc binarias + fusionado", "0 palancas\n(CDIS regresión leve)"),
-    ("Patch-embed\n(1ª capa de proyección)", "Mammoth\n(mixture-of-experts)", "8 tareas (microcalc, patrón, invasión)", "0 palancas\n(efecto gated por balance)"),
+    ("Patch-embed\n(1ª capa de proyección)", "Mammoth\n(mixture-of-experts)", "12 tareas (microcalc, patrón, invasión)", "0 palancas\n(8 drop-in + 4 keep_slots)"),
     ("Lenguaje + supervisión tile", "PathPT-CONCH\n(prompt-tuning + θ espacial)", "necrosis, mitótica, microcalc", "0 palancas\n(grounding zero-shot débil)"),
 ]
 
@@ -549,8 +575,37 @@ def build():
          "rank 8 automatico => MoE pesa casi lo mismo que la FC 512x512 que reemplaza.",
          "Si MAMMOTH no mejora, NO es por falta de capacidad (ver resultados)."])
 
-    # 7 · Resultados 8 tareas (TABLA NATIVA)
-    s = content(prs, "MAMMOTH — resultados (8 tareas, k=5)")
+    # 6b · La MISMA mecánica del zoom, ahora sobre la figura OFICIAL del paper (+ dims overlay)
+    s = copy_diagram(prs, DIAG_FUSED, 0, None, bar=False)   # full-bleed (lleva su propio título); logo only
+    set_notes(s,
+        "cerrar el lazo entre NUESTRO zoom y la figura oficial del paper: es el mismo pipeline, "
+        "ahora con las dimensiones reales anotadas paso a paso encima de la figura de los autores.",
+        "Esta es la figura oficial de MAMMOTH. Es exactamente lo que abrimos en el zoom anterior, pero "
+        "vista de punta a punta: el encoder CONCH entrega z de 512; W_q proyecta al query; el ruteo por "
+        "slots arma los 300 slots; los expertos de bajo rango los transforman; la combinación cross-head "
+        "recompone y CLAM clasifica. Cada cartel verde es la forma del tensor que entra y sale de ese paso.",
+        ["Es la MISMA 1ª capa del zoom anterior, ahora en la figura de los autores.",
+         "Los carteles = forma del tensor entrada → salida por paso (verificados contra el código).",
+         "Abajo a la izquierda: el experto por dentro (LoRA, slots → Φ·W → no-linealidad)."])
+
+    # 6c · La variante keep_slots que también medimos (mismo tronco, bifurca la salida)
+    s = copy_diagram(prs, DIAG_FUSED, 1, None, bar=False)   # nativo (lleva su propio título); logo only
+    set_notes(s,
+        "presentar la variante que también medimos: cambia SOLO la salida de MAMMOTH, no el tronco; "
+        "anticipa el modo de falla que ataca (colapso a la mayoritaria).",
+        "El tronco —encoder, query, ruteo, expertos— es idéntico al de la slide anterior. La variante "
+        "cambia un único interruptor, keep_slots. En FALSE (el drop-in que medimos primero) MAMMOTH "
+        "recombina los 300 slots de vuelta a los N parches: es un reemplazo transparente de la capa "
+        "lineal. En TRUE (lo que también medimos) se queda con los 300 slot-tokens: un cuello de botella "
+        "aprendido, más slot_dropout, pensado para darle capacidad dedicada a la clase minoritaria. Misma "
+        "cabeza CLAM y misma pérdida: cambia solo qué se agrega, N parches o 300 slots.",
+        ["keep_slots decide la salida: recombinar a N parches (False) o quedarse con 300 slots (True).",
+         "TRUE = cuello de botella aprendido N→300 + slot_dropout (atención en 2 etapas).",
+         "Motivación: recuperar recall de la clase rara que la variante drop-in colapsa.",
+         "Evaluación pareada k=5 completada → resultados en las dos slides siguientes."])
+
+    # 7 · Resultados 8 tareas drop-in (TABLA NATIVA)
+    s = content(prs, "MAMMOTH drop-in — resultados (8 tareas, k=5)")
     rows = [[d[0], d[1], d[2], d[3], d[4], d[5]] for d in MAM8]
     cc = {}
     for i, d in enumerate(MAM8):
@@ -582,18 +637,49 @@ def build():
                   7.7, 1.45, 4.9, 3.55,
                   caption="+Mammoth (5 folds): recall  aus 0.48 · no_id 0.82↑ · pres 0.43↓")
     add_textbox(s, 0.5, 6.25, 12.4, 0.95,
-                [("n = 2814 (el caso más sano): mammoth agrava el colapso a la mayoritaria; AUC y "
-                  "bal_acc bajan levemente. Cierre del hilo: 8 tareas, 0 palancas.", 15, False, GRIS_TXT)])
+                [("n = 2814 (el caso más sano): el drop-in agrava el colapso a la mayoritaria; AUC y "
+                  "bal_acc bajan levemente. La variante keep_slots ataca justo este modo de falla → "
+                  "siguiente slide.", 15, False, GRIS_TXT)])
     set_notes(s,
-        "cerrar el hilo MAMMOTH con el caso más favorable a la medición.",
+        "mostrar el modo de falla del drop-in en el caso más favorable a la medición.",
         "Esta es la tarea con más datos y la evaluación más sana (cada clase con suficientes casos "
-        "por fold). Si MAMMOTH iba a brillar, sería acá. En cambio agrava el colapso hacia la clase "
-        "mayoritaria 'no identificado': sube su recall a costa de la clase 'presente', y tanto "
+        "por fold). Si MAMMOTH iba a brillar, sería acá. En cambio el drop-in agrava el colapso hacia "
+        "la clase mayoritaria 'no identificado': sube su recall a costa de la clase 'presente', y tanto "
         "balanced accuracy como AUC bajan levemente en los 5 folds. Más poder estadístico no lo "
-        "rescató: lo afinó.",
+        "rescató: lo afinó. Este colapso es exactamente lo que la variante keep_slots intenta revertir.",
         ["n = 2814 y evaluación fold-a-fold: el escenario más limpio de todo el hilo.",
          "bal_acc 0.622 → 0.575 y AUC 0.828 → 0.818 (5/5 folds a la baja).",
-         "Cierre del bloque: 8 tareas, 0 palancas para MAMMOTH."])
+         "El colapso a la mayoritaria es el modo de falla que ataca keep_slots (siguiente slide)."])
+
+    # 8b · keep_slots=True — resultados (4 tareas, TABLA NATIVA) → cierre del hilo MAMMOTH
+    s = content(prs, "MAMMOTH keep_slots — resultados (4 tareas, k=5)")
+    rows = [[d[0], d[1], d[2], d[3], d[4]] for d in MAM_KST]
+    cc = {}
+    for i, d in enumerate(MAM_KST):
+        cc[(i, 1)] = {"fg": GRIS_TXT, "bold": True}
+        cc[(i, 4)] = {"fg": d[5], "bold": True}
+    add_table(s, MAM_KST_HEAD, rows, 0.4, 1.05, 12.55, 4.35,
+              col_fracs=[0.29, 0.16, 0.24, 0.10, 0.21],
+              cell_colors=cc, fontsize=15, header_fontsize=14)
+    add_textbox(s, 0.5, 5.6, 12.4, 1.6,
+                [("El cuello de botella de slots revierte PARCIALMENTE el colapso a la mayoritaria del "
+                  "drop-in (3/4 tareas: ↑ recall de la clase rara) — pero NO supera a CLAM en ninguna. "
+                  "slot_dropout: descartado (net-negativo en las 4).", 15, False, GRIS_TXT),
+                 ("→ Hilo MAMMOTH completo: 12 tareas (8 drop-in + 4 keep_slots), 0 palancas.",
+                  17, True, INK),
+                 ("* CDIS: keep_slots sube el recall de la clase rara por encima de CLAM, pero a costa "
+                  "de la mayoritaria → la bal_acc total no mejora.", 12, False, GRIS_TXT)])
+    set_notes(s,
+        "mostrar el resultado de la variante keep_slots y cerrar el hilo MAMMOTH en 12 tareas.",
+        "Esta es la variante diseñada para atacar justo el modo de falla anterior: el colapso a la "
+        "clase mayoritaria. Y en parte lo logra: el cuello de botella de slots recupera recall de la "
+        "clase rara en tres de las cuatro tareas. Pero esa redistribución no alcanza para superar a "
+        "CLAM en ninguna —en balanced accuracy queda por debajo o en empate ruidoso—. El regularizador "
+        "slot_dropout no aporta y se descarta. Con esto el hilo cierra en doce tareas y cero palancas.",
+        ["keep_slots revierte PARCIALMENTE el colapso a la mayoritaria (3/4 tareas).",
+         "Recupera recall de la clase rara, pero NO supera a CLAM en bal_acc en ninguna.",
+         "slot_dropout descartado: net-negativo en las 4 tareas.",
+         "Cierre del hilo MAMMOTH: 12 tareas, 0 palancas → el cuello sigue siendo el dato."])
 
     # ===== PATHPT =====
     s = divider(prs, "PathPT", "Visión + lenguaje: clasificación parche-a-parche sobre CONCH congelado")
@@ -604,26 +690,26 @@ def build():
         ["Visión + texto: cada parche se compara contra descripciones de clase.",
          "Clasifica parche a parche (y localiza), no solo la slide entera."])
 
-    # 10 · Idea (paper) + 3 componentes (fusión)
-    s = content(prs, "PathPT — la idea y sus 3 piezas entrenables")
-    add_image_fit(s, os.path.join(PAPER_FIGS, "pathpt_fig1_ab.png"), 0.5, 1.0, 12.3, 3.7, align="top")
-    comps = [
-        ("θᵥ · contexto espacial", "refina cada parche con su vecindario (grilla 2D + transformer)"),
-        ("θₜ · prompt-tuning", "aprende la frase de clase en vez de escribirla a mano"),
-        ("pseudo-labels (tile)", "etiqueta parches con CONCH y filtra con el label de slide"),
-    ]
-    cw = 4.0; cx = 0.55
-    for i, (tt, bd) in enumerate(comps):
-        add_vcard(s, cx + i * (cw + 0.18), 5.05, cw, 1.95, tt, bd)
+    # 10 · Figura 1 COMPLETA del paper (a=MIL · b=PathPT · c=tareas · d=benchmarks) + caption de las 3 piezas
+    s = content(prs, "PathPT — la idea y el alcance (figura del paper)")
+    add_image_fit(s, os.path.join(PAPER_FIGS, "pathpt_fig1_full.png"), 0.5, 0.95, 12.33, 5.55, align="center")
+    add_textbox(s, 0.5, 6.58, 12.33, 0.78,
+                [("Arriba:  a) MIL clásico   vs   b) PathPT (clasifica parche-a-parche; visión + texto sobre "
+                  "CONCH congelado).   Abajo:  c) abanico de tareas   ·   d) benchmarks del paper.",
+                  13, False, GRIS_TXT),
+                 ("3 piezas livianas entrenables:   θᵥ contexto espacial   ·   θₜ prompt-tuning   ·   "
+                  "pseudo-labels (tile).   Todo lo demás (CONCH) queda congelado.", 13, True, ORA_T)],
+                anchor=MSO_ANCHOR.MIDDLE)
     set_notes(s,
-        "explicar qué es PathPT y cuáles son sus 3 componentes entrenables.",
-        "Mientras CLAM comprime toda la slide a un único vector, PathPT clasifica parche a parche "
-        "comparándolos contra descripciones de texto, y además localiza el hallazgo. CONCH —tanto "
-        "el encoder de visión como el de texto— queda congelado; solo se entrenan tres piezas "
-        "livianas que se muestran abajo.",
-        ["θᵥ — contexto espacial: refina cada parche con su vecindario.",
-         "θₜ — prompt-tuning: aprende la frase de clase en vez de escribirla a mano.",
-         "pseudo-labels (tile): etiqueta parches con CONCH y filtra con el label de slide."])
+        "presentar la idea de PathPT y su alcance con la figura oficial completa del paper.",
+        "Esta es la figura del paper completa. Arriba, la comparación: a la izquierda el MIL clásico "
+        "—comprime la slide a un vector y clasifica la slide entera—; a la derecha PathPT, que clasifica "
+        "parche a parche comparando contra texto y además localiza el hallazgo. Abajo, el alcance: el "
+        "abanico de tareas que cubre y los benchmarks donde PathPT compite contra los MIL. Todo corre "
+        "sobre CONCH congelado; solo se entrenan tres piezas livianas.",
+        ["a) MIL clásico  vs  b) PathPT (parche-a-parche, visión + texto).",
+         "c) abanico de tareas  ·  d) benchmarks del paper (PathPT vs MIL).",
+         "Solo se entrenan θᵥ (contexto espacial), θₜ (prompt) + pseudo-labels tile; CONCH congelado."])
 
     # 11 · Diagrama arquitectura (matemático)
     s = copy_diagram(prs, DIAG_PPT, 0, "PathPT — arquitectura (forward)")
