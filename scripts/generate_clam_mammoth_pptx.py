@@ -44,7 +44,8 @@ def _add_runs(p, text, size, bold, color):
     """Renderiza `text` con mini-markup de sub/superíndices REALES (baseline OOXML,
     no caracteres Unicode → consistente para cualquier letra y limpio en PowerPoint
     y LibreOffice):  `_x` / `_(xx)` = subíndice ;  `^x` / `^(xx)` = superíndice.
-    (No usar `_`/`^` literales en los strings fuente; ej. 'auto_rank' → 'automático'.)"""
+    Para un `_`/`^` LITERAL (identificadores de código como keep_slots / slot_dropout),
+    escaparlo con backslash en el string fuente: `\\_` -> `_`, `\\^` -> `^`, `\\\\` -> `\\`."""
     def emit(s, base=None):
         if not s:
             return
@@ -56,6 +57,8 @@ def _add_runs(p, text, size, bold, color):
     i, n, buf = 0, len(text), ""
     while i < n:
         c = text[i]
+        if c == "\\" and i + 1 < n and text[i + 1] in "_^\\":
+            buf += text[i + 1]; i += 2; continue   # escape: \_ \^ \\ -> literal
         if c in "_^" and i + 1 < n:
             base = -25000 if c == "_" else 30000
             nxt = text[i + 1]
