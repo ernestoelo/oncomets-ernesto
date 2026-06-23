@@ -95,6 +95,56 @@ from utils.core_utils import Accuracy_Logger, EarlyStopping  # noqa: E402
 from models_dsmil import DSMIL_CLAM_MB  # noqa: E402
 
 
+# --------------------------------------------------------------------------- #
+# Bag loss de desbalance (Eje C1, prereg sprints/B5_sprint5/loss_desbalance/).
+# Único delta del experimento: la bag loss. Modelo/harness/splits intactos →
+# NO es swap de arquitectura (Hallazgos 11/12/13). Default `ce` = retro-compat.
+# --------------------------------------------------------------------------- #
+class FocalLoss(nn.Module):
+    """Focal loss multiclase (Lin et al. 2017). γ baja el peso de los ejemplos
+    fáciles (típicamente la mayoritaria). Sin α de clase: el focusing por γ es
+    ortogonal al `--weighted_sample` (evita doble corrección)."""
+
+    def __init__(self, gamma: float = 2.0, weight=None):
+        super().__init__()
+        self.gamma = gamma
+        self.weight = weight  # tensor [n_classes] opcional (no usado por defecto)
+
+    def forward(self, logits, target):
+        logp = F.log_softmax(logits, dim=1)
+        logpt = logp.gather(1, target.view(-1, 1)).squeeze(1)
+        pt = logpt.exp()
+        loss = -((1.0 - pt) ** self.gamma) * logpt
+        if self.weight is not None:
+            loss = loss * self.weight.gather(0, target)
+        return loss.mean()
+
+
+def _class_counts(train_split, n_classes):
+    """Conteo por clase del split de train — mismo origen que el sampler
+    `weighted` (clam_environ make_weights_for_balanced_classes_split)."""
+    return [len(train_split.slide_cls_ids[c]) for c in range(n_classes)]
+
+
+def build_bag_loss(name, train_split, n_classes, focal_gamma, cb_beta, device):
+    """Construye la bag loss según --bag_loss. Se usa idéntica en train y val
+    (objetivo consistente para la selección de checkpoint por val_loss)."""
+    if name == "ce":
+        return nn.CrossEntropyLoss()
+    if name == "focal":
+        return FocalLoss(gamma=focal_gamma, weight=None)
+    if name == "class_balanced":
+        counts = _class_counts(train_split, n_classes)
+        # Número efectivo de muestras (Cui et al. 2019): w_c = (1-β)/(1-β^{n_c}).
+        eff = [(1.0 - cb_beta) / (1.0 - cb_beta ** max(n, 1)) for n in counts]
+        w = torch.tensor(eff, dtype=torch.float32)
+        w = w / w.mean()  # normalizado a media 1 (escala de loss comparable a CE)
+        print(f"[INFO] class_balanced weights (β={cb_beta}): counts={counts} "
+              f"weights={[round(x, 3) for x in w.tolist()]}")
+        return nn.CrossEntropyLoss(weight=w.to(device))
+    raise ValueError(f"--bag_loss desconocido: {name}")
+
+
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
         description=__doc__,
@@ -122,6 +172,17 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--bag_weight", type=float, default=0.7)
     p.add_argument("--w_max", type=float, default=0.1,
                    help="peso de L_max sobre c (R1 = B.1.3; fijo)")
+    p.add_argument("--bag_loss", choices=["ce", "focal", "class_balanced"],
+                   default="ce",
+                   help="bag loss de desbalance (Eje C1, prereg "
+                        "sprints/B5_sprint5/loss_desbalance/). ce = baseline "
+                        "(retro-compat). focal = γ-focusing. class_balanced = "
+                        "CE con pesos por número efectivo (Cui 2019). Único delta "
+                        "del experimento; modelo/harness/splits intactos.")
+    p.add_argument("--focal_gamma", type=float, default=2.0,
+                   help="γ de la focal loss (solo con --bag_loss focal)")
+    p.add_argument("--cb_beta", type=float, default=0.9999,
+                   help="β del número efectivo (solo con --bag_loss class_balanced)")
     p.add_argument("--embed_dim", type=int, default=512)
     p.add_argument("--max_epochs", type=int, default=1)
     p.add_argument("--n_classes", type=int, default=2)
@@ -515,7 +576,12 @@ def main() -> int:
     print(f"[INFO] train={len(train_split)}  "
           f"val={len(val_split)}  test={len(test_split)}")
 
-    loss_fn = nn.CrossEntropyLoss()
+    # Bag loss según --bag_loss (default ce = baseline). Se construye DESPUÉS de
+    # cargar los splits para poder leer los conteos por clase del train (CB).
+    loss_fn = build_bag_loss(
+        args.bag_loss, train_split, args.n_classes,
+        args.focal_gamma, args.cb_beta, device,
+    )
     model = build_model(args, device)
     optimizer = get_optim(model, args)
     train_loader = get_split_loader(
