@@ -616,6 +616,12 @@ re-validar y actualizar `docs/codebase_map.md`.
   bag+inst → comparación **apples-to-apples por construcción**. El path
   `clam`/`clam_mammoth` es byte-idéntico a `core_utils.train_loop_clam`; lo
   específico de DSMIL (L_max + grad-logging) está gated en `== "dsmil"`.
+- **Gotcha bag loss (batch=1) — [[mil-weighted-ce-noop-batch1]]:** una loss
+  ponderada por clase con `nn.CrossEntropyLoss(weight=w)` `reduction='mean'` es
+  **NO-OP** en MIL (`batch_size=1` normaliza por `w_y` → cancela el peso → CE
+  plana). Usar `reduction='none'.mean()` (`ClassBalancedCE`) **+ test de regresión
+  a batch=1** (testear los pesos en aislado NO basta). `focal` no sufre (modulación
+  por-sample). Cazado en el job 4463 (brazo cb byte-idéntico al baseline).
 - **`models_dsmil/`** — `DSMIL_CLAM_MB` (agregador dual-stream, Obj 3/5).
 - **`models_mammoth/`** — `CLAM_MB_Mammoth` (subclase de `CLAM_MB`; 1ª capa
   lineal → MoE Mammoth, Obj 6). `keep_slots=False` preserva los N parches.
