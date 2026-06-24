@@ -155,3 +155,44 @@ Si cualquiera falla, el job aborta en segundos (no gasta GPU).
 - `class_balanced` apilado sobre `weighted_sample` puede sobre-corregir (H_reg) — es
   una pregunta legítima, no un bug.
 - Todo número se reporta paired + con n por clase; el AUC nunca aislado.
+
+---
+
+## ADDENDUM (2026-06-24) — bug de implementación en el brazo `cb` del job 4463 + fix
+
+**Qué pasó.** El job 4463 (binarias, focal+cb × 3 tareas × k=5) terminó 30/30. Al
+verificar, el brazo **`cb` (class_balanced) salió byte-idéntico al baseline CE** en las
+3 tareas (Δ bAcc = Δ AUC = +0.000 ± 0.000, todos los folds 0.0; predicciones idénticas
+slide a slide, diff vacío). El brazo `focal` sí difería de CE (válido).
+
+**Causa raíz (no es un hallazgo, es un bug).** `build_bag_loss("class_balanced", …)`
+devolvía `nn.CrossEntropyLoss(weight=w)` con `reduction='mean'` (default). En MIL el
+loader usa **`batch_size=1`** (un slide = un bag por forward). La CE ponderada con
+reduction='mean' normaliza por la **suma de pesos de los targets del batch**; con un
+único sample de clase `y` el denominador es `w_y` → `L = w_y·CE / w_y = CE`: **el peso
+se cancela**. Verificado numéricamente (`CE_w(mean) == CE_plana` exacto a batch=1). El
+print `[INFO] class_balanced weights` confirmaba que la rama corría con pesos correctos
+(`[0.413, 1.587]` etc.), pero la loss los anulaba. `focal` no sufre esto: su modulación
+`(1-pt)^γ` es multiplicativa **por sample** y sobrevive el `.mean()` de un elemento.
+
+**Fix (NO cambia la hipótesis/métrica/dirección registradas — solo hace funcional el
+diseño ya argumentado §1-§3).** Nueva clase `ClassBalancedCE` que computa
+`F.cross_entropy(logits, target, weight=w, reduction='none').mean()` = `mean_i w_{y_i}·CE_i`
+(class-balanced de Cui textbook), que con batch=1 da `w_y·CE` (peso aplicado) y es robusto
+a cualquier batch size. Es la **misma fórmula de pesos** (número efectivo, β=0.9999,
+normalizados a media 1); el único cambio es **cómo se reduce** la loss para que el peso no
+se cancele. Es bug-fix de implementación, **no** reapertura de una decisión descartada
+(no aplica regla 9.b) ni un mecanismo nuevo.
+
+**Test de regresión.** `tests/test_loss_cpu.py::test_class_balanced_applies_weight_batch1`
+exige que a batch=1 `CB == w_y·CE` y que `CB ≠ CE` plana — el invariante que el test de
+pesos previo no cubría y que dejó pasar el bug.
+
+**Consecuencia para los resultados.**
+- `focal` del 4463 es **válido** y se reporta (no es palanca: null-a-negativo, baja el
+  recall de la minoritaria — contra H1).
+- `cb` del 4463 se **descarta** (no-op, ≡ baseline CE); se **re-corre** el brazo `cb`
+  con el fix (3 binarias × k=5 = 15 runs, paired vs el MISMO baseline CE en disco).
+- Hiperparámetros, splits, baseline: sin cambios. La expectativa pre-registrada §2/§3
+  (probable null como palanca + posible H_reg por apilar sobre `weighted_sample`) se
+  mantiene tal cual — ahora sí evaluable.

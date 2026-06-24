@@ -9,6 +9,8 @@ sprints/B5_sprint5/loss_desbalance/prereg.md) SIN tocar GPU:
   bien clasificado) y es diferenciable.
 - `class_balanced` reproduce los pesos por número efectivo (1-β)/(1-β^n),
   normalizados a media 1, y pondera MÁS la clase minoritaria.
+- `class_balanced` APLICA el peso con batch_size=1 (MIL): CB = w_y·CE != CE plana
+  (regresión del bug del job 4463, donde reduction='mean' lo cancelaba a batch=1).
 - build_bag_loss corre con un split fake (slide_cls_ids) → produce loss finita.
 
 Ejecutable directo (NUNCA `python` a secas — workaround B):
@@ -95,7 +97,7 @@ def test_class_balanced_weights_and_direction():
     beta = 0.9999
     split = _FakeSplit(counts)
     loss_fn = td.build_bag_loss("class_balanced", split, 2, 2.0, beta, torch.device("cpu"))
-    assert isinstance(loss_fn, nn.CrossEntropyLoss) and loss_fn.weight is not None
+    assert isinstance(loss_fn, td.ClassBalancedCE) and loss_fn.weight is not None
     w = loss_fn.weight
     # 1) Reproduce la fórmula del número efectivo, normalizada a media 1.
     eff = [(1.0 - beta) / (1.0 - beta ** n) for n in counts]
@@ -112,6 +114,31 @@ def test_class_balanced_weights_and_direction():
         f"ratio CB {ratio_w:.2f} debería ≈ ratio conteos {ratio_n:.2f}"
     print(f"[OK] class_balanced: weights={[round(x,3) for x in w.tolist()]} "
           f"(minoritaria pesa {ratio_w:.2f}×, ≈ 1/freq {ratio_n:.2f}×)")
+
+
+def test_class_balanced_applies_weight_batch1():
+    """REGRESIÓN del bug del job 4463: con batch_size=1 (MIL = un slide por forward),
+    la CB loss DEBE aplicar el peso (L = w_y·CE) y por tanto DIFERIR de CE plana.
+    `nn.CrossEntropyLoss(weight=w)` (reduction='mean') fallaba este invariante: el
+    peso se cancelaba (denominador = w_y) → CB ≡ CE → el brazo cb salía byte-idéntico
+    al baseline. Este test reproduce el caso batch=1 que el test de pesos no cubría."""
+    td = _load_train_dsmil()
+    counts = [260, 68]            # carcinoma: no=260, si=68 (minoritaria, w>1)
+    split = _FakeSplit(counts)
+    loss_fn = td.build_bag_loss("class_balanced", split, 2, 2.0, 0.9999, torch.device("cpu"))
+    w = loss_fn.weight
+    logits = torch.tensor([[0.8, -0.3]])
+    for c in (0, 1):
+        target = torch.tensor([c])                       # un solo slide = batch=1
+        cb = loss_fn(logits, target).item()
+        ce = F.cross_entropy(logits, target).item()
+        # 1) el peso se aplica de verdad: CB == w_c · CE.
+        assert abs(cb - w[c].item() * ce) < 1e-6, \
+            f"CB no aplica el peso a batch=1: {cb} vs w·CE {w[c].item()*ce}"
+        # 2) y por tanto DIFIERE de CE plana (w_c != 1 en ambas clases acá).
+        assert abs(cb - ce) > 1e-6, \
+            f"CB ≡ CE con batch=1 → bug no-op (el peso se canceló): {cb} vs {ce}"
+    print("[OK] class_balanced aplica el peso con batch=1 (CB = w_y·CE != CE plana)")
 
 
 def test_class_balanced_3class_finite():
@@ -137,5 +164,6 @@ if __name__ == "__main__":
     test_focal_gamma0_equals_ce()
     test_focal_downweights_easy_example()
     test_class_balanced_weights_and_direction()
+    test_class_balanced_applies_weight_batch1()
     test_class_balanced_3class_finite()
     print("\nTodos los smoke tests CPU de bag loss pasaron.")

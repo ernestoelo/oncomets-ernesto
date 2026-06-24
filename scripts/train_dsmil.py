@@ -120,6 +120,26 @@ class FocalLoss(nn.Module):
         return loss.mean()
 
 
+class ClassBalancedCE(nn.Module):
+    """CE ponderada por número efectivo (Cui et al. 2019) que SÍ aplica el peso
+    con batch_size=1 (MIL = un slide por forward).
+
+    `nn.CrossEntropyLoss(weight=w)` con reduction='mean' (default) normaliza por la
+    suma de los pesos de los targets presentes en el batch → con un ÚNICO sample
+    (MIL) el denominador es w_y y el peso se CANCELA, colapsando a CE plana (no-op
+    silencioso; bug del job 4463: el brazo cb salió byte-idéntico al baseline CE).
+    Aquí se usa reduction='none' y se promedia a mano: L = mean_i w_{y_i}·CE_i, que
+    con batch=1 da w_y·CE (peso aplicado) y es robusto a cualquier batch size."""
+
+    def __init__(self, weight):
+        super().__init__()
+        self.weight = weight  # tensor [n_classes] en device
+
+    def forward(self, logits, target):
+        return F.cross_entropy(logits, target, weight=self.weight,
+                               reduction="none").mean()
+
+
 def _class_counts(train_split, n_classes):
     """Conteo por clase del split de train — mismo origen que el sampler
     `weighted` (clam_environ make_weights_for_balanced_classes_split)."""
@@ -141,7 +161,9 @@ def build_bag_loss(name, train_split, n_classes, focal_gamma, cb_beta, device):
         w = w / w.mean()  # normalizado a media 1 (escala de loss comparable a CE)
         print(f"[INFO] class_balanced weights (β={cb_beta}): counts={counts} "
               f"weights={[round(x, 3) for x in w.tolist()]}")
-        return nn.CrossEntropyLoss(weight=w.to(device))
+        # ClassBalancedCE (no nn.CrossEntropyLoss(weight=...)): con MIL batch=1 el
+        # reduction='mean' cancelaría el peso (no-op). Ver ClassBalancedCE.
+        return ClassBalancedCE(w.to(device))
     raise ValueError(f"--bag_loss desconocido: {name}")
 
 
