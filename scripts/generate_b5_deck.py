@@ -439,27 +439,44 @@ def copy_diagram(prs, src_path, idx, title, notes=None, bar=True):
 # Datos de tablas
 # ============================================================================
 
-MAM8_HEAD = ["Tarea", "Balance\n(clase +)", "bal_acc\nCLAM → +Mam", "AUC\nCLAM → +Mam",
-             "Δ bal_acc\n(pareado)", "Lectura"]
+# Columnas UNIFICADAS (idénticas en las 3 tablas comparativas). El baseline CLAM es el MISMO
+# (mismos splits k=5) → carcinoma/CDIS/tejido comparten bal_acc/AUC de CLAM en las 3 tablas.
+# Tupla por fila: (tarea, dataset, bal_arrow, Δbal, auc_arrow, Δauc, color_de_los_Δ).
+def _uni_head(base, arm):
+    return ["Tarea", "Dataset\n(n: sí / no)", f"bal_acc\n{base} → {arm}",
+            "Δ bal_acc\n(pareado)", f"AUC\n{base} → {arm}", "Δ AUC\n(pareado)"]
+
+# Tabla 1 — Mammoth drop-in (keep_slots=False) vs CLAM [8 tareas]
+MAM8_HEAD = _uni_head("CLAM", "+Mam")
 MAM8 = [
-    ("Microcalc · carcinoma inv.", "21%", "0.639 → 0.585", "0.732 → 0.722", "−0.054 ± 0.125", "nulo", GRIS_TXT),
-    ("Microcalc · CDIS", "36%", "0.595 → 0.509", "0.652 → 0.618", "−0.086 ± 0.113", "leve regresión", ROJO),
-    ("Microcalc · tejido no neopl.", "59%", "0.577 → 0.626", "0.646 → 0.678", "+0.049 ± 0.077", "leve mejora", VERDE),
-    ("Patrón · cribiforme", "49%", "0.650 → 0.694", "0.710 → 0.732", "+0.044 ± 0.048", "leve mejora", VERDE),
-    ("Patrón · sólido", "76%", "0.647 → 0.632", "0.700 → 0.679", "−0.014 ± 0.064", "nulo", GRIS_TXT),
-    ("Patrón · micropapilar", "7%", "0.617 → 0.561", "0.707 → 0.710", "−0.056 ‡", "nulo", GRIS_TXT),
-    ("Patrón · papilar", "6%", "0.531 → 0.506", "0.583 → 0.599", "−0.025 ‡", "nulo", GRIS_TXT),
-    ("Invasión linfovascular (3 cl.)", "may. 70%", "0.622 → 0.575", "0.828 → 0.818", "−0.047 ± 0.064", "regresión leve", ROJO),
+    ("Microcalc · carcinoma inv.",    "n=328\n68 / 260",   "0.639 → 0.585", "−0.054 ± 0.125", "0.732 → 0.722", "−0.010 ± 0.065", GRIS_TXT),
+    ("Microcalc · CDIS",              "n=328\n118 / 210",  "0.595 → 0.509", "−0.086 ± 0.113", "0.652 → 0.618", "−0.035 ± 0.104", ROJO),
+    ("Microcalc · tejido no neopl.",  "n=328\n192 / 136",  "0.577 → 0.626", "+0.049 ± 0.077", "0.646 → 0.678", "+0.032 ± 0.084", VERDE),
+    ("Patrón · cribiforme",           "n=513\n252 / 261",  "0.650 → 0.694", "+0.044 ± 0.048", "0.710 → 0.732", "+0.022 ± 0.042", VERDE),
+    ("Patrón · sólido",               "n=513\n388 / 125",  "0.647 → 0.632", "−0.014 ± 0.064", "0.700 → 0.679", "−0.022 ± 0.055", GRIS_TXT),
+    ("Patrón · micropapilar",         "n=513\n34 / 479",   "0.617 → 0.561", "−0.056 ‡",       "0.707 → 0.710", "+0.003 ‡",       GRIS_TXT),
+    ("Patrón · papilar",              "n=513\n32 / 481",   "0.531 → 0.506", "−0.025 ‡",       "0.583 → 0.599", "+0.016 ‡",       GRIS_TXT),
+    ("Invasión linfovascular (3 cl.)","n=2814\nno_id ~70%","0.622 → 0.575", "−0.047 ± 0.064", "0.828 → 0.818", "−0.011 ± 0.005", ROJO),
 ]
-# keep_slots=True (cuello de botella aprendido N→300, vs el drop-in keep_slots=False de MAM8).
-# C2 = Δ bal_acc vs CLAM (¿palanca?) · recall clase rara drop-in→keep_slots · CLAM (ref.).
-MAM_KST_HEAD = ["Tarea  (config keep_slots = True)", "Δ bal_acc\nvs CLAM", "Recall clase rara\ndrop-in → keep_slots",
-                "CLAM\n(ref.)", "Lectura"]
+# Tabla 2 — Mammoth keep_slots=True (cuello de botella aprendido N→300) vs CLAM [4 tareas]
+MAM_KST_HEAD = _uni_head("CLAM", "keep_slots")
 MAM_KST = [
-    ("Invasión linfovascular (3 cl.)", "−0.031 ± 0.047", "presente  0.43 → 0.52", "0.58", "no supera", GRIS_TXT),
-    ("Microcalc · carcinoma inv.",     "−0.020 ± 0.121", "sí  0.29 → 0.31",        "0.37", "no supera", GRIS_TXT),
-    ("Microcalc · CDIS",               "−0.023 ± 0.120", "sí  0.28 → 0.44",        "0.38", "no supera *", AMBAR),
-    ("Microcalc · tejido no neopl.",   "+0.046 ± 0.106", "balanceada (sin rara)",  "—",    "ruido", GRIS_TXT),
+    ("Invasión linfovascular (3 cl.)","n=2814\nno_id ~70%","0.622 → 0.591", "−0.031 ± 0.047", "0.828 → 0.825", "−0.003 ± 0.015", GRIS_TXT),
+    ("Microcalc · carcinoma inv.",    "n=328\n68 / 260",   "0.639 → 0.620", "−0.020 ± 0.121", "0.732 → 0.738", "+0.005 ± 0.087", GRIS_TXT),
+    ("Microcalc · CDIS",              "n=328\n118 / 210",  "0.595 → 0.572", "−0.023 ± 0.120", "0.652 → 0.652", "+0.000 ± 0.108", AMBAR),
+    ("Microcalc · tejido no neopl.",  "n=328\n192 / 136",  "0.577 → 0.623", "+0.046 ± 0.106", "0.646 → 0.647", "+0.002 ± 0.122", GRIS_TXT),
+]
+# Tabla 3 — CLAM + loss rebalanceada (focal / class_balanced) vs CLAM+CE [3 binarias × 2 losses].
+# OJO (regla 5): la pérdida se aplica a CLAM_MB INTACTO, NO a mammoth. Baseline = CLAM+CE (el MISMO).
+LOSS3_HEAD = ["Tarea  ·  pérdida", "Dataset\n(n: sí / no)", "bal_acc\nCLAM+CE → loss",
+              "Δ bal_acc\n(pareado)", "AUC\nCLAM+CE → loss", "Δ AUC\n(pareado)"]
+LOSS3 = [
+    ("Carcinoma inv.  ·  focal",          "n=328\n68 / 260",  "0.639 → 0.597", "−0.042 ± 0.081", "0.732 → 0.697", "−0.036 ± 0.048", ROJO),
+    ("Carcinoma inv.  ·  class_balanced", "n=328\n68 / 260",  "0.639 → 0.648", "+0.009 ± 0.074", "0.732 → 0.758", "+0.026 ± 0.099", GRIS_TXT),
+    ("CDIS  ·  focal",                    "n=328\n118 / 210", "0.595 → 0.531", "−0.064 ± 0.093", "0.652 → 0.591", "−0.062 ± 0.074", ROJO),
+    ("CDIS  ·  class_balanced",           "n=328\n118 / 210", "0.595 → 0.635", "+0.039 ± 0.091", "0.652 → 0.651", "−0.001 ± 0.045", GRIS_TXT),
+    ("Tejido no neopl.  ·  focal",        "n=328\n192 / 136", "0.577 → 0.590", "+0.013 ± 0.052", "0.646 → 0.636", "−0.010 ± 0.034", GRIS_TXT),
+    ("Tejido no neopl.  ·  class_balanced","n=328\n192 / 136","0.577 → 0.584", "+0.007 ± 0.032", "0.646 → 0.652", "+0.006 ± 0.009", GRIS_TXT),
 ]
 MICRO_HEAD = ["Tarea binaria (microcalc)", "n  (sí / no)", "AUC zero-shot\n(mejor prompt)", "vs azar (0.5)", "Veredicto"]
 MICRO = [
@@ -728,36 +745,39 @@ def build():
 
     # 7 · Resultados 8 tareas drop-in (TABLA NATIVA)
     s = content(prs, "MAMMOTH drop-in — resultados (8 tareas, k=5)")
-    rows = [[d[0], d[1], d[2], d[3], d[4], d[5]] for d in MAM8]
+    rows = [list(d[:6]) for d in MAM8]
     cc = {}
     for i, d in enumerate(MAM8):
-        cc[(i, 4)] = {"fg": d[6], "bold": True}; cc[(i, 5)] = {"fg": d[6], "bold": True}
-    add_table(s, MAM8_HEAD, rows, 0.4, 1.05, 12.55, 5.65,
-              col_fracs=[0.255, 0.12, 0.165, 0.155, 0.165, 0.14],
-              cell_colors=cc, fontsize=15, header_fontsize=14)
-    add_textbox(s, 0.5, 6.85, 12.4, 0.5,
-                [("0 palancas consistentes. El lean+ leve solo asoma en las 2 tareas más "
-                  "balanceadas (tejido, cribiforme) → lo gobierna el balance, no la arquitectura.",
-                  14, False, GRIS_TXT)])
+        cc[(i, 3)] = {"fg": d[6], "bold": True}; cc[(i, 5)] = {"fg": d[6], "bold": True}
+    add_table(s, MAM8_HEAD, rows, 0.25, 1.0, 12.85, 5.55,
+              col_fracs=[0.215, 0.135, 0.165, 0.165, 0.155, 0.165],
+              cell_colors=cc, fontsize=13, header_fontsize=12)
+    add_textbox(s, 0.3, 6.62, 12.75, 0.75,
+                [("0 palancas consistentes: en las 6 celdas Δ el ± (varianza) ≥ |Δ|. El lean+ leve "
+                  "solo asoma en las 2 tareas más balanceadas (tejido, cribiforme) → lo gobierna el "
+                  "balance de clase (col. Dataset), no la arquitectura.", 13, False, GRIS_TXT),
+                 ("‡ régimen ciego (micropapilar/papilar, 3 positivos por test): Δ pooled de 5 folds, "
+                  "sin ± por fold.", 11, False, GRIS_TXT)])
     set_notes(s,
         "leer la tabla columna por columna para mostrar que el drop-in de MAMMOTH no es palanca en 8 tareas.",
         [("ABRIR  (decir tal cual)",
-          "\"Ocho tareas, todas pareadas. Lean la última columna y van a ver el patrón de una.\""),
+          "\"Ocho tareas, todas pareadas, mismo baseline CLAM. Lean las dos columnas Δ y van a ver el "
+          "patrón de una.\""),
          ("RECORRIDO  (cómo leer la tabla, columna por columna)",
           [("Columna 1, 'Tarea'",
             "las 8 tareas pareadas: 3 de microcalcificaciones, 4 de patrón arquitectónico, 1 de invasión."),
-           ("Columna 2, 'Balance (clase +)'",
-            "qué tan balanceada está cada tarea; es la clave para leer el resto, ya van a ver por qué."),
-           ("Columnas del medio, 'bal_acc' y 'AUC' (CLAM → +Mam)",
+           ("Columna 2, 'Dataset (n: sí / no)'",
+            "el tamaño y, sobre todo, cuántos POSITIVOS hay: es la clave para leer el resto, ya van a "
+            "ver por qué."),
+           ("Columnas 'bal_acc' y 'AUC' (CLAM → +Mam)",
             "la flecha muestra el antes y el después: CLAM, y CLAM con Mammoth. Casi no se mueven."),
-           ("Columna 'Δ bal_acc (pareado)'",
-            "el efecto real, fold a fold. Fíjense que el ± (la varianza) es siempre ≥ que el número: "
-            "no hay señal por encima del ruido."),
-           ("Columna 'Lectura' (coloreada)",
-            "el veredicto: verde = leve mejora, rojo = leve regresión, gris = nulo. Solo hay verde en "
-            "las 2 filas más balanceadas: tejido y cribiforme.")]),
+           ("Las dos columnas 'Δ' (pareado, coloreadas)",
+            "el efecto real fold a fold, en balanced accuracy y en AUC. Verde = leve mejora, rojo = "
+            "leve regresión, gris = nulo. Fíjense que el ± (la varianza) es casi siempre ≥ que el "
+            "número: no hay señal por encima del ruido. Solo hay verde en las 2 filas más balanceadas: "
+            "tejido y cribiforme.")]),
          ("PUNTO CLAVE",
-          "Lo que predice el signo del efecto es el BALANCE de la clase (columna 2), no la "
+          "Lo que predice el signo del efecto es el BALANCE de la clase (columna Dataset), no la "
           "arquitectura: donde hay pocos positivos, Mammoth no rescata nada."),
          ("TRANSICIÓN",
           "\"Vamos al caso con más datos y la medición más limpia: invasión linfovascular.\"")])
@@ -809,39 +829,43 @@ def build():
 
     # 8b · keep_slots=True — resultados (4 tareas, TABLA NATIVA) → cierre del hilo MAMMOTH
     s = content(prs, "MAMMOTH keep_slots — resultados (4 tareas, k=5)")
-    rows = [[d[0], d[1], d[2], d[3], d[4]] for d in MAM_KST]
+    rows = [list(d[:6]) for d in MAM_KST]
     cc = {}
     for i, d in enumerate(MAM_KST):
-        cc[(i, 1)] = {"fg": GRIS_TXT, "bold": True}
-        cc[(i, 4)] = {"fg": d[5], "bold": True}
-    add_table(s, MAM_KST_HEAD, rows, 0.4, 1.05, 12.55, 4.35,
-              col_fracs=[0.29, 0.16, 0.24, 0.10, 0.21],
-              cell_colors=cc, fontsize=15, header_fontsize=14)
-    add_textbox(s, 0.5, 5.6, 12.4, 1.6,
-                [("El cuello de botella de slots revierte PARCIALMENTE el colapso a la mayoritaria del "
-                  "drop-in (3/4 tareas: ↑ recall de la clase rara) — pero NO supera a CLAM en ninguna. "
-                  "slot_dropout: descartado (net-negativo en las 4).", 15, False, GRIS_TXT),
+        cc[(i, 3)] = {"fg": d[6], "bold": True}; cc[(i, 5)] = {"fg": d[6], "bold": True}
+    add_table(s, MAM_KST_HEAD, rows, 0.25, 1.0, 12.85, 3.15,
+              col_fracs=[0.215, 0.135, 0.175, 0.16, 0.16, 0.155],
+              cell_colors=cc, fontsize=14, header_fontsize=12)
+    add_textbox(s, 0.3, 4.45, 12.75, 2.7,
+                [("Misma estructura y mismo baseline CLAM que la tabla drop-in → comparables fila a fila. "
+                  "keep_slots NO supera a CLAM en ninguna (las 6 Δ en cero/negativo dentro del ruido).",
+                  14, False, GRIS_TXT),
+                 ("Matiz mecanístico (no visible en la tabla): el cuello de botella de slots revierte "
+                  "PARCIALMENTE el colapso a la mayoritaria del drop-in — ↑ recall de la clase rara en "
+                  "3/4 tareas (invasión 0.43→0.52 · carcinoma 0.29→0.31 · CDIS * 0.28→0.44). "
+                  "slot_dropout: descartado (net-negativo en las 4).", 13, False, GRIS_TXT),
                  ("→ Hilo MAMMOTH completo: 12 tareas (8 drop-in + 4 keep_slots), 0 palancas.",
-                  17, True, INK),
+                  16, True, INK),
                  ("* CDIS: keep_slots sube el recall de la clase rara por encima de CLAM, pero a costa "
-                  "de la mayoritaria → la bal_acc total no mejora.", 12, False, GRIS_TXT)])
+                  "de la mayoritaria → la bal_acc total no mejora.", 11, False, GRIS_TXT)])
     set_notes(s,
-        "leer la tabla columna por columna: la mejora mecanística parcial NO alcanza para superar a CLAM; "
-        "cierra el hilo MAMMOTH en 12 tareas.",
+        "leer la tabla columna por columna: misma estructura que la drop-in; la mejora mecanística parcial "
+        "NO alcanza para superar a CLAM; cierra el hilo MAMMOTH en 12 tareas.",
         [("ABRIR  (decir tal cual)",
-          "\"Esta es la variante hecha a medida para atacar ese colapso. Y la lectura tiene dos capas.\""),
+          "\"Esta es la variante hecha a medida para atacar ese colapso. Misma tabla que la drop-in, "
+          "mismo baseline CLAM, para que se comparen de una.\""),
          ("RECORRIDO  (la tabla, columna por columna)",
-          [("Columna 'Δ bal_acc vs CLAM'",
-            "la pregunta que importa: ¿supera a CLAM? En las 4 filas, no — todas en cero o negativo "
-            "dentro del ruido."),
-           ("Columna del medio, 'Recall clase rara: drop-in → keep_slots'",
-            "la buena noticia parcial: la flecha sube en 3 de 4 tareas; el cuello de botella SÍ "
-            "recupera recall de la clase rara que el drop-in colapsaba."),
-           ("Columna 'CLAM (ref.)'",
-            "el recall de la misma clase rara en el baseline, para comparar contra la columna anterior."),
-           ("Fila 'Microcalc · CDIS' (la marcada con *)",
-            "el caso ilustrativo: keep_slots sube el recall de la clase rara incluso por encima de "
-            "CLAM, pero a costa de la mayoritaria → la balanced accuracy total igual no mejora."),
+          [("Columnas 'bal_acc' y 'AUC' (CLAM → keep_slots)",
+            "el antes y el después contra el MISMO CLAM de la tabla anterior; casi no se mueven."),
+           ("Las dos columnas 'Δ' (pareado, la pregunta que importa)",
+            "¿supera a CLAM? En las 4 filas, no — todas en cero o negativo dentro del ruido, igual que "
+            "el drop-in."),
+           ("El matiz que NO está en la tabla (lo digo yo, está en el pie)",
+            "la buena noticia parcial: keep_slots recupera el recall de la clase rara que el drop-in "
+            "colapsaba, en 3 de 4 tareas. Pero lo paga con la mayoritaria."),
+           ("El caso CDIS, marcado con *",
+            "el ilustrativo: keep_slots sube el recall de la clase rara incluso por encima de CLAM, "
+            "pero a costa de la mayoritaria → la balanced accuracy total igual no mejora."),
            ("El texto de cierre abajo",
             "la conclusión del bloque: hilo MAMMOTH completo en 12 tareas (8 drop-in + 4 keep_slots), "
             "0 palancas; slot_dropout descartado.")]),
@@ -1097,7 +1121,58 @@ def build():
           "El cuello de botella no es el modelo, es el DATO: desbalance, pocos positivos, contexto "
           "espacial. Deja de tener sentido buscar la palanca dentro de la arquitectura."),
          ("TRANSICIÓN",
-          "\"Y eso, lejos de dejarnos sin jugadas, nos las reordena. Próximos pasos.\"")])
+          "\"Y antes de los próximos pasos, una coda honesta: probamos un 4º cambio, esta vez NO en la "
+          "arquitectura sino en la pérdida.\"")])
+
+    # 16b · CLAM + loss rebalanceada (4º intento: la PÉRDIDA, no la arquitectura) — TABLA NATIVA
+    s = content(prs, "CLAM + loss rebalanceada — tocar la pérdida, no la arquitectura")
+    rows = [list(d[:6]) for d in LOSS3]
+    cc = {}
+    for i, d in enumerate(LOSS3):
+        cc[(i, 3)] = {"fg": d[6], "bold": True}; cc[(i, 5)] = {"fg": d[6], "bold": True}
+    add_table(s, LOSS3_HEAD, rows, 0.25, 1.0, 12.85, 4.05,
+              col_fracs=[0.25, 0.12, 0.165, 0.16, 0.155, 0.15],
+              cell_colors=cc, fontsize=13, header_fontsize=12)
+    add_textbox(s, 0.3, 5.35, 12.75, 1.85,
+                [("Mismo CLAM, misma evaluación: solo cambia la PÉRDIDA (CLAM_MB intacto, no es Mammoth). "
+                  "Las 6 Δ dentro del ruido (± ≥ |Δ|) → tampoco es palanca.", 14, False, GRIS_TXT),
+                 ("class_balanced SÍ sube el recall de la minoritaria (carcinoma sí 0.37→0.71, CDIS "
+                  "0.38→0.62) pero HUNDE la mayoritaria en igual medida (carcinoma no 0.91→0.59) → "
+                  "balanced accuracy neta sin cambio = re-balanceo del punto de operación, no señal nueva "
+                  "(el AUC no se mueve). focal ni siquiera rescata.", 13, False, GRIS_TXT),
+                 ("→ Es la versión EN-ENTRENAMIENTO de la calibración → por eso el próximo paso real es "
+                  "calibrar el punto de operación POST-HOC.", 14, True, INK)])
+    set_notes(s,
+        "mostrar que el 4º cambio (re-ponderar la pérdida, no la arquitectura) tampoco es palanca, y que su "
+        "modo de fallar (re-balanceo) apunta directo al primer próximo paso: la calibración post-hoc.",
+        [("PROPÓSITO",
+          "cerrar el último ángulo barato y convertir su 'no-resultado' en la motivación del próximo paso."),
+         ("ABRIR  (decir tal cual)",
+          "\"Hasta acá movimos la arquitectura. Acá probamos algo distinto: dejar CLAM igual y cambiar "
+          "solo la función de pérdida, para que no colapse a la clase mayoritaria.\""),
+         ("EXPLICAR",
+          ["Dos pérdidas, ambas sobre el MISMO CLAM y el MISMO baseline: focal (baja el peso de los "
+           "ejemplos fáciles) y class_balanced (sube el peso de la clase minoritaria).",
+           "Importante (y es una corrección): esto se aplica a CLAM intacto, NO a Mammoth — por eso la "
+           "slide dice 'CLAM + loss', no 'Mammoth + loss'."]),
+         ("RECORRIDO  (la tabla, columna por columna)",
+          [("Columna 1, 'Tarea · pérdida'",
+            "las 3 binarias de microcalcificaciones, cada una con sus dos variantes de pérdida: focal y "
+            "class_balanced."),
+           ("Las dos columnas 'Δ' (pareado, coloreadas)",
+            "el efecto contra CLAM+CE. Las 6 celdas con el ± ≥ que el número: ruido, no palanca."),
+           ("La fila class_balanced de carcinoma",
+            "el ejemplo del mecanismo: sube el recall de la minoritaria de 0.37 a 0.71 —¡el triple!— "
+            "pero la mayoritaria se hunde de 0.91 a 0.59. La balanced accuracy neta queda igual.")]),
+         ("ANALOGÍA",
+          "es mover la línea de decisión a mano: ganás de un lado exactamente lo que perdés del otro. "
+          "El AUC —que mide el ordenamiento, no el umbral— no se mueve."),
+         ("PUNTO CLAVE",
+          "Re-pesar la pérdida re-balancea el punto de operación, no agrega señal. Es la versión "
+          "en-entrenamiento de la calibración → confirma que la palanca barata real es calibrar "
+          "POST-HOC, sin re-entrenar."),
+         ("TRANSICIÓN",
+          "\"Con eso, los próximos pasos —y el primero sale justo de acá.\"")])
 
     # 17 · Próximos pasos
     s = content(prs, "Próximos pasos — dónde sí hay palanca")

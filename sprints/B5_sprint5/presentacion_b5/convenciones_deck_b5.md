@@ -21,7 +21,7 @@ de una tabla se pixela y no se edita; una tabla nativa sí.
 
 | Script | Produce |
 |---|---|
-| `scripts/generate_b5_deck.py` | **ensambla el deck** end-to-end (20 slides) |
+| `scripts/generate_b5_deck.py` | **ensambla el deck** end-to-end (21 slides) |
 | `scripts/generate_clam_mammoth_pptx.py` | diagrama CLAM+MoE (slide 1 = integración, slide 2 = zoom MoE) |
 | `scripts/generate_pathpt_pptx.py` | diagrama PathPT (slide 1 = arquitectura forward, slide 2 = 3 componentes) |
 | `scripts/generate_b5_extra_assets.py` | (legado) PNG de respaldo; el deck ya NO los usa salvo la fig del paper |
@@ -64,7 +64,7 @@ donde hay un concepto que aterrizar — query, softmax, coseno, producto interno
 flecha; `body` list de **tuplas `(ancla, texto)`** → ítem ANCLADO `→ <elemento en pantalla> —
 <qué decir>` con el **ancla en negrita** (el RECORRIDO usa esta forma → escaneable mientras
 señalás; orden de las anclas = orden de lectura de la slide, en sincronía con imagen y bullets —
-pedido de Ernesto 22-jun). **Texto BLANCO `#FFFFFF`** (se leen sobre panel oscuro). Las 20 slides
+pedido de Ernesto 22-jun). **Texto BLANCO `#FFFFFF`** (se leen sobre panel oscuro). Las 21 slides
 lo usan. Sin nº de job, sin nombres ([[presentacion-convenciones-benjamin]]). **Supera el formato previo**
 (`PROPÓSITO`/narrativa/`PUNTOS CLAVE`) y el B2 "BLOQUE N —" de CLAUDE.md *para este deck*:
 autosuficiente (si te quedás en blanco, leyéndolo explicás la slide entera) y escaneable
@@ -176,12 +176,20 @@ hacer pixel-QA de slides con OMML (falso positivo de LibreOffice). Verificar fid
 diagramas copiados por conteo de shapes + oMath + IDs únicos. Abrir el deck final en
 **PowerPoint/OnlyOffice**, no LibreOffice.
 
-## 7. Estructura del deck B5 (20 slides)
+## 7. Estructura del deck B5 (21 slides)
 
 Portada · Objetivos · [div MAMMOTH] · qué es (tarjetas + concepto nativo) · diagrama
 integración · diagrama zoom MoE · figura oficial fused (dims overlay) · variante keep_slots
-(fused) · **tabla** 8 tareas drop-in (+AUC) · invasión (**chart** + **confusión** nativos) ·
-**tabla** keep_slots 4 tareas (cierre 12 tareas) · [div PathPT] · idea (fig paper) + 3
-componentes · diagrama arquitectura (matemático) · necrosis (**tabla** + **confusión**) ·
-mitótica (2 **confusiones**) · microcalc (**tabla**) · [div Cierre] · cierre 3 ejes
-(**tabla**) · próximos pasos.
+(fused) · **tabla** 8 tareas drop-in (estructura unificada: n por clase + Δ AUC) · invasión
+(**chart** + **confusión** nativos) · **tabla** keep_slots 4 tareas (estructura unificada;
+cierre 12 tareas) · [div PathPT] · idea (fig paper) + 3 componentes · diagrama arquitectura
+(matemático) · necrosis (**tabla** + **confusión**) · mitótica (2 **confusiones**) · microcalc
+(**tabla**) · [div Cierre] · cierre 3 ejes (**tabla**) · **tabla** CLAM + loss rebalanceada
+(4º intento = la pérdida, no la arquitectura; misma estructura unificada que las 2 de mammoth)
+· próximos pasos.
+
+> **Comparativa unificada (3 tablas, columnas idénticas):** drop-in (mammoth keep_slots=False),
+> keep_slots=True y CLAM+loss comparten estructura `Tarea · Dataset(n: sí/no) · bal_acc CLAM→X ·
+> Δ bal_acc · AUC CLAM→X · Δ AUC` y el MISMO baseline CLAM (mismos splits k=5) → carcinoma/CDIS/
+> tejido anclan con idéntico CLAM 0.639/0.732, 0.595/0.652, 0.577/0.646 en las 3. La de loss se
+> rotula **"CLAM + loss"** (NO "mammoth + loss"): la pérdida se aplicó a CLAM_MB intacto.
