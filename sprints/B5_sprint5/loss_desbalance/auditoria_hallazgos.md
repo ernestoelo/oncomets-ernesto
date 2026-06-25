@@ -1,5 +1,12 @@
 # Auditoría de conocimiento — eje loss-desbalance (B5)
 
+> **ADDENDUM 2026-06-24 (cierre, post-4472): H4 RESUELTO.** El job 4472 terminó (15/15,
+> 23:16) → `cb` = **NO palanca = H_reg** (sube recall minoritaria, hunde mayoritaria,
+> bal_acc neta sin cambio; std ≳ |media|). El eje cierra: ni focal ni cb mueven la aguja.
+> Veredicto + tablas: `resultados.md`. Cierre en CLAUDE.md = **Hallazgo 14**. Memoria
+> [[loss-desbalance-eje-c1]] actualizada. Lo de abajo es el snapshot de la sesión AM
+> (cuando 4472 estaba PD) y se conserva por trazabilidad — NO reescrito.
+>
 > Fecha: 2026-06-24. Disparador: hallazgos del job 4463 (focal/cb binarias) al
 > verificar resultados. Job 4472 (re-run cb con el fix) **PD/en curso** al momento
 > de la auditoría → veredicto cb NO se afirma. Auditoría documental (no toca el job,
