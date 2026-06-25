@@ -19,6 +19,7 @@ exacto que se leyó (evitar drift de URL).
 | `2001.06782v4.pdf` | Yu et al. — Gradient Surgery for Multi-Task Learning (PCGrad) | 2020 | B4 (recomendado por Eduardo, 21 may) |
 | `2512.18734.pdf` | Chen & Xu — Breast Cancer Recurrence Risk Prediction Based on MIL | 2025 | B4 (recomendado por Eduardo, 21 may) |
 | `electronics-13-04445.pdf` | Liu et al. — Dual-Attention MIL Framework for Pathology WSI | 2024 | B4 (recomendado por Eduardo, 21 may) |
+| `mammoth_shao_iclr2026.pdf` | Shao et al. — Mixture of Mini Experts (MAMMOTH): Overcoming the Linear Layer Bottleneck in MIL | 2026 | B5 (estudio del paper, 25-jun) |
 
 > **Papers de Eduardo (21 may 2026)**: aportados para atacar el desbalance de
 > clases de `microcalcificaciones_pth`. Nombres de archivo conservados como
@@ -47,6 +48,25 @@ exacto que se leyó (evitar drift de URL).
 
 Versión del PDF en este repo: arXiv v3 (2 abril 2021).
 Repo oficial: <https://github.com/binli123/dsmil-wsi>.
+
+### MAMMOTH (Shao et al., 2026)
+
+```bibtex
+@inproceedings{shao2026mammoth,
+  title     = {Mixture of Mini Experts: Overcoming the Linear Layer Bottleneck
+               in Multiple Instance Learning},
+  author    = {Shao, Daniel and Runevic, Joel and Chen, Richard J. and
+               Williamson, Drew F. K. and Kim, Ahrong and Song, Andrew H. and
+               Mahmood, Faisal},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2026},
+  url       = {https://openreview.net/forum?id=S5Io33pc78}
+}
+```
+
+Versión del PDF en este repo: OpenReview camera-ready (`pdf?id=S5Io33pc78`, 37 pp.).
+Repo oficial: <https://github.com/mahmoodlab/MAMMOTH>.
+Licencia **CC-BY-NC-ND 4.0** — solo investigación académica no comercial, con atribución.
 
 ## Papers de referencia que NO viven acá
 
