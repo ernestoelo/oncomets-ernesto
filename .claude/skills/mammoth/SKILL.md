@@ -5,8 +5,9 @@ description: Entrena/integra Mammoth (MoE de bajo rango que reemplaza la 1ª cap
 
 # mammoth — Mixture of Mini Experts en la 1ª capa de CLAM
 
-**Mammoth** (*Mixture of Mini Experts in Pathology*, Shao et al., ICLR 2026,
-Mahmood Lab) reemplaza la **primera capa lineal** del pipeline MIL — el `nn.Linear`
+**Mammoth** (*Mixture of Mini Experts: Overcoming the Linear Layer Bottleneck in
+Multiple Instance Learning*, Shao et al., ICLR 2026, Mahmood Lab) reemplaza la
+**primera capa lineal** del pipeline MIL — el `nn.Linear`
 que proyecta los features del encoder (CONCH 512) al espacio interno — por un
 **mixture-of-experts de bajo rango (LoRA) con ruteo por slots**. NO es un modelo
 MIL aparte (a diferencia de DSMIL): es drop-in para esa única capa. Motivación:
@@ -14,6 +15,10 @@ MIL aparte (a diferencia de DSMIL): es drop-in para esa única capa. Motivación
 slide tiran gradientes en conflicto sobre la capa lineal; el ruteo a expertos los
 separa. Paper: CLAM 71.7→78.5 (bal_acc subtyping). **Licencia CC-BY-NC-ND 4.0**
 (solo investigación académica).
+
+**MAMMOTH** = *MAtrix-factorized Mixture Module of Transformation Heads* (acrónimo
+del paper §3): nombra los 4 pasos del forward — proyección `W` multi-cabeza → ruteo
+por slots → expertos factorizados (LoRA) → concat de cabezas.
 
 Contexto, historia heredada de Eduardo y plan: memorias
 [[mammoth-investigacion-integracion]], [[equipo-arquitecturas-mammoth-longnet]] y
@@ -51,6 +56,11 @@ conteo de parámetros comparable a la capa lineal. Con e30/s256/d512 → rank 8.
   en la 1ª pasada** (comparación limpia).
 - `True`: la salida son E·S features agregadas (pseudo-instancias). Cambia el
   pooling y el top-k. Variante posterior, no en la primera comparación.
+- **Correspondencia con el paper (verificado 25-jun):** `True` = el **diseño canónico**
+  del paper (salida = S·E slot-tokens, §3.4); `False` = la **ablación "Soft-MoE output"**
+  (recombina a N parches, §A4.6, **−4.7%** en Tabla 4a). Elegimos `False` en la 1ª pasada
+  por comparación limpia, NO por ser el modo fuerte; probamos ambos → 0 palancas igual
+  (Hallazgo 12). Detalle: `sprints/B5_sprint5/auditoria_coherencia/hallazgos_paper_mammoth.md`.
   - **Obj 3 B5 (19-jun) ES esa variante posterior** (REABRE el hilo "cerrado" como
     variante NO testeada, no 9.b estricta): prueba `keep_slots=True` + el arg nuevo
     `--mammoth_slot_dropout` (default 0.0, retro-compatible; Brazo 2 = 0.1), paired vs el
