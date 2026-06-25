@@ -794,6 +794,27 @@ re-validar y actualizar `docs/codebase_map.md`.
     Detalle: memoria [[pathpt-testing-necrosis-mitotic]] + `sprints/B5_sprint5/pathpt/{resultados_necrosis.md,
     resultados_mitotic.md,etapa1_prereg_necrosis.md,etapa1_prereg_mitotic.md}` + auditoría
     `sprints/B5_sprint5/auditoria_coherencia/hallazgos_pathpt.md`.
+14. **La loss de desbalance (focal / class_balanced) NO es palanca — cierra el 4º ángulo
+    barato del MISMO cuello (objetivo de entrenamiento, NO arquitectura).** Probado paired vs
+    CLAM+CE en las 3 binarias microcalc (k=5, mismos splits que Obj1/3 — CLAM_MB intacto, el
+    único delta es la bag loss; NO es "mammoth #3"). **`focal`** (γ=2, sin α — job 4463): Δ
+    bal_acc null-a-negativo (carcinoma −0.042 ± 0.081, cdis −0.064 ± 0.093, tejido +0.013
+    control) y **baja** el recall de la minoritaria (carcinoma `si` 0.371→0.286) → no toca el
+    colapso. **`class_balanced`** (Cui 2019, β=0.9999, `ClassBalancedCE` con el FIX — job 4472):
+    Δ bal_acc y Δ AUC **dentro del ruido** (std ≳ |media|: carcinoma +0.009 ± 0.074, cdis
+    +0.039 ± 0.091, tejido +0.007 ± 0.032); el mecanismo **sí** sube el recall de la minoritaria
+    (carcinoma `si` 0.371→0.714, cdis 0.377→0.623) **pero hunde la mayoritaria en igual medida**
+    (carcinoma `no` 0.908→0.588) → bal_acc neta sin cambio = **H_reg (re-balanceo del
+    operating-point, no mejora neta)**. Mecanismo idéntico a mover el umbral post-hoc → converge
+    con [[calibracion-operating-point-palanca-b5]] y con los Hallazgos 11/12/13: **4 ejes
+    distintos (agregador, patch-embed, lenguaje+tile, loss), 0 palancas → cuello = datos /
+    desbalance / contexto espacial**, no la arquitectura ni la función de pérdida. Invasión NO
+    se corrió (plan pre-registrado: solo ante lean prometedor; ambos brazos null/H_reg). **Bug
+    `cb` no-op a batch=1 RESUELTO** (`ClassBalancedCE`, commit `2cab10f`, test 6/6 — gotcha
+    durable [[mil-weighted-ce-noop-batch1]]); runs buggy del 4463 segregados en
+    `results/loss_desbalance/_buggy_noop_cb_4463/` (evidencia). Detalle:
+    `sprints/B5_sprint5/loss_desbalance/{resultados.md,prereg.md,auditoria_hallazgos.md}` +
+    `results/loss_desbalance/analysis_4472_full.txt` + memoria [[loss-desbalance-eje-c1]].
 
 ## Entorno conda — deps esperadas
 
