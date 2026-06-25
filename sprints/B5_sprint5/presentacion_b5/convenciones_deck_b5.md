@@ -53,14 +53,19 @@ Entorno: `PYTHONPATH=/media/administrador/Storage1/sdonoso/clam_testing2/.pylibs
 
 `set_notes(slide, proposito, sections)` rinde un GUION para **exponer enseñando**, no solo
 leer: `PROPÓSITO — <una frase>` + una lista ORDENADA de fases con etiqueta en negrita —
-**ABRIR** (frase literal de apertura, entre comillas) · **EXPLICAR** (pasos con marcador
-`→ `, construidos de lo simple a lo complejo) · **ANALOGÍA** / **EJEMPLO** (solo donde hay un
-concepto que aterrizar — query, softmax, coseno, producto interno;
+**ABRIR** (frase literal de apertura, entre comillas) · **RECORRIDO** (guía elemento-por-elemento
+de la slide: cada caja/columna/panel/bullet/cartel NOMBRADO en orden visual, y en diagramas el
+paso a paso del flujo; aplica también a las figuras del paper — cada panel a/b/c/d) · **EXPLICAR**
+(pasos con marcador `→ `, construidos de lo simple a lo complejo) · **ANALOGÍA** / **EJEMPLO** (solo
+donde hay un concepto que aterrizar — query, softmax, coseno, producto interno;
 [[pedagogia-nomenclatura-desde-cero]]) · **PUNTO CLAVE** (el takeaway a fijar) ·
 **TRANSICIÓN** (puente literal al siguiente slide). En `sections`, cada par es
 `("LABEL", body)`: `body` str → párrafo literal (listo para decir); `body` list → ítems con
-flecha. **Texto BLANCO `#FFFFFF`** (se leen sobre panel oscuro). Las 20 slides lo usan. Sin
-nº de job, sin nombres ([[presentacion-convenciones-benjamin]]). **Supera el formato previo**
+flecha; `body` list de **tuplas `(ancla, texto)`** → ítem ANCLADO `→ <elemento en pantalla> —
+<qué decir>` con el **ancla en negrita** (el RECORRIDO usa esta forma → escaneable mientras
+señalás; orden de las anclas = orden de lectura de la slide, en sincronía con imagen y bullets —
+pedido de Ernesto 22-jun). **Texto BLANCO `#FFFFFF`** (se leen sobre panel oscuro). Las 20 slides
+lo usan. Sin nº de job, sin nombres ([[presentacion-convenciones-benjamin]]). **Supera el formato previo**
 (`PROPÓSITO`/narrativa/`PUNTOS CLAVE`) y el B2 "BLOQUE N —" de CLAUDE.md *para este deck*:
 autosuficiente (si te quedás en blanco, leyéndolo explicás la slide entera) y escaneable
 mientras se presenta. La primera línea (`PROPÓSITO —`) resume además el objetivo de cada slide.
