@@ -854,15 +854,17 @@ plano. Estilo visual: `Modelo_OncoMets_Spatial_V1.pdf`. Estructura:
 sub-items con `-> `, fórmulas inline sin LaTeX (`h_k = ReLU(W₁·z_k)`), sin
 emojis ni corchetes de gesto, destacados en línea propia (`Punto clave:` /
 `Detalle crítico:`), ultra-minimalista para copy-paste a OnlyOffice.
-> **Deck B5** (act. 22-jun): las notas evolucionaron a un **GUION DIDÁCTICO por
-> fases** — `PROPÓSITO —` + `ABRIR` (frase literal) + `EXPLICAR` (pasos con `→`,
-> de lo simple a lo complejo) + `ANALOGÍA`/`EJEMPLO` (solo donde hay concepto) +
-> `PUNTO CLAVE` + `TRANSICIÓN` literal. **Texto blanco**, autosuficiente para
-> exponer enseñando (no solo leer), sin nº de job ni nombres. Motor
-> `set_notes(slide, proposito, sections)`. Canónico:
-> `sprints/B5_sprint5/presentacion_b5/convenciones_deck_b5.md` §3.b. Reconcilia
-> "notas concisas" de Benjamín ([[presentacion-convenciones-benjamin]]): mismo
-> objetivo (que Ernesto exponga bien) con estructura en vez de densidad.
+> **Notas del presentador (act. 25-jun, VIGENTE para toda presentación):** se escriben
+> como **guion HABLADO corrido** — prosa en párrafos, solo lo que se DICE, leíble de
+> corrido (Ernesto presenta online). **SIN etiquetas de fase** (no `PROPÓSITO`/`ABRIR`/
+> `RECORRIDO`/`PUNTO CLAVE`/`TRANSICIÓN`), sin la palabra "deck", sin frases artificiales ni
+> coloquialismos ("aguas abajo"); texto blanco, sin nº de job ni nombres; fiel a las
+> ecuaciones del diagrama y SIN ejemplos numéricos en el guion. **Supersede** el formato
+> por-fases del 22-jun (queda LEGACY; motor `set_notes` aún lo emite → Ernesto edita en
+> OnlyOffice, NO regenerar el deck para "actualizar notas"). Canónico:
+> `sprints/B5_sprint5/presentacion_b5/convenciones_deck_b5.md` §3.b + memoria
+> [[notas-presentador-guion-didactico]]. Reconcilia "notas concisas" de Benjamín
+> ([[presentacion-convenciones-benjamin]]): mismo objetivo con prosa en vez de densidad.
 
 **Assets PNG insertables para slides (patrón Obj 5)**. Cuando el deck vive
 en OnlyOffice (o cualquier herramienta con branding Environ — logo, header
