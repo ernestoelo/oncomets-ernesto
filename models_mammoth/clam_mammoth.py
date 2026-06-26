@@ -1,9 +1,10 @@
 """clam_mammoth.py — CLAM_MB con la primera capa lineal reemplazada por Mammoth.
 
-Mammoth (*Mixture of Mini Experts in Pathology*, Shao et al., ICLR 2026, Mahmood
-Lab) reemplaza el `nn.Linear` que proyecta los features del encoder (CONCH 512)
-al espacio interno de la MIL, por un **mixture-of-experts de bajo rango (LoRA)
-con ruteo por slots**. Es drop-in: misma forma de entrada/salida que la lineal.
+Mammoth (*Mixture of Mini Experts: Overcoming the Linear Layer Bottleneck in
+Multiple Instance Learning*, Shao et al., ICLR 2026, Mahmood Lab) reemplaza el
+`nn.Linear` que proyecta los features del encoder (CONCH 512) al espacio interno
+de la MIL, por un **mixture-of-experts de bajo rango (LoRA) con ruteo por slots**.
+Es drop-in: misma forma de entrada/salida que la lineal.
 Motivación: *instance-gradient interference* — parches de fenotipos distintos en
 una misma slide tiran gradientes en conflicto sobre la capa lineal única; el
 ruteo a expertos los separa (README MAMMOTH + paper §"Main Findings").
@@ -18,7 +19,10 @@ para construir el `attention_net` con `MammothPatchEmbed` en lugar de
 **`keep_slots=False` por defecto** (decisión Obj 6 #1): Mammoth devuelve los N
 parches transformados [N, output_dim] — misma semántica de attention pooling e
 instance-loss top-k que el baseline. `keep_slots=True` (salida E·S agregadas)
-queda como variante posterior, no en la 1ª pasada.
+queda como variante posterior, no en la 1ª pasada. (Correspondencia con el paper,
+verificado 25-jun: `True` = diseño canónico §3.4; `False` = la ablación "Soft-MoE
+output" §A4.6, −4.7% en Tabla 4a — elegido por comparación limpia, NO por ser el
+modo fuerte.)
 
 NUNCA correr con `python` a secas (workaround B). Usar el binario absoluto del env
 `clam_latest` o lanzar vía `sbatch`.

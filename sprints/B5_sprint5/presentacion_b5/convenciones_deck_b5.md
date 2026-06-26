@@ -49,26 +49,53 @@ Entorno: `PYTHONPATH=/media/administrador/Storage1/sdonoso/clam_testing2/.pylibs
 - Bullets visuales = **tarjetas** redondeadas con número en círculo teal (no viñetas planas).
 - Tablas nativas: fontsize **15–18**, header 13–16.
 
-### 3.b Notas del presentador (formato del deck B5 — GUION DIDÁCTICO por fases)
+### 3.b Notas del presentador (formato VIGENTE: GUION HABLADO corrido)
 
-`set_notes(slide, proposito, sections)` rinde un GUION para **exponer enseñando**, no solo
-leer: `PROPÓSITO — <una frase>` + una lista ORDENADA de fases con etiqueta en negrita —
-**ABRIR** (frase literal de apertura, entre comillas) · **RECORRIDO** (guía elemento-por-elemento
-de la slide: cada caja/columna/panel/bullet/cartel NOMBRADO en orden visual, y en diagramas el
-paso a paso del flujo; aplica también a las figuras del paper — cada panel a/b/c/d) · **EXPLICAR**
-(pasos con marcador `→ `, construidos de lo simple a lo complejo) · **ANALOGÍA** / **EJEMPLO** (solo
-donde hay un concepto que aterrizar — query, softmax, coseno, producto interno;
-[[pedagogia-nomenclatura-desde-cero]]) · **PUNTO CLAVE** (el takeaway a fijar) ·
-**TRANSICIÓN** (puente literal al siguiente slide). En `sections`, cada par es
-`("LABEL", body)`: `body` str → párrafo literal (listo para decir); `body` list → ítems con
-flecha; `body` list de **tuplas `(ancla, texto)`** → ítem ANCLADO `→ <elemento en pantalla> —
-<qué decir>` con el **ancla en negrita** (el RECORRIDO usa esta forma → escaneable mientras
-señalás; orden de las anclas = orden de lectura de la slide, en sincronía con imagen y bullets —
-pedido de Ernesto 22-jun). **Texto BLANCO `#FFFFFF`** (se leen sobre panel oscuro). Las 21 slides
-lo usan. Sin nº de job, sin nombres ([[presentacion-convenciones-benjamin]]). **Supera el formato previo**
-(`PROPÓSITO`/narrativa/`PUNTOS CLAVE`) y el B2 "BLOQUE N —" de CLAUDE.md *para este deck*:
-autosuficiente (si te quedás en blanco, leyéndolo explicás la slide entera) y escaneable
-mientras se presenta. La primera línea (`PROPÓSITO —`) resume además el objetivo de cada slide.
+> **VIRAJE 25-jun-2026** (revisión slide-por-slide del deck B5, validado slides 1–6 con Ernesto):
+> las notas se escriben como **guion HABLADO corrido** — prosa en párrafos, exactamente lo que el
+> presentador va a DECIR, para leer de corrido (presenta online). **Supersede** el formato por-fases
+> del 22-jun (abajo, LEGACY). Aplica a **toda presentación futura**, no solo al deck B5. Detalle del
+> viraje y reconciliación: `auditoria_coherencia/hallazgos_notas_guion_viraje.md`; memoria
+> [[notas-presentador-guion-didactico]].
+
+Reglas del formato vigente:
+
+1. **Prosa en párrafos**, leíble de corrido. **SIN etiquetas de fase** (nada de `PROPÓSITO`/`ABRIR`/
+   `RECORRIDO`/`EXPLICAR`/`PUNTO CLAVE`/`TRANSICIÓN` — "generan ruido").
+2. **Solo lo que se dice.** Sin meta-instrucciones ("decir tal cual", "señalá") ni la palabra "deck".
+3. **Registro profesional.** Sin frases artificiales ("que se la lleven desde el primer minuto") ni
+   coloquialismos poco profesionales ("mover la aguja", "aguas abajo" → "mejorar los resultados",
+   "las etapas posteriores").
+4. **Pedagogía fundida en prosa.** El recorrido de la slide (elementos, paneles de figura A→B,
+   colores) se cuenta DENTRO del párrafo, no como lista rotulada; analogías y definiciones integradas.
+5. **Definir antes de usar.** Cada término (slot, prototipo, query…) se define antes de la fórmula.
+6. **Fiel a las ecuaciones del diagrama.** Si la slide muestra fórmulas/dims por bloque, describirlas
+   fielmente (citar la ecuación escrita + explicarla en palabras) y dejar claro el **eje/dirección**
+   (ej. softmax ↓ N parches vs ↓ 300 slots; "es al revés: cada slot recoge de todos los parches, no
+   parche por parche").
+7. **Sin ejemplos numéricos en el guion** — debe entenderse con la sola explicación; el ejemplo
+   numérico queda para responder si preguntan.
+8. **Encadenar slide con slide.** Abrir retomando el cierre de la anterior, cerrar anticipando la
+   siguiente, sin rótulo de "transición".
+9. **Brevedad por tipo.** Divisorias/transición = 1 párrafo muy breve. Slides técnicas centrales
+   pueden ser más extensas, sin sobre-extenderse; si algo alarga, recortar lo secundario.
+10. **Restricciones duras que se conservan:** **texto BLANCO `#FFFFFF`**, **sin nº de job, sin
+    nombres** (baselines = "Métricas oficiales Environ"), español técnico + pedagógico, autosuficiente
+    para leer mientras se expone ([[presentacion-convenciones-benjamin]]).
+
+**Autoría / divergencia intencional:** Ernesto edita las notas **directo en OnlyOffice**. El motor
+`set_notes(slide, proposito, sections)` de `generate_b5_deck.py` todavía RINDE el formato por-fases
+(LEGACY) → **NO regenerar el deck para "actualizar notas"** (pisaría las ediciones de OnlyOffice).
+Propagar el formato hablado al motor `set_notes` solo si Ernesto lo pide.
+
+#### LEGACY — formato por fases (22-jun, SUPERSEDED por el viraje de arriba)
+
+El motor `set_notes(slide, proposito, sections)` rendía un GUION por fases con etiqueta en negrita:
+`PROPÓSITO —` + `ABRIR` (apertura literal) · `RECORRIDO` (guía elemento-por-elemento, cada
+caja/panel/bullet y cada panel de figura a/b/c/d en orden visual) · `EXPLICAR` (pasos `→`) ·
+`ANALOGÍA`/`EJEMPLO` · `PUNTO CLAVE` · `TRANSICIÓN`; ítems `(ancla, texto)` con ancla en negrita.
+Se conserva porque el motor del script aún lo emite; el contenido pedagógico de cada fase ahora va
+fundido en la prosa del guion hablado.
 
 ## 4. Elementos NATIVOS (helpers en generate_b5_deck.py)
 
