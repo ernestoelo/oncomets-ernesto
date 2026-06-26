@@ -188,6 +188,52 @@ def add_heads_panel(slide, l, t, w, h):
     return box
 
 
+def add_slotpool_panel(slide, l, t, w, h):
+    """Panel 'zoom del RUTEO POR SLOTS' (eq. 3): cómo se arma UN slot a partir de los N
+    parches, descompuesto en los 3 términos —① prototipo (clave aprendida), ② producto
+    interno, ③ softmax + promedio ponderado—. Familia naranja (= slots aprendidos /
+    MAMMOTH), simétrico DEBAJO del panel de cabezas. Reusable como mini-zoom pedagógico
+    de cualquier paso fino (convención §5.c)."""
+    PANEL_F = RGBColor(0xFD, 0xF1, 0xE5)
+    NUMC    = RGBColor(0x2C, 0x7A, 0x8C)   # teal del número de paso (= dimensiones/ruteo)
+    WHITE   = RGBColor(0xFF, 0xFF, 0xFF)
+    box = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
+                                 Inches(l), Inches(t), Inches(w), Inches(h))
+    box.fill.solid(); box.fill.fore_color.rgb = PANEL_F
+    box.line.color.rgb = ORA_E; box.line.width = Pt(2); box.shadow.inherit = False
+    add_label(slide, l + 0.10, t + 0.04, w - 0.20, 0.30,
+              [("ZOOM: RUTEO POR SLOTS  (eq. 3)", 12, True, ORA_E)], align=PP_ALIGN.CENTER)
+    add_label(slide, l + 0.10, t + 0.32, w - 0.20, 0.20,
+              [("1 slot = resumen ponderado de los N parches", 9, False, GREY_T)],
+              align=PP_ALIGN.CENTER)
+    # cada término: número en círculo teal + título + sub-líneas
+    rows = [
+        ("1", "PROTOTIPO  s_j  (clave aprendida)",
+              [("el «afiche de búsqueda» del slot  ·  s ∈ ℝ¹⁶ /lente", 9, False, GREY_T)]),
+        ("2", "PRODUCTO INTERNO  ⟨q, s_j⟩",
+              [("= 1 puntaje de parecido   (Σ q[i]·s[i])", 9, False, GREY_T)]),
+        ("3", "SOFTMAX → PROMEDIO PONDERADO",
+              [("D_i = softmax_N ⟨q, s_j⟩   (pesos, suman 1)", 9, False, INK),
+               ("u_j = Σ_i D_i · q_i   (= el slot)", 9.5, True, INK)]),
+    ]
+    yheads = [t + 0.56, t + 1.06, t + 1.56]
+    for (num, head, subs), yy in zip(rows, yheads):
+        cd = 0.28
+        circ = slide.shapes.add_shape(MSO_SHAPE.OVAL, Inches(l + 0.14),
+                                      Inches(yy + 0.02), Inches(cd), Inches(cd))
+        circ.fill.solid(); circ.fill.fore_color.rgb = NUMC
+        circ.line.fill.background(); circ.shadow.inherit = False
+        set_text(circ, [(num, 12, True, WHITE)])
+        add_label(slide, l + 0.50, yy, w - 0.60, 0.26, [(head, 10.5, True, INK)],
+                  align=PP_ALIGN.LEFT)
+        add_label(slide, l + 0.50, yy + 0.24, w - 0.58, 0.24 * len(subs), subs,
+                  align=PP_ALIGN.LEFT)
+    add_label(slide, l + 0.10, t + h - 0.40, w - 0.20, 0.38,
+              [("softmax sobre los N parches → TODOS contribuyen (soft)", 9, False, ORA_E)],
+              align=PP_ALIGN.CENTER)
+    return box
+
+
 def add_dim_callout(slide, x, y, w, h, lines, attach_y):
     """Callout de DIMENSIONES pegado a la derecha del bloque (estilo expansión CLAM,
     convención §5.c): entrada → operación → salida con la forma del tensor. La familia
@@ -230,7 +276,7 @@ def build_slide2(prs):
              ("W_q : 512 → 256   ·   256 = 16 cab × 16 →", 12, False, GREY_T)],
             ORA_F, ORA_E, lw=2)
     add_box(s, tl, 3.24, tw, 1.00,
-            [("RUTEO POR SLOTS", 16, True, ORA_E),
+            [("RUTEO POR SLOTS  (eq. 3)", 16, True, ORA_E),
              ("u_(es) = Σ_n D_n · q_n   →   [300 slots]", 14, False, INK),
              ("D = softmax_n ⟨q, S⟩   (sobre los N parches)", 12, False, GREY_T)],
             ORA_F, ORA_E, lw=2)
@@ -297,6 +343,11 @@ def build_slide2(prs):
     #      (sin conector al tronco: ahora la lane derecha la ocupan los callouts de dims;
     #       el panel queda asociado por color naranja = query y por proximidad)
     add_heads_panel(s, 9.82, 2.22, 3.18, 2.20)
+
+    # ---- panel 'slot-based pooling' (eq. 3): zoom del bloque RUTEO en 3 términos
+    #      (prototipo · producto interno · softmax+promedio), DEBAJO del de cabezas →
+    #      columna pedagógica derecha (qué es una cabeza · cómo se arma un slot) ----
+    add_slotpool_panel(s, 9.82, 4.50, 3.18, 2.84)
 
     # ---- banner: mismo presupuesto de parámetros (top-derecha) ----
     add_box(s, 9.55, 0.98, 3.45, 1.06,

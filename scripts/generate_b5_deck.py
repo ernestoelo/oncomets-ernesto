@@ -28,6 +28,12 @@ REPO = "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto"
 PRES = os.path.join(REPO, "papers/presentations")
 ASSETS_BRAND = os.path.join(PRES, "assets_branding")
 PAPER_FIGS = os.path.join(ASSETS_BRAND, "paper_figs")
+# Fig.3 del paper de MAMMOTH (Shao et al., ICLR 2026), panels A+B sin caption:
+# ruteo de parches a slots → especialización de expertos por fenotipo. Recortada de la pág. 8.
+FIG3_MAM = os.path.join(PAPER_FIGS, "mammoth_fig3_routing.png")
+# Fig.1 del mismo paper (pág. 2), panels A+B sin caption: A = t-SNE del espacio interno
+# (lineal=continuo vs MAMMOTH=clusters por experto) · B = Δ rendimiento vs el lineal en 8 MIL.
+FIG1_MAM = os.path.join(PAPER_FIGS, "mammoth_fig1_overview.png")
 DST = os.path.join(PRES, "CLAM_Sprint_B5.pptx")
 
 A_MAM = os.path.join(REPO, "sprints/B5_sprint5/objetivo_2_mammoth_patron_invasion/figuras/slide_assets")
@@ -592,32 +598,70 @@ def build():
     cy = 1.15
     for i, c in enumerate(cards):
         add_card(s, 0.5, cy, 6.2, 1.25, c, idx=i, size=21); cy += 1.42
-    draw_mammoth_concept(s, 7.05, 1.7)   # bloques nativos (no imagen)
+    # Derecha: DOS figuras del paper apiladas, SIN leyenda (se explican de palabra).
+    # Fig.1 arriba (qué hace + que mejora a todo MIL) · Fig.3 abajo (especialización por fenotipo).
+    add_textbox(s, 6.95, 1.04, 6.18, 0.4,
+                [("MAMMOTH estructura el espacio y mejora a todo MIL", 13, True, TEAL_TITLE, F_TITLE, PP_ALIGN.CENTER)])
+    add_image_fit(s, FIG1_MAM, 7.58, 1.45, 4.79, 3.30, align="top")   # ~4.79 × 3.30 (aspecto 1.45)
+    add_textbox(s, 6.95, 4.80, 6.18, 0.36,
+                [("Cada experto se especializa en un fenotipo", 13, True, TEAL_TITLE, F_TITLE, PP_ALIGN.CENTER)])
+    add_image_fit(s, FIG3_MAM, 7.00, 5.18, 6.00, 1.85, align="center")  # ~5.03 × 1.85 (aspecto 2.72)
+    add_textbox(s, 6.95, 7.06, 6.18, 0.3,
+                [("Figuras 1 y 3 — Shao et al., ICLR 2026", 9, False, GRIS_TXT, F_BODY, PP_ALIGN.CENTER)])
     set_notes(s,
-        "dar la intuición de MAMMOTH recorriendo las 4 tarjetas y el esquema antes/después, sin matemática.",
+        "dar la intuición de MAMMOTH —qué es, por qué, y qué evidencia hay de que funciona— "
+        "con las 4 tarjetas y las dos figuras del paper, sin una sola fórmula en pantalla.",
         [("ABRIR  (decir tal cual)",
           "\"En CLAM, una sola capa lineal proyecta TODOS los parches al espacio interno del modelo. "
-          "Esa única capa es el cuello que MAMMOTH ataca.\""),
-         ("RECORRIDO  (las 4 tarjetas de la izquierda, en orden)",
-          [("Tarjeta 1, 'Reemplaza la 1ª capa lineal por una MoE'",
-            "qué es: en vez de una sola capa, una mezcla de expertos."),
-           ("Tarjeta 2, 'Un router envía cada parche a expertos especializados'",
-            "cómo funciona: un router decide qué experto atiende a cada parche."),
-           ("Tarjeta 3, 'Reducir la interferencia de gradientes'",
-            "por qué: en una slide hay parches de fenotipos muy distintos que tiran de la MISMA capa "
-            "con gradientes en conflicto; especializar los descongestiona."),
-           ("Tarjeta 4, 'El resto de CLAM no cambia'",
-            "la garantía metodológica: cualquier diferencia es atribuible SOLO a esta capa.")]),
-         ("RECORRIDO  (el esquema antes / después de la derecha)",
-          [("Columna izquierda, 'CLAM (antes)'",
-            "z entra → 1 capa lineal → resto de CLAM. Una sola ruta para todos los parches."),
-           ("Columna derecha, 'MAMMOTH (después)'",
-            "z entra → ROUTER → expertos E₁/E₂/E₃ → suma ponderada h. Cada parche toma su ruta.")]),
-         ("ANALOGÍA  (para aterrizarlo)",
-          "Un solo traductor para diez idiomas termina contradiciéndose; diez traductores "
-          "especializados, cada uno en lo suyo, no."),
+          "Esa única capa es el cuello que MAMMOTH ataca — y las dos figuras de la derecha son la "
+          "prueba de que especializarla tiene sentido.\""),
+         ("EXPLICAR  (qué es, en concreto, 'esa capa lineal')",
+          ["Esa 'capa lineal' es, literalmente, una matriz W que multiplica al vector del parche: si z "
+           "son los 512 números que CONCH le asigna a un parche, la capa calcula z' = W·z. Nada más: "
+           "re-mezcla esos 512 números en otra combinación.",
+           "El problema según el paper: hay UNA sola W para TODOS los parches, sin importar qué "
+           "muestran. Y en una lámina los parches son heterogéneos — uno es tumor invasivo, otro "
+           "estroma, otro grasa, otro necrosis: distintos FENOTIPOS (su 'tipo visual' de tejido).",
+           "MAMMOTH cambia esa W única por VARIAS transformaciones especializadas, y a cada parche le "
+           "asigna la que corresponde a su fenotipo. Eso es 'mixture of experts'. El CÓMO —router, "
+           "slots, expertos de bajo rango— lo abrimos en las próximas dos slides; acá solo la intuición.",
+           "Por qué una sola capa limita: al ser compartida, esa W debe servir simultáneamente a "
+           "fenotipos opuestos, de modo que su ajuste óptimo es un compromiso promedio, subóptimo para "
+           "cada tipo de tejido. Asignar una transformación especializada a cada fenotipo levanta esa "
+           "restricción; ese desacople de los gradientes en conflicto es lo que el paper denomina "
+           "reducir la interferencia de gradientes entre instancias."]),
+         ("RECORRIDO  (Figura 1, arriba a la derecha — qué hace y que funciona)",
+          [("Panel A, los dos mapas de puntos t-SNE",
+            "es el espacio interno de embeddings proyectado a 2D. Arriba, con la capa lineal original, "
+            "una nube continua sin estructura; abajo, con MAMMOTH, el espacio se ordena en grupos "
+            "nítidos, cada color un experto. Es la contraparte cuantitativa de la idea de fenotipos."),
+           ("Panel B, el gráfico de rendimiento",
+            "el eje horizontal es el rendimiento promedio de ocho métodos MIL distintos. Para cada uno, "
+            "el punto rojo es con MAMMOTH y el negro sin él: MAMMOTH desplaza el rendimiento a la "
+            "derecha en los ocho, sin excepción, y con el mismo presupuesto de parámetros."),
+           ("La lectura de la figura",
+            "MAMMOTH es un módulo plug-and-play que mejora a cualquier agregador MIL; el titular del "
+            "paper es que, equipado con MAMMOTH, incluso un pooling simple supera al mejor agregador "
+            "que usa la capa lineal estándar.")]),
+         ("RECORRIDO  (Figura 3, abajo a la derecha — por qué: especialización por fenotipo)",
+          [("El título, 'Cada experto se especializa en un fenotipo'",
+            "este resultado proviene del paper, no es un diseño nuestro: es la evidencia de que la "
+            "especialización efectivamente ocurre."),
+           ("Panel A, las dos láminas con mapa de calor",
+            "cada lámina de pulmón está coloreada según a qué experto-slot se rutea cada parche; se "
+            "observan regiones nítidas: distintas zonas del tejido activan distintos expertos."),
+           ("Panel B, los parches inferiores",
+            "son los parches que más activan cada slot, agrupados: uno reúne tumor, otro alvéolos, otro "
+            "estroma, otro linfocitos, otro glóbulos rojos; dos patólogos certificados validaron que "
+            "cada grupo corresponde a un fenotipo morfológico coherente."),
+           ("La lectura de la figura",
+            "la especialización por fenotipo es emergente: surge sola durante el entrenamiento, sin que "
+            "nadie etiquete los tejidos — la evidencia de que separar la capa por fenotipo captura "
+            "estructura morfológica real.")]),
          ("PUNTO CLAVE",
-          "Cambio quirúrgico en una sola capa → comparación limpia contra CLAM."),
+          "Cambio quirúrgico en una sola capa → comparación limpia contra CLAM; las figuras muestran "
+          "que esa capa, especializada, estructura el espacio en fenotipos (Fig. 1A y Fig. 3) y que "
+          "eso mejora a todo agregador MIL (Fig. 1B)."),
          ("TRANSICIÓN",
           "\"Veamos en el pipeline DÓNDE entra exactamente esa capa.\"")])
 
@@ -665,9 +709,12 @@ def build():
            ("Panel derecho '16 CABEZAS = 16 criterios'",
             "qué es una cabeza: el MISMO query mirado por 16 criterios en paralelo —textura, forma, "
             "densidad…— que al final se concatenan de vuelta en 512."),
-           ("Bloque naranja 'RUTEO POR SLOTS'",
+           ("Bloque naranja 'RUTEO POR SLOTS (eq. 3)'",
             "comparo el query contra 300 claves aprendidas (los slots). La softmax D normaliza sobre "
             "los N parches: para cada slot, qué parches junta."),
+           ("Panel derecho-abajo 'ZOOM: RUTEO POR SLOTS (eq. 3)'",
+            "el mismo bloque RUTEO, abierto en sus 3 términos —① prototipo, ② producto interno, "
+            "③ softmax + promedio ponderado—. Lo explico en detalle en el bloque EXPLICAR de abajo."),
            ("Etiqueta gris '300 slots = 30 expertos × 10'",
             "esos 300 slots se reparten en 30 expertos, 10 cada uno."),
            ("Las 3 cajas azules 'EXPERTO 1 / 2 / 30'",
@@ -678,10 +725,29 @@ def build():
             "escucha. Recompone la salida h : [N × 512]."),
            ("Banner arriba a la derecha, 'MISMO PRESUPUESTO'",
             "todo este aparato pesa casi lo mismo que la capa lineal 512×512 que reemplaza.")]),
-         ("EJEMPLO  (solo si alguien pregunta)",
-          ["Producto interno ⟨q, S⟩ = cuánto se parece el query a una clave: más alto, más parecido.",
-           "Las dos softmax operan sobre la MISMA matriz de puntajes; cambia el eje: D normaliza por "
-           "parches, C por slots."]),
+         ("EXPLICAR  ·  cómo se arma 1 slot, los 3 términos de la eq. 3 (panel derecho-abajo)",
+          [("Término 1 — PROTOTIPO s_j",
+            "cada slot tiene un vector-clave APRENDIDO, su «afiche de búsqueda»: codifica qué morfología "
+            "busca ese slot. Arranca al azar y el entrenamiento lo afina; hay 300 claves (30 expertos × "
+            "10 slots), una por slot y por cabeza."),
+           ("Término 2 — PRODUCTO INTERNO ⟨q, s_j⟩",
+            "mido cuánto se parece el query del parche a esa clave: multiplico componente a componente y "
+            "sumo. Más alto = más parecido. Da UN número por cada par (parche, slot)."),
+           ("Término 3 — SOFTMAX + PROMEDIO PONDERADO (la eq. 3 completa)",
+            "la softmax sobre los N parches convierte esos puntajes en pesos D que suman 1 (D_i = "
+            "softmax_N ⟨q, s_j⟩); y el slot u_j es el promedio ponderado de los parches con esos pesos "
+            "(u_j = Σ_i D_i · q_i). Es decir: cada slot resume los N parches, dándole más peso a los que "
+            "se parecen a su prototipo.")]),
+         ("EJEMPLO NUMÉRICO  (término 3, solo si lo piden)",
+          ["3 parches con query q1=[1,0], q2=[0,1], q3=[1,1] y un prototipo de slot s=[1,0].",
+           "Productos internos: 1, 0, 1 → exp: 2.72, 1.0, 2.72 → softmax D = [0.42, 0.155, 0.42].",
+           "Slot u = 0.42·[1,0] + 0.155·[0,1] + 0.42·[1,1] = [0.84, 0.575]: prioriza los parches "
+           "alineados con la clave; el que no matchea (q2) casi no aporta.",
+           "Por qué es «soft»: ningún peso es 0 → TODOS los parches contribuyen a cada slot. Eso es lo "
+           "que estabiliza el entrenamiento, a diferencia del ruteo duro (cada parche a un solo experto)."]),
+         ("OJO  ·  las dos softmax",
+          "D (ruteo) y C (combinación) usan la MISMA matriz de puntajes ⟨q, S⟩, pero normalizan por ejes "
+          "distintos: D sobre los N parches (arma los slots), C sobre los 300 slots (recompone los parches)."),
          ("PUNTO CLAVE",
           "Entra [N, 512] y sale [N, 512] —reemplazo transparente—, y con rango 8 automático pesa casi "
           "lo mismo que la capa lineal: si no mejora, NO es por falta de capacidad."),
