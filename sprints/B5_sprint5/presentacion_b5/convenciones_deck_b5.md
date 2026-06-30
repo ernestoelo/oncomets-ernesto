@@ -82,6 +82,13 @@ Reglas del formato vigente:
 10. **Restricciones duras que se conservan:** **texto BLANCO `#FFFFFF`**, **sin nº de job, sin
     nombres** (baselines = "Métricas oficiales Environ"), español técnico + pedagógico, autosuficiente
     para leer mientras se expone ([[presentacion-convenciones-benjamin]]).
+11. **Slides de resultados (tabla)** (validado 26-jun): leerla por la **columna del Δ pareado** de
+    arriba a abajo (no fila por fila); mencionar **solo bal_acc y AUC** (varianza/colores no se
+    narran); **atar el patrón al dataset** de cada tarea; cerrar con una **conclusión breve del
+    porqué**. Para una slide técnica que el presentador no domina: explicársela primero, luego la
+    nota, y **referenciar los paneles de la figura** para que el guion siga la imagen. Refuerza la
+    regla 5: **no introducir nomenclatura no presentada antes** (cazado: `slot_dropout`, "token")
+    — definirla o quitarla.
 
 **Autoría / divergencia intencional:** Ernesto edita las notas **directo en OnlyOffice**. El motor
 `set_notes(slide, proposito, sections)` de `generate_b5_deck.py` todavía RINDE el formato por-fases
@@ -177,8 +184,15 @@ Para un modelo con un cuello que **se ABRE** a N unidades paralelas y **se vuelv
   izquierda (familia **azul** = expertos), banner "MISMO PRESUPUESTO" arriba-derecha, nota
   integración arriba-izquierda.
 - **Panel "lentes paralelas"** (`add_heads_panel`) para volver visual un concepto fino —acá
-  las **CABEZAS / multi-head**—: recuadro con 3 criterios de ejemplo (textura/forma/densidad)
-  + `· · · ×16 lentes` + remate "mismo query, N criterios → se concatenan". Va del lado
+  las **CABEZAS / multi-head**—: recuadro con 3 lentes/subespacios de ejemplo
+  **(ILUSTRATIVOS, sin etiqueta semántica fija)** + `· · · ×16 lentes` + remate "mismo
+  query, N subespacios → se concatenan". **CORRECCIÓN 29-jun (reunión Benjamín): las
+  cabezas NO son "textura/forma/color/densidad"** — son subespacios APRENDIDOS sin
+  semántica impuesta (la morfología vive en los SLOTS, no en las cabezas; paper Fig 3).
+  El rótulo viejo "(textura/forma/densidad)" indujo la respuesta equivocada de Ernesto y
+  el reproche de Benjamín → usar etiquetas neutras o un caption "ejemplos ilustrativos,
+  no asignaciones". Detalle: `mammoth_entendimiento/respuestas_preguntas_benjamin.md §Q1`.
+  Va del lado
   **opuesto** al callout LoRA y en la **familia de color del bloque que anota** (naranja =
   query). Reusable para cualquier concepto que necesite un mini-zoom pedagógico.
 - **Dimensiones POR BLOQUE, sobre el flujo** (no en un glosario único — Ernesto, 18-jun:
@@ -204,6 +218,13 @@ diagramas copiados por conteo de shapes + oMath + IDs únicos. Abrir el deck fin
 **PowerPoint/OnlyOffice**, no LibreOffice.
 
 ## 7. Estructura del deck B5 (21 slides)
+
+> **ADDENDUM 26-jun-2026 — recorte a ~16 slides.** Eliminadas del deck: **tasa mitótica**,
+> **microcalc go/no-go** (PathPT cierra en necrosis), **div Cierre**, **cierre 3 ejes** y
+> **CLAM + loss**. El único cierre es **próximos pasos** (reenfocado a magnificación). La
+> estructura de abajo es la de 21 slides ORIGINAL (LEGACY); el estado vigente y las notas
+> finales viven en `notas_presentador_guion.md` (sección "Slide final — Próximos pasos").
+> El generador `generate_b5_deck.py` aún arma las 21 (no se regenera; Ernesto edita el `.pptx`).
 
 Portada · Objetivos · [div MAMMOTH] · qué es (tarjetas + concepto nativo) · diagrama
 integración · diagrama zoom MoE · figura oficial fused (dims overlay) · variante keep_slots
