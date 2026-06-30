@@ -23,7 +23,7 @@ según los pedidos de Benjamín (1-jun):
 |---|---|---|
 | 1 | **mammoth k=5 paired** sobre las 3 binarias (correr + analizar) | **COMPLETADO** (job 4229, analizado): mammoth NO es palanca en microcalc (cuello=datos). `objetivo_1_mammoth_run/resultados.md` |
 | 1b | **mammoth en patrón arquitectónico (4 binarias) + invasión (3-clase)** k=5 | **COMPLETADO** — PATRÓN (job 4243, 40 runs, 4-jun 01:33) + INVASIÓN (job 4246, 10 runs, 5-jun 06:18): mammoth NO es palanca en ninguna (lean+ leve solo en cribiforme balanceada; invasión = regresión leve consistente vía colapso a mayoritaria). `objetivo_2_mammoth_patron_invasion/{resultados.md,resultados_invasion.md}`. **Cierra el hilo mammoth drop-in (8 tareas, 0 palancas)** — extendido luego por Obj 3 keep_slots (+4 tareas, también 0 palancas; ver sección Obj 3 abajo). |
-| 2 | **Magnificación**: investigar (papers) ANTES de implementar | pendiente |
+| 2 | **Magnificación**: investigar (papers) ANTES de implementar | **investigación HECHA** (CPathAgent leído 30-jun → análisis para reunión jueves 2-jul; **implementación pendiente**). Ver sección "Magnificación / CPathAgent" abajo |
 | 3 | **k=5 folds** en más tasks débiles (no single-split) | pendiente |
 | 4 | **Parches/slides útiles**: selección de los que aportan al train | pendiente |
 | 5 | **Pregunta CAP**: ¿1 de las 3 binarias positiva = cáncer c/microcalc? | pendiente (research clínico) |
@@ -157,7 +157,7 @@ Branch `feat/pathpt-etapa1` (mergeada a main este turno). Pre-registración + re
 - **ÚNICO PENDIENTE = GPU**: `sbatch scripts/run_pathpt_etapa1_necrosis_kfold.slurm` (paired CLAM+PathPT
   k=5). Correr desde **main**, verificar `squeue` (cortesía single-GPU). [[pathpt-testing-necrosis-mitotic]]
 
-### OBJ-A EN CURSO (30-jun): interpretabilidad de expertos/slots de MAMMOTH en mama
+### OBJ-A EJECUTADO (30-jun, integrado; pendiente sign-off patólogo): interpretabilidad de expertos/slots de MAMMOTH en mama
 
 Sale de la reunión 29-jun (Benjamín exigió dominar el mecanismo + estudiar en qué se
 fijan los expertos/slots; ver `mammoth_entendimiento/README.md` §4 + memoria
@@ -186,6 +186,49 @@ modelo/training). Trabajo en **main** (preferencia de Ernesto, [[git-trabajar-en
   hipótesis); opcional otra tarea + variante `keep_slots=True` (obj3, `--keep-slots`); enlaza
   con OBJ-B (ablación de H, eso SÍ toca config → GPU + reviewer). Detalle:
   `mammoth_entendimiento/interpretabilidad/resultados.md`.
+
+### Magnificación / CPathAgent — investigación research-first HECHA (30-jun, para reunión jueves 2-jul)
+
+Cierre del eje arquitectura (Hallazgos 11-14, 0 palancas) → próxima dirección con Sebastián = **magnificación /
+contexto espacial** ([[magnificacion-cpathagent-proxima-direccion]]). Sebastián recomendó leer **CPathAgent**
+(NeurIPS 2025, agent-based foundation model, alta resolución). **Leído esta sesión** → análisis completo en
+`sprints/B5_sprint5/magnificacion/analisis_cpathagent.md`. Es el insumo de Ernesto para la reunión. **NO se entrenó
+nada** (regla 9 fase argumento). Hallazgos doc en `auditoria_coherencia/hallazgos_cpathagent_magnificacion_30jun.md`.
+
+**Hallazgo central (rico, para no releer el paper):** el paper cuenta **DOS** historias de magnificación con costos
+opuestos, y **la accionable NO es el agente**:
+
+- **(A) El agente LMM** (Qwen3-14B + CPath-CLIP, **8× H800-80G**, **278K muestras instruction-tuning generadas con
+  Gemini-2.5-Pro**, **reportes WSI pareados** HistGen/TCGA, ~73h entrenamiento). **NO portable** a OncoMets: 1× A6000,
+  cohorte privada **sin reportes pareados**, sin presupuesto Gemini. El propio paper (Ap. B.5, Tabla A6) muestra que
+  aplicar la estrategia-agente a Gemini-2.5-Pro para clasificación WSI **empeora 6.7%** → el valor del agente viene del
+  entrenamiento dedicado, no del prompting. → norte conceptual, no proyecto de sprint.
+- **(B) El baseline MIL multi-escala** (Ap. **C.1.2**, donde está la palanca real): por región **2048×2048 @40×** extrae
+  el parche 2048 + **4×1024 + 16×512**, saca features de todos vía el encoder, los **promedia** en un token por región →
+  ABMIL/DSMIL estándar. **SÍ portable** = el **Obj 2 (magnificación)** del plan B5; se queda **dentro de CONCH v1 512-dim**
+  (más barato que el eje TITAN/CONCHv1.5 768-dim de [[insuficiencia-datos-ejes-investigacion]]).
+
+**Estado actual OncoMets (verificado vs código, regla 5):** **escala única** — `create_patches_fp.py` `patch_size=256`,
+`step_size=256` (no solapado), `patch_level=0` (máx. resolución); `extract_features_fp.py` `target_patch_size=224`,
+CONCH → 512-dim. CLAM_MB recibe `[N_parches, 512]`. **Sin fusión multi-magnificación.**
+
+**Por qué ataca el cuello (y no la arquitectura):** la fusión multi-escala inyecta **señal nueva** (contexto
+arquitectural: estroma, interfaz tumor-estroma, patrón glandular) que un parche 256 de un solo nivel no captura — los 4
+ejes cerrados (0 palancas) solo reordenaban info de un nivel. **Caveat honesto:** el paper NO rompe el techo de datos
+(clasif. WSI gana solo **+2.9% vs ABMIL** multi-escala, Tabla 3; ventaja real = **eficiencia de datos**, 5.254 WSIs vs
+TITAN 335.645). → pre-registrar expectativa honesta (lift probablemente chico, ortogonal al agregador).
+
+**Escalera de costo (del análisis §4):** Nivel 1 = fusión features multi-escala dentro de CONCH (✅ realista, = Obj 2,
+re-extracción GPU + CLAM intacto, paired vs single-scale, regla 9 + reviewer si se implementa) → Nivel 2 = re-extraer con
+otro encoder TITAN/CONCHv1.5 (⚠️ caro, eje separado) → Nivel 3 = agente CPathAgent completo (❌ fuera de presupuesto).
+
+**Preguntas abiertas para Sebastián (análisis §6):** (1) ¿magnificación = fusión multi-escala, no el agente? (2) ¿a qué
+magnificación física extraemos hoy realmente (private/TCGA/HistAI al mismo `level` base)? (3) ¿fusión por promedio
+—mantiene `[N,512]`— vs multi-token? (4) ¿sobre qué tareas primero (invasión/patrón, donde el contexto es diagnóstico)?
+(5) ¿hay reportes WSI pareados de la cohorte privada? (6) costo de re-extracción `conch_fe` por slide × ~3.072 slides.
+
+**Próximo paso si Sebastián aprueba Nivel 1:** pre-registración regla 9 + reviewer + slurm de re-extracción multi-escala
+(cortesía single-GPU) + entrenamiento paired vs CLAM single-scale reusando splits k=5 ([[patron-paired-comparison-reuso-splits]]).
 
 ### Reglas que gobiernan el sprint (de CLAUDE.md)
 
