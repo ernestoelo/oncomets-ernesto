@@ -776,6 +776,20 @@ re-validar y actualizar `docs/codebase_map.md`.
     mecanismo NO testeada tampoco gana; solo aporta el matiz mecanístico). Resultados (números exactos):
     `sprints/B5_sprint5/objetivo_3_mammoth_keepslots/resultados.md` (§0 veredicto FINAL + §6.3 matriz);
     pre-reg + §8: `.../prereg.md`; análisis `scripts/analyze_obj3.py`.
+    **ADDENDUM 29-jun (reunión Benjamín) — el cierre "0 palancas" es del eje RENDIMIENTO; se abre un
+    eje ORTOGONAL de ENTENDIMIENTO + INTERPRETABILIDAD, que NO lo contradice.** Benjamín pidió dominar
+    el mecanismo y estudiar **qué miran los expertos/slots** (no si mejoran la métrica — eso sigue
+    cerrado). Trabajo de entendimiento hecho (verificado vs paper+código, regla 5): el **tensor S =
+    `slot_embeds` = E×H×S×P = 30×16×10×16** (prototipos de slot); las **cabezas NO son textura/forma/
+    color** sino subespacios multi-head (la semántica morfológica vive en los slots, validada por
+    patólogos en Fig 3 del paper); **MoE≠PoE** (el paper NO menciona PoE → razonamiento, no cita);
+    **16 cabezas** = default estable (16→1 = −5.4%, Tabla 4a) y **"cuántas para mama" es pregunta
+    abierta que el propio paper marca como limitación (§6)**. La librería trae el tutorial de
+    interpretabilidad (`tutorial_mammoth_visualization.py`: dispatch_weights N×E×H×S + heatmaps +
+    top-k parches por experto) → objetivo barato Etapa 0. Detalle:
+    `sprints/B5_sprint5/mammoth_entendimiento/respuestas_preguntas_benjamin.md` + memoria
+    [[feedback-benjamin-entender-mammoth]]. Discrepancia menor: nuestro `num_slots=10` (300 slots) vs
+    paper §4 `S=9` (270) — ambos en banda recomendada, NO es error.
 13. **PathPT-CONCH (texto + visión, prompt-tuning θ_t + módulo espacial θ_v + supervisión
     tile-level) NO es palanca — cierra un 3er ángulo del MISMO cuello.** Probado paired vs CLAM
     en 3 tareas (B5, 11-jun): **necrosis** binaria (job 4309) → **H_alt**, no aporta (Δbal_acc
