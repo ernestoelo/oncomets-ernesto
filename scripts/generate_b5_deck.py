@@ -706,9 +706,10 @@ def build():
             "z : [N × 512]. Son los N parches de la slide, cada uno un vector de 512 números."),
            ("Bloque naranja 'PROYECCIÓN A QUERY'",
             "W_q reescribe cada parche de 512 a 256: el query q. Ese 256 son 16 cabezas de 16."),
-           ("Panel derecho '16 CABEZAS = 16 criterios'",
-            "qué es una cabeza: el MISMO query mirado por 16 criterios en paralelo —textura, forma, "
-            "densidad…— que al final se concatenan de vuelta en 512."),
+           ("Panel derecho '16 CABEZAS = 16 lentes'",
+            "qué es una cabeza: el MISMO query mirado por 16 subespacios (lentes) APRENDIDOS en "
+            "paralelo —ilustrativos, sin semántica fija: NO son 'textura/forma/color', la morfología "
+            "vive en los slots— que al final se concatenan de vuelta en 512."),
            ("Bloque naranja 'RUTEO POR SLOTS (eq. 3)'",
             "comparo el query contra 300 claves aprendidas (los slots). La softmax D normaliza sobre "
             "los N parches: para cada slot, qué parches junta."),
