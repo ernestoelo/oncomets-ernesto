@@ -13,7 +13,7 @@
 |----|----------|------|-----|--------|
 | M1 | La base dice "hilo mammoth CERRADO, 0 palancas"; Benjamín abre un eje ORTOGONAL (entender mecanismo + interpretabilidad + justificar hiperparámetros). No se contradicen. | reconciliation | media | ADDENDUM aditivo a Hallazgo 12 + nueva memoria; el veredicto "0 palancas" queda intacto |
 | M2 | `[[magnificacion-cpathagent-proxima-direccion]]` da la próxima dirección como SOLO magnificación/CPathAgent; ahora coexiste con el eje entendimiento/interpretabilidad de Benjamín | stale (incompleto) | media | update aditivo de la memoria + cross-link |
-| M3 | Feedback nuevo de Benjamín (explicar-a-14, qué significa cada cabeza, cuántas para mama, interpretabilidad, formato fiel a la fuente) sin registrar | nuevo (feedback) | alta | nueva memoria `feedback-benjamin-entender-mammoth` + índice |
+| M3 | Feedback nuevo de Benjamín (explicar-a-14, qué significa cada cabeza, cuántas para mama, interpretabilidad, formato .ppt de las slides de objetivos) sin registrar | nuevo (feedback) | alta | nueva memoria `feedback-benjamin-entender-mammoth` + índice |
 | M4 | `@mammoth` skill no apunta al material de entendimiento profundo (preguntas de Benjamín resueltas) | redundancy-gap | baja | pointer de 1 línea en SKILL.md (edición concisa) |
 | M5 | Guion del deck usa "10 slots → 300"; paper principal §4 usa S=9 → 270 | reconciliation | baja | NO editar (10 = nuestro default, correcto); nota para que nadie lo "corrija" a 9 |
 

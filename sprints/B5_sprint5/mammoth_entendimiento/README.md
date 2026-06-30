@@ -24,13 +24,16 @@ varias preguntas que **no supimos responder bien** y quedaron como deuda para la
 1. **"No dominaba MAMMOTH"** — hay que dedicarle más tiempo y poder **explicarlo a
    nivel de un niño de 14 años** sin que sepa del tema. (Que no se note que no lo
    manejamos a fondo.)
-2. **Formato de objetivos.** *"El formato de nuestros objetivos del sprint, tanto los
-   hechos como los propuestos, no es el adecuado, y que no vuelva a pasar"* — Benjamín
-   se enojó bastante. **Indicación: "recuperar la fuente tal cual del original".**
-   → Interpretación operativa (a confirmar con Benjamín, ver §5): anclar TODO
-   (objetivos, claims, diagramas) a la **fuente original fiel** — el paper, su
-   **Figura 2** y su **notación/dimensiones exactas** — sin paráfrasis que distorsione.
-   Conecta con el punto 6 (no supimos explicar el diagrama original del paper).
+2. **Formato (.ppt) de las slides de objetivos.** *"El formato de nuestros objetivos
+   del sprint, tanto los hechos como los propuestos, no es el adecuado, y que no vuelva
+   a pasar"* — Benjamín se enojó bastante. **"Recuperar la fuente tal cual del
+   original"** = aquí **"fuente" es TIPOGRAFÍA** (no "source"/paper): las slides de
+   objetivos usaron **letra / color / tamaño** que no matcheaban el **template original
+   del deck**. (Confirmado por Ernesto, 29-jun.) → Acción: las slides de objetivos
+   deben respetar **exactamente** la tipografía/paleta/tamaños del branding del deck —
+   ver `presentacion_b5/convenciones_deck_b5.md` (fuentes 24-30, header teal, etc.) y
+   [[deck-completo-pptx-buildable]]. Es un problema de **formato visual del .ppt**, NO
+   de contenido ni de fidelidad al paper. (Objetivo OBJ-E en §4.)
 3. **"¿Qué significa cada cabeza?"** — En la reunión respondí *"podría ser textura,
    forma, color…"* y al repreguntar **dije que no sabía** si cada feature de la cabeza
    representa eso. Benjamín pidió **investigarlo para estar seguros**. → Respuesta en
@@ -105,25 +108,34 @@ varias preguntas que **no supimos responder bien** y quedaron como deuda para la
 - **Responde**: pregunta 8 ("cuántas cabezas para mama") con **datos**, no opinión.
 - **Gate**: GPU vía sbatch + cortesía single-GPU; reviewer (toca config del modelo).
 
-### OBJ-C — Material de presentación fiel a la fuente original
+### OBJ-C — Explicación de MAMMOTH con el diagrama original + dimensiones
 - **Qué**: rehacer la explicación de MAMMOTH para la próxima presentación con (i) la
   **Fig 2 original del paper** + su leyenda, (ii) **dimensiones anotadas en cada paso**
   (tabla §0), (iii) las 3 frases cortas (MoE/PoE, cabezas, cabezas≠features), (iv)
   ensayo en voz alta del guion existente.
-- **Fuente**: [respuestas §8] (checklist) + feedback 2 y 5.
-- **Responde**: feedback 1, 2, 5.
+- **Fuente**: [respuestas §8] (checklist) + feedback 5 (no narrar las dimensiones).
+- **Responde**: feedback 1, 5, 6. *(Esto es CONTENIDO; el formato visual va en OBJ-E.)*
 
 ### OBJ-D *(opcional, si Benjamín lo pide)* — "explícalo a un niño de 14"
 - Versión ultra-simplificada (analogía de los 30 traductores + recepcionista, ver
   [respuestas §2]) para abrir la slide, antes de bajar al detalle técnico.
 
+### OBJ-E — Formato (.ppt) de las slides de objetivos *(feedback 2 — se enojó)*
+- **Qué**: corregir la **tipografía / color / tamaño** de las slides de objetivos
+  (hechos y propuestos) para que matcheen **exactamente** el template/branding del
+  deck. Aplica a TODAS las slides de objetivos, no solo a mammoth.
+- **Fuente**: `presentacion_b5/convenciones_deck_b5.md` (fuentes 24-30, header gris +
+  cuadrado teal + logo, paleta) + [[deck-completo-pptx-buildable]] +
+  [[diagramas-arquitectura-pptx-editable]].
+- **Responde**: feedback 2 ("recuperar la fuente/tipografía tal cual del original").
+  Es **formato visual**, no contenido. **Que no vuelva a pasar.**
+
 ## 5. Pendiente / a confirmar con Benjamín (no asumir)
 
-- **Formato de objetivos (feedback 2)**: capturé su queja **textual** y mi
-  interpretación operativa ("fuente original fiel"). **Falta confirmar qué exactamente
-  del formato le pareció inadecuado** (¿estructura del documento? ¿que los objetivos
-  no citaban el paper? ¿el orden hecho/propuesto?). **Preguntar en la próxima** antes
-  de re-formatear todo, para no repetir el error en otra dirección.
+- **Formato de objetivos (feedback 2) — RESUELTO 29-jun**: NO era fidelidad al paper;
+  era el **formato visual del .ppt** (tipografía/color/tamaño) de las slides de
+  objetivos, que no matcheaba el template original. Ver OBJ-E. (Queda confirmar con
+  Benjamín si hay un template/fuente exacta de referencia que quiere que usemos.)
 - **Los "3 cuadros de colores" (feedback 6)**: confirmar cuál de las dos lecturas de
   [respuestas §Q3] quería (3 verdes = particiones, vs Φ/W_low/Nonlinearity).
 - **OBJ-B**: confirmar con Sebastián la cortesía de GPU (hay jobs ajenos corriendo) y
