@@ -16,6 +16,7 @@
 | M3 | Feedback nuevo de Benjamín (explicar-a-14, qué significa cada cabeza, cuántas para mama, interpretabilidad, formato .ppt de las slides de objetivos) sin registrar | nuevo (feedback) | alta | nueva memoria `feedback-benjamin-entender-mammoth` + índice |
 | M4 | `@mammoth` skill no apunta al material de entendimiento profundo (preguntas de Benjamín resueltas) | redundancy-gap | baja | pointer de 1 línea en SKILL.md (edición concisa) |
 | M5 | Guion del deck usa "10 slots → 300"; paper principal §4 usa S=9 → 270 | reconciliation | baja | NO editar (10 = nuestro default, correcto); nota para que nadie lo "corrija" a 9 |
+| **M6** | **Nuestro propio deck rotula las CABEZAS como "textura/forma/densidad"** (`convenciones_deck_b5.md:187`, panel `add_heads_panel`) → **contradice el paper** (cabezas = subespacios aprendidos, la morfología vive en los slots). **Es la raíz** de la respuesta equivocada de Ernesto en la reunión. | **error / contradicción** | **alta** | corregir el rótulo en convenciones (hecho, sin commitear) + memoria `[[diagramas-arquitectura-pptx-editable]]` (hecho); regenerar el panel del .pptx queda a Ernesto |
 
 ## Detalle
 
@@ -60,6 +61,46 @@
   error nuestro** — 10 es el default del README de la librería. **Acción: ninguna
   edición**; se documenta acá y en [respuestas §0] para que nadie "corrija" el guion
   a 9 pensando que está mal.
+
+### M6 — el deck rotula las cabezas como "textura/forma/densidad" *(error / contradicción — el más importante)*
+- **Qué dice cada fuente**:
+  - **`convenciones_deck_b5.md:187`** (panel `add_heads_panel`): las CABEZAS = *"3
+    criterios de ejemplo (textura/forma/densidad)"*. **← afirmación falsa.**
+  - **Paper** (§3.1 + Fig 3) + [respuestas §Q1]: las cabezas son **subespacios
+    multi-head APRENDIDOS**, sin semántica impuesta; la morfología reconocible (tumor,
+    estroma, linfocitos…) vive en los **SLOTS/expertos**, NO en las cabezas.
+  - Ecos **más suaves** (no nombran los features, menos dañinos): memoria
+    `[[diagramas-arquitectura-pptx-editable]]` ("3 criterios") y
+    `notas_presentador_guion.md:92` ("16 criterios en paralelo").
+- **Cuál es correcto**: el paper. El rótulo del deck es un **error factual**.
+- **Por qué importa (es la RAÍZ del incidente)**: Ernesto respondió "textura, forma,
+  color" en la reunión **porque nuestro propio deck lo dice así**. Benjamín repreguntó
+  si de verdad representan eso → la respuesta honesta es **no**. El deck nos llevó al error.
+- **Fix aplicado**:
+  - `convenciones_deck_b5.md:187` → reescrito a "lentes/subespacios ilustrativos, sin
+    etiqueta semántica" + corrección explícita (**hecho; dejado SIN commitear** porque el
+    archivo ya tenía cambios pendientes de otra sesión — Ernesto lo revisa y commitea).
+  - memoria `[[diagramas-arquitectura-pptx-editable]]` → nota de corrección (hecho).
+  - `notas_presentador_guion.md:92` ("16 criterios"): **no editado** (es metáfora, no
+    nombra features falsos; el archivo está dirty). Recomendación: presentar "criterios"
+    como "lentes/subespacios aprendidos", no como features con nombre.
+  - **Regenerar el panel del .pptx** (etiquetas neutras o caption "ilustrativo, no
+    asignaciones") **queda a Ernesto** (el deck es gitignored, lo controla él).
+
+## Completitud — los 9 puntos de la reunión, mapeados a dónde quedan resueltos
+(verificación de que NINGUNO quedó huérfano)
+
+| # | Punto de Benjamín (reunión 29-jun) | Dónde queda | Estado |
+|---|---|---|---|
+| 1 | "No dominaba mammoth" / explicar a un niño de 14 | README §2.1, OBJ-D, [respuestas §2 analogía], feedback memory | ✅ |
+| 2 | Formato (.ppt) de objetivos / "fuente tal cual" | README §2.2 + OBJ-E, feedback pt6 | ✅ (corregido: =tipografía) |
+| 3 | Qué significa cada cabeza (¿textura/forma/color?) | [respuestas §Q1], feedback pt1, CLAUDE.md ADDENDUM, **+ M6** | ✅ |
+| 4 | Cómo funcionan las cabezas + dims del vector S 30×16×10×16 | [respuestas §0 + §Q2], feedback pt2, CLAUDE.md ADDENDUM | ✅ |
+| 5 | No narró las dimensiones del diagrama original paso a paso | [respuestas §0 tabla + §8], OBJ-C | ✅ |
+| 6 | 3 cuadros de colores por experto + qué representa cada slot + operaciones/dims | [respuestas §Q3], README §5 (confirmar lectura con Benjamín) | ✅ (1 sub-punto a confirmar) |
+| 7 | ¿Por qué MoE y no PoE? | [respuestas §Q4], feedback pt3, CLAUDE.md ADDENDUM | ✅ (marcado: paper no menciona PoE) |
+| 8 | ¿Por qué 16 cabezas? ¿Cuántas para mama? | [respuestas §Q5], OBJ-B, feedback pt4, CLAUDE.md ADDENDUM | ✅ |
+| 9 | Interpretabilidad de expertos/slots (en qué se fijan) | [respuestas §Q6], OBJ-A, feedback pt5, CLAUDE.md ADDENDUM | ✅ |
 
 ## Guardrails respetados
 - En `main`, `git fetch` hecho. **Job mammoth ajeno corriendo (4529, sgaete)** → audit
