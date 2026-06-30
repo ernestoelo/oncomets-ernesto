@@ -54,6 +54,14 @@ sprints/**/CLAM_Sprint_*.pdf
 # vive en sprints/<sprint>/<obj>/ (figuras, guion_montaje, presentacion_*.md).
 papers/presentations/
 
+# OBJ-A interpretabilidad MAMMOTH: parches y heatmaps INDIVIDUALES (1000+ PNGs
+# full-res, ~1.6GB). Son REGENERABLES con scripts/mammoth_interpretability.py
+# desde el checkpoint → se tratan como job output (no van a git). SÍ se versionan
+# los entregables-resumen citables (montages, contact sheets, cross_slide, subset,
+# expert_usage.csv, meta.json, resultados.md) que quedan fuera de esta regla.
+sprints/**/interpretabilidad/*/heatmaps/
+sprints/**/interpretabilidad/*/topk_patches/
+
 # Editor / OS
 .vscode/
 .idea/

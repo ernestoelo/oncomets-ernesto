@@ -790,6 +790,22 @@ re-validar y actualizar `docs/codebase_map.md`.
     `sprints/B5_sprint5/mammoth_entendimiento/respuestas_preguntas_benjamin.md` + memoria
     [[feedback-benjamin-entender-mammoth]]. Discrepancia menor: nuestro `num_slots=10` (300 slots) vs
     paper §4 `S=9` (270) — ambos en banda recomendada, NO es error.
+    **ADDENDUM 30-jun (OBJ-A EJECUTADO — interpretabilidad post-hoc, Etapa 0 CPU, sin reabrir
+    rendimiento).** Corrido `scripts/mammoth_interpretability.py` (adaptación propia del tutorial)
+    sobre el checkpoint cdis drop-in (`keep_slots=False`) en **4 slides TCGA-BRCA del test de cdis
+    f0** (2 pos + 2 neg). Hallazgos: (1) los 30 expertos rutean a **regiones espacialmente
+    distintas**; (2) **especialización morfológica parcial pero ESTABLE cross-slide** (e8 = epitelio
+    celular/alta densidad nuclear; e26 = estroma/interfaz; e3 = ductal); (3) **clave: los expertos
+    rutean por MORFOLOGÍA, no por la etiqueta de la slide** (e8 enciende epitelio celular también en
+    los negativos — que igual son slides de mama con tumor) → son **detectores de tejido, no de
+    clase**; la decisión slide-level viene después (attention + clasificador). Esto **CONFIRMA este
+    Hallazgo 12**: la especialización morfológica existe (tesis del paper, Fig 3 = slots/expertos, NO
+    cabezas) pero el **cuello no está en la 1ª capa** → coherente con "0 palancas". Etiquetas de
+    tejido **provisionales** (pendiente sign-off patólogo/Sebastián = métrica de la hipótesis). El
+    `dispatch_weights` se saca con `mammoth(x, return_weights=True)` (independiente de `keep_slots`);
+    prefijo del state_dict = `attention_net.0.mammoth.`; los h5 traen **features + coords juntos**
+    (corrige el handoff). Detalle: `sprints/B5_sprint5/mammoth_entendimiento/interpretabilidad/resultados.md`
+    + memoria [[mammoth-interpretabilidad-objA]].
 13. **PathPT-CONCH (texto + visión, prompt-tuning θ_t + módulo espacial θ_v + supervisión
     tile-level) NO es palanca — cierra un 3er ángulo del MISMO cuello.** Probado paired vs CLAM
     en 3 tareas (B5, 11-jun): **necrosis** binaria (job 4309) → **H_alt**, no aporta (Δbal_acc

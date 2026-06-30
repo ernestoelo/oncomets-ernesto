@@ -318,6 +318,12 @@ interpretabilidad. Son ejes **ortogonales**: una cosa es *"¿mejora la métrica?
 mama?"* (abierto, y es lo que Benjamín quiere). Hay que decirlo así para no parecer
 que reabrimos un veredicto cerrado.
 
+> **EJECUTADO 30-jun-2026** (Etapa 0, CPU): `scripts/mammoth_interpretability.py` sobre 4
+> slides TCGA-BRCA del checkpoint cdis. Hallazgo: especialización morfológica parcial pero
+> estable cross-slide (e8 epitelio, e26 estroma, e3 ductal) y los expertos rutean por
+> **morfología, no por la etiqueta de la slide**. Resultados + figuras:
+> [`interpretabilidad/resultados.md`](interpretabilidad/resultados.md).
+
 ---
 
 ## §7 — Cómo conecta con el "0 palancas" (para no contradecir la base de conocimiento)

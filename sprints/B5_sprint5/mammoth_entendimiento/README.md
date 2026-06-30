@@ -86,6 +86,11 @@ varias preguntas que **no supimos responder bien** y quedaron como deuda para la
 > reviewer donde toque modelo/harness.
 
 ### OBJ-A — Interpretabilidad de expertos/slots en MAMMOTH sobre mama *(prioridad de Benjamín)*
+> **✅ EJECUTADO 30-jun-2026** (Etapa 0 CPU): `scripts/mammoth_interpretability.py` sobre 4
+> slides TCGA-BRCA (2 pos + 2 neg) del checkpoint cdis drop-in. **Hallazgo**: especialización
+> morfológica parcial pero estable cross-slide (e8 epitelio, e26 estroma, e3 ductal); los
+> expertos rutean por **morfología, no por la etiqueta de la slide**. Pendiente: sign-off
+> patólogo. Detalle: [`interpretabilidad/resultados.md`](interpretabilidad/resultados.md).
 - **Qué**: correr `tutorial_mammoth_visualization.py` sobre nuestros checkpoints
   mammoth ya entrenados (jobs B5: 4229/4243/4246/4387/4400) → heatmaps por experto +
   top-k parches por experto/slot sobre WSIs de mama.

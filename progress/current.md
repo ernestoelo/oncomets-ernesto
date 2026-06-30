@@ -157,6 +157,36 @@ Branch `feat/pathpt-etapa1` (mergeada a main este turno). Pre-registración + re
 - **ÚNICO PENDIENTE = GPU**: `sbatch scripts/run_pathpt_etapa1_necrosis_kfold.slurm` (paired CLAM+PathPT
   k=5). Correr desde **main**, verificar `squeue` (cortesía single-GPU). [[pathpt-testing-necrosis-mitotic]]
 
+### OBJ-A EN CURSO (30-jun): interpretabilidad de expertos/slots de MAMMOTH en mama
+
+Sale de la reunión 29-jun (Benjamín exigió dominar el mecanismo + estudiar en qué se
+fijan los expertos/slots; ver `mammoth_entendimiento/README.md` §4 + memoria
+[[feedback-benjamin-entender-mammoth]]). Eje **entendimiento/interpretabilidad**,
+**ortogonal** al "0 palancas" (Hallazgo 12) — NO reabre rendimiento. **Etapa 0: CPU,
+post-hoc, sin GPU/sbatch/reviewer** (inferencia sobre checkpoint congelado, no toca
+modelo/training). Trabajo en **main** (preferencia de Ernesto, [[git-trabajar-en-main-por-defecto]]).
+
+- **Script**: `scripts/mammoth_interpretability.py` — adaptación propia del tutorial de la
+  lib (`MAMMOTH/examples/tutorial_mammoth_visualization.py`) a nuestros checkpoints.
+  Adaptaciones: prefijo `attention_net.0.mammoth.`, config CONCH-512/auto_rank→8, features
+  +coords del **mismo h5** (corrige el handoff §6 que los creía separados .pt/.h5). Mejoras
+  vs tutorial: montage de los 30 expertos + top-k a **alta resolución** (`read_region`).
+- **Corrido**: checkpoint cdis drop-in (`obj6_mammoth_binarias_cdis` f0, keep_slots=False)
+  sobre **4 slides TCGA-BRCA del test de cdis f0** (2 pos + 2 neg). Salida en
+  `sprints/B5_sprint5/mammoth_entendimiento/interpretabilidad/` (heatmaps + montage + top-k
+  alta-res + contact sheets + cross-slide + `resultados.md`).
+- **Hallazgos**: (1) los 30 expertos rutean a **regiones espacialmente distintas**;
+  (2) **especialización morfológica parcial pero estable cross-slide** (e8 = epitelio
+  celular/alta densidad nuclear; e26 = estroma/interfaz; e3 = ductal); (3) **los expertos
+  rutean por MORFOLOGÍA, no por la etiqueta de la slide** (e8 enciende epitelio celular
+  también en negativos) → son detectores de tejido, no de clase; (4) carga de expertos
+  ~uniforme (sin muertos/dominantes). Confirma la tesis del paper (morfología en
+  slots/expertos, Fig 3, NO en cabezas) y responde con imágenes las preguntas 3/6/9 de Benjamín.
+- **Pendiente**: sign-off de patólogo/Sebastián sobre los top-k (cierra la métrica de la
+  hipótesis); opcional otra tarea + variante `keep_slots=True` (obj3, `--keep-slots`); enlaza
+  con OBJ-B (ablación de H, eso SÍ toca config → GPU + reviewer). Detalle:
+  `mammoth_entendimiento/interpretabilidad/resultados.md`.
+
 ### Reglas que gobiernan el sprint (de CLAUDE.md)
 
 - Argumento antes de código (regla 9) + reviewer antes de commitear modelo/training.

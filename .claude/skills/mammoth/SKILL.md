@@ -28,7 +28,9 @@ Contexto, historia heredada de Eduardo y plan: memorias
 significan cabezas/slots/expertos, MoE≠PoE, nº de cabezas, interpretabilidad con
 `tutorial_mammoth_visualization.py`) →
 `sprints/B5_sprint5/mammoth_entendimiento/respuestas_preguntas_benjamin.md` +
-[[feedback-benjamin-entender-mammoth]].
+[[feedback-benjamin-entender-mammoth]]. Interpretabilidad **ya ejecutada** (OBJ-A, Etapa 0
+CPU): script propio `scripts/mammoth_interpretability.py` (heatmaps + top-k por experto) →
+[[mammoth-interpretabilidad-objA]] + `mammoth_entendimiento/interpretabilidad/resultados.md`.
 
 ## Cómo está integrado en NUESTRO workspace
 
