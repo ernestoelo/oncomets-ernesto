@@ -6,8 +6,9 @@
 > este archivo es la copia durable (el `.pptx` está gitignored y el motor `set_notes` del
 > generador aún emite el formato por-fases LEGACY → NO regenerar el deck para "actualizar notas").
 >
-> **Estado:** slides 1–6 FINALIZADAS y aprobadas (sesión 25-jun). Slides 7–21 pendientes
-> (se construyen en la próxima sesión, mismo estilo, una por una).
+> **Estado (26-jun):** slides 1–15 + slide final de próximos pasos FINALIZADAS. El deck se
+> recortó de 21 a ~16 slides (ver la sección "Slide final — Próximos pasos" para los recortes).
+> No quedan slides pendientes de escribir.
 >
 > **Convención de estilo:** prosa, solo lo que se dice, sin etiquetas de fase, sin "deck",
 > registro profesional, fiel a las ecuaciones del diagrama, sin ejemplos numéricos en el guion,
@@ -88,7 +89,7 @@ Este es el pipeline completo de CLAM; el objetivo de esta slide es ubicar dónde
 
 Esta es la caja naranja de la slide anterior, abierta por dentro. Seguimos un parche desde que entra hasta que sale.
 
-En el tope entran los parches de la slide, el tensor z de N por 512. El primer bloque, la proyección a query, aplica q igual a la normalización de W_q por z, y lleva cada parche de 512 a 256 dimensiones: ese query de 256 está organizado en 16 cabezas de 16, es decir, el mismo parche mirado por 16 criterios en paralelo.
+En el tope entran los parches de la slide, el tensor z de N por 512. El primer bloque, la proyección a query, aplica q igual a la normalización de W_q por z, y lleva cada parche de 512 a 256 dimensiones: ese query de 256 está organizado en 16 cabezas de 16, es decir, el mismo parche mirado por 16 lentes en paralelo —subespacios aprendidos, no criterios con nombre fijo como textura o color—.
 
 El segundo bloque es el ruteo por slots, la ecuación 3 del paper y el corazón de MAMMOTH. Acá se materializa la idea de los fenotipos que vimos antes: una lámina mezcla parches de tejidos muy distintos —tumor, estroma, alvéolos— y a cada uno de esos fenotipos conviene tratarlo por separado. Para eso están los 300 slots: cada slot tiene un vector aprendido —su prototipo— que con el entrenamiento termina representando un fenotipo, una morfología concreta. Lo que hace el ruteo es agrupar en cada slot los parches de su fenotipo.
 
@@ -100,11 +101,117 @@ Lo importante: entra un tensor de N por 512 y sale otro de N por 512, así que e
 
 ---
 
-## Slides 7–21 — PENDIENTES
+## Slide 7 — MAMMOTH: flujo de datos sobre la arquitectura oficial
 
-Se construyen en la próxima sesión, una por una, en el mismo formato hablado. Orden:
-7 (figura oficial fused) · 8 (variante keep_slots fused) · 9 (resultados drop-in 8 tareas) ·
-10 (invasión linfovascular) · 11 (resultados keep_slots 4 tareas) · 12 (div PathPT) ·
-13 (idea/figura paper) · 14 (arquitectura forward) · 15 (necrosis) · 16 (tasa mitótica) ·
-17 (microcalc go/no-go) · 18 (div cierre) · 19 (3 ejes 0 palancas) · 20 (CLAM + loss) ·
-21 (próximos pasos).
+Acabamos de recorrer esa primera capa por dentro, paso a paso. Esta es la misma mecánica, ahora sobre la figura de arquitectura tal como la publican los autores, de punta a punta y en su propio lenguaje visual.
+
+En el encoder los parches entran y salen como z, de tamaño N por 512: el punto de partida. La proyección W_q los lleva a la query q, de N por 256, con esos 256 organizados en 16 cabezas de 16.
+
+El siguiente bloque es el ruteo por slots, y conviene seguirlo sobre el diagrama. Fíjense cómo la columna de N parches se condensa en un bloque fijo de 300 slots: ese es el paso. Cada slot tiene un vector aprendido, su prototipo, que con el entrenamiento representa un fenotipo —tumor, estroma, alvéolos—. Y no es que cada parche caiga en un slot; es al revés: cada slot recoge una contribución ponderada de todos los parches. Ese peso es justo lo que dice el cartel, D igual a softmax sobre los N parches del producto interno entre la query q y el prototipo S del slot —S es el tensor de prototipos aprendidos, 30 expertos por 16 cabezas por 10 slots, y cada prototipo es un vector de 16, la misma dimensión que el query por cabeza—: un puntaje de parecido que la softmax convierte en pesos que suman uno. Así, un parche parecido al prototipo pesa mucho y uno distinto casi nada, y cada slot termina siendo un resumen de toda la lámina, inclinado hacia su fenotipo; por eso los N parches sueltos, variables en número, quedan reemplazados por 300 resúmenes fijos.
+
+Un detalle conecta con las cabezas: todo este ruteo corre por separado dentro de cada una de las 16 cabezas —en la figura, x_i,cabeza—, así que el mecanismo se repite en paralelo, una vez por cabeza. Sobre los slots actúan los expertos: cada uno aplica a los suyos su propia transformación de bajo rango, el LoRA, con una matriz A que baja de 16 a 8 dimensiones, compartida, y una B_e que sube de 8 a 32, propia de cada experto. Esa transformación propia es la especialización: cada experto ajusta la suya sin pelear con las demás, y los 300 slots salen transformados como o, de 300 por 512.
+
+El último bloque es el cross-head concat: vuelve a unir las 16 cabezas que veníamos procesando por separado y, con la segunda softmax —la que reparte sobre los 300 slots—, reconstruye cada parche como una mezcla de slots; así sale h, otra vez de N por 512, que entra a CLAM intacto. Lo esencial se ve solo: entra N por 512 y sale N por 512, un reemplazo transparente de la capa lineal. De esta misma figura sale la variante que medimos a continuación, keep_slots, que cambia un único punto: la salida.
+
+---
+
+## Slide 8 — MAMMOTH: la variante keep_slots
+
+De esta misma arquitectura sale una variante, keep_slots, que cambia un solo punto: la salida.
+
+El tronco de arriba es idéntico a la slide anterior, hasta los 300 slots transformados, o de 300 por 512. Lo único nuevo es el nodo de bifurcación: keep_slots decide qué recibe CLAM, y de ahí salen dos caminos.
+
+A la izquierda, keep_slots en falso, es la base que ya medimos: el bloque de combinación recompone los 300 slots de vuelta en parches y devuelve h, de N por 512, así que CLAM agrega sobre los N parches, como siempre. Es el reemplazo transparente de la capa lineal.
+
+A la derecha, keep_slots en verdadero, es la variante nueva: se salta esa recombinación y le entrega a CLAM los 300 slots directamente, de modo que ahora agrega sobre 300 slots en lugar de sobre los N parches. Eso es un cuello de botella aprendido: en vez de un número variable de parches, todo pasa por un conjunto fijo de 300.
+
+La cabeza de CLAM y la pérdida son las mismas en los dos caminos; lo único que cambia es sobre qué agrega. La idea es que un slot puede concentrarse en unos pocos parches raros, así que quedarse con los slots le da capacidad dedicada a la clase minoritaria, esa que la base suele perder cuando colapsa hacia la mayoritaria. Medimos las dos posiciones del interruptor en pareado. Empecemos por la base, en ocho tareas.
+
+---
+
+## Slide 9 — MAMMOTH drop-in: resultados (8 tareas, k=5)
+
+Ocho tareas, todas pareadas contra CLAM. Leemos el delta pareado de arriba a abajo, en balanced accuracy y AUC.
+
+Solo dos tareas mejoran en las dos métricas: tejido no neoplásico y cribiforme, con cuatro a cinco centésimas de balanced accuracy y dos a tres de AUC. Y son, justamente, las dos de dataset más balanceado, con positivos y negativos casi parejos en la columna del dataset. En el resto, donde el dataset está desbalanceado, el delta queda en cero o levemente negativo. La pequeña mejora sigue al balance de los datos, no a la arquitectura: como reemplazo directo, MAMMOTH no es una palanca. A continuación, una de ellas en detalle: la invasión linfovascular.
+
+---
+
+## Slide 10 — MAMMOTH: invasión linfovascular
+
+Esta es la tarea con más datos, casi 2.800 láminas, y la evaluación más sana: cada una de las tres clases —ausente, no identificado y presente— tiene casos suficientes en cada partición. Si MAMMOTH iba a destacar, era acá.
+
+A la izquierda, las dos métricas bajan con MAMMOTH: balanced accuracy de 0.62 a 0.58 y AUC de 0.83 a 0.82. A la derecha, la matriz de confusión muestra por qué: el modelo manda casi todo a la clase mayoritaria, no identificado, y vacía la que importa clínicamente, presente, cuyo acierto cae a 0.43. Eso es un colapso hacia la clase mayoritaria.
+
+La lección es que más datos no rescataron a MAMMOTH; al contrario, afinaron la medición y dejaron ver una regresión leve pero consistente en las cinco particiones. Ese colapso es justo lo que la variante keep_slots fue diseñada para revertir.
+
+---
+
+## Slide 11 — MAMMOTH keep_slots: resultados (4 tareas, k=5)
+
+Esta es la variante hecha a medida para revertir aquel colapso. La tabla tiene la misma estructura y el mismo CLAM de baseline que la del drop-in, así que se comparan fila a fila. Y la respuesta, leyendo las columnas de delta pareado, es la misma: keep_slots no supera a CLAM en ninguna de las cuatro tareas, ni en balanced accuracy ni en AUC; todos los deltas quedan en cero o negativo, dentro del ruido.
+
+Eso sí, en parte hace lo que prometía. El cuello de botella de slots recupera el acierto de la clase rara que el drop-in había vaciado: en la invasión linfovascular, la clase presente sube de 0.43 a 0.52. Pero ese recall lo paga con la clase mayoritaria, así que la balanced accuracy total no se mueve; en CDIS incluso supera a CLAM en la clase rara, al mismo costo.
+
+Con esto cierra el eje de MAMMOTH: doce tareas en total —ocho del reemplazo directo y cuatro de keep_slots—, cero palancas. Ni reemplazar la capa ni cambiar qué se agrega mejora los resultados; el cuello está en los datos, no en la arquitectura. Ahora cambiamos de eje por completo: visión más lenguaje, con PathPT.
+
+---
+
+## Slide 12 — Divisoria: PathPT
+
+PathPT es de otra familia por completo: combina visión y lenguaje. En lugar de tocar el agregador, clasifica parche a parche apoyándose en descripciones de texto de cada tejido, todo sobre CONCH congelado. Lo recorremos como antes: la idea, la arquitectura y los resultados.
+
+---
+
+## Slide 13 — PathPT: la idea y el alcance
+
+Esta es la figura del paper, con cuatro paneles; los recorremos en orden. El panel a, arriba a la izquierda, es el MIL clásico, lo que hace CLAM: comprime toda la lámina en un vector y predice una sola etiqueta para toda la lámina. El panel b, a su derecha, es PathPT: clasifica parche por parche y, además, marca en la lámina dónde está el hallazgo.
+
+¿Cómo clasifica cada parche? Comparándolo contra texto, que es justo lo que dibuja ese panel b. La clave es que CONCH no es solo un extractor de imágenes: fue entrenado con imágenes y descripciones a la vez, así que a cada parche se le puede preguntar a qué descripción de tejido se parece más.
+
+Abajo, los otros dos paneles dan el alcance: el panel c, la variedad de tareas de patología que cubre el método; el panel d, sus comparaciones contra los MIL clásicos del paper. Y lo barato del enfoque es que CONCH queda congelado: solo se entrenan tres piezas chicas, que vemos en la arquitectura. Abramos ese forward.
+
+---
+
+## Slide 14 — PathPT: arquitectura (forward)
+
+Lo abrimos con el mismo estilo de diagrama que usamos para CLAM. Son tres ramas que convergen: visión a la izquierda, texto a la derecha, y abajo el matching, donde se encuentran. En el centro está CONCH, el modelo base, congelado; lo único que se entrena son las piezas naranjas de los costados. En el diagrama, las partes de CONCH llevan la letra fi y van en gris, y las piezas entrenables la letra theta, en naranja: theta-uve en visión, theta-te en texto.
+
+La rama de visión arranca con los N parches, cada uno una imagen con su coordenada en la lámina. Pasan por la visión de CONCH y quedan como vectores de 512, igual que en CLAM. La diferencia es que CONCH mira cada parche aislado, así que PathPT le agrega contexto espacial en dos escalas: primero unas convoluciones, que mezclan cada parche con sus vecinos cercanos —contexto local—, y después una atención, que deja que cada parche mire a toda la lámina —contexto global—. Sale uve-barra, un vector mejorado por parche.
+
+La rama de texto es la novedad: en lugar de escribir a mano la descripción de cada clase, la aprende. Las palabras de contexto del prompt son vectores entrenables, que arrancan desde la frase "una imagen de histopatología de". Se arma el prompt con el nombre de cada clase, pasa por el transformer de texto de CONCH y se proyecta, y sale te: un vector de 512 por cada clase.
+
+Acá está la idea clave: tanto los parches como las clases terminan como vectores de 512 en el mismo espacio, el que CONCH aprendió para comparar imágenes con texto. Por eso, abajo, el matching compara cada parche contra cada clase con el coseno —cuánto apuntan en la misma dirección dos vectores—, y un softmax convierte esos parecidos en probabilidades. El resultado es P: para cada parche, qué clase es. Eso es clasificar parche a parche; con esta arquitectura, veamos los resultados.
+
+---
+
+## Slide 15 — PathPT: necrosis (cierre del eje PathPT)
+
+Primer resultado de PathPT: necrosis, una tarea binaria —ausente o presente—, pareada contra CLAM sobre los mismos splits. El veredicto, anticipándolo, es que no aporta.
+
+A la izquierda, cada fila es una partición y la columna del delta muestra el efecto fold a fold: está repartido, sin un signo que domine. La fila de la media lo resume: el delta de balanced accuracy es −0.020, con una variabilidad que cruza el cero, y el de AUC, −0.066. A la derecha, la matriz confirma que no es un clasificador redondo: acierta presente 0.76, pero ausente solo 0.48.
+
+El dato que explica el porqué está abajo: PathPT apenas se despega de su punto de partida sin entrenar nada —lo que CONCH ya da por sí solo, un AUC cercano a 0.62—, mientras que CLAM llega a 0.727. Entrenar las piezas nuevas casi no agrega nada, y se queda por debajo del baseline. Ese es el balance de PathPT: sumar lenguaje a la visión, sobre CONCH congelado, no logra superar a CLAM. Con esto cerramos el segundo eje y pasamos al balance final.
+
+---
+
+## Slide final — Próximos pasos (Magnificación)
+
+> Nota estructural (26-jun): recortes al cierre. Eliminadas del deck B5: tasa mitótica,
+> microcalc go/no-go (PathPT cierra en necrosis, slide 15), divisoria de cierre, síntesis
+> "3 ejes / 0 palancas" y CLAM + loss. **El único cierre es esta slide de PRÓXIMOS PASOS.**
+> Deck final ≈ 16 slides (1–15 + próximos pasos). Falta borrar esas slides en el `.pptx`
+> (OnlyOffice); `generate_b5_deck.py` y `convenciones §7` aún las listan (LEGACY; propagar solo
+> si se pide). Próxima dirección = magnificación (paper CPathAgent) — memoria
+> [[magnificacion-cpathagent-proxima-direccion]].
+>
+> Contenido de la slide (bullets) — **Magnificación y contexto espacial**: (1) Múltiples
+> magnificaciones: bajo aumento (contexto del tejido) + alto aumento (detalle celular); (2) Más
+> contexto espacial: más parches y región más amplia por lámina; (3) Enfoque tipo agente sobre
+> alta resolución (CPathAgent): navegar la lámina como un patólogo, dónde y a qué aumento mirar.
+
+Para cerrar, hacia dónde sigue esto. Después de ver que cambiar el modelo no mejoró los resultados, el camino que vamos a explorar es la magnificación: cómo y a qué nivel de aumento mira el modelo el tejido.
+
+Tiene tres frentes. El primero es trabajar a múltiples magnificaciones, combinando el bajo aumento, que aporta el contexto del tejido, con el alto aumento, que aporta el detalle celular. El segundo es ampliar el contexto espacial: usar más parches y una región más grande de la lámina. Y el tercero es un enfoque tipo agente sobre imágenes de alta resolución, en la línea de CPathAgent, donde el modelo navega la lámina como lo haría un patólogo, decidiendo dónde y a qué aumento mirar.
+
+Esa es la dirección para el próximo período.

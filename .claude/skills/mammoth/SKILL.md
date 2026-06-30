@@ -24,6 +24,12 @@ Contexto, historia heredada de Eduardo y plan: memorias
 [[mammoth-investigacion-integracion]], [[equipo-arquitecturas-mammoth-longnet]] y
 `sprints/B4_sprint4/objetivo_6_mammoth/`.
 
+**Entendimiento profundo del mecanismo** (tensor S = `slot_embeds` 30×16×10×16, qué
+significan cabezas/slots/expertos, MoE≠PoE, nº de cabezas, interpretabilidad con
+`tutorial_mammoth_visualization.py`) →
+`sprints/B5_sprint5/mammoth_entendimiento/respuestas_preguntas_benjamin.md` +
+[[feedback-benjamin-entender-mammoth]].
+
 ## Cómo está integrado en NUESTRO workspace
 
 - **Modelo:** `models_mammoth/clam_mammoth.py` → `CLAM_MB_Mammoth`, **subclase de

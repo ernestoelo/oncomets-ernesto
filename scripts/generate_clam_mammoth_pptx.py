@@ -160,8 +160,10 @@ def add_label(slide, l, t, w, h, lines, align=PP_ALIGN.LEFT):
 
 def add_heads_panel(slide, l, t, w, h):
     """Panel 'lentes paralelas' que explica las CABEZAS (multi-head): el MISMO query
-    mirado por varios criterios en paralelo (textura/forma/densidad ... ×16) que luego
-    se concatenan. Misma familia naranja del query (vs azul de los expertos)."""
+    mirado por varios subespacios/lentes APRENDIDOS en paralelo (×16; ilustrativos, SIN
+    semántica fija — NO son 'textura/forma/color': son subespacios aprendidos, la
+    morfología vive en los slots, paper Fig 3) que luego se concatenan. Misma familia
+    naranja del query (vs azul de los expertos)."""
     PANEL_F = RGBColor(0xFD, 0xF1, 0xE5)
     BLU_F2  = RGBColor(0xEA, 0xF2, 0xFB)
     GREYF   = RGBColor(0x7A, 0x86, 0x92)
@@ -170,9 +172,9 @@ def add_heads_panel(slide, l, t, w, h):
     box.fill.solid(); box.fill.fore_color.rgb = PANEL_F
     box.line.color.rgb = ORA_E; box.line.width = Pt(2); box.shadow.inherit = False
     add_label(slide, l + 0.12, t + 0.05, w - 0.24, 0.34,
-              [("16 CABEZAS = 16 criterios", 13, True, ORA_E)], align=PP_ALIGN.CENTER)
+              [("16 CABEZAS = 16 lentes", 13, True, ORA_E)], align=PP_ALIGN.CENTER)
     y0, gap = t + 0.46, 0.30
-    for i, cr in enumerate(["textura", "forma", "densidad"]):
+    for i, cr in enumerate(["lente 1", "lente 2", "lente 3"]):
         yy = y0 + i * gap
         add_label(slide, l + 0.18, yy, 1.10, 0.24, [(cr, 11.5, False, INK)], align=PP_ALIGN.LEFT)
         bar = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
@@ -183,7 +185,7 @@ def add_heads_panel(slide, l, t, w, h):
     add_label(slide, l + 0.12, y0 + 3 * gap - 0.02, w - 0.24, 0.26,
               [("· · ·   (×16 lentes)", 11.5, True, GREYF)], align=PP_ALIGN.CENTER)
     add_label(slide, l + 0.10, t + h - 0.46, w - 0.20, 0.44,
-              [("mismo query · 16 criterios", 10.5, False, GREY_T),
+              [("mismo query · 16 lentes (subesp.)", 10.5, False, GREY_T),
                ("→ se concatenan = 512", 10.5, False, GREY_T)], align=PP_ALIGN.CENTER)
     return box
 
