@@ -59,3 +59,44 @@
   (subclase de CLAM_MB, 1ª capa → MoE) + driver `train_dsmil.py --model_type
   clam_mammoth` + slurm k=5 paired + test CPU + hipótesis (regla 9) + reviewer GO.
   **Snapshot** del trabajo de Eduardo preservado. Listo para correr en B5.
+
+---
+
+## Sprint 5 (B5) — CERRADO (~fin jun / 2-jul-2026)
+
+> Sprint de cierre de trimestre (la presentación decidía la continuidad de
+> Ernesto → continúa). Consigna de Benjamín: avanzar rápido y lucirse. Detalle
+> por objetivo en `sprints/B5_sprint5/` (README + resultados por objetivo).
+
+### Cierre B5 — consolidación
+
+- **Eje ARQUITECTURA/OBJETIVO cerrado — 4 ángulos, 0 palancas** (CLAUDE.md
+  Hallazgos 11-14): agregador/DSMIL (11), patch-embed/mammoth (12), lenguaje+tile/
+  PathPT (13), loss focal/class_balanced (14). Todos convergen: el cuello es
+  **datos / desbalance / contexto espacial**, NO la arquitectura ni la loss.
+- **Hilo mammoth COMPLETO**: 8 tareas drop-in (`keep_slots=False`) + 4
+  `keep_slots=True` = 0 palancas vs CLAM (jobs 4229/4243/4246/4387/4400, k=5
+  paired). `slot_dropout` descartado. El (débil) efecto lo gobierna el balance de
+  clases, no el patch-embed. [[mammoth-investigacion-integracion]].
+- **Eje ORTOGONAL de interpretabilidad (OBJ-A, 30-jun)**: no reabre rendimiento;
+  responde a Benjamín (29-jun). Los 30 expertos rutean por **morfología, no por
+  clase** (detectores de tejido) → el cuello no está en la 1ª capa. Pendiente
+  sign-off de patólogo. [[mammoth-interpretabilidad-objA]],
+  [[feedback-benjamin-entender-mammoth]].
+- **PathPT y loss-desbalance** probados y cerrados (necrosis H_alt, mitotic
+  colapso de formulación, microcalc NO-GO; focal null, cb = H_reg). Confirman el
+  cuello = CONCH/datos/calibración. [[pathpt-testing-necrosis-mitotic]],
+  [[loss-desbalance-eje-c1]].
+- **CPathAgent leído (30-jun) → magnificación aterrizada**: la palanca portable
+  NO es el agente LMM (8×H800 + 278K Gemini + reportes pareados) sino la **fusión
+  de features multi-escala** del baseline MIL (Ap. C.1.2), dentro de CONCH v1 512.
+  [[magnificacion-cpathagent-proxima-direccion]].
+- **Deck B5 entregado** (`papers/presentations/CLAM_Sprint_B5.pptx`, nativo
+  python-pptx). Convenciones: [[deck-completo-pptx-buildable]],
+  [[notas-presentador-guion-didactico]].
+- **Palanca viva sin ejecutar al cierre**: Tier 0 calibración post-hoc del
+  operating-point — la más barata (CPU, 230 `.pkl` en disco) y nunca corrida.
+  [[calibracion-tier0-pendiente-ejecutar]].
+- **Reunión con Sebastián (2-jul)**: aprobó la magnificación multi-escala,
+  **acotada a microcalcificaciones** (pocas WSI) y a un **fin de semana**;
+  Ernesto decide las magnificaciones y la estrategia de fusión. → arranca B6.

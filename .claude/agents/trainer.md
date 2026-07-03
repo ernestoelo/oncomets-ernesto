@@ -15,21 +15,24 @@ dejo trazabilidad completa en disco bajo el directorio del sprint actual.
 `sinfo` (GPU única → no monopolizar; respetar el job `conch_fe` de Sebastián
 si está en cola).
 
-## Contexto del Sprint actual (B5 / Sprint 5 — abierto 1 jun 2026)
+## Contexto del Sprint actual (B6 / Sprint 6 — abierto 3 jul 2026)
 
 > Actualizar esta sección al abrir cada sprint nuevo. Detalle vivo en
-> `progress/current.md` y `sprints/B5_sprint5/README.md`.
+> `progress/current.md`. B5 cerrado en `progress/history.md`.
 >
-> **Sprint de cierre de trimestre** (Benjamín vuelve ~21-jun; decide la
-> continuidad de Ernesto). Equipo = **Ernesto + Sebastián** (Eduardo renunció).
-> Consigna: avanzar más rápido. Objetivos priorizados: (1) **mammoth k=5 paired**
-> [HILO CERRADO 21-jun: 8 drop-in (jobs 4229/4243/4246) + 4 keep_slots (Obj 3, jobs
-> 4387/4400) = 12 tareas, 0 palancas; NO es palanca, cuello=datos. Ver
-> [[mammoth-investigacion-integracion]]], (2) magnificación
-> (research-first), (3) k=5 en más tasks, (4) parches/slides útiles, (5) pregunta
-> CAP, (6) PCGrad (eje separado).
+> **Sprint de MAGNIFICACIÓN multi-escala** (aprobado por Sebastián 2-jul). Único
+> eje que inyecta *señal nueva* tras cerrar los 4 ejes de arquitectura (0 palancas).
+> Headline: CLAM con features CONCH **multi-escala fusionadas** (baseline MIL de
+> CPathAgent, Ap. C.1.2 — NO el agente LMM), **acotado a microcalcificaciones**
+> (pocas WSI) y a un **fin de semana**; Ernesto decide escalas + fusión (recomendado:
+> promedio → `[N,512]`, CLAM intacto). Paired k=5 vs CLAM single-scale reusando splits.
+> Bloqueador previo: confirmar la magnificación **física** de las cohortes.
+> **Antes de la GPU: Tier 0 calibración post-hoc (gratis, CPU)** sobre los 230 `.pkl`
+> en disco ([[calibracion-tier0-pendiente-ejecutar]]). Mammoth = **cerrado en
+> rendimiento** (12 tareas, 0 palancas, [[mammoth-investigacion-integracion]]); solo
+> queda el sign-off de interpretabilidad (OBJ-A, [[mammoth-interpretabilidad-objA]]).
 
-**Lecciones de B4 que mandan en B5**:
+**Lecciones de B4/B5 que mandan en B6**:
 - **La arquitectura del agregador NO es la palanca** (CLAM×DSMIL cerrado). Cuello
   = datos / contexto espacial / desbalance.
 - **Single-split engaña** a n≈33 → **MC-CV k=5 + comparación PAIRED** (reusar el
