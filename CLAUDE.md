@@ -718,133 +718,58 @@ re-validar y actualizar `docs/codebase_map.md`.
       espacial) + features de **citoplasma** según tarea → es el **Obj 2 de B5**
       (magnificación). Modelo alternativo: viable solo con argumento clínico +
       comparativo paired mismo dataset (regla 9 + [[patron-paired-comparison-reuso-splits]]).
-11. **La arquitectura del agregador NO es la palanca para microcalc — cerrado
-    simétricamente (Obj 5 + ANEXO, CLAM×DSMIL con MC-CV; números, veredictos y
-    rótulo en [[microcalc-fusion-objetivo5]] + `objetivo_5_fusion_binaria/resultados.md`
-    + `ejes_futuros_microcalc.md`).** DSMIL evaluado en TODOS los regímenes:
-    binarias n=328 (paired k=5, job 4179 → NULL en carcinoma/tejido +
-    **regresión leve consistente en CDIS** Δ −0.053 ± 0.026, signo negativo
-    5/5 folds) y fusionado n=2814 (k=3, job 4172 → banda **AMBIGUA**). El
-    single-split engañaba fuerte a n≈33 (carcinoma 0.808→0.732 ± 0.167 con
-    MC-CV) → **MC-CV + comparación PAIRED obligatorios**. Cuello = **datos /
-    contexto espacial / desbalance**, no la arquitectura → justifica los ejes
-    B5 (magnificación = Eje A, parches útiles = Eje B; CDIS abre Eje C
-    morfológico). *(Nota de rótulo: "k-fold" en archivos = Monte Carlo CV —
-    test solapados; es identificador histórico, NO se renombra.)*
-12. **Mammoth (MoE en el patch-embed) NO es palanca — y su (débil) efecto está
-    gobernado por el BALANCE de clases, no por la arquitectura.** Cerrado sobre 7
-    binarias con el mismo harness pareado (`train_dsmil.py`, `--model_type
-    clam|clam_mammoth`, k=5): Obj1 microcalc (job 4229) + Obj1b patrón CDIS (job 4243,
-    4-jun). Mammoth muestra lean+ leve SOLO en las 2 tareas más balanceadas
-    (microcalc·tejido ~58% Δbal +0.049; patrón·cribiforme ~49% Δbal +0.044±0.048,
-    4+/1−) y es nulo/leve-regresión en las 5 desbalanceadas o hambrientas de positivos
-    (solido, micropapilar, papilar, carcinoma, cdis). En todos los casos std ≳ |media|
-    (banda H0). Régimen "ciego" (micro/papilar, 3 pos/test) se lee **pooled** los ~15
-    positivos de los 5 folds, no fold a fold → ambos brazos casi no detectan (TP global
-    4/15 y 2/15). **Refuerza el cuello = datos / desbalance / contexto espacial** (mismo
-    cierre que Hallazgo 11 para el agregador). **2ª ola CERRADA (invasión linfática
-    3-clase, n=2814 — el n más grande del hilo y el eval más sano: cada clase n≥36/test,
-    lectura fold-a-fold; job 4246, 5-jun):** mammoth **tampoco es palanca** — Δ bal_acc
-    −0.047 ± 0.064 (banda ambigua por magnitud, lean negativo 4/5) y **regresión leve
-    consistente en macro-OVR AUC** (−0.011 ± 0.005, **5/5 folds−**), por **mayor colapso a
-    la mayoritaria** `no_identificado` (recall 0.792→0.815) a costa de `presente`
-    (0.577→0.434). El mayor poder estadístico **no rescató** a mammoth: lo afinó (expuso un
-    signo negativo consistente que en las binarias hambrientas quedaba en ruido). **Cierra
-    el hilo mammoth: 8 tareas (3 microcalc + 4 patrón + 1 invasión), 0 palancas.** Detalle:
-    `sprints/B5_sprint5/objetivo_2_mammoth_patron_invasion/{resultados.md,resultados_invasion.md}`
-    + README consolidado `results/README_experimentos_mammoth_environ.md` §4.b/§4.c + memoria
-    [[mammoth-investigacion-integracion]].
-    **ADDENDUM 19-jun (Obj 3) — el cierre vale para la config DROP-IN testeada, NO para todo
-    mammoth.** Las 8 tareas probaron un solo punto del espacio de config (`keep_slots=False`,
-    `slot_dropout=0`). Obj 3 reabre con una **variante arquitectónica NO testeada**: `keep_slots=True`
-    (cambia el mecanismo — N→300 slot-tokens, cuello de botella aprendido) + `slot_dropout`, apuntada
-    al modo de falla pre-registrado (colapso a la mayoritaria del 4246). **Reviewer GO-con-obs** (NO es
-    reapertura 9.b estricta sino variante no testeada — ver regla 9.b / [[meta-regla-decisiones-revisitadas]]).
-    **Resultado FINAL 21-jun (4/4 tareas — jobs 4387 + 4400 CERRADOS; matriz completa 4 brazos × 4
-    tareas, 5/5; ADDENDUM CERRADO):** `keep_slots=True` **NO es palanca vs CLAM en NINGUNA de las 4
-    tareas** (C2 Δ bAcc: invasión −0.031, carcinoma −0.020, cdis −0.023, tejido +0.046-ruido → **0/4
-    supera a CLAM** de forma decidible) → **confirma este Hallazgo 12**: el patch-embed, ahora con la
-    variante de mecanismo cambiado incluida, no es la palanca. **Matiz mecanístico nuevo y reproducible
-    (3/4 tareas):** el cuello de botella de slots aprendido **mitiga consistentemente el colapso a la
-    mayoritaria** que el drop-in (`keep_slots=False`) introducía — lean+ within-mammoth (C1 Δ bAcc:
-    invasión +0.016, carcinoma +0.035, cdis +0.063; tejido null) y gap de recall de la minoritaria a
-    favor en las 3 desbalanceadas/multiclase (invasión `presente` 0.434→0.516; carcinoma `si`
-    0.286→0.314; cdis `si` 0.279→0.443, este supera a CLAM 0.377 **pero a costa de la mayoritaria**) →
-    **insuficiente para superar al baseline**. **`slot_dropout` descartado** (net-negativo en las 4;
-    re-colapsa `presente` a 0.385). Gotcha confirmado: `val_auc=nan` en invasión (3-clase) es normal.
-    **Cierra el hilo mammoth completo: 8 tareas drop-in + 4 keep_slots = 0 palancas** (la variante de
-    mecanismo NO testeada tampoco gana; solo aporta el matiz mecanístico). Resultados (números exactos):
-    `sprints/B5_sprint5/objetivo_3_mammoth_keepslots/resultados.md` (§0 veredicto FINAL + §6.3 matriz);
-    pre-reg + §8: `.../prereg.md`; análisis `scripts/analyze_obj3.py`.
-    **ADDENDUM 29-jun (reunión Benjamín) — el cierre "0 palancas" es del eje RENDIMIENTO; se abre un
-    eje ORTOGONAL de ENTENDIMIENTO + INTERPRETABILIDAD, que NO lo contradice.** Benjamín pidió dominar
-    el mecanismo y estudiar **qué miran los expertos/slots** (no si mejoran la métrica — eso sigue
-    cerrado). Trabajo de entendimiento hecho (verificado vs paper+código, regla 5): el **tensor S =
-    `slot_embeds` = E×H×S×P = 30×16×10×16** (prototipos de slot); las **cabezas NO son textura/forma/
-    color** sino subespacios multi-head (la semántica morfológica vive en los slots, validada por
-    patólogos en Fig 3 del paper); **MoE≠PoE** (el paper NO menciona PoE → razonamiento, no cita);
-    **16 cabezas** = default estable (16→1 = −5.4%, Tabla 4a) y **"cuántas para mama" es pregunta
-    abierta que el propio paper marca como limitación (§6)**. La librería trae el tutorial de
-    interpretabilidad (`tutorial_mammoth_visualization.py`: dispatch_weights N×E×H×S + heatmaps +
-    top-k parches por experto) → objetivo barato Etapa 0. Detalle:
-    `sprints/B5_sprint5/mammoth_entendimiento/respuestas_preguntas_benjamin.md` + memoria
-    [[feedback-benjamin-entender-mammoth]]. Discrepancia menor: nuestro `num_slots=10` (300 slots) vs
-    paper §4 `S=9` (270) — ambos en banda recomendada, NO es error.
-    **ADDENDUM 30-jun (OBJ-A EJECUTADO — interpretabilidad post-hoc, Etapa 0 CPU, sin reabrir
-    rendimiento).** Corrido `scripts/mammoth_interpretability.py` (adaptación propia del tutorial)
-    sobre el checkpoint cdis drop-in (`keep_slots=False`) en **4 slides TCGA-BRCA del test de cdis
-    f0** (2 pos + 2 neg). Hallazgos: (1) los 30 expertos rutean a **regiones espacialmente
-    distintas**; (2) **especialización morfológica parcial pero ESTABLE cross-slide** (e8 = epitelio
-    celular/alta densidad nuclear; e26 = estroma/interfaz; e3 = ductal); (3) **clave: los expertos
-    rutean por MORFOLOGÍA, no por la etiqueta de la slide** (e8 enciende epitelio celular también en
-    los negativos — que igual son slides de mama con tumor) → son **detectores de tejido, no de
-    clase**; la decisión slide-level viene después (attention + clasificador). Esto **CONFIRMA este
-    Hallazgo 12**: la especialización morfológica existe (tesis del paper, Fig 3 = slots/expertos, NO
-    cabezas) pero el **cuello no está en la 1ª capa** → coherente con "0 palancas". Etiquetas de
-    tejido **provisionales** (pendiente sign-off patólogo/Sebastián = métrica de la hipótesis). El
-    `dispatch_weights` se saca con `mammoth(x, return_weights=True)` (independiente de `keep_slots`);
-    prefijo del state_dict = `attention_net.0.mammoth.`; los h5 traen **features + coords juntos**
-    (corrige el handoff). Detalle: `sprints/B5_sprint5/mammoth_entendimiento/interpretabilidad/resultados.md`
-    + memoria [[mammoth-interpretabilidad-objA]].
-13. **PathPT-CONCH (texto + visión, prompt-tuning θ_t + módulo espacial θ_v + supervisión
-    tile-level) NO es palanca — cierra un 3er ángulo del MISMO cuello.** Probado paired vs CLAM
-    en 3 tareas (B5, 11-jun): **necrosis** binaria (job 4309) → **H_alt**, no aporta (Δbal_acc
-    −0.020 ± 0.078, Δmacro-OVR-AUC −0.066 ± 0.094; el entrenamiento apenas se despega del teacher
-    zero-shot ~0.62 mientras CLAM 0.727). **mitotic** 3-clase ordinal (job 4326) → **COLAPSO de
-    formulación**: PathPT predice siempre la mayoritaria `score_1` (bal_acc 0.333 EXACTO, 0 preds
-    de score_2/3), por la dominancia de la clase basal en el pseudo-etiquetado tile (formulación
-    "clase 0 = score_1 basal", sign-off Sebastián pendiente) — **NO es bug** (eval validado test
-    CPU 9/9; CLAM no colapsa, bal 0.494); el macro-OVR AUC NO colapsa (ranking latente). **microcalc**
-    3 binarias (go/no-go CPU) → **NO-GO**: CONCH no groundea microcalcificaciones (AUC 0.44–0.63;
-    iterar prompts v2/v3 con más morfología EMPEORÓ — mismo patrón necrosis v2<v1; CONCH prefiere
-    términos simples). **Cierre: cuello = CONCH / datos / desbalance / calibración, no el método** —
-    converge con Hallazgos 11 (agregador/DSMIL) y 12 (patch-embed/mammoth): 3 ejes distintos
-    (agregador, patch-embed, lenguaje+tile), 0 palancas. El go/no-go barato (CPU, ~min) ahorró
-    ~18–24h de GPU al descartar microcalc — patrón Etapa 0 (zero-shot) ANTES de Etapa 1 (GPU + reviewer).
-    Detalle: memoria [[pathpt-testing-necrosis-mitotic]] + `sprints/B5_sprint5/pathpt/{resultados_necrosis.md,
-    resultados_mitotic.md,etapa1_prereg_necrosis.md,etapa1_prereg_mitotic.md}` + auditoría
-    `sprints/B5_sprint5/auditoria_coherencia/hallazgos_pathpt.md`.
-14. **La loss de desbalance (focal / class_balanced) NO es palanca — cierra el 4º ángulo
-    barato del MISMO cuello (objetivo de entrenamiento, NO arquitectura).** Probado paired vs
-    CLAM+CE en las 3 binarias microcalc (k=5, mismos splits que Obj1/3 — CLAM_MB intacto, el
-    único delta es la bag loss; NO es "mammoth #3"). **`focal`** (γ=2, sin α — job 4463): Δ
-    bal_acc null-a-negativo (carcinoma −0.042 ± 0.081, cdis −0.064 ± 0.093, tejido +0.013
-    control) y **baja** el recall de la minoritaria (carcinoma `si` 0.371→0.286) → no toca el
-    colapso. **`class_balanced`** (Cui 2019, β=0.9999, `ClassBalancedCE` con el FIX — job 4472):
-    Δ bal_acc y Δ AUC **dentro del ruido** (std ≳ |media|: carcinoma +0.009 ± 0.074, cdis
-    +0.039 ± 0.091, tejido +0.007 ± 0.032); el mecanismo **sí** sube el recall de la minoritaria
-    (carcinoma `si` 0.371→0.714, cdis 0.377→0.623) **pero hunde la mayoritaria en igual medida**
-    (carcinoma `no` 0.908→0.588) → bal_acc neta sin cambio = **H_reg (re-balanceo del
-    operating-point, no mejora neta)**. Mecanismo idéntico a mover el umbral post-hoc → converge
-    con [[calibracion-operating-point-palanca-b5]] y con los Hallazgos 11/12/13: **4 ejes
-    distintos (agregador, patch-embed, lenguaje+tile, loss), 0 palancas → cuello = datos /
-    desbalance / contexto espacial**, no la arquitectura ni la función de pérdida. Invasión NO
-    se corrió (plan pre-registrado: solo ante lean prometedor; ambos brazos null/H_reg). **Bug
-    `cb` no-op a batch=1 RESUELTO** (`ClassBalancedCE`, commit `2cab10f`, test 6/6 — gotcha
-    durable [[mil-weighted-ce-noop-batch1]]); runs buggy del 4463 segregados en
-    `results/loss_desbalance/_buggy_noop_cb_4463/` (evidencia). Detalle:
-    `sprints/B5_sprint5/loss_desbalance/{resultados.md,prereg.md,auditoria_hallazgos.md}` +
-    `results/loss_desbalance/analysis_4472_full.txt` + memoria [[loss-desbalance-eje-c1]].
+> **Hallazgos 11-14 — Eje ARQUITECTURA/OBJETIVO cerrado: 4 ángulos, 0 palancas.**
+> Los cuatro cierran el MISMO mensaje: cuello = **datos / desbalance / contexto
+> espacial**, NO la arquitectura ni la loss. Números exactos, matices y gotchas en
+> los sprint docs + memorias enlazadas; acá solo el veredicto durable + punteros.
+> La numeración 11-14 se preserva porque memorias y otros docs la citan. La palanca
+> viva post-cierre = calibración post-hoc del operating-point (Tier 0,
+> [[calibracion-operating-point-palanca-b5]] / [[calibracion-tier0-pendiente-ejecutar]]).
+
+11. **Agregador (CLAM×DSMIL) NO es palanca en microcalc** — cerrado simétricamente con
+    MC-CV + comparación PAIRED (Obj 5 + ANEXO). DSMIL: binarias n=328 (job 4179 → NULL en
+    carcinoma/tejido, **regresión leve consistente en CDIS** Δ −0.053 ± 0.026, 5/5 folds−)
+    y fusionado n=2814 (job 4172 → banda ambigua). El single-split engañaba fuerte a n≈33
+    (carcinoma 0.808→0.732 ± 0.167) → **MC-CV + PAIRED obligatorios**. Detalle:
+    [[microcalc-fusion-objetivo5]] + `objetivo_5_fusion_binaria/resultados.md` +
+    `ejes_futuros_microcalc.md`. *(Rótulo: "k-fold" en archivos = Monte Carlo CV, test
+    solapados; identificador histórico, NO se renombra.)*
+12. **Mammoth (MoE en el patch-embed) NO es palanca** — hilo COMPLETO: **8 tareas drop-in
+    (`keep_slots=False`) + 4 keep_slots=True = 0 palancas** vs CLAM (jobs 4229/4243/4246/4387/4400,
+    todo k=5 paired). El (débil) efecto lo gobierna el BALANCE de clases, no la arquitectura: lean+
+    leve solo en las ~2 tareas balanceadas; nulo/regresión leve en las desbalanceadas; std ≳ |media|.
+    2ª ola (invasión 3-clase n=2814, job 4246) = regresión leve consistente en AUC (−0.011 ± 0.005,
+    5/5−) por mayor colapso a la mayoritaria — el mayor poder estadístico no rescató, afinó. La
+    variante `keep_slots=True` mitiga su propio colapso a la mayoritaria pero NO supera al baseline
+    (0/4 tareas); `slot_dropout` descartado (net-negativo). Detalle:
+    `objetivo_2_mammoth_patron_invasion/{resultados.md,resultados_invasion.md}`,
+    `objetivo_3_mammoth_keepslots/{resultados.md,prereg.md}` (§6.3 matriz), README
+    `results/README_experimentos_mammoth_environ.md` §4 + [[mammoth-investigacion-integracion]].
+    **Eje ORTOGONAL abierto (NO reabre rendimiento):** entendimiento + interpretabilidad de
+    expertos/slots (reunión Benjamín 29-jun). El detalle mecanístico (tensor S = `slot_embeds`
+    30×16×10×16; cabezas = subespacios multi-head ≠ textura/color; MoE≠PoE; nº cabezas para mama =
+    pregunta abierta del paper) vive en [[feedback-benjamin-entender-mammoth]]. OBJ-A ejecutado
+    30-jun (CPU post-hoc, `scripts/mammoth_interpretability.py`): los 30 expertos rutean por
+    **MORFOLOGÍA, no por la etiqueta de slide** (e8 epitelio, e26 estroma, e3 ductal, estables
+    cross-slide) → detectores de tejido, el **cuello no está en la 1ª capa** = confirma este
+    Hallazgo 12. Tooling y sign-off pendiente en [[mammoth-interpretabilidad-objA]] +
+    `mammoth_entendimiento/`.
+13. **PathPT-CONCH (lenguaje + tile) NO es palanca** — 3er ángulo. necrosis H_alt (job 4309,
+    Δbal_acc −0.020 ± 0.078, apenas despega del teacher zero-shot ~0.62 vs CLAM 0.727); mitotic
+    COLAPSO de formulación (job 4326, bal_acc 0.333 EXACTO, siempre predice `score_1` — NO bug,
+    el ranking/AUC latente sobrevive; formulación clase0=score_1, sign-off pendiente); microcalc
+    NO-GO (go/no-go CPU: CONCH no groundea microcalc, AUC 0.44–0.63; prompts con más morfología
+    EMPEORAN — CONCH prefiere términos simples). Cuello = CONCH/datos, no el método. El go/no-go
+    zero-shot CPU ANTES de la GPU ahorró ~18–24h (patrón Etapa 0 antes de Etapa 1). Detalle:
+    [[pathpt-testing-necrosis-mitotic]] + `sprints/B5_sprint5/pathpt/`.
+14. **La loss de desbalance (focal / class_balanced) NO es palanca** — 4º ángulo (objetivo de
+    entrenamiento, NO arquitectura; CLAM_MB intacto, único delta = la bag loss). focal (job 4463)
+    null-a-negativo, baja el recall de la minoritaria; class_balanced (Cui 2019, job 4472, con el
+    fix) = **H_reg**: sube recall minoritaria (carcinoma `si` 0.371→0.714) **pero hunde la
+    mayoritaria en igual medida** → Δ bal_acc/AUC dentro del ruido (std ≳ |media|). Idéntico a
+    mover el umbral post-hoc → converge con [[calibracion-operating-point-palanca-b5]]. Bug `cb`
+    no-op a batch=1 RESUELTO ([[mil-weighted-ce-noop-batch1]]). Detalle: [[loss-desbalance-eje-c1]]
+    + `sprints/B5_sprint5/loss_desbalance/` + `results/loss_desbalance/analysis_4472_full.txt`.
 
 ## Entorno conda — deps esperadas
 
