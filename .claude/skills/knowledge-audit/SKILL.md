@@ -29,7 +29,10 @@ fixes second.**
 ## Workflow (read-only → findings doc → fixes → commit)
 
 ### 1. Setup
-- `git branch --show-current`; create a NEW branch `chore/audit-coherencia-<sprint>`.
+- `git branch --show-current`. A documental-only audit (no model/training edits) may
+  stay on `main` (Ernesto's default, [[git-trabajar-en-main-por-defecto]]); create a NEW
+  branch `chore/audit-coherencia-<sprint>` only if the audit will carry changes into
+  model/training code (regla 9) **or** a GPU job is running (workaround H).
 - `git fetch` (main is shared, multiple authors — [[git-main-shared-pushes]]).
 - **Do NOT touch running GPU jobs** (`squeue` first): neither cancel them **nor**
   `git checkout`/merge that changes tracked files while one runs — the job reads its

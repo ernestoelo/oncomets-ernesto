@@ -1,5 +1,4 @@
 ---
----
 name: trainer
 description: Use when the task involves running, monitoring, or analyzing CLAM training runs on the Environ server via SLURM. Triggers include "lanzar entrenamiento", "train CLAM", "split_dir", "sbatch", "audit datasets", "parse training logs".
 tools: Bash, Read, Write, Glob, Grep

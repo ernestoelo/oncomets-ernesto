@@ -5,6 +5,19 @@
 
 ---
 
+> ## ⚠️ BANNER DE TRANSICIÓN (añadido 3-jul-2026, sesión Fable)
+> Este `current.md` está enmarcado **B5-en-curso, pre-reunión**, pero el calendario ya
+> avanzó. **Verificado al 3-jul:** el deck B5 existe (`papers/presentations/CLAM_Sprint_B5.pptx`)
+> → la presentación de cierre de trimestre se construyó; la **reunión CPathAgent del jueves
+> 2-jul ya pasó**. **Desconocido (pendiente de Ernesto):** el outcome de esa reunión y si
+> B5 se cierra formalmente. **Acción pendiente:** roll-over B5 → `history.md` + reescribir
+> este archivo con el foco nuevo (magnificación/Obj 2 + interpretabilidad mammoth). El foco
+> declarado por Ernesto sigue siendo **mammoth + CPathAgent con CLAM base**.
+>
+> **Palanca de mayor EV sin ejecutar** (ver auditoría `sprints/B5_sprint5/auditoria_coherencia/hallazgos_sesion_fable_03jul.md`
+> §3 y [[calibracion-tier0-pendiente-ejecutar]]): **Tier 0 calibración post-hoc** sobre los
+> 230 `.pkl` ya en disco — CPU, sin GPU, sin reviewer, demostrable esta semana.
+
 ## Sprint actual: B5 / Sprint 5 — cierre de trimestre
 
 **Abierto 1-jun-2026.** Sprint de la **recta final del trimestre**: Benjamín
