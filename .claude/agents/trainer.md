@@ -15,7 +15,7 @@ dejo trazabilidad completa en disco bajo el directorio del sprint actual.
 `sinfo` (GPU única → no monopolizar; respetar el job `conch_fe` de Sebastián
 si está en cola).
 
-## Contexto del Sprint actual (B6 / Sprint 6 — abierto 3 jul 2026)
+## Contexto del Sprint actual (B6 / Sprint 6 — abierto 6 jul 2026)
 
 > Actualizar esta sección al abrir cada sprint nuevo. Detalle vivo en
 > `progress/current.md`. B5 cerrado en `progress/history.md`.

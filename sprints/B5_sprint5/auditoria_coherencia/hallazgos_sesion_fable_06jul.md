@@ -1,4 +1,4 @@
-# Auditoría de conocimiento + análisis de mejoras — sesión Fable (3-jul-2026)
+# Auditoría de conocimiento + análisis de mejoras — sesión Fable (6-jul-2026)
 
 > Primera sesión de **Claude Fable 5** en este repo. Encargo de Ernesto: análisis
 > profundo del trabajo para encontrar mejoras, documentar contexto valioso,
@@ -16,7 +16,7 @@
 ## 0. Estado del repo (foto al abrir la sesión)
 
 - **B5 está de facto CERRADO**: el deck existe (`papers/presentations/CLAM_Sprint_B5.pptx`),
-  la reunión CPathAgent del **jueves 2-jul ya pasó** (hoy es viernes 3-jul), y el cierre de
+  la reunión CPathAgent del **jueves 2-jul ya pasó** (hoy es 6-jul), y el cierre de
   trimestre era "fin de junio". El repo está **en frontera de sprint**, pero `progress/current.md`
   sigue enmarcado como **B5-en-curso, pre-reunión**.
 - **4 ejes de arquitectura CERRADOS, 0 palancas** (Hallazgos 11-14): agregador/DSMIL,
@@ -70,7 +70,7 @@ encargo (subir bal-acc). Propuesta técnica completa en §3.
 ### A2 — progress/current.md desfasado del calendario real
 
 `progress/current.md` describe el Obj 2/magnificación como "investigación HECHA,
-implementación pendiente, para reunión jueves 2-jul". Hoy es 3-jul → la reunión pasó y
+implementación pendiente, para reunión jueves 2-jul". Hoy es 6-jul → la reunión pasó y
 **el resultado de la reunión no está en el repo**. El deck B5 ya existe. **Fix aplicado:**
 banner de transición al tope de `current.md` (aditivo, no borra el detalle B5) marcando
 qué está verificado (deck construido, fecha de reunión pasada) vs desconocido (outcome de

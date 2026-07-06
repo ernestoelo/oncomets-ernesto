@@ -3,14 +3,14 @@
 > Estado vivo del sprint actual. Es un **snapshot** — se reemplaza al avanzar
 > el sprint. Al cerrar el sprint, el resumen pasa a `history.md`.
 >
-> **Roll-over 3-jul-2026 (sesión Fable):** B5 cerrado y movido a `history.md`
+> **Roll-over 6-jul-2026 (sesión Fable):** B5 cerrado y movido a `history.md`
 > (deck entregado, trimestre cerrado, Ernesto continúa). Este archivo arranca B6.
 
 ---
 
 ## Sprint actual: B6 / Sprint 6 — Magnificación multi-escala (CONCH) sobre CLAM
 
-**Abierto 3-jul-2026.** Nace de la reunión con Sebastián del **2-jul**: aprobada la
+**Abierto 6-jul-2026.** Nace de la reunión con Sebastián del **2-jul**: aprobada la
 dirección **magnificación / contexto espacial** (Eje A, la única que inyecta *señal
 nueva* tras cerrar los 4 ejes de arquitectura, 0 palancas). Equipo = Ernesto +
 Sebastián. Foco declarado por Ernesto: **mammoth + CPathAgent con CLAM como base** —
