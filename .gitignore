@@ -49,6 +49,11 @@ results/**/events.out.tfevents.*
 # un snapshot histórico, commit explícito con `git add -f`.
 sprints/**/CLAM_Sprint_*.pdf
 
+# Decks .pptx de cada sprint: derivados locales (branding OnlyOffice), NO fuente
+# de verdad. La fuente vive en el generate_*_deck.py + convenciones_deck_*.md + el
+# guion. Precedente: 0 pptx trackeados en el repo. Snapshot histórico → `git add -f`.
+sprints/**/*.pptx
+
 # Slides locales que Ernesto sube para que Claude las revise/actualice (PDFs,
 # pptx, etc.). Carpeta de trabajo local — NO versionar. El contenido de verdad
 # vive en sprints/<sprint>/<obj>/ (figuras, guion_montaje, presentacion_*.md).
