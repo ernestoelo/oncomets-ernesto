@@ -897,6 +897,12 @@ el balanced. Memoria [[readme-resultados-formato-minimalista]].
   borrar contenido único, addendum para pre-registración, edición aditiva de
   reglas duras). Caso de referencia: `sprints/B5_sprint5/auditoria_coherencia/`
   (antes `@coherence-audit`; renombrada 2-jun-2026).
+- `@humanizer-es` — reescribe prosa española quitando tells de IA (loop de 4 pasos:
+  identificar→borrador→auto-auditoría→final). Alcance: guion HABLADO del presentador
+  (es el *procedimiento* de la convención de notas, ver §"Notas del presentador" +
+  [[notas-presentador-guion-didactico]]) y prosa de entregables; NO toca docs técnicos
+  estructurados, tablas, READMEs canónicos, código ni memorias. Probada en sesión fresca
+  9-jul (PASS): `sprints/B6_sprint6/humanizer_es_validacion.md`.
 
 ## Contexto del usuario para sesiones rápidas
 
