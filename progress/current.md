@@ -50,10 +50,11 @@ el agente LMM. Insumo: `sprints/B5_sprint5/magnificacion/analisis_cpathagent.md`
   arquitectural alrededor) propongo empezar con una pirámide de **2–3 escalas**: la
   fina actual (256) + una/dos **más gruesas de mayor campo** (p.ej. 512 y 1024,
   downsampleadas a 224 para CONCH) que cubran más tejido por parche.
-  - ⚠️ **Bloqueador a confirmar ANTES de extraer**: ¿a qué magnificación **física**
-    están private/TCGA/HistAI en su `level` base? Un 256@level0 mide distinto en una
-    slide 40× vs 20× → la pirámide debe normalizarse por **magnificación física**, no
-    por `level`. (Pregunta #2 del análisis CPathAgent.)
+  - ✅ **Bloqueador RESUELTO 2/3 (10-jul, openslide)**: **TCGA ≈40× (0.2325 µm/px)**,
+    **privado ≈20× (0.465 µm/px)** → difieren 2×; **HistAI sin MPP confiable (pendiente)**.
+    Confirma que la pirámide se define en **µm/px físicos, no en `level`**, y que el single-scale
+    actual ya mete un confound (TCGA a CONCH a ~40×). Ver [[cohortes-magnificacion-fisica]] +
+    `magnificacion_microcalc/investigacion_magnificacion.md` §4–§5.5.
 - **(b) ¿Cómo fusionar?** Recomiendo **promedio por región** (como el paper): fusiona
   las escalas en **un token `[N,512]`** → **CLAM_MB queda intacto** y la comparación es
   la más limpia (mismo bag, solo cambia el contenido del token). Alternativas
@@ -71,7 +72,9 @@ el agente LMM. Insumo: `sprints/B5_sprint5/magnificacion/analisis_cpathagent.md`
    Re-umbralizar los 230 `.pkl` ya en disco (umbral en val→congelar a test); resultado
    de bal_acc demostrable esta semana, independiente de la magnificación. Es la palanca
    viva más barata y nunca se ejecutó ([[calibracion-tier0-pendiente-ejecutar]]).
-2. **Confirmar con Sebastián** la magnificación física de las cohortes (bloqueador (a)).
+2. **Magnificación física MEDIDA** (10-jul): TCGA 40× / privado 20× / HistAI pendiente
+   ([[cohortes-magnificacion-fisica]]). Falta: resolver HistAI + confirmar con Sebastián el
+   **criterio de escala** (pirámide 20×+5×, fusión promedio) del doc de investigación.
 3. **Pre-registrar** (regla 9 + reviewer) el experimento de magnificación: escalas
    elegidas, fusión = promedio, tarea = microcalc, paired k=5, expectativa honesta.
 4. **Slurm de re-extracción multi-escala** (fin de semana, cortesía single-GPU,

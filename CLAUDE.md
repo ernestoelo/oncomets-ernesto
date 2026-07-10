@@ -310,6 +310,13 @@ WSI → patches → CONCH features (512-dim) → CLAM_MB → N clases clínicas
 
 > **CONCH = 512-dim** para todas las slides (Environ + TCGA + HistAI). El
 > 1024-dim corresponde a las features ResNet legacy. **Usar `--embed_dim 512`.**
+>
+> **Magnificación física ≠ igual entre cohortes** (verificado openslide 10-jul-2026,
+> [[cohortes-magnificacion-fisica]]): a `level0` **TCGA ≈ 40× (0.2325 µm/px)**, **privado ≈ 20×
+> (0.465 µm/px)**, **HistAI sin MPP confiable**. El pipeline actual extrae a `patch_level=0` → un
+> parche 256 px mide **59 µm en TCGA vs 119 µm en privado** (confound latente: a CONCH se le da TCGA
+> a ~40×, 2× su nativo). **Cualquier re-extracción / pirámide multi-escala se parametriza en µm/px
+> físicos, NO en `level`.** (Contexto: eje magnificación B6, `sprints/B6_sprint6/magnificacion_microcalc/`.)
 
 ## Workflow operativo SLURM
 
