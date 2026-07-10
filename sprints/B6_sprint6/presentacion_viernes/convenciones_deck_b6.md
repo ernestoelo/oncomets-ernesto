@@ -164,6 +164,40 @@ Build autocontenido en el sprint (repo limpio, decisión de Ernesto): **todo viv
   10 cross-slide (morfología≠clase) · 11 honestidad+cierre.
 - **Notas del presentador**: guion hablado en prosa por slide (sin etiquetas de fase, sin
   nº de job ni nombres) — del estudio OBJ-A (Bloques 1-5).
-- **QA (9-jul)**: rasterizado con LibreOffice; verificadas 7/11 slides (portada, tarjetas,
+- **QA (9-jul mañana)**: rasterizado con LibreOffice; verificadas 7/11 slides (portada, tarjetas,
   ambos diagramas escalados, top-k, keep_slots, cierre) — layout limpio, Barlow en contenido,
   diagramas escalaron sin distorsión. Scratch de QA borrado.
+
+## 6. ADDENDUM 9-jul (tarde) — ronda de ediciones de Ernesto (supersede el mapa de §5)
+
+Ernesto revisó el build de las 15:25 y pidió una ronda de cambios; aplicados y regenerados
+(sigue en **11 slides**). Cambios:
+
+- **s1 portada**: full-bleed limpia, sin panel ni overlay (título horneado en la imagen).
+- **s2 NUEVA "Recapitulación de objetivos"**: molde **B4 exacto** = lista numerada en UN
+  cuadro (título 32pt Barlow ExtraBold `#217589`; cuerpo `1.…2.…` 24pt Barlow bold `#595959`,
+  línea entre ítems), **NO tarjetas** (Ernesto rechazó la versión con tarjetas →
+  [[deck-molde-fiel-referencia]]).
+- **s4 "qué es y por qué"**: título = **acrónimo completo** ("MAtrix-factorized Mixture Module
+  of Transformation Heads", 17pt); quitada la tarjeta 4; **Fig 1 + Fig 3** del paper apiladas
+  a la derecha (Fig 3 = colores↔expertos).
+- **s6 interior/tensor**: **refactor a NATIVO** — tabla de dims (`add_table`) + panel de código
+  real de `mammoth.py` (Consolas, fondo oscuro) lado a lado. Reemplaza el diagrama reusado.
+- **s7 NUEVA (flujo sobre arquitectura oficial)**: `copy_diagram_scaled(DIAG_FUSED, 0, scale=0.72)`
+  + traza de variables `z→q→⟨q,S⟩→D→u→o→h→CLAM` al pie (era la slide B5-s7 que faltaba).
+- **s8 keep_slots**: **refactor a NATIVO** con math+código (tronco compartido → 2 ramas).
+  Reemplaza el diagrama reusado.
+- **s10/s11 fusiones**: heatmaps+top-k → una slide; cross-slide+honestidad/cierre → una slide.
+- **Humanización**: `@humanizer-es` sobre títulos (quitados tells: "en paralelo",
+  "del «dónde» al «qué»", "— y lo que falta") y una nota; sin nombres ni nº de job en el deck.
+- **Helpers nuevos** en `generate_b6_deck.py`: `dims_table`, `code_panel`, `takeaway_bar`;
+  `header(size=)` y `copy_diagram_scaled(scale=)` parametrizados; `content(size=)`.
+
+**Mapa de slides VIGENTE**: 1 portada · 2 recap · 3 divisoria MAMMOTH · 4 qué es y por qué
+(acrónimo) · 5 pipeline (reusado) · 6 interior math+código (nativo) · 7 flujo arquitectura
+oficial (reusado + variables) · 8 keep_slots math+código (nativo) · 9 divisoria
+Interpretabilidad · 10 heatmaps+top-k · 11 tejido≠clase + honestidad.
+
+**Pendiente**: verificación fina en **PowerPoint** (no solo LibreOffice — OMML del diagrama
+s5 se ve roto en LibreOffice pero OK en PowerPoint, [[pptx-qa-omml-libreoffice]]) + ensayo del
+guion. Working tree con `generate_b6_deck.py` sin commitear (commit/push = decisión de Ernesto).

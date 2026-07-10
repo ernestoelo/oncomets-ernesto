@@ -83,6 +83,12 @@ el agente LMM. Insumo: `sprints/B5_sprint5/magnificacion/analisis_cpathagent.md`
 - **Interpretabilidad mammoth (OBJ-A)**: pendiente **sign-off de patólogo/Sebastián**
   sobre los top-k (cierra la métrica de la hipótesis). Eje ortogonal, no rendimiento.
   [[mammoth-interpretabilidad-objA]].
+- **Deck reunión viernes 10-jul (eje Benjamín = entender/interpretar mammoth)**:
+  CONSTRUIDO y editado 9-jul según feedback de Ernesto — 11 slides, formato B4,
+  `sprints/B6_sprint6/presentacion_viernes/generate_b6_deck.py` (el `.pptx` es
+  derivado gitignored). **Pendiente**: verificación fina en PowerPoint + ensayo del
+  guion. Convenciones + mapa vigente en `convenciones_deck_b6.md` §6.
+  [[deck-molde-fiel-referencia]].
 - **Palancas de datos de reserva** si la magnificación no basta: **HistAug**
   (augmentación en espacio de features, verificar CONCH v1 512) y **TITAN** (caro,
   re-extrae CONCHv1.5 768). [[insuficiencia-datos-ejes-investigacion]].
