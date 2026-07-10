@@ -201,3 +201,43 @@ Interpretabilidad · 10 heatmaps+top-k · 11 tejido≠clase + honestidad.
 **Pendiente**: verificación fina en **PowerPoint** (no solo LibreOffice — OMML del diagrama
 s5 se ve roto en LibreOffice pero OK en PowerPoint, [[pptx-qa-omml-libreoffice]]) + ensayo del
 guion. Working tree con `generate_b6_deck.py` sin commitear (commit/push = decisión de Ernesto).
+
+## 7. ADDENDUM 10-jul — ronda 2 de Ernesto (supersede lo aplicable de §6)
+
+Ernesto revisó el build del 9-jul y pidió otra ronda; aplicada y regenerada (sigue **11 slides**).
+
+- **s2 recap — estados tipo B3 + reescritura de objetivos.** Se añadió la **columna de estado**
+  del molde B3: **check verde** (`assets_branding/check_verde.png`, extraído del deck B3 vía
+  `status_done`) para lo cerrado, y **pill "En progreso"** (naranja `#E2723B`, `status_progress`)
+  para lo abierto. Y sobre todo: los enunciados se reescribieron a los **objetivos REALES del eje**
+  (pedido de Benjamín 29-jun: mecanismo + cabezas + interpretabilidad; ver
+  `estudio_reunion_viernes.md` y [[feedback-benjamin-entender-mammoth]]) — **en infinitivo (sin 1ª
+  persona), concisos y SIN resultados** (fuera "ninguno movió la métrica" y "el cuello de botella
+  es el dato"; eso es conclusión, no objetivo). Estado actual: 1-2-3 cerrados (✓), 4
+  interpretabilidad "En progreso" (falta sign-off de patólogo). Tipografía B4 24pt intacta.
+- **s7 arquitectura oficial — figura sola, grande y limpia + pipeline en bloques.** Se **quitó
+  el logo Environ y el título** y se **descartaron los callouts** que se montaban sobre las
+  variables de la figura del paper. Ahora va la **Fig 2 del paper extraída**
+  (`assets_branding/paper_figs/mammoth_fig2_arch.png`, 4375×1758, aspect 2.489) **a 9.42" de
+  ancho, centrada**, con TODAS sus variables visibles (W, x̄, MoE, slots s, Φ, W_low, cross-head
+  concat, slide embed, Patch-Slot similarity). Al pie, **pipeline en bloques** (`dim_pipeline`):
+  `parches(N) → z[N,512] → x̄[N,16,16] → s(300 slots) → Φ·W_low[300,512] → h[N,512] → CLAM(logits)`
+  — con la **notación de la propia figura** (regla de Ernesto: referenciarnos en sus variables,
+  también en las notas). Ya **no usa** `copy_diagram_scaled(DIAG_FUSED,…)`.
+- **s11 tejido≠clase — imágenes agrandadas.** Las dos grillas cross-slide (e8, e26; 704×593, cada
+  una = 4 slides × 5 parches) pasaron de ~1.9×1.6" a **~3.6×3.0" lado a lado** (`add_picture`
+  explícito, centradas), con los 20 parches ya legibles. Texto compactado abajo + takeaway intacta.
+- **Notas del presentador**: revisadas en las 11 slides; s7 reescrita para recorrer las variables
+  de la figura + los bloques de dimensiones; s2 reescrita a los objetivos nuevos; framing "mammoth
+  no mejora la métrica (cerrado) vs entender (abierto)" preservado en s1/s9/s11 (es el encuadre del
+  Bloque 5, no un "resultado" del recap). Sin nombres ni nº de job.
+- **Helpers nuevos**: `status_done`, `status_progress`, `dim_pipeline`; constante `FIG2_ARCH`.
+- **Assets nuevos** (dentro del repo, sin commitear): `check_verde.png`, `mammoth_fig2_arch.png`.
+
+**Mapa de slides VIGENTE (10-jul)**: 1 portada · 2 recap (objetivos + estados) · 3 divisoria
+MAMMOTH · 4 qué es y por qué (acrónimo) · 5 pipeline (reusado) · 6 interior math+código (nativo) ·
+7 **arquitectura oficial: figura grande + pipeline de dimensiones en bloques** · 8 keep_slots
+math+código (nativo) · 9 divisoria Interpretabilidad · 10 heatmaps+top-k · 11 tejido≠clase
+(imágenes grandes) + honestidad.
+
+**Pendiente**: QA fino en **PowerPoint** (OMML del diagrama s5) + ensayo del guion.
