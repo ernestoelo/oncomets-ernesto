@@ -8,8 +8,11 @@ rechazó del B5 (13.333, Carlito). Contenido = mecanismo mammoth (slides B5 re-f
 - Slides de OBJETIVOS/contenido → NATIVAS en Barlow a tamaños B4 (el fix de Benjamín).
 - Diagramas de arquitectura → reusados de los .pptx standalone, ESCALADOS x0.75 a 10x5.625
   (mismo aspect ratio; conservan Carlito, convención aceptada para diagramas). Editables.
+- Slides de mecanismo (interior/tensor, keep_slots) → NATIVAS con matrices+dims Y código real
+  de mammoth.py en paralelo (pedido de Ernesto para la reunión).
 - Figuras de interpretabilidad (heatmap/top-k/cross-slide) y del paper → como imagen (excepción).
-- Notas del presentador → guion HABLADO en prosa (sin etiquetas de fase, sin nº de job/nombres).
+- Notas del presentador → guion HABLADO en prosa (sin etiquetas de fase, sin nº de job/nombres),
+  integrando las explicaciones del estudio (5 bloques de estudio_reunion_viernes.md).
 
 Uso:
   PYTHONPATH=/media/administrador/Storage1/sdonoso/clam_testing2/.pylibs \
@@ -38,7 +41,7 @@ DST = os.path.join(OUT_DIR, "CLAM_Reunion_Mammoth.pptx")
 
 # --- diagramas standalone (13.333x7.5, sin header) que reusamos escalados ---
 DIAG_MAM = os.path.join(PRES, "Diagrama_CLAM_mammoth.pptx")     # s0 pipeline · s1 interior/tensor
-DIAG_FUSED = os.path.join(PRES, "Diagrama_mammoth_fused.pptx")  # s1 keep_slots
+DIAG_FUSED = os.path.join(PRES, "Diagrama_mammoth_fused.pptx")  # s0 flujo oficial · s1 keep_slots
 # --- figuras ---
 FIG1_MAM = os.path.join(PAPER_FIGS, "mammoth_fig1_overview.png")  # t-SNE + barras (paper Fig 1)
 FIG3_MAM = os.path.join(PAPER_FIGS, "mammoth_fig3_routing.png")   # ruteo→fenotipo (paper Fig 3)
@@ -57,6 +60,9 @@ LAV_TITLE  = RGBColor(0xCD, 0xD6, 0xF4)
 TEAL_SUB   = RGBColor(0xB8, 0xD4, 0xD9)
 TEAL_CARD  = RGBColor(0xDD, 0xEA, 0xEE)
 TEAL_CARD2 = RGBColor(0xF3, 0xF8, 0xF9)
+CODE_BG    = RGBColor(0x1E, 0x2A, 0x2E)   # panel de código (teal muy oscuro)
+CODE_FG    = RGBColor(0xE6, 0xEE, 0xF0)   # texto de código
+CODE_CMT   = RGBColor(0x8F, 0xB8, 0xC0)   # comentarios de código
 GRIS_BODY  = RGBColor(0x59, 0x59, 0x59)
 GRIS_TXT   = RGBColor(0x55, 0x55, 0x55)
 ORA_T      = RGBColor(0xB4, 0x52, 0x1E)
@@ -68,6 +74,7 @@ WHITE      = RGBColor(0xFF, 0xFF, 0xFF)
 
 F_TITLE = "Barlow ExtraBold"
 F_BODY  = "Barlow"
+F_MONO  = "Consolas"
 
 # --- geometría B4 (10 x 5.625), extraída del volcado real ---
 SW, SH = 10.0, 5.625
@@ -111,10 +118,14 @@ def notes(slide, text):
     slide.notes_slide.notes_text_frame.text = text
 
 
-def _rect(slide, l, t, w, h, color):
+def _rect(slide, l, t, w, h, color, line=None):
     sp = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(l), Inches(t), Inches(w), Inches(h))
     sp.fill.solid(); sp.fill.fore_color.rgb = color
-    sp.line.fill.background(); sp.shadow.inherit = False
+    if line is None:
+        sp.line.fill.background()
+    else:
+        sp.line.color.rgb = line; sp.line.width = Pt(1)
+    sp.shadow.inherit = False
     return sp
 
 
@@ -123,14 +134,14 @@ def logo_mark(slide, size=0.785, logo_h=0.645):
     slide.shapes.add_picture(LOGO, Inches(0.065), Inches(0.045), height=Inches(logo_h))
 
 
-def header(slide, title, bar=True):
+def header(slide, title, bar=True, size=26):
     """Header B4: barra gris + cuadrado teal + logo + título Barlow ExtraBold teal."""
     if bar:
         _rect(slide, 0.0, 0.0, SW, HDR, BAR_GRIS)
     logo_mark(slide)
     if title:
-        tb = slide.shapes.add_textbox(Inches(0.99), Inches(0.12), Inches(8.85), Inches(0.56))
-        _set_runs(tb.text_frame, [(title, 26, True, TEAL_TITLE, F_TITLE)], anchor=MSO_ANCHOR.MIDDLE)
+        tb = slide.shapes.add_textbox(Inches(0.99), Inches(0.10), Inches(8.9), Inches(0.62))
+        _set_runs(tb.text_frame, [(title, size, True, TEAL_TITLE, F_TITLE)], anchor=MSO_ANCHOR.MIDDLE)
 
 
 def add_image_fit(slide, path, l, t, w, h, align="center"):
@@ -166,31 +177,67 @@ def caption(slide, l, t, w, text, size=11, col=GRIS_TXT, align=PP_ALIGN.CENTER, 
     add_textbox(slide, l, t, w, 0.4, [(text, size, bold, col, F_BODY, align)])
 
 
+def takeaway_bar(slide, text, t=4.85, col=TEAL_TITLE, size=14):
+    """Barra de remate al pie (línea teal + frase centrada)."""
+    _rect(slide, 0.35, t, SW - 0.7, 0.02, TEAL_SQ)
+    add_textbox(slide, 0.35, t + 0.08, SW - 0.7, 0.62,
+                [(text, size, True, col, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
+
+
+def code_panel(slide, l, t, w, h, lines, title=None):
+    """Panel de código nativo: fondo oscuro + texto monoespaciado (Consolas).
+    `lines` = lista de strings; los que empiezan con '#' se pintan como comentario."""
+    _rect(slide, l, t, w, h, CODE_BG)
+    tb = slide.shapes.add_textbox(Inches(l + 0.12), Inches(t + 0.08), Inches(w - 0.24), Inches(h - 0.16))
+    tf = tb.text_frame; tf.word_wrap = True; tf.vertical_anchor = MSO_ANCHOR.TOP
+    runs = []
+    if title:
+        runs.append((title, 10, True, CODE_CMT, F_MONO))
+    for ln in lines:
+        col = CODE_CMT if ln.strip().startswith("#") else CODE_FG
+        runs.append((ln if ln else " ", 9.5, False, col, F_MONO))
+    _set_runs(tf, runs)
+    for p in tf.paragraphs:
+        p.space_after = Pt(1)
+    return tb
+
+
+def dims_table(slide, l, t, w, rows, row_h=0.345, hdr=("paso", "forma del tensor")):
+    """Tabla nativa de dimensiones (2 columnas: descripción del paso · forma)."""
+    n = len(rows) + 1
+    gtbl = slide.shapes.add_table(n, 2, Inches(l), Inches(t), Inches(w), Inches(row_h * n)).table
+    gtbl.columns[0].width = Inches(w * 0.60)
+    gtbl.columns[1].width = Inches(w * 0.40)
+    gtbl.first_row = False; gtbl.horz_banding = False
+    data = [hdr] + list(rows)
+    for ri, (c0, c1) in enumerate(data):
+        for ci, txt in enumerate((c0, c1)):
+            cell = gtbl.cell(ri, ci)
+            cell.margin_left = Inches(0.06); cell.margin_right = Inches(0.04)
+            cell.margin_top = Inches(0.01); cell.margin_bottom = Inches(0.01)
+            cell.vertical_anchor = MSO_ANCHOR.MIDDLE
+            if ri == 0:
+                cell.fill.solid(); cell.fill.fore_color.rgb = TEAL_SQ
+                col, bold, sz, fnt = WHITE, True, 9.5, F_BODY
+            else:
+                cell.fill.solid(); cell.fill.fore_color.rgb = TEAL_CARD2 if ri % 2 else TEAL_CARD
+                col = INK if ci == 0 else TEAL_TITLE
+                bold = ci == 1; sz = 9.5; fnt = F_BODY if ci == 0 else F_MONO
+            tf = cell.text_frame; tf.word_wrap = True
+            p = tf.paragraphs[0]; p.alignment = PP_ALIGN.LEFT
+            r = p.add_run(); r.text = txt
+            r.font.size = Pt(sz); r.font.bold = bold; r.font.name = fnt; r.font.color.rgb = col
+    return gtbl
+
+
 # ============================================================================
 # Arquetipos B4
 # ============================================================================
-def portada(prs, title, subtitle):
+def portada(prs):
+    """Portada B4: imagen full-bleed limpia, sin overlay (el título va horneado en la imagen)."""
     s = prs.slides.add_slide(_blank(prs))
     s.shapes.add_picture(PORTADA, Inches(0), Inches(-0.02), Inches(SW), Inches(SH + 0.04))
-    # banda translúcida no: título sobre la imagen (caja de texto blanca con leve panel)
-    panel = s.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.0), Inches(3.55), Inches(SW), Inches(1.35))
-    panel.fill.solid(); panel.fill.fore_color.rgb = TEAL_DIV
-    panel.fill.transparency = 0  # sólido
-    panel.line.fill.background(); panel.shadow.inherit = False
-    _set_alpha(panel, 62000)  # ~62% opaco
-    add_textbox(s, 0.6, 3.62, SW - 1.2, 0.8,
-                [(title, 30, True, WHITE, F_TITLE, PP_ALIGN.LEFT)], anchor=MSO_ANCHOR.MIDDLE)
-    add_textbox(s, 0.62, 4.42, SW - 1.2, 0.45,
-                [(subtitle, 15, False, LAV_TITLE, F_BODY, PP_ALIGN.LEFT)], anchor=MSO_ANCHOR.TOP)
     return s
-
-
-def _set_alpha(shape, alpha):
-    """Transparencia del relleno sólido (alpha en 1/1000 %: 62000 = 62%)."""
-    sp = shape.fill._xPr.find(qn("a:solidFill"))
-    srgb = sp.find(qn("a:srgbClr"))
-    a = srgb.makeelement(qn("a:alpha"), {"val": str(alpha)})
-    srgb.append(a)
 
 
 def divider(prs, title, subtitle):
@@ -204,9 +251,9 @@ def divider(prs, title, subtitle):
     return s
 
 
-def content(prs, title, bar=True):
+def content(prs, title, bar=True, size=26):
     s = prs.slides.add_slide(_blank(prs))
-    header(s, title, bar=bar)
+    header(s, title, bar=bar, size=size)
     return s
 
 
@@ -255,171 +302,274 @@ def build():
     prs = Presentation()
     prs.slide_width = Inches(SW); prs.slide_height = Inches(SH)
 
-    # ---- 1. Portada ----
-    s = portada(prs, "MAMMOTH — qué mira por dentro",
-                "Interpretabilidad de expertos y slots · CLAM con Mixture-of-Experts en el patch-embed")
+    # ---- 1. Portada (limpia, sin overlay) ----
+    s = portada(prs)
     notes(s, "Hoy no vengo a decir que mammoth mejora la métrica: eso ya lo cerramos, no es "
-             "una palanca de rendimiento. Vengo a mostrar qué aprende y qué mira mammoth por "
-             "dentro, que es una pregunta distinta y que quedó abierta. Voy a explicar primero "
-             "el mecanismo, con calma esta vez, y después voy a enseñar con imágenes en qué se "
-             "fija cada experto sobre nuestras propias slides de mama.")
+             "una palanca de rendimiento. Lo que traigo es qué aprende y qué mira mammoth por "
+             "dentro, que es una pregunta distinta y quedó abierta. Primero el mecanismo, con "
+             "calma esta vez, y después las imágenes de en qué se fija cada experto sobre "
+             "nuestras propias slides de mama.")
 
-    # ---- 2. Divisoria: MAMMOTH ----
+    # ---- 2. Recapitulación de objetivos (MISMO formato que B4 slide 2:
+    #        título 32pt + lista numerada en un solo cuadro, 24pt Barlow bold gris) ----
+    s = content(prs, "Recapitulación de objetivos", size=32)
+    recap = [
+        "1. Cerramos cuatro ejes de arquitectura y objetivo (agregador, mammoth, PathPT, "
+        "loss): ninguno movió la métrica.",
+        "2. Cero palancas de rendimiento: el cuello de botella es el dato, no la arquitectura.",
+        "3. Se abren dos frentes: magnificación multi-escala e interpretar qué aprende mammoth.",
+        "4. Hoy traigo el segundo eje: entender mammoth por dentro, no rendimiento.",
+    ]
+    tb = s.shapes.add_textbox(Inches(0.35), Inches(1.20), Inches(9.30), Inches(3.95))
+    tf = tb.text_frame; tf.word_wrap = True
+    for i, it in enumerate(recap):
+        p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
+        p.alignment = PP_ALIGN.LEFT; p.space_after = Pt(18)
+        r = p.add_run(); r.text = it
+        r.font.size = Pt(24); r.font.bold = True; r.font.name = F_BODY; r.font.color.rgb = GRIS_BODY
+    notes(s, "Antes de entrar en mammoth, ubico la reunión. En los últimos sprints probamos "
+             "cuatro maneras distintas de cambiar el modelo: cambiar el agregador, meter una "
+             "mezcla de expertos en la primera capa —que es mammoth—, usar lenguaje sobre los "
+             "parches con PathPT, y cambiar la función de pérdida para el desbalance. Ninguna de "
+             "las cuatro movió la métrica. Y las cuatro apuntan al mismo lugar: el problema no "
+             "está en la arquitectura, está en el dato, en el desbalance y en la falta de "
+             "contexto espacial. De ahí salen dos caminos: uno es inyectar señal nueva con "
+             "magnificación multi-escala, que es el frente que estamos armando ahora; el otro es "
+             "entender qué aprende mammoth por dentro. Hoy vengo con el segundo.")
+
+    # ---- 3. Divisoria: MAMMOTH ----
     s = divider(prs, "MAMMOTH", "Mixture-of-Experts en la primera capa de CLAM (patch-embed)")
     notes(s, "Arrancamos por el mecanismo. Mammoth es una intervención quirúrgica en la primera "
              "capa de CLAM, la que proyecta los parches. Nada más de CLAM se toca.")
 
-    # ---- 3. Qué es y por qué (nativo Barlow: 4 tarjetas + Fig 1 del paper) ----
-    s = content(prs, "MAMMOTH — qué es y por qué")
+    # ---- 4. Qué es y por qué (título = acrónimo completo; 3 tarjetas + Fig 1 + Fig 3) ----
+    s = content(prs, "MAMMOTH — MAtrix-factorized Mixture Module of Transformation Heads", size=17)
     cards = [
         "Reemplaza la 1ª capa lineal de CLAM por una mezcla de expertos (MoE).",
-        "Un router envía cada parche a expertos especializados por morfología.",
-        "Objetivo: reducir la interferencia de gradientes entre parches.",
-        "El resto de CLAM no cambia → comparación limpia.",
+        "Un router reparte cada parche entre expertos especializados por morfología.",
+        "Objetivo: bajar la interferencia de gradientes entre parches distintos.",
     ]
-    cy = 1.02
+    cy = 1.05
     for i, txt in enumerate(cards):
-        add_card(s, 0.30, cy, 5.55, 0.86, i + 1, txt, size=13)
-        cy += 0.96
-    add_image_fit(s, FIG1_MAM, 6.05, 1.0, 3.75, 3.55, align="top")
-    caption(s, 6.05, 4.62, 3.75,
+        add_card(s, 0.30, cy, 5.35, 0.95, i + 1, txt, size=13)
+        cy += 1.10
+    add_image_fit(s, FIG1_MAM, 5.95, 0.98, 3.85, 1.85, align="top")
+    caption(s, 5.95, 2.86, 3.85,
             "Fig. 1 — el espacio interno pasa de una nube continua a grupos por experto,\n"
-            "y mejora a todos los agregadores MIL (Shao et al., ICLR 2026)", size=9)
-    notes(s, "En CLAM, una sola capa lineal proyecta todos los parches al espacio interno del "
-             "modelo. Esa única matriz tiene que servir para epitelio, estroma y ductos a la vez, "
-             "así que queda mediocre para todo. La analogía es un solo traductor obligado a "
-             "traducir chino, árabe y ruso con la misma plantilla. Mammoth contrata treinta "
-             "traductores especialistas y un recepcionista, el router, que decide cuánto de cada "
-             "parche mandar a cada especialista. La figura de la derecha es la evidencia del "
-             "paper: a la izquierda el espacio se separa en grupos, uno por experto, y a la "
-             "derecha se ve que la mejora es transversal a todos los agregadores. Lo importante "
-             "para nosotros es la última tarjeta: el resto de CLAM queda intacto, así que la "
-             "comparación es limpia.")
+            "y mejora a todos los agregadores MIL (Shao et al., ICLR 2026)", size=8)
+    add_image_fit(s, FIG3_MAM, 5.95, 3.42, 3.85, 1.42, align="top")
+    caption(s, 5.95, 4.86, 3.85,
+            "Fig. 3 — cada color es el ruteo de un experto sobre la slide; abajo, la "
+            "morfología que resume (tumor, estroma, alvéolos…)", size=8)
+    notes(s, "El nombre es un acrónimo: mammoth junta cabezas de transformación, una mezcla de "
+             "expertos y una factorización de matrices de bajo rango. En CLAM, una sola capa "
+             "lineal proyecta todos los parches al espacio interno del modelo. Esa única matriz "
+             "tiene que servir para epitelio, estroma y ductos a la vez, así que queda mediocre "
+             "para todo. La analogía del paper es un solo traductor obligado a traducir chino, "
+             "árabe y ruso con la misma plantilla. Mammoth contrata treinta traductores "
+             "especialistas y un recepcionista, el router, que decide cuánto de cada parche "
+             "mandar a cada especialista. Las dos figuras son la evidencia. Arriba, el espacio "
+             "interno pasa de una nube continua a grupos separados, uno por experto, y la mejora "
+             "es transversal a todos los agregadores. Abajo, cada color es un experto pintado "
+             "sobre la lámina, y debajo se ve la morfología que ese experto resume; esa figura "
+             "es exactamente el análisis que después reproduzco sobre nuestras slides de mama.")
 
-    # ---- 4. Diagrama: pipeline CLAM + punto de integración (reusado, escalado) ----
+    # ---- 5. Diagrama: pipeline CLAM + punto de integración (reusado, escalado) ----
     s = copy_diagram_scaled(prs, DIAG_MAM, 0, title=None, bar=False)
     notes(s, "Este es el pipeline completo de CLAM. Entra la slide como parches, el extractor "
              "CONCH le da a cada parche un vector de quinientos doce números, y de ahí siguen la "
              "atención y el clasificador. El único bloque que cambia es el naranja: ahí es donde "
              "mammoth reemplaza la primera capa lineal. Todo lo demás es CLAM tal cual.")
 
-    # ---- 5. Diagrama: interior de MAMMOTH — el tensor 30x16x10x16 (reusado, escalado) ----
-    s = copy_diagram_scaled(prs, DIAG_MAM, 1, title=None, bar=False)
-    notes(s, "Este es el interior de mammoth, y es la parte que se me cayó la vez pasada, así "
-             "que la voy a decir despacio. Los parches entran como un query. Ese query se compara "
-             "con unos prototipos aprendidos: el tensor de treinta por dieciséis por diez por "
-             "dieciséis. Se lee así: treinta expertos, cada uno con dieciséis cabezas, cada cabeza "
-             "con diez slots, y cada slot es un vector de dieciséis. El dieciséis aparece dos "
-             "veces porque el número de cabezas y la dimensión de cada prototipo tienen que "
-             "coincidir para poder compararlos con un producto interno. En total son trescientos "
-             "slots. El router reparte cada parche entre esos slots con una softmax, cada experto "
-             "los procesa con una transformación de bajo rango, y al final se recombina todo y se "
-             "reconstruyen los parches. Una aclaración importante: las cabezas no son textura, "
-             "forma y color; son subespacios aprendidos, como en atención multi-cabeza. La "
-             "semántica de tejido no vive en las cabezas, vive en los slots.")
+    # ---- 6. Interior de MAMMOTH: matrices+dims Y código en paralelo (NATIVO) ----
+    s = content(prs, "Por dentro de MAMMOTH: dimensiones y código")
+    add_textbox(s, 0.30, 0.86, 4.7, 0.3, [("El tensor, paso a paso", 13, True, TEAL_TITLE, F_TITLE)])
+    dims_table(s, 0.30, 1.20, 4.72, [
+        ("z · features CONCH (parche)", "[N, 512]"),
+        ("q = LN(Wq · z)", "[N, 256]"),
+        ("split en 16 cabezas", "[N, 16, 16]"),
+        ("S · prototipos (slot_embeds)", "[30,16,10,16]"),
+        ("logits de ruteo ⟨q, S⟩", "[N,30,16,10]"),
+        ("D = softmax sobre N (dispatch)", "[N,30,16,10]"),
+        ("u · slots (media ponderada)", "[30,16,10,16]"),
+        ("expertos LoRA + concat cabezas", "[300, 512]"),
+        ("combine → salida drop-in", "[N, 512]"),
+    ], row_h=0.30)
+    add_textbox(s, 0.30, 4.24, 4.72, 0.44, [
+        ("El 16 aparece dos veces: nº de cabezas y dimensión de cada prototipo (256/16), para "
+         "compararlos con un producto interno. 30 expertos × 10 slots = 300.",
+         8.5, False, GRIS_BODY, F_BODY)])
+    add_textbox(s, 5.20, 0.86, 4.6, 0.3, [("El código real (mammoth.py)", 13, True, TEAL_TITLE, F_TITLE)])
+    code_panel(s, 5.20, 1.20, 4.60, 3.00, [
+        "q = norm(wq(z))              # [N,512]->[N,256]",
+        'q = rearrange(q,             # -> [N,16,16]',
+        '      "n (h d)->n h d", h=16)',
+        'logits = einsum("n h d, e h s d',
+        '                 -> n e h s", q, S)',
+        "                             # S=[30,16,10,16]",
+        "dispatch = softmax(logits, dim=N)",
+        'u = einsum("n h d, n e h s',
+        '            -> e h s d", q, dispatch)',
+        "out = expert_heads(u)        # LoRA -> [300,512]",
+        "# drop-in (keep_slots=False):",
+        'out = einsum("h p d, n h p -> n h d",',
+        "             out, combine)   # -> [N,512]",
+    ])
+    takeaway_bar(s, "Las cabezas son subespacios aprendidos (multi-head), no textura/forma/color: "
+                    "la semántica de tejido vive en los slots.", t=4.80, size=12)
+    notes(s, "Este es el interior de mammoth, y es la parte que se me cayó la vez pasada, así que "
+             "la voy a decir despacio, con las dimensiones y el código al lado. Cada parche entra "
+             "como un vector de quinientos doce, la z. Lo primero es proyectarlo a un query de "
+             "doscientos cincuenta y seis y partirlo en dieciséis cabezas de dieciséis. En "
+             "paralelo el modelo tiene sus prototipos aprendidos, el tensor treinta por dieciséis "
+             "por diez por dieciséis: treinta expertos, cada uno con dieciséis cabezas, cada "
+             "cabeza con diez slots, y cada slot es un vector de dieciséis. El dieciséis aparece "
+             "dos veces porque el número de cabezas y la dimensión del prototipo tienen que "
+             "coincidir para compararlos con un producto interno; en total son trescientos slots. "
+             "El ruteo compara query contra prototipos, una softmax reparte cada parche entre los "
+             "slots, y con esos pesos se arma el promedio ponderado que llena los slots. Cada "
+             "experto los procesa con una transformación de bajo rango y se concatenan las "
+             "cabezas. En la variante normal un segundo softmax recombina los trescientos slots y "
+             "reconstruye los parches, así que la salida tiene la misma forma que una capa lineal; "
+             "por eso es drop-in. La aclaración importante: las cabezas no son textura, forma y "
+             "color; son subespacios aprendidos, como en atención multi-cabeza. La semántica de "
+             "tejido no vive en las cabezas, vive en los slots.")
 
-    # ---- 6. keep_slots: dónde se bifurca la salida (reusado, escalado) ----
-    s = copy_diagram_scaled(prs, DIAG_FUSED, 1, title="MAMMOTH — la variante keep_slots", bar=True)
-    notes(s, "Hay una variante, keep_slots, que en vez de reconstruir los parches se queda con "
-             "los trescientos slots como salida. La menciono para completar el mecanismo, pero es "
-             "una variante de rendimiento; para lo de hoy, que es entender qué mira el modelo, la "
-             "interpretabilidad se calcula antes de esta bifurcación y vale igual para las dos.")
+    # ---- 7. Flujo de datos sobre la arquitectura oficial (reusado B5-s7 + variables) ----
+    s = copy_diagram_scaled(prs, DIAG_FUSED, 0, title=None, bar=False, scale=0.72)
+    add_textbox(s, 0.30, 4.98, SW - 0.6, 0.5, [
+        ("Variables por bloque:  z → q (query) → ⟨q, S⟩ → D (dispatch) → u = 300 slots → "
+         "o [300,512] → h [N,512] → CLAM.",
+         11, True, TEAL_TITLE, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
+    notes(s, "Esta es la misma figura oficial del paper, y quiero recorrerla bloque por bloque "
+             "diciendo qué entra y qué sale de cada uno, porque acá es donde se arma toda la "
+             "cadena. Entra la slide y el encoder CONCH le da a cada parche su vector z de "
+             "quinientos doce. La proyección lo convierte en el query q de doscientos cincuenta y "
+             "seis, que ya está partido en dieciséis cabezas. El ruteo por slots compara ese query "
+             "contra los prototipos y produce el dispatch D, que reparte cada parche entre los "
+             "trescientos slots. Con eso se llenan los slots, u, y los expertos de bajo rango los "
+             "transforman en la salida o de trescientos por quinientos doce. La concatenación de "
+             "cabezas reconstruye h, otra vez con la forma de N parches por quinientos doce, y "
+             "recién ahí entra CLAM con su atención y su clasificador para dar el diagnóstico. "
+             "El punto es que mammoth solo reemplaza ese tramo del principio; lo de CLAM queda "
+             "igual.")
 
-    # ---- 7. Divisoria: Interpretabilidad (OBJ-A) ----
+    # ---- 8. keep_slots: la bifurcación, con math+código (NATIVO) ----
+    s = content(prs, "La variante keep_slots: dónde cambia la salida")
+    # tronco compartido
+    trunk = _rect(s, 0.30, 0.98, 9.4, 0.66, TEAL_CARD, line=TEAL_SQ)
+    add_textbox(s, 0.46, 1.00, 9.1, 0.62, [
+        ("Tronco compartido — idéntico a la slide anterior:  z → q → ruteo → expertos  →  "
+         "out = concat de expertos  [300, 512]", 12.5, True, INK, F_BODY)], anchor=MSO_ANCHOR.MIDDLE)
+    # rama izquierda: keep_slots=False
+    add_textbox(s, 0.30, 1.80, 4.6, 0.3, [("keep_slots = False  ·  drop-in (base)", 12.5, True, TEAL_TITLE, F_TITLE)])
+    code_panel(s, 0.30, 2.14, 4.6, 1.5, [
+        "# 2º softmax recombina los 300 slots",
+        'out = einsum("h p d, n h p -> n h d",',
+        "             out, combine)",
+        'out = rearrange(out,"n h d->n (h d)")',
+        "                          # -> [N, 512]",
+    ])
+    add_textbox(s, 0.30, 3.72, 4.6, 0.95, [
+        ("Reconstruye los N parches (cardinalidad N → N). CLAM agrega sobre los N parches, "
+         "igual que la capa lineal original.", 12, False, GRIS_BODY, F_BODY)])
+    # rama derecha: keep_slots=True
+    add_textbox(s, 5.10, 1.80, 4.6, 0.3, [("keep_slots = True  ·  variante nueva", 12.5, True, ORA_T, F_TITLE)])
+    code_panel(s, 5.10, 2.14, 4.6, 1.5, [
+        "# se salta la recombinación",
+        "return out                # -> [300, 512]",
+        "#     300 slot-tokens como salida",
+        "#     (+ slot_dropout opcional)",
+    ])
+    add_textbox(s, 5.10, 3.72, 4.6, 0.95, [
+        ("Se queda con los 300 slots (cuello de botella aprendido N → 300). CLAM agrega sobre "
+         "los 300 slots, no sobre los parches.", 12, False, GRIS_BODY, F_BODY)])
+    takeaway_bar(s, "Misma cabeza CLAM y misma pérdida — cambia solo qué se agrega. La "
+                    "interpretabilidad se calcula antes de la bifurcación → vale para las dos.",
+                 t=4.78, size=12)
+    notes(s, "Hay una variante que se llama keep_slots y quiero mostrar exactamente dónde cambia. "
+             "Hasta arriba todo es igual: proyección, ruteo, expertos, y quedan los trescientos "
+             "slots. La bifurcación es una sola línea. En la versión normal, keep_slots en falso, "
+             "un segundo softmax recombina los trescientos slots y reconstruye los N parches, así "
+             "que CLAM sigue agregando sobre los parches como siempre; es un reemplazo directo de "
+             "la capa lineal. En la versión nueva, keep_slots en verdadero, el modelo se salta esa "
+             "recombinación y entrega los trescientos slots como salida, y entonces CLAM agrega "
+             "sobre trescientos tokens en vez de sobre los parches. La menciono para completar el "
+             "mecanismo, pero es una variante de rendimiento; para lo de hoy da igual, porque la "
+             "interpretabilidad se calcula antes de esta bifurcación y vale para las dos.")
+
+    # ---- 9. Divisoria: Interpretabilidad (OBJ-A) ----
     s = divider(prs, "¿Qué mira cada experto?",
                 "Interpretabilidad post-hoc sobre un checkpoint entrenado · 4 slides TCGA-BRCA")
     notes(s, "Con el mecanismo claro, pasamos a lo nuevo: mirar, sobre nuestras propias slides, "
              "qué región reclama cada experto y qué morfología hay ahí. Es análisis post-hoc en "
              "CPU sobre un modelo ya entrenado, no reentrena nada.")
 
-    # ---- 8. Ruteo espacial: heatmaps por experto ----
-    s = content(prs, "Ruteo espacial — cada experto reclama regiones distintas")
-    add_image_fit(s, HEATMAP_MONTAGE, 0.30, 0.95, 6.7, 4.35, align="top")
-    add_textbox(s, 7.15, 1.05, 2.65, 4.2, [
-        ("Cada panel = la slide pintada por cuánto el router manda cada parche a ese experto.",
-         13, True, INK, F_BODY),
-        ("Los 30 encienden regiones distintas → la capa única se volvió especialistas "
-         "espaciales.", 12, False, GRIS_BODY, F_BODY),
-        ("Color = percentil por experto: muestra estructura relativa, no magnitud de uso.",
-         11, False, ORA_T, F_BODY),
+    # ---- 10. Ruteo espacial (dónde) + morfología top-k (qué) — FUSIÓN ----
+    s = content(prs, "Qué mira cada experto: dónde y qué morfología")
+    add_image_fit(s, HEATMAP_MONTAGE, 0.30, 0.98, 4.95, 3.35, align="top")
+    caption(s, 0.30, 4.38, 4.95, "Ruteo espacial: los 30 expertos encienden zonas distintas", size=9)
+    add_image_fit(s, TOPK_SUBSET, 5.42, 0.98, 2.55, 3.05, align="top")
+    add_textbox(s, 8.05, 1.05, 1.80, 3.2, [
+        ("Top-k a alta resolución:", 11.5, True, INK, F_BODY),
+        ("e8 → epitelio tumoral", 12, True, TEAL_TITLE, F_BODY),
+        ("e26 → estroma fibroso", 12, True, TEAL_TITLE, F_BODY),
+        ("e3 → epitelio ductal", 12, True, TEAL_TITLE, F_BODY),
+        ("Color = percentil por experto (estructura relativa, no magnitud de uso).",
+         9.5, False, ORA_T, F_BODY),
     ], anchor=MSO_ANCHOR.TOP)
-    notes(s, "Cada uno de estos treinta cuadros es la misma slide, pintada según cuánto el "
-             "router manda cada parche a un experto. Rojo es mucho, azul es casi nada. Lo que "
-             "importa es que los treinta encienden zonas distintas: la capa lineal única se "
-             "reemplazó por especialistas que miran regiones diferentes del tejido. Un aviso "
-             "honesto: el color está normalizado por percentil dentro de cada experto, así que "
-             "sirve para ver dónde prefiere mirar cada uno, no para decir cuál se usa más. Eso "
-             "por separado sale casi uniforme: no hay expertos muertos ni acaparadores.")
+    caption(s, 5.42, 4.12, 2.55, "Morfología que cada experto rutea (Fig 3.2)", size=9)
+    takeaway_bar(s, "Heatmap = dónde · top-k = qué morfología. Emergió sin supervisión de tejido "
+                    "(el paper lo validó con patólogos).", t=4.82, size=12)
+    notes(s, "Junté las dos vistas porque cuentan una sola historia. A la izquierda, cada uno de "
+             "los treinta cuadros es la misma slide pintada según cuánto el router manda cada "
+             "parche a un experto: rojo mucho, azul casi nada. Lo que importa es que los treinta "
+             "encienden zonas distintas, así que la capa lineal única se reemplazó por "
+             "especialistas que miran regiones diferentes del tejido. Un aviso honesto: el color "
+             "está normalizado por percentil dentro de cada experto, sirve para ver dónde prefiere "
+             "mirar cada uno, no para decir cuál se usa más; medido aparte, el uso sale casi "
+             "uniforme, no hay expertos muertos ni acaparadores. Pero el mapa de calor dice dónde, "
+             "no qué tejido hay ahí. Eso lo cierra la derecha: para cada experto tomo los parches "
+             "que más rutea y los recorto a alta resolución. Se ve directo: el experto ocho mira "
+             "nidos de epitelio tumoral, el veintiséis mira estroma fibroso rosado, el tres mira "
+             "ductos. Es la misma especialización que el paper validó con dos patólogos, y lo "
+             "notable es que emerge sola, nadie le dijo al modelo qué es estroma. Los expertos "
+             "mixtos que aparecen son esperables, porque el ruteo es suave y reparte cada parche "
+             "entre varios.")
 
-    # ---- 9. Morfología por experto: top-k ----
-    s = content(prs, "Morfología por experto — del «dónde» al «qué»")
-    add_image_fit(s, TOPK_SUBSET, 0.30, 0.95, 6.5, 4.4, align="top")
-    add_textbox(s, 6.95, 1.05, 2.85, 4.2, [
-        ("El top-k recorta a alta resolución los parches que cada experto más rutea.", 13, True, INK, F_BODY),
-        ("e8 → epitelio tumoral", 13, True, TEAL_TITLE, F_BODY),
-        ("e26 → estroma fibroso", 13, True, TEAL_TITLE, F_BODY),
-        ("e3 → epitelio ductal", 13, True, TEAL_TITLE, F_BODY),
-        ("Heatmap = dónde; top-k = qué morfología.", 12, False, GRIS_BODY, F_BODY),
-        ("Emergió sin supervisión de tejido (paper Fig 3, validado por patólogos).",
-         11, False, ORA_T, F_BODY),
-    ], anchor=MSO_ANCHOR.TOP)
-    notes(s, "El mapa de calor dice dónde, pero no qué tejido hay ahí. El top-k cierra ese "
-             "hueco: para cada experto tomo los parches que más rutea y los recorto a alta "
-             "resolución para mirarlos con los ojos. Se ve directo: el experto ocho mira nidos de "
-             "epitelio tumoral, el veintiséis mira estroma fibroso rosado, el tres mira ductos. "
-             "Es la misma especialización que el paper validó con dos patólogos, y lo notable es "
-             "que emerge sola durante el entrenamiento, nadie le dijo al modelo qué es estroma. "
-             "Los expertos mixtos que se ven son esperables, porque el ruteo es suave y reparte "
-             "cada parche entre varios.")
-
-    # ---- 10. Estabilidad cross-slide → morfología ≠ clase ----
-    s = content(prs, "Estabilidad cross-slide — el experto detecta tejido, no clase")
-    add_image_fit(s, XSLIDE_E8, 0.30, 0.95, 6.4, 2.05, align="top")
-    add_image_fit(s, XSLIDE_E26, 0.30, 3.10, 6.4, 2.05, align="top")
-    caption(s, 0.30, 5.18, 6.4, "e8 (epitelio) y e26 (estroma), cada uno en las 4 slides — 2 positivas + 2 negativas", size=9, align=PP_ALIGN.LEFT)
-    add_textbox(s, 6.85, 1.05, 2.95, 4.2, [
-        ("El mismo experto elige la misma morfología en las 4 slides — incluidas las negativas.",
+    # ---- 11. Morfología ≠ clase (cross-slide) + honestidad/cierre — FUSIÓN ----
+    s = content(prs, "El experto detecta tejido, no clase")
+    add_image_fit(s, XSLIDE_E8, 0.30, 0.98, 4.95, 1.62, align="top")
+    add_image_fit(s, XSLIDE_E26, 0.30, 2.70, 4.95, 1.62, align="top")
+    caption(s, 0.30, 4.40, 4.95, "e8 (epitelio) y e26 (estroma) en las 4 slides (2 pos + 2 neg)", size=8.5, align=PP_ALIGN.LEFT)
+    add_textbox(s, 5.45, 0.98, 4.35, 3.7, [
+        ("El mismo experto elige la misma morfología en las 4 slides, incluidas las negativas.",
          13, True, INK, F_BODY),
         ("«Negativo» = cdis sin microcalcificación, no «sin tumor» → sigue habiendo epitelio.",
          12, False, GRIS_BODY, F_BODY),
         ("Un experto es un detector de TEJIDO, no de clase. La clase se decide después "
-         "(atención + clasificador).", 12, True, ORA_T, F_BODY),
+         "(atención + clasificador).", 12.5, True, ORA_T, F_BODY),
+        ("", 6, False, INK, F_BODY),
+        ("Honestidad:  4 slides · 1 tarea · 1 fold. Etiquetas de tejido provisionales → "
+         "falta sign-off de patólogo.", 11.5, False, GRIS_BODY, F_BODY),
     ], anchor=MSO_ANCHOR.TOP)
-    notes(s, "Como los prototipos son parámetros compartidos del modelo, el experto ocho es el "
-             "mismo experto en todas las slides. Entonces hay una prueba limpia: si su "
-             "especialización es real, tiene que elegir la misma morfología en todas. Y así es: "
-             "el ocho enciende epitelio en las cuatro, el veintiséis estroma en las cuatro, "
-             "incluidas las negativas. La clave es que negativo acá quiere decir cdis sin "
-             "microcalcificación, no sin tumor: siguen siendo slides de mama con epitelio. Es "
-             "decir, el experto detecta tejido, no clase. La decisión de si la slide es positiva "
-             "viene después, en la atención y el clasificador.")
-
-    # ---- 11. Honestidad + cierre (dos ejes ortogonales) ----
-    s = content(prs, "Lo que muestra — y lo que todavía falta")
-    add_textbox(s, 0.35, 1.0, 4.55, 4.3, [
-        ("Lo que sí afirmamos", 16, True, TEAL_TITLE, F_TITLE),
-        ("Los expertos se especializan por morfología (epitelio, estroma, ducto).", 13, False, INK, F_BODY),
-        ("La especialización es estable entre slides.", 13, False, INK, F_BODY),
-        ("Detectan tejido, no clase → confirma que el cuello no está en la 1ª capa.", 13, False, INK, F_BODY),
-    ], anchor=MSO_ANCHOR.TOP)
-    add_textbox(s, 5.15, 1.0, 4.5, 4.3, [
-        ("Honestidad", 16, True, ORA_T, F_TITLE),
-        ("Cala cualitativa: 4 slides, 1 tarea, 1 fold.", 13, False, GRIS_BODY, F_BODY),
-        ("Etiquetas de tejido provisionales → falta sign-off de patólogo.", 13, False, GRIS_BODY, F_BODY),
-        ("Dos ejes ortogonales: rendimiento (cerrado) vs entendimiento (abierto).", 13, True, INK, F_BODY),
-    ], anchor=MSO_ANCHOR.TOP)
-    _rect(s, 0.35, 4.75, SW - 0.7, 0.02, TEAL_SQ)
-    add_textbox(s, 0.35, 4.85, SW - 0.7, 0.6, [
-        ("Mostrar qué mira mammoth no reabre el veredicto de rendimiento — le da un mecanismo.",
-         14, True, TEAL_TITLE, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
-    notes(s, "Cierro con lo que sí puedo afirmar y lo que falta. Sí: los expertos se especializan "
-             "por morfología, de forma estable, y detectan tejido y no clase. Eso último es "
-             "justamente la evidencia de que el cuello de botella no está en la primera capa, "
-             "sino en el dato. La honestidad: es una cala chica, cuatro slides, una tarea, y las "
-             "etiquetas de tejido todavía son mías, faltan los ojos de un patólogo. Y lo más "
-             "importante para no confundir: son dos ejes distintos. Que mammoth no mejore la "
-             "métrica está cerrado; qué aprende por dentro está abierto, y es lo que traje. "
-             "Mostrar qué mira no reabre nada, le pone un mecanismo.")
+    takeaway_bar(s, "Que la especialización sea real y aun así no mueva la métrica es la evidencia "
+                    "de que el cuello no está en la 1ª capa, sino en el dato.", t=4.82, size=12)
+    notes(s, "Esta es la prueba más fina, y con ella cierro. Como los prototipos son parámetros "
+             "compartidos del modelo, el experto ocho es el mismo experto en todas las slides. "
+             "Entonces hay una prueba limpia: si su especialización es real, tiene que elegir la "
+             "misma morfología en todas. Y así es: el ocho enciende epitelio en las cuatro, el "
+             "veintiséis estroma en las cuatro, incluidas las negativas. La clave es que negativo "
+             "acá quiere decir cdis sin microcalcificación, no sin tumor: siguen siendo slides de "
+             "mama con epitelio. Es decir, el experto detecta tejido, no clase; la decisión de si "
+             "la slide es positiva viene después, en la atención y el clasificador. Y esto es lo "
+             "más valioso para la discusión: que los expertos separen bien los tejidos y aun así "
+             "mammoth no le gane a CLAM en métrica es justamente la evidencia de que el cuello de "
+             "botella no está en la primera capa, está en el dato. Con la honestidad por delante: "
+             "es una cala chica, cuatro slides, una tarea, un fold, y las etiquetas de tejido "
+             "todavía son mías, faltan los ojos de un patólogo. Son dos ejes distintos: que "
+             "mammoth no mejore la métrica está cerrado; qué aprende por dentro está abierto, y es "
+             "lo que traje. Mostrar qué mira no reabre nada, le pone un mecanismo.")
 
     os.makedirs(OUT_DIR, exist_ok=True)
     prs.save(DST)
