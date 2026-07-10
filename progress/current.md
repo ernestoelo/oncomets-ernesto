@@ -84,11 +84,17 @@ el agente LMM. Insumo: `sprints/B5_sprint5/magnificacion/analisis_cpathagent.md`
   sobre los top-k (cierra la métrica de la hipótesis). Eje ortogonal, no rendimiento.
   [[mammoth-interpretabilidad-objA]].
 - **Deck reunión viernes 10-jul (eje Benjamín = entender/interpretar mammoth)**:
-  CONSTRUIDO y editado 9-jul según feedback de Ernesto — 11 slides, formato B4,
-  `sprints/B6_sprint6/presentacion_viernes/generate_b6_deck.py` (el `.pptx` es
-  derivado gitignored). **Pendiente**: verificación fina en PowerPoint + ensayo del
-  guion. Convenciones + mapa vigente en `convenciones_deck_b6.md` §6.
-  [[deck-molde-fiel-referencia]].
+  CONSTRUIDO 9-jul + **2ª ronda de ediciones 10-jul** — 11 slides, formato B4,
+  `sprints/B6_sprint6/presentacion_viernes/generate_b6_deck.py` (el `.pptx` y los
+  assets `papers/presentations/` son derivados **gitignored**, locales a este server).
+  Ronda 2: recap con **marcadores de estado** (check verde / pill "En progreso") y
+  **objetivos reescritos** (infinitivo, sin resultados); **s7** rehecha (figura del
+  paper GRANDE y limpia, sin logo/título ni callouts encima, + `dim_pipeline` de
+  dimensiones en la notación de la figura); **s11** con imágenes cross-slide
+  agrandadas; **notas del presentador humanizadas** en las 11 slides. Convenciones +
+  mapa vigente en `convenciones_deck_b6.md` **§7**; hallazgos ronda 2 en
+  `auditoria_coherencia/hallazgos_deck_10jul.md`. **Pendiente**: QA fino en
+  **PowerPoint** (OMML del diagrama s5) + ensayo del guion. [[deck-molde-fiel-referencia]].
 - **Palancas de datos de reserva** si la magnificación no basta: **HistAug**
   (augmentación en espacio de features, verificar CONCH v1 512) y **TITAN** (caro,
   re-extrae CONCHv1.5 768). [[insuficiencia-datos-ejes-investigacion]].
