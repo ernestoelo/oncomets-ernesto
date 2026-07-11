@@ -1,0 +1,77 @@
+
+==========================================================================
+TASK: invasion_linfatica_vascular  (n_classes=3)
+==========================================================================
+Setting tau to 1.0
+  fold 0: n_test=281 minoria=cls2(n=37) AUC=0.820 | bal base=0.601 cal=0.632 (Δ=+0.031) oracle=0.650 | minrec 0.78→0.51 | drift=13 slides (.pkl bal=0.621)
+Setting tau to 1.0
+  fold 1: n_test=283 minoria=cls2(n=36) AUC=0.840 | bal base=0.589 cal=0.618 (Δ=+0.029) oracle=0.691 | minrec 0.61→0.44 | drift=22 slides (.pkl bal=0.582)
+Setting tau to 1.0
+  fold 2: n_test=283 minoria=cls2(n=36) AUC=0.797 | bal base=0.602 cal=0.603 (Δ=+0.001) oracle=0.635 | minrec 0.53→0.39 | drift=19 slides (.pkl bal=0.609)
+Setting tau to 1.0
+  fold 3: n_test=282 minoria=cls2(n=37) AUC=0.799 | bal base=0.603 cal=0.579 (Δ=-0.023) oracle=0.622 | minrec 0.59→0.27 | drift=16 slides (.pkl bal=0.630)
+Setting tau to 1.0
+  fold 4: n_test=279 minoria=cls2(n=36) AUC=0.861 | bal base=0.640 cal=0.648 (Δ=+0.008) oracle=0.655 | minrec 0.75→0.53 | drift=22 slides (.pkl bal=0.668)
+
+  AGREGADO invasion_linfatica_vascular:
+    AUC test              = 0.823 ± 0.025
+    bal_acc base (argmax) = 0.607 ± 0.017
+    bal_acc calibrado     = 0.616 ± 0.024
+    Δ pareado (cal-base)  = +0.009 ± 0.020  (signos: +4 / -1 de 5)
+    oracle (upper-bound)  = 0.650  [factibilidad, NO resultado]
+    recall minoritaria    = 0.65 → 0.43
+    confusión sumada base = [[92, 46, 103], [76, 774, 135], [31, 32, 119]]
+    confusión sumada cal  = [[157, 32, 52], [162, 756, 67], [72, 32, 78]]
+    baseline .pkl congelado (histórico) = 0.622  [drift total 92 slides re-extraídas, features actuales usadas]
+
+==========================================================================
+TASK: cdis_necrosis_2clases  (n_classes=2)
+==========================================================================
+Setting tau to 1.0
+  fold 0: n_test= 39 minoria=cls0(n= 8) AUC=0.702 | bal base=0.621 cal=0.639 (Δ=+0.018) oracle=0.702 | minrec 0.50→0.38 | drift=2 slides (.pkl bal=0.653)
+Setting tau to 1.0
+  fold 1: n_test= 39 minoria=cls0(n= 8) AUC=0.810 | bal base=0.732 cal=0.732 (Δ=+0.000) oracle=0.778 | minrec 0.62→0.62 | drift=2 slides (.pkl bal=0.607)
+Setting tau to 1.0
+  fold 2: n_test= 40 minoria=cls0(n= 8) AUC=0.645 | bal base=0.609 cal=0.594 (Δ=-0.016) oracle=0.672 | minrec 0.50→0.50 | drift=3 slides (.pkl bal=0.656)
+Setting tau to 1.0
+  fold 3: n_test= 41 minoria=cls0(n= 8) AUC=0.750 | bal base=0.720 cal=0.737 (Δ=+0.017) oracle=0.767 | minrec 0.50→0.62 | drift=3 slides (.pkl bal=0.610)
+Setting tau to 1.0
+  fold 4: n_test= 40 minoria=cls0(n= 8) AUC=0.684 | bal base=0.594 cal=0.547 (Δ=-0.047) oracle=0.734 | minrec 0.38→0.75 | drift=3 slides (.pkl bal=0.641)
+
+  AGREGADO cdis_necrosis_2clases:
+    AUC test              = 0.718 ± 0.057
+    bal_acc base (argmax) = 0.655 ± 0.058
+    bal_acc calibrado     = 0.650 ± 0.075
+    Δ pareado (cal-base)  = -0.005 ± 0.024  (signos: +2 / -2 de 5)
+    oracle (upper-bound)  = 0.731  [factibilidad, NO resultado]
+    recall minoritaria    = 0.50 → 0.57
+    confusión sumada base = [[20, 20], [30, 129]]
+    confusión sumada cal  = [[23, 17], [44, 115]]
+    baseline .pkl congelado (histórico) = 0.633  [drift total 13 slides re-extraídas, features actuales usadas]
+
+==========================================================================
+TASK: grado_mitotic_3clases  (n_classes=3)
+==========================================================================
+Setting tau to 1.0
+  fold 0: n_test=118 minoria=cls2(n=25) AUC=0.757 | bal base=0.493 cal=0.525 (Δ=+0.032) oracle=0.613 | minrec 0.28→0.44 | drift=10 slides (.pkl bal=0.506)
+Setting tau to 1.0
+  fold 1: n_test=118 minoria=cls2(n=26) AUC=0.698 | bal base=0.484 cal=0.532 (Δ=+0.048) oracle=0.552 | minrec 0.69→0.54 | drift=3 slides (.pkl bal=0.504)
+Setting tau to 1.0
+  fold 2: n_test=117 minoria=cls2(n=25) AUC=0.681 | bal base=0.459 cal=0.522 (Δ=+0.063) oracle=0.552 | minrec 0.44→0.56 | drift=6 slides (.pkl bal=0.461)
+Setting tau to 1.0
+  fold 3: n_test=118 minoria=cls2(n=25) AUC=0.698 | bal base=0.411 cal=0.498 (Δ=+0.087) oracle=0.535 | minrec 0.28→0.64 | drift=8 slides (.pkl bal=0.435)
+Setting tau to 1.0
+  fold 4: n_test=117 minoria=cls2(n=25) AUC=0.772 | bal base=0.575 cal=0.576 (Δ=+0.002) oracle=0.604 | minrec 0.76→0.72 | drift=4 slides (.pkl bal=0.563)
+
+  AGREGADO grado_mitotic_3clases:
+    AUC test              = 0.721 ± 0.036
+    bal_acc base (argmax) = 0.484 ± 0.053
+    bal_acc calibrado     = 0.531 ± 0.026
+    Δ pareado (cal-base)  = +0.046 ± 0.029  (signos: +5 / -0 de 5)
+    oracle (upper-bound)  = 0.571  [factibilidad, NO resultado]
+    recall minoritaria    = 0.49 → 0.58
+    confusión sumada base = [[234, 58, 28], [76, 33, 33], [25, 39, 62]]
+    confusión sumada cal  = [[227, 61, 32], [64, 43, 35], [23, 30, 73]]
+    baseline .pkl congelado (histórico) = 0.494  [drift total 31 slides re-extraídas, features actuales usadas]
+
+[OK] resultados → /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/sprints/B6_sprint6/tier0_calibracion/tier0_results.json
