@@ -168,6 +168,23 @@ aplicar el fix correspondiente sin investigar de nuevo.
   working tree es compartido, verificá la rama" — acá el riesgo es contra el
   job, no contra el commit.)
 
+### I. `create_patches_fp --process_list` crashea con slide_id numéricos
+
+- **Síntoma**: patching que corre OK en TCGA pero **falla en toda la cohorte
+  privada** con `AttributeError: 'numpy.int64' object has no attribute 'replace'`
+  (status `failed` en el log, no en el preflight).
+- **Causa**: `create_patches_fp.py` re-lee el `--process_list` con
+  `pd.read_csv` **sin `dtype`**; los `slide_id` privados **numéricos puros**
+  (`105040`) se infieren `int64` → `get_clean_slide_name` llama `.replace` sobre
+  un int (`environ_utils.py:182`). TCGA se salva (IDs con letras).
+- **Fix** (clam_environ es read-only → no se puede parchear el `read_csv`): para
+  restringir el set NO usar `--process_list`; construir un **symlink-farm plano**
+  por cohorte (una symlink por WSI del piloto bajo `clam_testing2/`) y correr
+  `create_patches_fp` con `--source <farm>` **sin `--process_list` ni
+  `--nested_folders`** (modo flat → nombres string desde `os.listdir`). Cazado por
+  el dry-run del gate (c) del B6 (10-jul). Memoria
+  [[create-patches-processlist-int64-privado]].
+
 ### Reglas de commit y push para Claude Code
 
 - **Commits locales**: SÍ — granulares, mensajes conventional commits.
