@@ -61,10 +61,10 @@ El diseño **supera** el encuadre naïve del Eje A, no lo contradice.
 3. **Co-firma de Sebastián sobre las escalas** (112µm/512µm, fusión promedio) — gate exploratorio
    ([[gobernanza-gate-cofirma-sebastian]]), a llevar a la reunión del lunes.
 4. **Re-entrenar brazo A** sobre features actuales (drift TCGA, ver Tier 0) — no reusar checkpoints viejos.
-5. **O3 (stage-3 training slurm):** el grid común de 112 µm usa parches más grandes (TCGA 482 px / privado 241 px)
-   → **menos parches por slide** → mayor riesgo del crash `topk`/`inst_eval` (B=8, bug run 4096). El `.slurm` de
-   ENTRENAMIENTO debe llevar el **preflight minpatch** (workaround G) apuntando a los **nuevos** feature dirs
-   (`$FEAT_B0`/`$FEAT_B`), no a los viejos.
+5. ✅ **O3 (stage-3 training slurm) — ATENDIDO.** `train_multiscale_stage3.slurm` PREPARADO (no lanzado): lleva
+   **preflight minpatch por fold** (workaround G, `--min_patches 8`) apuntando al feature dir de cada brazo, y un
+   **backfill del pairing** (symlink de las 45 HistAI single-scale + faltantes en B0/B → los 3 brazos cubren las
+   mismas 328 slides). Depende de stage-2 (lo chequea el preflight global). Validado `bash -n` + heredoc compila.
 6. **O1 (conteo, RESUELTO):** el piloto es **TCGA 207 + privado 76 = 283** (= slidelist + preflight); el pre-registro
    e investigación decían 77/284 — corregido. Una slide privada del set identificado (77) no entró al slidelist;
    confirmar cuál al consolidar los `.h5`.

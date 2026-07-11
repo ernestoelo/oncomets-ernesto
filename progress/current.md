@@ -99,7 +99,10 @@ nada commiteado/pusheado (pendiente OK + pase formal del reviewer).**
    - ⏳ **(b) co-firma de Sebastián sobre las escalas** (112µm/512µm, fusión promedio) — reunión **lunes**
      (semana 13-jul); gate NO bloqueante ([[gobernanza-gate-cofirma-sebastian]]).
    - ⏳ **(d) OK explícito de Ernesto para `sbatch`** + cortesía single-GPU (`squeue` antes). Job de fin de semana.
-   Luego **stage-3 CLAM paired** reusando splits, con preflight minpatch (O3) sobre los feature dirs nuevos.
+   - ✅ **stage-3 `.slurm` PREPARADO** (`train_multiscale_stage3.slurm`, NO lanzado): CLAM_MB paired
+     3 brazos (A/B0/B) × 3 binarias × 5 folds = **45 runs** reusando `splits_kfold`; **preflight minpatch**
+     por fold (O3); **backfill del pairing** (symlink de las 45 HistAI single-scale en B0/B → los 3 brazos
+     cubren las mismas 328 slides). Validado `bash -n` + python embebido compila. Depende de stage-2 (chequeado en preflight).
 
 ### Ejes vivos en paralelo (menor prioridad)
 
