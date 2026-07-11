@@ -68,18 +68,28 @@ el agente LMM. Insumo: `sprints/B5_sprint5/magnificacion/analisis_cpathagent.md`
 
 ### Próximos pasos (orden recomendado)
 
-1. **Tier 0 calibración post-hoc — HACER PRIMERO (gratis, CPU, sin GPU/reviewer).**
-   Re-umbralizar los 230 `.pkl` ya en disco (umbral en val→congelar a test); resultado
-   de bal_acc demostrable esta semana, independiente de la magnificación. Es la palanca
-   viva más barata y nunca se ejecutó ([[calibracion-tier0-pendiente-ejecutar]]).
-2. **Magnificación física MEDIDA** (10-jul): TCGA 40× / privado 20× / HistAI pendiente
-   ([[cohortes-magnificacion-fisica]]). Falta: resolver HistAI + confirmar con Sebastián el
-   **criterio de escala** (pirámide 20×+5×, fusión promedio) del doc de investigación.
-3. **Pre-registrar** (regla 9 + reviewer) el experimento de magnificación: escalas
-   elegidas, fusión = promedio, tarea = microcalc, paired k=5, expectativa honesta.
-4. **Slurm de re-extracción multi-escala** (fin de semana, cortesía single-GPU,
-   preflight) + entrenamiento CLAM paired vs single-scale reusando splits.
-5. Crear `sprints/B6_sprint6/` al arrancar el experimento (docs + resultados).
+**Sesión 10-jul (tarde) ejecutó los pasos 1-4 hasta dejar el `.slurm` listo. NADA lanzado a GPU,
+nada commiteado/pusheado (pendiente OK + pase formal del reviewer).**
+
+1. ✅ **Tier 0 calibración post-hoc EJECUTADA** (`sprints/B6_sprint6/tier0_calibracion/`,
+   `scripts/tier0_calibration.py`, CPU, umbral en val→congelado a test, paired k=5).
+   Resultado: **mitotic Δbal +0.046 ± 0.029 (5/5 folds+)** — win consistente donde el modelo
+   colapsa al argmax (Hallazgo 13); **invasión null** (+0.009, y el drift de features lo deja bajo
+   el histórico); **necrosis null** (−0.005). Palanca real pero task-dependiente. Caveat colateral:
+   **features TCGA re-extraídas 26-27 jun** (dir live) → surfacear con Sebastián.
+2. ✅ **HistAI resuelto operativamente** (`histai_magnificacion.md`): `generic-tiff`, MPP no
+   recuperable (placeholder), dims ~40× no concluyente → **excluido del piloto** (49/45 slides,
+   minoría); el wrapper lo salta solo. TCGA+privado (283) = donde vive el contraste.
+3. ✅ **Pre-registrado** (`prereg_magnificacion.md`, regla 9): 3 brazos paired (A single-scale
+   re-entrenado / B0 fine-only@grid común / B multiscale-fused), escalas 112µm+512µm en µm/px por
+   cohorte, fusión promedio, hipótesis H1/H0/H2, eval bal_acc+AUC. **Self-review inline regla-9 OK**
+   (`review_regla9.md`); **pase formal del reviewer PENDIENTE** (se cortó por límite de API).
+4. ✅ **Wrapper + `.slurm` listos** (NO lanzados): `scripts/extract_multiscale_features.py`
+   (bug openslide+workers corregido), `extract_multiscale.slurm` (preflight + stage1 patching +
+   stage2 extracción B0/B), `microcalc_slidelist_tcga_privado.csv` (283 slides).
+5. **PENDIENTE antes de lanzar:** (a) pase formal del reviewer, (b) co-firma de Sebastián sobre las
+   escalas (lunes), (c) dry-run CPU de stage-1 create_patches (esquema del process_list), (d) OK de
+   Ernesto para `sbatch`. Luego stage-3 CLAM paired reusando splits.
 
 ### Ejes vivos en paralelo (menor prioridad)
 

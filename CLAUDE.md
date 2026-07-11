@@ -286,6 +286,7 @@ clam_environ/
 ```
 environ/
 ├── features/pt_files/        ← ~3013 slides (live 5-jun-2026; crece, `ls|wc -l`), features CONCH v1, [N_parches, 512] float32
+│                               ⚠ dir LIVE que MUTA: subset TCGA re-extraído 26-27 jun → re-inferir hoy DIVERGE del .pkl congelado ([[features-tcga-drift-reextraccion]])
 ├── features/h5_files/        ← coords/patches (h5), ~3013
 ├── features_resnet/pt_files/ ← 344 slides, ResNet50, [N, 1024]  (LEGACY)
 ├── features_256/pt_files/    ← 344 slides, CONCH @ patch 256, [N, 512]
@@ -313,7 +314,8 @@ WSI → patches → CONCH features (512-dim) → CLAM_MB → N clases clínicas
 >
 > **Magnificación física ≠ igual entre cohortes** (verificado openslide 10-jul-2026,
 > [[cohortes-magnificacion-fisica]]): a `level0` **TCGA ≈ 40× (0.2325 µm/px)**, **privado ≈ 20×
-> (0.465 µm/px)**, **HistAI sin MPP confiable**. El pipeline actual extrae a `patch_level=0` → un
+> (0.465 µm/px)**, **HistAI sin MPP confiable** (generic-tiff, placeholder; no recuperable → excluido del
+> piloto multi-escala, minoría; ver `magnificacion_microcalc/histai_magnificacion.md`). El pipeline actual extrae a `patch_level=0` → un
 > parche 256 px mide **59 µm en TCGA vs 119 µm en privado** (confound latente: a CONCH se le da TCGA
 > a ~40×, 2× su nativo). **Cualquier re-extracción / pirámide multi-escala se parametriza en µm/px
 > físicos, NO en `level`.** (Contexto: eje magnificación B6, `sprints/B6_sprint6/magnificacion_microcalc/`.)
@@ -732,6 +734,9 @@ re-validar y actualizar `docs/codebase_map.md`.
 > La numeración 11-14 se preserva porque memorias y otros docs la citan. La palanca
 > viva post-cierre = calibración post-hoc del operating-point (Tier 0,
 > [[calibracion-operating-point-palanca-b5]] / [[calibracion-tier0-pendiente-ejecutar]]).
+> **Tier 0 EJECUTADA 10-jul** (`scripts/tier0_calibration.py`, `sprints/B6_sprint6/tier0_calibracion/`):
+> mitotic Δbal_acc **+0.046 ± 0.029 (5/5 folds+)** = win donde el modelo colapsa al argmax (Hallazgo 13);
+> invasión/necrosis **null**. Palanca real pero **task-dependiente** (rinde solo si hay colapso a la mayoritaria).
 
 11. **Agregador (CLAM×DSMIL) NO es palanca en microcalc** — cerrado simétricamente con
     MC-CV + comparación PAIRED (Obj 5 + ANEXO). DSMIL: binarias n=328 (job 4179 → NULL en
