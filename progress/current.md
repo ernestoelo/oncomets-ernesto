@@ -82,14 +82,24 @@ nada commiteado/pusheado (pendiente OK + pase formal del reviewer).**
    minoría); el wrapper lo salta solo. TCGA+privado (283) = donde vive el contraste.
 3. ✅ **Pre-registrado** (`prereg_magnificacion.md`, regla 9): 3 brazos paired (A single-scale
    re-entrenado / B0 fine-only@grid común / B multiscale-fused), escalas 112µm+512µm en µm/px por
-   cohorte, fusión promedio, hipótesis H1/H0/H2, eval bal_acc+AUC. **Self-review inline regla-9 OK**
-   (`review_regla9.md`); **pase formal del reviewer PENDIENTE** (se cortó por límite de API).
+   cohorte, fusión promedio, hipótesis H1/H0/H2, eval bal_acc+AUC.
 4. ✅ **Wrapper + `.slurm` listos** (NO lanzados): `scripts/extract_multiscale_features.py`
    (bug openslide+workers corregido), `extract_multiscale.slurm` (preflight + stage1 patching +
    stage2 extracción B0/B), `microcalc_slidelist_tcga_privado.csv` (283 slides).
-5. **PENDIENTE antes de lanzar:** (a) pase formal del reviewer, (b) co-firma de Sebastián sobre las
-   escalas (lunes), (c) dry-run CPU de stage-1 create_patches (esquema del process_list), (d) OK de
-   Ernesto para `sbatch`. Luego stage-3 CLAM paired reusando splits.
+5. **Los 4 gates (sesión 10-jul tarde-noche):**
+   - ✅ **(a) pase FORMAL del reviewer** — **APRUEBA CON OBSERVACIONES**. Regla 9/9.a íntegras, 9.b N/A,
+     containment + workflow SLURM OK, comparación paired, código correcto en todas las rutas load-bearing.
+     5 observaciones, ninguna bloquea: O1 conteo (283, corregido), O2 dry-run (=gate c), O3 preflight
+     minpatch en stage-3, O4/O5 cosméticas. Detalle: `review_regla9.md`.
+   - ✅ **(c) dry-run CPU de stage-1** — **cazó un bug bloqueante**: `create_patches_fp` re-lee el
+     `--process_list` con `pd.read_csv` sin dtype → slide_id privados numéricos (105040) → `int64` →
+     `get_clean_slide_name` crashea → **se caería toda la cohorte privada (76)**. **FIX** (no toca
+     clam_environ): stage-1 pasa a **symlink-farm plano** sin `--process_list`/`--nested_folders`.
+     Verificado end-to-end TCGA+privado (`.h5` con stem=slide_id, attr patch_size 482/241). §Gate (c) en `review_regla9.md`.
+   - ⏳ **(b) co-firma de Sebastián sobre las escalas** (112µm/512µm, fusión promedio) — reunión **lunes**
+     (semana 13-jul); gate NO bloqueante ([[gobernanza-gate-cofirma-sebastian]]).
+   - ⏳ **(d) OK explícito de Ernesto para `sbatch`** + cortesía single-GPU (`squeue` antes). Job de fin de semana.
+   Luego **stage-3 CLAM paired** reusando splits, con preflight minpatch (O3) sobre los feature dirs nuevos.
 
 ### Ejes vivos en paralelo (menor prioridad)
 

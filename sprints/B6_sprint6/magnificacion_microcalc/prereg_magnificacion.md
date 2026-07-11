@@ -51,7 +51,7 @@ microcalcificaciones_en_*_pth_100`), Δ **pareado por fold** ([[patron-paired-co
 
 **HistAI (49/333):** sin MPP fiable (`histai_magnificacion.md`) → **se excluye de la re-extracción**;
 conserva su single-scale actual en los 3 brazos (impureza acotada al 15% minoritario, documentada). El
-subset con µm/px resuelto (TCGA 207 + privado 77 = 284) es donde vive el contraste. **Por qué re-entrenar
+subset con µm/px resuelto (TCGA 207 + privado 76 = 283, = el slidelist y el preflight) es donde vive el contraste. **Por qué re-entrenar
 A:** las features TCGA driftearon (re-extracción 26-27 jun, ver `tier0_calibracion/resultados.md`); para
 que el Δ B−A sea limpio, A se re-entrena sobre las **mismas features actuales** que B0/B.
 

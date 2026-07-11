@@ -54,25 +54,48 @@ echo "[preflight] OK"; nvidia-smi | head -15 || true
 # ---------------------------------------------------------------------------- #
 # STAGE 1 — patching por-cohorte en grid COMÚN 112µm (create_patches_fp de clam_environ,
 # SIN modificar, solo args). patch_size = round(112/mpp): TCGA 482, privado 241.
-# Restringe a las slides del piloto vía process_list por cohorte.
+#
+# FIX (gate c, dry-run CPU 10-jul): create_patches_fp re-lee el --process_list con
+# `pd.read_csv` SIN dtype → los slide_id privados NUMÉRICOS puros (p.ej. 105040) se infieren
+# como int64 → `get_clean_slide_name` crashea ("'numpy.int64' object has no attribute
+# 'replace'", environ_utils.py:182) → se caería TODA la cohorte privada (76 slides). Como
+# clam_environ es read-only, se restringe el set del piloto vía SYMLINK-FARM PLANO (nombres
+# = strings desde os.listdir → sin coerción int64) y se corre SIN --process_list ni
+# --nested_folders. Verificado end-to-end en TCGA (.svs) y privado (.bif) el 10-jul.
 # ---------------------------------------------------------------------------- #
 for COH in tcga privado; do
   if [ "$COH" = "tcga" ]; then SRC=$WSI_TCGA; PS=482; else SRC=$WSI_PRIV; PS=241; fi
-  PL=$REPO/data/coords_112um/process_${COH}.csv
-  mkdir -p "$COORDS/$COH"
-  $PY - "$SLIDELIST" "$COH" "$PL" <<'PYEOF'
-import sys, pandas as pd
-df = pd.read_csv(sys.argv[1]); coh=sys.argv[2]
-sub = df[df.cohort==coh][["slide_id"]]
-sub.to_csv(sys.argv[3], index=False)  # create_patches_fp lee la col slide_id del process_list
-print(f"[stage1] {coh}: {len(sub)} slides -> {sys.argv[3]}")
+  FARM=$COORDS/_farm/$COH
+  mkdir -p "$FARM" "$COORDS/$COH"
+  # symlink-farm plano: una symlink por WSI del piloto de esta cohorte (read-only WSI → link).
+  $PY - "$SLIDELIST" "$COH" "$SRC" "$FARM" <<'PYEOF'
+import sys, csv
+from pathlib import Path
+slidelist, coh, src, farm = sys.argv[1:5]
+exts = [".svs", ".bif", ".tiff", ".tif"]
+rows = [r for r in csv.DictReader(open(slidelist)) if r["cohort"] == coh]
+n = 0; missing = []
+for r in rows:
+    sid = r["slide_id"]; found = None
+    for ext in exts:
+        h = list(Path(src).rglob(f"{sid}{ext}"))
+        if h:
+            found = h[0]; break
+    if found is None:
+        missing.append(sid); continue
+    link = Path(farm) / found.name
+    if not link.exists():
+        link.symlink_to(found)
+    n += 1
+print(f"[stage1] {coh}: {n} symlinks en {farm}; missing={len(missing)}")
+if missing:
+    print("  MISSING (revisar):", missing[:20])
 PYEOF
-  echo "=== STAGE 1 patching cohorte=$COH patch_size=$PS ==="
-  CUDA_VISIBLE_DEVICES=0 $PY create_patches_fp.py \
-      --source "$SRC" --save_dir "$COORDS/$COH" \
+  echo "=== STAGE 1 patching cohorte=$COH patch_size=$PS (flat-farm, sin process_list) ==="
+  $PY create_patches_fp.py \
+      --source "$FARM" --save_dir "$COORDS/$COH" \
       --patch_size "$PS" --step_size "$PS" --patch_level 0 \
-      --seg --patch --stitch --nested_folders \
-      --process_list "$PL" || { echo "STAGE 1 $COH FALLÓ"; exit 1; }
+      --seg --patch --stitch || { echo "STAGE 1 $COH FALLÓ"; exit 1; }
 done
 # consolidar los .h5 de coords de ambas cohortes en un solo dir para stage 2
 mkdir -p "$COORDS/all_h5"

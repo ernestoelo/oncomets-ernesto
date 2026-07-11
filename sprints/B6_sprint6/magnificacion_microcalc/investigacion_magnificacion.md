@@ -132,7 +132,9 @@ Verificado read-only con `openslide` sobre 1 WSI real de cada cohorte (sin GPU):
    solo habilita la pirámide: **de paso normaliza este confound.** **[inferencia]**
 3. La señal útil de microcalc es **TCGA-heavy** (identificadas: TCGA 207 / privado 77 / HistAI 49 de 333;
    `dataset_microcalcificaciones.md`) → anclar la escala fina a TCGA(40×)+privado(20×), que están resueltos.
-   HistAI (minoritario) se resuelve aparte (§7).
+   HistAI (minoritario) se resuelve aparte (§7). *(El slidelist del piloto quedó en **TCGA 207 + privado
+   76 = 283**: una slide privada del set identificado no entró — pendiente confirmar cuál al consolidar los
+   `.h5`. El preflight assertea 283, así que la impureza no rompe el pairing.)*
 
 ---
 
