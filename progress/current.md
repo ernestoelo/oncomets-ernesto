@@ -99,6 +99,11 @@ nada commiteado/pusheado (pendiente OK + pase formal del reviewer).**
    - ⏳ **(b) co-firma de Sebastián sobre las escalas** (112µm/512µm, fusión promedio) — reunión **lunes**
      (semana 13-jul); gate NO bloqueante ([[gobernanza-gate-cofirma-sebastian]]).
    - ⏳ **(d) OK explícito de Ernesto para `sbatch`** + cortesía single-GPU (`squeue` antes). Job de fin de semana.
+     **12-jul: Ernesto DECIDIÓ ESPERAR la co-firma (b) del lunes antes de lanzar** — se le presentó el
+     análisis de viabilidad (era viable lanzar el fin de semana con su OK, co-firma no bloqueante) y
+     optó por presentar el pre-registro a Sebastián primero y lanzar después con su visto bueno de las
+     escalas. NADA lanzado a GPU. El pipeline sigue armado (stage-2 + stage-3 encadenable). Detalle:
+     `auditoria_coherencia/hallazgos_sesion_deck_magnif_12jul.md`.
    - ✅ **stage-3 `.slurm` PREPARADO** (`train_multiscale_stage3.slurm`, NO lanzado): CLAM_MB paired
      3 brazos (A/B0/B) × 3 binarias × 5 folds = **45 runs** reusando `splits_kfold`; **preflight minpatch**
      por fold (O3); **backfill del pairing** (symlink de las 45 HistAI single-scale en B0/B → los 3 brazos
@@ -121,6 +126,11 @@ nada commiteado/pusheado (pendiente OK + pase formal del reviewer).**
   mapa vigente en `convenciones_deck_b6.md` **§7**; hallazgos ronda 2 en
   `auditoria_coherencia/hallazgos_deck_10jul.md`. **Pendiente**: QA fino en
   **PowerPoint** (OMML del diagrama s5) + ensayo del guion. [[deck-molde-fiel-referencia]].
+  **EXTENDIDO 12-jul (pedido de Ernesto)**: se anexó la **sección MAGNIFICACIÓN multi-escala
+  (slides 12-17)** para la reunión con Sebastián (lunes) — estudio + referencias microcalc +
+  imágenes didácticas (esquema nativo + crop real 2 escalas vía `render_multiscale_crop.py`) +
+  **la decisión de escalas** (slide 16, para que Sebastián guíe las dimensiones). Deck 11→17
+  slides; aditivo (no toca mammoth). Detalle: `convenciones_deck_b6.md` §8.
 - **Palancas de datos de reserva** si la magnificación no basta: **HistAug**
   (augmentación en espacio de features, verificar CONCH v1 512) y **TITAN** (caro,
   re-extrae CONCHv1.5 768). [[insuficiencia-datos-ejes-investigacion]].
