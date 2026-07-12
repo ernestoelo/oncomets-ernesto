@@ -84,6 +84,12 @@ LOGO = os.path.join(ASSETS_BRAND, "logo_header.png")
 PORTADA = os.path.join(ASSETS_BRAND, "portada_fullbleed.jpg")
 CHECK_VERDE = os.path.join(ASSETS_BRAND, "check_verde.png")  # ticket "hecho" (reusado del deck B3)
 PROG_BG   = RGBColor(0xFD, 0xEF, 0xE6)   # relleno pill "En progreso" (naranja muy claro)
+
+# --- assets sección magnificación multi-escala (B6, reunión Sebastián) ---
+MSCROP = os.path.join(ASSETS_BRAND, "multiscale_crop")
+MS_FINE = os.path.join(MSCROP, "fine_112um.png")   # crop real TCGA-BRCA campo 112µm (~20×)
+MS_CTX = os.path.join(MSCROP, "context_512um.png")  # crop real, mismo centro, campo 512µm (~5×)
+
 _uid = [2000]
 
 
@@ -272,6 +278,69 @@ def dims_table(slide, l, t, w, rows, row_h=0.345, hdr=("paso", "forma del tensor
     return gtbl
 
 
+def simple_table(slide, l, t, w, headers, rows, col_fracs, row_h=0.32, fs=9.5):
+    """Tabla nativa genérica (n columnas): header teal + filas con banding teal claro."""
+    ncol = len(headers); nrow = len(rows) + 1
+    tbl = slide.shapes.add_table(nrow, ncol, Inches(l), Inches(t), Inches(w),
+                                 Inches(row_h * nrow)).table
+    for ci, fr in enumerate(col_fracs):
+        tbl.columns[ci].width = Inches(w * fr)
+    tbl.first_row = False; tbl.horz_banding = False
+    for ri, row in enumerate([headers] + list(rows)):
+        for ci, txt in enumerate(row):
+            cell = tbl.cell(ri, ci)
+            cell.margin_left = Inches(0.06); cell.margin_right = Inches(0.04)
+            cell.margin_top = Inches(0.015); cell.margin_bottom = Inches(0.015)
+            cell.vertical_anchor = MSO_ANCHOR.MIDDLE
+            if ri == 0:
+                cell.fill.solid(); cell.fill.fore_color.rgb = TEAL_SQ
+                col, bold, fnt = WHITE, True, F_BODY
+            else:
+                cell.fill.solid(); cell.fill.fore_color.rgb = TEAL_CARD2 if ri % 2 else TEAL_CARD
+                col, bold, fnt = INK, (ci == 0), F_BODY
+            tf = cell.text_frame; tf.word_wrap = True
+            p = tf.paragraphs[0]; p.alignment = PP_ALIGN.LEFT
+            r = p.add_run(); r.text = txt
+            r.font.size = Pt(fs); r.font.bold = bold; r.font.name = fnt; r.font.color.rgb = col
+    return tbl
+
+
+def panel(slide, l, t, w, h, title, tcol, lines, border, fill=TEAL_CARD2):
+    """Panel con título + líneas de cuerpo (para 'dos tareas / demandas opuestas')."""
+    sp = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(l), Inches(t), Inches(w), Inches(h))
+    sp.fill.solid(); sp.fill.fore_color.rgb = fill
+    sp.line.color.rgb = border; sp.line.width = Pt(1.5); sp.shadow.inherit = False
+    tb = slide.shapes.add_textbox(Inches(l + 0.18), Inches(t + 0.12), Inches(w - 0.36), Inches(h - 0.24))
+    runs = [(title, 14.5, True, tcol, F_TITLE)] + [(ln, 12, False, INK, F_BODY) for ln in lines]
+    _set_runs(tb.text_frame, runs)
+    for p in tb.text_frame.paragraphs:
+        p.space_after = Pt(3)
+
+
+def nested_fields(slide, l, t, w, h):
+    """Esquema nativo: dos campos concéntricos (contexto 512µm ⊃ fino 112µm) + leyenda."""
+    _rect(slide, l, t, w, h, TEAL_CARD2, line=TEAL_SQ)
+    side = h - 0.55
+    cx = l + w * 0.30; cy = t + h / 2
+    ctx = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(cx - side / 2), Inches(cy - side / 2),
+                                 Inches(side), Inches(side))
+    ctx.fill.background(); ctx.line.color.rgb = TEAL_SQ; ctx.line.width = Pt(2.5)
+    ctx.shadow.inherit = False
+    fside = side * 0.34                         # esquema (ratio real 112/512≈0.22, lo muestra la foto)
+    fin = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(cx - fside / 2), Inches(cy - fside / 2),
+                                 Inches(fside), Inches(fside))
+    fin.fill.solid(); fin.fill.fore_color.rgb = ORA_ACC
+    fin.line.color.rgb = ORA_T; fin.line.width = Pt(1.5); fin.shadow.inherit = False
+    lx = l + w * 0.58
+    add_textbox(slide, lx, t + 0.22, w * 0.42 - 0.12, h - 0.4, [
+        ("Contexto  512 µm · ~5×", 12.5, True, TEAL_TITLE, F_TITLE),
+        ("el conducto/lobulillo anfitrión", 10.5, False, GRIS_BODY, F_BODY),
+        (" ", 8, False, INK, F_BODY),
+        ("Fino  112 µm · ~20×", 12.5, True, ORA_T, F_TITLE),
+        ("la calcificación + su forma", 10.5, False, GRIS_BODY, F_BODY),
+    ], anchor=MSO_ANCHOR.MIDDLE)
+
+
 # ============================================================================
 # Arquetipos B4
 # ============================================================================
@@ -346,11 +415,12 @@ def build():
 
     # ---- 1. Portada (limpia, sin overlay) ----
     s = portada(prs)
-    notes(s, "Hoy no vengo a mostrar que mammoth mejore la métrica; eso ya lo cerramos y no es "
-             "por ahí. Vengo a otra cosa: a qué aprende y qué mira mammoth por dentro, que es una "
-             "pregunta distinta y que quedó abierta. Primero el mecanismo, esta vez con calma, y "
-             "después las imágenes de en qué se fija cada experto sobre nuestras propias slides "
-             "de mama.")
+    notes(s, "El objetivo de esta reunión no es demostrar que MAMMOTH mejore la métrica: esa "
+             "pregunta ya quedó cerrada, y la respuesta fue que no. Lo que sigue abierto, y es de "
+             "lo que trata esta presentación, es distinto: qué aprende MAMMOTH por dentro y en qué "
+             "se fija cada experto. El recorrido tiene dos partes. Primero el mecanismo, esta vez "
+             "explicado con calma y hasta el fondo. Después, la evidencia visual de qué morfología "
+             "reclama cada experto, mirada sobre las propias slides de mama del proyecto.")
 
     # ---- 2. Recapitulación de objetivos (MISMO formato que B4 slide 2:
     #        título 32pt + lista numerada en un solo cuadro, 24pt Barlow bold gris) ----
@@ -374,21 +444,22 @@ def build():
             status_done(s, 8.98, cy)
         else:
             status_progress(s, 8.98, cy)
-    notes(s, "Antes de entrar en mammoth, dejo claro qué nos propusimos entender, porque de eso "
-             "se trata la reunión. El primer objetivo era dominar el mecanismo a fondo y poder "
-             "explicarlo con una analogía simple, sin trabarnos como la vez pasada. El segundo, "
-             "precisar dos cosas que quedaron abiertas: qué es exactamente una cabeza y cómo se "
-             "lee el tensor de prototipos, ese treinta por dieciséis por diez por dieciséis. El "
-             "tercero, dejar clara la diferencia entre una mezcla de expertos y un producto de "
-             "expertos, y ubicar la pregunta de cuántas cabezas convienen para mama. Y el cuarto, "
-             "el que abre la segunda parte: interpretar a los expertos, mirar sobre nuestras "
-             "propias slides qué región reclama cada uno y qué morfología hay ahí.")
+    notes(s, "Antes de entrar en el mecanismo conviene fijar qué se propuso entender, porque es "
+             "el eje de la reunión. El primer objetivo era dominar el mecanismo de MAMMOTH a fondo "
+             "y poder explicarlo con una analogía simple. El segundo, precisar dos puntos que "
+             "habían quedado sin respuesta: qué es exactamente una cabeza y cómo se lee el tensor "
+             "de prototipos, el treinta por dieciséis por diez por dieciséis. El tercero, "
+             "distinguir una mezcla de expertos de un producto de expertos, y ubicar cuántas "
+             "cabezas convienen para mama. Esos tres quedaron cerrados. El cuarto abre la segunda "
+             "parte y sigue en progreso: interpretar a los expertos, es decir, mirar sobre las "
+             "propias slides qué región reclama cada uno y qué morfología hay ahí; falta el visto "
+             "bueno de un patólogo.")
 
     # ---- 3. Divisoria: MAMMOTH ----
     s = divider(prs, "MAMMOTH", "Mixture-of-Experts en la primera capa de CLAM (patch-embed)")
-    notes(s, "Empecemos por el mecanismo. Mammoth es una intervención muy acotada: cambia una "
-             "sola parte de CLAM, la primera capa, la que proyecta los parches. Todo el resto de "
-             "CLAM queda igual.")
+    notes(s, "El mecanismo primero. MAMMOTH es una intervención muy acotada: cambia una sola "
+             "parte de CLAM, la primera capa, la que proyecta los parches al espacio interno del "
+             "modelo. Todo el resto de CLAM queda intacto.")
 
     # ---- 4. Qué es y por qué (título = acrónimo completo; 3 tarjetas + Fig 1 + Fig 3) ----
     s = content(prs, "MAMMOTH — MAtrix-factorized Mixture Module of Transformation Heads", size=17)
@@ -409,26 +480,28 @@ def build():
     caption(s, 5.95, 4.86, 3.85,
             "Fig. 3 — cada color es el ruteo de un experto sobre la slide; abajo, la "
             "morfología que resume (tumor, estroma, alvéolos…)", size=8)
-    notes(s, "El nombre es un acrónimo y cada parte es un paso del modelo: cabezas de "
+    notes(s, "El nombre es un acrónimo y cada parte nombra un paso del modelo: cabezas de "
              "transformación, una mezcla de expertos y una factorización de matrices de bajo "
              "rango. La idea de fondo es simple. En CLAM, una sola capa lineal proyecta todos los "
-             "parches al espacio interno del modelo, y esa única matriz tiene que servir a la vez "
-             "para epitelio, estroma y ductos, así que termina mediocre para todo. El paper lo "
-             "compara con un traductor obligado a traducir chino, árabe y ruso con la misma "
-             "plantilla. Mammoth, en cambio, contrata treinta traductores especialistas y un "
-             "recepcionista —el router— que decide cuánto de cada parche mandar a cada "
-             "especialista. Las dos figuras de la derecha son la evidencia: arriba, el espacio "
-             "interno pasa de una nube continua a grupos separados, uno por experto, y la mejora "
-             "aparece en todos los agregadores; abajo, cada color es un experto pintado sobre la "
-             "lámina, con la morfología que resume justo debajo. Esa figura de abajo es "
-             "exactamente el análisis que después reproduzco sobre nuestras slides de mama.")
+             "parches al espacio interno, y esa única matriz tiene que servir a la vez para "
+             "epitelio, estroma y ductos, así que queda en un punto intermedio, mediocre para "
+             "todos. El paper lo compara con un traductor obligado a traducir chino, árabe y ruso "
+             "con la misma plantilla. MAMMOTH reemplaza esa matriz por treinta expertos "
+             "especializados y un router que decide, para cada parche, cuánto mandarlo a cada "
+             "experto. Las dos figuras de la derecha son la evidencia del paper. Arriba, el "
+             "espacio interno pasa de una nube continua a grupos separados, uno por experto, y la "
+             "mejora aparece en todos los agregadores MIL. Abajo, cada color es el ruteo de un "
+             "experto sobre la lámina, con la morfología que resume justo debajo. Esa segunda "
+             "figura es exactamente el análisis que la segunda parte reproduce sobre las slides de "
+             "mama del proyecto.")
 
     # ---- 5. Diagrama: pipeline CLAM + punto de integración (reusado, escalado) ----
     s = copy_diagram_scaled(prs, DIAG_MAM, 0, title=None, bar=False)
-    notes(s, "Este es el pipeline completo de CLAM. La slide entra troceada en parches, el "
-             "encoder CONCH le da a cada uno un vector de quinientos doce, y de ahí siguen la "
-             "atención y el clasificador. El único bloque que cambia es el naranja: ahí mammoth "
-             "reemplaza la primera capa lineal. Todo lo demás es CLAM tal cual.")
+    notes(s, "Sobre el pipeline completo de CLAM el mecanismo se ubica mejor. La slide entra "
+             "troceada en parches; el encoder CONCH le asigna a cada parche un vector de "
+             "quinientos doce; de ahí siguen la atención y el clasificador. El único bloque que "
+             "cambia es el naranja: ahí MAMMOTH reemplaza la primera capa lineal. Todo lo que "
+             "viene después es CLAM tal cual.")
 
     # ---- 6. Interior de MAMMOTH: matrices+dims Y código en paralelo (NATIVO) ----
     s = content(prs, "Por dentro de MAMMOTH: dimensiones y código")
@@ -466,24 +539,30 @@ def build():
     ])
     takeaway_bar(s, "Las cabezas son subespacios aprendidos (multi-head), no textura/forma/color: "
                     "la semántica de tejido vive en los slots.", t=4.80, size=12)
-    notes(s, "Este es el interior de mammoth, y es la parte que se me cayó la vez pasada, así que "
-             "la voy a decir despacio, con las dimensiones y el código al lado. Cada parche entra "
-             "como un vector de quinientos doce, la z. Lo primero es proyectarlo a un query de "
-             "doscientos cincuenta y seis y partirlo en dieciséis cabezas de dieciséis. En "
-             "paralelo el modelo tiene sus prototipos aprendidos, el tensor treinta por dieciséis "
-             "por diez por dieciséis: treinta expertos, cada uno con dieciséis cabezas, cada "
-             "cabeza con diez slots, y cada slot es un vector de dieciséis. El dieciséis aparece "
-             "dos veces porque el número de cabezas y la dimensión del prototipo tienen que "
-             "coincidir para compararlos con un producto interno; en total son trescientos slots. "
-             "El ruteo compara query contra prototipos, una softmax reparte cada parche entre los "
-             "slots, y con esos pesos se arma el promedio ponderado que llena los slots. Cada "
-             "experto los procesa con una transformación de bajo rango y se concatenan las "
-             "cabezas. En la variante normal un segundo softmax recombina los trescientos slots y "
-             "reconstruye los parches, así que la salida tiene la misma forma que una capa lineal; "
-             "por eso es drop-in. Y algo que quiero dejar bien claro, porque la vez pasada lo "
-             "respondí mal: las cabezas no son textura, forma ni color; son subespacios aprendidos, "
-             "como en atención multi-cabeza. La semántica de tejido no vive en las cabezas, vive en "
-             "los slots.")
+    notes(s, "El interior de MAMMOTH, con las dimensiones a la izquierda y el código real a la "
+             "derecha, para seguir cada paso sin ambigüedad. La entrada es un parche, un vector de "
+             "quinientos doce, la z. Primero se proyecta a un query de doscientos cincuenta y seis "
+             "y se parte en dieciséis cabezas de dieciséis. En paralelo, el modelo guarda sus "
+             "prototipos aprendidos en el tensor treinta por dieciséis por diez por dieciséis, y "
+             "este es el número que conviene dejar claro de una vez. Se lee de izquierda a "
+             "derecha: treinta expertos, cada experto con dieciséis cabezas, cada cabeza con diez "
+             "slots, y cada slot es un vector de dieciséis dimensiones. El dieciséis aparece dos "
+             "veces por una razón concreta. El primero es el número de cabezas; el último es la "
+             "dimensión de cada prototipo, que sale de dividir el query, doscientos cincuenta y "
+             "seis, entre las dieciséis cabezas. Tienen que coincidir porque el ruteo compara cada "
+             "prototipo con el query mediante un producto interno, y un producto interno exige que "
+             "ambos vectores vivan en el mismo espacio de dieciséis. Treinta expertos por diez "
+             "slots dan los trescientos slots que reaparecen más adelante. De ahí en adelante la "
+             "tabla y el código van paso a paso: el ruteo compara query contra prototipos, una "
+             "softmax reparte cada parche entre los slots, con esos pesos se arma el promedio "
+             "ponderado que llena cada slot, cada experto lo transforma con una operación de bajo "
+             "rango y se concatenan las cabezas para dar trescientos por quinientos doce. En la "
+             "variante base, una segunda softmax recombina los trescientos slots y reconstruye los "
+             "parches, así que la salida tiene la misma forma que tendría una capa lineal; por eso "
+             "el reemplazo es directo. Y un punto clave, que en su momento se respondió mal y hay "
+             "que dejar afinado: las cabezas no son textura, forma ni color. Son subespacios "
+             "aprendidos, igual que en atención multi-cabeza; la semántica de tejido no vive en "
+             "las cabezas, vive en los slots.")
 
     # ---- 7. La arquitectura oficial del paper: figura GRANDE y limpia (sin logo, sin título,
     #        sin callouts encima que tapen las variables de la figura). El trazo al pie y las
@@ -504,18 +583,25 @@ def build():
         ("h", "[N,512]"),
         ("CLAM", "logits"),
     ], t=0.26 + ih + 0.34)
-    notes(s, "Esta es la figura oficial del paper, y la recorro de izquierda a derecha con sus "
-             "propias variables; abajo dejé esa misma cadena resumida en bloques, con la forma del "
-             "tensor en cada paso, para seguirla sin perderse. Entra la slide, se trocea en parches "
-             "y el encoder les da sus features, la z. Después viene W, la capa lineal que mammoth "
-             "reemplaza: en vez de una sola matriz, el embedding se parte por cabeza en las x̄, y "
-             "cada cabeza corre su propia mezcla de expertos, los bloques MoE. Dentro de cada "
-             "experto están los slots, la s, que se combinan con la factorización de bajo rango, la "
-             "Φ por la W_low, y una no linealidad. Se concatenan las cabezas en el cross-head "
-             "concat, queda la h, y recién ahí entra la parte MIL —CLAM en nuestro caso— que agrega "
-             "todo hasta el slide embed y el diagnóstico. A la derecha, el panel de "
-             "interpretabilidad con la similitud parche–slot es justo lo que reproduzco en las "
-             "próximas slides. Lo importante es que mammoth solo cambia el tramo de W; todo lo de "
+    notes(s, "El punto de partida es un parche y su vector de features CONCH, la z. En CLAM ese "
+             "vector pasaría por una única matriz lineal, la W del diagrama, y es exactamente ahí "
+             "donde interviene MAMMOTH. En lugar de una sola W, el embedding se parte por cabeza: "
+             "cada x̄ es la porción del parche que ve una cabeza, y son subespacios aprendidos, "
+             "como en atención multi-cabeza, no textura ni forma ni color. Cada cabeza corre su "
+             "propia mezcla de expertos en paralelo, los bloques MoE. Es mezcla, no producto: los "
+             "expertos suman contribuciones suaves que el router pondera, lo que mantiene el "
+             "entrenamiento estable; un producto de expertos multiplicaría distribuciones como "
+             "vetos y necesitaría un normalizador intratable. Dentro de cada experto están los "
+             "slots, la s, que son los prototipos aprendidos, y ahí sí vive la semántica de "
+             "tejido: cada parche se compara con esos prototipos por producto interno y se reparte "
+             "entre ellos. La salida del experto se arma con la factorización de bajo rango, la Φ "
+             "por la W_low, más una no linealidad, y eso es lo que conserva el mismo presupuesto "
+             "de parámetros que la capa original. Se concatenan las cabezas en el cross-head "
+             "concat y queda h, un vector por parche con la misma forma que entró. Recién ahí "
+             "empieza la parte MIL, que en este proyecto es CLAM: la atención agrega los parches "
+             "en el slide embed y el clasificador entrega el diagnóstico. El panel de la derecha, "
+             "la similitud parche-slot, es justo lo que la segunda parte reconstruye sobre las "
+             "slides de mama. Lo esencial: MAMMOTH toca solo el tramo de la W; todo el resto de "
              "CLAM queda igual.")
 
     # ---- 8. keep_slots: la bifurcación, con math+código (NATIVO) ----
@@ -551,23 +637,24 @@ def build():
     takeaway_bar(s, "Misma cabeza CLAM y misma pérdida — cambia solo qué se agrega. La "
                     "interpretabilidad se calcula antes de la bifurcación → vale para las dos.",
                  t=4.78, size=12)
-    notes(s, "Hay una variante, keep_slots, y quiero mostrar exactamente dónde cambia. "
-             "Hasta arriba todo es igual: proyección, ruteo, expertos, y quedan los trescientos "
-             "slots. La bifurcación es una sola línea. En la versión normal, keep_slots en falso, "
-             "un segundo softmax recombina los trescientos slots y reconstruye los N parches, así "
-             "que CLAM sigue agregando sobre los parches como siempre; es un reemplazo directo de "
-             "la capa lineal. En la versión nueva, keep_slots en verdadero, el modelo se salta esa "
-             "recombinación y entrega los trescientos slots como salida, y entonces CLAM agrega "
-             "sobre trescientos tokens en vez de sobre los parches. La menciono para completar el "
-             "mecanismo, pero es una variante de rendimiento; para lo de hoy da igual, porque la "
-             "interpretabilidad se calcula antes de esta bifurcación y vale para las dos.")
+    notes(s, "Hay una variante, keep_slots, y lo relevante es dónde cambia. Hasta la parte de "
+             "arriba todo es idéntico a lo anterior: proyección, ruteo, expertos, y quedan los "
+             "trescientos slots concatenados. La bifurcación es una sola línea de código. En la "
+             "versión base, keep_slots en falso, una segunda softmax recombina los trescientos "
+             "slots y reconstruye los parches, así que CLAM sigue agregando sobre los parches y el "
+             "reemplazo de la capa lineal es directo. En la versión nueva, keep_slots en "
+             "verdadero, esa recombinación se omite y la salida son los trescientos slots; "
+             "entonces CLAM agrega sobre trescientos tokens en vez de sobre los parches. Es una "
+             "variante orientada a rendimiento, y para la reunión de hoy no cambia nada, porque la "
+             "interpretabilidad se calcula antes de esta bifurcación y vale para las dos ramas. La "
+             "cabeza de CLAM y la pérdida son las mismas; lo único que cambia es qué se agrega.")
 
     # ---- 9. Divisoria: Interpretabilidad (OBJ-A) ----
     s = divider(prs, "¿Qué mira cada experto?",
                 "Interpretabilidad post-hoc sobre un checkpoint entrenado · 4 slides TCGA-BRCA")
-    notes(s, "Con el mecanismo claro, pasamos a lo nuevo: mirar, sobre nuestras propias slides, "
-             "qué región reclama cada experto y qué morfología hay ahí. Es análisis post-hoc, en "
-             "CPU, sobre un modelo ya entrenado; no reentrena nada.")
+    notes(s, "Con el mecanismo claro, empieza la segunda parte: mirar, sobre las propias slides "
+             "del proyecto, qué región reclama cada experto y qué morfología hay ahí. Es un "
+             "análisis post-hoc, en CPU, sobre un modelo ya entrenado; no reentrena nada.")
 
     # ---- 10. Ruteo espacial (dónde) + morfología top-k (qué) — FUSIÓN ----
     s = content(prs, "Qué mira cada experto: dónde y qué morfología")
@@ -585,19 +672,20 @@ def build():
     caption(s, 5.42, 4.12, 2.55, "Morfología que cada experto rutea (Fig 3.2)", size=9)
     takeaway_bar(s, "Heatmap = dónde · top-k = qué morfología. Emergió sin supervisión de tejido "
                     "(el paper lo validó con patólogos).", t=4.82, size=12)
-    notes(s, "Junté las dos vistas porque cuentan una sola historia. A la izquierda, cada uno de "
-             "los treinta cuadros es la misma slide pintada según cuánto el router manda cada "
-             "parche a un experto: rojo mucho, azul casi nada. Y lo que se ve es que los treinta "
-             "encienden zonas distintas, así que la capa lineal única quedó reemplazada por "
-             "especialistas que miran regiones diferentes del tejido. Del color conviene aclarar "
-             "una cosa: está normalizado por percentil dentro de cada experto, sirve para ver dónde "
-             "prefiere mirar cada uno, no para decir cuál se usa más; medido aparte, el uso sale "
-             "casi uniforme, no hay expertos muertos ni acaparadores. Pero el mapa de calor dice dónde, "
-             "no qué tejido hay ahí. Eso lo cierra la derecha: para cada experto tomo los parches "
-             "que más rutea y los recorto a alta resolución. Se ve directo: el experto ocho mira "
-             "nidos de epitelio tumoral, el veintiséis mira estroma fibroso rosado, el tres mira "
-             "ductos. Es la misma especialización que el paper validó con dos patólogos, y lo "
-             "notable es que emerge sola, nadie le dijo al modelo qué es estroma. Los expertos "
+    notes(s, "Estas dos vistas cuentan una sola historia y conviene leerlas juntas. A la "
+             "izquierda, cada uno de los treinta cuadros es la misma slide pintada según cuánto el "
+             "router manda cada parche a un experto: rojo, mucho; azul, casi nada. Lo que se "
+             "observa es que los treinta encienden zonas distintas de la lámina; es decir, la capa "
+             "lineal única quedó reemplazada por especialistas que miran regiones diferentes del "
+             "tejido. Sobre el color, una precisión honesta: está normalizado por percentil dentro "
+             "de cada experto, así que sirve para ver qué regiones prefiere cada uno, no para "
+             "decir cuál se usa más; medido aparte, el uso sale casi uniforme, sin expertos "
+             "muertos ni acaparadores. Ahora bien, el mapa de calor dice dónde, no qué tejido hay "
+             "en esas zonas. Eso lo cierra la derecha: para cada experto se toman los parches que "
+             "más rutea y se recortan a alta resolución real. Ahí se ve directo: el experto ocho "
+             "mira nidos de epitelio tumoral, el veintiséis mira estroma fibroso rosado, el tres "
+             "mira ductos. Es la misma especialización que el paper validó con dos patólogos, y lo "
+             "notable es que emerge sola: nadie le indicó al modelo qué es estroma. Los expertos "
              "mixtos que aparecen son esperables, porque el ruteo es suave y reparte cada parche "
              "entre varios.")
 
@@ -619,21 +707,217 @@ def build():
          "patólogo).", 10.5, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.TOP)
     takeaway_bar(s, "Que la especialización sea real y aun así no mueva la métrica es la evidencia "
                     "de que el cuello no está en la 1ª capa, sino en el dato.", t=4.82, size=12)
-    notes(s, "Esta es la prueba más fina, y con ella cierro. Como los prototipos son parámetros "
-             "compartidos del modelo, el experto ocho es el mismo experto en todas las slides. "
-             "Entonces hay una prueba limpia: si su especialización es real, tiene que elegir la "
-             "misma morfología en todas. Y así es: el ocho enciende epitelio en las cuatro, el "
-             "veintiséis estroma en las cuatro, incluidas las negativas. Y ojo con qué significa "
-             "negativo acá: es cdis sin microcalcificación, no sin tumor, así que siguen siendo "
-             "slides de mama con epitelio. Es decir, el experto detecta tejido, no clase; si la "
-             "slide es positiva se decide después, en la atención y el clasificador. Y esto es lo "
-             "que traigo para la discusión: que los expertos separen bien los tejidos y aun así "
-             "mammoth no le gane a CLAM en métrica es la evidencia de que el cuello no está en la "
-             "primera capa, sino en el dato. Siendo honesto, es una cala chica: cuatro slides, una "
-             "tarea, un fold, y las etiquetas de tejido todavía son mías, faltan los ojos de un "
-             "patólogo. Son dos ejes distintos: que "
-             "mammoth no mejore la métrica está cerrado; qué aprende por dentro está abierto, y es "
-             "lo que traje. Mostrar qué mira no reabre nada, le pone un mecanismo.")
+    notes(s, "Esta es la prueba más fina, y con ella cierra la presentación. Como los prototipos "
+             "son parámetros compartidos del modelo, el experto ocho es el mismo experto en todas "
+             "las slides. Eso permite una prueba limpia: si su especialización es real, tiene que "
+             "elegir la misma morfología en todas. Y así ocurre. En las dos grillas, cada fila es "
+             "una de cuatro slides y cada columna un parche top del mismo experto: el ocho "
+             "enciende epitelio en las cuatro, el veintiséis enciende estroma en las cuatro, "
+             "incluidas las dos negativas. El matiz importa: negativo aquí significa cdis sin "
+             "microcalcificación, no sin tumor, así que las negativas siguen siendo slides de mama "
+             "con epitelio y estroma. Entonces el experto detecta tejido, no clase; que la slide "
+             "sea positiva se decide después, en la atención y el clasificador. De ahí sale el "
+             "punto para la discusión: que los expertos separen bien los tejidos y aun así MAMMOTH "
+             "no le gane a CLAM en métrica es la evidencia de que el cuello de botella no está en "
+             "la primera capa, sino en el dato. Con la honestidad por delante: es una cala chica, "
+             "cuatro slides, una tarea, un fold, y las etiquetas de tejido todavía son "
+             "provisionales, a la espera del visto bueno de un patólogo. Son dos ejes distintos: "
+             "que MAMMOTH no mejore la métrica está cerrado; qué aprende por dentro está abierto, "
+             "y es lo que trae esta presentación. Mostrar qué mira no reabre el rendimiento, le "
+             "pone un mecanismo.")
+
+    # ========================================================================
+    # SECCIÓN MAGNIFICACIÓN MULTI-ESCALA (reunión Sebastián — decisión de escalas)
+    # ========================================================================
+
+    # ---- 12. Divisoria: Magnificación multi-escala ----
+    s = divider(prs, "Magnificación multi-escala",
+                "La única señal nueva tras cerrar la arquitectura: el contexto espacial · "
+                "piloto microcalcificaciones")
+    notes(s, "Cerrado el capítulo de la arquitectura, con cuatro ejes que no movieron la "
+             "métrica, queda una sola palanca que todavía no probamos y que sí inyecta "
+             "información nueva: la escala a la que miramos el tejido. Esta parte es sobre eso. "
+             "El plan es un piloto sobre microcalcificaciones, elegido porque son pocas láminas "
+             "y la extracción cabe en un fin de semana; la idea, sin embargo, aplica a cualquier "
+             "tarea que dependa del contexto.")
+
+    # ---- 13. El problema no es más zoom, es contexto ----
+    s = content(prs, "El problema no es más zoom, es contexto", size=27)
+    add_textbox(s, 0.30, 0.90, 9.4, 0.62, [
+        ("La etiqueta pregunta DÓNDE vive la microcalcificación — ¿en CDIS?, ¿en carcinoma "
+         "invasivo?, ¿en tejido no neoplásico? — no si existe. Es una pregunta de contexto, "
+         "no de detalle celular.", 14, False, GRIS_BODY, F_BODY)])
+    panel(s, 0.30, 1.66, 4.55, 2.55, "Detectar la calcificación",
+          TEAL_TITLE, [
+              "Alta magnificación (20–40×)",
+              "Campo ~100 µm",
+              "Anillos laminados ⇒ pista de DCIS.",
+              "",
+              "Ya la tenemos: el parche fino la resuelve.",
+          ], TEAL_SQ)
+    panel(s, 5.15, 1.66, 4.55, 2.55, "Localizarla: ¿en qué estructura?",
+          ORA_T, [
+              "Baja–media magnificación (5–10×)",
+              "Campo 0.5–2 mm",
+              "El conducto / nido invasor / lobulillo.",
+              "",
+              "Lo que HOY falta: el parche fino no lo cubre.",
+          ], ORA_ACC, fill=PROG_BG)
+    takeaway_bar(s, "La palanca no es más zoom — es agregar una escala GRUESA que aporte el "
+                    "contexto del tejido anfitrión.", t=4.44, size=13)
+    notes(s, "Conviene empezar por una trampa. Uno intuye que una microcalcificación, como es "
+             "un objeto chico, pide más aumento. Es al revés. La etiqueta que queremos predecir "
+             "no pregunta si hay una calcificación, sino en qué estructura vive: dentro de un "
+             "carcinoma in situ, de un carcinoma invasor o de tejido no neoplásico. Eso es una "
+             "pregunta de contexto, no de detalle. Para responderla el modelo tiene que ver la "
+             "estructura anfitriona completa, el conducto, el nido invasor, el lobulillo, que "
+             "mide entre medio milímetro y dos milímetros. Hoy extraemos un solo parche fino por "
+             "región: detecta la calcificación pero no le entra el conducto alrededor. Por eso la "
+             "palanca no es más zoom, es agregar una escala gruesa que aporte ese contexto.")
+
+    # ---- 14. Lo que estudiamos: patología + referencias ----
+    s = content(prs, "Lo que estudiamos: patología de la microcalcificación", size=24)
+    add_textbox(s, 0.30, 0.88, 5.55, 0.3, [("Dos tipos de calcio — y uno es invisible", 13, True,
+                                            TEAL_TITLE, F_TITLE)])
+    simple_table(s, 0.30, 1.22, 5.55,
+                 ["Tipo", "En H&E de rutina", "Para el modelo"],
+                 [["Tipo I — oxalato", "casi invisible\n(solo luz polarizada)", "ciego → TECHO\n(sobre todo no_neoplásico)"],
+                  ["Tipo II — fosfato", "basófilo, visible\n(anillos laminados)", "visible → aquí\njuega la escala"]],
+                 col_fracs=[0.26, 0.37, 0.37], row_h=0.72, fs=10.5)
+    add_textbox(s, 0.30, 3.62, 5.55, 0.95, [
+        ("Tamaño: la calcificación (50–500 µm) ENTRA en un parche fino;", 12, False, GRIS_BODY, F_BODY),
+        ("el conducto anfitrión (0.5–2 mm) NO → por eso hace falta el campo grueso.",
+         12, False, GRIS_BODY, F_BODY)])
+    # panel de referencias
+    _rect(s, 6.05, 0.86, 3.65, 4.06, TEAL_CARD2, line=TEAL_SQ)
+    add_textbox(s, 6.22, 0.93, 3.35, 3.95, [
+        ("Referencias", 13, True, TEAL_TITLE, F_TITLE),
+        ("Clínica de la microcalcificación", 10.5, True, ORA_T, F_BODY),
+        ("· Breast microcalcifications: past, present & future — Review, 2022", 9.5, False, INK, F_BODY),
+        ("· Calcification in breast histopathology — Diagn. Histopathol., 2024", 9.5, False, INK, F_BODY),
+        ("· Polyhedral microcalc. = calcium oxalate — Radiology, 1993", 9.5, False, INK, F_BODY),
+        ("· Microcalcifications: size matters! — 2007", 9.5, False, INK, F_BODY),
+        ("· Predictors of malignancy in microcalc. — Br J Cancer, 2011", 9.5, False, INK, F_BODY),
+        ("Multi-escala en patología", 10.5, True, ORA_T, F_BODY),
+        ("· CPathAgent — NeurIPS 2025 (baseline MIL multi-escala, Ap. C.1.2)", 9.5, False, INK, F_BODY),
+        ("· DSMIL 20×+5× — Li et al., CVPR 2021", 9.5, False, INK, F_BODY),
+        ("· Deep Multi-Magnification Nets (mama/DCIS) — Ho et al., 2021", 9.5, False, INK, F_BODY),
+        ("Modelo base", 10.5, True, ORA_T, F_BODY),
+        ("· CONCH — Lu et al., Nat Med 2024 (nativo 20×)", 9.5, False, INK, F_BODY),
+        ("· CAP Invasive Breast, Nota D — la etiqueta contextual", 9.5, False, INK, F_BODY),
+    ])
+    notes(s, "Antes de elegir números conviene apoyarse en la patología, y hay dos hechos que "
+             "mandan. El primero es que no todas las calcificaciones se ven igual en la tinción "
+             "de rutina. Las de oxalato de calcio son casi invisibles en campo claro, solo "
+             "aparecen con luz polarizada; el modelo, que trabaja sobre la tinción normal, está "
+             "ciego a ellas a cualquier escala, y eso pone un techo sobre todo en el tejido no "
+             "neoplásico. Las de fosfato de calcio, en cambio, son basófilas, se ven bien, y ahí "
+             "sí la escala puede ayudar. El segundo hecho es de tamaño: la calcificación en sí, "
+             "de cincuenta a quinientas micras, entra en un parche fino; el conducto que la aloja, "
+             "no. Estas dos ideas vienen de la literatura de patología mamaria que está citada en "
+             "la lámina, junto con los trabajos de multi-escala en los que nos apoyamos.")
+
+    # ---- 15. El hallazgo físico: las cohortes difieren 2× ----
+    s = content(prs, "Hallazgo: las cohortes están a distinta magnificación física", size=23)
+    add_textbox(s, 0.30, 0.90, 9.4, 0.5, [
+        ("Medido con la resolución real de cada escáner (µm/px), no con la etiqueta del archivo:",
+         13.5, False, GRIS_BODY, F_BODY)])
+    simple_table(s, 0.30, 1.46, 9.4,
+                 ["Cohorte", "µm/px (level0)", "Magnif.", "Un parche 256 px cubre", "En el piloto"],
+                 [["Pública (TCGA)", "0.2325", "~40×", "59 µm", "re-extrae"],
+                  ["Privada", "0.465", "~20×", "119 µm", "re-extrae"],
+                  ["HistAI", "sin MPP fiable", "—", "—", "excluida (single-scale)"]],
+                 col_fracs=[0.22, 0.18, 0.12, 0.26, 0.22], row_h=0.42, fs=11.5)
+    add_textbox(s, 0.30, 3.35, 9.4, 1.0, [
+        ("Difieren 2×. Dos consecuencias:", 13, True, TEAL_TITLE, F_TITLE),
+        ("1)  La pirámide se define en µm/px físicos, NO en «level» del archivo.", 12.5, False, INK, F_BODY),
+        ("2)  El pipeline actual ya arrastra un sesgo (entrega cada cohorte a otra magnificación); "
+         "re-extraer a un campo común de paso lo corrige.", 12.5, False, INK, F_BODY)])
+    takeaway_bar(s, "Por eso la escala se parametriza en micras, y el tamaño en píxeles se "
+                    "calcula por lámina.", t=4.52, size=13)
+    notes(s, "Hay un hallazgo técnico que descubrimos al medir las láminas y que cambia cómo se "
+             "define la escala. Uno esperaría que un parche del mismo tamaño en píxeles cubriera "
+             "lo mismo en las dos cohortes, pero no. Medido con la resolución real de cada "
+             "escáner, las láminas de la cohorte pública están a unas cuarenta magnificaciones y "
+             "las de la privada a unas veinte, o sea el doble de resolución unas que otras, aunque "
+             "la etiqueta del archivo diga otra cosa. Un mismo parche de doscientos cincuenta y "
+             "seis píxeles cubre cincuenta y nueve micras en una y ciento diecinueve en la otra. "
+             "La consecuencia es doble: primero, la escala hay que definirla en micras por píxel, "
+             "no en niveles del archivo; y segundo, el pipeline actual ya arrastra un sesgo, "
+             "porque le está entregando las dos cohortes a magnificaciones distintas. Re-extraer a "
+             "un campo físico común no solo habilita la pirámide, de paso corrige ese sesgo. La "
+             "tercera cohorte no tiene resolución confiable en su metadata, así que queda fuera de "
+             "la re-extracción.")
+
+    # ---- 16. La decisión de escalas (LA slide para Sebastián) ----
+    s = content(prs, "La decisión de escalas", size=28)
+    _pill = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(6.60), Inches(0.19), Inches(3.10), Inches(0.48))
+    _pill.fill.solid(); _pill.fill.fore_color.rgb = PROG_BG
+    _pill.line.color.rgb = ORA_ACC; _pill.line.width = Pt(1.25); _pill.shadow.inherit = False
+    _set_runs(_pill.text_frame, [("Decisión delegada — pido tu guía", 11, True, ORA_T, F_BODY, PP_ALIGN.CENTER)],
+              anchor=MSO_ANCHOR.MIDDLE)
+    # izquierda: esquema nativo de campos concéntricos + pipeline
+    nested_fields(s, 0.30, 1.02, 4.55, 1.95)
+    # tabla px por cohorte
+    simple_table(s, 0.30, 3.08, 4.55,
+                 ["Escala", "Campo", "px TCGA", "px privado"],
+                 [["Fina", "112 µm", "482", "241"],
+                  ["Contexto", "512 µm", "2202", "1101"]],
+                 col_fracs=[0.28, 0.24, 0.24, 0.24], row_h=0.32, fs=10.5)
+    add_textbox(s, 0.30, 4.10, 4.55, 0.34, [
+        ("cada campo → resize 224 → CONCH → [512]", 9.5, False, GRIS_TXT, F_MONO)])
+    # derecha: crop REAL a dos escalas
+    add_image_fit(s, MS_FINE, 5.10, 1.02, 2.25, 2.25, align="top")
+    add_image_fit(s, MS_CTX, 7.45, 1.02, 2.25, 2.25, align="top")
+    caption(s, 5.10, 3.30, 2.25, "fino 112 µm — citología", size=9.5, col=ORA_T, bold=True)
+    caption(s, 7.45, 3.30, 2.25, "contexto 512 µm — arquitectura", size=9.5, col=TEAL_TITLE, bold=True)
+    add_textbox(s, 5.10, 3.66, 4.6, 0.62, [
+        ("Región real de mama (TCGA-BRCA), mismo centro. La caja naranja = el campo fino dentro "
+         "del contexto.", 10, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
+    takeaway_bar(s, "Fusión por promedio → un token [N,512] → CLAM_MB intacto (la comparación más "
+                    "limpia). ¿Estas escalas y esta fusión?", t=4.50, size=12.5)
+    notes(s, "Esta es la decisión concreta, y es donde pido guía. La propuesta son dos escalas. "
+             "Una fina, de ciento doce micras de campo, cerca de veinte magnificaciones, que es "
+             "justo donde el encoder fue entrenado: ahí se detecta la calcificación y su forma. Y "
+             "una de contexto, de quinientas doce micras, cerca de cinco magnificaciones, que "
+             "abarca el conducto o el lobulillo anfitrión, que es literalmente lo que la etiqueta "
+             "pregunta. A la derecha está una región real de una lámina de mama: el mismo centro "
+             "visto a las dos escalas. En el campo fino se ve la citología; en el de contexto "
+             "aparece la arquitectura glandular, y la caja marca dónde cae el parche fino dentro "
+             "del grueso. Como las cohortes están a distinta resolución, el tamaño en píxeles se "
+             "calcula por lámina para dar en el mismo campo físico: en la pública el crop fino es "
+             "de cuatrocientos ochenta y dos píxeles y el de contexto dos mil doscientos; en la "
+             "privada, doscientos cuarenta y uno y mil ciento uno; todos se reescalan a doscientos "
+             "veinticuatro antes del encoder. Los dos vectores se promedian en uno solo, así el "
+             "agregador queda intacto y la comparación es limpia. Lo que quiero conversar es si "
+             "estas dos escalas y esta fusión te parecen las adecuadas, o si conviene mover los "
+             "campos.")
+
+    # ---- 17. Diseño paired + expectativa honesta ----
+    s = content(prs, "Diseño pareado y qué esperamos (con honestidad)", size=23)
+    add_card(s, 0.30, 1.00, 9.4, 0.86, 1,
+             "Brazo A — modelo actual re-entrenado (referencia sobre las features de hoy).", size=13)
+    add_card(s, 0.30, 1.96, 9.4, 0.86, 2,
+             "Brazo B0 — solo el parche fino en la grilla común: aísla el efecto de emparejar la escala.", size=13)
+    add_card(s, 0.30, 2.92, 9.4, 0.86, 3,
+             "Brazo B — fino + contexto promediados: aísla el efecto de agregar contexto.", size=13)
+    add_textbox(s, 0.30, 3.92, 9.4, 0.5, [
+        ("Pareado sobre los MISMOS splits k=5 · se reporta balanced_acc Y AUC + confusión. "
+         "Expectativa CHICA (el baseline gana <+3%; techo de oxalato en no_neoplásico).",
+         12, False, GRIS_BODY, F_BODY)])
+    takeaway_bar(s, "Pre-registrado, revisión interna OK, prueba en seco del pipeline OK → listo "
+                    "para lanzar con el visto bueno de las escalas.", t=4.46, size=12.5)
+    notes(s, "Para cerrar, cómo se mide y qué se espera con honestidad. El diseño es pareado: "
+             "tres brazos entrenados sobre las mismas particiones. El primero es el modelo actual "
+             "re-entrenado, como referencia. El segundo usa solo el parche fino en la grilla "
+             "común, para aislar el efecto de emparejar la resolución. El tercero suma el "
+             "contexto. Comparando de a pares se separa cuánto aporta emparejar la escala y cuánto "
+             "aporta el contexto. La expectativa es de mejora chica: el trabajo en el que nos "
+             "basamos gana menos de tres puntos, y en el tejido no neoplásico el techo del oxalato "
+             "es real. Lo pre-registramos así a propósito, para no venderlo como un salto. Del "
+             "lado de la preparación, el diseño ya pasó la revisión interna y una prueba en seco "
+             "del pipeline que atajó un error antes de gastar cómputo; queda listo para lanzarse "
+             "en cuanto tengamos el visto bueno de las escalas.")
 
     os.makedirs(OUT_DIR, exist_ok=True)
     prs.save(DST)

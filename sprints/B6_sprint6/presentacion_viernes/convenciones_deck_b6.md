@@ -241,3 +241,40 @@ math+código (nativo) · 9 divisoria Interpretabilidad · 10 heatmaps+top-k · 1
 (imágenes grandes) + honestidad.
 
 **Pendiente**: QA fino en **PowerPoint** (OMML del diagrama s5) + ensayo del guion.
+
+## 8. ADDENDUM 12-jul — sección MAGNIFICACIÓN MULTI-ESCALA (reunión Sebastián, lunes)
+
+Ernesto pidió **anexar** al mismo deck (`CLAM_Reunion_Mammoth.pptx`) una sección para la reunión
+con Sebastián: qué se estudió, las **referencias** de los papers de microcalcificaciones, **imágenes
+didácticas** de lo que se quiere hacer, y la **decisión de escalas** para que Sebastián guíe las
+dimensiones. Es **aditivo**: NO toca las 11 slides de mammoth (se construye sobre la versión viva
+del `.py`, con el WIP de la ronda 2 sin pisar). Deck pasa de **11 → 17 slides**.
+
+**Slides nuevas (12-17):**
+- **12** divisoria "Magnificación multi-escala".
+- **13** "El problema no es más zoom, es contexto" — la etiqueta CAP es contextual; dos paneles
+  nativos (detectar 20–40× vs localizar 5–10×).
+- **14** "Lo que estudiamos: patología" — tabla nativa dos tipos de calcio (Tipo I oxalato invisible
+  → techo; Tipo II visible) + **panel de referencias** (microcalc clínica + CPathAgent/DSMIL/DMMN/CONCH/CAP).
+- **15** "Hallazgo: las cohortes están a distinta magnificación física" — tabla µm/px (TCGA ~40×,
+  privado ~20×, HistAI sin MPP → excluida); "la pirámide se define en µm, no en level".
+- **16** "La decisión de escalas" (**LA slide para Sebastián**) — esquema **nativo** de campos
+  concéntricos (contexto 512µm ⊃ fino 112µm) + **crop REAL** a dos escalas + tabla px-por-cohorte
+  (TCGA 482/2202, privado 241/1101) + fusión promedio → [N,512]. Pill "Decisión delegada — pido tu guía".
+- **17** "Diseño pareado + expectativa honesta" — 3 brazos A/B0/B, expectativa CHICA, estado (revisión
+  + dry-run OK, listo para lanzar con la co-firma).
+
+**Imagen didáctica (decisión de Ernesto): esquema nativo + crop real.** El crop real se genera con
+`render_multiscale_crop.py` (read-only, openslide en CPU; reusa una coord de tejido de un `.h5`
+existente; renderiza fino 112µm + contexto 512µm del **mismo centro** de una lámina TCGA-BRCA,
+con la caja del campo fino dentro del contexto). Assets en `assets_branding/multiscale_crop/`
+(gitignored).
+
+**Helpers nuevos** en `generate_b6_deck.py`: `simple_table` (tabla nativa n-columnas), `panel`
+(panel con título+cuerpo), `nested_fields` (esquema de campos concéntricos). Constantes `MSCROP/
+MS_FINE/MS_CTX`. Todo nativo salvo el crop real (imagen). **QA (12-jul)**: rasterizado LibreOffice,
+6/6 nuevas verificadas (tablas, paneles, esquema, crop, referencias) — layout limpio, Barlow en
+contenido, sin solapes tras 2 pasadas de ajuste.
+
+**Pendiente**: co-firma de Sebastián sobre las escalas (es el objetivo de la slide 16) + QA en
+PowerPoint + decisión de Ernesto sobre commitear (el `.py` bundlea el WIP de mammoth previo).
