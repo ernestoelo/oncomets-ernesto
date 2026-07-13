@@ -155,6 +155,65 @@ def compute_expert_scores(mammoth, feats, device="cpu"):
     return scores.cpu().numpy().astype(np.float64), tuple(dispatch.shape)
 
 
+def compute_slot_weights(mammoth, feats, device="cpu"):
+    """Peso de RUTEO por SLOT (B7 Q1 — distinto del top-k de parches por experto).
+
+    Replica los primeros pasos del forward de Mammoth (proyección + split multi-cabeza)
+    y llama a `get_weights` para obtener `combine_weights` — la 2ª softmax, sobre los
+    E·S=300 slots (`mammoth.py:411`), que es el "peso de cada slot durante el ruteo hacia
+    los expertos". Agrega sobre parches (N) y cabezas (H) → importancia por slot (E,S).
+    También devuelve el logit crudo medio por slot (similitud query↔prototipo = "los más
+    parecidos"). NO reentrena ni modifica nada: sólo lee el forward (Etapa 0, post-hoc).
+
+    Devuelve: slot_combine (E,S), slot_logit (E,S), sumas de chequeo.
+    """
+    x = torch.from_numpy(feats).float().unsqueeze(0).to(device)
+    H = mammoth.num_heads
+    with torch.no_grad():
+        # pasos 1-2 del forward (mammoth.py:341-342): proyección + norm + split multi-cabeza
+        q = mammoth.norm(mammoth.wq(x))               # (1, N, slot_dim)
+        b, n, _ = q.shape
+        q = q.reshape(b, n, H, -1)                    # (1, N, H, P)  ≡ rearrange "b n (h d)->b n h d"
+        logits = mammoth.get_logits(q)                # (1, N, E, H, S)
+        combine, dispatch = mammoth.get_weights(logits)  # combine: (1, N, H, E*S)
+    E, S = mammoth.num_experts, mammoth.num_slots
+    # combine: softmax sobre los E*S slots (dim=-1). Importancia media por slot sobre (b,N,H).
+    slot_combine = combine.mean(dim=(0, 1, 2)).reshape(E, S).cpu().numpy().astype(np.float64)
+    # logit crudo medio por slot (similitud) sobre (b,N,H): "los más parecidos"
+    slot_logit = logits.mean(dim=(0, 1, 3)).reshape(E, S).cpu().numpy().astype(np.float64)
+    return slot_combine, slot_logit
+
+
+def save_slot_usage(slot_combine, slot_logit, out_dir, topn=20):
+    """Escribe slot_usage.csv (300 filas, orden desc por peso de combine) + bar chart top-N."""
+    E, S = slot_combine.shape
+    rows = []
+    for e in range(E):
+        for s in range(S):
+            rows.append((e, s, slot_combine[e, s], slot_logit[e, s]))
+    rows.sort(key=lambda r: r[2], reverse=True)
+    header = "rank,expert,slot,mean_combine_weight,mean_routing_logit\n"
+    lines = [header]
+    for rank, (e, s, cw, lg) in enumerate(rows):
+        lines.append(f"{rank},{e},{s},{cw:.6e},{lg:.6e}\n")
+    (Path(out_dir) / "slot_usage.csv").write_text("".join(lines))
+    # bar chart top-N slots
+    top = rows[:topn]
+    labels = [f"e{e}·s{s}" for e, s, _, _ in top]
+    vals = [cw for _, _, cw, _ in top]
+    fig, ax = plt.subplots(figsize=(max(6, topn * 0.5), 3.2))
+    ax.bar(range(len(top)), vals, color="#31859C")
+    ax.set_xticks(range(len(top))); ax.set_xticklabels(labels, rotation=60, ha="right", fontsize=7)
+    ax.set_ylabel("peso de ruteo medio\n(combine, softmax sobre 300 slots)", fontsize=8)
+    ax.set_title(f"Top-{topn} slots por peso de ruteo (de E·S={E*S})", fontsize=10)
+    ax.axhline(1.0 / (E * S), color="#B4521E", ls="--", lw=0.8, label="uniforme 1/300")
+    ax.legend(fontsize=7)
+    plt.tight_layout()
+    plt.savefig(Path(out_dir) / "slot_usage_top.png", dpi=120)
+    plt.close()
+    return rows[:topn]
+
+
 def percentile_scores(scores_e):
     """Mapea scores de un experto a [0,1] por percentil (robusto a escala)."""
     n = scores_e.size
@@ -345,14 +404,21 @@ def main():
                fmt=["%d", "%.6e"], delimiter=",", header="expert,mean_score", comments="")
     print(f"      top-5 expertos por uso: {[int(e) for e in order[:5]]}")
 
-    print("[3/5] Thumbnail...")
+    # peso de ruteo por SLOT (B7 Q1): combine_weights sobre los 300 slots
+    print("[2b/6] Peso de ruteo por slot (combine_weights sobre E·S=300)...")
+    slot_combine, slot_logit = compute_slot_weights(mammoth, feats, args.device)
+    top_slots = save_slot_usage(slot_combine, slot_logit, out_dir)
+    print(f"      top-5 slots (e·s) por peso de ruteo: "
+          f"{[(int(e), int(s)) for e, s, _, _ in top_slots[:5]]}")
+
+    print("[3/6] Thumbnail...")
     thumb, scale, mag, w0, h0 = get_wsi_thumbnail(args.wsi)
     if np.nanmax(coords) <= 1.1:  # coords normalizadas → reescalar a px nivel-0
         coords = coords * np.array([w0, h0])
     ps0 = patch_size_at_level0(mag)
     print(f"      thumb={thumb.shape[:2]} mag={mag} patch_size_level0={ps0:.0f}px")
 
-    print("[4/5] Heatmaps por experto + montage...")
+    print("[4/6] Heatmaps por experto + montage...")
     hm_dir = out_dir / "heatmaps"; hm_dir.mkdir(exist_ok=True)
     for e in range(scores.shape[1]):
         save_expert_heatmap(thumb, coords, scores[:, e], scale, ps0,
@@ -360,7 +426,7 @@ def main():
     save_heatmap_montage(thumb, coords, scores, scale, ps0,
                          out_dir / "heatmap_montage.png", order)
 
-    print("[5/5] Top-k parches a alta resolución + contact sheet...")
+    print("[5/6] Top-k parches a alta resolución + contact sheet...")
     save_topk_hires(args.wsi, coords, scores, ps0, args.topk,
                     out_dir / "topk_patches", order)
 
@@ -370,6 +436,7 @@ def main():
         config=MAMMOTH_CONFIG, n_patches=int(feats.shape[0]),
         dispatch_shape=list(dshape), level0_mag=mag, patch_size_level0=float(ps0),
         expert_order_by_usage=[int(e) for e in order],
+        top_slots_by_routing=[(int(e), int(s), float(cw)) for e, s, cw, _ in top_slots],
     )
     (out_dir / "meta.json").write_text(json.dumps(meta, indent=2))
     print(f"\nListo. Salida en: {out_dir}")
