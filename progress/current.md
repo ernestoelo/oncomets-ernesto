@@ -3,12 +3,69 @@
 > Estado vivo del sprint actual. Es un **snapshot** — se reemplaza al avanzar
 > el sprint. Al cerrar el sprint, el resumen pasa a `history.md`.
 >
-> **Roll-over 6-jul-2026 (sesión Fable):** B5 cerrado y movido a `history.md`
-> (deck entregado, trimestre cerrado, Ernesto continúa). Este archivo arranca B6.
+> **Roll-over 6-jul-2026 (sesión Fable):** B5 cerrado y movido a `history.md`.
+> **Roll-over 13-jul-2026:** abre **B7** (reunión con Sebastián, deck B6 presentado y
+> salió bien). El eje **magnificación** de B6 **NO se cierra**: sigue vivo (pipeline
+> armado, se lanza el próximo fin de semana con OK) y se arrastra a B7 más abajo. El
+> detalle histórico de B6 puede pasar a `history.md` **si Ernesto lo pide** (pendiente).
 
 ---
 
-## Sprint actual: B6 / Sprint 6 — Magnificación multi-escala (CONCH) sobre CLAM
+## Sprint actual: B7 / Sprint 7 — Interpretabilidad CLAM vs Mammoth + ¿cuántos expertos/slots?
+
+**Abierto 13-jul-2026.** Nace de la reunión con Sebastián (deck B6 presentado, salió
+bien). Eje de **entendimiento / interpretabilidad** (ortogonal al de rendimiento, cerrado
+en Hallazgos 11-14). Equipo = Ernesto + Sebastián. Reunión de seguimiento: **miércoles**.
+
+### Headline
+
+Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y responder:
+**¿cuántos expertos (E) y cuántos slots (S) hacen falta para todas las tareas?**
+
+- **3 tareas:** `tipo_histologico` · `carcinoma_ductal_insitu_presente` (CDIS presente) ·
+  `invasion_linfatica_vascular` (invasión linfovascular).
+- **Requisito por tarea (Sebastián, obligatorio):** qué slides · qué magnificación (µm/px) ·
+  qué dataset · qué etiqueta del patólogo.
+- **Análisis:** expertos por zona · consecuencia cross-slide/cross-task · **peso de los
+  300 slots en el ruteo** (NUEVO, ≠ top-k de parches existente; usa `combine_weights`).
+- Docs: `sprints/B7_sprint7/{objetivos_sprint7.md, preguntas_resueltas.md}`.
+
+### Factibilidad (verificado 13-jul — LOAD-BEARING)
+
+- **`invasion_linfatica_vascular`**: hay checkpoints CLAM + Mammoth (obj2/obj3) →
+  comparación CPU-post-hoc **ejecutable ya**.
+- **`tipo_histologico`** y **`carcinoma_ductal_insitu_presente`**: **NO** hay checkpoint
+  Mammoth nuestro → generar sus mapas de expertos exige **entrenar mammoth = GPU (gate
+  d/b + regla 9 + reviewer)**. Opciones (A/B/C) en `objetivos_sprint7.md` — a decidir con
+  Ernesto. **Nada a GPU esta sesión.**
+
+### Deck (correcciones para la próxima presentación, la verá también Benjamín)
+
+- Migrar al **template de Sebastián** (`sprints/B7_sprint7/*.pptx`) + añadir slide de
+  **recap de objetivos** (layout de `Plantilla.pptx`). Enfoque de migración = decisión
+  pendiente con Ernesto (re-basar vs replicar branding).
+- Correcciones §2: slide 7 (rastro de X, subíndices s,e, MoE-vs-PoE en el hilo), slides
+  10-11 (caveat honestidad + IDs de slides), slide nueva cabezas/expertos/slots (§2.4),
+  slide matemática de magnificación (§3), estilo duro (cero «—», 3ª persona sin nombres,
+  sin diálogos, sin «palanca»). Checklist: `sprints/B7_sprint7/correcciones_deck.md`.
+
+### Preguntas abiertas resueltas (13-jul, citadas a código)
+
+1. "top-k de slots por peso de ruteo" ≠ top-k de parches existente (usa `combine_weights`,
+   softmax sobre 300 slots) → `preguntas_resueltas.md` §Q1.
+2. Matemática magnif área↔µm/px↔parche (224@×20 ≡ 448@×40) → `contexto_magnificacion.md`
+   (interpretación de Ernesto **A VERIFICAR** con Sebastián/código).
+3. 16 cabezas × 30 expertos × 10 slots (NO 1 experto por cabeza) → `preguntas_resueltas.md` §Q3.
+
+### Documentación de cierre (pedido de Sebastián)
+
+- Guía/README para que Sebastián replique la extracción de heatmaps de expertos (§7 del
+  prompt) — cronometrar 1 corrida CPU real.
+- `/knowledge-audit` al cerrar (4 fronts).
+
+---
+
+## Eje que continúa de B6 — Magnificación multi-escala (CONCH) sobre CLAM (pipeline armado, NO lanzado)
 
 **Abierto 6-jul-2026.** Nace de la reunión con Sebastián del **2-jul**: aprobada la
 dirección **magnificación / contexto espacial** (Eje A, la única que inyecta *señal
