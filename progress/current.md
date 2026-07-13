@@ -96,8 +96,10 @@ nada commiteado/pusheado (pendiente OK + pase formal del reviewer).**
      `get_clean_slide_name` crashea → **se caería toda la cohorte privada (76)**. **FIX** (no toca
      clam_environ): stage-1 pasa a **symlink-farm plano** sin `--process_list`/`--nested_folders`.
      Verificado end-to-end TCGA+privado (`.h5` con stem=slide_id, attr patch_size 482/241). §Gate (c) en `review_regla9.md`.
-   - ⏳ **(b) co-firma de Sebastián sobre las escalas** (112µm/512µm, fusión promedio) — reunión **lunes**
-     (semana 13-jul); gate NO bloqueante ([[gobernanza-gate-cofirma-sebastian]]).
+   - ⏳ **(b) co-firma de Sebastián sobre las escalas** (112µm/512µm, fusión promedio) — reunión **13-jul
+     OCURRIÓ y salió bien** (deck presentado); gate NO bloqueante ([[gobernanza-gate-cofirma-sebastian]]).
+     **NO asumir el resultado de la co-firma:** los objetivos del sprint 7 + las correcciones de slides
+     los aporta Ernesto la próxima sesión → no lanzar el multi-escala sin su OK explícito ([[surface-premise-discrepancies]]).
    - ⏳ **(d) OK explícito de Ernesto para `sbatch`** + cortesía single-GPU (`squeue` antes). Job de fin de semana.
      **12-jul: Ernesto DECIDIÓ ESPERAR la co-firma (b) del lunes antes de lanzar** — se le presentó el
      análisis de viabilidad (era viable lanzar el fin de semana con su OK, co-firma no bloqueante) y
@@ -126,11 +128,14 @@ nada commiteado/pusheado (pendiente OK + pase formal del reviewer).**
   mapa vigente en `convenciones_deck_b6.md` **§7**; hallazgos ronda 2 en
   `auditoria_coherencia/hallazgos_deck_10jul.md`. **Pendiente**: QA fino en
   **PowerPoint** (OMML del diagrama s5) + ensayo del guion. [[deck-molde-fiel-referencia]].
-  **EXTENDIDO 12-jul (pedido de Ernesto)**: se anexó la **sección MAGNIFICACIÓN multi-escala
-  (slides 12-17)** para la reunión con Sebastián (lunes) — estudio + referencias microcalc +
-  imágenes didácticas (esquema nativo + crop real 2 escalas vía `render_multiscale_crop.py`) +
-  **la decisión de escalas** (slide 16, para que Sebastián guíe las dimensiones). Deck 11→17
-  slides; aditivo (no toca mammoth). Detalle: `convenciones_deck_b6.md` §8.
+  **EXTENDIDO 12-jul (pedido de Ernesto)**: se anexó la **sección MAGNIFICACIÓN multi-escala**
+  para la reunión con Sebastián (lunes) — estudio + referencias microcalc + imágenes didácticas
+  (esquema nativo + crop real 2 escalas vía `render_multiscale_crop.py`) + **la decisión de
+  escalas** (para que Sebastián guíe las dimensiones). Aditivo (no toca mammoth).
+  **AJUSTADO 13-jul (pedido de Ernesto)**: la sección se comprimió a **4 slides** (deck **11→15**):
+  se **eliminó** la slide de diseño pareado/expectativa y se **fusionaron** contexto + hallazgo
+  físico en una sola de dos columnas; limpieza de estilo (fuera «—» y «palanca» en la sección).
+  Re-QA LibreOffice 4/4 (slides 12-15). Detalle: `convenciones_deck_b6.md` §8.
 - **Palancas de datos de reserva** si la magnificación no basta: **HistAug**
   (augmentación en espacio de features, verificar CONCH v1 512) y **TITAN** (caro,
   re-extrae CONCHv1.5 768). [[insuficiencia-datos-ejes-investigacion]].

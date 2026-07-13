@@ -781,8 +781,11 @@ re-validar y actualizar `docs/codebase_map.md`.
     30-jun (CPU post-hoc, `scripts/mammoth_interpretability.py`): los 30 expertos rutean por
     **MORFOLOGÍA, no por la etiqueta de slide** (e8 epitelio, e26 estroma, e3 ductal, estables
     cross-slide) → detectores de tejido, el **cuello no está en la 1ª capa** = confirma este
-    Hallazgo 12. Tooling y sign-off pendiente en [[mammoth-interpretabilidad-objA]] +
-    `mammoth_entendimiento/`.
+    Hallazgo 12. **Honestidad (13-jul):** los nombres de tejido son **lectura visual nuestra, NO
+    anotación** (no hay tejido por-parche; sí la etiqueta clínica de slide) → sign-off patólogo
+    pendiente; pero el ruteo por morfología es **label-independiente** (mismo experto/patrón en
+    slides de etiqueta distinta) → el hallazgo aguanta aunque el nombre sea impreciso. Tooling +
+    detalle en [[mammoth-interpretabilidad-objA]] + `mammoth_entendimiento/`.
 13. **PathPT-CONCH (lenguaje + tile) NO es palanca** — 3er ángulo. necrosis H_alt (job 4309,
     Δbal_acc −0.020 ± 0.078, apenas despega del teacher zero-shot ~0.62 vs CLAM 0.727); mitotic
     COLAPSO de formulación (job 4326, bal_acc 0.333 EXACTO, siempre predice `score_1` — NO bug,

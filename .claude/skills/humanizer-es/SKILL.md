@@ -166,6 +166,9 @@ requiere configuración". Pasar a activa cuando aclara.
 NO es constraint cero (la casa la usa). Marcar solo el **abuso rítmico**: varias
 rayas por párrafo dando cadencia sales-y. Reemplazo según convenga: punto, coma,
 dos puntos o paréntesis. Cazar también ` -- ` doble.
+> **Override en decks/prosa de Ernesto:** SÍ es constraint-cero — quitar TODAS las «—»
+> (las lee como tell de IA) y evitar «palanca». Ver [[deck-estilo-sin-rayas-ni-palanca]].
+> Alcance acotado: no barrer slides de otro eje ya finalizadas sin pedido explícito.
 
 ### 15. Abuso de negrita
 Resaltar frases en **negrita** mecánicamente. En prosa narrativa, quitar; en
