@@ -31,6 +31,9 @@ significan cabezas/slots/expertos, MoE≠PoE, nº de cabezas, interpretabilidad 
 [[feedback-benjamin-entender-mammoth]]. Interpretabilidad **ya ejecutada** (OBJ-A, Etapa 0
 CPU): script propio `scripts/mammoth_interpretability.py` (heatmaps + top-k por experto) →
 [[mammoth-interpretabilidad-objA]] + `mammoth_entendimiento/interpretabilidad/resultados.md`.
+El script también rankea el **peso de ruteo por slot** (`slot_usage.csv`, `combine_weights`
+sobre los 300 slots) — distinto del top-k de parches → [[mammoth-slot-routing-weight]]. Eje
+Sprint 7 = comparar heatmaps CLAM vs Mammoth + ¿cuántos expertos/slots? → [[sprint7-interpretabilidad-clam-vs-mammoth]].
 
 ## Cómo está integrado en NUESTRO workspace
 
