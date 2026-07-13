@@ -54,6 +54,17 @@ sprints/**/CLAM_Sprint_*.pdf
 # guion. Precedente: 0 pptx trackeados en el repo. Snapshot histórico → `git add -f`.
 sprints/**/*.pptx
 
+# Binarios de templates que Ernesto/Sebastián suben a un sprint (PDFs pesados de
+# los .pptx de Sebastián). NO versionar: son plantillas locales, no fuente.
+sprints/B7_sprint7/*.pdf
+
+# Salidas PESADAS de interpretabilidad mammoth (30 heatmaps por experto + top-k
+# hi-res del .svs, cientos de MB). Se versiona solo lo curado y liviano (montage +
+# expert_usage.csv + slot_usage.csv + meta.json). Regenerar con mammoth_interpretability.py.
+sprints/**/interpretabilidad*/**/heatmaps/
+sprints/**/interpretabilidad*/**/topk_patches/
+sprints/**/interpretabilidad*/**/topk_contact_sheet.png
+
 # Slides locales que Ernesto sube para que Claude las revise/actualice (PDFs,
 # pptx, etc.). Carpeta de trabajo local — NO versionar. El contenido de verdad
 # vive en sprints/<sprint>/<obj>/ (figuras, guion_montaje, presentacion_*.md).
