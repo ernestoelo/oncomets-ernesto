@@ -221,9 +221,17 @@ Ernesto revisó el build del 9-jul y pidió otra ronda; aplicada y regenerada (s
   (`assets_branding/paper_figs/mammoth_fig2_arch.png`, 4375×1758, aspect 2.489) **a 9.42" de
   ancho, centrada**, con TODAS sus variables visibles (W, x̄, MoE, slots s, Φ, W_low, cross-head
   concat, slide embed, Patch-Slot similarity). Al pie, **pipeline en bloques** (`dim_pipeline`):
-  `parches(N) → z[N,512] → x̄[N,16,16] → s(300 slots) → Φ·W_low[300,512] → h[N,512] → CLAM(logits)`
+  `x_i[N,512] → W→x̄[N,16,16] → ruteo(sim+softmax) → slots s(300) → Φ·W_low[300,512] → concat[N,512] → CLAM(logits)`
   — con la **notación de la propia figura** (regla de Ernesto: referenciarnos en sus variables,
   también en las notas). Ya **no usa** `copy_diagram_scaled(DIAG_FUSED,…)`.
+  > **Revisión 13-jul (pedido de Ernesto):** el 1er bloque se realineó de `z` a **`x_i`** (la figura
+  > rotula el encoder-output como x_i, y el caption dice "variables de la figura" → «z» era inconsistente);
+  > se explicitó el paso de **ruteo** entre x̄ y slots. **Notas de s7 reescritas**: narran el pipeline
+  > completo `x_i → W → x̄ → ruteo → x ponderada (promedio ponderado que llena cada slot) → Φ·W_low →
+  > concat → CLAM`, y responden **por qué MoE y no PoE** (suma convexa de dos softmax que suman 1 =
+  > mezcla, estable/entrenable; PoE = producto/veto con normalizador intratable, modela probabilidad
+  > no features). **Caveat honesto en las notas: el paper NO menciona PoE** (razonamiento arquitectónico,
+  > regla 5). Fuente: `sprints/B5_sprint5/mammoth_entendimiento/respuestas_preguntas_benjamin.md` §Q4 + §0.
 - **s11 tejido≠clase — imágenes agrandadas.** Las dos grillas cross-slide (e8, e26; 704×593, cada
   una = 4 slides × 5 parches) pasaron de ~1.9×1.6" a **~3.6×3.0" lado a lado** (`add_picture`
   explícito, centradas), con los 20 parches ya legibles. Texto compactado abajo + takeaway intacta.
@@ -248,21 +256,27 @@ Ernesto pidió **anexar** al mismo deck (`CLAM_Reunion_Mammoth.pptx`) una secci�
 con Sebastián: qué se estudió, las **referencias** de los papers de microcalcificaciones, **imágenes
 didácticas** de lo que se quiere hacer, y la **decisión de escalas** para que Sebastián guíe las
 dimensiones. Es **aditivo**: NO toca las 11 slides de mammoth (se construye sobre la versión viva
-del `.py`, con el WIP de la ronda 2 sin pisar). Deck pasa de **11 → 17 slides**.
+del `.py`, con el WIP de la ronda 2 sin pisar).
 
-**Slides nuevas (12-17):**
+> **Revisión 13-jul (pedido de Ernesto):** la sección pasó de 6 a **4 slides de contenido** (deck
+> **11 → 15 slides**): se **eliminó la slide 17** (diseño pareado + expectativa honesta) y se
+> **fusionaron la 13 (contexto) y la 15 (hallazgo físico) en una sola** de dos columnas. Además,
+> limpieza de estilo: **fuera todos los guiones largos «—»** (tell de IA, reemplazados por «,», «:»
+> o «·» según el caso) y **fuera la palabra «palanca»** en la sección magnificación. Solo se tocó
+> la sección magnif (líneas ≥734); las 11 de mammoth quedaron intactas (aún conservan sus «—»).
+
+**Slides de la sección (12-15):**
 - **12** divisoria "Magnificación multi-escala".
-- **13** "El problema no es más zoom, es contexto" — la etiqueta CAP es contextual; dos paneles
-  nativos (detectar 20–40× vs localizar 5–10×).
+- **13** "No es más zoom, es contexto: cohortes a distinta escala" (**fusión** de las viejas 13+15) —
+  **columna izq.**: dos paneles nativos (detectar 20-40× vs localizar 5-10×), la etiqueta CAP es
+  contextual; **columna der.**: el hallazgo físico, tabla µm/px compacta (TCGA ~40× → 59µm, privado
+  ~20× → 119µm, HistAI sin MPP → excluida) + "la pirámide se define en µm/px, no en «level»".
 - **14** "Lo que estudiamos: patología" — tabla nativa dos tipos de calcio (Tipo I oxalato invisible
-  → techo; Tipo II visible) + **panel de referencias** (microcalc clínica + CPathAgent/DSMIL/DMMN/CONCH/CAP).
-- **15** "Hallazgo: las cohortes están a distinta magnificación física" — tabla µm/px (TCGA ~40×,
-  privado ~20×, HistAI sin MPP → excluida); "la pirámide se define en µm, no en level".
-- **16** "La decisión de escalas" (**LA slide para Sebastián**) — esquema **nativo** de campos
+  → techo; Tipo II visible) + **panel de referencias** (microcalc clínica + CPathAgent/DSMIL/DMMN/CONCH/CAP;
+  separador «·», sin «—»).
+- **15** "La decisión de escalas" (**LA slide para Sebastián**, era la 16) — esquema **nativo** de campos
   concéntricos (contexto 512µm ⊃ fino 112µm) + **crop REAL** a dos escalas + tabla px-por-cohorte
-  (TCGA 482/2202, privado 241/1101) + fusión promedio → [N,512]. Pill "Decisión delegada — pido tu guía".
-- **17** "Diseño pareado + expectativa honesta" — 3 brazos A/B0/B, expectativa CHICA, estado (revisión
-  + dry-run OK, listo para lanzar con la co-firma).
+  (TCGA 482/2202, privado 241/1101) + fusión promedio → [N,512]. Pill "Decisión delegada: pido tu guía".
 
 **Imagen didáctica (decisión de Ernesto): esquema nativo + crop real.** El crop real se genera con
 `render_multiscale_crop.py` (read-only, openslide en CPU; reusa una coord de tejido de un `.h5`
@@ -274,7 +288,8 @@ con la caja del campo fino dentro del contexto). Assets en `assets_branding/mult
 (panel con título+cuerpo), `nested_fields` (esquema de campos concéntricos). Constantes `MSCROP/
 MS_FINE/MS_CTX`. Todo nativo salvo el crop real (imagen). **QA (12-jul)**: rasterizado LibreOffice,
 6/6 nuevas verificadas (tablas, paneles, esquema, crop, referencias) — layout limpio, Barlow en
-contenido, sin solapes tras 2 pasadas de ajuste.
+contenido, sin solapes tras 2 pasadas de ajuste. **Re-QA (13-jul)** tras la fusión + limpieza de
+estilo: 4/4 slides (12-15) verificadas, sin solapes, sin «—» ni «palanca» en contenido visible.
 
-**Pendiente**: co-firma de Sebastián sobre las escalas (es el objetivo de la slide 16) + QA en
+**Pendiente**: co-firma de Sebastián sobre las escalas (es el objetivo de la slide 15, ex-16) + QA en
 PowerPoint + decisión de Ernesto sobre commitear (el `.py` bundlea el WIP de mammoth previo).

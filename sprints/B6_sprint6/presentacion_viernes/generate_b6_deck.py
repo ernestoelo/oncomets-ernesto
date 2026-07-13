@@ -575,34 +575,58 @@ def build():
             size=9.5, bold=True, col=TEAL_TITLE)
     # pipeline en bloques: variable de la figura + forma del tensor en cada paso
     dim_pipeline(s, [
-        ("parches", "N"),
-        ("z", "[N,512]"),
-        ("x̄", "[N,16,16]"),
-        ("s", "300 slots"),
+        ("x_i", "[N,512]"),
+        ("W → x̄", "[N,16,16]"),
+        ("ruteo", "sim + softmax"),
+        ("slots s", "300"),
         ("Φ·W_low", "[300,512]"),
-        ("h", "[N,512]"),
+        ("concat", "[N,512]"),
         ("CLAM", "logits"),
     ], t=0.26 + ih + 0.34)
-    notes(s, "El punto de partida es un parche y su vector de features CONCH, la z. En CLAM ese "
-             "vector pasaría por una única matriz lineal, la W del diagrama, y es exactamente ahí "
-             "donde interviene MAMMOTH. En lugar de una sola W, el embedding se parte por cabeza: "
-             "cada x̄ es la porción del parche que ve una cabeza, y son subespacios aprendidos, "
-             "como en atención multi-cabeza, no textura ni forma ni color. Cada cabeza corre su "
-             "propia mezcla de expertos en paralelo, los bloques MoE. Es mezcla, no producto: los "
-             "expertos suman contribuciones suaves que el router pondera, lo que mantiene el "
-             "entrenamiento estable; un producto de expertos multiplicaría distribuciones como "
-             "vetos y necesitaría un normalizador intratable. Dentro de cada experto están los "
-             "slots, la s, que son los prototipos aprendidos, y ahí sí vive la semántica de "
-             "tejido: cada parche se compara con esos prototipos por producto interno y se reparte "
-             "entre ellos. La salida del experto se arma con la factorización de bajo rango, la Φ "
-             "por la W_low, más una no linealidad, y eso es lo que conserva el mismo presupuesto "
-             "de parámetros que la capa original. Se concatenan las cabezas en el cross-head "
-             "concat y queda h, un vector por parche con la misma forma que entró. Recién ahí "
-             "empieza la parte MIL, que en este proyecto es CLAM: la atención agrega los parches "
-             "en el slide embed y el clasificador entrega el diagnóstico. El panel de la derecha, "
-             "la similitud parche-slot, es justo lo que la segunda parte reconstruye sobre las "
-             "slides de mama. Lo esencial: MAMMOTH toca solo el tramo de la W; todo el resto de "
-             "CLAM queda igual.")
+    notes(s, "Esta es la arquitectura completa del paper, y conviene recorrerla de izquierda a "
+             "derecha siguiendo sus variables, porque cada símbolo es un paso del pipeline. Se "
+             "parte de la lámina, que se corta en parches, y cada parche pasa por el encoder y "
+             "sale convertido en un vector de features, que en la figura es x_i. Hay uno por "
+             "parche, así que para toda la slide tenemos el conjunto de x_i, de uno hasta N. En un "
+             "MIL corriente cada x_i entraría por una única matriz lineal, la W del diagrama, que "
+             "lo proyecta al espacio interno del agregador, y ese es el único lugar donde MAMMOTH "
+             "interviene: reemplaza esa W. Todo lo de la izquierda, el encoder, y todo lo de la "
+             "derecha, el agregador, quedan igual. Lo primero que hace MAMMOTH es partir esa "
+             "proyección en cabezas. La salida de W se corta en trozos y a cada trozo la figura lo "
+             "llama x̄, la porción del parche que ve cada cabeza; son subespacios aprendidos, como "
+             "en atención multi-cabeza, no textura ni forma ni color. Cada cabeza corre su propia "
+             "mezcla de expertos en paralelo, que son los bloques MoE. Dentro de cada experto "
+             "están los slots, que son prototipos aprendidos, y acá viene la parte que quiero "
+             "dejar clarísima, porque es el corazón del mecanismo. Cada parche se compara con cada "
+             "prototipo con un producto interno, y eso es el ruteo: mide qué tan parecido es el "
+             "parche a ese slot. Sobre todos los parches de la slide se aplica una softmax, que "
+             "decide cuánto aporta cada parche a cada slot. Con esos pesos se arma un promedio "
+             "ponderado de los parches, y ese promedio ponderado, que en la figura es el weighted "
+             "average, es lo que llena cada slot. Dicho de una vez y en orden: el parche entra "
+             "como x_i, el ruteo calcula los pesos comparándolo con los prototipos, y el slot "
+             "termina siendo la x ponderada, el promedio de todos los parches que se le parecen. "
+             "Cada slot queda representando un fenotipo, un tipo de tejido. Cada slot pasa después "
+             "por la transformación del experto, que está factorizada en bajo rango, la Φ por la "
+             "W_low seguida de una no linealidad; esa factorización es lo que le permite tener "
+             "treinta expertos sin gastar más parámetros que la matriz original. Al final se "
+             "concatenan las cabezas, el cross-head concat, y sale la salida de MAMMOTH, que "
+             "alimenta al agregador. En este proyecto el agregador es CLAM: su atención junta los "
+             "parches en un vector de slide y el clasificador entrega el diagnóstico. Un detalle: "
+             "la figura muestra como salida los propios slots, y en nuestra configuración base una "
+             "segunda softmax los recombina para reconstruir los parches y devolver la misma forma "
+             "que entró, así el reemplazo de la capa lineal es directo. Casi seguro va a salir por "
+             "qué esto es una mezcla de expertos y no un producto de expertos, y la respuesta está "
+             "en cómo se combinan. Acá los expertos se combinan sumando: las dos softmax que "
+             "describí reparten pesos que suman uno, así que la salida es un promedio, una "
+             "combinación convexa. Eso es una mezcla, se entrena directo y es estable. Un producto "
+             "de expertos haría lo contrario: multiplicaría las distribuciones de los expertos, "
+             "como si cada uno tuviera un veto, y para entrenarlo haría falta un normalizador que "
+             "es intratable; además modela una distribución de probabilidad, no una transformación "
+             "de features, que es lo que acá necesitamos. Todo el diseño es aditivo por "
+             "construcción, así que la mezcla es la elección natural y un producto rompería la "
+             "formulación y traería de vuelta justo la inestabilidad que el método busca evitar. Y "
+             "conviene decirlo con honestidad: el paper no menciona el producto de expertos, esta "
+             "comparación es un razonamiento de arquitectura, no una cita del paper.")
 
     # ---- 8. keep_slots: la bifurcación, con math+código (NATIVO) ----
     s = content(prs, "La variante keep_slots: dónde cambia la salida")
@@ -734,77 +758,97 @@ def build():
     s = divider(prs, "Magnificación multi-escala",
                 "La única señal nueva tras cerrar la arquitectura: el contexto espacial · "
                 "piloto microcalcificaciones")
-    notes(s, "Cerrado el capítulo de la arquitectura, con cuatro ejes que no movieron la "
-             "métrica, queda una sola palanca que todavía no probamos y que sí inyecta "
-             "información nueva: la escala a la que miramos el tejido. Esta parte es sobre eso. "
-             "El plan es un piloto sobre microcalcificaciones, elegido porque son pocas láminas "
-             "y la extracción cabe en un fin de semana; la idea, sin embargo, aplica a cualquier "
+    notes(s, "Cerrado el capítulo de la arquitectura, donde cuatro ejes distintos no movieron "
+             "la métrica, queda una idea que todavía no probamos y que sí trae información "
+             "nueva: la escala a la que miramos el tejido. De eso trata esta parte. Es un "
+             "piloto sobre microcalcificaciones, que elegimos porque son pocas láminas y la "
+             "extracción cabe en un fin de semana, pero la misma idea sirve para cualquier "
              "tarea que dependa del contexto.")
 
-    # ---- 13. El problema no es más zoom, es contexto ----
-    s = content(prs, "El problema no es más zoom, es contexto", size=27)
-    add_textbox(s, 0.30, 0.90, 9.4, 0.62, [
-        ("La etiqueta pregunta DÓNDE vive la microcalcificación — ¿en CDIS?, ¿en carcinoma "
-         "invasivo?, ¿en tejido no neoplásico? — no si existe. Es una pregunta de contexto, "
-         "no de detalle celular.", 14, False, GRIS_BODY, F_BODY)])
-    panel(s, 0.30, 1.66, 4.55, 2.55, "Detectar la calcificación",
-          TEAL_TITLE, [
-              "Alta magnificación (20–40×)",
-              "Campo ~100 µm",
-              "Anillos laminados ⇒ pista de DCIS.",
-              "",
-              "Ya la tenemos: el parche fino la resuelve.",
-          ], TEAL_SQ)
-    panel(s, 5.15, 1.66, 4.55, 2.55, "Localizarla: ¿en qué estructura?",
-          ORA_T, [
-              "Baja–media magnificación (5–10×)",
-              "Campo 0.5–2 mm",
-              "El conducto / nido invasor / lobulillo.",
-              "",
-              "Lo que HOY falta: el parche fino no lo cubre.",
-          ], ORA_ACC, fill=PROG_BG)
-    takeaway_bar(s, "La palanca no es más zoom — es agregar una escala GRUESA que aporte el "
-                    "contexto del tejido anfitrión.", t=4.44, size=13)
-    notes(s, "Conviene empezar por una trampa. Uno intuye que una microcalcificación, como es "
-             "un objeto chico, pide más aumento. Es al revés. La etiqueta que queremos predecir "
-             "no pregunta si hay una calcificación, sino en qué estructura vive: dentro de un "
-             "carcinoma in situ, de un carcinoma invasor o de tejido no neoplásico. Eso es una "
-             "pregunta de contexto, no de detalle. Para responderla el modelo tiene que ver la "
-             "estructura anfitriona completa, el conducto, el nido invasor, el lobulillo, que "
-             "mide entre medio milímetro y dos milímetros. Hoy extraemos un solo parche fino por "
-             "región: detecta la calcificación pero no le entra el conducto alrededor. Por eso la "
-             "palanca no es más zoom, es agregar una escala gruesa que aporte ese contexto.")
+    # ---- 13. El problema es contexto + hallazgo físico (fusión de las dos slides) ----
+    s = content(prs, "No es más zoom, es contexto: cohortes a distinta escala", size=21)
+    add_textbox(s, 0.30, 0.86, 9.4, 0.54, [
+        ("La etiqueta pregunta DÓNDE vive la microcalcificación (¿CDIS?, ¿invasor?, "
+         "¿no neoplásico?), no si existe. Es una pregunta de contexto, no de detalle celular.",
+         13, False, GRIS_BODY, F_BODY)])
+    # izquierda: las dos demandas (detectar vs localizar)
+    panel(s, 0.30, 1.48, 4.55, 1.35, "Detectar la calcificación", TEAL_TITLE, [
+        "Alta magnif. 20-40×, campo ~100 µm.",
+        "Anillos laminados: pista de DCIS.",
+        "Ya la tenemos: el parche fino la resuelve.",
+    ], TEAL_SQ)
+    panel(s, 0.30, 2.98, 4.55, 1.35, "Localizar: ¿en qué estructura?", ORA_T, [
+        "Baja o media, 5-10×, campo 0.5-2 mm.",
+        "El conducto, nido invasor o lobulillo.",
+        "Es lo que hoy falta: el fino no lo cubre.",
+    ], ORA_ACC, fill=PROG_BG)
+    # derecha: el hallazgo físico (cohortes a distinta escala)
+    add_textbox(s, 5.15, 1.30, 4.55, 0.66, [
+        ("Y las cohortes están a distinta escala física", 13, True, TEAL_TITLE, F_TITLE),
+        ("medido en µm/px real, no en la etiqueta del archivo:", 11.5, False, GRIS_BODY, F_BODY)])
+    simple_table(s, 5.15, 2.06, 4.55,
+                 ["Cohorte", "Magnif.", "Parche 256 px"],
+                 [["Pública (TCGA)", "~40×", "59 µm"],
+                  ["Privada", "~20×", "119 µm"],
+                  ["HistAI", "sin MPP", "excluida"]],
+                 col_fracs=[0.44, 0.24, 0.32], row_h=0.36, fs=10.5)
+    add_textbox(s, 5.15, 3.60, 4.55, 0.64, [
+        ("Difieren 2×: la pirámide se define en µm/px, no en «level» del archivo.",
+         11.5, False, INK, F_BODY)])
+    takeaway_bar(s, "Hay que sumar una escala GRUESA que aporte el contexto del tejido, "
+                    "y definirla en micras, no en «level».", t=4.48, size=12.5)
+    notes(s, "Conviene empezar por algo que parece al revés. Uno pensaría que una "
+             "microcalcificación, como es un objeto chico, pide más aumento, y es lo contrario. "
+             "La etiqueta que queremos predecir no pregunta si hay una calcificación, sino en qué "
+             "estructura vive: dentro de un carcinoma in situ, de un carcinoma invasor o de "
+             "tejido no neoplásico. Eso es contexto, no detalle. Para responderlo el modelo tiene "
+             "que ver la estructura anfitriona completa, el conducto, el nido invasor o el "
+             "lobulillo, que miden entre medio milímetro y dos milímetros. Hoy extraemos un solo "
+             "parche fino por región, que detecta la calcificación pero no alcanza a cubrir el "
+             "conducto de alrededor. Por eso lo que falta no es más zoom, es sumar una escala "
+             "gruesa que traiga ese contexto. A esto se agrega un hallazgo que apareció cuando "
+             "medimos las láminas. Uno esperaría que un parche del mismo tamaño en píxeles "
+             "cubriera lo mismo en las dos cohortes, y no. Con la resolución real de cada "
+             "escáner, las láminas de la cohorte pública están cerca de cuarenta aumentos y las "
+             "de la privada cerca de veinte, o sea el doble de resolución unas que otras, aunque "
+             "la etiqueta del archivo diga otra cosa. Un mismo parche de doscientos cincuenta y "
+             "seis píxeles cubre cincuenta y nueve micras en una y ciento diecinueve en la otra. "
+             "De ahí salen dos consecuencias: la escala hay que definirla en micras por píxel y "
+             "no en niveles del archivo, y el pipeline actual ya arrastra un sesgo, porque le "
+             "entrega cada cohorte a un aumento distinto. Re-extraer a un campo físico común "
+             "habilita la pirámide y de paso corrige ese sesgo. La tercera cohorte no tiene "
+             "resolución confiable en su metadata, así que queda fuera.")
 
     # ---- 14. Lo que estudiamos: patología + referencias ----
     s = content(prs, "Lo que estudiamos: patología de la microcalcificación", size=24)
-    add_textbox(s, 0.30, 0.88, 5.55, 0.3, [("Dos tipos de calcio — y uno es invisible", 13, True,
+    add_textbox(s, 0.30, 0.88, 5.55, 0.3, [("Dos tipos de calcio, y uno es invisible", 13, True,
                                             TEAL_TITLE, F_TITLE)])
     simple_table(s, 0.30, 1.22, 5.55,
                  ["Tipo", "En H&E de rutina", "Para el modelo"],
-                 [["Tipo I — oxalato", "casi invisible\n(solo luz polarizada)", "ciego → TECHO\n(sobre todo no_neoplásico)"],
-                  ["Tipo II — fosfato", "basófilo, visible\n(anillos laminados)", "visible → aquí\njuega la escala"]],
+                 [["Tipo I: oxalato", "casi invisible\n(solo luz polarizada)", "ciego → TECHO\n(sobre todo no_neoplásico)"],
+                  ["Tipo II: fosfato", "basófilo, visible\n(anillos laminados)", "visible → aquí\njuega la escala"]],
                  col_fracs=[0.26, 0.37, 0.37], row_h=0.72, fs=10.5)
     add_textbox(s, 0.30, 3.62, 5.55, 0.95, [
-        ("Tamaño: la calcificación (50–500 µm) ENTRA en un parche fino;", 12, False, GRIS_BODY, F_BODY),
-        ("el conducto anfitrión (0.5–2 mm) NO → por eso hace falta el campo grueso.",
+        ("Tamaño: la calcificación (50-500 µm) ENTRA en un parche fino;", 12, False, GRIS_BODY, F_BODY),
+        ("el conducto anfitrión (0.5-2 mm) NO → por eso hace falta el campo grueso.",
          12, False, GRIS_BODY, F_BODY)])
     # panel de referencias
     _rect(s, 6.05, 0.86, 3.65, 4.06, TEAL_CARD2, line=TEAL_SQ)
     add_textbox(s, 6.22, 0.93, 3.35, 3.95, [
         ("Referencias", 13, True, TEAL_TITLE, F_TITLE),
         ("Clínica de la microcalcificación", 10.5, True, ORA_T, F_BODY),
-        ("· Breast microcalcifications: past, present & future — Review, 2022", 9.5, False, INK, F_BODY),
-        ("· Calcification in breast histopathology — Diagn. Histopathol., 2024", 9.5, False, INK, F_BODY),
-        ("· Polyhedral microcalc. = calcium oxalate — Radiology, 1993", 9.5, False, INK, F_BODY),
-        ("· Microcalcifications: size matters! — 2007", 9.5, False, INK, F_BODY),
-        ("· Predictors of malignancy in microcalc. — Br J Cancer, 2011", 9.5, False, INK, F_BODY),
+        ("· Breast microcalcifications: past, present & future · Review 2022", 9.5, False, INK, F_BODY),
+        ("· Calcification in breast histopathology · Diagn. Histopathol. 2024", 9.5, False, INK, F_BODY),
+        ("· Polyhedral microcalc. = calcium oxalate · Radiology 1993", 9.5, False, INK, F_BODY),
+        ("· Microcalcifications: size matters! · 2007", 9.5, False, INK, F_BODY),
+        ("· Predictors of malignancy in microcalc. · Br J Cancer 2011", 9.5, False, INK, F_BODY),
         ("Multi-escala en patología", 10.5, True, ORA_T, F_BODY),
-        ("· CPathAgent — NeurIPS 2025 (baseline MIL multi-escala, Ap. C.1.2)", 9.5, False, INK, F_BODY),
-        ("· DSMIL 20×+5× — Li et al., CVPR 2021", 9.5, False, INK, F_BODY),
-        ("· Deep Multi-Magnification Nets (mama/DCIS) — Ho et al., 2021", 9.5, False, INK, F_BODY),
+        ("· CPathAgent · NeurIPS 2025 (baseline MIL multi-escala, Ap. C.1.2)", 9.5, False, INK, F_BODY),
+        ("· DSMIL 20×+5× · Li et al., CVPR 2021", 9.5, False, INK, F_BODY),
+        ("· Deep Multi-Magnification Nets (mama/DCIS) · Ho et al., 2021", 9.5, False, INK, F_BODY),
         ("Modelo base", 10.5, True, ORA_T, F_BODY),
-        ("· CONCH — Lu et al., Nat Med 2024 (nativo 20×)", 9.5, False, INK, F_BODY),
-        ("· CAP Invasive Breast, Nota D — la etiqueta contextual", 9.5, False, INK, F_BODY),
+        ("· CONCH · Lu et al., Nat Med 2024 (nativo 20×)", 9.5, False, INK, F_BODY),
+        ("· CAP Invasive Breast, Nota D · la etiqueta contextual", 9.5, False, INK, F_BODY),
     ])
     notes(s, "Antes de elegir números conviene apoyarse en la patología, y hay dos hechos que "
              "mandan. El primero es que no todas las calcificaciones se ven igual en la tinción "
@@ -817,44 +861,12 @@ def build():
              "no. Estas dos ideas vienen de la literatura de patología mamaria que está citada en "
              "la lámina, junto con los trabajos de multi-escala en los que nos apoyamos.")
 
-    # ---- 15. El hallazgo físico: las cohortes difieren 2× ----
-    s = content(prs, "Hallazgo: las cohortes están a distinta magnificación física", size=23)
-    add_textbox(s, 0.30, 0.90, 9.4, 0.5, [
-        ("Medido con la resolución real de cada escáner (µm/px), no con la etiqueta del archivo:",
-         13.5, False, GRIS_BODY, F_BODY)])
-    simple_table(s, 0.30, 1.46, 9.4,
-                 ["Cohorte", "µm/px (level0)", "Magnif.", "Un parche 256 px cubre", "En el piloto"],
-                 [["Pública (TCGA)", "0.2325", "~40×", "59 µm", "re-extrae"],
-                  ["Privada", "0.465", "~20×", "119 µm", "re-extrae"],
-                  ["HistAI", "sin MPP fiable", "—", "—", "excluida (single-scale)"]],
-                 col_fracs=[0.22, 0.18, 0.12, 0.26, 0.22], row_h=0.42, fs=11.5)
-    add_textbox(s, 0.30, 3.35, 9.4, 1.0, [
-        ("Difieren 2×. Dos consecuencias:", 13, True, TEAL_TITLE, F_TITLE),
-        ("1)  La pirámide se define en µm/px físicos, NO en «level» del archivo.", 12.5, False, INK, F_BODY),
-        ("2)  El pipeline actual ya arrastra un sesgo (entrega cada cohorte a otra magnificación); "
-         "re-extraer a un campo común de paso lo corrige.", 12.5, False, INK, F_BODY)])
-    takeaway_bar(s, "Por eso la escala se parametriza en micras, y el tamaño en píxeles se "
-                    "calcula por lámina.", t=4.52, size=13)
-    notes(s, "Hay un hallazgo técnico que descubrimos al medir las láminas y que cambia cómo se "
-             "define la escala. Uno esperaría que un parche del mismo tamaño en píxeles cubriera "
-             "lo mismo en las dos cohortes, pero no. Medido con la resolución real de cada "
-             "escáner, las láminas de la cohorte pública están a unas cuarenta magnificaciones y "
-             "las de la privada a unas veinte, o sea el doble de resolución unas que otras, aunque "
-             "la etiqueta del archivo diga otra cosa. Un mismo parche de doscientos cincuenta y "
-             "seis píxeles cubre cincuenta y nueve micras en una y ciento diecinueve en la otra. "
-             "La consecuencia es doble: primero, la escala hay que definirla en micras por píxel, "
-             "no en niveles del archivo; y segundo, el pipeline actual ya arrastra un sesgo, "
-             "porque le está entregando las dos cohortes a magnificaciones distintas. Re-extraer a "
-             "un campo físico común no solo habilita la pirámide, de paso corrige ese sesgo. La "
-             "tercera cohorte no tiene resolución confiable en su metadata, así que queda fuera de "
-             "la re-extracción.")
-
-    # ---- 16. La decisión de escalas (LA slide para Sebastián) ----
+    # ---- 15. La decisión de escalas (LA slide para Sebastián) ----
     s = content(prs, "La decisión de escalas", size=28)
     _pill = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(6.60), Inches(0.19), Inches(3.10), Inches(0.48))
     _pill.fill.solid(); _pill.fill.fore_color.rgb = PROG_BG
     _pill.line.color.rgb = ORA_ACC; _pill.line.width = Pt(1.25); _pill.shadow.inherit = False
-    _set_runs(_pill.text_frame, [("Decisión delegada — pido tu guía", 11, True, ORA_T, F_BODY, PP_ALIGN.CENTER)],
+    _set_runs(_pill.text_frame, [("Decisión delegada: pido tu guía", 11, True, ORA_T, F_BODY, PP_ALIGN.CENTER)],
               anchor=MSO_ANCHOR.MIDDLE)
     # izquierda: esquema nativo de campos concéntricos + pipeline
     nested_fields(s, 0.30, 1.02, 4.55, 1.95)
@@ -869,8 +881,8 @@ def build():
     # derecha: crop REAL a dos escalas
     add_image_fit(s, MS_FINE, 5.10, 1.02, 2.25, 2.25, align="top")
     add_image_fit(s, MS_CTX, 7.45, 1.02, 2.25, 2.25, align="top")
-    caption(s, 5.10, 3.30, 2.25, "fino 112 µm — citología", size=9.5, col=ORA_T, bold=True)
-    caption(s, 7.45, 3.30, 2.25, "contexto 512 µm — arquitectura", size=9.5, col=TEAL_TITLE, bold=True)
+    caption(s, 5.10, 3.30, 2.25, "fino 112 µm · citología", size=9.5, col=ORA_T, bold=True)
+    caption(s, 7.45, 3.30, 2.25, "contexto 512 µm · arquitectura", size=9.5, col=TEAL_TITLE, bold=True)
     add_textbox(s, 5.10, 3.66, 4.6, 0.62, [
         ("Región real de mama (TCGA-BRCA), mismo centro. La caja naranja = el campo fino dentro "
          "del contexto.", 10, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
@@ -892,32 +904,6 @@ def build():
              "agregador queda intacto y la comparación es limpia. Lo que quiero conversar es si "
              "estas dos escalas y esta fusión te parecen las adecuadas, o si conviene mover los "
              "campos.")
-
-    # ---- 17. Diseño paired + expectativa honesta ----
-    s = content(prs, "Diseño pareado y qué esperamos (con honestidad)", size=23)
-    add_card(s, 0.30, 1.00, 9.4, 0.86, 1,
-             "Brazo A — modelo actual re-entrenado (referencia sobre las features de hoy).", size=13)
-    add_card(s, 0.30, 1.96, 9.4, 0.86, 2,
-             "Brazo B0 — solo el parche fino en la grilla común: aísla el efecto de emparejar la escala.", size=13)
-    add_card(s, 0.30, 2.92, 9.4, 0.86, 3,
-             "Brazo B — fino + contexto promediados: aísla el efecto de agregar contexto.", size=13)
-    add_textbox(s, 0.30, 3.92, 9.4, 0.5, [
-        ("Pareado sobre los MISMOS splits k=5 · se reporta balanced_acc Y AUC + confusión. "
-         "Expectativa CHICA (el baseline gana <+3%; techo de oxalato en no_neoplásico).",
-         12, False, GRIS_BODY, F_BODY)])
-    takeaway_bar(s, "Pre-registrado, revisión interna OK, prueba en seco del pipeline OK → listo "
-                    "para lanzar con el visto bueno de las escalas.", t=4.46, size=12.5)
-    notes(s, "Para cerrar, cómo se mide y qué se espera con honestidad. El diseño es pareado: "
-             "tres brazos entrenados sobre las mismas particiones. El primero es el modelo actual "
-             "re-entrenado, como referencia. El segundo usa solo el parche fino en la grilla "
-             "común, para aislar el efecto de emparejar la resolución. El tercero suma el "
-             "contexto. Comparando de a pares se separa cuánto aporta emparejar la escala y cuánto "
-             "aporta el contexto. La expectativa es de mejora chica: el trabajo en el que nos "
-             "basamos gana menos de tres puntos, y en el tejido no neoplásico el techo del oxalato "
-             "es real. Lo pre-registramos así a propósito, para no venderlo como un salto. Del "
-             "lado de la preparación, el diseño ya pasó la revisión interna y una prueba en seco "
-             "del pipeline que atajó un error antes de gastar cómputo; queda listo para lanzarse "
-             "en cuanto tengamos el visto bueno de las escalas.")
 
     os.makedirs(OUT_DIR, exist_ok=True)
     prs.save(DST)
