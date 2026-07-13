@@ -1,0 +1,16 @@
+START 2026-07-13T15:06:49-04:00
+/media/administrador/Storage1/sdonoso/clam_testing2/MAMMOTH/src/mammoth/components.py:126: FutureWarning: `nn.init.kaiming_uniform` is now deprecated in favor of `nn.init.kaiming_uniform_`.
+  nn.init.kaiming_uniform(weight, a=math.sqrt(5), nonlinearity='relu')
+[1/5] Cargando Mammoth desde checkpoint...
+Auto-computed LoRA rank: 8 (from dimensions: input_dim=512, slot_dim=256, output_dim=512, num_experts=30)
+      keep_slots=False | rank=8 | slot_embeds=(30, 16, 10, 16)
+[2/5] Features + coords + forward...
+      feats=(10401, 512) coords=(10401, 2) dispatch=(1, 10401, 30, 16, 10) scores=(10401, 30)
+      top-5 expertos por uso: [14, 0, 26, 10, 8]
+[3/5] Thumbnail...
+      thumb=(2912, 3999) mag=40.0 patch_size_level0=512px
+[4/5] Heatmaps por experto + montage...
+[5/5] Top-k parches a alta resolución + contact sheet...
+
+Listo. Salida en: sprints/B7_sprint7/interpretabilidad_invasion/TCGA-AR-A24L_invasion_f0
+END 2026-07-13T15:16:12-04:00 elapsed_seconds=563
