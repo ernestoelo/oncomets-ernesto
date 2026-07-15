@@ -303,7 +303,9 @@ clam_environ/
 ```
 environ/
 ├── features/pt_files/        ← ~3013 slides (live 5-jun-2026; crece, `ls|wc -l`), features CONCH v1, [N_parches, 512] float32
-│                               ⚠ dir LIVE que MUTA: subset TCGA re-extraído 26-27 jun → re-inferir hoy DIVERGE del .pkl congelado ([[features-tcga-drift-reextraccion]])
+│                               ⚠ dir LIVE que MUTA: TCGA re-extraído 26-27 jun = PARCHE DE MAGNIFICACIÓN de Sebastián (448px@×40→224
+│                               para igualar el campo físico a ×20); backup de las viejas 224@×40 en features_tcga_224x40/ (864). Checkpoints
+│                               pre-27jun usan las viejas → re-inferir hoy DIVERGE del .pkl congelado; re-entrenar ([[features-tcga-drift-reextraccion]])
 ├── features/h5_files/        ← coords/patches (h5), ~3013
 ├── features_resnet/pt_files/ ← 344 slides, ResNet50, [N, 1024]  (LEGACY)
 ├── features_256/pt_files/    ← 344 slides, CONCH @ patch 256, [N, 512]

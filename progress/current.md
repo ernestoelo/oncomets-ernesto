@@ -39,6 +39,21 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   d/b + regla 9 + reviewer)**. Opciones (A/B/C) en `objetivos_sprint7.md` — a decidir con
   Ernesto. **Nada a GPU esta sesión.**
 
+### Respuestas de Sebastián (14-15 jul, VERIFICADAS — `auditoria_coherencia/hallazgos_sesion_sebastian_15jul.md`)
+
+- **Magnificación VERIFICADA:** su parche = **448 px @ ×40 en TCGA** (`run_create_patches_tcga_sc.slurm`)
+  → `--target_patch_size 224` a CONCH (`run_extract_features_tcga_sc.slurm`) = mismo campo físico (104 µm)
+  que 224@×20. Privado+HistAI a ×20 sin cambio. Confirma la matemática (A VERIFICAR→VERIFICADO). Su fix =
+  **escala única común = brazo B0** del pre-registro; nuestra pirámide agrega contexto 512 µm encima.
+- **⚠ El drift de features del 26-27 jun ES este parche.** Reemplazó las TCGA en `features/pt_files`;
+  backup viejas 224@×40 en `features_tcga_224x40` (864). **Checkpoint invasión = 04-jun → features viejas.**
+  → **re-entrenar las 3 tareas** sobre features actuales para consistencia. [[features-tcga-drift-reextraccion]].
+- **Cambio de formulación (audio):** pipeline en **cascada** — gate binario carcinoma-invasivo → downstream
+  **sin `no_identificado`**. `carcinoma_ductal_insitu_presente` = **binaria** {no:636, si:810}. `tipo_histologico`
+  = probable 3-clase {no_especifico, lobulillar, otros} sin no_id, **a confirmar**. [[formulacion-cascada-gate-invasivo]].
+- **Pendiente (mensaje de seguimiento):** clases exactas de `tipo_histologico` · splits reuso vs regenerar ·
+  Sebastián manda dónde documentó el parche · verificar `patch_size_level0:512` del meta de interp. invasión.
+
 ### Deck (correcciones para la próxima presentación, la verá también Benjamín)
 
 - Migrar al **template de Sebastián** (`sprints/B7_sprint7/*.pptx`) + añadir slide de

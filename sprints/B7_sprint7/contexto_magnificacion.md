@@ -28,6 +28,39 @@
 Esto es consistente con la matemática de abajo, pero hay que confirmar el número de
 parche que usó y si equivale a lo que ya pre-registramos en B6.
 
+## ✅ VALIDADO 15-jul (respuestas de Sebastián + verificación en su código y disco)
+
+**La interpretación de Ernesto era correcta. Confirmado contra el código de Sebastián** (read-only):
+
+- **Parche TCGA = 448 px @ ×40**, downsampleado a 224 para CONCH. Sus dos slurm:
+  - Patching: `clam_environ/run_create_patches_tcga_sc.slurm` → `create_patches_fp.py
+    --patch_size 448 --step_size 448` sobre `TCGA_dataset_curated`.
+  - Features: `clam_environ/run_extract_features_tcga_sc.slurm` → `extract_features_fp.py
+    --target_patch_size 224 --model_name conch_v1`.
+  - A ×40 (0.2325 µm/px), 448 px = **104.2 µm de campo** = igual que 224 px a ×20. El `target 224`
+    baja 448→224 antes de CONCH: **misma área física, distinta resolución nativa**. Exactamente lo
+    que decía §Q2. WhatsApp: *"para 40x use 448 ... eso en las WSI de tcga. La data privada e histai
+    está a 20x"*.
+- **Privado y HistAI están a ×20 → no los tocó.** Solo re-hizo TCGA.
+
+**⚠ CRÍTICO — reemplazó las features canónicas (esto ES el drift del 26-27 jun):**
+- Metió las nuevas TCGA (448→224) directo en `clam_environ/environ/features/pt_files` (mtime `2026-06-27`).
+- Backup de las viejas 224@×40 en `clam_environ/environ/features_tcga_224x40/pt_files` (**864** slides).
+- `environ/features_tcga_sc/pt_files` quedó vacía (las movió a `features/`).
+- Es el drift que veníamos flagueando en [[features-tcga-drift-reextraccion]], ahora **explicado**.
+- **El checkpoint mammoth de invasión es del 04-jun** (`..._f0_20260604_0952_s1`) → entrenado con las
+  features VIEJAS. Re-inferir hoy sobre `features/` = mismatch de escala. **Recomendación:** re-entrenar
+  las 3 tareas (invasión + las 2 nuevas) sobre las features actuales → comparación CLAM vs Mammoth consistente.
+
+**Reconciliación con el pre-registro B6:** su fix = **escala única común (~104 µm ≈ nuestra escala fina
+112 µm)**, NO una pirámide. Equivale al brazo **B0 (fine-only @ grid común)** del pre-registro. Nuestra
+multi-escala AGREGA la escala de contexto (512 µm) **encima** → son complementarios, no compiten.
+
+**Punto a verificar (no confirmado):** el `meta.json` de la interpretabilidad de invasión
+(`sprints/B7_sprint7/interpretabilidad_invasion/TCGA-AR-A24L_invasion_f0/meta.json`) dice
+`patch_size_level0: 512` — ni 256 (viejo) ni 448 (nuevo). Chequear con qué geometría se generó ese
+`.h5` antes de sacar conclusiones de esos heatmaps.
+
 ## §Q2 — La matemática área ↔ magnificación ↔ tamaño de parche (para la slide)
 
 **La cantidad física clave es MPP** (microns per pixel, µm/px), no la magnificación ni el
@@ -90,12 +123,18 @@ el tamaño de parche en píxeles escala **inversamente al MPP**:
 
 ## Pendientes (inputs de terceros)
 
-- [ ] Recibir de Sebastián los **papers de microcalcificaciones** (luz polarizada,
-      lobulillo 0.5–2 mm) → estudiarlos citando sección/párrafo.
-- [ ] **Verificar con Sebastián** el parche exacto que aplicó y dónde (código).
-- [ ] **Reconciliar** su parche con el pre-registro B6 (escala fina 112 µm / contexto 512 µm).
-- [ ] Gate: el multi-escala se lanza el **próximo fin de semana** con **OK explícito de
-      Ernesto** (gate d) — nada a GPU antes.
+- [x] **Verificar con Sebastián el parche** — HECHO 15-jul (448@×40, ver §VALIDADO). Falta que
+      mande *dónde/cómo* lo documentó (dijo que lo pasa "mañana en la mañana", 14-jul).
+- [x] **Reconciliar con el pre-registro B6** — HECHO: su fix = escala única (~104 µm ≈ fina 112 µm) =
+      brazo B0; nuestra pirámide agrega contexto 512 µm encima (complementarios).
+- [ ] **Clases exactas de `tipo_histologico`** (Sebastián no las enumeró en el audio) → mensaje de seguimiento.
+- [ ] **Splits**: ¿reuso o regenero? (con el label set sin `no_identificado`) → mensaje de seguimiento.
+- [ ] Recibir de Sebastián los **papers de microcalcificaciones** (luz polarizada, lobulillo 0.5–2 mm).
+      Candidatos ya encontrados por Ernesto (a corroborar párrafo): PMC8892454 (abierto, localización +
+      tipos I/II), *Calcification in breast histopathology* (Diagnostic Histopathology 2024), BJC 2025
+      polarimetría+ML (`s41416-025-03150-x`). Ver [[luz-polarizada-oxalato-birrefringencia]].
+- [ ] Chequear el `patch_size_level0: 512` del `meta.json` de la interpretabilidad de invasión (§VALIDADO).
+- [ ] Gate: el multi-escala se lanza con **OK explícito de Ernesto** (gate d) — nada a GPU antes.
 
 ## Fuentes
 
