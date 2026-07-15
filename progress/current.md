@@ -51,8 +51,15 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
 - **Cambio de formulación (audio):** pipeline en **cascada** — gate binario carcinoma-invasivo → downstream
   **sin `no_identificado`**. `carcinoma_ductal_insitu_presente` = **binaria** {no:636, si:810}. `tipo_histologico`
   = probable 3-clase {no_especifico, lobulillar, otros} sin no_id, **a confirmar**. [[formulacion-cascada-gate-invasivo]].
-- **Pendiente (mensaje de seguimiento):** clases exactas de `tipo_histologico` · splits reuso vs regenerar ·
-  Sebastián manda dónde documentó el parche · verificar `patch_size_level0:512` del meta de interp. invasión.
+- **Gate entrenado (mensaje 15-jul):** Sebastián entrenó el clasificador binario de invasivo → **AUC
+  0.9524 ± 0.017 / val 0.9596** ("generalizó super bien"). Muy probablemente "el modelo que te comentó" (a
+  confirmar). Buena señal para la cascada. El código del gate sigue siendo suyo (sin ubicar).
+- **✅ Paths del parche de magnif RECIBIDOS** (Sebastián, WhatsApp 15-jul 9:23-9:24): `run_create_patches_tcga_sc.slurm`,
+  `run_extract_features_tcga_sc.slurm`, backup `features_tcga_224x40` — coinciden con lo ya verificado. **No re-pedir**
+  ([[verificar-antes-de-pedir-dato]]).
+- **Pendiente real:** (1) mensaje de seguimiento a Sebastián = clases exactas de `tipo_histologico` + splits
+  reuso vs regenerar (redactado y humanizado esta sesión, lo envía Ernesto); (2) verificar `patch_size_level0:512`
+  del meta de interp. invasión (SB6); (3) ubicar el código del gate.
 
 ### Deck (correcciones para la próxima presentación, la verá también Benjamín)
 
@@ -84,7 +91,10 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   [[entregable-externo-sanitizado]]); hojas de contacto en JPG q92 para pesar <25 MB.
   **Correo de revisión redactado** (papers microcalc + presentación + zip); lo envía Ernesto.
   Detalle: `auditoria_coherencia/hallazgos_sesion_entregable_interp_15jul.md`.
-- ✅ `/knowledge-audit` de esta sesión (entregable + feedback) ejecutada.
+- ✅ `/knowledge-audit` (entregable + feedback) ejecutada 15-jul AM.
+- ✅ `/knowledge-audit` 15-jul PM (esta sesión): corregida nota "Pendiente" stale que indujo re-pedir paths
+  de magnif ya enviados; registrado el resultado del gate; nueva memoria de prevención
+  [[verificar-antes-de-pedir-dato]]. Detalle: `auditoria_coherencia/hallazgos_sesion_magnif_paths_15jul.md`.
 
 ---
 
