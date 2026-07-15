@@ -75,8 +75,16 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
 ### Documentación de cierre (pedido de Sebastián)
 
 - Guía/README para que Sebastián replique la extracción de heatmaps de expertos (§7 del
-  prompt) — cronometrar 1 corrida CPU real.
-- `/knowledge-audit` al cerrar (4 fronts).
+  prompt) — cronometrar 1 corrida CPU real. ✅ el `README.md` de la carpeta de
+  interpretabilidad ya trae la guía + tiempo real medido (563 s CPU).
+- ✅ **Entregable de revisión producido (15-jul):** `interpretabilidad_liviano.zip` (17 MB,
+  gitignored) — copia curada de `sprints/B5_sprint5/mammoth_entendimiento/interpretabilidad/`
+  para que Sebastián revise los heatmaps por su cuenta. Incluye `README.md` unificado y
+  **sanitizado** (funde README+resultados, sin nombres ni jerga interna — nueva pauta
+  [[entregable-externo-sanitizado]]); hojas de contacto en JPG q92 para pesar <25 MB.
+  **Correo de revisión redactado** (papers microcalc + presentación + zip); lo envía Ernesto.
+  Detalle: `auditoria_coherencia/hallazgos_sesion_entregable_interp_15jul.md`.
+- ✅ `/knowledge-audit` de esta sesión (entregable + feedback) ejecutada.
 
 ---
 
