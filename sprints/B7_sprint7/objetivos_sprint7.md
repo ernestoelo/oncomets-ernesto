@@ -101,6 +101,21 @@ tiene **3 prerequisitos que hoy bloquean** el sbatch (documentados en su header)
   `data/csv_new_tasks/` → hay que generarlos (paso CPU, pero data-pipeline → pre-registrar).
 - **C. Reviewer (regla 9) + OK de Ernesto** antes del sbatch (gate d/b).
 
+> **ADDENDUM 16-jul — prereqs A y B RESUELTOS (formulación confirmada + splits `_ci` de Sebastián a reusar).**
+> - **A (formulación):** confirmada por Sebastián (cascada, sin `no_identificado` en la multiclase). Distribuciones
+>   REALES de los artefactos `_ci` (superseden los números tentativos de arriba, que venían del CSV viejo `_4clases`):
+>   `tipo_histologico` = **3 clases** {no_especifico:1610, lobulillar:240, otros:177}, n=2027 (drop no_id + subtipos
+>   raros→`otros`); `carcinoma_ductal_insitu_presente` = **binaria** {no:2005, si:810}, n=2815; `invasion_linfatica_vascular`
+>   = **binaria** {ausente:2447, presente:368}, n=2815 (**ya NO** las "3 clases {ausente, no_identificado, presente}"
+>   de la tabla de arriba). ⚠ En las **binarias** `no_identificado` quedó **plegado en el negativo** (no descartado):
+>   CDIS no=2005=636+1369; invasión ausente=2447=479+1968 → observación abierta a Sebastián (re-infla la mayoritaria).
+> - **B (splits+CSV):** **ya NO hay que generarlos.** Sebastián dejó la suite en `environ/csv_balance_ci/` +
+>   `environ/splits_5fold_balance_ci/<task>_ci_100/` (5-fold estratificado, cross-check regla 10 limpio). **Decisión
+>   (Ernesto, 16-jul): REUSAR los `_ci`** → el `.slurm` apunta a `environ/splits_5fold_balance_ci/<task>_ci_100` (paired).
+> - **Blocker previo al sbatch:** `histai_1132_slide_H&E_0` está en los splits de CDIS/invasión **sin features CONCH**
+>   → preflight de presencia de `.pt` (workaround G) o sacarlo del CSV/split. **C (reviewer + OK)** sigue en pie.
+> - Detalle: `auditoria_coherencia/hallazgos_sesion_ci_inspeccion_16jul.md` (C1-C7), [[formulacion-cascada-gate-invasivo]].
+
 ## Gobernanza y reglas que aplican
 
 - **Post-hoc CPU** para extracción (Etapa 0, sin GPU, sin reviewer). Entrenar = GPU gate.

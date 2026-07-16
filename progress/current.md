@@ -61,10 +61,20 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
 - **✅ Paths del parche de magnif RECIBIDOS** (Sebastián, WhatsApp 15-jul 9:23-9:24): `run_create_patches_tcga_sc.slurm`,
   `run_extract_features_tcga_sc.slurm`, backup `features_tcga_224x40` — coinciden con lo ya verificado. **No re-pedir**
   ([[verificar-antes-de-pedir-dato]]).
-- **Pendiente real (actualizado):** (1) **inspeccionar read-only `environ/*_ci*`** (splits/CSVs que dejó
-  Sebastián) antes de generar nada + darle observaciones; (2) verificar `patch_size_level0:512` del meta de
-  interp. invasión (SB6); (3) ubicar el código del gate. *(Las clases de `tipo_histologico` y la decisión de
-  splits ya NO son pendiente — confirmadas 15-jul.)*
+- **✅ `_ci` inspeccionados + REUSO decidido (16-jul):** Sebastián dejó la suite completa de la cascada (8 tareas)
+  en `environ/{csv_balance_ci, splits_5fold_balance_ci}` (5-fold estratificado, cross-check regla 10 limpio). Son
+  los "nuevos splits en carpeta nueva" → **decisión Ernesto: reusarlos para todas las pruebas** (el `.slurm` apunta
+  a `splits_5fold_balance_ci/<task>_ci_100`, paired; **resuelve el prereq B** "generar splits"). Distribuciones
+  reales: tipo 3-clase n=2027 {1610/240/177}; CDIS binaria {no:2005, si:810}; invasión binaria {ausente:2447,
+  presente:368}. **✅ SB6 resuelto:** `patch_size_level0:512` @ ×40 = tercera geometría → refuerza re-entrenar invasión.
+- **⚠ Observaciones abiertas para Sebastián (las relaya Ernesto):** (1) en las binarias `no_identificado` quedó
+  **plegado en el negativo** (CDIS no=2005=636+1369; invasión ausente=2447=479+1968), en multiclase se descartó
+  → ¿intencional? re-infla la mayoritaria; (2) **`histai_1132_slide_H&E_0` está en los splits de CDIS/invasión sin
+  features CONCH → crashea el training** (resolver antes de cualquier sbatch; el preflight lo caza); (3) nombre
+  `tipo_histologico_4clases_ci` stale (contenido = 3 clases). Detalle: `auditoria_coherencia/hallazgos_sesion_ci_inspeccion_16jul.md` (C1-C7).
+- **Pendiente real (actualizado):** (1) relayar las observaciones a Sebastián + resolver el slide sin features;
+  (2) reviewer (regla 9) + OK de Ernesto antes de generar cualquier `.slurm` de entrenamiento; (3) ubicar el código
+  del gate (opcional). *(Inspección `_ci`, decisión de splits y SB6 ya NO son pendiente — cerrados 16-jul.)*
 
 ### Deck (correcciones para la próxima presentación, la verá también Benjamín)
 
@@ -97,9 +107,13 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   **Correo de revisión redactado** (papers microcalc + presentación + zip); lo envía Ernesto.
   Detalle: `auditoria_coherencia/hallazgos_sesion_entregable_interp_15jul.md`.
 - ✅ `/knowledge-audit` (entregable + feedback) ejecutada 15-jul AM.
-- ✅ `/knowledge-audit` 15-jul PM (esta sesión): corregida nota "Pendiente" stale que indujo re-pedir paths
+- ✅ `/knowledge-audit` 15-jul PM: corregida nota "Pendiente" stale que indujo re-pedir paths
   de magnif ya enviados; registrado el resultado del gate; nueva memoria de prevención
   [[verificar-antes-de-pedir-dato]]. Detalle: `auditoria_coherencia/hallazgos_sesion_magnif_paths_15jul.md`.
+- ✅ `/knowledge-audit` 16-jul (esta sesión): inspección read-only de los `_ci` (C1-C7) → decisión de reuso,
+  gotcha del plegado de no_id en binarias, blocker del slide sin features, SB6 resuelto. Memorias actualizadas
+  ([[formulacion-cascada-gate-invasivo]], [[sprint7-interpretabilidad-clam-vs-mammoth]], [[data-gotchas-csv-wsi-interp]]).
+  Detalle: `auditoria_coherencia/hallazgos_sesion_ci_inspeccion_16jul.md`.
 
 ---
 
