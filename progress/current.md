@@ -50,16 +50,21 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   → **re-entrenar las 3 tareas** sobre features actuales para consistencia. [[features-tcga-drift-reextraccion]].
 - **Cambio de formulación (audio):** pipeline en **cascada** — gate binario carcinoma-invasivo → downstream
   **sin `no_identificado`**. `carcinoma_ductal_insitu_presente` = **binaria** {no:636, si:810}. `tipo_histologico`
-  = probable 3-clase {no_especifico, lobulillar, otros} sin no_id, **a confirmar**. [[formulacion-cascada-gate-invasivo]].
+  = **3-clase CONFIRMADA** {no_especifico, lobulillar, otros} sin no_id (Sebastián 15-jul: "Eso mismo"). [[formulacion-cascada-gate-invasivo]].
+- **✅ Formulación + splits CONFIRMADOS (Sebastián, WhatsApp 15-jul 18:41-18:42):** `tipo_histologico` = las 3
+  clases; **splits = REGENERAR en carpeta nueva** (no reusar). **Dato nuevo:** ya dejó artefactos con terminación
+  **`_ci`** en `clam_environ/environ/` (ci = carcinoma invasivo) → **inspeccionar read-only `environ/*_ci*` ANTES
+  de generar** para no duplicar; confirmar qué contienen. Pidió observaciones.
 - **Gate entrenado (mensaje 15-jul):** Sebastián entrenó el clasificador binario de invasivo → **AUC
   0.9524 ± 0.017 / val 0.9596** ("generalizó super bien"). Muy probablemente "el modelo que te comentó" (a
   confirmar). Buena señal para la cascada. El código del gate sigue siendo suyo (sin ubicar).
 - **✅ Paths del parche de magnif RECIBIDOS** (Sebastián, WhatsApp 15-jul 9:23-9:24): `run_create_patches_tcga_sc.slurm`,
   `run_extract_features_tcga_sc.slurm`, backup `features_tcga_224x40` — coinciden con lo ya verificado. **No re-pedir**
   ([[verificar-antes-de-pedir-dato]]).
-- **Pendiente real:** (1) mensaje de seguimiento a Sebastián = clases exactas de `tipo_histologico` + splits
-  reuso vs regenerar (redactado y humanizado esta sesión, lo envía Ernesto); (2) verificar `patch_size_level0:512`
-  del meta de interp. invasión (SB6); (3) ubicar el código del gate.
+- **Pendiente real (actualizado):** (1) **inspeccionar read-only `environ/*_ci*`** (splits/CSVs que dejó
+  Sebastián) antes de generar nada + darle observaciones; (2) verificar `patch_size_level0:512` del meta de
+  interp. invasión (SB6); (3) ubicar el código del gate. *(Las clases de `tipo_histologico` y la decisión de
+  splits ya NO son pendiente — confirmadas 15-jul.)*
 
 ### Deck (correcciones para la próxima presentación, la verá también Benjamín)
 
