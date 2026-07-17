@@ -9,48 +9,35 @@
 #SBATCH --error=/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/logs/%x_%j.err
 #SBATCH --chdir=/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto
 # ============================================================
-# B7 — Mammoth (paired vs CLAM) en las 2 tareas del sprint 7 que HOY no tienen
-# checkpoint mammoth: tipo_histologico y carcinoma_ductal_insitu_presente.
+# B7 — Mammoth (paired vs CLAM) en las 3 tareas del sprint 7 para la comparación
+# de interpretabilidad CLAM vs Mammoth: tipo_histologico, CDIS presente e invasión
+# linfovascular (LVI). Se re-entrenan las 3 sobre FEATURES ACTUALES (drift 26-27 jun,
+# [[features-tcga-drift-reextraccion]]) con la formulación decidida por Sebastián
+# (17-jul, cascada gate invasivo + reformulación CDIS/LVI).
 #
-# DRAFT — NO LANZAR. Requiere 3 cosas ANTES del sbatch (ver "PREREQUISITOS"):
-#   (1) decidir la FORMULACIÓN de cada tarea (n_classes, label_dict, cohorte) — Ernesto/Sebastián;
-#   (2) generar splits_kfold + csv_new_tasks para esas 2 tareas (hoy NO existen);
-#   (3) pase del reviewer (regla 9: hipótesis pre-registrada) + OK explícito de Ernesto (gate d/b).
-#
-# PROPÓSITO (importante, para el reviewer): este entrenamiento es un INSTRUMENTO de
+# PROPÓSITO (para el reviewer): este entrenamiento es un INSTRUMENTO de
 # interpretabilidad, NO un experimento de rendimiento. El objetivo del sprint 7 es
-# comparar los mapas de atención de CLAM vs los mapas de ruteo por experto de Mammoth
-# (pedido de Sebastián). Para las tareas sin checkpoint mammoth hace falta entrenar uno
-# y así poder correr scripts/mammoth_interpretability.py sobre él. NO se reclama que
-# Mammoth mejore la métrica: eso está cerrado (Hallazgo 12, 0 palancas). El brazo CLAM
-# paired da el mapa de atención de referencia para la comparación visual.
+# comparar los mapas de atención de CLAM vs los mapas de ruteo por experto/slot de
+# Mammoth (pedido de Sebastián). Para cada tarea se entrena un checkpoint CLAM y uno
+# Mammoth PAIRED (mismo split por fold, [[patron-paired-comparison-reuso-splits]]) y
+# luego se corre scripts/mammoth_interpretability.py sobre el checkpoint clam_mammoth.
+# NO se reclama que Mammoth mejore la métrica: eso está CERRADO (Hallazgo 12, 0 palancas).
+# El brazo CLAM paired da el mapa de atención de referencia para la comparación visual.
 #
-# Mismo harness que obj2 (scripts/train_dsmil.py), único delta = --model_type
-# {clam, clam_mammoth}. Splits reusados/paired (patrón [[patron-paired-comparison-reuso-splits]]).
-# ============================================================
+# Régimen de training = args bendecidos + early stopping (idéntico a B6 multiescala y a
+# los baselines): max_epochs 200, early_stopping patience 20 stop_epoch 50, B 8,
+# bag_weight 0.7, lr 2e-4, reg 1e-5, drop_out 0.25, embed_dim 512, seed 1. Harness
+# scripts/train_dsmil.py, único delta entre brazos = --model_type {clam, clam_mammoth}.
 #
-# PREREQUISITOS (resolver antes de habilitar el sbatch) — hoy bloquean:
+# FORMULACIÓN (fijada; snapshots CSV filtrados en data/csv_new_tasks/):
+#   - tipo_histologico: 3 clases (no_identificado excluido por el gate). Reusa el split
+#     _ci de Sebastián (READ-ONLY, environ/splits_5fold_balance_ci/...4clases_ci_100).
+#   - CDIS presente: binaria {no,si}, invasivas ∩ explícitos. Split _ci_reform (nuestro).
+#   - LVI (invasión linfovascular): binaria {ausente,presente}, invasivas ∩ explícitos.
+#     Split _ci_reform (nuestro). n=836 balanceado.
 #
-#  A. FORMULACIÓN (decisión de Ernesto/Sebastián, pre-registrar regla 9):
-#     - carcinoma_ductal_insitu_presente: labels {no:636, no_identificado:1369, si:810}.
-#       ¿binaria {no,si} excluyendo no_identificado (como los binarios de microcalc), o
-#       3-clase? → fija n_classes y label_dict.
-#     - tipo_histologico: la versión cruda tiene ~17 clases (muchas n=1..14). La entrenable
-#       es dataset_tipo_histologico_4clases_label.csv {carcinoma_invasivo_tipo_no_especifico:766,
-#       carcinoma_lobulillar_invasivo:183, no_identificado:366, otros:81}. ¿Se usa la de 4
-#       clases? ¿se excluye no_identificado?
-#     - Cohorte: ¿_pth (priv+TCGA+HistAI) para tener TCGA con WSI para los heatmaps, como
-#       invasión? (recomendado: los heatmaps se hacen sobre WSIs TCGA con .svs disponible).
-#
-#  B. SPLITS + CSV (hoy NO existen para estas 2 tareas):
-#     - data/splits_kfold/<task>_100/  → generar con el generador de splits k-fold del repo
-#       (mismo que produjo los otros splits_kfold; ver scripts/verify_kfold_splits.py).
-#     - data/csv_new_tasks/<...>_label.csv → snapshot filtrado (solo slides con .pt).
-#     Ambos con la formulación de (A). Es un paso CPU (no GPU), pero es data-pipeline →
-#     pre-registrar + reviewer antes de generarlos.
-#
-#  C. GOBERNANZA: reviewer (regla 9) + OK explícito de Ernesto + cortesía single-GPU.
-#
+# GATES antes del sbatch: reviewer (regla 9, hipótesis pre-registrada) + OK de Ernesto +
+# GPU libre (cortesía single-GPU). Preflight obligatorio por fold (workaround G).
 # ============================================================
 
 set -euo pipefail
@@ -61,11 +48,12 @@ ENVIRON="$CLAM/environ"
 FEATURES_DIR="$ENVIRON/features/pt_files"
 SPLITS_BASE="$REPO/data/splits_kfold"
 CSV_NT="$REPO/data/csv_new_tasks"
+CI_BASE="$ENVIRON/splits_5fold_balance_ci"   # splits _ci de Sebastián (READ-ONLY)
 B=8
 K=5
 RUN_TS=$(date +%Y%m%d_%H%M)
 MODEL_TYPES="${MODEL_TYPES:-clam clam_mammoth}"   # brazo liviano: MODEL_TYPES="clam_mammoth"
-GROUP="${GROUP:-all}"                             # tipo | cdis | all
+GROUP="${GROUP:-all}"                             # tipo | cdis | lvi | all
 
 source /home/sdonoso/miniconda3/etc/profile.d/conda.sh
 conda activate clam_latest
@@ -82,21 +70,20 @@ if ! CUDA_VISIBLE_DEVICES="" "$PYBIN" "$REPO/tests/test_mammoth_cpu.py" ; then
 fi
 
 run_task() {
-  local TASK="$1" CSV="$2" NCLS="$3" LABELDICT="$4"
-  local SPLIT_DIR="$SPLITS_BASE/${TASK}_100"
+  local TASK="$1" CSV="$2" NCLS="$3" LABELDICT="$4" SPLIT_DIR="$5"
   local RESULTS_DIR="$REPO/results/b7_mammoth_interp/${TASK}"
 
-  # PREREQUISITO B: sin splits generados, abortar limpio (no correr a ciegas).
   if [ ! -d "$SPLIT_DIR" ]; then
-    echo "SPLITS AUSENTES: $SPLIT_DIR no existe → generar splits_kfold + csv antes (prereq B). ABORTA."
-    exit 1
+    echo "SPLITS AUSENTES: $SPLIT_DIR no existe. ABORTA."; exit 1
   fi
   if [ ! -f "$CSV" ]; then
-    echo "CSV AUSENTE: $CSV no existe (prereq B). ABORTA."; exit 1
+    echo "CSV AUSENTE: $CSV no existe. ABORTA."; exit 1
   fi
 
   echo ""
   echo "===== TASK: $TASK  (n_classes=$NCLS, brazos: $MODEL_TYPES, k=$K) ====="
+  echo "       split_dir=$SPLIT_DIR"
+  echo "       csv=$CSV"
 
   # Preflight obligatorio (workaround G) por fold.
   for ((f=0; f<K; f++)); do
@@ -120,7 +107,7 @@ run_task() {
         --results_dir   "$RESULTS_DIR" \
         --fold          "$f" \
         --n_classes     "$NCLS" \
-        --max_epochs    30 \
+        --max_epochs    200 \
         --early_stopping --patience 20 --stop_epoch 50 \
         --B "$B" --bag_weight 0.7 --lr 2e-4 --reg 1e-5 --drop_out 0.25 \
         --embed_dim 512 --seed 1 \
@@ -130,22 +117,30 @@ run_task() {
   echo "===== $TASK done ====="
 }
 
-# ---- Parametrización DRAFT (n_classes/label_dict/CSV = PENDIENTE de decisión, prereq A) ----
-# Los valores de abajo son PLACEHOLDERS con la formulación recomendada; confirmar antes de usar.
+# ---- Parametrización FIJADA (formulación de Sebastián + snapshots verificados) ----
 
 if [ "$GROUP" = "tipo" ] || [ "$GROUP" = "all" ]; then
-  # recomendado: 4 clases (versión _4clases limpia). Confirmar si se excluye no_identificado.
-  run_task tipo_histologico_4clases_pth \
-           "$CSV_NT/dataset_tipo_histologico_4clases_label.csv" \
-           4 '{"carcinoma_invasivo_tipo_no_especifico": 0, "carcinoma_lobulillar_invasivo": 1, "no_identificado": 2, "otros": 3}'
+  # 3 clases (no_identificado excluido por el gate). Split _ci de Sebastián (read-only).
+  run_task tipo_histologico_3clases_ci \
+           "$CSV_NT/dataset_tipo_histologico_3clases_ci_label.csv" \
+           3 '{"carcinoma_invasivo_tipo_no_especifico": 0, "carcinoma_lobulillar_invasivo": 1, "otros": 2}' \
+           "$CI_BASE/tipo_histologico_4clases_ci_100"
 fi
 
 if [ "$GROUP" = "cdis" ] || [ "$GROUP" = "all" ]; then
-  # recomendado: binaria {no,si} excluyendo no_identificado (como los binarios de microcalc).
-  # Si se decide 3-clase, cambiar NCLS=3 y el label_dict + el CSV (sin excluir).
-  run_task carcinoma_ductal_insitu_presente_bin_pth \
-           "$CSV_NT/dataset_carcinoma_ductal_in_situ_presente_bin_label.csv" \
-           2 '{"no": 0, "si": 1}'
+  # binaria {no,si}, invasivas ∩ explícitos (85% positivo, aceptado por Sebastián).
+  run_task carcinoma_ductal_insitu_presente_ci_reform \
+           "$CSV_NT/dataset_carcinoma_ductal_insitu_presente_ci_reform_label.csv" \
+           2 '{"no": 0, "si": 1}' \
+           "$SPLITS_BASE/carcinoma_ductal_insitu_presente_ci_reform_100"
+fi
+
+if [ "$GROUP" = "lvi" ] || [ "$GROUP" = "all" ]; then
+  # binaria {ausente,presente}, invasivas ∩ explícitos (balanceado, n=836).
+  run_task invasion_linfatica_vascular_ci_reform \
+           "$CSV_NT/dataset_invasion_linfatica_vascular_ci_reform_label.csv" \
+           2 '{"ausente": 0, "presente": 1}' \
+           "$SPLITS_BASE/invasion_linfatica_vascular_ci_reform_100"
 fi
 
 echo ""
