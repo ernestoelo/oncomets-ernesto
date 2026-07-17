@@ -124,8 +124,11 @@ tiene **3 prerequisitos que hoy bloquean** el sbatch (documentados en su header)
 > positivo, desbalance dado vuelta)**; **LVI {ausente:470, presente:366} n=836 (balanceado)**. El slide `histai_1132`
 > (blocker previo) es no-invasivo → se excluye solo; conjuntos nuevos 100% con features. **`_ci` de CDIS/LVI ya NO
 > se reusan** (los de tipo sí); regenerar CSV+splits con la formulación nueva (data-pipeline → regla 9 + reviewer).
-> Esperando respuesta de Sebastián (¿le sirve el 85% de CDIS? ¿quién regenera?). Detalle:
-> `auditoria_coherencia/hallazgos_sesion_reformulacion_sebastian_17jul.md` (R1-R4).
+> **✅ Sebastián RESPONDIÓ (17-jul 16:04-16:05):** acepta el CDIS 85% positivo **sin ajuste** ("Perfecto") y **nos
+> deja regenerar los splits** ("Si puedes, dale no más"). → generar CSV+splits de CDIS/LVI queda de nuestro lado
+> (data-pipeline → regla 9 + reviewer + OK). Números re-verificados en disco esta sesión (regla 5): CDIS {no:132,
+> si:730}, LVI {ausente:470, presente:366}, **0 slides sin `.pt`, 0 duplicados, 0 fuga de paciente** (`patient_strat`).
+> Detalle: `auditoria_coherencia/hallazgos_sesion_reformulacion_sebastian_17jul.md` (R1-R5).
 
 ## Gobernanza y reglas que aplican
 

@@ -76,13 +76,16 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   casi todos en WSIs no invasivas); **LVI {ausente:470, presente:366} n=836 balanceado**. La obs. 2 (slide
   `histai_1132` sin features) **se auto-resuelve**: es no-invasivo → excluido; los 2 conjuntos nuevos verificados
   100% con features. Detalle: `auditoria_coherencia/hallazgos_sesion_reformulacion_sebastian_17jul.md` (R1-R4).
-- **Mensaje de respuesta a Sebastián enviado** (humanizado, con el 132/730 de CDIS + pregunta de quién regenera).
-  **Esperando su respuesta a:** (1) ¿el 85% positivo de CDIS le sirve o ajusta?; (2) ¿regenera él los splits de
-  CDIS/LVI o los arma Ernesto? Insumos para regenerar listos (3 CSVs en disco).
-- **Pendiente real (actualizado):** (1) **esperar la respuesta de Sebastián** (formulación de CDIS + quién genera);
-  (2) si genera Ernesto: CSV+splits de CDIS/LVI = data-pipeline → **regla 9 + reviewer + OK** (gotchas
-  [[data-gotchas-csv-wsi-interp]]); (3) re-entrenar las 3 tareas sobre features actuales con la formulación nueva.
-  *(Inspección `_ci`, SB6 y el plegado ya NO son pendiente — cerrados 16-17 jul; `_ci` de tipo sigue reusable.)*
+- **✅ Sebastián RESPONDIÓ (WhatsApp 17-jul 16:04-16:05):** **acepta la formulación nueva y los números tal cual**
+  ("Perfecto" + "Ahí tendríamos los dos casos") — **el CDIS 85% positivo (no 132/si 730) queda ACEPTADO sin ajuste**;
+  y a "¿los splits los regeneras tú o los armo yo?" respondió **"Si puedes, dale no más" → la generación de splits de
+  CDIS/LVI queda de NUESTRO lado**. Cierra las 2 preguntas abiertas.
+- **Pendiente real (actualizado 17-jul tarde):** (1) **generar CSV+splits de CDIS/LVI** con la formulación nueva
+  (invasivas ∩ explícitos) = data-pipeline → **regla 9 + reviewer + OK de Ernesto** antes de correr (gotchas
+  [[data-gotchas-csv-wsi-interp]]: CRLF Windows, naming linfovascular, **preflight de presencia de features**);
+  (2) re-entrenar las 3 tareas sobre features actuales con la formulación nueva ([[features-tcga-drift-reextraccion]]).
+  *(Inspección `_ci`, SB6, el plegado y "quién genera" ya NO son pendiente — cerrados 16-17 jul; `_ci` de tipo sigue
+  reusable; los `_ci` de CDIS/LVI superseded → los regeneramos nosotros.)*
 
 ### Deck (correcciones para la próxima presentación, la verá también Benjamín)
 
@@ -122,9 +125,13 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   gotcha del plegado de no_id en binarias, blocker del slide sin features, SB6 resuelto. Memorias actualizadas
   ([[formulacion-cascada-gate-invasivo]], [[sprint7-interpretabilidad-clam-vs-mammoth]], [[data-gotchas-csv-wsi-interp]]).
   Detalle: `auditoria_coherencia/hallazgos_sesion_ci_inspeccion_16jul.md`.
-- ✅ `/knowledge-audit` 17-jul (esta sesión): registrada la respuesta de Sebastián a la observación → **reformulación
-  de CDIS/LVI** (descartar no_id + restringir a WSI invasivas), números nuevos verificados en disco, C3 cerrado.
-  Detalle: `auditoria_coherencia/hallazgos_sesion_reformulacion_sebastian_17jul.md` (R1-R4).
+- ✅ `/knowledge-audit` 17-jul (mañana): registrada la reformulación de CDIS/LVI (descartar no_id + restringir a
+  WSI invasivas), números nuevos verificados en disco, C3 cerrado. (R1-R4).
+- ✅ `/knowledge-audit` 17-jul (tarde, esta sesión): **cerradas las 2 preguntas abiertas** — Sebastián RESPONDIÓ
+  (16:04-16:05): acepta el CDIS 85% **sin ajuste** + **nos deja regenerar los splits** ("dale no más"). R5:
+  verificación independiente en disco (0 sin `.pt`, 0 dup, 0 fuga de paciente) + viabilidad `patient_strat` + plan
+  de generación (script `build_cdis_lvi_ci_reform_splits.py`, naming `_ci_reform`). Reemplazado "esperando respuesta"
+  en los 4 frentes. Detalle: `auditoria_coherencia/hallazgos_sesion_reformulacion_sebastian_17jul.md` (R1-R5).
 
 ---
 
