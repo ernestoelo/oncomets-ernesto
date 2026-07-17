@@ -116,6 +116,17 @@ tiene **3 prerequisitos que hoy bloquean** el sbatch (documentados en su header)
 >   → preflight de presencia de `.pt` (workaround G) o sacarlo del CSV/split. **C (reviewer + OK)** sigue en pie.
 > - Detalle: `auditoria_coherencia/hallazgos_sesion_ci_inspeccion_16jul.md` (C1-C7), [[formulacion-cascada-gate-invasivo]].
 
+> **ADDENDUM 17-jul — Sebastián REFORMULÓ CDIS y LVI (el plegado del `_ci` queda superseded).** Al plantearle el
+> plegado de no_id, Sebastián lo confirmó primero y luego se retractó: para CDIS y LVI ahora es **descartar no_id +
+> restringir a las WSI invasivas, solo casos explícitos** (evita que el modelo aprenda invasión/no-invasión en vez
+> de la tarea). `tipo_histologico` sin cambios (3 clases, `_ci` válido). Números nuevos (verificados con
+> `csv_balance/dataset_invasion_carcinoma_gate_label.csv` = {invasivo:2013}): **CDIS {no:132, si:730} n=862 (85%
+> positivo, desbalance dado vuelta)**; **LVI {ausente:470, presente:366} n=836 (balanceado)**. El slide `histai_1132`
+> (blocker previo) es no-invasivo → se excluye solo; conjuntos nuevos 100% con features. **`_ci` de CDIS/LVI ya NO
+> se reusan** (los de tipo sí); regenerar CSV+splits con la formulación nueva (data-pipeline → regla 9 + reviewer).
+> Esperando respuesta de Sebastián (¿le sirve el 85% de CDIS? ¿quién regenera?). Detalle:
+> `auditoria_coherencia/hallazgos_sesion_reformulacion_sebastian_17jul.md` (R1-R4).
+
 ## Gobernanza y reglas que aplican
 
 - **Post-hoc CPU** para extracción (Etapa 0, sin GPU, sin reviewer). Entrenar = GPU gate.

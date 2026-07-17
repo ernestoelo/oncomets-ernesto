@@ -67,14 +67,22 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   a `splits_5fold_balance_ci/<task>_ci_100`, paired; **resuelve el prereq B** "generar splits"). Distribuciones
   reales: tipo 3-clase n=2027 {1610/240/177}; CDIS binaria {no:2005, si:810}; invasión binaria {ausente:2447,
   presente:368}. **✅ SB6 resuelto:** `patch_size_level0:512` @ ×40 = tercera geometría → refuerza re-entrenar invasión.
-- **⚠ Observaciones abiertas para Sebastián (las relaya Ernesto):** (1) en las binarias `no_identificado` quedó
-  **plegado en el negativo** (CDIS no=2005=636+1369; invasión ausente=2447=479+1968), en multiclase se descartó
-  → ¿intencional? re-infla la mayoritaria; (2) **`histai_1132_slide_H&E_0` está en los splits de CDIS/invasión sin
-  features CONCH → crashea el training** (resolver antes de cualquier sbatch; el preflight lo caza); (3) nombre
-  `tipo_histologico_4clases_ci` stale (contenido = 3 clases). Detalle: `auditoria_coherencia/hallazgos_sesion_ci_inspeccion_16jul.md` (C1-C7).
-- **Pendiente real (actualizado):** (1) relayar las observaciones a Sebastián + resolver el slide sin features;
-  (2) reviewer (regla 9) + OK de Ernesto antes de generar cualquier `.slurm` de entrenamiento; (3) ubicar el código
-  del gate (opcional). *(Inspección `_ci`, decisión de splits y SB6 ya NO son pendiente — cerrados 16-jul.)*
+- **✅ Observaciones planteadas a Sebastián y RESPONDIDAS (17-jul) → REFORMULACIÓN de CDIS/LVI:** Ernesto le
+  planteó el plegado de no_id (obs. 1); Sebastián confirmó tipo_histologico (3 clases, `_ci` válido) y **reformuló
+  CDIS y LVI**: descartar no_id + **restringir a WSI invasivas, solo casos explícitos** (motivo: evitar que el
+  modelo aprenda invasión/no-invasión en vez de la tarea). El **plegado del `_ci` de CDIS/LVI queda SUPERSEDED**.
+  Números nuevos (verificados con el CSV del clasificador de invasión `csv_balance/dataset_invasion_carcinoma_gate_label.csv`
+  = {invasivo:2013}): **CDIS {no:132, si:730} n=862 → 85% positivo** (desbalance dado vuelta; los "no CDIS" estaban
+  casi todos en WSIs no invasivas); **LVI {ausente:470, presente:366} n=836 balanceado**. La obs. 2 (slide
+  `histai_1132` sin features) **se auto-resuelve**: es no-invasivo → excluido; los 2 conjuntos nuevos verificados
+  100% con features. Detalle: `auditoria_coherencia/hallazgos_sesion_reformulacion_sebastian_17jul.md` (R1-R4).
+- **Mensaje de respuesta a Sebastián enviado** (humanizado, con el 132/730 de CDIS + pregunta de quién regenera).
+  **Esperando su respuesta a:** (1) ¿el 85% positivo de CDIS le sirve o ajusta?; (2) ¿regenera él los splits de
+  CDIS/LVI o los arma Ernesto? Insumos para regenerar listos (3 CSVs en disco).
+- **Pendiente real (actualizado):** (1) **esperar la respuesta de Sebastián** (formulación de CDIS + quién genera);
+  (2) si genera Ernesto: CSV+splits de CDIS/LVI = data-pipeline → **regla 9 + reviewer + OK** (gotchas
+  [[data-gotchas-csv-wsi-interp]]); (3) re-entrenar las 3 tareas sobre features actuales con la formulación nueva.
+  *(Inspección `_ci`, SB6 y el plegado ya NO son pendiente — cerrados 16-17 jul; `_ci` de tipo sigue reusable.)*
 
 ### Deck (correcciones para la próxima presentación, la verá también Benjamín)
 
@@ -114,6 +122,9 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   gotcha del plegado de no_id en binarias, blocker del slide sin features, SB6 resuelto. Memorias actualizadas
   ([[formulacion-cascada-gate-invasivo]], [[sprint7-interpretabilidad-clam-vs-mammoth]], [[data-gotchas-csv-wsi-interp]]).
   Detalle: `auditoria_coherencia/hallazgos_sesion_ci_inspeccion_16jul.md`.
+- ✅ `/knowledge-audit` 17-jul (esta sesión): registrada la respuesta de Sebastián a la observación → **reformulación
+  de CDIS/LVI** (descartar no_id + restringir a WSI invasivas), números nuevos verificados en disco, C3 cerrado.
+  Detalle: `auditoria_coherencia/hallazgos_sesion_reformulacion_sebastian_17jul.md` (R1-R4).
 
 ---
 
