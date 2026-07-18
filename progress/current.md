@@ -80,12 +80,21 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   ("Perfecto" + "Ahí tendríamos los dos casos") — **el CDIS 85% positivo (no 132/si 730) queda ACEPTADO sin ajuste**;
   y a "¿los splits los regeneras tú o los armo yo?" respondió **"Si puedes, dale no más" → la generación de splits de
   CDIS/LVI queda de NUESTRO lado**. Cierra las 2 preguntas abiertas.
-- **Pendiente real (actualizado 17-jul tarde):** (1) **generar CSV+splits de CDIS/LVI** con la formulación nueva
-  (invasivas ∩ explícitos) = data-pipeline → **regla 9 + reviewer + OK de Ernesto** antes de correr (gotchas
-  [[data-gotchas-csv-wsi-interp]]: CRLF Windows, naming linfovascular, **preflight de presencia de features**);
-  (2) re-entrenar las 3 tareas sobre features actuales con la formulación nueva ([[features-tcga-drift-reextraccion]]).
-  *(Inspección `_ci`, SB6, el plegado y "quién genera" ya NO son pendiente — cerrados 16-17 jul; `_ci` de tipo sigue
-  reusable; los `_ci` de CDIS/LVI superseded → los regeneramos nosotros.)*
+- **✅ EJECUTADO (17-jul tarde/noche, esta sesión):** (1) **splits CDIS/LVI `_ci_reform` GENERADOS + verificados**
+  (`data/splits_kfold/{carcinoma_ductal_insitu_presente,invasion_linfatica_vascular}_ci_reform_100/`; script
+  `build_cdis_lvi_ci_reform_splits.py`; reviewer PASA; 10/10 folds OK: 0 sin `.pt`, 0 dup, 0 fuga de paciente,
+  cross-check regla 10; naming `_ci_reform` confirmado por Ernesto). (2) **snapshot tipo 3-clase** creado
+  (`dataset_tipo_histologico_3clases_ci_label.csv`, 2027 slides, cubre exacto el `_ci` de Sebastián). (3)
+  **entrenamiento de las 3 tareas LANZADO** — `run_b7_mammoth_interp_kfold.slurm` cableado (tipo reusa el `_ci`
+  de Sebastián 3-clase; CDIS/LVI `_ci_reform` binarias; `max_epochs 200` + early stopping, corrige el `30` del
+  draft) + prereg (regla 9) + reviewer #2 PASA → **job 4589 RUNNING** (30 runs: 3 tareas × {CLAM, Mammoth} × 5
+  folds). Commits locales `1fe7436` (splits) + `acbae5f` (slurm/prereg/snapshot). Detalle:
+  `auditoria_coherencia/hallazgos_sesion_generacion_splits_entrenamiento_17jul.md` (E1-E5).
+- **Pendiente:** monitorear el job 4589 (`squeue -j 4589` / `tail -f logs/eg_b7_mammoth_interp_4589.out`; sin
+  `sacct`, workaround C) → al terminar, correr `scripts/mammoth_interpretability.py` sobre los checkpoints
+  `clam_mammoth` + reportar bal_acc/AUC/confusión/n por tarea (política eval B5). Workaround H mientras corra:
+  no cambiar de rama ni editar inputs del job. **Gotcha durable:** `tipo_histologico_4clases_ci_100` contiene
+  **3 clases** (no 4; label_dict con strings completos); `max_epochs > stop_epoch` o el early stopping no dispara.
 
 ### Deck (correcciones para la próxima presentación, la verá también Benjamín)
 
@@ -132,6 +141,10 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   verificación independiente en disco (0 sin `.pt`, 0 dup, 0 fuga de paciente) + viabilidad `patient_strat` + plan
   de generación (script `build_cdis_lvi_ci_reform_splits.py`, naming `_ci_reform`). Reemplazado "esperando respuesta"
   en los 4 frentes. Detalle: `auditoria_coherencia/hallazgos_sesion_reformulacion_sebastian_17jul.md` (R1-R5).
+- ✅ `/knowledge-audit` 17-jul (noche, esta sesión): registrada la **EJECUCIÓN** — splits `_ci_reform` generados +
+  verificados (2 reviewers PASA), snapshot tipo 3-clase, entrenamiento de las 3 tareas lanzado (**job 4589**).
+  Gotchas durables: tipo `_4clases`=3 clases; `max_epochs > stop_epoch`. Detalle:
+  `auditoria_coherencia/hallazgos_sesion_generacion_splits_entrenamiento_17jul.md` (E1-E5).
 
 ---
 
