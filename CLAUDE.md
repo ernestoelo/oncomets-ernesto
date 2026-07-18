@@ -937,6 +937,11 @@ el balanced. Memoria [[readme-resultados-formato-minimalista]].
   [[notas-presentador-guion-didactico]]) y prosa de entregables; NO toca docs técnicos
   estructurados, tablas, READMEs canónicos, código ni memorias. Probada en sesión fresca
   9-jul (PASS): `sprints/B6_sprint6/humanizer_es_validacion.md`.
+- `@session-close` — rutina de cierre de sesión en 3 fases (orden estricto):
+  documentar con `@knowledge-audit` → `@handoff` arrastrando TODOS los pendientes
+  sin terminar → commit + push. Invocarla **es** la autorización de push (default
+  del repo = "push lo hace Ernesto"); "sin push" la deja en commits locales.
+  Triggers — "cerrar sesión", "rutina de cierre".
 
 ## Contexto del usuario para sesiones rápidas
 
