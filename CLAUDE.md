@@ -887,6 +887,24 @@ plano. Estilo visual: `Modelo_OncoMets_Spatial_V1.pdf`. Estructura:
 > de template (le pasó al B7 hasta el commit `42280de`). Geometrías, extracción
 > del logo desde el `blipFill` y gotchas de banda/títulos:
 > [[plantilla-dos-cabeceras]].
+>
+> **ADDENDUM 19-jul-2026 (tarde) — el template VÁLIDO es `Modelo OncoMets
+> Spatial V1 Deep-LLM-V.pptx`**, fijado por Ernesto. `Plantilla.pptx` sirvió para
+> entender las dos cabeceras (y sus geometrías **siguen siendo correctas**: la
+> cabecera técnica es idéntica al píxel en los dos archivos, mismos nombres de
+> shape), pero el archivo a respetar es Deep-LLM-V. Diferencia que importa: es
+> **solo técnico** (19 láminas = portada + lámina de título + 17 técnicas) y **no
+> tiene cabecera Environ en ninguna lámina** → en un deck basado en él, TODO el
+> contenido va con cabecera OncoMets, incluida la recapitulación. La regla "la
+> Environ queda para agenda/recapitulación" aplica a Plantilla, no acá.
+>
+> **Y la causa raíz de un deck que "no se ve como el template" suele ser
+> tipográfica, no de branding**: los templates **embeben sus fuentes** y
+> `Presentation()` (default de python-pptx) no embebe ninguna → PowerPoint
+> sustituye Barlow y el deck se ve fuera de template aunque el branding esté
+> perfecto. **Regla: construir el deck SOBRE el .pptx del template** (abrirlo y
+> borrarle las láminas), nunca con `Presentation()`. Detalle y método de
+> verificación: [[deck-template-fuentes-embebidas]].
 
 **Speaker notes (formato fijado en B2)**: bloques `BLOQUE N — Título`,
 sub-items con `-> `, fórmulas inline sin LaTeX (`h_k = ReLU(W₁·z_k)`), sin

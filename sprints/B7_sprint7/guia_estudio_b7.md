@@ -119,15 +119,31 @@ y el material ya lo presentan así.
 
 ## 5. Inventario del deck: qué hay en cada lámina
 
-`sprints/B7_sprint7/presentacion_b7/CLAM_Sprint7.pptx`, 21 láminas, 13.333 × 7.5.
+`sprints/B7_sprint7/presentacion_b7/CLAM_Sprint7.pptx`, **22 láminas**, 13.333 × 7.5.
 Se regenera con `generate_b7_deck.py` (el .pptx es derivado y está gitignorado).
 
-> **Actualizado el 19-jul:** el deck se migró a las **dos cabeceras reales de Plantilla**
-> (commit `42280de`). Las 17 técnicas llevan la cabecera **OncoMets** (logo + línea teal),
-> la recapitulación la **Environ** (barra gris), y las 4 portadillas quedan en fondo teal
-> con el logo blanco. Antes iban todas con la Environ y **siete no llevaban cabecera
-> alguna**, entre ellas la 5 y la 7, que se leían como láminas rotas. Detalle:
-> [[plantilla-dos-cabeceras]].
+> **Actualizado el 19-jul (mañana):** el deck se migró a las **dos cabeceras reales de
+> Plantilla** (commit `42280de`). Antes iban todas con la Environ y **siete no llevaban
+> cabecera alguna**, entre ellas la 5 y la 7, que se leían como láminas rotas.
+>
+> **Actualizado el 19-jul (tarde) — re-base sobre el template VÁLIDO** (commit `170f7bd`).
+> Ernesto fijó que el template a respetar es **`Modelo OncoMets Spatial V1 Deep-LLM-V.pptx`**,
+> y el deck ahora se construye **sobre ese archivo** en vez de con `Presentation()`. El
+> motivo es la causa raíz real del síntoma: los templates **embeben sus fuentes** y el
+> default de python-pptx no, así que sin Barlow PowerPoint sustituía la tipografía y el
+> deck se veía fuera de template **aunque el branding estuviera bien**
+> ([[deck-template-fuentes-embebidas]]). Qué cambió:
+>
+> - **Numeración: 21 → 22 láminas.** La portada JPG se reemplazó por las **dos láminas de
+>   apertura nativas** del template (portada de marca + lámina de título, retitulada
+>   "OncoMets · MAMMOTH" con la fecha de la reunión). **Todo lo que sigue corre +1**
+>   respecto de la tabla de abajo.
+> - **Cabecera con la geometría LITERAL** del template (banda hasta 1.421), no la
+>   compactada a 0.785. El contenido baja bajo la banda y, si no entra, se escala ~8%.
+> - **La recapitulación pasó a cabecera OncoMets**: Deep-LLM-V no tiene cabecera Environ en
+>   ninguna lámina. Era la última con logo Environ en la banda, justo lo que Ernesto vio.
+> - Las **4 portadillas** siguen en fondo teal con el logo Environ blanco (decisión suya;
+>   revisable, ver pendientes).
 
 ### Bloque A: apertura (1 a 2)
 | # | Contenido |

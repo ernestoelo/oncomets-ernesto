@@ -168,14 +168,36 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   lámina 16 (los títulos se toparon a 25pt, el tamaño de Plantilla; con los heredados los
   largos caían a 2 líneas y la 2ª quedaba cortada por la línea). Dos títulos se acortaron
   para entrar en una línea: la 14 y la 18. Detalle: [[plantilla-dos-cabeceras]].
+- **✅ Re-basado el 19-jul (tarde) sobre el template VÁLIDO** (commit `170f7bd`). Ernesto
+  volvió a abrirlo y **seguía viendo la plantilla anterior**, y fijó cuál es el archivo a
+  respetar: **`Modelo OncoMets Spatial V1 Deep-LLM-V.pptx`**. La causa raíz resultó ser
+  otra que la de la mañana: los templates **embeben sus fuentes** (`ppt/fonts/*.fntdata` +
+  `embeddedFontLst`) y el generador construía con `Presentation()`, que no embebe ninguna.
+  Sin Barlow, PowerPoint **sustituye la tipografía en las 22 láminas** y el deck se ve
+  fuera de template aunque el branding esté perfecto. Ahora el deck se construye **sobre el
+  .pptx del template** (se le borran las láminas y se hereda el paquete): verificado, 5
+  `.fntdata` + Barlow y Cambria Math viajan en la salida. De paso:
+  - **21 → 22 láminas**: la portada JPG cedió a las **dos láminas de apertura nativas**
+    (portada de marca + título, retitulada con la fecha de la reunión).
+  - Cabecera con **geometría literal** del template (verificada shape a shape contra su
+    s04), no la compactada; `reflow_onco()` baja el contenido y lo escala ~8% si no entra.
+  - La **recapitulación pasó a cabecera OncoMets** — Deep-LLM-V no tiene la Environ en
+    ninguna lámina, y era la última con logo Environ en la banda.
+  - Tres bugs cazados en el QA visual: la tabla de la lámina 7 se comía su leyenda (escalar
+    solo geometría no encoge una tabla), el título quedaba `"OncoMets · MAMMOTH - Spatial"`
+    (el texto del template viene partido en varios runs) y la pill "Escalas a definir"
+    chocaba con los crops de tejido. Detalle: [[deck-template-fuentes-embebidas]] +
+    `auditoria_coherencia/hallazgos_sesion_template_valido_19jul.md`.
+- **✅ CERRADO el pendiente "¿Barlow está instalada?"**: ya no depende de la máquina de
+  Ernesto, las fuentes viajan dentro del `.pptx`.
 - **Pendiente del deck**: **QA fino en PowerPoint** (el OMML de los diagramas se ve roto en
-  LibreOffice pero OK en PowerPoint, [[pptx-qa-omml-libreoffice]]) **+ validar la migración
-  de cabeceras** recién hecha. Verificar además que **Barlow** esté instalada en la máquina
-  de Ernesto: no está en el servidor, y si tampoco la tiene él, PowerPoint sustituye la
-  tipografía y el deck se ve fuera de template aunque el archivo esté bien.
-- **Inventario lámina por lámina de las 21** + agenda de reunión + qué no afirmar:
+  LibreOffice pero OK en PowerPoint, [[pptx-qa-omml-libreoffice]]) **+ validar el re-base**
+  recién hecho. Ojo que LibreOffice tampoco tiene Barlow, así que lo que rasterice el
+  servidor es aproximado — el QA tipográfico solo vale en PowerPoint.
+- **Inventario lámina por lámina** + agenda de reunión + qué no afirmar:
   `sprints/B7_sprint7/guia_estudio_b7.md` (punto de reentrada al sprint,
-  [[guia-reentrada-al-cerrar-sprint]]).
+  [[guia-reentrada-al-cerrar-sprint]]). **Ojo**: su tabla numera las 21 viejas; tras el
+  re-base hay 22 y **todo corre +1** desde la apertura (avisado en el propio doc).
 
 ### Preguntas abiertas resueltas (13-jul, citadas a código)
 
