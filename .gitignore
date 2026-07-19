@@ -65,6 +65,18 @@ sprints/**/interpretabilidad*/**/heatmaps/
 sprints/**/interpretabilidad*/**/topk_patches/
 sprints/**/interpretabilidad*/**/topk_contact_sheet.png
 
+# Mismo criterio para la interpretabilidad del B7, que vive bajo results/ (la salida
+# del job 4589). Medido 18-jul: heatmaps/ 301 MB y las vistas individuales de atención
+# a resolución completa ~10 MB cada una. Se versiona lo liviano y citable:
+# attention_side_by_side.png (el entregable, ~1 MB), attention_stats.json,
+# attention_summary.json, expert_usage.csv, slot_usage.csv, meta.json.
+# Regenerar con clam_vs_mammoth_attention.py + run_b7_expert_interp.sh.
+results/**/interpretabilidad/**/heatmaps/
+results/**/interpretabilidad/**/topk_patches/
+results/**/interpretabilidad/**/topk_contact_sheet.png
+results/**/interpretabilidad/**/attention_clam.png
+results/**/interpretabilidad/**/attention_mammoth.png
+
 # Zips de entregables (derivados curados para adjuntar a un correo, ej.
 # interpretabilidad_liviano.zip). Como los .pptx/.pdf: derivados locales, NO fuente.
 # La fuente versionada es la carpeta interpretabilidad/. Regenerables.

@@ -377,6 +377,13 @@ def main():
     ap.add_argument("--keep-slots", action="store_true",
                     help="usar keep_slots=True (checkpoints obj3). Default False (drop-in).")
     ap.add_argument("--topk", type=int, default=8)
+    ap.add_argument("--patch-size-level0", type=float, default=None,
+                    help="override del tamaño de parche a nivel 0, en px. Si se omite "
+                         "se infiere de la magnificación (comportamiento OBJ-A). Pasarlo "
+                         "cuando se conozca la geometría REAL del h5: para las features "
+                         "TCGA re-extraídas (parche 448@×40→224 de Sebastián) el valor es "
+                         "448, y la inferencia por magnificación devuelve 512 (y trata "
+                         "como ×40 cualquier slide genuinamente ×20). Verificado 18-jul.")
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--label", default="", help="texto opcional (y_true/y_pred) para meta.json")
     args = ap.parse_args()
@@ -415,8 +422,10 @@ def main():
     thumb, scale, mag, w0, h0 = get_wsi_thumbnail(args.wsi)
     if np.nanmax(coords) <= 1.1:  # coords normalizadas → reescalar a px nivel-0
         coords = coords * np.array([w0, h0])
-    ps0 = patch_size_at_level0(mag)
-    print(f"      thumb={thumb.shape[:2]} mag={mag} patch_size_level0={ps0:.0f}px")
+    ps0 = args.patch_size_level0 if args.patch_size_level0 else patch_size_at_level0(mag)
+    origen_ps0 = "override CLI" if args.patch_size_level0 else "inferido de magnificación"
+    print(f"      thumb={thumb.shape[:2]} mag={mag} "
+          f"patch_size_level0={ps0:.0f}px ({origen_ps0})")
 
     print("[4/6] Heatmaps por experto + montage...")
     hm_dir = out_dir / "heatmaps"; hm_dir.mkdir(exist_ok=True)
@@ -435,6 +444,7 @@ def main():
         keep_slots=args.keep_slots, lora_rank=mammoth.lora_rank,
         config=MAMMOTH_CONFIG, n_patches=int(feats.shape[0]),
         dispatch_shape=list(dshape), level0_mag=mag, patch_size_level0=float(ps0),
+        patch_size_level0_origen=origen_ps0,
         expert_order_by_usage=[int(e) for e in order],
         top_slots_by_routing=[(int(e), int(s), float(cw)) for e, s, cw, _ in top_slots],
     )

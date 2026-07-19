@@ -1,0 +1,135 @@
+{
+  "tipo_histologico_3clases_ci": {
+    "pretty": "Tipo histologico (3 clases)",
+    "n": 2027,
+    "dist": {
+      "carcinoma_invasivo_tipo_no_especifico": 1610,
+      "carcinoma_lobulillar_invasivo": 240,
+      "otros": 177
+    },
+    "cohortes": {
+      "privado (Environ)": 171,
+      "TCGA": 859,
+      "HistAI": 997
+    },
+    "fold": 0,
+    "slides": [
+      {
+        "slide_id": "TCGA-AO-A12D-01Z-00-DX1.BA006BAD-5C6E-4099-BC99-3888E69F506E",
+        "cohort": "TCGA",
+        "etiqueta": "carcinoma_invasivo_tipo_no_especifico",
+        "mpp_x": 0.4992,
+        "magnif_equiv": "~20x",
+        "fuente_mpp": "openslide.mpp-x",
+        "dims_level0": [
+          55775,
+          42281
+        ]
+      },
+      {
+        "slide_id": "TCGA-AC-A8OS-01Z-00-DX1.3FD44846-8BD2-4A7A-9A87-8D3D29C25F60",
+        "cohort": "TCGA",
+        "etiqueta": "carcinoma_lobulillar_invasivo",
+        "mpp_x": 0.252,
+        "magnif_equiv": "~40x",
+        "fuente_mpp": "openslide.mpp-x",
+        "dims_level0": [
+          46043,
+          46426
+        ]
+      },
+      {
+        "slide_id": "TCGA-E9-A1NE-01Z-00-DX1.f332124a-cdab-4ab5-82d1-4b8b7f3c9821",
+        "cohort": "TCGA",
+        "etiqueta": "otros",
+        "mpp_x": 0.2485,
+        "magnif_equiv": "~40x",
+        "fuente_mpp": "openslide.mpp-x",
+        "dims_level0": [
+          49794,
+          65923
+        ]
+      }
+    ]
+  },
+  "carcinoma_ductal_insitu_presente_ci_reform": {
+    "pretty": "Carcinoma ductal in situ presente",
+    "n": 862,
+    "dist": {
+      "si": 730,
+      "no": 132
+    },
+    "cohortes": {
+      "privado (Environ)": 122,
+      "TCGA": 500,
+      "HistAI": 240
+    },
+    "fold": 0,
+    "slides": [
+      {
+        "slide_id": "TCGA-A7-A4SB-01Z-00-DX1.E8925605-5189-441E-A719-92CFC1118B0B",
+        "cohort": "TCGA",
+        "etiqueta": "no",
+        "mpp_x": 0.248,
+        "magnif_equiv": "~40x",
+        "fuente_mpp": "openslide.mpp-x",
+        "dims_level0": [
+          90439,
+          80048
+        ]
+      },
+      {
+        "slide_id": "TCGA-D8-A1XB-01Z-00-DX2.B262C269-F22B-4306-8195-079C0874EF8E",
+        "cohort": "TCGA",
+        "etiqueta": "si",
+        "mpp_x": 0.2527,
+        "magnif_equiv": "~40x",
+        "fuente_mpp": "openslide.mpp-x",
+        "dims_level0": [
+          95615,
+          82390
+        ]
+      }
+    ]
+  },
+  "invasion_linfatica_vascular_ci_reform": {
+    "pretty": "Invasion linfovascular",
+    "n": 836,
+    "dist": {
+      "ausente": 470,
+      "presente": 366
+    },
+    "cohortes": {
+      "privado (Environ)": 140,
+      "TCGA": 563,
+      "HistAI": 133
+    },
+    "fold": 0,
+    "slides": [
+      {
+        "slide_id": "TCGA-D8-A1XW-01Z-00-DX2.9849E503-BE3E-417C-ABE8-93A39583DDE0",
+        "cohort": "TCGA",
+        "etiqueta": "ausente",
+        "mpp_x": 0.2527,
+        "magnif_equiv": "~40x",
+        "fuente_mpp": "openslide.mpp-x",
+        "dims_level0": [
+          111551,
+          77773
+        ]
+      },
+      {
+        "slide_id": "TCGA-D8-A1X5-01Z-00-DX2.E4D28EE2-9C87-4613-BD2E-89FBEF960DEE",
+        "cohort": "TCGA",
+        "etiqueta": "presente",
+        "mpp_x": 0.2527,
+        "magnif_equiv": "~40x",
+        "fuente_mpp": "openslide.mpp-x",
+        "dims_level0": [
+          101591,
+          81748
+        ]
+      }
+    ]
+  }
+}

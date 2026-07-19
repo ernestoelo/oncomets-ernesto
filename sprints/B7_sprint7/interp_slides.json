@@ -1,0 +1,106 @@
+{
+  "tipo_histologico_3clases_ci": {
+    "fold": 0,
+    "classes": [
+      "carcinoma_invasivo_tipo_no_especifico",
+      "carcinoma_lobulillar_invasivo",
+      "otros"
+    ],
+    "ckpt_clam": "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/b7_mammoth_interp/tipo_histologico_3clases_ci/clam_tipo_histologico_3clases_ci_f0_20260717_1812_s1/s_0_checkpoint.pt",
+    "ckpt_mammoth": "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/b7_mammoth_interp/tipo_histologico_3clases_ci/clam_mammoth_tipo_histologico_3clases_ci_f0_20260717_1812_s1/s_0_checkpoint.pt",
+    "slides": [
+      {
+        "slide_id": "TCGA-AO-A12D-01Z-00-DX1.BA006BAD-5C6E-4099-BC99-3888E69F506E",
+        "cohort": "TCGA",
+        "y_true": 0,
+        "label": "carcinoma_invasivo_tipo_no_especifico",
+        "h5": "/media/administrador/Storage1/sdonoso/clam_environ/environ/features/h5_files/TCGA-AO-A12D-01Z-00-DX1.BA006BAD-5C6E-4099-BC99-3888E69F506E.h5",
+        "wsi": "/media/administrador/Storage1/sdonoso/TCGA_dataset_curated/TCGA-AO-A12D-01Z-00-DX1/TCGA-AO-A12D-01Z-00-DX1.BA006BAD-5C6E-4099-BC99-3888E69F506E.svs",
+        "conf_mammoth": 0.99774253,
+        "mpp_confiable": true
+      },
+      {
+        "slide_id": "TCGA-AC-A8OS-01Z-00-DX1.3FD44846-8BD2-4A7A-9A87-8D3D29C25F60",
+        "cohort": "TCGA",
+        "y_true": 1,
+        "label": "carcinoma_lobulillar_invasivo",
+        "h5": "/media/administrador/Storage1/sdonoso/clam_environ/environ/features/h5_files/TCGA-AC-A8OS-01Z-00-DX1.3FD44846-8BD2-4A7A-9A87-8D3D29C25F60.h5",
+        "wsi": "/media/administrador/Storage1/sdonoso/TCGA_dataset_curated/TCGA-AC-A8OS-01Z-00-DX1/TCGA-AC-A8OS-01Z-00-DX1.3FD44846-8BD2-4A7A-9A87-8D3D29C25F60.svs",
+        "conf_mammoth": 0.98317635,
+        "mpp_confiable": true
+      },
+      {
+        "slide_id": "TCGA-E9-A1NE-01Z-00-DX1.f332124a-cdab-4ab5-82d1-4b8b7f3c9821",
+        "cohort": "TCGA",
+        "y_true": 2,
+        "label": "otros",
+        "h5": "/media/administrador/Storage1/sdonoso/clam_environ/environ/features/h5_files/TCGA-E9-A1NE-01Z-00-DX1.f332124a-cdab-4ab5-82d1-4b8b7f3c9821.h5",
+        "wsi": "/media/administrador/Storage1/sdonoso/TCGA_dataset_curated/TCGA-E9-A1NE-01Z-00-DX1/TCGA-E9-A1NE-01Z-00-DX1.f332124a-cdab-4ab5-82d1-4b8b7f3c9821.svs",
+        "conf_mammoth": 0.77544314,
+        "mpp_confiable": true
+      }
+    ]
+  },
+  "carcinoma_ductal_insitu_presente_ci_reform": {
+    "fold": 0,
+    "classes": [
+      "no",
+      "si"
+    ],
+    "ckpt_clam": "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/b7_mammoth_interp/carcinoma_ductal_insitu_presente_ci_reform/clam_carcinoma_ductal_insitu_presente_ci_reform_f0_20260717_1812_s1/s_0_checkpoint.pt",
+    "ckpt_mammoth": "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/b7_mammoth_interp/carcinoma_ductal_insitu_presente_ci_reform/clam_mammoth_carcinoma_ductal_insitu_presente_ci_reform_f0_20260717_1812_s1/s_0_checkpoint.pt",
+    "slides": [
+      {
+        "slide_id": "TCGA-A7-A4SB-01Z-00-DX1.E8925605-5189-441E-A719-92CFC1118B0B",
+        "cohort": "TCGA",
+        "y_true": 0,
+        "label": "no",
+        "h5": "/media/administrador/Storage1/sdonoso/clam_environ/environ/features/h5_files/TCGA-A7-A4SB-01Z-00-DX1.E8925605-5189-441E-A719-92CFC1118B0B.h5",
+        "wsi": "/media/administrador/Storage1/sdonoso/TCGA_dataset_curated/TCGA-A7-A4SB-01Z-00-DX1/TCGA-A7-A4SB-01Z-00-DX1.E8925605-5189-441E-A719-92CFC1118B0B.svs",
+        "conf_mammoth": 0.9871546,
+        "mpp_confiable": true
+      },
+      {
+        "slide_id": "TCGA-D8-A1XB-01Z-00-DX2.B262C269-F22B-4306-8195-079C0874EF8E",
+        "cohort": "TCGA",
+        "y_true": 1,
+        "label": "si",
+        "h5": "/media/administrador/Storage1/sdonoso/clam_environ/environ/features/h5_files/TCGA-D8-A1XB-01Z-00-DX2.B262C269-F22B-4306-8195-079C0874EF8E.h5",
+        "wsi": "/media/administrador/Storage1/sdonoso/TCGA_dataset_curated/TCGA-D8-A1XB-01Z-00-DX2/TCGA-D8-A1XB-01Z-00-DX2.B262C269-F22B-4306-8195-079C0874EF8E.svs",
+        "conf_mammoth": 0.98725885,
+        "mpp_confiable": true
+      }
+    ]
+  },
+  "invasion_linfatica_vascular_ci_reform": {
+    "fold": 0,
+    "classes": [
+      "ausente",
+      "presente"
+    ],
+    "ckpt_clam": "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/b7_mammoth_interp/invasion_linfatica_vascular_ci_reform/clam_invasion_linfatica_vascular_ci_reform_f0_20260717_1812_s1/s_0_checkpoint.pt",
+    "ckpt_mammoth": "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/b7_mammoth_interp/invasion_linfatica_vascular_ci_reform/clam_mammoth_invasion_linfatica_vascular_ci_reform_f0_20260717_1812_s1/s_0_checkpoint.pt",
+    "slides": [
+      {
+        "slide_id": "TCGA-D8-A1XW-01Z-00-DX2.9849E503-BE3E-417C-ABE8-93A39583DDE0",
+        "cohort": "TCGA",
+        "y_true": 0,
+        "label": "ausente",
+        "h5": "/media/administrador/Storage1/sdonoso/clam_environ/environ/features/h5_files/TCGA-D8-A1XW-01Z-00-DX2.9849E503-BE3E-417C-ABE8-93A39583DDE0.h5",
+        "wsi": "/media/administrador/Storage1/sdonoso/TCGA_dataset_curated/TCGA-D8-A1XW-01Z-00-DX2/TCGA-D8-A1XW-01Z-00-DX2.9849E503-BE3E-417C-ABE8-93A39583DDE0.svs",
+        "conf_mammoth": 0.92954046,
+        "mpp_confiable": true
+      },
+      {
+        "slide_id": "TCGA-D8-A1X5-01Z-00-DX2.E4D28EE2-9C87-4613-BD2E-89FBEF960DEE",
+        "cohort": "TCGA",
+        "y_true": 1,
+        "label": "presente",
+        "h5": "/media/administrador/Storage1/sdonoso/clam_environ/environ/features/h5_files/TCGA-D8-A1X5-01Z-00-DX2.E4D28EE2-9C87-4613-BD2E-89FBEF960DEE.h5",
+        "wsi": "/media/administrador/Storage1/sdonoso/TCGA_dataset_curated/TCGA-D8-A1X5-01Z-00-DX2/TCGA-D8-A1X5-01Z-00-DX2.E4D28EE2-9C87-4613-BD2E-89FBEF960DEE.svs",
+        "conf_mammoth": 0.8479195,
+        "mpp_confiable": true
+      }
+    ]
+  }
+}
