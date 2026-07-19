@@ -1,0 +1,165 @@
+{
+  "ckpt": "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/b7_mammoth_interp/tipo_histologico_3clases_ci/clam_mammoth_tipo_histologico_3clases_ci_f0_20260717_1812_s1/s_0_checkpoint.pt",
+  "h5": "/media/administrador/Storage1/sdonoso/clam_environ/environ/features/h5_files/TCGA-AC-A8OS-01Z-00-DX1.3FD44846-8BD2-4A7A-9A87-8D3D29C25F60.h5",
+  "wsi": "/media/administrador/Storage1/sdonoso/TCGA_dataset_curated/TCGA-AC-A8OS-01Z-00-DX1/TCGA-AC-A8OS-01Z-00-DX1.3FD44846-8BD2-4A7A-9A87-8D3D29C25F60.svs",
+  "label": "clase_real=carcinoma_lobulillar_invasivo",
+  "keep_slots": false,
+  "lora_rank": 8,
+  "config": {
+    "input_dim": 512,
+    "dim": 512,
+    "num_experts": 30,
+    "num_slots": 10,
+    "num_heads": 16,
+    "slot_dim": 256,
+    "auto_rank": true,
+    "share_lora_weights": true,
+    "dropout": 0.0,
+    "slot_dropout": 0.0
+  },
+  "n_patches": 4201,
+  "dispatch_shape": [
+    1,
+    4201,
+    30,
+    16,
+    10
+  ],
+  "level0_mag": 40.0,
+  "patch_size_level0": 448.0,
+  "patch_size_level0_origen": "override CLI",
+  "expert_order_by_usage": [
+    17,
+    15,
+    19,
+    14,
+    26,
+    23,
+    10,
+    6,
+    8,
+    16,
+    24,
+    11,
+    0,
+    9,
+    5,
+    20,
+    2,
+    3,
+    29,
+    27,
+    18,
+    28,
+    25,
+    1,
+    12,
+    13,
+    21,
+    7,
+    4,
+    22
+  ],
+  "top_slots_by_routing": [
+    [
+      12,
+      2,
+      0.03787611424922943
+    ],
+    [
+      5,
+      5,
+      0.025053206831216812
+    ],
+    [
+      24,
+      9,
+      0.024267250671982765
+    ],
+    [
+      11,
+      3,
+      0.0220208540558815
+    ],
+    [
+      28,
+      7,
+      0.018688002601265907
+    ],
+    [
+      25,
+      9,
+      0.01847027987241745
+    ],
+    [
+      11,
+      4,
+      0.018379133194684982
+    ],
+    [
+      23,
+      2,
+      0.018069442361593246
+    ],
+    [
+      21,
+      4,
+      0.01720338501036167
+    ],
+    [
+      10,
+      2,
+      0.016622615978121758
+    ],
+    [
+      0,
+      1,
+      0.015463960357010365
+    ],
+    [
+      13,
+      5,
+      0.01545101497322321
+    ],
+    [
+      25,
+      0,
+      0.014997419901192188
+    ],
+    [
+      17,
+      3,
+      0.014721905812621117
+    ],
+    [
+      9,
+      8,
+      0.01402515172958374
+    ],
+    [
+      3,
+      1,
+      0.013268476352095604
+    ],
+    [
+      17,
+      4,
+      0.01301543414592743
+    ],
+    [
+      14,
+      9,
+      0.013011469505727291
+    ],
+    [
+      25,
+      1,
+      0.012408393435180187
+    ],
+    [
+      28,
+      8,
+      0.011899574659764767
+    ]
+  ]
+}

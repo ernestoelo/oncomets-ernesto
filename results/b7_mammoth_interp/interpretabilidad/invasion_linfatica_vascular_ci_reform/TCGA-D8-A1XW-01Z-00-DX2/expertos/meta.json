@@ -1,0 +1,165 @@
+{
+  "ckpt": "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/b7_mammoth_interp/invasion_linfatica_vascular_ci_reform/clam_mammoth_invasion_linfatica_vascular_ci_reform_f0_20260717_1812_s1/s_0_checkpoint.pt",
+  "h5": "/media/administrador/Storage1/sdonoso/clam_environ/environ/features/h5_files/TCGA-D8-A1XW-01Z-00-DX2.9849E503-BE3E-417C-ABE8-93A39583DDE0.h5",
+  "wsi": "/media/administrador/Storage1/sdonoso/TCGA_dataset_curated/TCGA-D8-A1XW-01Z-00-DX2/TCGA-D8-A1XW-01Z-00-DX2.9849E503-BE3E-417C-ABE8-93A39583DDE0.svs",
+  "label": "clase_real=ausente",
+  "keep_slots": false,
+  "lora_rank": 8,
+  "config": {
+    "input_dim": 512,
+    "dim": 512,
+    "num_experts": 30,
+    "num_slots": 10,
+    "num_heads": 16,
+    "slot_dim": 256,
+    "auto_rank": true,
+    "share_lora_weights": true,
+    "dropout": 0.0,
+    "slot_dropout": 0.0
+  },
+  "n_patches": 22206,
+  "dispatch_shape": [
+    1,
+    22206,
+    30,
+    16,
+    10
+  ],
+  "level0_mag": 40.0,
+  "patch_size_level0": 448.0,
+  "patch_size_level0_origen": "override CLI",
+  "expert_order_by_usage": [
+    25,
+    15,
+    27,
+    7,
+    5,
+    8,
+    24,
+    13,
+    26,
+    28,
+    29,
+    16,
+    14,
+    21,
+    0,
+    3,
+    1,
+    9,
+    23,
+    20,
+    18,
+    12,
+    22,
+    6,
+    4,
+    11,
+    19,
+    10,
+    2,
+    17
+  ],
+  "top_slots_by_routing": [
+    [
+      17,
+      0,
+      0.027644678950309753
+    ],
+    [
+      15,
+      5,
+      0.026307815685868263
+    ],
+    [
+      8,
+      9,
+      0.021018192172050476
+    ],
+    [
+      29,
+      3,
+      0.016936184838414192
+    ],
+    [
+      27,
+      4,
+      0.015176026150584221
+    ],
+    [
+      26,
+      9,
+      0.015071847476065159
+    ],
+    [
+      6,
+      7,
+      0.015029042959213257
+    ],
+    [
+      14,
+      6,
+      0.013930324465036392
+    ],
+    [
+      15,
+      7,
+      0.013706916943192482
+    ],
+    [
+      3,
+      1,
+      0.012915190309286118
+    ],
+    [
+      16,
+      7,
+      0.012167307548224926
+    ],
+    [
+      17,
+      4,
+      0.01093616895377636
+    ],
+    [
+      8,
+      0,
+      0.010781819000840187
+    ],
+    [
+      28,
+      2,
+      0.010538630187511444
+    ],
+    [
+      15,
+      9,
+      0.01034389715641737
+    ],
+    [
+      23,
+      5,
+      0.010312462225556374
+    ],
+    [
+      28,
+      7,
+      0.010148710571229458
+    ],
+    [
+      13,
+      9,
+      0.009719138033688068
+    ],
+    [
+      0,
+      7,
+      0.00969733577221632
+    ],
+    [
+      19,
+      7,
+      0.009667898528277874
+    ]
+  ]
+}

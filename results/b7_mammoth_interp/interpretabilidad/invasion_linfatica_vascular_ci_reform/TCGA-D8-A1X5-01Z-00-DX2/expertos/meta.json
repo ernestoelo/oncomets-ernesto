@@ -1,0 +1,165 @@
+{
+  "ckpt": "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/b7_mammoth_interp/invasion_linfatica_vascular_ci_reform/clam_mammoth_invasion_linfatica_vascular_ci_reform_f0_20260717_1812_s1/s_0_checkpoint.pt",
+  "h5": "/media/administrador/Storage1/sdonoso/clam_environ/environ/features/h5_files/TCGA-D8-A1X5-01Z-00-DX2.E4D28EE2-9C87-4613-BD2E-89FBEF960DEE.h5",
+  "wsi": "/media/administrador/Storage1/sdonoso/TCGA_dataset_curated/TCGA-D8-A1X5-01Z-00-DX2/TCGA-D8-A1X5-01Z-00-DX2.E4D28EE2-9C87-4613-BD2E-89FBEF960DEE.svs",
+  "label": "clase_real=presente",
+  "keep_slots": false,
+  "lora_rank": 8,
+  "config": {
+    "input_dim": 512,
+    "dim": 512,
+    "num_experts": 30,
+    "num_slots": 10,
+    "num_heads": 16,
+    "slot_dim": 256,
+    "auto_rank": true,
+    "share_lora_weights": true,
+    "dropout": 0.0,
+    "slot_dropout": 0.0
+  },
+  "n_patches": 28170,
+  "dispatch_shape": [
+    1,
+    28170,
+    30,
+    16,
+    10
+  ],
+  "level0_mag": 40.0,
+  "patch_size_level0": 448.0,
+  "patch_size_level0_origen": "override CLI",
+  "expert_order_by_usage": [
+    25,
+    24,
+    0,
+    8,
+    17,
+    26,
+    11,
+    16,
+    13,
+    10,
+    14,
+    21,
+    4,
+    20,
+    5,
+    12,
+    1,
+    7,
+    6,
+    2,
+    15,
+    9,
+    28,
+    3,
+    19,
+    23,
+    18,
+    29,
+    22,
+    27
+  ],
+  "top_slots_by_routing": [
+    [
+      6,
+      7,
+      0.049345698207616806
+    ],
+    [
+      15,
+      5,
+      0.02867695316672325
+    ],
+    [
+      19,
+      9,
+      0.027607617899775505
+    ],
+    [
+      15,
+      7,
+      0.026619190350174904
+    ],
+    [
+      26,
+      2,
+      0.02054458111524582
+    ],
+    [
+      8,
+      6,
+      0.017057299613952637
+    ],
+    [
+      17,
+      0,
+      0.016606846824288368
+    ],
+    [
+      23,
+      7,
+      0.016242725774645805
+    ],
+    [
+      8,
+      9,
+      0.01608368754386902
+    ],
+    [
+      28,
+      2,
+      0.015517759136855602
+    ],
+    [
+      10,
+      9,
+      0.015331326983869076
+    ],
+    [
+      21,
+      1,
+      0.014312218874692917
+    ],
+    [
+      6,
+      4,
+      0.014002027921378613
+    ],
+    [
+      27,
+      0,
+      0.013713636435568333
+    ],
+    [
+      8,
+      0,
+      0.013037877157330513
+    ],
+    [
+      23,
+      2,
+      0.012964325025677681
+    ],
+    [
+      16,
+      0,
+      0.012457550503313541
+    ],
+    [
+      21,
+      4,
+      0.012168945744633675
+    ],
+    [
+      3,
+      0,
+      0.01198339369148016
+    ],
+    [
+      9,
+      5,
+      0.010325056500732899
+    ]
+  ]
+}

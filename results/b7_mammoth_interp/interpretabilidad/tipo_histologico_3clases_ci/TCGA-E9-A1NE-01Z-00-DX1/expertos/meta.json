@@ -1,0 +1,165 @@
+{
+  "ckpt": "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/b7_mammoth_interp/tipo_histologico_3clases_ci/clam_mammoth_tipo_histologico_3clases_ci_f0_20260717_1812_s1/s_0_checkpoint.pt",
+  "h5": "/media/administrador/Storage1/sdonoso/clam_environ/environ/features/h5_files/TCGA-E9-A1NE-01Z-00-DX1.f332124a-cdab-4ab5-82d1-4b8b7f3c9821.h5",
+  "wsi": "/media/administrador/Storage1/sdonoso/TCGA_dataset_curated/TCGA-E9-A1NE-01Z-00-DX1/TCGA-E9-A1NE-01Z-00-DX1.f332124a-cdab-4ab5-82d1-4b8b7f3c9821.svs",
+  "label": "clase_real=otros",
+  "keep_slots": false,
+  "lora_rank": 8,
+  "config": {
+    "input_dim": 512,
+    "dim": 512,
+    "num_experts": 30,
+    "num_slots": 10,
+    "num_heads": 16,
+    "slot_dim": 256,
+    "auto_rank": true,
+    "share_lora_weights": true,
+    "dropout": 0.0,
+    "slot_dropout": 0.0
+  },
+  "n_patches": 5592,
+  "dispatch_shape": [
+    1,
+    5592,
+    30,
+    16,
+    10
+  ],
+  "level0_mag": 40.0,
+  "patch_size_level0": 448.0,
+  "patch_size_level0_origen": "override CLI",
+  "expert_order_by_usage": [
+    0,
+    23,
+    1,
+    3,
+    5,
+    19,
+    9,
+    26,
+    10,
+    14,
+    20,
+    15,
+    8,
+    6,
+    16,
+    4,
+    12,
+    11,
+    18,
+    13,
+    27,
+    22,
+    17,
+    2,
+    29,
+    28,
+    21,
+    25,
+    24,
+    7
+  ],
+  "top_slots_by_routing": [
+    [
+      12,
+      2,
+      0.04480421915650368
+    ],
+    [
+      28,
+      5,
+      0.03847864270210266
+    ],
+    [
+      23,
+      2,
+      0.03605832904577255
+    ],
+    [
+      25,
+      1,
+      0.03553557023406029
+    ],
+    [
+      28,
+      8,
+      0.03297005221247673
+    ],
+    [
+      3,
+      1,
+      0.026952754706144333
+    ],
+    [
+      1,
+      8,
+      0.02687227725982666
+    ],
+    [
+      2,
+      6,
+      0.021168245002627373
+    ],
+    [
+      1,
+      5,
+      0.014997213147580624
+    ],
+    [
+      25,
+      9,
+      0.0140408705919981
+    ],
+    [
+      20,
+      5,
+      0.01302690152078867
+    ],
+    [
+      12,
+      8,
+      0.012633059173822403
+    ],
+    [
+      25,
+      7,
+      0.011623934842646122
+    ],
+    [
+      3,
+      5,
+      0.011084670200943947
+    ],
+    [
+      24,
+      5,
+      0.010847028344869614
+    ],
+    [
+      28,
+      3,
+      0.010818247683346272
+    ],
+    [
+      9,
+      5,
+      0.01037257444113493
+    ],
+    [
+      5,
+      6,
+      0.009022309444844723
+    ],
+    [
+      25,
+      3,
+      0.008902071975171566
+    ],
+    [
+      7,
+      9,
+      0.00844172015786171
+    ]
+  ]
+}
