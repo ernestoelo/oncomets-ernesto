@@ -42,6 +42,9 @@ del pedido de Benjamín del 29-jun: entender el mecanismo, no volver a medir si 
 
 **Abierto**
 - QA fino del deck en PowerPoint (LibreOffice rompe las fórmulas, es artefacto suyo).
+  Incluye **validar la migración de cabeceras del 19-jul** (ver §5) y confirmar que
+  **Barlow** esté instalada: si no lo está, PowerPoint sustituye la tipografía y el deck se
+  ve fuera de template aunque el archivo esté bien.
 - Decisión sobre cómo proyectar el montage de expertos (ver §5).
 - Sign-off de patólogo para los nombres de tejido (bloqueo externo, viene de OBJ-A).
 - Qué hacer con el resultado de CDIS (ver §4, es decisión tuya).
@@ -119,6 +122,13 @@ y el material ya lo presentan así.
 `sprints/B7_sprint7/presentacion_b7/CLAM_Sprint7.pptx`, 21 láminas, 13.333 × 7.5.
 Se regenera con `generate_b7_deck.py` (el .pptx es derivado y está gitignorado).
 
+> **Actualizado el 19-jul:** el deck se migró a las **dos cabeceras reales de Plantilla**
+> (commit `42280de`). Las 17 técnicas llevan la cabecera **OncoMets** (logo + línea teal),
+> la recapitulación la **Environ** (barra gris), y las 4 portadillas quedan en fondo teal
+> con el logo blanco. Antes iban todas con la Environ y **siete no llevaban cabecera
+> alguna**, entre ellas la 5 y la 7, que se leían como láminas rotas. Detalle:
+> [[plantilla-dos-cabeceras]].
+
 ### Bloque A: apertura (1 a 2)
 | # | Contenido |
 |---|---|
@@ -132,9 +142,9 @@ Es el bloque pedagógico, el que responde a Benjamín "domino el mecanismo".
 |---|---|
 | 3 | Portadilla MAMMOTH |
 | 4 | Qué significa la sigla y la idea general |
-| 5 | Dónde entra en el pipeline (feature extractor CONCH / ResNet50) |
+| 5 | Dónde entra MAMMOTH en el pipeline (feature extractor CONCH / ResNet50) |
 | 6 | Dimensiones y código, con tabla |
-| 7 | Dimensiones por bloque, con las variables de la figura |
+| 7 | La arquitectura de MAMMOTH paso a paso: dimensiones por bloque, con las variables de la figura |
 | 8 | **La relación 16 × 30 × 10**: cabezas, expertos y slots |
 | 9 | La variante `keep_slots` y dónde cambia la salida |
 
@@ -145,7 +155,7 @@ Es el bloque pedagógico, el que responde a Benjamín "domino el mecanismo".
 | 11 | Dónde y qué morfología recoge cada experto |
 | 12 | **El experto detecta tejido, no clase** (resultado de OBJ-A) |
 | 13 | Portadilla: ¿dónde mira cada modelo? |
-| 14 | Comparación pareada: mismas particiones, mismos datos |
+| 14 | Comparación pareada: mismas particiones y datos |
 | 15 | **Mismo barrio, distintas casas** (el mensaje central) |
 | 16 | **¿Cuántos expertos y slots se usan de verdad?** (Q1) |
 
@@ -155,7 +165,7 @@ Eje B6, que no es de interpretabilidad. Va acá porque hay que decidir escalas.
 | # | Contenido |
 |---|---|
 | 17 | Portadilla magnificación |
-| 18 | No es más zoom, es contexto: cohortes a distinta escala |
+| 18 | No es más zoom, es contexto: escalas por cohorte |
 | 19 | La matemática: µm/px, área física, tamaño de parche |
 | 20 | Patología de la microcalcificación |
 | 21 | **La decisión de escalas** (lámina de decisión) |

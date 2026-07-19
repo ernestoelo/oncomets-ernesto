@@ -157,9 +157,22 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
 - **✅ Regenerado el 19-jul con Q1 dentro** (21 slides · 13.333x7.5). La lámina 16 lee sus
   números del JSON; se le agregó el **rango de slots al pie** para no sobrevender la media.
   QA visual de la 16 en LibreOffice: OK.
+- **✅ Migrado el 19-jul a las DOS cabeceras reales de Plantilla** (commit `42280de`).
+  Ernesto abrió el deck y no lo reconoció como el template. El volcado de las 30 láminas de
+  `Plantilla.pptx` mostró por qué: usa **dos** cabeceras según el tipo de lámina, y las
+  **técnicas (s04-s18) llevan la de OncoMets** (logo + línea teal), no la Environ. El deck
+  usaba la Environ en todo y **7 de 21 láminas no llevaban cabecera alguna** — entre ellas
+  la 5 (pipeline) y la 7 (arquitectura del paper), las dos del bloque que se iba a estudiar.
+  Ahora: 17 técnicas con cabecera OncoMets, la recapitulación con la Environ, 4 portadillas
+  en fondo teal con logo blanco, portada de Plantilla. De paso se resolvió el título de la
+  lámina 16 (los títulos se toparon a 25pt, el tamaño de Plantilla; con los heredados los
+  largos caían a 2 líneas y la 2ª quedaba cortada por la línea). Dos títulos se acortaron
+  para entrar en una línea: la 14 y la 18. Detalle: [[plantilla-dos-cabeceras]].
 - **Pendiente del deck**: **QA fino en PowerPoint** (el OMML de los diagramas se ve roto en
-  LibreOffice pero OK en PowerPoint, [[pptx-qa-omml-libreoffice]]). Mirar de paso el título
-  de la lámina 16: parte en dos líneas y roza la banda del encabezado.
+  LibreOffice pero OK en PowerPoint, [[pptx-qa-omml-libreoffice]]) **+ validar la migración
+  de cabeceras** recién hecha. Verificar además que **Barlow** esté instalada en la máquina
+  de Ernesto: no está en el servidor, y si tampoco la tiene él, PowerPoint sustituye la
+  tipografía y el deck se ve fuera de template aunque el archivo esté bien.
 - **Inventario lámina por lámina de las 21** + agenda de reunión + qué no afirmar:
   `sprints/B7_sprint7/guia_estudio_b7.md` (punto de reentrada al sprint,
   [[guia-reentrada-al-cerrar-sprint]]).
