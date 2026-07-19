@@ -1,0 +1,26 @@
+{
+  "slide_id": "TCGA-AC-A8OS-01Z-00-DX1.3FD44846-8BD2-4A7A-9A87-8D3D29C25F60",
+  "task": "tipo_histologico_3clases_ci",
+  "fold": 0,
+  "cohort": "TCGA",
+  "clase_real": "carcinoma_lobulillar_invasivo",
+  "n_patches": 4201,
+  "level0_mag": 40.0,
+  "mpp_x": 0.252,
+  "patch_size_level0": 448.0,
+  "patch_size_level0_por_magnif": 512.0,
+  "campo_fisico_parche_um": 112.896,
+  "clam": {
+    "pred": 1,
+    "prob": 0.982748806476593,
+    "entropia_atencion": 0.7599904393130571
+  },
+  "mammoth": {
+    "pred": 1,
+    "prob": 0.9831763505935669,
+    "entropia_atencion": 0.8297664990115807
+  },
+  "spearman_atencion": 0.8854370477508074,
+  "jaccard_top5pct": 0.24260355029585798,
+  "jaccard_top1pct": 0.037037037037037035
+}

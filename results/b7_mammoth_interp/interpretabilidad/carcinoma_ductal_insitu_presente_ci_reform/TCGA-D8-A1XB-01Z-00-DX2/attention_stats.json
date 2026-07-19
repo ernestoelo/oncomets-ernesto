@@ -1,0 +1,26 @@
+{
+  "slide_id": "TCGA-D8-A1XB-01Z-00-DX2.B262C269-F22B-4306-8195-079C0874EF8E",
+  "task": "carcinoma_ductal_insitu_presente_ci_reform",
+  "fold": 0,
+  "cohort": "TCGA",
+  "clase_real": "si",
+  "n_patches": 16442,
+  "level0_mag": 40.0,
+  "mpp_x": 0.2527,
+  "patch_size_level0": 448.0,
+  "patch_size_level0_por_magnif": 512.0,
+  "campo_fisico_parche_um": 113.2096,
+  "clam": {
+    "pred": 1,
+    "prob": 0.9992581009864807,
+    "entropia_atencion": 0.6415311657928014
+  },
+  "mammoth": {
+    "pred": 1,
+    "prob": 0.9872588515281677,
+    "entropia_atencion": 0.9265237445202817
+  },
+  "spearman_atencion": 0.8472386796226783,
+  "jaccard_top5pct": 0.20175438596491227,
+  "jaccard_top1pct": 0.1232876712328767
+}

@@ -1,0 +1,26 @@
+{
+  "slide_id": "TCGA-D8-A1X5-01Z-00-DX2.E4D28EE2-9C87-4613-BD2E-89FBEF960DEE",
+  "task": "invasion_linfatica_vascular_ci_reform",
+  "fold": 0,
+  "cohort": "TCGA",
+  "clase_real": "presente",
+  "n_patches": 28170,
+  "level0_mag": 40.0,
+  "mpp_x": 0.2527,
+  "patch_size_level0": 448.0,
+  "patch_size_level0_por_magnif": 512.0,
+  "campo_fisico_parche_um": 113.2096,
+  "clam": {
+    "pred": 1,
+    "prob": 0.7987553477287292,
+    "entropia_atencion": 0.9783450614400087
+  },
+  "mammoth": {
+    "pred": 1,
+    "prob": 0.8479200005531311,
+    "entropia_atencion": 0.9855348107690056
+  },
+  "spearman_atencion": 0.6677726787254701,
+  "jaccard_top5pct": 0.0075134168157423974,
+  "jaccard_top1pct": 0.0
+}
