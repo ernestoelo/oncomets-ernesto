@@ -805,6 +805,15 @@ re-validar y actualizar `docs/codebase_map.md`.
     pendiente; pero el ruteo por morfología es **label-independiente** (mismo experto/patrón en
     slides de etiqueta distinta) → el hallazgo aguanta aunque el nombre sea impreciso. Tooling +
     detalle en [[mammoth-interpretabilidad-objA]] + `mammoth_entendimiento/`.
+    **Q1 del B7 CERRADA (19-jul, n=7 láminas, CPU post-hoc):** medido el «peso por slot»
+    (`combine_weights`, la 2ª softmax sobre los E·S=300 slots, **NO** el top-k de parches), el
+    número efectivo = exp(entropía) da **expertos 30.0 de 30 en las 7 láminas** (con `e50=15` /
+    `e90=27`, los valores exactos del reparto uniforme, idénticos en las 3 tareas) → **E=30 no está
+    sobredimensionado**; y **slots 158.7 de 300** → el margen de recorte de capacidad está en **S,
+    no en E**. La dispersión de slots (89.7–196.4) sigue al **tamaño de la lámina**, no a la tarea
+    (las 2 láminas de CDIS son los dos extremos). Refuerza este Hallazgo: el modelo ocupa todos sus
+    expertos, así que el cuello no es falta de capacidad de ruteo. Detalle:
+    [[mammoth-slot-routing-weight]] + `sprints/B7_sprint7/resultados_interpretabilidad.md` §5.
     **DATO ABIERTO (18-jul, job 4589) — NO reabre este Hallazgo, pero queda registrado:** en la
     formulación NUEVA `carcinoma_ductal_insitu_presente_ci_reform` (85% positivo, jamás incluida
     en las 12 configs que cerraron este Hallazgo) Mammoth dio Δbal_acc **+0.074 ± 0.033 (5/5

@@ -161,16 +161,49 @@ es exactamente el modo de falla que esa memoria anticipa.
 Ver `respuesta_q1_expertos_slots.md` (generado por
 `scripts/answer_q1_expertos_slots.py` sobre los `slot_usage.csv`).
 
-> **Estado 18-jul 21:30: ABIERTA.** El ruteo corre **desatado** (`setsid`, ppid=1, log en
-> `logs/b7_expert_interp_desatado.log`), con 2 de 7 láminas completas. El driver es
-> **reanudable** (salta las que tienen `slot_usage.csv` Y `meta.json`; `FORCE=1` rehace)
-> tras morir dos veces por colgar del shell de la sesión (workaround J,
-> [[proceso-cpu-largo-desatado-setsid]]). Preliminar con n=2: expertos efectivos 30.0/30,
-> slots ~167/300. **No presentar con n<7 como respuesta cerrada.**
+> **Estado 19-jul: CERRADA con las 7/7 láminas.** El ruteo desatado terminó limpio el
+> 18-jul 22:24 (`setsid`, ppid=1, log en `logs/b7_expert_interp_desatado.log`), tras morir
+> dos veces por colgar del shell de la sesión (workaround J,
+> [[proceso-cpu-largo-desatado-setsid]]).
 
 «Peso por slot» = `combine_weights`, la segunda softmax sobre los E·S=300 slots
 (`mammoth.py:411`) — **no** el top-k de parches por experto
 ([[mammoth-slot-routing-weight]]).
+
+### 5.1 Respuesta
+
+| Lámina | Parches | Slots efect. (de 300) | Expertos efect. (de 30) |
+|---|---|---|---|
+| `TCGA-A7-A4SB` (CDIS) | 2 793 | 89.7 | 30.0 |
+| `TCGA-AC-A8OS` (tipo) | 4 201 | 156.0 | 30.0 |
+| `TCGA-E9-A1NE` (tipo) | 5 592 | 147.5 | 30.0 |
+| `TCGA-AO-A12D` (tipo) | 7 097 | 178.3 | 30.0 |
+| `TCGA-D8-A1XB` (CDIS) | 16 442 | 180.3 | 30.0 |
+| `TCGA-D8-A1XW` (LVI) | 22 206 | 196.4 | 30.0 |
+| `TCGA-D8-A1X5` (LVI) | 28 170 | 162.4 | 30.0 |
+| **media** | | **158.7** | **30.0** |
+
+**Expertos: no están sobredimensionados.** 30.0/30 en las 7 láminas, y los cuantiles dan
+`e50=15`, `e90=27` **idénticos en todas** — exactamente el reparto uniforme. Transversal a
+las 3 tareas.
+
+**Slots: ahí está el margen de recorte.** Media 158.7/300 (sd 34.6): cerca de la mitad del
+presupuesto aporta poco al peso final.
+
+**La dispersión NO es por tarea, sigue al tamaño de la lámina.** Las dos láminas de CDIS son
+los **dos extremos** del rango (89.7 y 180.3), lo que descarta el efecto de tarea. El orden
+sigue al nº de parches: Spearman ρ=0.750 (p=0.052, n=7); excluyendo la lámina chica (2 793
+parches, la mitad que la siguiente) queda **170.2 ± 18.1**. Lectura mecánica: menos parches,
+menos morfología distinta que rutear.
+
+> **Fuerza de la evidencia.** Con n=7 esto **describe** el comportamiento, no lo establece:
+> la correlación con el tamaño se apoya en **un solo** caso de lámina chica, y p=0.052 está
+> al borde. Lo que sí es sólido es el resultado de expertos (idéntico en 7/7).
+
+**Gotcha del agregador (fix `f0d043e`):** `answer_q1_expertos_slots.py` globeaba
+`slot_usage.csv`, que es un artefacto **intermedio** — podía promediar una lámina en vuelo
+(CSV a medio escribir) o de una corrida cortada, **sin avisar**. Ahora filtra por `meta.json`
+(marcador final, misma regla que el driver reanudable) y reporta las excluidas.
 
 ## 6. Tabla por tarea (requisito de Sebastián)
 

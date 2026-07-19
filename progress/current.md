@@ -112,14 +112,19 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   del paso entre coords ([[patch-size-desde-geometria-h5]]). (b) **TCGA no es homogénea en magnificación**:
   de 200/864 slides, 94.5% ~40× pero **3.5% nativas 20× → 224 µm por parche (el doble)**; extiende
   [[cohortes-magnificacion-fisica]] al interior de la cohorte.
-- **Pendiente (act. 18-jul 21:30):** el ruteo por experto/slot corre **DESATADO** (`setsid`, ppid=1, log
-  `logs/b7_expert_interp_desatado.log`), **2 de 7 completas** al momento de escribir. Sobrevive al cierre
-  de sesión; antes murió 2 veces por colgar del shell ([[proceso-cpu-largo-desatado-setsid]], workaround J).
-  El script es **reanudable** (salta las que tienen `slot_usage.csv` Y `meta.json`; `FORCE=1` rehace).
-  Al terminar: `scripts/answer_q1_expertos_slots.py` cierra **Q1** y **regenerar el deck completa solo**
-  sus huecos (la slide lee el JSON). Preliminar (n=2, solo tipo): **30 expertos casi uniformes**
-  (efectivos 30.0/30), concentración **a nivel de slot** (~167/300) → E=30 no parece sobre-dimensionado;
-  el margen, si existe, está en S. **NO presentar Q1 con n<7 como respuesta cerrada.**
+- **✅ Q1 CERRADA (act. 19-jul, n=7/7).** El ruteo desatado (`setsid`, ppid=1) terminó limpio el
+  18-jul 22:24 — el workaround J quedó validado en el caso real (antes murió 2 veces por colgar del
+  shell, [[proceso-cpu-largo-desatado-setsid]]). Respuesta en
+  `sprints/B7_sprint7/respuesta_q1_expertos_slots.md` y §5 de `resultados_interpretabilidad.md`:
+  - **Expertos: 30.0 de 30 en las 7 láminas**, con `e50=15` / `e90=27` idénticos en todas (los valores
+    exactos del reparto uniforme) → **E=30 NO está sobredimensionado**. Transversal a las 3 tareas; es
+    el resultado sólido.
+  - **Slots: 158.7 de 300** (sd 34.6, rango 89.7–196.4) → ahí está el margen de recorte.
+  - **La dispersión NO es por tarea sino por TAMAÑO de lámina** (Spearman ρ=0.750, p=0.052; sin la
+    lámina chica queda 170.2 ± 18.1). Las 2 láminas de CDIS son los **dos extremos**, lo que descarta
+    el efecto de tarea. Con n=7 **describe, no establece**.
+  - **Fix `f0d043e`**: el agregador globeaba `slot_usage.csv` (artefacto **intermedio**) y podía
+    promediar una lámina en vuelo sin avisar; ahora filtra por `meta.json` y reporta las excluidas.
 - **✅ Material de la reunión producido**: `sprints/B7_sprint7/material_reunion.md`, sanitizado y
   verificado (cero «—», sin nombres propios, sin jerga interna, comandos precisos —
   [[entregable-externo-sanitizado]]). Cubre entrenamiento pareado, atención, Q1, las 2 observaciones de
@@ -149,8 +154,15 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   nombran; sanitizar aplica a personas, no a modelos).
 - QA visual en LibreOffice hecho: corregido un solape donde el wrap de celdas hacía crecer
   la tabla de métricas sobre los paneles inferiores.
-- **Pendiente del deck**: regenerar tras cerrar Q1, y QA fino en **PowerPoint** (el OMML de
-  los diagramas se ve roto en LibreOffice pero OK en PowerPoint, [[pptx-qa-omml-libreoffice]]).
+- **✅ Regenerado el 19-jul con Q1 dentro** (21 slides · 13.333x7.5). La lámina 16 lee sus
+  números del JSON; se le agregó el **rango de slots al pie** para no sobrevender la media.
+  QA visual de la 16 en LibreOffice: OK.
+- **Pendiente del deck**: **QA fino en PowerPoint** (el OMML de los diagramas se ve roto en
+  LibreOffice pero OK en PowerPoint, [[pptx-qa-omml-libreoffice]]). Mirar de paso el título
+  de la lámina 16: parte en dos líneas y roza la banda del encabezado.
+- **Inventario lámina por lámina de las 21** + agenda de reunión + qué no afirmar:
+  `sprints/B7_sprint7/guia_estudio_b7.md` (punto de reentrada al sprint,
+  [[guia-reentrada-al-cerrar-sprint]]).
 
 ### Preguntas abiertas resueltas (13-jul, citadas a código)
 
