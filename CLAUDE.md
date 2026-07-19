@@ -876,6 +876,18 @@ Si falla por `timm` en `models/__init__.py`, aplicar fallback `importlib.util`
 plano. Estilo visual: `Modelo_OncoMets_Spatial_V1.pdf`. Estructura:
 `Plantilla.pdf`.
 
+> **Aclaración 19-jul-2026 — no son dos plantillas, son dos CABECERAS de la
+> misma.** `Plantilla.pptx` (30 láminas) contiene las dos: la **Environ**
+> (cuadro teal + barra gris) en sus 13 láminas administrativas (portada,
+> agenda, recapitulación, cierre) y la **OncoMets** (logo OncoMets + línea
+> teal) en las **17 técnicas, s04-s18**. Misma familia: 13.333×7.5, Barlow,
+> misma paleta. **Regla: el contenido técnico va con cabecera OncoMets**; la
+> Environ queda para agenda/recapitulación. El arquetipo técnico es Plantilla
+> s05 ("Patch Encoder"). Un deck que use la Environ en todo se lee como fuera
+> de template (le pasó al B7 hasta el commit `42280de`). Geometrías, extracción
+> del logo desde el `blipFill` y gotchas de banda/títulos:
+> [[plantilla-dos-cabeceras]].
+
 **Speaker notes (formato fijado en B2)**: bloques `BLOQUE N — Título`,
 sub-items con `-> `, fórmulas inline sin LaTeX (`h_k = ReLU(W₁·z_k)`), sin
 emojis ni corchetes de gesto, destacados en línea propia (`Punto clave:` /
