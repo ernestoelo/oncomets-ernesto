@@ -31,12 +31,22 @@ PY
 n=$(wc -l < /tmp/b7_interp_rows.tsv)
 echo "== $n slides a procesar (expertos/slots) =="
 
+# Reanudable: una lámina con slot_usage.csv Y meta.json ya está completa y se salta.
+# Corre ~10 min por lámina (más en las de 20k+ parches), así que una corrida que se
+# interrumpe (cierre de sesión, caída de la VPN) no debe repetir lo ya hecho.
+# FORCE=1 rehace todo.
+FORCE="${FORCE:-0}"
+
 i=0
 while IFS=$'\t' read -r task sid h5 wsi ckpt label; do
   i=$((i+1))
   short="${sid%%.*}"
   out="$OUT_ROOT/$task/$short/expertos"
   echo ""
+  if [ "$FORCE" != "1" ] && [ -s "$out/slot_usage.csv" ] && [ -s "$out/meta.json" ]; then
+    echo "[$i/$n] $task / $short  (ya completa, se salta)"
+    continue
+  fi
   echo "[$i/$n] $task / $short  (clase: $label)"
   CUDA_VISIBLE_DEVICES="" "$PYBIN" "$REPO/scripts/mammoth_interpretability.py" \
       --ckpt "$ckpt" --h5 "$h5" --wsi "$wsi" --out-dir "$out" \
