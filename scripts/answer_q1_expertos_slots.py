@@ -65,9 +65,17 @@ def main():
     args = ap.parse_args()
 
     root = Path(args.root)
-    slot_files = sorted(root.glob("*/*/expertos/slot_usage.csv"))
+    # `meta.json` se escribe AL FINAL de cada lamina; `slot_usage.csv` es intermedio.
+    # Filtrar por el marcador final evita promediar una lamina en vuelo (CSV a medio
+    # escribir) o de una corrida que crasheo, que entrarian sin aviso (workaround J).
+    todos = sorted(root.glob("*/*/expertos/slot_usage.csv"))
+    slot_files = [sf for sf in todos if (sf.parent / "meta.json").exists()]
     if not slot_files:
-        raise SystemExit(f"Sin slot_usage.csv bajo {root} — corre antes run_b7_expert_interp.sh")
+        raise SystemExit(f"Sin laminas completas bajo {root} — corre antes run_b7_expert_interp.sh")
+    if len(todos) > len(slot_files):
+        parciales = [sf.parent.parent.name for sf in todos if sf not in slot_files]
+        print(f"[aviso] {len(todos) - len(slot_files)} lamina(s) sin meta.json (en vuelo o "
+              f"incompletas), EXCLUIDAS: {', '.join(parciales)}\n")
 
     filas, por_tarea = [], {}
     for sf in slot_files:
