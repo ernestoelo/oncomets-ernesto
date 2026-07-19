@@ -90,11 +90,33 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   draft) + prereg (regla 9) + reviewer #2 PASA → **job 4589 RUNNING** (30 runs: 3 tareas × {CLAM, Mammoth} × 5
   folds). Commits locales `1fe7436` (splits) + `acbae5f` (slurm/prereg/snapshot). Detalle:
   `auditoria_coherencia/hallazgos_sesion_generacion_splits_entrenamiento_17jul.md` (E1-E5).
-- **Pendiente:** monitorear el job 4589 (`squeue -j 4589` / `tail -f logs/eg_b7_mammoth_interp_4589.out`; sin
-  `sacct`, workaround C) → al terminar, correr `scripts/mammoth_interpretability.py` sobre los checkpoints
-  `clam_mammoth` + reportar bal_acc/AUC/confusión/n por tarea (política eval B5). Workaround H mientras corra:
-  no cambiar de rama ni editar inputs del job. **Gotcha durable:** `tipo_histologico_4clases_ci_100` contiene
-  **3 clases** (no 4; label_dict con strings completos); `max_epochs > stop_epoch` o el early stopping no dispara.
+- **✅ 18-jul — job 4589 CERRADO limpio** (14:20:55): 30/30 runs, 3 tareas `done`, 0 errores (solo
+  `FutureWarning` benigno). **Paridad verificada:** md5 de los `slide_id` de test idéntico fold a fold entre
+  brazos; 52 épocas por fold en ambos. Commits `684723b` (verdad de campo, 150 archivos) + `43480dc` (tooling
+  + resultados). **Gotcha durable:** `tipo_histologico_4clases_ci_100` contiene **3 clases** (no 4; label_dict
+  con strings completos); `max_epochs > stop_epoch` o el early stopping no dispara.
+- **Métricas (política B5)** — detalle en `sprints/B7_sprint7/resultados_interpretabilidad.md`:
+  tipo Δbal −0.010 ± 0.017 (1/5) y LVI Δbal −0.023 ± 0.086 (2/5) = **dentro del ruido**, confirman el
+  Hallazgo 12. **CDIS `_ci_reform` = la "sorpresa" pre-registrada** (prereg §4, "a investigar, no a
+  celebrar"): Δbal **+0.074 ± 0.033 (5/5)**, ΔAUC **+0.060 ± 0.042 (5/5)**; suben AMBOS recalls y el
+  `val_loss` de Mammoth es menor en 4/5 folds. Frenan: n chico (65 negativos totales), formulación NUEVA no
+  incluida en las 12 configs del Hallazgo 12, e invierte su patrón (gana la MÁS desbalanceada). **NO se
+  reabre el eje de rendimiento** — exige regla 9.b.
+- **✅ Entregable de atención producido** (7 slides TCGA, test de fold 0, bien clasificadas por ambos):
+  Spearman 0.805 · Jaccard top-5% 0.172 · top-1% 0.073 · entropía CLAM 0.781 vs Mammoth 0.894 (6/7 con
+  Mammoth más difuso) → **"mismo barrio, distintas casas"**. Tooling: `scripts/clam_vs_mammoth_attention.py`
+  (+ `select_interp_slides.py`, `build_interp_task_table.py`, `answer_q1_expertos_slots.py`,
+  `run_b7_expert_interp.sh`). Tabla por tarea lista (`tabla_por_tarea.md`, n coinciden con el prereg).
+- **Hallazgos laterales:** (a) bug en el tooling OBJ-A — `patch_size_at_level0()` devolvía **512px** donde la
+  geometría real del h5 es **448px**, y trata como 40× cualquier slide ≤20×; corregido derivándolo de la moda
+  del paso entre coords ([[patch-size-desde-geometria-h5]]). (b) **TCGA no es homogénea en magnificación**:
+  de 200/864 slides, 94.5% ~40× pero **3.5% nativas 20× → 224 µm por parche (el doble)**; extiende
+  [[cohortes-magnificacion-fisica]] al interior de la cohorte.
+- **Pendiente:** completar el ruteo por experto/slot — quedó corriendo en **2 de 7 slides** al cerrar la
+  sesión (CPU, ~10 min/slide). Re-lanzar `bash scripts/run_b7_expert_interp.sh` y luego
+  `scripts/answer_q1_expertos_slots.py` para cerrar **Q1**. Respuesta preliminar (n=2, solo tipo): los **30
+  expertos se usan casi uniformemente** (efectivos 30.0/30) y la concentración está **a nivel de slot**
+  (~167/300, mitad del peso en ~40 slots) → E=30 no parece sobre-dimensionado; el margen, si existe, está en S.
 
 ### Deck (correcciones para la próxima presentación, la verá también Benjamín)
 

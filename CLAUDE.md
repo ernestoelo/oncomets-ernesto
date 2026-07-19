@@ -788,6 +788,17 @@ re-validar y actualizar `docs/codebase_map.md`.
     pendiente; pero el ruteo por morfología es **label-independiente** (mismo experto/patrón en
     slides de etiqueta distinta) → el hallazgo aguanta aunque el nombre sea impreciso. Tooling +
     detalle en [[mammoth-interpretabilidad-objA]] + `mammoth_entendimiento/`.
+    **DATO ABIERTO (18-jul, job 4589) — NO reabre este Hallazgo, pero queda registrado:** en la
+    formulación NUEVA `carcinoma_ductal_insitu_presente_ci_reform` (85% positivo, jamás incluida
+    en las 12 configs que cerraron este Hallazgo) Mammoth dio Δbal_acc **+0.074 ± 0.033 (5/5
+    folds)** y ΔAUC **+0.060 ± 0.042 (5/5)**, con **ambos** recalls al alza y `val_loss` menor en
+    4/5 → no es la firma de mover umbral (Hallazgo 14) ni artefacto del test. Además **invierte**
+    el patrón "el balance gobierna" (acá gana la MÁS desbalanceada y regresa la balanceada). Frena
+    el n chico (65 negativos totales, ~13/fold) y que es terreno nuevo, no contradicción en el
+    mismo terreno. El pre-registro lo había anticipado como caso "sorpresa: a investigar, no a
+    celebrar". **Reabrir el eje de rendimiento exige regla 9.b** (pre-registro nuevo + branch +
+    reviewer); pendiente natural = réplica con más semillas/folds. Detalle:
+    `sprints/B7_sprint7/resultados_interpretabilidad.md` §2.
 13. **PathPT-CONCH (lenguaje + tile) NO es palanca** — 3er ángulo. necrosis H_alt (job 4309,
     Δbal_acc −0.020 ± 0.078, apenas despega del teacher zero-shot ~0.62 vs CLAM 0.727); mitotic
     COLAPSO de formulación (job 4326, bal_acc 0.333 EXACTO, siempre predice `score_1` — NO bug,
