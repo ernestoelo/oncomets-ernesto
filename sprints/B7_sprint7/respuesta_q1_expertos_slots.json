@@ -1,0 +1,198 @@
+[
+  {
+    "task": "carcinoma_ductal_insitu_presente_ci_reform",
+    "slide": "TCGA-A7-A4SB-01Z-00-DX1",
+    "n_slots": 300,
+    "n_expertos": 30,
+    "slots_efectivos": 89.68303987365246,
+    "slots_50": 18,
+    "slots_90": 100,
+    "slots_sobre_uniforme": 63,
+    "expertos_efectivos": 29.98695623722186,
+    "expertos_50": 15,
+    "expertos_90": 27,
+    "expertos_sobre_uniforme": 0,
+    "top5_slots": [
+      "e21\u00b7s0",
+      "e3\u00b7s2",
+      "e2\u00b7s6",
+      "e13\u00b7s6",
+      "e12\u00b7s9"
+    ],
+    "top5_expertos": [
+      5,
+      19,
+      17,
+      26,
+      15
+    ]
+  },
+  {
+    "task": "carcinoma_ductal_insitu_presente_ci_reform",
+    "slide": "TCGA-D8-A1XB-01Z-00-DX2",
+    "n_slots": 300,
+    "n_expertos": 30,
+    "slots_efectivos": 180.34067579780407,
+    "slots_50": 45,
+    "slots_90": 183,
+    "slots_sobre_uniforme": 90,
+    "expertos_efectivos": 29.978192299161087,
+    "expertos_50": 15,
+    "expertos_90": 27,
+    "expertos_sobre_uniforme": 0,
+    "top5_slots": [
+      "e28\u00b7s4",
+      "e6\u00b7s9",
+      "e13\u00b7s6",
+      "e28\u00b7s5",
+      "e19\u00b7s9"
+    ],
+    "top5_expertos": [
+      1,
+      10,
+      2,
+      8,
+      16
+    ]
+  },
+  {
+    "task": "invasion_linfatica_vascular_ci_reform",
+    "slide": "TCGA-D8-A1X5-01Z-00-DX2",
+    "n_slots": 300,
+    "n_expertos": 30,
+    "slots_efectivos": 162.44805341841368,
+    "slots_50": 39,
+    "slots_90": 175,
+    "slots_sobre_uniforme": 82,
+    "expertos_efectivos": 29.973961595718798,
+    "expertos_50": 15,
+    "expertos_90": 27,
+    "expertos_sobre_uniforme": 0,
+    "top5_slots": [
+      "e6\u00b7s7",
+      "e15\u00b7s5",
+      "e19\u00b7s9",
+      "e15\u00b7s7",
+      "e26\u00b7s2"
+    ],
+    "top5_expertos": [
+      25,
+      24,
+      0,
+      8,
+      17
+    ]
+  },
+  {
+    "task": "invasion_linfatica_vascular_ci_reform",
+    "slide": "TCGA-D8-A1XW-01Z-00-DX2",
+    "n_slots": 300,
+    "n_expertos": 30,
+    "slots_efectivos": 196.41588819974172,
+    "slots_50": 53,
+    "slots_90": 192,
+    "slots_sobre_uniforme": 95,
+    "expertos_efectivos": 29.98530558982935,
+    "expertos_50": 15,
+    "expertos_90": 27,
+    "expertos_sobre_uniforme": 0,
+    "top5_slots": [
+      "e17\u00b7s0",
+      "e15\u00b7s5",
+      "e8\u00b7s9",
+      "e29\u00b7s3",
+      "e27\u00b7s4"
+    ],
+    "top5_expertos": [
+      25,
+      15,
+      27,
+      7,
+      5
+    ]
+  },
+  {
+    "task": "tipo_histologico_3clases_ci",
+    "slide": "TCGA-AC-A8OS-01Z-00-DX1",
+    "n_slots": 300,
+    "n_expertos": 30,
+    "slots_efectivos": 156.0210659219388,
+    "slots_50": 36,
+    "slots_90": 157,
+    "slots_sobre_uniforme": 91,
+    "expertos_efectivos": 29.968791261374523,
+    "expertos_50": 15,
+    "expertos_90": 27,
+    "expertos_sobre_uniforme": 0,
+    "top5_slots": [
+      "e12\u00b7s2",
+      "e5\u00b7s5",
+      "e24\u00b7s9",
+      "e11\u00b7s3",
+      "e28\u00b7s7"
+    ],
+    "top5_expertos": [
+      17,
+      15,
+      19,
+      14,
+      26
+    ]
+  },
+  {
+    "task": "tipo_histologico_3clases_ci",
+    "slide": "TCGA-AO-A12D-01Z-00-DX1",
+    "n_slots": 300,
+    "n_expertos": 30,
+    "slots_efectivos": 178.31501715082038,
+    "slots_50": 46,
+    "slots_90": 173,
+    "slots_sobre_uniforme": 96,
+    "expertos_efectivos": 29.973321335375648,
+    "expertos_50": 15,
+    "expertos_90": 27,
+    "expertos_sobre_uniforme": 0,
+    "top5_slots": [
+      "e12\u00b7s2",
+      "e19\u00b7s7",
+      "e24\u00b7s1",
+      "e21\u00b7s4",
+      "e3\u00b7s1"
+    ],
+    "top5_expertos": [
+      0,
+      8,
+      18,
+      7,
+      27
+    ]
+  },
+  {
+    "task": "tipo_histologico_3clases_ci",
+    "slide": "TCGA-E9-A1NE-01Z-00-DX1",
+    "n_slots": 300,
+    "n_expertos": 30,
+    "slots_efectivos": 147.5195504393701,
+    "slots_50": 34,
+    "slots_90": 171,
+    "slots_sobre_uniforme": 80,
+    "expertos_efectivos": 29.970234918367442,
+    "expertos_50": 15,
+    "expertos_90": 27,
+    "expertos_sobre_uniforme": 0,
+    "top5_slots": [
+      "e12\u00b7s2",
+      "e28\u00b7s5",
+      "e23\u00b7s2",
+      "e25\u00b7s1",
+      "e28\u00b7s8"
+    ],
+    "top5_expertos": [
+      0,
+      23,
+      1,
+      3,
+      5
+    ]
+  }
+]

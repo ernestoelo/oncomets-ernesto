@@ -135,13 +135,34 @@ de pesos. Vale 300 si el ruteo fuera perfectamente uniforme y 1 si colapsara en 
 slot. Se elige porque la softmax da peso positivo a todos los slots, así que contar "los que
 reciben algo" siempre daría el total.
 
-> Resultados sobre las siete láminas: ver `respuesta_q1_expertos_slots.md`.
-> Lectura preliminar sobre dos láminas: expertos efectivos 30.0 de 30 (uniformes),
-> slots efectivos cerca de 167 de 300.
+Resultados sobre las siete láminas (detalle por lámina en `respuesta_q1_expertos_slots.md`):
 
-Si la lectura se sostiene, la respuesta es que **el número de expertos no está
-sobredimensionado** (se usan todos por igual) y que **el margen de recorte está en los
-slots**, donde cerca de un 45% del presupuesto aporta poco.
+| Parches | Slots efectivos | Expertos efectivos |
+|---|---|---|
+| 2 793 | 89.7 | 30.0 |
+| 4 201 | 156.0 | 30.0 |
+| 5 592 | 147.5 | 30.0 |
+| 7 097 | 178.3 | 30.0 |
+| 16 442 | 180.3 | 30.0 |
+| 22 206 | 196.4 | 30.0 |
+| 28 170 | 162.4 | 30.0 |
+
+**Los expertos se usan por igual.** El número efectivo da 30.0 de 30 en las siete láminas,
+y hacen falta 15 expertos para juntar la mitad del peso y 27 para juntar el 90%, que es
+exactamente lo que daría un reparto uniforme. El resultado es idéntico en las tres tareas,
+así que el número de expertos no está sobredimensionado: el modelo los ocupa todos.
+
+**El margen de recorte está en los slots.** El promedio es 158.7 de 300, es decir que cerca
+de la mitad del presupuesto de slots aporta poco. La dispersión entre láminas (de 89.7 a
+196.4) no responde a la tarea sino al **tamaño de la lámina**: las dos láminas de ductal in
+situ son justamente los dos extremos, y el orden sigue al número de parches (correlación de
+rangos 0.75, al borde de la significancia con siete láminas). Descontando la lámina más
+chica, que tiene la mitad de parches que la siguiente, el rango se cierra en 170.2 ± 18.1.
+La lectura razonable es que una lámina con pocos parches ofrece menos morfología distinta
+que rutear, no que el ruteo cambie con la pregunta clínica.
+
+> Con siete láminas esto describe el comportamiento observado, no lo establece. La
+> correlación con el tamaño se apoya en un solo caso de lámina chica.
 
 ---
 

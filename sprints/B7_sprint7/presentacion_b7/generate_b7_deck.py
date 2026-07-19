@@ -471,8 +471,11 @@ def _leer_q1():
     exps = [r["expertos_efectivos"] for r in filas if r.get("expertos_efectivos")]
     slots = [r["slots_efectivos"] for r in filas if r.get("slots_efectivos")]
     media = lambda v: sum(v) / len(v)
+    # El rango de slots va en el pie: la media sola sobrevende precisión (varía con el
+    # tamaño de la lámina, no con la tarea). Los expertos no lo necesitan: 30.0 en todas.
     return {"exp": f"{media(exps):.1f}", "slots": f"{media(slots):.0f}",
-            "pie": f"media sobre {len(filas)} láminas · número efectivo = exp(entropía)"}
+            "pie": f"media sobre {len(filas)} láminas · slots de {min(slots):.0f} a "
+                   f"{max(slots):.0f} según tamaño de lámina · efectivo = exp(entropía)"}
 
 
 def build():
