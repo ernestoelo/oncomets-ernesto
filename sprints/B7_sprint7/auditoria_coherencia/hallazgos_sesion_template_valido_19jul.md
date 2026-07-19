@@ -104,7 +104,12 @@ de Ernesto**: las fuentes viajan dentro del `.pptx`. Verificado en la salida: 5 
 
 Se cierra, **no se arrastra** al handoff nuevo ([[verificar-antes-de-pedir-dato]]).
 
-## T5 — Carlito en los diagramas reusados (gotcha, sin acción)
+## T5 — Carlito en los diagramas reusados (gotcha, sin acción) — SUPERSEDED por T8
+
+> **SUPERSEDED el 19-jul (noche), ver T8.** El diagnóstico de abajo es correcto —remapear a
+> Barlow habría desbordado las cajas— pero se quedó corto: el problema de fondo no era la
+> fuente sino que el diagrama venía con **129 runs bajo 10 pt**, ilegible en proyección. La
+> salida no era remapear ni dejarlo: era **recrearlo nativo**. Hecho: Carlito 96 → 0.
 
 Las láminas que copian diagramas de `papers/presentations/*.pptx` traen **354 referencias
 a Carlito**, que es el clon métrico de Calibri de Linux y no existe en Windows. Degrada
@@ -125,7 +130,7 @@ tipográfica total — sería un cambio aparte, con QA visual propio. Ernesto es
 | T2 | `memory/deck-template-fuentes-embebidas.md` | memoria NUEVA + línea en `MEMORY.md` |
 | T2,T3 | `memory/plantilla-dos-cabeceras.md` | ADDENDUM fechado (causa raíz + qué quedó superseded) |
 | T4 | — | se cierra; no entra al handoff nuevo |
-| T5 | este doc | registrado, sin acción |
+| T5 | este doc | registrado, sin acción — **superseded por T8** (se recreó el diagrama) |
 
 Código: commit `170f7bd` (re-base del generador sobre el template válido).
 
@@ -210,3 +215,16 @@ vieja. El pie ya no nombra el color.
 
 Las 4 portadillas siguen sin cabecera OncoMets por diseño: es el pendiente abierto del logo
 Environ, no una regresión.
+
+## Auditoría de coherencia post-migración
+
+| id | tipo | hallazgo | acción |
+|---|---|---|---|
+| A1 | stale | `guia_estudio_b7.md` §5 numera las **21 láminas viejas** con un aviso de "+1" arriba; además la lámina del pipeline cambió de contenido | renumerar a 22 + actualizar esa fila |
+| A2 | stale | `progress/current.md` §B7 dice "21 slides" y no registra la migración del cuerpo | bullet nuevo |
+| A3 | stale | el pendiente "el OMML se ve roto en LibreOffice" ya **no aplica al deck B7**: `Cambria Math` cayó a 0 | acotar el pendiente |
+| A4 | stale | T5 de esta misma sesión dice "Carlito, sin acción"; T8 lo superseded | marcar inline |
+| A5 | contradiction | [[deck-template-fuentes-embebidas]] cierra con "**No remapear** Carlito a Barlow", que se lee como "no hacer nada". Sigue siendo cierto que remapear es el camino equivocado, pero la salida existe y es **recrear el diagrama nativo** | reconciliar el bullet + cross-link a la memoria nueva |
+
+A5 es el único que importa de verdad para el futuro: tal como estaba, una sesión próxima
+habría leído "no tocar Carlito" y dejado un diagrama ilegible a 6 pt.

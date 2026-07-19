@@ -190,14 +190,31 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
     `auditoria_coherencia/hallazgos_sesion_template_valido_19jul.md`.
 - **✅ CERRADO el pendiente "¿Barlow está instalada?"**: ya no depende de la máquina de
   Ernesto, las fuentes viajan dentro del `.pptx`.
-- **Pendiente del deck**: **QA fino en PowerPoint** (el OMML de los diagramas se ve roto en
-  LibreOffice pero OK en PowerPoint, [[pptx-qa-omml-libreoffice]]) **+ validar el re-base**
-  recién hecho. Ojo que LibreOffice tampoco tiene Barlow, así que lo que rasterice el
-  servidor es aproximado — el QA tipográfico solo vale en PowerPoint.
+- **✅ Validado el re-base en PowerPoint** (Ernesto, 19-jul noche): el branding está.
+- **✅ Migrado el CUERPO a la gramática Deep-LLM-V** (commit `3fb62fa`). El re-base de la
+  tarde había migrado la **cabecera** y no el cuerpo: **18 de 22 láminas** seguían con la
+  paleta de B4 (10 colores que el template no tiene, incluida una familia naranja entera) y
+  las tiras de bloques estaban dibujadas **claro-con-texto-teal**, el negativo del molde.
+  - Paleta remapeada por **valor** conservando los **nombres** de las constantes (no se
+    tocan las ~700 líneas de `build()`). Helpers nuevos `_proc`/`_dato`/`_grupo`/`_conn`
+    con los 5 arquetipos medidos sobre el template.
+  - **Lámina 6 recreada NATIVA** (`pipeline_mammoth()`): venía copiada de B4 en Carlito con
+    **129 runs bajo 10 pt** y no se salvaba con restyling. Horizontal, como la lámina de
+    flujo general del propio template. Se dejaron fuera sus paneles de fórmulas (la 7 ya
+    lleva esa matemática en tabla nativa) y se agregó la forma del tensor antes y después:
+    las dos dicen `[N, 512]` = evidencia visual de drop-in.
+  - Verificado: cero fills fuera de paleta, **Carlito 96 → 0**, **runs <10 pt 129 → 0**,
+    fuentes embebidas intactas, sin colisiones nuevas.
+  - Detalle: [[deck-gramatica-diagrama-deep-llm-v]] +
+    `auditoria_coherencia/hallazgos_sesion_template_valido_19jul.md` §T6-T9.
+- **El render de LibreOffice ya sirve para QA de este deck**: al salir las fórmulas del
+  diagrama copiado, `Cambria Math` cae a 0 y desaparece el artefacto de
+  [[pptx-qa-omml-libreoffice]]. Lo único que LibreOffice sigue sin poder juzgar es la
+  **tipografía** (no tiene Barlow) → eso solo se valida en PowerPoint.
 - **Inventario lámina por lámina** + agenda de reunión + qué no afirmar:
   `sprints/B7_sprint7/guia_estudio_b7.md` (punto de reentrada al sprint,
-  [[guia-reentrada-al-cerrar-sprint]]). **Ojo**: su tabla numera las 21 viejas; tras el
-  re-base hay 22 y **todo corre +1** desde la apertura (avisado en el propio doc).
+  [[guia-reentrada-al-cerrar-sprint]]). Su §5 ya está **renumerado a las 22 reales**
+  (19-jul noche): el bloque pedagógico de Mammoth son las **láminas 4 a 10**.
 
 ### Preguntas abiertas resueltas (13-jul, citadas a código)
 

@@ -136,8 +136,8 @@ Se regenera con `generate_b7_deck.py` (el .pptx es derivado y está gitignorado)
 >
 > - **Numeración: 21 → 22 láminas.** La portada JPG se reemplazó por las **dos láminas de
 >   apertura nativas** del template (portada de marca + lámina de título, retitulada
->   "OncoMets · MAMMOTH" con la fecha de la reunión). **Todo lo que sigue corre +1**
->   respecto de la tabla de abajo.
+>   "OncoMets · MAMMOTH" con la fecha de la reunión). **Las tablas de abajo ya están
+>   renumeradas a las 22 reales** (verificadas contra el `.pptx` el 19-jul a la noche).
 > - **Cabecera con la geometría LITERAL** del template (banda hasta 1.421), no la
 >   compactada a 0.785. El contenido baja bajo la banda y, si no entra, se escala ~8%.
 > - **La recapitulación pasó a cabecera OncoMets**: Deep-LLM-V no tiene cabecera Environ en
@@ -145,46 +145,47 @@ Se regenera con `generate_b7_deck.py` (el .pptx es derivado y está gitignorado)
 > - Las **4 portadillas** siguen en fondo teal con el logo Environ blanco (decisión suya;
 >   revisable, ver pendientes).
 
-### Bloque A: apertura (1 a 2)
+### Bloque A: apertura (1 a 3)
 | # | Contenido |
 |---|---|
-| 1 | Portada |
-| 2 | Recapitulación de objetivos |
+| 1 | Portada de marca (nativa del template) |
+| 2 | Lámina de título: "OncoMets · MAMMOTH" + fecha |
+| 3 | Recapitulación de objetivos |
 
-### Bloque B: qué es Mammoth por dentro (3 a 9)
+### Bloque B: qué es Mammoth por dentro (4 a 10)
 Es el bloque pedagógico, el que responde a Benjamín "domino el mecanismo".
 
 | # | Contenido |
 |---|---|
-| 3 | Portadilla MAMMOTH |
-| 4 | Qué significa la sigla y la idea general |
-| 5 | Dónde entra MAMMOTH en el pipeline (feature extractor CONCH / ResNet50) |
-| 6 | Dimensiones y código, con tabla |
-| 7 | La arquitectura de MAMMOTH paso a paso: dimensiones por bloque, con las variables de la figura |
-| 8 | **La relación 16 × 30 × 10**: cabezas, expertos y slots |
-| 9 | La variante `keep_slots` y dónde cambia la salida |
+| 4 | Portadilla MAMMOTH |
+| 5 | Qué significa la sigla y la idea general |
+| 6 | **Dónde entra MAMMOTH en el pipeline** — diagrama NATIVO (`pipeline_mammoth()`): flujo horizontal de 5 bloques, el del medio en un panel de integración, y la forma del tensor antes y después, las dos `[N, 512]` = evidencia de drop-in |
+| 7 | Dimensiones y código, con tabla |
+| 8 | La arquitectura de MAMMOTH paso a paso: dimensiones por bloque, con las variables de la figura |
+| 9 | **La relación 16 × 30 × 10**: cabezas, expertos y slots |
+| 10 | La variante `keep_slots` y dónde cambia la salida |
 
-### Bloque C: interpretabilidad, el corazón del sprint (10 a 16)
+### Bloque C: interpretabilidad, el corazón del sprint (11 a 17)
 | # | Contenido |
 |---|---|
-| 10 | Portadilla: ¿qué mira cada experto? |
-| 11 | Dónde y qué morfología recoge cada experto |
-| 12 | **El experto detecta tejido, no clase** (resultado de OBJ-A) |
-| 13 | Portadilla: ¿dónde mira cada modelo? |
-| 14 | Comparación pareada: mismas particiones y datos |
-| 15 | **Mismo barrio, distintas casas** (el mensaje central) |
-| 16 | **¿Cuántos expertos y slots se usan de verdad?** (Q1) |
+| 11 | Portadilla: ¿qué mira cada experto? |
+| 12 | Dónde y qué morfología recoge cada experto |
+| 13 | **El experto detecta tejido, no clase** (resultado de OBJ-A) |
+| 14 | Portadilla: ¿dónde mira cada modelo? |
+| 15 | Comparación pareada: mismas particiones y datos |
+| 16 | **Mismo barrio, distintas casas** (el mensaje central) |
+| 17 | **¿Cuántos expertos y slots se usan de verdad?** (Q1) |
 
-### Bloque D: magnificación multi-escala (17 a 21)
+### Bloque D: magnificación multi-escala (18 a 22)
 Eje B6, que no es de interpretabilidad. Va acá porque hay que decidir escalas.
 
 | # | Contenido |
 |---|---|
-| 17 | Portadilla magnificación |
-| 18 | No es más zoom, es contexto: escalas por cohorte |
-| 19 | La matemática: µm/px, área física, tamaño de parche |
-| 20 | Patología de la microcalcificación |
-| 21 | **La decisión de escalas** (lámina de decisión) |
+| 18 | Portadilla magnificación |
+| 19 | No es más zoom, es contexto: escalas por cohorte |
+| 20 | La matemática: µm/px, área física, tamaño de parche |
+| 21 | Patología de la microcalcificación |
+| 22 | **La decisión de escalas** (lámina de decisión) |
 
 ### El montage, que quedó sin decidir
 La figura de los 30 expertos es correcta, pero a escala de proyección **los expertos se
