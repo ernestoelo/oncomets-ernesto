@@ -128,3 +128,85 @@ tipográfica total — sería un cambio aparte, con QA visual propio. Ernesto es
 | T5 | este doc | registrado, sin acción |
 
 Código: commit `170f7bd` (re-base del generador sobre el template válido).
+
+---
+
+# Sesión siguiente (19-jul, noche) — migración del CUERPO al template
+
+Ernesto validó el deck en PowerPoint: el branding estaba. Pidió entonces revisar lámina por
+lámina que se siguiera la arquitectura de Deep-LLM-V **y recrear los diagramas con ese
+formato**. La auditoría encontró que la sesión anterior había migrado la **cabecera** pero
+no el **cuerpo**.
+
+## T6 — La paleta del cuerpo seguía siendo la de B4
+
+`generate_b7_deck.py` conservaba el bloque `# paleta B4 (valores reales del deck)`. Medido
+contra el template, el cuerpo usaba **diez colores que Deep-LLM-V no tiene**: `#217589`,
+`#31859C`, `#DDEAEE`, `#F3F8F9`, `#B8D4D9`, `#1E2A2E` y una familia cálida completa
+(`#E2723B`, `#B4521E`, `#FDEFE6`, `#FCE5CD`, `#FDF1E5`). Afectaba a 18 de 22 láminas.
+
+**Fix**: se remapearon los **valores** de las constantes conservando sus **nombres** (los usa
+`build()` en ~700 líneas). El deck quedó en cero fills fuera de paleta.
+
+## T7 — La gramática de diagrama estaba invertida
+
+Deep-LLM-V dibuja con cinco arquetipos, medidos sobre el template:
+
+| rol | shape del template | forma | relleno | texto |
+|---|---|---|---|---|
+| proceso | `Google Shape;395` | rounded-rect | `#3E6877` | Barlow 12 **bold BLANCO** |
+| dato | `Google Shape;391` | rect | `#B7B7B7` | Barlow 12 regular NEGRO |
+| panel | `Google Shape;323` | rounded-rect | `#CDDFE1` | — |
+| operador | `Google Shape;374` | óvalo | `#CDDFE1`, borde `#0E2841` | símbolo (+, ×) |
+| conector | `Google Shape;399` | línea | `#386271` 2.37 pt | — |
+
+Nuestras tiras `dim_pipeline` eran **bloques claros con texto teal**: el negativo exacto del
+molde. Se invirtieron, y se añadieron los helpers `_proc` / `_dato` / `_grupo` / `_conn` para
+que cualquier diagrama nuevo hable ese idioma sin re-medir el template.
+
+## T8 — La lámina 6 no era recuperable por restyling (supersede T5)
+
+"Dónde entra MAMMOTH en el pipeline" se traía de B4 con `copy_diagram_scaled()`: **96 runs en
+Carlito** y **129 runs bajo 10 pt**, la mayoría a **6 pt**, contra un mínimo de 7 pt en el
+template. No era un problema de color sino de legibilidad a escala de proyección, y subir la
+tipografía habría desbordado las cajas — que es justo el riesgo que T5 había anticipado.
+
+**Fix**: se reconstruyó **nativa** (`pipeline_mammoth()`), horizontal en vez de vertical
+—como la lámina de flujo general del propio template— con los cinco arquetipos y tipografía
+de 12/10 pt.
+
+**Decisión editorial registrada**: se dejaron fuera los paneles de fórmulas del original. No
+es pérdida de contenido: la lámina siguiente ya lleva esa matemática en una tabla nativa y
+legible, y el trabajo de la 6 es **ubicar** el bloque en el pipeline. Se agregó en cambio la
+forma del tensor antes y después de MAMMOTH — las dos dicen `[N, 512]`, que es la evidencia
+visual de que es drop-in.
+
+**Efecto colateral bueno**: las fórmulas del original eran el único OMML del deck. Al salir,
+`Cambria Math` cae a cero y **desaparece el artefacto de LibreOffice** descrito en
+[[pptx-qa-omml-libreoffice]] → el render rasterizado vuelve a ser confiable para QA.
+
+## T9 — El recuadro del crop de contexto quedó en el naranja viejo
+
+Al pasar el esquema nativo a teal, la foto de al lado seguía marcando el mismo campo en
+naranja (lo dibuja `render_multiscale_crop.py` de B6 en `#E2723B`), y el pie decía "la caja
+naranja". Una sola cosa con dos colores.
+
+**Fix**: `recolor_crop_box.py` sustituye esos píxeles exactos (1552, un anillo limpio; el
+recuadro se dibuja sin antialias) por `#3E6877`, en una **copia bajo `presentacion_b7/assets/`**
+— el asset compartido de `assets_branding/` lo usa también el deck B6, que sigue en la paleta
+vieja. El pie ya no nombra el color.
+
+## Verificación final
+
+| chequeo | resultado |
+|---|---|
+| láminas · tamaño | 22 · 13.333 × 7.5 |
+| fills fuera de paleta | **ninguno** (eran 10 colores) |
+| fuentes | Barlow 219 + Consolas 31 (paneles de código, deliberado) |
+| Carlito | **0** (eran 96) |
+| runs < 10 pt | **0** (eran 129) |
+| fuentes embebidas | `fntdata: 5` · `['Barlow', 'Cambria Math']` — el re-base sobrevive |
+| colisiones en las 20 técnicas | ninguna nueva |
+
+Las 4 portadillas siguen sin cabecera OncoMets por diseño: es el pendiente abierto del logo
+Environ, no una regresión.

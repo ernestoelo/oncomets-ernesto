@@ -905,6 +905,20 @@ plano. Estilo visual: `Modelo_OncoMets_Spatial_V1.pdf`. Estructura:
 > perfecto. **Regla: construir el deck SOBRE el .pptx del template** (abrirlo y
 > borrarle las láminas), nunca con `Presentation()`. Detalle y método de
 > verificación: [[deck-template-fuentes-embebidas]].
+>
+> **ADDENDUM 19-jul-2026 (noche) — migrar la cabecera NO es migrar el deck.** Tras el
+> re-base, el branding estaba y el cuerpo seguía en la paleta de B4: **18 de 22 láminas**
+> con colores que Deep-LLM-V no tiene (incluida una familia naranja entera), y las tiras
+> de bloques dibujadas como **claro-con-texto-teal**, que es el **negativo** del molde. La
+> gramática real del template son cinco arquetipos: **proceso** = rounded-rect `#3E6877`
+> con Barlow bold **BLANCO**; **dato** = rect `#B7B7B7` con Barlow negro; **panel** =
+> rounded-rect `#CDDFE1`; **operador** = óvalo `#CDDFE1` borde `#0E2841`; **conector** =
+> línea `#386271` 2.37 pt. Mínimo tipográfico del template: **7 pt** (bloques a 12).
+> **Regla: al re-basar un deck, auditar cuerpo y diagramas contra el template, no solo la
+> cabecera** — y un diagrama viejo traído con `copy_diagram_scaled()` casi nunca se salva
+> con restyling (el de B7 venía a 6 pt: hay que **recrearlo nativo**). Helpers listos en
+> `sprints/B7_sprint7/presentacion_b7/generate_b7_deck.py`: `_proc` / `_dato` / `_grupo` /
+> `_conn` + `pipeline_mammoth()` como ejemplo. Detalle: [[deck-gramatica-diagrama-deep-llm-v]].
 
 **Speaker notes (formato fijado en B2)**: bloques `BLOQUE N — Título`,
 sub-items con `-> `, fórmulas inline sin LaTeX (`h_k = ReLU(W₁·z_k)`), sin

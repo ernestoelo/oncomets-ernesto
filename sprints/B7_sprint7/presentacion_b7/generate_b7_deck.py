@@ -26,7 +26,7 @@ import os
 from pptx import Presentation
 from pptx.util import Inches, Pt, Emu
 from pptx.dml.color import RGBColor
-from pptx.enum.shapes import MSO_SHAPE
+from pptx.enum.shapes import MSO_SHAPE, MSO_CONNECTOR
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.oxml.ns import qn
 from PIL import Image
@@ -78,26 +78,55 @@ TOPK_SUBSET = os.path.join(A14Q, "topk_subset_6experts.png")
 XSLIDE_E8 = os.path.join(OBJA, "cross_slide/expert_08_crossslide.png")
 XSLIDE_E26 = os.path.join(OBJA, "cross_slide/expert_26_crossslide.png")
 
-# ---- paleta B4 (valores reales del deck) ----
-TEAL_TITLE = RGBColor(0x21, 0x75, 0x89)
-TEAL_SQ    = RGBColor(0x31, 0x85, 0x9C)
-BAR_GRIS   = RGBColor(0xF2, 0xF2, 0xF2)
-TEAL_DIV   = RGBColor(0x2E, 0x7E, 0x8F)
-LAV_TITLE  = RGBColor(0xCD, 0xD6, 0xF4)
-TEAL_SUB   = RGBColor(0xB8, 0xD4, 0xD9)
-TEAL_CARD  = RGBColor(0xDD, 0xEA, 0xEE)
-TEAL_CARD2 = RGBColor(0xF3, 0xF8, 0xF9)
-CODE_BG    = RGBColor(0x1E, 0x2A, 0x2E)   # panel de código (teal muy oscuro)
-CODE_FG    = RGBColor(0xE6, 0xEE, 0xF0)   # texto de código
-CODE_CMT   = RGBColor(0x8F, 0xB8, 0xC0)   # comentarios de código
-GRIS_BODY  = RGBColor(0x59, 0x59, 0x59)
+# ---- paleta Deep-LLM-V (medida sobre el template válido) ----
+# El template pinta el contenido técnico con cuatro colores y nada más:
+#   #3E6877  bloque de proceso   (rounded-rect relleno, texto Barlow bold BLANCO encima)
+#   #386271  conector / borde    (líneas de 2.37pt)
+#   #CDDFE1  panel contenedor y operadores (+, ×)
+#   #B7B7B7  bloque de dato      (rect relleno, texto Barlow regular NEGRO encima)
+#   #0E2841  borde/fondo oscuro
+# Hasta el 19-jul el cuerpo del deck seguía usando la paleta de B4 (#217589, #31859C,
+# #DDEAEE, #F3F8F9 y una familia naranja #E2723B/#B4521E que NO existe en Deep-LLM-V):
+# se había migrado la cabecera pero no el cuerpo. Acá se migra el cuerpo. Los NOMBRES de
+# las constantes se conservan a propósito — los usa build() en ~700 líneas — y lo que
+# cambia es el valor, para que el cuerpo hable el mismo idioma que la cabecera.
+ONCO_DARK  = RGBColor(0x3E, 0x68, 0x77)   # bloque de proceso
+ONCO_CONN  = RGBColor(0x38, 0x62, 0x71)   # conector / borde
+ONCO_PANEL = RGBColor(0xCD, 0xDF, 0xE1)   # panel contenedor / operador
+ONCO_DATA  = RGBColor(0xB7, 0xB7, 0xB7)   # bloque de dato
+ONCO_INK   = RGBColor(0x0E, 0x28, 0x41)   # borde/fondo oscuro
+
+TEAL_TITLE = ONCO_DARK                    # antes #217589
+TEAL_SQ    = ONCO_CONN                    # antes #31859C
+BAR_GRIS   = RGBColor(0xF2, 0xF2, 0xF2)   # barra del header B4 (ya no se usa)
+TEAL_DIV   = ONCO_CONN                    # antes #2E7E8F
+LAV_TITLE  = RGBColor(0xCD, 0xD6, 0xF4)   # (sin uso vivo)
+TEAL_SUB   = ONCO_PANEL                   # antes #B8D4D9
+TEAL_CARD  = ONCO_PANEL                   # antes #DDEAEE
+# El template no define un segundo claro. Para el banding de tablas y las tarjetas
+# alternas se usa un TINTE de #CDDFE1 (misma familia de tono, no un color nuevo): un
+# blanco puro desaparecería sobre el fondo blanco de la lámina.
+TEAL_CARD2 = RGBColor(0xE9, 0xF1, 0xF2)   # antes #F3F8F9
+CODE_BG    = ONCO_INK                     # panel de código (antes #1E2A2E)
+CODE_FG    = ONCO_PANEL                   # texto de código
+CODE_CMT   = ONCO_DATA                    # comentarios de código
+GRIS_BODY  = RGBColor(0x59, 0x59, 0x59)   # prosa secundaria (neutro, no es marca)
 GRIS_TXT   = RGBColor(0x55, 0x55, 0x55)
-ORA_T      = RGBColor(0xB4, 0x52, 0x1E)
-ORA_ACC    = RGBColor(0xE2, 0x72, 0x3B)
-VERDE      = RGBColor(0x1E, 0x84, 0x49)
-ROJO       = RGBColor(0xC0, 0x39, 0x2B)
+# Deep-LLM-V no tiene familia cálida. Lo que en B4 era el naranja de "acento / lo nuevo"
+# pasa al primario del template; el contraste ahora lo da oscuro-vs-claro, no cálido-vs-frío.
+ORA_T      = ONCO_DARK                    # antes #B4521E
+ORA_ACC    = ONCO_DARK                    # antes #E2723B
 INK        = RGBColor(0x22, 0x22, 0x22)
 WHITE      = RGBColor(0xFF, 0xFF, 0xFF)
+BLACK      = RGBColor(0x00, 0x00, 0x00)   # texto sobre bloque de dato (archetipo B7B7B7)
+
+# Varias láminas emparejan un panel "pregunta abierta / lo nuevo" con uno "respuesta /
+# base", que en B4 se distinguían por temperatura (naranja vs teal). Deep-LLM-V no tiene
+# familia cálida, así que el par se distingue por PESO de tono: el destacado va relleno
+# con el celeste sólido del template, el neutro con el tinte claro. El gris #B7B7B7 NO
+# sirve acá — lee como "deshabilitado", no como "prestá atención".
+PANEL_ACC  = ONCO_PANEL                   # panel destacado
+PANEL_NEU  = TEAL_CARD2                   # panel neutro
 
 # El template válido embebe SOLO Barlow (regular/bold/italic) + Cambria Math. Antes
 # F_TITLE era "Barlow ExtraBold": esa fuente NO viaja en el paquete, así que PowerPoint la
@@ -116,7 +145,10 @@ HDR = 0.785
 LOGO = os.path.join(ASSETS_BRAND, "logo_header.png")
 PORTADA = os.path.join(ASSETS_BRAND, "portada_fullbleed.jpg")
 CHECK_VERDE = os.path.join(ASSETS_BRAND, "check_verde.png")  # ticket "hecho" (reusado del deck B3)
-PROG_BG   = RGBColor(0xFD, 0xEF, 0xE6)   # relleno pill "En progreso" (naranja muy claro)
+# Pill "En progreso" = el arquetipo "bloque de dato" del template (Google Shape;391):
+# relleno #B7B7B7 con texto Barlow NEGRO. Antes era naranja muy claro (#FDEFE6), fuera
+# de paleta. El gris neutro lee como "pendiente" sin inventar un color.
+PROG_BG   = ONCO_DATA
 
 # --- cabecera OncoMets (láminas TÉCNICAS de Plantilla.pptx s04-s18) ---
 # El logo se extrajo del blipFill del freeform id=4 de Plantilla s05 (258x155 RGBA).
@@ -146,7 +178,10 @@ ONCO_BAND = ONCO_LINE_T + ONCO_LINE_H   # 1.1708 · donde puede empezar el conte
 # --- assets sección magnificación multi-escala (B6, reunión Sebastián) ---
 MSCROP = os.path.join(ASSETS_BRAND, "multiscale_crop")
 MS_FINE = os.path.join(MSCROP, "fine_112um.png")   # crop real TCGA-BRCA campo 112µm (~20×)
-MS_CTX = os.path.join(MSCROP, "context_512um.png")  # crop real, mismo centro, campo 512µm (~5×)
+# El crop de contexto va en la copia con el recuadro RECOLOREADO a la paleta del template
+# (ver recolor_crop_box.py): el original de B6 lo trae en el naranja de B4 y chocaba con el
+# esquema nativo de la misma lámina, que marca ese mismo campo en teal.
+MS_CTX = os.path.join(OUT_DIR, "assets/context_512um_onco.png")
 
 # --- assets sección comparación pareada (B7: atención CLAM vs mammoth + Q1) ---
 INTERP = os.path.join(REPO, "results/b7_mammoth_interp/interpretabilidad")
@@ -296,7 +331,7 @@ def add_image_fit(slide, path, l, t, w, h, align="center"):
 
 
 def add_card(slide, l, t, w, h, idx, text, size=14):
-    """Tarjeta numerada estilo B4: óvalo naranja + texto Barlow."""
+    """Tarjeta numerada: óvalo #3E6877 con el número en blanco + texto Barlow."""
     fill = TEAL_CARD if idx % 2 == 0 else TEAL_CARD2
     sp = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(l), Inches(t), Inches(w), Inches(h))
     sp.fill.solid(); sp.fill.fore_color.rgb = fill
@@ -323,12 +358,15 @@ def status_done(slide, cx, cy, size=0.42):
 
 
 def status_progress(slide, cx, cy, w=1.5, h=0.44):
-    """Pill 'En progreso' (naranja = 'lo abierto/nuevo' del deck B6), centrada en (cx, cy)."""
+    """Pill 'En progreso': el arquetipo gris de dato del template, centrada en (cx, cy)."""
     sp = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(cx - w / 2), Inches(cy - h / 2),
                                 Inches(w), Inches(h))
     sp.fill.solid(); sp.fill.fore_color.rgb = PROG_BG
-    sp.line.color.rgb = ORA_ACC; sp.line.width = Pt(1.25); sp.shadow.inherit = False
-    _set_runs(sp.text_frame, [("En progreso", 11, True, ORA_T, F_BODY, PP_ALIGN.CENTER)],
+    sp.line.color.rgb = ONCO_CONN; sp.line.width = Pt(1.25); sp.shadow.inherit = False
+    # Texto NEGRO, no teal: sobre el gris #B7B7B7 el teal oscuro queda en ~2.9:1 de
+    # contraste, insuficiente a 11pt. El negro es además lo que usa el template encima
+    # de sus bloques grises.
+    _set_runs(sp.text_frame, [("En progreso", 11, True, BLACK, F_BODY, PP_ALIGN.CENTER)],
               anchor=MSO_ANCHOR.MIDDLE)
 
 
@@ -341,17 +379,25 @@ def takeaway_bar(slide, text, t=4.85, col=TEAL_TITLE, size=14):
 
 def dim_pipeline(slide, blocks, t, h=0.62, bw=1.06, gap=0.25, arrow_sz=15):
     """Pipeline al pie: fila de bloques (variable + dimensión) conectados por flechas →.
-    `blocks` = lista de (variable, dimensión). Centrado horizontalmente."""
+    `blocks` = lista de (variable, dimensión). Centrado horizontalmente.
+
+    Gramática de Deep-LLM-V (arquetipo Google Shape;395): el bloque de proceso es un
+    rounded-rect RELLENO de #3E6877 con el texto Barlow bold BLANCO encima. Hasta el
+    19-jul esto estaba invertido — bloque claro con texto teal — que es el negativo del
+    molde; se veía como otra plantilla aunque los colores fueran de la familia.
+    """
     n = len(blocks)
     total = n * bw + (n - 1) * gap
     x = (SW - total) / 2
     for i, (var, dim) in enumerate(blocks):
         sp = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(x), Inches(t), Inches(bw), Inches(h))
-        sp.fill.solid(); sp.fill.fore_color.rgb = TEAL_CARD2 if i % 2 else TEAL_CARD
-        sp.line.color.rgb = TEAL_SQ; sp.line.width = Pt(1.0); sp.shadow.inherit = False
-        lines = [(var, 12, True, TEAL_TITLE, F_TITLE, PP_ALIGN.CENTER)]
+        sp.fill.solid(); sp.fill.fore_color.rgb = ONCO_DARK
+        sp.line.fill.background(); sp.shadow.inherit = False
+        lines = [(var, 12, True, WHITE, F_TITLE, PP_ALIGN.CENTER)]
         if dim:
-            lines.append((dim, 9.5, False, INK, F_MONO, PP_ALIGN.CENTER))
+            # La dimensión es el "dato" del bloque: mismo blanco, un punto más chica y sin
+            # negrita, para que la variable siga siendo lo que se lee primero.
+            lines.append((dim, 9.5, False, WHITE, F_MONO, PP_ALIGN.CENTER))
         _set_runs(sp.text_frame, lines, anchor=MSO_ANCHOR.MIDDLE)
         for p in sp.text_frame.paragraphs:
             p.space_after = Pt(0)
@@ -360,6 +406,65 @@ def dim_pipeline(slide, blocks, t, h=0.62, bw=1.06, gap=0.25, arrow_sz=15):
             _set_runs(ar.text_frame, [("→", arrow_sz, True, TEAL_SQ, F_BODY, PP_ALIGN.CENTER)],
                       anchor=MSO_ANCHOR.MIDDLE)
         x += bw + gap
+
+
+# ============================================================================
+# Gramática de diagrama de Deep-LLM-V
+# ============================================================================
+# Arquetipos medidos sobre el template (nombres de shape entre paréntesis):
+#   proceso   (Google Shape;395)  rounded-rect #3E6877 · Barlow 12 bold BLANCO · centrado
+#   dato      (Google Shape;391)  rect #B7B7B7 · Barlow 12 regular NEGRO
+#   panel     (Google Shape;323)  rounded-rect #CDDFE1, borde del mismo color, agrupa
+#   operador  (Google Shape;374)  óvalo #CDDFE1, borde #0E2841, símbolo (+, ×)
+#   conector  (Google Shape;399)  línea #386271 de 2.37pt, con o sin punta
+
+def _proc(slide, l, t, w, h, text, dim=None, size=11):
+    """Bloque de proceso: el arquetipo 395 del template."""
+    sp = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(l), Inches(t),
+                                Inches(w), Inches(h))
+    sp.fill.solid(); sp.fill.fore_color.rgb = ONCO_DARK
+    sp.line.fill.background(); sp.shadow.inherit = False
+    lines = [(text, size, True, WHITE, F_BODY, PP_ALIGN.CENTER)]
+    if dim:
+        lines.append((dim, size - 2, False, WHITE, F_BODY, PP_ALIGN.CENTER))
+    _set_runs(sp.text_frame, lines, anchor=MSO_ANCHOR.MIDDLE)
+    for p in sp.text_frame.paragraphs:
+        p.space_after = Pt(0)
+    return sp
+
+
+def _dato(slide, l, t, w, h, text, size=9.5):
+    """Bloque de dato (forma del tensor): el arquetipo 391 del template."""
+    sp = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(l), Inches(t), Inches(w), Inches(h))
+    sp.fill.solid(); sp.fill.fore_color.rgb = ONCO_DATA
+    sp.line.fill.background(); sp.shadow.inherit = False
+    _set_runs(sp.text_frame, [(text, size, False, BLACK, F_BODY, PP_ALIGN.CENTER)],
+              anchor=MSO_ANCHOR.MIDDLE)
+    return sp
+
+
+def _grupo(slide, l, t, w, h):
+    """Panel contenedor que agrupa una región: el arquetipo 323 del template."""
+    sp = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(l), Inches(t),
+                                Inches(w), Inches(h))
+    sp.fill.solid(); sp.fill.fore_color.rgb = ONCO_PANEL
+    sp.line.color.rgb = ONCO_PANEL; sp.line.width = Pt(0.6)
+    sp.shadow.inherit = False
+    return sp
+
+
+def _conn(slide, x0, y0, x1, y1, arrow=True):
+    """Conector recto #386271 2.37pt, con punta opcional (arquetipo 399)."""
+    ln = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, Inches(x0), Inches(y0),
+                                    Inches(x1), Inches(y1))
+    ln.line.color.rgb = ONCO_CONN; ln.line.width = Pt(2.37)
+    ln.shadow.inherit = False
+    if arrow:
+        # python-pptx no expone las puntas de flecha; se inyecta el tailEnd en el XML.
+        lnpr = ln.line._get_or_add_ln()
+        end = lnpr.makeelement(qn('a:tailEnd'), {'type': 'triangle', 'w': 'med', 'len': 'med'})
+        lnpr.append(end)
+    return ln
 
 
 def code_panel(slide, l, t, w, h, lines, title=None):
@@ -378,6 +483,63 @@ def code_panel(slide, l, t, w, h, lines, title=None):
     for p in tf.paragraphs:
         p.space_after = Pt(1)
     return tb
+
+
+def pipeline_mammoth(prs):
+    """Lámina 'Dónde entra MAMMOTH en el pipeline', NATIVA con la gramática Deep-LLM-V.
+
+    Sustituye al diagrama que se traía de B4 con copy_diagram_scaled(). Aquel venía en
+    Carlito, con 129 runs bajo 10pt (la mayoría a 6) y su propia paleta: a escala de
+    proyección no se leía y se veía como otra plantilla.
+
+    Se dejaron FUERA los paneles de fórmulas que traía el original. No es una pérdida:
+    la lámina siguiente ('Por dentro de MAMMOTH: dimensiones y código') ya lleva esa
+    matemática en una tabla nativa y legible. El trabajo de ESTA lámina es ubicar el
+    bloque en el pipeline, y para eso el flujo horizontal + las formas del tensor
+    alcanzan. El flujo va horizontal porque es lo que hace el propio template en su
+    lámina de flujo general (s02), y porque en 16:9 deja los bloques al doble de tamaño
+    que la versión vertical.
+    """
+    s = content(prs, "Dónde entra MAMMOTH en el pipeline")
+
+    add_textbox(s, 0.25, 1.28, 9.5, 0.34, [
+        ("La lámina entra troceada en parches y sale como un vector de logits.",
+         11.5, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
+
+    BW, GAP, BY, BH = 1.66, 0.30, 2.34, 0.84
+    xs = [0.25 + i * (BW + GAP) for i in range(5)]    # el 3º queda centrado en x=5.00
+    CHIP_T, CHIP_H = 3.60, 0.32
+
+    # El panel va PRIMERO para quedar detrás de bloques y flechas.
+    _grupo(s, xs[2] - 0.17, 1.98, BW + 0.34, 1.48)
+    add_textbox(s, xs[2] - 0.17, 2.02, BW + 0.34, 0.30, [
+        ("punto de integración", 9, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER)])
+
+    etapas = [
+        ("Lámina en parches", None),
+        ("CONCH", "extractor de features"),
+        ("MAMMOTH", "mezcla de expertos"),
+        ("Atención CLAM", "backbone + cabeza"),
+        ("Clasificador", "logits de la lámina"),
+    ]
+    for x, (txt, dim) in zip(xs, etapas):
+        _proc(s, x, BY, BW, BH, txt, dim=dim, size=12)
+
+    for i in range(4):
+        _conn(s, xs[i] + BW, BY + BH / 2, xs[i + 1], BY + BH / 2)
+
+    # Las tres formas del tensor: entra [N,512] y sale [N,512]. Es la evidencia visual de
+    # que MAMMOTH es drop-in — no cambia la interfaz, solo lo que pasa adentro. Cada una
+    # cuelga de su bloque con un tramo corto para que no se lean como una fila aparte
+    # (la del medio arranca bajo el panel, no bajo el bloque).
+    for x in (xs[1], xs[2], xs[3]):
+        _dato(s, x, CHIP_T, BW, CHIP_H, "[N, 512]")
+        top = 3.46 if x == xs[2] else BY + BH
+        _conn(s, x + BW / 2, top, x + BW / 2, CHIP_T, arrow=False)
+
+    takeaway_bar(s, "MAMMOTH reemplaza solo la primera capa lineal: entra [N, 512] y sale "
+                    "[N, 512]. Todo lo que viene después es CLAM sin cambios.", t=4.34)
+    return s
 
 
 def dims_table(slide, l, t, w, rows, row_h=0.345, hdr=("paso", "forma del tensor")):
@@ -817,17 +979,17 @@ def build():
              "figura es exactamente el análisis que la segunda parte reproduce sobre las slides de "
              "mama del proyecto.")
 
-    # ---- 5. Diagrama: pipeline CLAM + punto de integración (reusado, escalado) ----
-    # x0.63 + bajado 0.79: el diagrama pasa a ocupar y=0.86..5.49 y deja la banda de
-    # cabecera libre. Centrado en x (a x0.63 mide 8.05 de ancho).
-    s = copy_diagram_scaled(prs, DIAG_MAM, 0, title="Dónde entra MAMMOTH en el pipeline",
-                            scale=0.63, style="onco",
-                            dx=(SW - 8.05) / 2 - 0.316 * 0.63, dy=0.79)
+    # ---- 5. Diagrama: pipeline CLAM + punto de integración (NATIVO, Deep-LLM-V) ----
+    # Antes se traía de B4 con copy_diagram_scaled(DIAG_MAM, 0, scale=0.63): venía en
+    # Carlito a 6pt y con la paleta de B4. Ver pipeline_mammoth() para el detalle.
+    s = pipeline_mammoth(prs)
     notes(s, "Sobre el pipeline completo de CLAM el mecanismo se ubica mejor. La slide entra "
              "troceada en parches; el encoder CONCH le asigna a cada parche un vector de "
              "quinientos doce; de ahí siguen la atención y el clasificador. El único bloque que "
-             "cambia es el naranja: ahí MAMMOTH reemplaza la primera capa lineal. Todo lo que "
-             "viene después es CLAM tal cual.")
+             "cambia es el del medio: ahí MAMMOTH reemplaza la primera capa lineal. Fíjense en "
+             "las tres formas de abajo, que son la misma: entra un vector de quinientos doce por "
+             "parche y sale un vector de quinientos doce por parche. Por eso decimos que es "
+             "drop-in. Todo lo que viene después es CLAM tal cual.")
 
     # ---- 6. Interior de MAMMOTH: matrices+dims Y código en paralelo (NATIVO) ----
     s = content(prs, "Por dentro de MAMMOTH: dimensiones y código")
@@ -963,7 +1125,7 @@ def build():
         "No. Cabezas y expertos son ejes distintos.",
         "Las 16 cabezas corren en paralelo; cada una tiene su PROPIA mezcla de los 30 expertos.",
         "No hay un experto por cabeza: hay 16 × 30 combinaciones.",
-    ], ORA_ACC, fill=PROG_BG)
+    ], ONCO_DARK, fill=PANEL_ACC)
     panel(s, 0.30, 2.86, 4.55, 1.55, "Qué se guarda en cada slot", TEAL_TITLE, [
         "Un prototipo aprendido: un vector que resume un fenotipo.",
         "Se llena con el promedio ponderado de los parches que se le parecen.",
@@ -1303,7 +1465,7 @@ def build():
         "Baja o media, 5-10×, campo 0.5-2 mm.",
         "El conducto, nido invasor o lobulillo.",
         "Es lo que hoy falta: el fino no lo cubre.",
-    ], ORA_ACC, fill=PROG_BG)
+    ], ONCO_DARK, fill=PANEL_ACC)
     # derecha: el hallazgo físico (cohortes a distinta escala)
     add_textbox(s, 5.15, 1.30, 4.55, 0.66, [
         ("Y las cohortes están a distinta escala física", 13, True, TEAL_TITLE, F_TITLE),
@@ -1434,8 +1596,10 @@ def build():
     _pill = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(6.60), Inches(0.46), Inches(3.10), Inches(0.48))
     _pill.name = "ONCOHDR_pill"
     _pill.fill.solid(); _pill.fill.fore_color.rgb = PROG_BG
-    _pill.line.color.rgb = ORA_ACC; _pill.line.width = Pt(1.25); _pill.shadow.inherit = False
-    _set_runs(_pill.text_frame, [("Escalas a definir", 11, True, ORA_T, F_BODY, PP_ALIGN.CENTER)],
+    _pill.line.color.rgb = ONCO_CONN; _pill.line.width = Pt(1.25); _pill.shadow.inherit = False
+    # Marcador de estado: mismo arquetipo gris que la pill "En progreso", y por la misma
+    # razón el texto va NEGRO (el teal oscuro sobre #B7B7B7 no llega al contraste mínimo).
+    _set_runs(_pill.text_frame, [("Escalas a definir", 11, True, BLACK, F_BODY, PP_ALIGN.CENTER)],
               anchor=MSO_ANCHOR.MIDDLE)
     # izquierda: esquema nativo de campos concéntricos + pipeline
     nested_fields(s, 0.30, 1.02, 4.55, 1.95)
@@ -1453,7 +1617,7 @@ def build():
     caption(s, 5.10, 3.30, 2.25, "fino 112 µm · citología", size=9.5, col=ORA_T, bold=True)
     caption(s, 7.45, 3.30, 2.25, "contexto 512 µm · arquitectura", size=9.5, col=TEAL_TITLE, bold=True)
     add_textbox(s, 5.10, 3.66, 4.6, 0.62, [
-        ("Región real de mama (TCGA-BRCA), mismo centro. La caja naranja = el campo fino dentro "
+        ("Región real de mama (TCGA-BRCA), mismo centro. La caja marca el campo fino dentro "
          "del contexto.", 10, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
     takeaway_bar(s, "Fusión por promedio → un token [N,512] → CLAM_MB intacto, la comparación más "
                     "limpia.", t=4.50, size=12.5)
