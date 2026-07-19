@@ -43,6 +43,28 @@ DST = os.path.join(OUT_DIR, "CLAM_Sprint7.pptx")
 # (misma relación 16:9) → re-base sobre el template de Sebastián. Ver scale_deck_to_1610().
 PORTADA_PLANTILLA = os.path.join(OUT_DIR, "assets/portada_plantilla.jpg")
 
+# --- BASE del deck = "Modelo OncoMets Spatial V1 Deep-LLM-V.pptx" (template VÁLIDO) ---
+# Ernesto fijó este archivo como el template a respetar (19-jul), no Plantilla.pptx.
+# Sus s02-s16 son las mismas láminas técnicas que Plantilla s04-s18, con la cabecera
+# OncoMets IDÉNTICA al píxel (mismos nombres de shape: Google Shape;115;p13 / 197;p29 /
+# 198;p29) → la geometría medida vale para los dos.
+#
+# Por qué se construye SOBRE el archivo y no con Presentation():
+# el template EMBEBE sus fuentes (ppt/fonts/*.fntdata + <p:embeddedFontLst>). Barlow no
+# está en el servidor (fc-list → 0) ni necesariamente en la máquina donde se presenta: un
+# deck generado con el template default de python-pptx (cero fuentes embebidas) hace que
+# PowerPoint SUSTITUYA la tipografía y se vea fuera de template AUNQUE las cabeceras estén
+# bien. Ese era el síntoma real. Abrir el template y borrarle las láminas preserva el
+# paquete de fuentes (verificado por round-trip), el theme y el master.
+#
+# OJO — este template embebe SOLO Barlow + Cambria Math. NO trae "Barlow ExtraBold" ni
+# "Consolas" (Plantilla sí). Por eso F_TITLE usa Barlow bold: ver la nota en F_TITLE.
+TEMPLATE = os.path.join(REPO, "sprints/B7_sprint7/Modelo OncoMets Spatial V1 Deep-LLM-V.pptx")
+# Láminas del template que se CONSERVAN tal cual (nativas, ya a 13.333): portada de marca
+# y lámina de título. Reemplazan a la portada JPG que se usaba antes.
+TPL_KEEP = (0, 1)
+FECHA_REUNION = "22/07/2026"   # miércoles
+
 # --- diagramas standalone (13.333x7.5, sin header) que reusamos escalados ---
 DIAG_MAM = os.path.join(PRES, "Diagrama_CLAM_mammoth.pptx")     # s0 pipeline · s1 interior/tensor
 DIAG_FUSED = os.path.join(PRES, "Diagrama_mammoth_fused.pptx")  # s0 flujo oficial · s1 keep_slots
@@ -77,8 +99,15 @@ ROJO       = RGBColor(0xC0, 0x39, 0x2B)
 INK        = RGBColor(0x22, 0x22, 0x22)
 WHITE      = RGBColor(0xFF, 0xFF, 0xFF)
 
-F_TITLE = "Barlow ExtraBold"
+# El template válido embebe SOLO Barlow (regular/bold/italic) + Cambria Math. Antes
+# F_TITLE era "Barlow ExtraBold": esa fuente NO viaja en el paquete, así que PowerPoint la
+# sustituía. Barlow bold sí viaja, y es exactamente lo que usan los títulos técnicos del
+# propio template (25pt Barlow bold #3E6877) → más fiel Y sin riesgo de sustitución.
+F_TITLE = "Barlow"
 F_BODY  = "Barlow"
+# Consolas tampoco viaja en este template, pero se instala con Office en Windows, que es
+# donde se presenta. Se conserva para los paneles de código; si alguna vez falla, el
+# reemplazo seguro es Barlow (se pierde el ancho fijo).
 F_MONO  = "Consolas"
 
 # --- geometría B4 (10 x 5.625), extraída del volcado real ---
@@ -94,6 +123,25 @@ PROG_BG   = RGBColor(0xFD, 0xEF, 0xE6)   # relleno pill "En progreso" (naranja m
 ONCO_LOGO  = os.path.join(OUT_DIR, "assets/logo_oncomets.png")
 ONCO_TITLE = RGBColor(0x3E, 0x68, 0x77)  # título Barlow bold (medido en Plantilla)
 ONCO_LINE  = RGBColor(0x3D, 0x68, 0x76)  # línea horizontal bajo el encabezado
+
+# Geometría LITERAL de la cabecera técnica, medida sobre Plantilla s05/s06 (13.333-space)
+# y convertida a 10-space dividiendo por 1.3333. Vuelve a 13.333 exacta al escalar al final.
+#   logo   L=0.750 T=0.437 W=1.471 H=0.884   (freeform con blipFill en Plantilla)
+#   título L=2.741 T=0.850 W=9.173 H=0.471   Barlow bold 25pt #3E6877
+#   línea  L=0.000 T=1.421 W=13.334 H=0.140  (grupo en Plantilla, aquí un rect plano)
+ONCO_LOGO_L, ONCO_LOGO_T, ONCO_LOGO_W, ONCO_LOGO_H = 0.5625, 0.3278, 1.1033, 0.6630
+ONCO_TIT_L, ONCO_TIT_W = 2.0558, 6.8799
+# El template da la caja del título en T=0.6375 H=0.3533 (base = 0.9908), dimensionada para
+# UNA línea. Varios títulos nuestros son más largos que "Patch Encoder" y caen a dos: con esa
+# caja la 2ª línea desbordaba hacia abajo y la cortaba la línea teal (y=1.0658). Se conserva
+# la MISMA base y se extiende la caja hacia ARRIBA con anclaje inferior: los títulos de una
+# línea caen exactamente donde el template los pone, y los de dos crecen hacia el aire libre
+# de la banda (el logo llega hasta x=1.67 y el título arranca en 2.06 → no se tocan).
+ONCO_TIT_BASE = 0.9908
+ONCO_TIT_T, ONCO_TIT_H = 0.2950, ONCO_TIT_BASE - 0.2950
+ONCO_TIT_SZ = 18.75
+ONCO_LINE_T, ONCO_LINE_H = 1.0658, 0.1050
+ONCO_BAND = ONCO_LINE_T + ONCO_LINE_H   # 1.1708 · donde puede empezar el contenido
 
 # --- assets sección magnificación multi-escala (B6, reunión Sebastián) ---
 MSCROP = os.path.join(ASSETS_BRAND, "multiscale_crop")
@@ -119,6 +167,43 @@ def _blank(prs):
         if (lay.name or "").lower().strip() == "blank":
             return lay
     return prs.slide_layouts[6]
+
+
+def base_from_template():
+    """Abre el template válido y le borra las láminas salvo TPL_KEEP.
+
+    Lo que se conserva y es el motivo de hacerlo así: ppt/fonts/*.fntdata + el
+    <p:embeddedFontLst> de presentation.xml (Barlow, Cambria Math), el theme y el slide
+    master. Borrar una slide en python-pptx no tiene API: hay que sacarla del sldIdLst Y
+    soltar la relación, si no queda huérfana en el paquete.
+
+    Devuelve (prs, keep_ids), donde keep_ids identifica las láminas heredadas. Son las
+    únicas que YA están a 13.333, así que scale_deck_to_1610() debe saltearlas.
+    """
+    prs = Presentation(TEMPLATE)
+    # Los elementos a conservar se capturan ANTES de tocar el sldIdLst: después de borrar,
+    # los índices se corren y ya no se puede resolver TPL_KEEP.
+    keep_ids = {id(prs.slides[i]._element) for i in TPL_KEEP}
+    lst = prs.slides._sldIdLst
+    for i, sld in enumerate(list(lst)):
+        if i in TPL_KEEP:
+            continue
+        prs.part.drop_rel(sld.get(
+            "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"))
+        lst.remove(sld)
+    return prs, keep_ids
+
+
+def new_slide(prs):
+    """Lámina en blanco SIN los placeholders del layout.
+
+    El layout BLANK del template arrastra DATE/FOOTER/SLIDE_NUMBER; add_slide los clona en
+    la lámina y aparecen como cuadros vacíos. El deck dibuja todo a mano, así que se
+    eliminan. (Con el template default de python-pptx esto era un no-op.)"""
+    s = prs.slides.add_slide(_blank(prs))
+    for ph in list(s.placeholders):
+        ph._element.getparent().remove(ph._element)
+    return s
 
 
 def _set_runs(tf, lines, anchor=MSO_ANCHOR.TOP):
@@ -179,24 +264,23 @@ def header_oncomets(slide, title, size=22):
     (s04 "Patch Encoder" en adelante). Identidad medida sobre Plantilla s05:
       logo OncoMets, título Barlow bold #3E6877, línea horizontal #3D6876.
 
-    COMPACTADA a la banda HDR (0.785) en vez de la de Plantilla (1.17 en 10-space):
-    el contenido de nuestras láminas arranca en y=0.86, así que la cabecera literal
-    lo pisaría en las 20 técnicas. Se conserva la identidad y las proporciones
-    relativas del logo (aspecto 1.665, el real del PNG); solo cambia la escala.
+    Geometría LITERAL de Plantilla s05/s06, convertida a 10-space (÷1.3333). Antes se
+    usaba una versión compactada a la banda HDR (0.785) para no re-maquetar el contenido;
+    ahora se replica la banda real (termina en y=1.171) y el contenido de las técnicas se
+    baja en bloque con reflow_onco(), que además comprime las láminas que se pasarían.
     """
-    lh = 0.46                                   # alto del logo (aspecto 1.665)
-    slide.shapes.add_picture(ONCO_LOGO, Inches(0.42), Inches(0.155),
-                             Inches(lh * 1.665), Inches(lh))
+    pic = slide.shapes.add_picture(ONCO_LOGO, Inches(ONCO_LOGO_L), Inches(ONCO_LOGO_T),
+                                   Inches(ONCO_LOGO_W), Inches(ONCO_LOGO_H))
+    pic.name = "ONCOHDR_logo"
     if title:
-        # Tope de 19 (=25pt tras el x1.3333) = EXACTAMENTE el de los títulos técnicos de
-        # Plantilla. Los tamaños heredados del header Environ (21-28) desbordaban la banda:
-        # el logo OncoMets es más ancho que el cuadro teal, el título perdió 0.5" de caja y
-        # los largos caían a 2 líneas, con la 2ª cortada por la línea. Alinearlos a Plantilla
-        # arregla el desborde y de paso los hace fieles al template.
-        tb = slide.shapes.add_textbox(Inches(1.44), Inches(0.10), Inches(8.45), Inches(0.60))
-        _set_runs(tb.text_frame, [(title, min(size, 19.0), True, ONCO_TITLE, F_BODY)],
-                  anchor=MSO_ANCHOR.MIDDLE)
-    _rect(slide, 0.0, HDR - 0.075, SW, 0.075, ONCO_LINE)
+        # 18.75 = 25pt tras el x1.3333 = EXACTAMENTE el de los títulos técnicos de Plantilla.
+        # Es tope, no tamaño fijo: los títulos cortos pueden venir más chicos por diseño.
+        tb = slide.shapes.add_textbox(Inches(ONCO_TIT_L), Inches(ONCO_TIT_T),
+                                      Inches(ONCO_TIT_W), Inches(ONCO_TIT_H))
+        tb.name = "ONCOHDR_title"
+        _set_runs(tb.text_frame, [(title, min(size, ONCO_TIT_SZ), True, ONCO_TITLE, F_BODY)],
+                  anchor=MSO_ANCHOR.BOTTOM)
+    _rect(slide, 0.0, ONCO_LINE_T, SW, ONCO_LINE_H, ONCO_LINE).name = "ONCOHDR_line"
 
 
 def add_image_fit(slide, path, l, t, w, h, align="center"):
@@ -390,15 +474,37 @@ def nested_fields(slide, l, t, w, h):
 # ============================================================================
 # Arquetipos B4
 # ============================================================================
-def portada(prs):
-    """Portada = imagen branded de Sebastián (Plantilla.pptx s00), full-bleed."""
-    s = prs.slides.add_slide(_blank(prs))
-    s.shapes.add_picture(PORTADA_PLANTILLA, Inches(0), Inches(-0.02), Inches(SW), Inches(SH + 0.04))
-    return s
+def _set_solo_run(par, texto):
+    """Deja el párrafo con UN solo run que lleva `texto`, conservando el formato del
+    primero. El texto del template viene partido en varios runs ("OncoMets" + " - Spatial"),
+    así que escribir solo runs[0] deja la cola del original pegada detrás."""
+    runs = par.runs
+    runs[0].text = texto
+    for r in runs[1:]:
+        r._r.getparent().remove(r._r)
+
+
+def retitular_portada(prs):
+    """Ajusta las 2 láminas de apertura HEREDADAS del template (s00 portada de marca,
+    s01 título + fecha) sin redibujarlas: son vectoriales nativas y ya están branded.
+
+    Sustituye a la portada JPG anterior. Se reescribe solo el texto, respetando el
+    formato del run original (fuente, cuerpo, color) para no romper el diseño.
+    Devuelve la lámina de título, que es la que lleva las notas de apertura."""
+    titulo = prs.slides[1]
+    for sh in titulo.shapes:
+        if not sh.has_text_frame:
+            continue
+        txt = sh.text_frame.text.strip()
+        if txt == "OncoMets - Spatial":
+            _set_solo_run(sh.text_frame.paragraphs[0], "OncoMets · MAMMOTH")
+        elif txt == "14/11/2025":
+            _set_solo_run(sh.text_frame.paragraphs[0], FECHA_REUNION)
+    return titulo
 
 
 def divider(prs, title, subtitle):
-    s = prs.slides.add_slide(_blank(prs))
+    s = new_slide(prs)
     s.background.fill.solid(); s.background.fill.fore_color.rgb = TEAL_DIV
     s.shapes.add_picture(LOGO, Inches(0.42), Inches(0.36), height=Inches(0.62))
     add_textbox(s, 0.8, 2.05, SW - 1.6, 1.1,
@@ -412,7 +518,7 @@ def content(prs, title, bar=True, size=26, style="onco"):
     """Lámina de contenido. style='onco' = cabecera técnica de Plantilla (default,
     es lo que son casi todas las nuestras); style='environ' = cabecera administrativa
     (barra gris + cuadro teal), reservada a agenda/recapitulación como en Plantilla."""
-    s = prs.slides.add_slide(_blank(prs))
+    s = new_slide(prs)
     if style == "environ":
         header(s, title, bar=bar, size=size)
     else:
@@ -452,7 +558,7 @@ def copy_diagram_scaled(prs, src_path, idx, title=None, scale=0.75, bar=False,
     style='onco' + (scale, dx, dy) achica y baja el diagrama para dejarle sitio a la
     cabecera técnica de Plantilla: a x0.75 el diagrama ocupa y=0.08..5.59, es decir la
     lámina entera, y una cabecera encima lo pisaría."""
-    s = prs.slides.add_slide(_blank(prs))
+    s = new_slide(prs)
     src = Presentation(src_path)
     src_slide = src.slides[idx]
     spTree = s.shapes._spTree
@@ -478,15 +584,89 @@ def copy_diagram_scaled(prs, src_path, idx, title=None, scale=0.75, bar=False,
 
 
 # ============================================================================
+# Reflow: hacerle sitio a la cabecera LITERAL del template
+# ============================================================================
+# Antes la cabecera técnica iba compactada a la banda de 0.785 y el contenido arrancaba en
+# y=0.86. La cabecera real del template termina en 1.171, o sea 0.31" más abajo. En vez de
+# re-maquetar 17 láminas a mano, se baja el contenido en bloque y, si la lámina no tiene
+# ese aire al pie, se la comprime verticalmente lo justo.
+CONTENT_TOP_OLD = 0.86              # donde arrancaba el contenido de las técnicas
+CONTENT_TOP_NEW = ONCO_BAND + 0.05  # 1.221 · un respiro bajo la línea teal
+SAFE_BOTTOM = SH - 0.14             # margen inferior que no se debe invadir
+
+
+def _scale_block(el, f):
+    """Escala un shape COMPLETO por f: geometría, cuerpo tipográfico y métrica de tablas.
+
+    Escalar solo la geometría no sirve para las tablas: en PowerPoint el alto real de una
+    tabla lo manda el texto de sus filas, no el alto del shape, así que la tabla no
+    encogía y se comía lo que tuviera debajo. Bajar también el `sz` y el alto de fila la
+    encoge de verdad."""
+    for off in el.iter(qn("a:off")):
+        off.set("x", str(int(round(int(off.get("x")) * f))))
+        off.set("y", str(int(round(int(off.get("y")) * f))))
+    for ext in el.iter(qn("a:ext")):
+        ext.set("cx", str(int(round(int(ext.get("cx")) * f))))
+        ext.set("cy", str(int(round(int(ext.get("cy")) * f))))
+    for tag in ("a:rPr", "a:defRPr", "a:endParaRPr"):
+        for rpr in el.iter(qn(tag)):
+            if rpr.get("sz"):
+                rpr.set("sz", str(max(100, int(round(int(rpr.get("sz")) * f)))))
+    for gc in el.iter(qn("a:gridCol")):
+        if gc.get("w"):
+            gc.set("w", str(int(round(int(gc.get("w")) * f))))
+    for tr in el.iter(qn("a:tr")):
+        if tr.get("h"):
+            tr.set("h", str(int(round(int(tr.get("h")) * f))))
+
+
+def reflow_onco(prs, skip=()):
+    """Baja el contenido de las láminas con cabecera OncoMets para que no lo pise la banda.
+
+    Por lámina: se toman los shapes que NO son la cabecera y se los desplaza dy. Si el
+    bloque no entra, se lo escala entero (geometría + tipografía) por el factor justo y se
+    lo reancla bajo la banda. El ajuste típico ronda el 8%: un cuerpo de 10.5pt queda en
+    9.7pt, invisible a ojo y sin romper proporciones.
+    """
+    dy = CONTENT_TOP_NEW - CONTENT_TOP_OLD
+    for slide in prs.slides:
+        if id(slide._element) in skip:
+            continue
+        cuerpo = [sh for sh in slide.shapes if not (sh.name or "").startswith("ONCOHDR_")]
+        if len(cuerpo) == len(list(slide.shapes)):
+            continue                                  # sin cabecera OncoMets: no se toca
+        tops = [Emu(sh.top).inches for sh in cuerpo]
+        bots = [Emu(sh.top).inches + Emu(sh.height).inches for sh in cuerpo]
+        if not tops:
+            continue
+        top0, bot0 = min(tops), max(bots)
+        f = 1.0
+        if bot0 + dy > SAFE_BOTTOM and bot0 > top0:
+            f = max(0.80, (SAFE_BOTTOM - CONTENT_TOP_NEW) / (bot0 - top0))
+        if f < 1.0:
+            for sh in cuerpo:
+                _scale_block(sh._element, f)
+        # reanclar: el tope del bloque (ya escalado) va justo debajo de la banda
+        desplaz = CONTENT_TOP_NEW - top0 * f
+        for sh in cuerpo:
+            sh.top = Inches(Emu(sh.top).inches + desplaz)
+
+
+# ============================================================================
 # Re-base al template de Sebastián: escala uniforme 10x5.625 → 13.333x7.5
 # ============================================================================
-def scale_deck_to_1610(prs, k=13.333 / 10.0):
+def scale_deck_to_1610(prs, k=13.333 / 10.0, skip=()):
     """Escala TODO el deck (geometría + fuentes + tablas + líneas) por k y cambia el tamaño
     de slide a 13.333x7.5 (16:9, = el de los templates de Sebastián). Misma relación de
     aspecto que 10x5.625 → escala uniforme sin deformar. Los diagramas reusados (copiados
     a x0.75) quedan a 0.75·1.3333 = 1.0 = su tamaño nativo 13.333. Todas las shapes del
-    deck son planas (top-level), así que escalar cada a:off/a:ext es seguro."""
+    deck son planas (top-level), así que escalar cada a:off/a:ext es seguro.
+
+    `skip` = ids de elementos de láminas heredadas del template, que YA están a 13.333 y
+    se romperían si se las volviera a escalar."""
     for slide in prs.slides:
+        if id(slide._element) in skip:
+            continue
         tree = slide.shapes._spTree
         for off in tree.iter(qn("a:off")):
             off.set("x", str(int(round(int(off.get("x")) * k))))
@@ -538,11 +718,15 @@ def _leer_q1():
 
 
 def build():
-    prs = Presentation()
+    # Base = template válido, con sus fuentes embebidas y sus 2 láminas de apertura
+    # (portada de marca + lámina de título) conservadas NATIVAS a 13.333.
+    prs, keep_ids = base_from_template()
+    # El resto del deck se compone en 10x5.625 y se escala al final; las heredadas quedan
+    # fuera de ese escalado (skip=keep_ids).
     prs.slide_width = Inches(SW); prs.slide_height = Inches(SH)
 
-    # ---- 1. Portada (limpia, sin overlay) ----
-    s = portada(prs)
+    # ---- 1. Apertura: se hereda del template, solo se ajusta el título y la fecha ----
+    s = retitular_portada(prs)
     notes(s, "El objetivo de esta reunión no es demostrar que MAMMOTH mejore la métrica: esa "
              "pregunta ya quedó cerrada, y la respuesta fue que no. Lo que sigue abierto, y es de "
              "lo que trata esta presentación, es distinto: qué aprende MAMMOTH por dentro y en qué "
@@ -552,7 +736,9 @@ def build():
 
     # ---- 2. Recapitulación de objetivos (MISMO formato que B4 slide 2:
     #        título 32pt + lista numerada en un solo cuadro, 24pt Barlow bold gris) ----
-    s = content(prs, "Recapitulación de objetivos", size=32, style="environ")
+    # Cabecera OncoMets como el resto: la Environ (barra gris + cuadro teal) es de
+    # Plantilla.pptx y el template válido no la tiene en ninguna lámina.
+    s = content(prs, "Recapitulación de objetivos", size=32)
     # Objetivos del eje (pedido de Benjamín, 29-jun): entender el mecanismo + interpretar.
     # Enunciados en infinitivo (sin 1ª persona), concisos, sin resultados.
     # (texto, estado): "done" = ticket verde (cerrado) · "prog" = pill "En progreso" (abierto)
@@ -1241,7 +1427,12 @@ def build():
 
     # ---- 15. La decisión de escalas (LA slide para Sebastián) ----
     s = content(prs, "La decisión de escalas", size=28)
-    _pill = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(6.60), Inches(0.19), Inches(3.10), Inches(0.48))
+    # La pill vive DENTRO de la banda, a la derecha del título (que en esta lámina es corto
+    # y no llega hasta ahí). Bajarla al contenido no es opción: ahí chocaba con los dos
+    # crops de tejido. Se centra en la banda (0.33-1.07) y se la nombra ONCOHDR_ para que
+    # reflow_onco la trate como cabecera y no la desplace con el cuerpo.
+    _pill = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(6.60), Inches(0.46), Inches(3.10), Inches(0.48))
+    _pill.name = "ONCOHDR_pill"
     _pill.fill.solid(); _pill.fill.fore_color.rgb = PROG_BG
     _pill.line.color.rgb = ORA_ACC; _pill.line.width = Pt(1.25); _pill.shadow.inherit = False
     _set_runs(_pill.text_frame, [("Escalas a definir", 11, True, ORA_T, F_BODY, PP_ALIGN.CENTER)],
@@ -1283,7 +1474,8 @@ def build():
              "promedio quedan como la propuesta a discutir; los campos son ajustables.")
 
     # Re-base al template de Sebastián: escalar el deck terminado a 13.333x7.5.
-    scale_deck_to_1610(prs)
+    reflow_onco(prs, skip=keep_ids)
+    scale_deck_to_1610(prs, skip=keep_ids)
     os.makedirs(OUT_DIR, exist_ok=True)
     prs.save(DST)
     print("Guardado:", DST, "·", len(prs.slides), "slides ·", "13.333x7.5")
