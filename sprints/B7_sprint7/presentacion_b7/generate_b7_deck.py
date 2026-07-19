@@ -89,6 +89,12 @@ PORTADA = os.path.join(ASSETS_BRAND, "portada_fullbleed.jpg")
 CHECK_VERDE = os.path.join(ASSETS_BRAND, "check_verde.png")  # ticket "hecho" (reusado del deck B3)
 PROG_BG   = RGBColor(0xFD, 0xEF, 0xE6)   # relleno pill "En progreso" (naranja muy claro)
 
+# --- cabecera OncoMets (láminas TÉCNICAS de Plantilla.pptx s04-s18) ---
+# El logo se extrajo del blipFill del freeform id=4 de Plantilla s05 (258x155 RGBA).
+ONCO_LOGO  = os.path.join(OUT_DIR, "assets/logo_oncomets.png")
+ONCO_TITLE = RGBColor(0x3E, 0x68, 0x77)  # título Barlow bold (medido en Plantilla)
+ONCO_LINE  = RGBColor(0x3D, 0x68, 0x76)  # línea horizontal bajo el encabezado
+
 # --- assets sección magnificación multi-escala (B6, reunión Sebastián) ---
 MSCROP = os.path.join(ASSETS_BRAND, "multiscale_crop")
 MS_FINE = os.path.join(MSCROP, "fine_112um.png")   # crop real TCGA-BRCA campo 112µm (~20×)
@@ -163,6 +169,34 @@ def header(slide, title, bar=True, size=26):
     if title:
         tb = slide.shapes.add_textbox(Inches(0.99), Inches(0.10), Inches(8.9), Inches(0.62))
         _set_runs(tb.text_frame, [(title, size, True, TEAL_TITLE, F_TITLE)], anchor=MSO_ANCHOR.MIDDLE)
+
+
+def header_oncomets(slide, title, size=22):
+    """Header OncoMets = el de las láminas TÉCNICAS de Plantilla.pptx (s04-s18).
+
+    Plantilla usa DOS cabeceras según el tipo de lámina: la Environ (cuadro teal +
+    barra gris) para lo administrativo/agenda, y ésta para el contenido técnico
+    (s04 "Patch Encoder" en adelante). Identidad medida sobre Plantilla s05:
+      logo OncoMets, título Barlow bold #3E6877, línea horizontal #3D6876.
+
+    COMPACTADA a la banda HDR (0.785) en vez de la de Plantilla (1.17 en 10-space):
+    el contenido de nuestras láminas arranca en y=0.86, así que la cabecera literal
+    lo pisaría en las 20 técnicas. Se conserva la identidad y las proporciones
+    relativas del logo (aspecto 1.665, el real del PNG); solo cambia la escala.
+    """
+    lh = 0.46                                   # alto del logo (aspecto 1.665)
+    slide.shapes.add_picture(ONCO_LOGO, Inches(0.42), Inches(0.155),
+                             Inches(lh * 1.665), Inches(lh))
+    if title:
+        # Tope de 19 (=25pt tras el x1.3333) = EXACTAMENTE el de los títulos técnicos de
+        # Plantilla. Los tamaños heredados del header Environ (21-28) desbordaban la banda:
+        # el logo OncoMets es más ancho que el cuadro teal, el título perdió 0.5" de caja y
+        # los largos caían a 2 líneas, con la 2ª cortada por la línea. Alinearlos a Plantilla
+        # arregla el desborde y de paso los hace fieles al template.
+        tb = slide.shapes.add_textbox(Inches(1.44), Inches(0.10), Inches(8.45), Inches(0.60))
+        _set_runs(tb.text_frame, [(title, min(size, 19.0), True, ONCO_TITLE, F_BODY)],
+                  anchor=MSO_ANCHOR.MIDDLE)
+    _rect(slide, 0.0, HDR - 0.075, SW, 0.075, ONCO_LINE)
 
 
 def add_image_fit(slide, path, l, t, w, h, align="center"):
@@ -374,9 +408,15 @@ def divider(prs, title, subtitle):
     return s
 
 
-def content(prs, title, bar=True, size=26):
+def content(prs, title, bar=True, size=26, style="onco"):
+    """Lámina de contenido. style='onco' = cabecera técnica de Plantilla (default,
+    es lo que son casi todas las nuestras); style='environ' = cabecera administrativa
+    (barra gris + cuadro teal), reservada a agenda/recapitulación como en Plantilla."""
     s = prs.slides.add_slide(_blank(prs))
-    header(s, title, bar=bar, size=size)
+    if style == "environ":
+        header(s, title, bar=bar, size=size)
+    else:
+        header_oncomets(s, title, size=size)
     return s
 
 
@@ -395,9 +435,23 @@ def _scale_el(el, s):
                 rpr.set("sz", str(max(100, int(int(sz) * s))))
 
 
-def copy_diagram_scaled(prs, src_path, idx, title=None, scale=0.75, bar=False):
+def _shift_el(el, dx, dy):
+    """Desplaza un shape top-level. Solo el a:off del propio spPr/grpSpPr (el primero),
+    porque los a:off internos de un grupo son coordenadas hijas y no deben moverse."""
+    for off in el.iter(qn("a:off")):
+        off.set("x", str(int(int(off.get("x")) + dx * 914400)))
+        off.set("y", str(int(int(off.get("y")) + dy * 914400)))
+        break
+
+
+def copy_diagram_scaled(prs, src_path, idx, title=None, scale=0.75, bar=False,
+                        style="environ", dx=0.0, dy=0.0):
     """Copia el diagrama standalone (13.333x7.5) escalado a 10x5.625 (x0.75, full-bleed).
-    Conserva nativo/editable + remapea imágenes embebidas. Header opcional (logo only por defecto)."""
+    Conserva nativo/editable + remapea imágenes embebidas.
+
+    style='onco' + (scale, dx, dy) achica y baja el diagrama para dejarle sitio a la
+    cabecera técnica de Plantilla: a x0.75 el diagrama ocupa y=0.08..5.59, es decir la
+    lámina entera, y una cabecera encima lo pisaría."""
     s = prs.slides.add_slide(_blank(prs))
     src = Presentation(src_path)
     src_slide = src.slides[idx]
@@ -413,8 +467,13 @@ def copy_diagram_scaled(prs, src_path, idx, title=None, scale=0.75, bar=False):
                 _, new_rid = s.part.get_or_add_image_part(io.BytesIO(img_part.blob))
                 blip.set(qn("r:embed"), new_rid)
         _scale_el(el, scale)
+        if dx or dy:
+            _shift_el(el, dx, dy)
         spTree.append(el)
-    header(s, title, bar=bar)  # logo mark (+ barra/título si se pide)
+    if style == "onco":
+        header_oncomets(s, title)
+    else:
+        header(s, title, bar=bar)  # logo mark (+ barra/título si se pide)
     return s
 
 
@@ -493,7 +552,7 @@ def build():
 
     # ---- 2. Recapitulación de objetivos (MISMO formato que B4 slide 2:
     #        título 32pt + lista numerada en un solo cuadro, 24pt Barlow bold gris) ----
-    s = content(prs, "Recapitulación de objetivos", size=32)
+    s = content(prs, "Recapitulación de objetivos", size=32, style="environ")
     # Objetivos del eje (pedido de Benjamín, 29-jun): entender el mecanismo + interpretar.
     # Enunciados en infinitivo (sin 1ª persona), concisos, sin resultados.
     # (texto, estado): "done" = ticket verde (cerrado) · "prog" = pill "En progreso" (abierto)
@@ -573,7 +632,11 @@ def build():
              "mama del proyecto.")
 
     # ---- 5. Diagrama: pipeline CLAM + punto de integración (reusado, escalado) ----
-    s = copy_diagram_scaled(prs, DIAG_MAM, 0, title=None, bar=False)
+    # x0.63 + bajado 0.79: el diagrama pasa a ocupar y=0.86..5.49 y deja la banda de
+    # cabecera libre. Centrado en x (a x0.63 mide 8.05 de ancho).
+    s = copy_diagram_scaled(prs, DIAG_MAM, 0, title="Dónde entra MAMMOTH en el pipeline",
+                            scale=0.63, style="onco",
+                            dx=(SW - 8.05) / 2 - 0.316 * 0.63, dy=0.79)
     notes(s, "Sobre el pipeline completo de CLAM el mecanismo se ubica mejor. La slide entra "
              "troceada en parches; el encoder CONCH le asigna a cada parche un vector de "
              "quinientos doce; de ahí siguen la atención y el clasificador. El único bloque que "
@@ -641,13 +704,15 @@ def build():
              "aprendidos, igual que en atención multi-cabeza; la semántica de tejido no vive en "
              "las cabezas, vive en los slots.")
 
-    # ---- 7. La arquitectura oficial del paper: figura GRANDE y limpia (sin logo, sin título,
-    #        sin callouts encima que tapen las variables de la figura). El trazo al pie y las
-    #        notas se refieren a las VARIABLES DE LA PROPIA FIGURA (W, x̄, s, Φ, W_low, ...). ----
-    s = prs.slides.add_slide(_blank(prs))
-    iw = 9.42; ih = iw / 2.489                      # aspect real de la Fig 2 (4375x1758)
-    s.shapes.add_picture(FIG2_ARCH, Inches((SW - iw) / 2), Inches(0.26), Inches(iw), Inches(ih))
-    caption(s, 0.35, 0.26 + ih + 0.05, SW - 0.7,
+    # ---- 7. La arquitectura oficial del paper: figura GRANDE y SIN callouts encima que
+    #        tapen las variables. Lleva cabecera OncoMets como el resto de las técnicas
+    #        (antes iba sin marca alguna y se leía como lámina rota); la figura se achica
+    #        de 9.42 a 8.96 de ancho para dejar la banda libre sin perder legibilidad.
+    #        El trazo al pie y las notas se refieren a las VARIABLES DE LA PROPIA FIGURA. ----
+    s = content(prs, "La arquitectura de MAMMOTH, paso a paso", size=22)
+    iw = 8.50; ih = iw / 2.489                      # aspect real de la Fig 2 (4375x1758)
+    s.shapes.add_picture(FIG2_ARCH, Inches((SW - iw) / 2), Inches(0.88), Inches(iw), Inches(ih))
+    caption(s, 0.35, 0.88 + ih + 0.05, SW - 0.7,
             "Dimensiones por bloque (variables de la figura)  ·  N = parches de la slide  ·  "
             "subíndices de la salida z^(k) : e = experto (E=30), s = slot (S=10)",
             size=9.5, bold=True, col=TEAL_TITLE)
@@ -660,7 +725,7 @@ def build():
         ("Φ·W_low", "[300,512]"),
         ("concat", "[N,512]"),
         ("CLAM", "logits"),
-    ], t=0.26 + ih + 0.34)
+    ], t=0.88 + ih + 0.50)   # +0.50: el pie ocupa 2 líneas, con 0.34 rozaba los bloques
     notes(s, "Esta es la arquitectura completa del paper, y conviene recorrerla de izquierda a "
              "derecha siguiendo sus variables, porque cada símbolo es un paso del pipeline. Se "
              "parte de la lámina, que se corta en parches, y cada parche pasa por el encoder y "
@@ -887,7 +952,7 @@ def build():
              "en qué se parecen y en qué se diferencian por dentro cuando ven el mismo tejido.")
 
     # ---- 11c. Diseño pareado + métricas (política de eval: balanceada Y AUC juntas) ----
-    s = content(prs, "Comparación pareada: mismas particiones, mismos datos", size=24)
+    s = content(prs, "Comparación pareada: mismas particiones y datos", size=24)
     add_textbox(s, 0.30, 0.86, 9.4, 0.42, [
         ("Tres tareas · cinco particiones · dos brazos · treinta ejecuciones completas. El conjunto "
          "de prueba se verificó idéntico entre brazos por firma md5, partición por partición.",
@@ -1037,7 +1102,7 @@ def build():
              "tarea que dependa del contexto.")
 
     # ---- 13. El problema es contexto + hallazgo físico (fusión de las dos slides) ----
-    s = content(prs, "No es más zoom, es contexto: cohortes a distinta escala", size=21)
+    s = content(prs, "No es más zoom, es contexto: escalas por cohorte", size=21)
     add_textbox(s, 0.30, 0.86, 9.4, 0.54, [
         ("La etiqueta pregunta DÓNDE vive la microcalcificación (¿CDIS?, ¿invasor?, "
          "¿no neoplásico?), no si existe. Es una pregunta de contexto, no de detalle celular.",
