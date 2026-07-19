@@ -94,6 +94,14 @@ MSCROP = os.path.join(ASSETS_BRAND, "multiscale_crop")
 MS_FINE = os.path.join(MSCROP, "fine_112um.png")   # crop real TCGA-BRCA campo 112µm (~20×)
 MS_CTX = os.path.join(MSCROP, "context_512um.png")  # crop real, mismo centro, campo 512µm (~5×)
 
+# --- assets sección comparación pareada (B7: atención CLAM vs mammoth + Q1) ---
+INTERP = os.path.join(REPO, "results/b7_mammoth_interp/interpretabilidad")
+# La lámina CDIS positiva: el contraste de entropía más fuerte de las 7 (0.642 -> 0.927),
+# y es la tarea donde la variante también mide mejor.
+ATT_SBS = os.path.join(INTERP, "carcinoma_ductal_insitu_presente_ci_reform",
+                       "TCGA-D8-A1XB-01Z-00-DX2", "attention_side_by_side.png")
+Q1_JSON = os.path.join(REPO, "sprints/B7_sprint7/respuesta_q1_expertos_slots.json")
+
 _uid = [2000]
 
 
@@ -448,6 +456,25 @@ def scale_deck_to_1610(prs, k=13.333 / 10.0):
 # ============================================================================
 # Build
 # ============================================================================
+def _leer_q1():
+    """Números de Q1 desde el JSON que produce answer_q1_expertos_slots.py.
+
+    Se leen del artefacto en vez de hardcodearse para que el deck no se desincronice
+    del análisis. Si el JSON todavía no existe, la slide se construye con el hueco
+    marcado en vez de con un número inventado.
+    """
+    import json
+    if not os.path.exists(Q1_JSON):
+        return {"exp": "pendiente", "slots": "pendiente",
+                "pie": "pendiente: correr answer_q1_expertos_slots.py"}
+    filas = json.load(open(Q1_JSON))
+    exps = [r["expertos_efectivos"] for r in filas if r.get("expertos_efectivos")]
+    slots = [r["slots_efectivos"] for r in filas if r.get("slots_efectivos")]
+    media = lambda v: sum(v) / len(v)
+    return {"exp": f"{media(exps):.1f}", "slots": f"{media(slots):.0f}",
+            "pie": f"media sobre {len(filas)} láminas · número efectivo = exp(entropía)"}
+
+
 def build():
     prs = Presentation()
     prs.slide_width = Inches(SW); prs.slide_height = Inches(SH)
@@ -472,11 +499,15 @@ def build():
         ("2. Precisar qué es una cabeza y el tensor de prototipos (30×16×10×16).", "done"),
         ("3. Distinguir MoE de PoE y situar el número de cabezas para mama.", "done"),
         ("4. Interpretar los expertos: qué región y qué morfología reclama cada uno.", "prog"),
+        ("5. Comparar dónde mira cada modelo, entrenados sobre las mismas particiones.", "done"),
+        ("6. Medir cuántos expertos y cuántos slots se usan de verdad.", "done"),
     ]
-    row_tops = [1.16, 2.18, 3.20, 4.22]   # 4 filas, pitch 1.02; tipografía B4 (24pt Barlow)
-    row_h = 0.90
+    # 6 filas: se mantiene el molde B4 (lista numerada + marcador de estado) bajando
+    # la tipografía de 24 a 19pt para que entren las dos nuevas sin apretar el interlineado.
+    row_tops = [1.10 + i * 0.68 for i in range(6)]
+    row_h = 0.62
     for (it, st), rt in zip(recap, row_tops):
-        add_textbox(s, 0.35, rt, 7.75, row_h, [(it, 24, True, GRIS_BODY, F_BODY)],
+        add_textbox(s, 0.35, rt, 7.75, row_h, [(it, 19, True, GRIS_BODY, F_BODY)],
                     anchor=MSO_ANCHOR.MIDDLE)
         cy = rt + row_h / 2
         if st == "done":
@@ -492,7 +523,11 @@ def build():
              "cabezas convienen para mama. Esos tres quedaron cerrados. El cuarto abre la segunda "
              "parte y sigue en progreso: interpretar a los expertos, es decir, mirar sobre las "
              "propias slides qué región reclama cada uno y qué morfología hay ahí; falta el visto "
-             "bueno de un patólogo.")
+             "bueno de un patólogo. Los dos últimos son el trabajo nuevo desde la vez pasada. El "
+             "quinto es comparar dónde mira cada modelo, entrenando los dos sobre exactamente las "
+             "mismas particiones para que la comparación sea limpia. Y el sexto responde una "
+             "pregunta concreta que había quedado abierta: cuántos expertos y cuántos slots se "
+             "usan de verdad.")
 
     # ---- 3. Divisoria: MAMMOTH ----
     s = divider(prs, "MAMMOTH", "Mixture-of-Experts en la primera capa de CLAM (patch-embed)")
@@ -832,6 +867,156 @@ def build():
              "que MAMMOTH no mejore la métrica está cerrado; qué aprende por dentro está abierto, "
              "y es lo que trae esta presentación. Mostrar qué mira no reabre el rendimiento, le "
              "pone un mecanismo.")
+
+    # ========================================================================
+    # SECCIÓN COMPARACIÓN PAREADA (resultados nuevos: entrenamiento 3 tareas x 2
+    # brazos x 5 folds + comparación de atención + conteo efectivo de expertos/slots)
+    # ========================================================================
+
+    # ---- 11b. Divisoria: comparación pareada ----
+    s = divider(prs, "¿Dónde mira cada modelo?",
+                "Entrenamiento pareado sobre tres tareas clínicas · comparación de la atención "
+                "sobre las mismas láminas")
+    notes(s, "Hasta acá vimos el mecanismo por dentro y qué reclama cada experto sobre una cala "
+             "chica. Esta parte es el trabajo nuevo: entrenar los dos modelos sobre exactamente "
+             "las mismas particiones de tres tareas clínicas, y después comparar, lámina por "
+             "lámina, dónde pone la atención cada uno. La pregunta ya no es cuál mide mejor, es "
+             "en qué se parecen y en qué se diferencian por dentro cuando ven el mismo tejido.")
+
+    # ---- 11c. Diseño pareado + métricas (política de eval: balanceada Y AUC juntas) ----
+    s = content(prs, "Comparación pareada: mismas particiones, mismos datos", size=24)
+    add_textbox(s, 0.30, 0.86, 9.4, 0.42, [
+        ("Tres tareas · cinco particiones · dos brazos · treinta ejecuciones completas. El conjunto "
+         "de prueba se verificó idéntico entre brazos por firma md5, partición por partición.",
+         11.5, False, GRIS_BODY, F_BODY)])
+    # Sin saltos de línea en las celdas: con wrap la tabla crece y pisa los paneles.
+    simple_table(s, 0.30, 1.36, 9.4,
+                 ["Tarea", "n", "Balance. CLAM", "Balance. MAM", "Δ pareada (folds+)",
+                  "AUC CLAM", "AUC MAM", "Δ AUC"],
+                 [["Tipo histológico (3 cl.)", "2027", "0.665 ± 0.056", "0.655 ± 0.047",
+                   "−0.010 ± 0.017 (1/5)", "0.833 ± 0.043", "0.821 ± 0.056", "−0.012"],
+                  ["Invasión linfovascular", "836", "0.657 ± 0.040", "0.634 ± 0.050",
+                   "−0.023 ± 0.086 (2/5)", "0.720 ± 0.032", "0.684 ± 0.056", "−0.036"],
+                  ["Ductal in situ presente", "862", "0.668 ± 0.098", "0.742 ± 0.099",
+                   "+0.074 ± 0.033 (5/5)", "0.765 ± 0.111", "0.825 ± 0.086", "+0.060"]],
+                 col_fracs=[0.175, 0.05, 0.125, 0.125, 0.165, 0.125, 0.125, 0.11],
+                 row_h=0.42, fs=9)
+    add_textbox(s, 0.30, 3.28, 4.55, 1.10, [
+        ("Dos tareas confirman lo previsto", 12, True, TEAL_TITLE, F_TITLE),
+        ("La diferencia queda dentro del ruido: la desviación iguala o supera a la media.",
+         10.5, False, GRIS_BODY, F_BODY)])
+    _rect(s, 5.10, 3.22, 4.60, 1.22, TEAL_CARD2, line=ORA_ACC)
+    add_textbox(s, 5.26, 3.28, 4.30, 1.10, [
+        ("Ductal in situ: a verificar, no a celebrar", 12, True, ORA_T, F_TITLE),
+        ("Suben los dos recalls a la vez (0.477→0.569 y 0.860→0.915), así que no es haber "
+         "corrido el umbral. Pero son 65 negativos en total.", 10.5, False, GRIS_BODY, F_BODY)])
+    takeaway_bar(s, "Candidato a réplica con más semillas antes de contarlo como mejora.",
+                 t=4.62, size=12)
+    notes(s, "El diseño es lo primero que quiero destacar, porque es lo que hace que los números "
+             "signifiquen algo. Los dos modelos corrieron sobre exactamente las mismas "
+             "particiones, y eso no se asumió: se comprobó comparando la firma de los "
+             "identificadores de lámina del conjunto de prueba, partición por partición. Así la "
+             "diferencia entre brazos no arrastra el azar del sorteo. Treinta ejecuciones, todas "
+             "completas. En tipo histológico y en invasión linfovascular el resultado es el que "
+             "estaba anticipado por escrito antes de correr: la diferencia se queda dentro del "
+             "ruido, la desviación entre particiones iguala o supera a la media, no hay señal. La "
+             "tercera fila es distinta y la quiero presentar con cuidado. En carcinoma ductal in "
+             "situ MAMMOTH mide mejor en las cinco particiones, tanto en exactitud balanceada "
+             "como en área bajo la curva. Y hay un detalle que importa: suben los dos recalls a la "
+             "vez, el de la clase minoritaria y el de la mayoritaria. Cuando uno simplemente mueve "
+             "el punto de corte, sube uno y baja el otro; acá no pasa eso, así que la mejora está "
+             "en el ordenamiento, no en el umbral. Aun así freno antes de llamarlo mejora, por una "
+             "razón de tamaño: hay sesenta y cinco negativos en total, unos trece por partición, "
+             "y cada uno mueve casi ocho puntos de recall. Además es una formulación de la tarea "
+             "que es nueva. Lo dejo como candidato a replicar con más semillas, no como un "
+             "resultado cerrado.")
+
+    # ---- 11d. Comparación de atención: el entregable central ----
+    s = content(prs, "Mismo barrio, distintas casas", size=28)
+    add_textbox(s, 0.30, 0.84, 9.4, 0.40, [
+        ("Siete láminas, una por clase y tarea, todas del conjunto de prueba y bien clasificadas "
+         "por los dos brazos: se compara el foco sin el ruido de un error.",
+         11.5, False, GRIS_BODY, F_BODY)])
+    add_image_fit(s, ATT_SBS, 0.30, 1.30, 5.75, 2.95, align="top")
+    caption(s, 0.30, 4.30, 5.75, "atención CLAM | MAMMOTH | diferencia · misma lámina, mismo código",
+            size=9.5, col=GRIS_TXT)
+    _rect(s, 6.25, 1.26, 3.45, 3.02, TEAL_CARD2, line=TEAL_SQ)
+    add_textbox(s, 6.42, 1.34, 3.15, 2.90, [
+        ("Agregado sobre las siete", 12.5, True, TEAL_TITLE, F_TITLE),
+        ("Correlación de rangos   0.805", 11, False, INK, F_BODY),
+        ("Solapamiento 5% super.   0.172", 11, False, INK, F_BODY),
+        ("Solapamiento 1% super.   0.073", 11, False, INK, F_BODY),
+        ("Entropía CLAM   0.781", 11, False, INK, F_BODY),
+        ("Entropía MAMMOTH   0.894", 11, False, ORA_T, F_BODY),
+        ("Coinciden en el mapa grueso: ordenan el tejido igual, la región que importa es la misma.",
+         10.5, False, GRIS_BODY, F_BODY),
+        ("Difieren en los picos: los parches concretos que cada uno pone arriba son distintos.",
+         10.5, False, GRIS_BODY, F_BODY),
+        ("MAMMOTH reparte, CLAM concentra: más difusa en seis de siete.",
+         10.5, False, GRIS_BODY, F_BODY)])
+    takeaway_bar(s, "Que la mayor difusión aparezca donde MAMMOTH también mide mejor es "
+                    "sugerente, pero con siete láminas es hipótesis, no explicación.",
+                 t=4.62, size=11.5)
+    notes(s, "Este es el resultado central de la parte nueva. Se eligieron siete láminas, una por "
+             "cada clase de cada tarea, todas del conjunto de prueba, es decir nunca vistas en "
+             "entrenamiento, y además bien clasificadas por los dos modelos. Esa segunda condición "
+             "es deliberada: si uno de los dos se equivoca, la comparación de dónde mira queda "
+             "contaminada por el error. La comparación además es directa porque MAMMOTH hereda "
+             "el mismo método de atención del modelo base, así que los dos mapas salen del mismo "
+             "código. A la izquierda está una de las siete: a un lado la atención de CLAM, "
+             "al otro la de MAMMOTH, y al costado la diferencia. Los números de la derecha "
+             "resumen las siete y cuentan tres cosas. La primera es que coinciden en el mapa "
+             "grueso: la correlación de rangos es alta, los dos ordenan el tejido de forma "
+             "parecida, la región que importa es la misma. La segunda es que difieren en los "
+             "picos: si uno mira el cinco por ciento de parches más atendidos, el solapamiento es "
+             "bajo, y si mira el uno por ciento, es casi nulo. Mismo barrio, distintas casas. La "
+             "tercera es que la variante reparte la atención y CLAM la concentra: la "
+             "entropía es mayor en seis de las siete láminas. Y hay algo que da ganas de conectar: "
+             "la mayor difusión aparece justo en la tarea donde MAMMOTH también mide mejor. Lo "
+             "digo como lo que es, una hipótesis. Con siete láminas no alcanza para atribuir la "
+             "diferencia de métrica a la forma de la atención.")
+
+    # ---- 11e. Cuántos expertos y cuántos slots se usan de verdad ----
+    s = content(prs, "¿Cuántos expertos y slots se usan de verdad?", size=25)
+    add_textbox(s, 0.30, 0.86, 9.4, 0.62, [
+        ("La pregunta se responde sobre el peso de combinación, la segunda distribución softmax "
+         "sobre los 300 slots (30 expertos × 10). No es el conteo de parches más atendidos.",
+         11.5, False, GRIS_BODY, F_BODY)])
+    _rect(s, 0.30, 1.56, 4.55, 1.30, TEAL_CARD2, line=TEAL_SQ)
+    add_textbox(s, 0.46, 1.64, 4.25, 1.18, [
+        ("Número efectivo = exp(entropía)", 12, True, TEAL_TITLE, F_TITLE),
+        ("Vale 300 si el ruteo fuera perfectamente uniforme y 1 si colapsara en un solo slot.",
+         10.5, False, GRIS_BODY, F_BODY),
+        ("Se usa esta medida porque la softmax da peso positivo a todos: contar los que reciben "
+         "algo siempre daría el total.", 10.5, False, GRIS_BODY, F_BODY)])
+    q1 = _leer_q1()
+    simple_table(s, 5.10, 1.56, 4.60,
+                 ["Nivel", "Efectivos", "de"],
+                 [["Expertos", q1["exp"], "30"], ["Slots", q1["slots"], "300"]],
+                 col_fracs=[0.40, 0.30, 0.30], row_h=0.40, fs=11)
+    caption(s, 5.10, 2.86, 4.60, q1["pie"], size=9.5, col=GRIS_TXT)
+    add_textbox(s, 0.30, 3.10, 9.4, 1.30, [
+        ("Lectura", 12.5, True, TEAL_TITLE, F_TITLE),
+        ("El número de expertos no está sobredimensionado: se usan los treinta por igual, ninguno "
+         "queda apagado.", 11.5, False, GRIS_BODY, F_BODY),
+        ("El margen de recorte está en los slots, donde cerca de la mitad del presupuesto aporta "
+         "poco al peso final.", 11.5, False, GRIS_BODY, F_BODY)])
+    takeaway_bar(s, "Si hay que ajustar capacidad, el parámetro a tocar son los slots, no los "
+                    "expertos.", t=4.62, size=12)
+    notes(s, "Quedaba una pregunta concreta de la vez pasada: cuántos expertos y cuántos slots usa "
+             "realmente el modelo. Antes de responder conviene precisar qué se mide, porque hay "
+             "dos cosas que se confunden. El peso por slot es la segunda distribución softmax, la "
+             "que combina las trescientas salidas, treinta expertos por diez slots cada uno. No es "
+             "el conteo de parches que cada experto atiende, que es otra medida distinta. Y hay un "
+             "detalle metodológico: como es una softmax, todos los slots reciben algo de peso, "
+             "nunca cero. Entonces contar cuántos reciben peso no sirve, siempre daría "
+             "trescientos. Por eso se usa el número efectivo, que es la exponencial de la "
+             "entropía: da trescientos si el reparto fuera perfectamente parejo y uno si todo el "
+             "peso cayera en un solo slot. Con esa medida, los expertos salen prácticamente "
+             "uniformes, se usan los treinta, ninguno queda apagado; mientras que en los slots el "
+             "número efectivo queda bastante por debajo del total. La conclusión práctica es que "
+             "el número de expertos no está sobredimensionado, y que si en algún momento hay que "
+             "recortar capacidad, el parámetro a tocar son los slots.")
 
     # ========================================================================
     # SECCIÓN MAGNIFICACIÓN MULTI-ESCALA (reunión Sebastián — decisión de escalas)
