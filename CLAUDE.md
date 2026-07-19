@@ -185,6 +185,23 @@ aplicar el fix correspondiente sin investigar de nuevo.
   el dry-run del gate (c) del B6 (10-jul). Memoria
   [[create-patches-processlist-int64-privado]].
 
+### J. Un proceso CPU largo lanzado desde la sesión muere al cerrarla
+
+- **Síntoma**: un driver CPU post-hoc (interpretabilidad, análisis) que corre
+  horas aparece muerto al retomar, con el progreso perdido entero.
+- **Causa**: no es SLURM, así que no tiene la protección de un job — cuelga del
+  proceso `claude`, que cuelga de la extensión de VSCode. Cerrar la sesión se
+  lleva la cadena. Cazado 2 veces sobre `run_b7_expert_interp.sh` (18-jul).
+- **Fix**: lanzarlo **desatado** y hacerlo **reanudable**:
+  ```bash
+  setsid nohup bash scripts/<driver>.sh > logs/<driver>_desatado.log 2>&1 < /dev/null &
+  ```
+  Verificar `ps -eo pid,ppid,sid,cmd` → **ppid = 1**. El driver debe saltar el
+  trabajo hecho marcándolo con el artefacto que se escribe **al final** (uno
+  intermedio daría por completa una corrida cortada a mitad). Gotchas al matar y
+  relanzar (exit 144 del harness, hijos huérfanos, `pgrep` que se auto-matchea)
+  en la memoria. Detalle: [[proceso-cpu-largo-desatado-setsid]].
+
 ### Reglas de commit y push para Claude Code
 
 - **Commits locales**: SÍ — granulares, mensajes conventional commits.

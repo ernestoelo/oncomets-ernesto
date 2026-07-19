@@ -112,21 +112,45 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   del paso entre coords ([[patch-size-desde-geometria-h5]]). (b) **TCGA no es homogénea en magnificación**:
   de 200/864 slides, 94.5% ~40× pero **3.5% nativas 20× → 224 µm por parche (el doble)**; extiende
   [[cohortes-magnificacion-fisica]] al interior de la cohorte.
-- **Pendiente:** completar el ruteo por experto/slot — quedó corriendo en **2 de 7 slides** al cerrar la
-  sesión (CPU, ~10 min/slide). Re-lanzar `bash scripts/run_b7_expert_interp.sh` y luego
-  `scripts/answer_q1_expertos_slots.py` para cerrar **Q1**. Respuesta preliminar (n=2, solo tipo): los **30
-  expertos se usan casi uniformemente** (efectivos 30.0/30) y la concentración está **a nivel de slot**
-  (~167/300, mitad del peso en ~40 slots) → E=30 no parece sobre-dimensionado; el margen, si existe, está en S.
+- **Pendiente (act. 18-jul 21:30):** el ruteo por experto/slot corre **DESATADO** (`setsid`, ppid=1, log
+  `logs/b7_expert_interp_desatado.log`), **2 de 7 completas** al momento de escribir. Sobrevive al cierre
+  de sesión; antes murió 2 veces por colgar del shell ([[proceso-cpu-largo-desatado-setsid]], workaround J).
+  El script es **reanudable** (salta las que tienen `slot_usage.csv` Y `meta.json`; `FORCE=1` rehace).
+  Al terminar: `scripts/answer_q1_expertos_slots.py` cierra **Q1** y **regenerar el deck completa solo**
+  sus huecos (la slide lee el JSON). Preliminar (n=2, solo tipo): **30 expertos casi uniformes**
+  (efectivos 30.0/30), concentración **a nivel de slot** (~167/300) → E=30 no parece sobre-dimensionado;
+  el margen, si existe, está en S. **NO presentar Q1 con n<7 como respuesta cerrada.**
+- **✅ Material de la reunión producido**: `sprints/B7_sprint7/material_reunion.md`, sanitizado y
+  verificado (cero «—», sin nombres propios, sin jerga interna, comandos precisos —
+  [[entregable-externo-sanitizado]]). Cubre entrenamiento pareado, atención, Q1, las 2 observaciones de
+  datos y lo que queda abierto. Lleva la advertencia de que los nombres de tejido son lectura visual
+  nuestra, no anotación.
+- **QA visual hecho temprano** ([[image-api-qa-limit]]): `heatmap_montage.png` correcto (30 paneles,
+  tejido alineado). **Observación para la presentación:** a esa escala los 30 expertos se ven muy
+  parecidos entre sí y moteados; el mensaje "cada experto capta una morfología distinta" **no salta**
+  visualmente como en OBJ-A. Consistente con "expertos uniformes", pero conviene saberlo antes de
+  proyectarlo.
 
 ### Deck (correcciones para la próxima presentación, la verá también Benjamín)
 
-- Migrar al **template de Sebastián** (`sprints/B7_sprint7/*.pptx`) + añadir slide de
-  **recap de objetivos** (layout de `Plantilla.pptx`). Enfoque de migración = decisión
-  pendiente con Ernesto (re-basar vs replicar branding).
-- Correcciones §2: slide 7 (rastro de X, subíndices s,e, MoE-vs-PoE en el hilo), slides
-  10-11 (caveat honestidad + IDs de slides), slide nueva cabezas/expertos/slots (§2.4),
-  slide matemática de magnificación (§3), estilo duro (cero «—», 3ª persona sin nombres,
-  sin diálogos, sin «palanca»). Checklist: `sprints/B7_sprint7/correcciones_deck.md`.
+- **RESUELTO (13-jul, commit `8926e5f`)**: la migración al template de Sebastián y las
+  correcciones §2 de `correcciones_deck.md` **ya están aplicadas** en
+  `presentacion_b7/generate_b7_deck.py` (re-base por construir a 10×5.625 y escalar
+  ×1.3333, [[deck-rebase-plantilla-1610]]). Los checkboxes del checklist quedaron sin
+  marcar pero el código los cumple: verificado 18-jul (cero «—» en texto de slide, sin
+  nombres de guías, recap con layout de `Plantilla`).
+- **Sección nueva agregada 18-jul (17 → 21 slides)**, commit `1c90b7f`: divisoria +
+  métricas pareadas (balanced Y AUC juntas) + comparación de atención (lámina CDIS, el
+  contraste de entropía más fuerte) + Q1 expertos/slots. Recap de objetivos ampliada a 6
+  (tipografía 24 → 19pt para que entren). **La slide de Q1 lee sus números del JSON**
+  (`respuesta_q1_expertos_slots.json`) en vez de hardcodearlos: si el análisis no está,
+  marca el hueco en vez de inventar un número → regenerar el deck lo completa solo.
+  Nomenclatura alineada a **CLAM / MAMMOTH** (el resto del deck y la propia figura los
+  nombran; sanitizar aplica a personas, no a modelos).
+- QA visual en LibreOffice hecho: corregido un solape donde el wrap de celdas hacía crecer
+  la tabla de métricas sobre los paneles inferiores.
+- **Pendiente del deck**: regenerar tras cerrar Q1, y QA fino en **PowerPoint** (el OMML de
+  los diagramas se ve roto en LibreOffice pero OK en PowerPoint, [[pptx-qa-omml-libreoffice]]).
 
 ### Preguntas abiertas resueltas (13-jul, citadas a código)
 

@@ -161,6 +161,13 @@ es exactamente el modo de falla que esa memoria anticipa.
 Ver `respuesta_q1_expertos_slots.md` (generado por
 `scripts/answer_q1_expertos_slots.py` sobre los `slot_usage.csv`).
 
+> **Estado 18-jul 21:30: ABIERTA.** El ruteo corre **desatado** (`setsid`, ppid=1, log en
+> `logs/b7_expert_interp_desatado.log`), con 2 de 7 láminas completas. El driver es
+> **reanudable** (salta las que tienen `slot_usage.csv` Y `meta.json`; `FORCE=1` rehace)
+> tras morir dos veces por colgar del shell de la sesión (workaround J,
+> [[proceso-cpu-largo-desatado-setsid]]). Preliminar con n=2: expertos efectivos 30.0/30,
+> slots ~167/300. **No presentar con n<7 como respuesta cerrada.**
+
 «Peso por slot» = `combine_weights`, la segunda softmax sobre los E·S=300 slots
 (`mammoth.py:411`) — **no** el top-k de parches por experto
 ([[mammoth-slot-routing-weight]]).
