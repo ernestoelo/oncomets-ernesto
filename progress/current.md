@@ -215,6 +215,28 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   `sprints/B7_sprint7/guia_estudio_b7.md` (punto de reentrada al sprint,
   [[guia-reentrada-al-cerrar-sprint]]). Su §5 ya está **renumerado a las 22 reales**
   (19-jul noche): el bloque pedagógico de Mammoth son las **láminas 4 a 10**.
+- **Pasada de contenido visual (19-jul cierre, commit `bae7f8b` + tanda de cierre).**
+  Feedback de Ernesto sobre **seis láminas a la vez**: bullets largos no, partirlos en
+  cortos, agrandar la tabla y volver la lámina visual. Regla que salió de ahí: un bullet no
+  se acorta, **se convierte en dibujo** si su contenido tiene forma
+  ([[deck-contenido-visual-no-bullets]]).
+  - **s01** (portada): se quitan **dos defectos que vienen DEL template** Deep-LLM-V, no del
+    deck — el claim con marcador sin reemplazar («Care in <code>») y el párrafo descriptivo
+    que se salía por el borde inferior. Se reproducen abriendo el template solo.
+  - **s06** rediseñada sobre el molde de arquitectura del template (s11-s16): dos tonos de
+    bloque, dimensión como etiqueta suelta, **expansión punteada** que abre MAMMOTH en sus
+    4 pasos internos. **s08** sin título ni tira de dimensiones → la figura del paper pasa
+    de 8.50 a 9.70 de ancho (**+30% de área**). **s09** esquema anidado + tabla a 12 pt.
+    **s10** diagrama de bifurcación. **s17** barras de proporción (30/30 contra 159/300).
+    **s19** eje de escala física en log. **s20** la cuenta µm/px como cadenas de bloques.
+    **s21** tarjetas con barra de visibilidad + referencias en 3 grupos al pie.
+  - Helpers nuevos (todos derivados de arquetipos medidos en el template): `ratio_bar`,
+    `scale_axis`, `_proc_claro`, `_dim`, `_oper`, `_conn_dash`, `_rot_label`.
+  - Verificado: **cero fills fuera de paleta, cero runs <10 pt, cero rayas largas**, fuentes
+    embebidas intactas, 22 láminas. Ampliación de la gramática y gotchas nuevos (bbox de
+    shape rotado, compresión de `reflow_onco` delatada por un run <10 pt):
+    [[deck-gramatica-diagrama-deep-llm-v]] §ADDENDUM.
+  - **Ernesto todavía NO validó esta pasada en PowerPoint.**
 
 ### Preguntas abiertas resueltas (13-jul, citadas a código)
 

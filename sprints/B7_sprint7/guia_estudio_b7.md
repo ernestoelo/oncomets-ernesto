@@ -144,6 +144,27 @@ Se regenera con `generate_b7_deck.py` (el .pptx es derivado y está gitignorado)
 >   ninguna lámina. Era la última con logo Environ en la banda, justo lo que Ernesto vio.
 > - Las **4 portadillas** siguen en fondo teal con el logo Environ blanco (decisión suya;
 >   revisable, ver pendientes).
+>
+> **Actualizado el 19-jul (cierre) — pasada de contenido visual** (commits `bae7f8b` +
+> el de esta tanda). Ernesto pidió menos bullets y más dibujo sobre seis láminas, y de
+> paso reportó dos errores de la **portada**. Qué cambió, lámina por lámina:
+>
+> | # | qué cambió |
+> |---|---|
+> | 1 | se quita el claim roto «Care in <code>» y se sube el párrafo que se salía por abajo. **Los dos defectos vienen DEL template**, no del deck |
+> | 6 | rediseñada sobre el molde de arquitectura del template (s11-s16): dos tonos de bloque, dimensión como etiqueta suelta, y expansión punteada que abre MAMMOTH en su interior |
+> | 8 | **sin título** y sin la tira de dimensiones (su contenido ya está en la 7) → la figura del paper pasa de 8.50 a 9.70 de ancho, +30% de área |
+> | 9 | los dos paneles de prosa pasan a un **esquema anidado**; la tabla crece a 12 pt; los bullets quedan de una línea |
+> | 10 | pasa a **diagrama de bifurcación** sobre tronco común; la línea de código decisiva de cada rama queda en cuerpo chico bajo su bloque |
+> | 17 | **barras de proporción** en vez de tabla: el hallazgo es una fracción (30 de 30 contra 159 de 300) |
+> | 19 | **eje de escala física** en log: se ve que el parche de hoy cubre la calcificación y no llega al conducto |
+> | 20 | la cuenta µm/px mostrada como **cadenas de bloques**, con la única celda distinta (el MPP) a la vista |
+> | 21 | dos tarjetas con **barra de visibilidad** en vez de tabla; las 14 referencias se reparten en 3 grupos al pie |
+>
+> Verificado tras la pasada: **cero fills fuera de paleta, cero runs bajo 10 pt, cero rayas
+> largas, Barlow + Cambria Math viajando embebidas, 22 láminas**. El QA se hizo sobre el
+> render de LibreOffice del servidor, que **no tiene Barlow**: sirve para composición y
+> colisiones, no para juzgar tipografía.
 
 ### Bloque A: apertura (1 a 3)
 | # | Contenido |
@@ -159,11 +180,11 @@ Es el bloque pedagógico, el que responde a Benjamín "domino el mecanismo".
 |---|---|
 | 4 | Portadilla MAMMOTH |
 | 5 | Qué significa la sigla y la idea general |
-| 6 | **Dónde entra MAMMOTH en el pipeline** — diagrama NATIVO (`pipeline_mammoth()`): flujo horizontal de 5 bloques, el del medio en un panel de integración, y la forma del tensor antes y después, las dos `[N, 512]` = evidencia de drop-in |
+| 6 | **Dónde entra MAMMOTH en el pipeline** — diagrama NATIVO (`pipeline_mammoth()`): flujo horizontal de 5 bloques con la forma del tensor antes y después, las dos `[N × 512]` = evidencia de drop-in, y **expansión punteada** que abre MAMMOTH en sus 4 pasos internos |
 | 7 | Dimensiones y código, con tabla |
-| 8 | La arquitectura de MAMMOTH paso a paso: dimensiones por bloque, con las variables de la figura |
-| 9 | **La relación 16 × 30 × 10**: cabezas, expertos y slots |
-| 10 | La variante `keep_slots` y dónde cambia la salida |
+| 8 | **La figura del paper, a pantalla casi completa y SIN título** (el pie la nombra) |
+| 9 | **La relación 16 × 30 × 10**: esquema anidado + tabla grande |
+| 10 | La variante `keep_slots`: **diagrama de bifurcación** sobre tronco común |
 
 ### Bloque C: interpretabilidad, el corazón del sprint (11 a 17)
 | # | Contenido |

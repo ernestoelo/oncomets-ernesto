@@ -919,6 +919,24 @@ plano. Estilo visual: `Modelo_OncoMets_Spatial_V1.pdf`. Estructura:
 > con restyling (el de B7 venía a 6 pt: hay que **recrearlo nativo**). Helpers listos en
 > `sprints/B7_sprint7/presentacion_b7/generate_b7_deck.py`: `_proc` / `_dato` / `_grupo` /
 > `_conn` + `pipeline_mammoth()` como ejemplo. Detalle: [[deck-gramatica-diagrama-deep-llm-v]].
+>
+> **ADDENDUM 19-jul-2026 (cierre) — «más visual, menos bullets» es criterio general.**
+> Feedback de Ernesto sobre seis láminas a la vez: un bullet de dos renglones no se acorta,
+> **se convierte en dibujo** si su contenido tiene forma (fracción → barra de proporción;
+> comparación de tamaños → eje de escala; cuenta → cadena de bloques con la cuenta hecha;
+> topología o anidamiento → diagrama). Lo que sobrevive como bullet queda de **una línea**;
+> el resto va al guion hablado. Cuando la prosa compite con una tabla, **gana la tabla** (se
+> agranda). Una figura del paper puede valer la lámina entera: si es el contenido, se le
+> saca el título y todo lo que compita por el alto. Los cinco arquetipos son el vocabulario,
+> no la sintaxis: el template usa además **dos tonos de bloque** (oscuro = camino principal,
+> claro `#CDDFE1` = detalle interno), la **dimensión como etiqueta suelta** al lado del
+> bloque, **expansión punteada** para abrir un bloque en su interior y **rótulo rotado** al
+> costado del panel; y en sus láminas de arquitectura **no pone subtítulo ni barra de
+> remate**. Helpers nuevos en el mismo generador: `ratio_bar`, `scale_axis`, `_proc_claro`,
+> `_dim`, `_oper`, `_conn_dash`, `_rot_label`. Dos gotchas: un shape rotado 270° reporta el
+> bbox **sin rotar** (falso positivo en chequeos de límites), y un `run <10pt` que no
+> escribiste delata una **lámina sobrecargada** que `reflow_onco` comprimió. Detalle:
+> [[deck-contenido-visual-no-bullets]] + [[deck-gramatica-diagrama-deep-llm-v]].
 
 **Speaker notes (formato fijado en B2)**: bloques `BLOQUE N — Título`,
 sub-items con `-> `, fórmulas inline sin LaTeX (`h_k = ReLU(W₁·z_k)`), sin
