@@ -165,6 +165,24 @@ Se regenera con `generate_b7_deck.py` (el .pptx es derivado y está gitignorado)
 > largas, Barlow + Cambria Math viajando embebidas, 22 láminas**. El QA se hizo sobre el
 > render de LibreOffice del servidor, que **no tiene Barlow**: sirve para composición y
 > colisiones, no para juzgar tipografía.
+>
+> **Actualizado el 20-jul — revisión completa de las 22 en sesión limpia.** El chequeo de
+> conformidad daba **todo limpio** y aun así había **cinco defectos reales**: el script tiene
+> puntos ciegos estructurales ([[deck-qa-puntos-ciegos-chequeo]]). Corregidos:
+>
+> | # | qué se corrigió |
+> |---|---|
+> | 8 | el pie nombraba los subíndices `e`/`s`, letras que **no están en la figura**: el paper usa z_j^(k) con *j* = slot y *k* = experto. Alineado a sus variables |
+> | 11, 14, 18 | el título **pisaba el subtítulo**: la caja medía 1.1″ y una línea a 44 pt ocupa 0.61″, o sea entraba **una sola línea**, y 3 de 4 títulos envuelven a dos. Caja a 1.45″ |
+> | 13 | **colisión de texto real**: el pie se dibujaba sobre el párrafo. La causa era decir **dos veces** lo del sign-off de patólogo; deduplicado |
+> | 18 | «Magnificación multi-» / «escala» partido por el guion → guion no separable |
+> | 4, 11, 14, 18 | el título usaba `#CDD6F4`, **lavanda de B4 fuera de paleta**, único resto sin remapear de la migración. Pasado a blanco |
+>
+> **Vivo, sin resolver:** el tamaño de parche **baila entre tres láminas seguidas** — la 19
+> tabula «256 px» (59/119 µm), la 20 hace la cuenta con **224 px** (52/104 µm) y la 22 fija
+> la escala fina en **112 µm**. Cada uno es correcto por separado (256 = extraído, 224 =
+> entrada de CONCH, 112 = objetivo de la pirámide) pero **no hay puente** entre ellos.
+> Material de pregunta para Benjamín; la decisión es de Ernesto.
 
 ### Bloque A: apertura (1 a 3)
 | # | Contenido |

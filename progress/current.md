@@ -237,6 +237,39 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
     shape rotado, compresión de `reflow_onco` delatada por un run <10 pt):
     [[deck-gramatica-diagrama-deep-llm-v]] §ADDENDUM.
   - **Ernesto todavía NO validó esta pasada en PowerPoint.**
+- **Revisión completa de las 22 láminas (20-jul, sesión limpia).** Barrido visual lámina por
+  lámina + chequeos programáticos. El chequeo de conformidad daba **todo limpio** y aun así
+  había **cinco defectos reales**, tres de ellos invisibles para el script por construcción
+  ([[deck-qa-puntos-ciegos-chequeo]]). Corregidos:
+  - **s13: colisión de texto real.** El pie en negrita se dibujaba encima del párrafo. La
+    causa era redundancia de contenido, no geometría: pie y párrafo decían **los dos** lo del
+    sign-off de patólogo. Deduplicado (el conteo de láminas pasó al párrafo, donde argumenta)
+    → pie de una línea, colisión resuelta sin tocar el diseño.
+  - **s11, s14, s18: el título de la portadilla pisaba su subtítulo.** Causa mecánica: la
+    caja del título medía **1.1″** y una línea a 44 pt ocupa ~0.61″, así que **entraba UNA
+    sola línea**; 3 de los 4 títulos envuelven a dos. La s04 se salvaba de casualidad porque
+    «MAMMOTH» es una palabra sola. Caja a 1.45″, subtítulo a 3.42.
+  - **`LAV_TITLE = #CDD6F4` fuera de paleta** en las 4 portadillas: lavanda de B4 que
+    sobrevivió a la migración a Deep-LLM-V (única constante sin remapear, **con un comentario
+    `(sin uso vivo)` que era falso** — la usa `divider()`). Pasada a blanco. El chequeo del
+    handoff no la veía porque **solo audita fills, no colores de fuente**.
+  - **s18: «Magnificación multi-» / «escala»** partido por el guion → guion no separable (U+2011).
+  - **s08: notación que no se podía seguir.** El pie bautizaba los subíndices como `e`/`s`,
+    letras que **no aparecen en la figura**: el paper usa **z_j^(k)** con *j* = slot (S=10) y
+    *k* = experto (E=30). Verificado ampliando la figura a 200 DPI antes de corregir.
+    Alineado a las variables del paper ([[deck-molde-fiel-referencia]]).
+  - Chequeo final: 22 láminas · fills fuera de paleta **ninguno** · **colores de fuente fuera
+    de paleta ninguno** (auditoría nueva) · runs <10 pt **0** · rayas largas **0** · Barlow +
+    Cambria Math embebidas, 5 `.fntdata`.
+  - **Queda vivo, sin resolver:** el tamaño de parche **baila entre tres láminas seguidas** —
+    s19 tabula «Parche 256 px» (59/119 µm), s20 hace la aritmética con **224 px** (52/104 µm)
+    y s22 fija la escala fina en **112 µm**. Cada número es correcto por separado (256 =
+    extraído, 224 = entrada de CONCH, 112 = objetivo de la pirámide) pero **no hay puente**
+    entre ellos: quien las vea en fila lee 119 → 104 → 112 para lo que parece la misma cosa.
+    Es material de pregunta para Benjamín. Decisión de Ernesto, no tocada.
+  - **Menor, registrado sin tocar:** la s16 tiene una raya larga **dentro del PNG** del
+    heatmap (`clase si — rama 1`); el chequeo es estructuralmente ciego al raster. Y Consolas
+    (bloques de código, s07/s10/s22) no viaja embebida — riesgo bajo, es fuente de Office.
 
 ### Preguntas abiertas resueltas (13-jul, citadas a código)
 
