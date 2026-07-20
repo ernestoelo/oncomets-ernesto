@@ -336,6 +336,21 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   verificados (2 reviewers PASA), snapshot tipo 3-clase, entrenamiento de las 3 tareas lanzado (**job 4589**).
   Gotchas durables: tipo `_4clases`=3 clases; `max_epochs > stop_epoch`. Detalle:
   `auditoria_coherencia/hallazgos_sesion_generacion_splits_entrenamiento_17jul.md` (E1-E5).
+- ✅ **Verdad de campo COMUNICADA a Sebastián por chat (20-jul, 12:01-12:20).** Ernesto le mandó, en 5 mensajes,
+  el paquete verificable de lo que corrimos: splits generados (script productor + los 3 dirs + n por clase),
+  snapshots de labels, el `.slurm` con el único delta entre brazos (`--model_type clam / clam_mammoth`),
+  los resultados **por modelo** (balanced_acc y AUC de CLAM y de Mammoth en las 3 tareas) y dónde caen
+  `summary.csv` / `split_N_results.pkl` / checkpoint, más la paridad por md5 de los `slide_id` de test.
+  Todas las rutas se verificaron contra disco antes de enviarlas. **Salvedad NO incluida en el envío**: el
+  matiz de CDIS (65 negativos, candidato a réplica y no mejora confirmada) quedó fuera; está en
+  `resultados_interpretabilidad.md` §2 por si Sebastián repregunta. Pauta de redacción de chat:
+  [[entregable-externo-sanitizado]] §ADDENDUM 20-jul.
+- ✅ **Verificado 20-jul: la comparación de heatmaps CLAM vs Mammoth (el encargo de Sebastián) ESTÁ HECHA y
+  ESTÁ EN EL DECK.** Se chequeó ante la duda de Ernesto ("no sé si está realizada e incluida"): las figuras
+  existen para las 7 láminas de las 3 tareas (`attention_clam.png`, `attention_mammoth.png`,
+  `attention_side_by_side.png` bajo `results/b7_mammoth_interp/interpretabilidad/<tarea>/<slide>/`) y el
+  generador inserta el side-by-side en la **lámina 16 «Mismo barrio, distintas casas»**
+  (`generate_b7_deck.py:191` y :1546-1589). **No re-abrirla como pendiente.**
 
 ---
 

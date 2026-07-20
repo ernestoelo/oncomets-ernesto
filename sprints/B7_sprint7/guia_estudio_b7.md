@@ -35,7 +35,14 @@ del pedido de Benjamín del 29-jun: entender el mecanismo, no volver a medir si 
 
 **Cerrado y verificado**
 - Entrenamiento job 4589: 30/30 runs, paridad de particiones verificada por md5.
-- Comparación de atención: 7 láminas, una por clase y tarea.
+- **Comparación de heatmaps CLAM vs Mammoth: HECHA y EN EL DECK.** Es *el* encargo de
+  Sebastián y el entregable central del sprint, así que conviene tenerlo ubicado: las
+  figuras están para las **7 láminas** de las 3 tareas (`attention_clam.png`,
+  `attention_mammoth.png`, `attention_side_by_side.png` en
+  `results/b7_mammoth_interp/interpretabilidad/<tarea>/<slide>/`), y el side-by-side
+  entra en la **lámina 16, «Mismo barrio, distintas casas»**
+  (`generate_b7_deck.py:191` y :1546-1589). Los números que la sostienen están en §3.2.
+  Re-verificado el 20-jul; **no es un pendiente**.
 - Q1: cerrado el 19-jul con las 7 láminas.
 - Deck: 21 láminas, generado y con los números de Q1 dentro.
 - Material sanitizado para la reunión: completo.
