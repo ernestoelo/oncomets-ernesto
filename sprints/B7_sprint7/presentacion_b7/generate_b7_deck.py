@@ -467,6 +467,118 @@ def _conn(slide, x0, y0, x1, y1, arrow=True):
     return ln
 
 
+def _proc_claro(slide, l, t, w, h, text, size=11, dim=None):
+    """Bloque de proceso en el TONO CLARO del template (#CDDFE1 con texto teal bold).
+
+    El template no usa un solo tono para sus bloques: sus láminas de arquitectura (s11-s16)
+    alternan el relleno oscuro #3E6877 con este claro, y ese contraste es lo que da
+    jerarquía al diagrama — lo oscuro es el camino principal, lo claro el detalle interno.
+    Hasta ahora el deck solo tenía el oscuro (_proc) y los diagramas salían todos planos.
+    """
+    sp = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(l), Inches(t),
+                                Inches(w), Inches(h))
+    sp.fill.solid(); sp.fill.fore_color.rgb = ONCO_PANEL
+    sp.line.fill.background(); sp.shadow.inherit = False
+    lines = [(text, size, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER)]
+    if dim:
+        lines.append((dim, size - 2, False, ONCO_DARK, F_BODY, PP_ALIGN.CENTER))
+    _set_runs(sp.text_frame, lines, anchor=MSO_ANCHOR.MIDDLE)
+    for p in sp.text_frame.paragraphs:
+        p.space_after = Pt(0)
+    return sp
+
+
+def _dim(slide, l, t, w, text, size=9.5, align=PP_ALIGN.CENTER, col=None):
+    """Etiqueta de forma del tensor SUELTA, al lado del bloque: «[N × 512]».
+
+    Es como rotula el template (s13-s16): la dimensión va como texto libre pegado al
+    bloque, no dentro de una caja gris. El bloque gris (_dato) sigue existiendo para
+    cuando la forma ES el objeto del diagrama, pero para anotar un flujo esto pesa menos
+    y deja los bloques más grandes.
+    """
+    add_textbox(slide, l, t, w, 0.26,
+                [(text, size, False, col or ONCO_INK, F_BODY, align)],
+                anchor=MSO_ANCHOR.MIDDLE)
+
+
+def _oper(slide, cx, cy, sym="+", d=0.34):
+    """Operador: óvalo #CDDFE1 con borde #0E2841 (arquetipo 374), centrado en (cx, cy)."""
+    sp = slide.shapes.add_shape(MSO_SHAPE.OVAL, Inches(cx - d / 2), Inches(cy - d / 2),
+                                Inches(d), Inches(d))
+    sp.fill.solid(); sp.fill.fore_color.rgb = ONCO_PANEL
+    sp.line.color.rgb = ONCO_INK; sp.line.width = Pt(1.0); sp.shadow.inherit = False
+    _set_runs(sp.text_frame, [(sym, 11, True, ONCO_INK, F_BODY, PP_ALIGN.CENTER)],
+              anchor=MSO_ANCHOR.MIDDLE)
+    return sp
+
+
+def _conn_dash(slide, x0, y0, x1, y1):
+    """Línea de expansión punteada: une un bloque con su detalle ampliado.
+
+    Es el recurso con el que el template abre el «Transformer Block» en su lámina s12 —
+    el bloque chico del flujo y su interior ampliado quedan atados por dos punteadas, así
+    el zoom se lee como zoom y no como otro paso del pipeline."""
+    ln = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, Inches(x0), Inches(y0),
+                                    Inches(x1), Inches(y1))
+    ln.line.color.rgb = ONCO_CONN; ln.line.width = Pt(1.0)
+    ln.shadow.inherit = False
+    lnpr = ln.line._get_or_add_ln()
+    lnpr.append(lnpr.makeelement(qn('a:prstDash'), {'val': 'dash'}))
+    return ln
+
+
+def _rot_label(slide, l, t, w, h, text, size=9, col=None):
+    """Rótulo vertical al costado de un panel (el «Transformer Block» de s13-s15)."""
+    tb = slide.shapes.add_textbox(Inches(l), Inches(t), Inches(w), Inches(h))
+    _set_runs(tb.text_frame, [(text, size, True, col or ONCO_DARK, F_BODY, PP_ALIGN.CENTER)],
+              anchor=MSO_ANCHOR.MIDDLE)
+    tb.rotation = 270
+    return tb
+
+
+def ratio_bar(slide, l, t, w, h, frac, label, valor, de, nota, col=None):
+    """Barra de proporción: cuánto de un presupuesto se usa de verdad.
+
+    Para Q1 el mensaje es una FRACCIÓN (30 de 30 contra 159 de 300), y una fracción se lee
+    de un vistazo como barra y no como celda de tabla. El riel va en el claro del template
+    y lo ocupado en el oscuro; el número grande queda encima para que sobreviva a la
+    proyección."""
+    col = col or ONCO_DARK
+    add_textbox(slide, l, t, w, 0.30, [(label, 13, True, TEAL_TITLE, F_TITLE)])
+    # El valor y el «de N» van en UN párrafo con dos runs: se leen como una sola cifra,
+    # con el total en cuerpo chico apoyado en la línea de base del número grande.
+    tb = slide.shapes.add_textbox(Inches(l), Inches(t + 0.32), Inches(w), Inches(0.52))
+    tf = tb.text_frame; tf.word_wrap = True; tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+    p = tf.paragraphs[0]; p.space_after = Pt(0)
+    for txt, sz, bold, cl in ((valor, 27, True, col), (f"  de {de}", 13, False, GRIS_BODY)):
+        r = p.add_run(); r.text = txt
+        r.font.size = Pt(sz); r.font.bold = bold; r.font.name = F_TITLE; r.font.color.rgb = cl
+    riel_t = t + 0.92
+    _rect(slide, l, riel_t, w, h, ONCO_PANEL)
+    if frac > 0:
+        _rect(slide, l, riel_t, w * frac, h, col)
+    add_textbox(slide, l, riel_t + h + 0.06, w, 0.30, [(nota, 10.5, False, GRIS_BODY, F_BODY)])
+
+
+def scale_axis(slide, l, t, w, marcas, h=0.10):
+    """Eje de escala física (µm) con tramos marcados encima y debajo.
+
+    `marcas` = lista de (x0_frac, x1_frac, texto, arriba, color). Sirve para mostrar de un
+    vistazo que un objeto entra en el parche y el otro no: es el argumento entero de la
+    lámina, y como dibujo no necesita bullets."""
+    _rect(slide, l, t, w, h, ONCO_PANEL)
+    for x0f, x1f, txt, arriba, col in marcas:
+        x0, x1 = l + w * x0f, l + w * x1f
+        _rect(slide, x0, t, max(x1 - x0, 0.03), h, col)
+        ty = t - 0.42 if arriba else t + h + 0.06
+        # Padding generoso a los lados: la caja del rótulo tiene que poder ser MÁS ancha
+        # que su tramo, si no un tramo corto parte el texto en dos líneas. El rótulo va
+        # centrado, así que dos cajas vecinas pueden solaparse sin que el texto se toque.
+        add_textbox(slide, x0 - 0.80, ty, (x1 - x0) + 1.60, 0.38,
+                    [(txt, 10, True, col, F_BODY, PP_ALIGN.CENTER)],
+                    anchor=MSO_ANCHOR.BOTTOM if arriba else MSO_ANCHOR.TOP)
+
+
 def code_panel(slide, l, t, w, h, lines, title=None):
     """Panel de código nativo: fondo oscuro + texto monoespaciado (Consolas).
     `lines` = lista de strings; los que empiezan con '#' se pintan como comentario."""
@@ -499,21 +611,24 @@ def pipeline_mammoth(prs):
     alcanzan. El flujo va horizontal porque es lo que hace el propio template en su
     lámina de flujo general (s02), y porque en 16:9 deja los bloques al doble de tamaño
     que la versión vertical.
+
+    Rediseño 19-jul sobre el molde de las láminas de arquitectura del template (s11-s16),
+    que es lo que pidió Ernesto. Cuatro cosas se copian de ahí y no estaban antes:
+      · el diagrama OCUPA la lámina — sin subtítulo de prosa arriba ni barra de remate
+        abajo; el template no las usa en sus láminas de arquitectura;
+      · DOS tonos de bloque (oscuro el camino principal, claro el detalle interno), que
+        es lo que da jerarquía; antes todo era del mismo oscuro y salía plano;
+      · la forma del tensor como etiqueta suelta «[N × 512]» pegada al bloque, no dentro
+        de una caja gris, con lo que los bloques pueden ser más grandes;
+      · la EXPANSIÓN punteada: el bloque del flujo se abre abajo en un panel con su
+        interior, igual que el template abre su «Transformer Block» en s12.
+    El interior expandido es el mismo que la lámina siguiente detalla con números, así que
+    acá va sin dimensiones: la función de esta lámina es ubicar, no cuantificar.
     """
     s = content(prs, "Dónde entra MAMMOTH en el pipeline")
 
-    add_textbox(s, 0.25, 1.28, 9.5, 0.34, [
-        ("La lámina entra troceada en parches y sale como un vector de logits.",
-         11.5, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
-
-    BW, GAP, BY, BH = 1.66, 0.30, 2.34, 0.84
-    xs = [0.25 + i * (BW + GAP) for i in range(5)]    # el 3º queda centrado en x=5.00
-    CHIP_T, CHIP_H = 3.60, 0.32
-
-    # El panel va PRIMERO para quedar detrás de bloques y flechas.
-    _grupo(s, xs[2] - 0.17, 1.98, BW + 0.34, 1.48)
-    add_textbox(s, xs[2] - 0.17, 2.02, BW + 0.34, 0.30, [
-        ("punto de integración", 9, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER)])
+    BW, GAP, BY, BH = 1.60, 0.32, 1.02, 0.82
+    xs = [0.36 + i * (BW + GAP) for i in range(5)]
 
     etapas = [
         ("Lámina en parches", None),
@@ -524,21 +639,44 @@ def pipeline_mammoth(prs):
     ]
     for x, (txt, dim) in zip(xs, etapas):
         _proc(s, x, BY, BW, BH, txt, dim=dim, size=12)
-
     for i in range(4):
         _conn(s, xs[i] + BW, BY + BH / 2, xs[i + 1], BY + BH / 2)
 
-    # Las tres formas del tensor: entra [N,512] y sale [N,512]. Es la evidencia visual de
-    # que MAMMOTH es drop-in — no cambia la interfaz, solo lo que pasa adentro. Cada una
-    # cuelga de su bloque con un tramo corto para que no se lean como una fila aparte
-    # (la del medio arranca bajo el panel, no bajo el bloque).
+    # Entra [N × 512] y sale [N × 512]: la evidencia visual de que es drop-in. Van como
+    # etiqueta suelta bajo el bloque del que sale el tensor (molde del template).
     for x in (xs[1], xs[2], xs[3]):
-        _dato(s, x, CHIP_T, BW, CHIP_H, "[N, 512]")
-        top = 3.46 if x == xs[2] else BY + BH
-        _conn(s, x + BW / 2, top, x + BW / 2, CHIP_T, arrow=False)
+        _dim(s, x, BY + BH + 0.04, BW, "[N × 512]", size=10)
 
-    takeaway_bar(s, "MAMMOTH reemplaza solo la primera capa lineal: entra [N, 512] y sale "
-                    "[N, 512]. Todo lo que viene después es CLAM sin cambios.", t=4.34)
+    # --- expansión punteada del bloque MAMMOTH ---
+    PT_, PH = 2.44, 1.92
+    PL, PW = 0.36, 9.28
+    _grupo(s, PL, PT_, PW, PH)
+    _conn_dash(s, xs[2], BY + BH + 0.30, PL + 0.02, PT_)
+    _conn_dash(s, xs[2] + BW, BY + BH + 0.30, PL + PW - 0.02, PT_)
+    # La caja se declara ANCHA y baja: al rotar 270° el ancho pasa a ser el alto visible,
+    # así que con 0.60 la palabra se partía en dos. Se recentra a mano sobre el borde.
+    _rot_label(s, PL - 0.62, PT_ + PH / 2 - 0.16, 1.40, 0.32, "MAMMOTH")
+
+    IBW, IGAP, IY, IH = 1.78, 0.36, 2.86, 0.78
+    ixs = [0.90 + i * (IBW + IGAP) for i in range(4)]
+    interior = [
+        ("16 cabezas", "subespacios del parche"),
+        ("ruteo", "similitud + softmax"),
+        ("300 slots", "30 expertos × 10"),
+        ("concat", "cabezas de vuelta"),
+    ]
+    for x, (txt, sub) in zip(ixs, interior):
+        _proc_claro(s, x, IY, IBW, IH, txt, size=12, dim=sub)
+    for i in range(3):
+        _conn(s, ixs[i] + IBW, IY + IH / 2, ixs[i + 1], IY + IH / 2)
+    add_textbox(s, PL + 0.30, IY + IH + 0.10, PW - 0.60, 0.34, [
+        ("Cada slot se llena con el promedio ponderado de los parches que se le parecen.",
+         10.5, False, ONCO_DARK, F_BODY, PP_ALIGN.CENTER)])
+
+    add_textbox(s, 0.36, PT_ + PH + 0.14, 9.28, 0.40, [
+        ("MAMMOTH reemplaza solo la primera capa lineal: entra [N × 512] y sale [N × 512]. "
+         "Todo lo que viene después es CLAM sin cambios.",
+         12.5, True, TEAL_TITLE, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
     return s
 
 
@@ -653,6 +791,27 @@ def retitular_portada(prs):
     Sustituye a la portada JPG anterior. Se reescribe solo el texto, respetando el
     formato del run original (fuente, cuerpo, color) para no romper el diseño.
     Devuelve la lámina de título, que es la que lleva las notas de apertura."""
+    # --- s00: dos defectos que vienen DEL TEMPLATE, no de este deck (se reproducen
+    # abriendo Deep-LLM-V solo). El claim "Care in <code>" es un marcador sin reemplazar,
+    # y el párrafo descriptivo arranca tan abajo (y=6.06 de 7.5) que se sale por el borde
+    # inferior. Se corrigen acá porque es la primera lámina que se proyecta.
+    portada = prs.slides[0]
+    for sh in portada.shapes:
+        if not sh.has_text_frame:
+            continue
+        txt = sh.text_frame.text.strip()
+        if txt.startswith("Care in people"):
+            # Queda solo el claim válido. La caja es autofit, así que al perder la 2ª
+            # línea se encoge sola y libera el aire que necesita el párrafo de abajo.
+            for par in list(sh.text_frame.paragraphs)[1:]:
+                par._p.getparent().remove(par._p)
+        elif txt.startswith("OncoMETS is an AI-powered platform"):
+            # Se sube y se ensancha: con Barlow real entraba justo, pero cualquier
+            # sustitución de fuente lo empuja fuera de la lámina. Con este alto libre
+            # (hasta y=7.5) el texto tiene margen aunque PowerPoint lo redistribuya.
+            sh.top = Inches(5.62)
+            sh.left = Inches(0.28)
+            sh.width = Inches(6.30)
     titulo = prs.slides[1]
     for sh in titulo.shapes:
         if not sh.has_text_frame:
@@ -1057,23 +1216,20 @@ def build():
     #        (antes iba sin marca alguna y se leía como lámina rota); la figura se achica
     #        de 9.42 a 8.96 de ancho para dejar la banda libre sin perder legibilidad.
     #        El trazo al pie y las notas se refieren a las VARIABLES DE LA PROPIA FIGURA. ----
-    s = content(prs, "La arquitectura de MAMMOTH, paso a paso", size=22)
-    iw = 8.50; ih = iw / 2.489                      # aspect real de la Fig 2 (4375x1758)
-    s.shapes.add_picture(FIG2_ARCH, Inches((SW - iw) / 2), Inches(0.88), Inches(iw), Inches(ih))
-    caption(s, 0.35, 0.88 + ih + 0.05, SW - 0.7,
-            "Dimensiones por bloque (variables de la figura)  ·  N = parches de la slide  ·  "
-            "subíndices de la salida z^(k) : e = experto (E=30), s = slot (S=10)",
-            size=9.5, bold=True, col=TEAL_TITLE)
-    # pipeline en bloques: variable de la figura + forma del tensor en cada paso
-    dim_pipeline(s, [
-        ("x_i", "[N,512]"),
-        ("W → x̄", "[N,16,16]"),
-        ("ruteo", "sim + softmax"),
-        ("slots s", "300"),
-        ("Φ·W_low", "[300,512]"),
-        ("concat", "[N,512]"),
-        ("CLAM", "logits"),
-    ], t=0.88 + ih + 0.50)   # +0.50: el pie ocupa 2 líneas, con 0.34 rozaba los bloques
+    # SIN título (pedido de Ernesto, 19-jul): la figura es el contenido entero de la
+    # lámina y el título le robaba alto. Se conservan logo y línea, así que la marca
+    # sigue puesta — es lo que hace el propio template en s15/s16, donde el título es un
+    # «LLM» mínimo o directamente no aporta. También se retiró la tira de bloques con las
+    # dimensiones: era la única otra cosa que competía por el alto, y su contenido ya está
+    # completo y legible en la lámina anterior (tabla «El tensor, paso a paso»).
+    # Resultado: la figura pasa de 8.50 a 9.70 de ancho (+30% de área).
+    s = content(prs, "")
+    iw = 9.70; ih = iw / 2.489                      # aspect real de la Fig 2 (4375x1758)
+    s.shapes.add_picture(FIG2_ARCH, Inches((SW - iw) / 2), Inches(0.86), Inches(iw), Inches(ih))
+    add_textbox(s, 0.15, 0.86 + ih + 0.02, SW - 0.30, 0.30, [
+        ("La arquitectura de MAMMOTH, paso a paso  ·  N = parches de la lámina  ·  "
+         "subíndices de la salida z^(k) : e = experto (E=30), s = slot (S=10)",
+         9.5, True, TEAL_TITLE, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
     notes(s, "Esta es la arquitectura completa del paper, y conviene recorrerla de izquierda a "
              "derecha siguiendo sus variables, porque cada símbolo es un paso del pipeline. Se "
              "parte de la lámina, que se corta en parches, y cada parche pasa por el encoder y "
@@ -1120,33 +1276,51 @@ def build():
              "comparación es un razonamiento de arquitectura, no una cita del paper.")
 
     # ---- 7b. NUEVA (§2.4): cabezas × expertos × slots — responde la duda 16 vs 30 ----
+    # Rediseño 19-jul: los dos paneles de prosa se cambiaron por un ESQUEMA ANIDADO, que es
+    # lo que la lámina intenta decir — que los tres números no se multiplican en fila sino
+    # que uno vive dentro del otro. Los bullets que quedan son de una línea cada uno, y la
+    # tabla (que era lo más consultable de la lámina) crece de 10 a 12 pt con filas altas.
     s = content(prs, "Cabezas, expertos y slots: la relación 16 × 30 × 10", size=22)
-    panel(s, 0.30, 0.98, 4.55, 1.74, "La duda: ¿16 cabezas = 16 expertos?", ORA_T, [
-        "No. Cabezas y expertos son ejes distintos.",
-        "Las 16 cabezas corren en paralelo; cada una tiene su PROPIA mezcla de los 30 expertos.",
-        "No hay un experto por cabeza: hay 16 × 30 combinaciones.",
-    ], ONCO_DARK, fill=PANEL_ACC)
-    panel(s, 0.30, 2.86, 4.55, 1.55, "Qué se guarda en cada slot", TEAL_TITLE, [
-        "Un prototipo aprendido: un vector que resume un fenotipo.",
-        "Se llena con el promedio ponderado de los parches que se le parecen.",
-        "30 expertos × 10 slots = 300 slots.",
-    ], TEAL_SQ)
-    simple_table(s, 5.15, 0.98, 4.55,
+
+    # --- izquierda: el anidamiento, dibujado ---
+    add_textbox(s, 0.30, 0.95, 5.25, 0.30, [
+        ("Un parche, tres ejes anidados", 13, True, TEAL_TITLE, F_TITLE, PP_ALIGN.CENTER)])
+    _proc(s, 2.12, 1.30, 1.60, 0.50, "parche  x_i", size=12)
+    _conn(s, 2.92, 1.80, 2.92, 2.04)
+
+    _grupo(s, 0.30, 2.04, 5.25, 1.92)
+    add_textbox(s, 0.30, 2.10, 5.25, 0.28, [
+        ("Cabeza h  ·  ×16 en paralelo", 11, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER)])
+    for x, txt in zip((0.42, 2.21, 4.00),
+                      ("Experto 1", "Experto 2", "…   Experto 30")):
+        _proc(s, x, 2.44, 1.50, 0.48, txt, size=11)
+    # los 10 slots de un experto: prototipos, dibujados como celdas y no descritos
+    for i in range(10):
+        _rect(s, 0.68 + i * 0.46, 3.10, 0.36, 0.30, TEAL_CARD2, line=ONCO_CONN)
+    add_textbox(s, 0.30, 3.46, 5.25, 0.30, [
+        ("10 slots por experto  →  30 × 10 = 300 slots", 11, True, ONCO_DARK, F_BODY,
+         PP_ALIGN.CENTER)])
+
+    add_textbox(s, 0.30, 4.06, 5.25, 1.00, [
+        ("Cabezas y expertos son ejes distintos.", 11.5, False, INK, F_BODY),
+        ("No hay un experto por cabeza: hay 16 × 30 combinaciones.", 11.5, False, INK, F_BODY),
+        ("Cada slot es un prototipo aprendido.", 11.5, False, INK, F_BODY),
+    ])
+
+    # --- derecha: la tabla, ahora el objeto consultable de la lámina ---
+    simple_table(s, 5.75, 0.95, 3.95,
                  ["Eje", "Cuántos", "Qué es"],
-                 [["Cabezas (H)", "16", "subespacios paralelos del parche"],
+                 [["Cabezas (H)", "16", "subespacios del parche"],
                   ["Expertos (E)", "30", "especialistas por morfología"],
                   ["Slots (S)", "10 c/u", "prototipos por experto"],
                   ["Slots totales", "300", "E · S"]],
-                 col_fracs=[0.30, 0.18, 0.52], row_h=0.42, fs=10)
-    add_textbox(s, 5.15, 3.12, 4.55, 0.3, [("Las dos softmax del ruteo:", 13, True, TEAL_TITLE, F_TITLE)])
-    add_textbox(s, 5.15, 3.48, 4.55, 1.0, [
-        ("1. dispatch: softmax sobre los N parches, llena cada slot (qué parches lo forman).",
-         11, False, INK, F_BODY),
-        ("2. combine: softmax sobre los 300 slots, reconstruye cada parche (qué slots lo arman).",
-         11, False, INK, F_BODY),
-    ])
-    takeaway_bar(s, "16 cabezas en paralelo, cada una con su mezcla de los 30 expertos; 300 slots "
-                    "en total. No es un experto por cabeza.", t=4.82, size=12)
+                 col_fracs=[0.32, 0.24, 0.44], row_h=0.50, fs=12)
+    add_textbox(s, 5.75, 3.62, 3.95, 0.30, [
+        ("Las dos softmax del ruteo", 13, True, TEAL_TITLE, F_TITLE)])
+    _proc_claro(s, 5.75, 3.96, 3.95, 0.50, "dispatch", size=11,
+                dim="softmax sobre los N parches · llena cada slot")
+    _proc_claro(s, 5.75, 4.54, 3.95, 0.50, "combine", size=11,
+                dim="softmax sobre los 300 slots · rearma cada parche")
     notes(s, "Conviene detenerse en una duda que suele aparecer: si hay dieciséis cabezas, ¿son "
              "dieciséis expertos? No. Cabezas y expertos son ejes distintos. Las dieciséis cabezas "
              "son vistas paralelas sobre subespacios del parche, como en atención multi-cabeza. Los "
@@ -1160,38 +1334,55 @@ def build():
              "recombina los trescientos slots para reconstruir cada parche.")
 
     # ---- 8. keep_slots: la bifurcación, con math+código (NATIVO) ----
+    # Rediseño 19-jul (pedido de Ernesto: «que fuese un diagrama»). La lámina afirma que
+    # hay UNA bifurcación sobre un tronco común, y eso es topología: dibujada se entiende
+    # sola, mientras que en dos paneles de código enfrentados había que reconstruirla
+    # leyendo. Se conserva la línea de código DECISIVA de cada rama, en cuerpo chico bajo
+    # su bloque — es la evidencia de que la bifurcación es literalmente una línea — pero
+    # deja de ser el objeto principal de la lámina.
     s = content(prs, "La variante keep_slots: dónde cambia la salida")
-    # tronco compartido
-    trunk = _rect(s, 0.30, 0.98, 9.4, 0.66, TEAL_CARD, line=TEAL_SQ)
-    add_textbox(s, 0.46, 1.00, 9.1, 0.62, [
-        ("Tronco compartido, idéntico a la slide anterior:  z → q → ruteo → expertos  →  "
-         "out = concat de expertos  [300, 512]", 12.5, True, INK, F_BODY)], anchor=MSO_ANCHOR.MIDDLE)
-    # rama izquierda: keep_slots=False
-    add_textbox(s, 0.30, 1.80, 4.6, 0.3, [("keep_slots = False  ·  drop-in (base)", 12.5, True, TEAL_TITLE, F_TITLE)])
-    code_panel(s, 0.30, 2.14, 4.6, 1.5, [
-        "# 2º softmax recombina los 300 slots",
-        'out = einsum("h p d, n h p -> n h d",',
-        "             out, combine)",
-        'out = rearrange(out,"n h d->n (h d)")',
-        "                          # -> [N, 512]",
-    ])
-    add_textbox(s, 0.30, 3.72, 4.6, 0.95, [
-        ("Reconstruye los N parches (cardinalidad N → N). CLAM agrega sobre los N parches, "
-         "igual que la capa lineal original.", 12, False, GRIS_BODY, F_BODY)])
-    # rama derecha: keep_slots=True
-    add_textbox(s, 5.10, 1.80, 4.6, 0.3, [("keep_slots = True  ·  variante nueva", 12.5, True, ORA_T, F_TITLE)])
-    code_panel(s, 5.10, 2.14, 4.6, 1.5, [
-        "# se salta la recombinación",
-        "return out                # -> [300, 512]",
-        "#     300 slot-tokens como salida",
-        "#     (+ slot_dropout opcional)",
-    ])
-    add_textbox(s, 5.10, 3.72, 4.6, 0.95, [
-        ("Se queda con los 300 slots (cuello de botella aprendido N → 300). CLAM agrega sobre "
-         "los 300 slots, no sobre los parches.", 12, False, GRIS_BODY, F_BODY)])
-    takeaway_bar(s, "Misma cabeza CLAM y misma pérdida, cambia solo qué se agrega. La "
-                    "interpretabilidad se calcula antes de la bifurcación → vale para las dos.",
-                 t=4.78, size=12)
+
+    # --- tronco compartido ---
+    TW, TG, TY, TH = 1.30, 0.28, 0.98, 0.62
+    txs = [1.98 + i * (TW + TG) for i in range(4)]
+    for x, txt in zip(txs, ("z · features", "ruteo", "expertos LoRA", "concat")):
+        _proc(s, x, TY, TW, TH, txt, size=11)
+    for i in range(3):
+        _conn(s, txs[i] + TW, TY + TH / 2, txs[i + 1], TY + TH / 2)
+    add_textbox(s, 0.30, TY + TH + 0.04, 9.4, 0.26, [
+        ("tronco compartido  →  [300 × 512]", 11, True, ONCO_INK, F_BODY, PP_ALIGN.CENTER)])
+
+    # --- la bifurcación: un stub al centro y dos bajadas ---
+    _conn(s, 5.0, 1.92, 5.0, 2.06, arrow=False)
+    _conn(s, 2.60, 2.06, 7.40, 2.06, arrow=False)
+    _conn(s, 2.60, 2.06, 2.60, 2.32)
+    _conn(s, 7.40, 2.06, 7.40, 2.32)
+
+    ramas = [
+        (0.45, "keep_slots = False  ·  drop-in (base)", TEAL_TITLE, True,
+         "2ª softmax  ·  combine", "[N × 512]",
+         "Reconstruye los N parches. CLAM agrega sobre los parches, igual que la capa "
+         "lineal original.",
+         'out = einsum("h p d, n h p -> n h d", out, combine)'),
+        (5.25, "keep_slots = True  ·  variante nueva", ORA_T, False,
+         "se omite la recombinación", "[300 × 512]",
+         "Se queda con los 300 slots. CLAM agrega sobre 300 tokens, no sobre los parches.",
+         "return out    # 300 slot-tokens"),
+    ]
+    for x, cab, ccol, hace, op, forma, nota, codigo in ramas:
+        add_textbox(s, x, 2.34, 4.30, 0.28, [(cab, 12.5, True, ccol, F_TITLE)])
+        # la rama que OPERA va en bloque oscuro; la que se saltea el paso, en el tono
+        # claro: el contraste dice cuál hace algo sin necesidad de escribirlo.
+        (_proc if hace else _proc_claro)(s, x, 2.66, 4.30, 0.56, op, size=12)
+        _conn(s, x + 2.15, 3.22, x + 2.15, 3.46)
+        _proc_claro(s, x, 3.46, 4.30, 0.50, forma, size=13)
+        add_textbox(s, x, 4.00, 4.30, 0.50, [(nota, 11, False, GRIS_BODY, F_BODY)])
+        add_textbox(s, x, 4.54, 4.30, 0.26, [(codigo, 8.5, False, ONCO_DARK, F_MONO)])
+
+    add_textbox(s, 0.30, 4.86, 9.4, 0.26, [
+        ("Misma cabeza CLAM y misma pérdida: cambia solo qué se agrega. La interpretabilidad "
+         "se calcula sobre el tronco, antes de la bifurcación, así que vale para las dos ramas.",
+         11.5, True, TEAL_TITLE, F_BODY, PP_ALIGN.CENTER)])
     notes(s, "Hay una variante, keep_slots, y lo relevante es dónde cambia. Hasta la parte de "
              "arriba todo es idéntico a lo anterior: proyección, ruteo, expertos, y quedan los "
              "trescientos slots concatenados. La bifurcación es una sola línea de código. En la "
@@ -1393,32 +1584,38 @@ def build():
              "diferencia de métrica a la forma de la atención.")
 
     # ---- 11e. Cuántos expertos y cuántos slots se usan de verdad ----
+    # Rediseño 19-jul: el resultado de Q1 es una FRACCIÓN de presupuesto usado (30 de 30
+    # contra 159 de 300), y una fracción se lee de un vistazo como barra. La tabla de dos
+    # filas obligaba a hacer la división mentalmente; las barras ponen el contraste —
+    # lleno contra medio lleno — que ES el hallazgo. La prosa de «Lectura» se disuelve en
+    # la nota al pie de cada barra.
     s = content(prs, "¿Cuántos expertos y slots se usan de verdad?", size=25)
-    add_textbox(s, 0.30, 0.86, 9.4, 0.62, [
-        ("La pregunta se responde sobre el peso de combinación, la segunda distribución softmax "
-         "sobre los 300 slots (30 expertos × 10). No es el conteo de parches más atendidos.",
-         11.5, False, GRIS_BODY, F_BODY)])
-    _rect(s, 0.30, 1.56, 4.55, 1.30, TEAL_CARD2, line=TEAL_SQ)
-    add_textbox(s, 0.46, 1.64, 4.25, 1.18, [
-        ("Número efectivo = exp(entropía)", 12, True, TEAL_TITLE, F_TITLE),
-        ("Vale 300 si el ruteo fuera perfectamente uniforme y 1 si colapsara en un solo slot.",
-         10.5, False, GRIS_BODY, F_BODY),
-        ("Se usa esta medida porque la softmax da peso positivo a todos: contar los que reciben "
-         "algo siempre daría el total.", 10.5, False, GRIS_BODY, F_BODY)])
     q1 = _leer_q1()
-    simple_table(s, 5.10, 1.56, 4.60,
-                 ["Nivel", "Efectivos", "de"],
-                 [["Expertos", q1["exp"], "30"], ["Slots", q1["slots"], "300"]],
-                 col_fracs=[0.40, 0.30, 0.30], row_h=0.40, fs=11)
-    caption(s, 5.10, 2.86, 4.60, q1["pie"], size=9.5, col=GRIS_TXT)
-    add_textbox(s, 0.30, 3.10, 9.4, 1.30, [
-        ("Lectura", 12.5, True, TEAL_TITLE, F_TITLE),
-        ("El número de expertos no está sobredimensionado: se usan los treinta por igual, ninguno "
-         "queda apagado.", 11.5, False, GRIS_BODY, F_BODY),
-        ("El margen de recorte está en los slots, donde cerca de la mitad del presupuesto aporta "
-         "poco al peso final.", 11.5, False, GRIS_BODY, F_BODY)])
+    add_textbox(s, 0.30, 0.90, 9.4, 0.44, [
+        ("Se mide sobre el peso de combinación, la segunda softmax sobre los 300 slots "
+         "(30 expertos × 10). No es el conteo de parches más atendidos.",
+         11.5, False, GRIS_BODY, F_BODY)])
+
+    def _frac(v, total):
+        try:
+            return min(1.0, float(v) / total)
+        except (TypeError, ValueError):
+            return 0.0                      # Q1 sin correr: barra vacía, no un número inventado
+
+    ratio_bar(s, 0.30, 1.46, 4.40, 0.42, _frac(q1["exp"], 30), "Expertos",
+              q1["exp"], "30", "Se usan los treinta por igual: ninguno queda apagado.")
+    ratio_bar(s, 5.30, 1.46, 4.40, 0.42, _frac(q1["slots"], 300), "Slots",
+              q1["slots"], "300", "Cerca de la mitad del presupuesto aporta poco al peso final.")
+
+    _grupo(s, 0.30, 3.26, 9.4, 0.86)
+    add_textbox(s, 0.48, 3.32, 9.04, 0.74, [
+        ("Número efectivo = exp(entropía): vale el total si el reparto fuera uniforme, y 1 si "
+         "colapsara en un solo slot.", 11, True, ONCO_DARK, F_BODY),
+        ("Se usa esta medida y no un conteo porque la softmax da peso positivo a todos.",
+         10, False, ONCO_DARK, F_BODY)])
+    caption(s, 0.30, 4.18, 9.4, q1["pie"], size=9.5, col=GRIS_TXT)
     takeaway_bar(s, "Si hay que ajustar capacidad, el parámetro a tocar son los slots, no los "
-                    "expertos.", t=4.62, size=12)
+                    "expertos.", t=4.56, size=12)
     notes(s, "Quedaba una pregunta concreta de la vez pasada: cuántos expertos y cuántos slots usa "
              "realmente el modelo. Antes de responder conviene precisar qué se mide, porque hay "
              "dos cosas que se confunden. El peso por slot es la segunda distribución softmax, la "
@@ -1450,37 +1647,50 @@ def build():
              "tarea que dependa del contexto.")
 
     # ---- 13. El problema es contexto + hallazgo físico (fusión de las dos slides) ----
+    # Rediseño 19-jul: los dos paneles de bullets («detectar» vs «localizar») decían con
+    # seis líneas algo que es una comparación de TAMAÑOS, así que pasa a un eje de escala
+    # física. Ahí se ve de una que el parche de hoy cubre la calcificación y se queda corto
+    # frente al conducto, que es el argumento entero de la lámina. El eje va en log porque
+    # el rango útil abarca dos órdenes de magnitud (decenas de µm a milímetros).
     s = content(prs, "No es más zoom, es contexto: escalas por cohorte", size=21)
-    add_textbox(s, 0.30, 0.86, 9.4, 0.54, [
-        ("La etiqueta pregunta DÓNDE vive la microcalcificación (¿CDIS?, ¿invasor?, "
-         "¿no neoplásico?), no si existe. Es una pregunta de contexto, no de detalle celular.",
-         13, False, GRIS_BODY, F_BODY)])
-    # izquierda: las dos demandas (detectar vs localizar)
-    panel(s, 0.30, 1.48, 4.55, 1.35, "Detectar la calcificación", TEAL_TITLE, [
-        "Alta magnif. 20-40×, campo ~100 µm.",
-        "Anillos laminados: pista de DCIS.",
-        "Ya la tenemos: el parche fino la resuelve.",
-    ], TEAL_SQ)
-    panel(s, 0.30, 2.98, 4.55, 1.35, "Localizar: ¿en qué estructura?", ORA_T, [
-        "Baja o media, 5-10×, campo 0.5-2 mm.",
-        "El conducto, nido invasor o lobulillo.",
-        "Es lo que hoy falta: el fino no lo cubre.",
-    ], ONCO_DARK, fill=PANEL_ACC)
-    # derecha: el hallazgo físico (cohortes a distinta escala)
-    add_textbox(s, 5.15, 1.30, 4.55, 0.66, [
-        ("Y las cohortes están a distinta escala física", 13, True, TEAL_TITLE, F_TITLE),
-        ("medido en µm/px real, no en la etiqueta del archivo:", 11.5, False, GRIS_BODY, F_BODY)])
-    simple_table(s, 5.15, 2.06, 4.55,
+    add_textbox(s, 0.30, 0.90, 9.4, 0.34, [
+        ("La etiqueta pregunta DÓNDE vive la microcalcificación, no si existe: es una pregunta "
+         "de contexto, no de detalle celular.", 12.5, False, GRIS_BODY, F_BODY)])
+
+    import math
+    _LO, _HI = 10.0, 4000.0                       # µm, extremos del eje
+    _f = lambda um: (math.log10(um) - math.log10(_LO)) / (math.log10(_HI) - math.log10(_LO))
+    # Los dos tramos de arriba van en #3E6877 y #0E2841: teal contra azul marino. Con
+    # #386271 (el color de conector) el contraste contra #3E6877 era nulo y el eje se leía
+    # como un solo tramo largo, justo lo contrario de lo que la lámina quiere mostrar.
+    scale_axis(s, 0.45, 1.86, 9.10, [
+        (_f(50), _f(500), "la calcificación  50–500 µm", True, ONCO_DARK),
+        (_f(500), _f(2000), "el conducto anfitrión  0.5–2 mm", True, ONCO_INK),
+        (_f(60), _f(120), "el parche fino de hoy  ~100 µm", False, ONCO_CONN),
+    ])
+    add_textbox(s, 0.30, 2.36, 9.4, 0.30, [
+        ("El parche de hoy resuelve la calcificación, pero no cubre la estructura que la aloja.",
+         12, True, TEAL_TITLE, F_BODY, PP_ALIGN.CENTER)])
+
+    add_textbox(s, 0.30, 2.74, 4.60, 0.30, [
+        ("Y las cohortes están a distinta escala física", 12.5, True, TEAL_TITLE, F_TITLE)])
+    simple_table(s, 0.30, 3.06, 4.60,
                  ["Cohorte", "Magnif.", "Parche 256 px"],
                  [["Pública (TCGA)", "~40×", "59 µm"],
                   ["Privada", "~20×", "119 µm"],
                   ["HistAI", "sin MPP", "excluida"]],
-                 col_fracs=[0.44, 0.24, 0.32], row_h=0.36, fs=10.5)
-    add_textbox(s, 5.15, 3.60, 4.55, 0.64, [
-        ("Difieren 2×: la pirámide se define en µm/px, no en «level» del archivo.",
-         11.5, False, INK, F_BODY)])
+                 col_fracs=[0.44, 0.24, 0.32], row_h=0.32, fs=10.5)
+    _grupo(s, 5.20, 2.74, 4.50, 1.60)
+    add_textbox(s, 5.40, 2.84, 4.10, 1.42, [
+        ("Medido en µm/px real,", 11.5, True, ONCO_DARK, F_BODY),
+        ("no en la etiqueta del archivo.", 11.5, True, ONCO_DARK, F_BODY),
+        (" ", 8, False, ONCO_DARK, F_BODY),   # separador; 8·1.3333 = 10.7 pt, sobre el mínimo
+        ("Difieren 2×.", 12.5, True, ONCO_DARK, F_BODY),
+        ("La pirámide se define en µm/px,", 11.5, False, ONCO_DARK, F_BODY),
+        ("no en «level» del archivo.", 11.5, False, ONCO_DARK, F_BODY),
+    ])
     takeaway_bar(s, "Hay que sumar una escala GRUESA que aporte el contexto del tejido, "
-                    "y definirla en micras, no en «level».", t=4.48, size=12.5)
+                    "y definirla en micras, no en «level».", t=4.46, size=12.5)
     notes(s, "Conviene empezar por algo que parece al revés. Uno pensaría que una "
              "microcalcificación, como es un objeto chico, pide más aumento, y es lo contrario. "
              "La etiqueta que queremos predecir no pregunta si hay una calcificación, sino en qué "
@@ -1504,32 +1714,54 @@ def build():
              "resolución confiable en su metadata, así que queda fuera.")
 
     # ---- 13b. NUEVA (§3): la matemática área ↔ magnificación ↔ tamaño de parche ----
+    # Rediseño 19-jul: la lámina es una CUENTA, y una cuenta se muestra hecha. Las dos
+    # cohortes pasan a ser dos cadenas de bloques con el mismo esqueleto (P × MPP = lado),
+    # así el confound se ve en que la única celda distinta es el MPP y el resultado se va
+    # al doble. El panel de cinco bullets se reduce a la cadena inversa que despeja P.
     s = content(prs, "La matemática: µm/px, área física y tamaño de parche", size=22)
-    add_textbox(s, 0.30, 0.90, 9.4, 0.5, [
+    add_textbox(s, 0.30, 0.90, 9.4, 0.28, [
         ("La escala física la fija el MPP (micras por píxel), no la magnificación nominal ni el "
-         "«level» del archivo.", 13, False, GRIS_BODY, F_BODY)])
-    _rect(s, 0.30, 1.52, 4.55, 1.02, TEAL_CARD, line=TEAL_SQ)
-    add_textbox(s, 0.48, 1.62, 4.20, 0.86, [
-        ("lado (µm) = P (px) × MPP (µm/px)", 14, True, TEAL_TITLE, F_TITLE),
-        ("área = (P × MPP)²", 12.5, True, INK, F_MONO),
-    ])
-    simple_table(s, 0.30, 2.78, 4.55,
-                 ["Cohorte", "MPP", "224 px cubren"],
-                 [["TCGA (~40×)", "0.2325", "52 µm"],
-                  ["Privado (~20×)", "0.465", "104 µm"]],
-                 col_fracs=[0.42, 0.28, 0.30], row_h=0.40, fs=10.5)
-    add_textbox(s, 0.30, 3.86, 4.55, 0.5, [
-        ("Mismo P en px, distinto campo físico: el confound de escala entre cohortes.",
-         10.5, False, ORA_T, F_BODY)])
-    panel(s, 5.15, 1.52, 4.55, 2.34, "Igualar el campo físico entre cohortes", TEAL_TITLE, [
-        "224 px a ×20 cubren 104 µm de lado.",
-        "Para el mismo campo en TCGA (×40):",
-        "P = 104 / 0.2325 ≈ 448 px.",
-        "Entonces 224@×20 ≡ 448@×40: misma área física, distinta resolución.",
-        "El tamaño en px escala inverso al MPP.",
-    ], TEAL_SQ)
+         "«level» del archivo.", 12, False, GRIS_BODY, F_BODY)])
+
+    _grupo(s, 0.40, 1.24, 9.20, 0.50)
+    add_textbox(s, 0.40, 1.24, 9.20, 0.50, [
+        ("lado (µm)  =  P (px)  ×  MPP (µm/px)          área = (P × MPP)²",
+         15, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
+
+    XL, WL = 0.45, 1.75
+    XP, WP = 2.40, 1.15
+    XM, WM = 4.15, 1.60
+    XR, WR = 6.35, 1.55
+    for y, coh, mpp, res, nota in (
+            (1.88, "TCGA  (~40×)", "0.2325", "52 µm", "más resolución"),
+            (2.54, "Privado  (~20×)", "0.465", "104 µm", "el doble de campo"),
+    ):
+        add_textbox(s, XL, y, WL, 0.52, [(coh, 12, True, TEAL_TITLE, F_TITLE)],
+                    anchor=MSO_ANCHOR.MIDDLE)
+        _proc_claro(s, XP, y, WP, 0.52, "224 px", size=12)
+        _oper(s, (XP + WP + XM) / 2, y + 0.26, "×")
+        _proc_claro(s, XM, y, WM, 0.52, mpp, size=12)
+        _oper(s, (XM + WM + XR) / 2, y + 0.26, "=")
+        _proc(s, XR, y, WR, 0.52, res, size=13)
+        add_textbox(s, XR + WR + 0.15, y, 1.70, 0.52, [(nota, 10.5, False, GRIS_BODY, F_BODY)],
+                    anchor=MSO_ANCHOR.MIDDLE)
+    add_textbox(s, XL, 3.10, 9.15, 0.26, [
+        ("Mismo P en píxeles, distinto campo físico: ése es el confound de escala entre cohortes.",
+         11, False, ONCO_DARK, F_BODY)])
+
+    _grupo(s, 0.40, 3.44, 9.20, 0.92)
+    add_textbox(s, 0.60, 3.50, 2.60, 0.80, [
+        ("Igualar el campo físico", 12.5, True, ONCO_DARK, F_BODY)], anchor=MSO_ANCHOR.MIDDLE)
+    _proc_claro(s, 3.20, 3.62, 1.30, 0.52, "104 µm", size=12)
+    _oper(s, 4.68, 3.88, "÷")
+    _proc_claro(s, 4.86, 3.62, 1.30, 0.52, "0.2325", size=12)
+    _oper(s, 6.34, 3.88, "=")
+    _proc(s, 6.52, 3.62, 1.30, 0.52, "448 px", size=13)
+    add_textbox(s, 7.95, 3.62, 1.50, 0.52, [
+        ("224@×20 ≡ 448@×40", 10.5, True, ONCO_DARK, F_BODY)], anchor=MSO_ANCHOR.MIDDLE)
+
     takeaway_bar(s, "La pirámide se define en µm/px físicos, no en «level»; así el campo de visión "
-                    "es comparable entre cohortes.", t=4.62, size=12.5)
+                    "es comparable entre cohortes.", t=4.48, size=12.5)
     notes(s, "Esta lámina responde una pregunta que suele surgir: cómo se relacionan la "
              "magnificación, el área de tejido y el tamaño del parche en píxeles. La cantidad que "
              "manda es las micras por píxel, el eme pe pe. El lado físico de un parche es el número "
@@ -1546,36 +1778,61 @@ def build():
              "archivo.")
 
     # ---- 14. Lo que estudiamos: patología + referencias ----
+    # Rediseño 19-jul: el contraste entre los dos tipos de calcio pasa a dos tarjetas con
+    # una barra de VISIBILIDAD, que es lo que decide si el modelo puede verlas — una tabla
+    # de tres columnas hacía leer para llegar a eso. Las referencias, que ocupaban una
+    # columna entera con catorce líneas apiladas, se reparten en tres grupos al pie: misma
+    # información, un cuarto del peso visual.
     s = content(prs, "Lo que estudiamos: patología de la microcalcificación", size=24)
-    add_textbox(s, 0.30, 0.88, 5.55, 0.3, [("Dos tipos de calcio, y uno es invisible", 13, True,
-                                            TEAL_TITLE, F_TITLE)])
-    simple_table(s, 0.30, 1.22, 5.55,
-                 ["Tipo", "En H&E de rutina", "Para el modelo"],
-                 [["Tipo I: oxalato", "casi invisible\n(solo luz polarizada)", "ciego → TECHO\n(sobre todo no_neoplásico)"],
-                  ["Tipo II: fosfato", "basófilo, visible\n(anillos laminados)", "visible → aquí\njuega la escala"]],
-                 col_fracs=[0.26, 0.37, 0.37], row_h=0.72, fs=10.5)
-    add_textbox(s, 0.30, 3.62, 5.55, 0.95, [
-        ("Tamaño: la calcificación (50-500 µm) ENTRA en un parche fino;", 12, False, GRIS_BODY, F_BODY),
-        ("el conducto anfitrión (0.5-2 mm) NO → por eso hace falta el campo grueso.",
-         12, False, GRIS_BODY, F_BODY)])
-    # panel de referencias
-    _rect(s, 6.05, 0.86, 3.65, 4.06, TEAL_CARD2, line=TEAL_SQ)
-    add_textbox(s, 6.22, 0.93, 3.35, 3.95, [
-        ("Referencias", 13, True, TEAL_TITLE, F_TITLE),
-        ("Clínica de la microcalcificación", 10.5, True, ORA_T, F_BODY),
-        ("· Breast microcalcifications: past, present & future · Review 2022", 9.5, False, INK, F_BODY),
-        ("· Calcification in breast histopathology · Diagn. Histopathol. 2024", 9.5, False, INK, F_BODY),
-        ("· Polyhedral microcalc. = calcium oxalate · Radiology 1993", 9.5, False, INK, F_BODY),
-        ("· Microcalcifications: size matters! · 2007", 9.5, False, INK, F_BODY),
-        ("· Predictors of malignancy in microcalc. · Br J Cancer 2011", 9.5, False, INK, F_BODY),
-        ("Multi-escala en patología", 10.5, True, ORA_T, F_BODY),
-        ("· CPathAgent · NeurIPS 2025 (baseline MIL multi-escala, Ap. C.1.2)", 9.5, False, INK, F_BODY),
-        ("· DSMIL 20×+5× · Li et al., CVPR 2021", 9.5, False, INK, F_BODY),
-        ("· Deep Multi-Magnification Nets (mama/DCIS) · Ho et al., 2021", 9.5, False, INK, F_BODY),
-        ("Modelo base", 10.5, True, ORA_T, F_BODY),
-        ("· CONCH · Lu et al., Nat Med 2024 (nativo 20×)", 9.5, False, INK, F_BODY),
-        ("· CAP Invasive Breast, Nota D · la etiqueta contextual", 9.5, False, INK, F_BODY),
-    ])
+    add_textbox(s, 0.30, 0.90, 9.4, 0.28, [
+        ("Dos tipos de calcio, y uno es invisible en la tinción de rutina.",
+         12.5, False, GRIS_BODY, F_BODY)])
+
+    for x, titulo, cuerpo, vis, visnota in (
+            (0.30, "Tipo I  ·  oxalato",
+             ["Casi invisible en H&E: solo aparece con luz polarizada.",
+              "El modelo está ciego a cualquier escala → TECHO, sobre todo en "
+              "tejido no neoplásico."], 0.06, "prácticamente nula"),
+            (5.10, "Tipo II  ·  fosfato",
+             ["Basófilo y visible, con los anillos laminados característicos.",
+              "Acá sí juega la escala: es donde el campo grueso puede aportar."],
+             0.90, "buena"),
+    ):
+        _grupo(s, x, 1.24, 4.60, 1.98)
+        _proc(s, x + 0.15, 1.36, 4.30, 0.46, titulo, size=13)
+        add_textbox(s, x + 0.22, 1.88, 4.16, 0.80,
+                    [(ln, 11, False, ONCO_DARK, F_BODY) for ln in cuerpo])
+        add_textbox(s, x + 0.22, 2.72, 2.10, 0.26,
+                    [("visible en H&E", 9.5, True, ONCO_DARK, F_BODY)], anchor=MSO_ANCHOR.MIDDLE)
+        _rect(s, x + 2.10, 2.78, 2.28, 0.16, TEAL_CARD2)
+        _rect(s, x + 2.10, 2.78, 2.28 * vis, 0.16, ONCO_DARK)
+        add_textbox(s, x + 2.10, 2.94, 2.28, 0.24,
+                    [(visnota, 9.5, False, ONCO_DARK, F_BODY, PP_ALIGN.RIGHT)])
+
+    add_textbox(s, 0.30, 3.32, 9.4, 0.30, [
+        ("La calcificación (50–500 µm) entra en un parche fino; el conducto anfitrión "
+         "(0.5–2 mm), no.", 12, True, TEAL_TITLE, F_BODY, PP_ALIGN.CENTER)])
+
+    # referencias: tres grupos al pie, una línea por cita
+    _rect(s, 0.30, 3.70, 9.4, 1.30, TEAL_CARD2, line=TEAL_SQ)
+    for x, grupo, refs in (
+            (0.48, "Clínica de la microcalcificación",
+             ["Breast microcalcifications · Review 2022",
+              "Calcification in breast histopath. · 2024",
+              "Polyhedral = oxalato · Radiology 1993",
+              "Size matters! · 2007",
+              "Predictors of malignancy · BJC 2011"]),
+            (3.68, "Multi-escala en patología",
+             ["CPathAgent · NeurIPS 2025 (Ap. C.1.2)",
+              "DSMIL 20×+5× · Li et al., CVPR 2021",
+              "Deep Multi-Magnification Nets · 2021"]),
+            (6.88, "Modelo base y etiqueta",
+             ["CONCH · Lu et al., Nat Med 2024 (20×)",
+              "CAP Invasive Breast, Nota D"]),
+    ):
+        add_textbox(s, x, 3.78, 3.00, 1.16,
+                    [(grupo, 10.5, True, TEAL_TITLE, F_BODY)]
+                    + [("· " + r, 9, False, INK, F_BODY) for r in refs])
     notes(s, "Antes de elegir números conviene apoyarse en la patología, y hay dos hechos que "
              "mandan. El primero es que no todas las calcificaciones se ven igual en la tinción "
              "de rutina. Las de oxalato de calcio son casi invisibles en campo claro, solo "
