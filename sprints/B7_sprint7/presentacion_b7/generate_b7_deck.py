@@ -100,7 +100,7 @@ TEAL_TITLE = ONCO_DARK                    # antes #217589
 TEAL_SQ    = ONCO_CONN                    # antes #31859C
 BAR_GRIS   = RGBColor(0xF2, 0xF2, 0xF2)   # barra del header B4 (ya no se usa)
 TEAL_DIV   = ONCO_CONN                    # antes #2E7E8F
-LAV_TITLE  = RGBColor(0xCD, 0xD6, 0xF4)   # (sin uso vivo)
+LAV_TITLE  = RGBColor(0xFF, 0xFF, 0xFF)   # antes #CDD6F4 (lavanda B4, fuera de paleta)
 TEAL_SUB   = ONCO_PANEL                   # antes #B8D4D9
 TEAL_CARD  = ONCO_PANEL                   # antes #DDEAEE
 # El template no define un segundo claro. Para el banding de tablas y las tarjetas
@@ -828,9 +828,11 @@ def divider(prs, title, subtitle):
     s = new_slide(prs)
     s.background.fill.solid(); s.background.fill.fore_color.rgb = TEAL_DIV
     s.shapes.add_picture(LOGO, Inches(0.42), Inches(0.36), height=Inches(0.62))
-    add_textbox(s, 0.8, 2.05, SW - 1.6, 1.1,
+    # La caja del título tiene que aguantar DOS líneas a 44 pt (~1.22"): con 1.1" el
+    # título de dos líneas desbordaba y pisaba el subtítulo (pasaba en 3 de 4 portadillas).
+    add_textbox(s, 0.8, 1.85, SW - 1.6, 1.45,
                 [(title, 44, True, LAV_TITLE, F_TITLE, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
-    add_textbox(s, 0.8, 3.25, SW - 1.6, 0.7,
+    add_textbox(s, 0.8, 3.42, SW - 1.6, 0.7,
                 [(subtitle, 18, False, TEAL_SUB, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.TOP)
     return s
 
@@ -1227,8 +1229,10 @@ def build():
     iw = 9.70; ih = iw / 2.489                      # aspect real de la Fig 2 (4375x1758)
     s.shapes.add_picture(FIG2_ARCH, Inches((SW - iw) / 2), Inches(0.86), Inches(iw), Inches(ih))
     add_textbox(s, 0.15, 0.86 + ih + 0.02, SW - 0.30, 0.30, [
+        # Los índices van con las MISMAS letras de la figura (j, k). El pie decía «e» y «s»,
+        # letras que no aparecen en el diagrama, así que no se podían seguir.
         ("La arquitectura de MAMMOTH, paso a paso  ·  N = parches de la lámina  ·  "
-         "subíndices de la salida z^(k) : e = experto (E=30), s = slot (S=10)",
+         "en la salida z, j = slot (S=10) y k = experto (E=30)",
          9.5, True, TEAL_TITLE, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
     notes(s, "Esta es la arquitectura completa del paper, y conviene recorrerla de izquierda a "
              "derecha siguiendo sus variables, porque cada símbolo es un paso del pipeline. Se "
@@ -1440,17 +1444,19 @@ def build():
     # ---- 11. Morfología ≠ clase (cross-slide) + honestidad/cierre — FUSIÓN ----
     #   imágenes GRANDES lado a lado (grillas 4 slides × 5 parches; aspect 1.19) + texto compacto.
     s = content(prs, "El experto detecta tejido, no clase")
-    xh = 3.02; xw = xh * (704 / 593)                 # aspect real de las cross-slide
+    xh = 2.92; xw = xh * (704 / 593)                 # aspect real de las cross-slide
     gap = 0.34
     x0 = (SW - (2 * xw + gap)) / 2
     s.shapes.add_picture(XSLIDE_E8, Inches(x0), Inches(0.86), Inches(xw), Inches(xh))
     s.shapes.add_picture(XSLIDE_E26, Inches(x0 + xw + gap), Inches(0.86), Inches(xw), Inches(xh))
+    # El pie decía el sign-off y el párrafo lo repetía: dos líneas de más que hacían
+    # que el pie pisara al párrafo. La honestidad completa vive en el párrafo.
     caption(s, 0.35, 0.86 + xh + 0.02, SW - 0.7,
-            "el mismo experto (e8, e26) reclama el mismo patrón en las 4 slides TCGA-BRCA, tarea cdis "
-            "(2 positivas, 2 negativas). Nombres por inspección visual, sin sign-off de patólogo",
+            "el mismo experto (e8, e26) reclama el mismo patrón en las 4 slides TCGA-BRCA · tarea cdis",
             size=10.5, bold=True, col=INK)
     add_textbox(s, 0.35, 0.86 + xh + 0.30, SW - 0.7, 0.62, [
-        ("«Negativo» = cdis sin microcalcificación, no «sin tumor» → el experto es un detector de "
+        ("Dos slides positivas y dos negativas.  "
+         "«Negativo» = cdis sin microcalcificación, no «sin tumor» → el experto es un detector de "
          "TEJIDO, no de clase (la clase se decide después, en la atención + el clasificador).  "
          "Honestidad: 4 slides · 1 tarea · 1 fold · etiquetas provisionales (falta sign-off de "
          "patólogo).", 10.5, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.TOP)
@@ -1636,7 +1642,8 @@ def build():
     # ========================================================================
 
     # ---- 12. Divisoria: Magnificación multi-escala ----
-    s = divider(prs, "Magnificación multi-escala",
+    # guion NO separable (U+2011): con el guion normal partía en "Magnificación multi-" / "escala"
+    s = divider(prs, "Magnificación multi‑escala",
                 "La única señal nueva tras cerrar la arquitectura: el contexto espacial · "
                 "piloto microcalcificaciones")
     notes(s, "Cerrado el capítulo de la arquitectura, donde cuatro ejes distintos no movieron "
