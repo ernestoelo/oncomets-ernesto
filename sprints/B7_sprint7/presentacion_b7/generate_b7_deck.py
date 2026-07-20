@@ -1085,8 +1085,8 @@ def build():
             status_done(s, 8.98, cy)
         else:
             status_progress(s, 8.98, cy)
-    notes(s, "Antes de entrar en el mecanismo conviene fijar qué se propuso entender, porque es "
-             "el eje de la reunión. El primer objetivo era dominar el mecanismo de MAMMOTH a fondo "
+    notes(s, "Antes de entrar en el mecanismo, fijemos qué nos propusimos entender: es el eje de "
+             "la reunión. El primer objetivo era dominar el mecanismo de MAMMOTH a fondo "
              "y poder explicarlo con una analogía simple. El segundo, precisar dos puntos que "
              "habían quedado sin respuesta: qué es exactamente una cabeza y cómo se lee el tensor "
              "de prototipos, el treinta por dieciséis por diez por dieciséis. El tercero, "
@@ -1192,8 +1192,8 @@ def build():
              "derecha, para seguir cada paso sin ambigüedad. La entrada es un parche, un vector de "
              "quinientos doce, la z. Primero se proyecta a un query de doscientos cincuenta y seis "
              "y se parte en dieciséis cabezas de dieciséis. En paralelo, el modelo guarda sus "
-             "prototipos aprendidos en el tensor treinta por dieciséis por diez por dieciséis, y "
-             "este es el número que conviene dejar claro de una vez. Se lee de izquierda a "
+             "prototipos aprendidos en el tensor treinta por dieciséis por diez por dieciséis. "
+             "Se lee de izquierda a "
              "derecha: treinta expertos, cada experto con dieciséis cabezas, cada cabeza con diez "
              "slots, y cada slot es un vector de dieciséis dimensiones. El dieciséis aparece dos "
              "veces por una razón concreta. El primero es el número de cabezas; el último es la "
@@ -1208,7 +1208,7 @@ def build():
              "rango y se concatenan las cabezas para dar trescientos por quinientos doce. En la "
              "variante base, una segunda softmax recombina los trescientos slots y reconstruye los "
              "parches, así que la salida tiene la misma forma que tendría una capa lineal; por eso "
-             "el reemplazo es directo. Y un punto clave, que en su momento se respondió mal y hay "
+             "el reemplazo es directo. Y un punto que en su momento se respondió mal y hay "
              "que dejar afinado: las cabezas no son textura, forma ni color. Son subespacios "
              "aprendidos, igual que en atención multi-cabeza; la semántica de tejido no vive en "
              "las cabezas, vive en los slots.")
@@ -1234,7 +1234,7 @@ def build():
         ("La arquitectura de MAMMOTH, paso a paso  ·  N = parches de la lámina  ·  "
          "en la salida z, j = slot (S=10) y k = experto (E=30)",
          9.5, True, TEAL_TITLE, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
-    notes(s, "Esta es la arquitectura completa del paper, y conviene recorrerla de izquierda a "
+    notes(s, "Esta es la arquitectura completa del paper, y la vamos a recorrer de izquierda a "
              "derecha siguiendo sus variables, porque cada símbolo es un paso del pipeline. Se "
              "parte de la lámina, que se corta en parches, y cada parche pasa por el encoder y "
              "sale convertido en un vector de features, que en la figura es x_i. Hay uno por "
@@ -1247,13 +1247,12 @@ def build():
              "llama x̄, la porción del parche que ve cada cabeza; son subespacios aprendidos, como "
              "en atención multi-cabeza, no textura ni forma ni color. Cada cabeza corre su propia "
              "mezcla de expertos en paralelo, que son los bloques MoE. Dentro de cada experto "
-             "están los slots, que son prototipos aprendidos, y acá viene la parte que quiero "
-             "dejar clarísima, porque es el corazón del mecanismo. Cada parche se compara con cada "
+             "están los slots, que son prototipos aprendidos. Cada parche se compara con cada "
              "prototipo con un producto interno, y eso es el ruteo: mide qué tan parecido es el "
              "parche a ese slot. Sobre todos los parches de la slide se aplica una softmax, que "
              "decide cuánto aporta cada parche a cada slot. Con esos pesos se arma un promedio "
              "ponderado de los parches, y ese promedio ponderado, que en la figura es el weighted "
-             "average, es lo que llena cada slot. Dicho de una vez y en orden: el parche entra "
+             "average, es lo que llena cada slot. El orden completo es este: el parche entra "
              "como x_i, el ruteo calcula los pesos comparándolo con los prototipos, y el slot "
              "termina siendo la x ponderada, el promedio de todos los parches que se le parecen. "
              "Cada slot queda representando un fenotipo, un tipo de tejido. Cada slot pasa después "
@@ -1275,8 +1274,8 @@ def build():
              "es intratable; además modela una distribución de probabilidad, no una transformación "
              "de features, que es lo que acá necesitamos. Todo el diseño es aditivo por "
              "construcción, así que la mezcla es la elección natural y un producto rompería la "
-             "formulación y traería de vuelta justo la inestabilidad que el método busca evitar. Y "
-             "conviene decirlo con honestidad: el paper no menciona el producto de expertos, esta "
+             "formulación y traería de vuelta justo la inestabilidad que el método busca evitar. "
+             "Aclaro que el paper no menciona el producto de expertos: esta "
              "comparación es un razonamiento de arquitectura, no una cita del paper.")
 
     # ---- 7b. NUEVA (§2.4): cabezas × expertos × slots — responde la duda 16 vs 30 ----
@@ -1325,7 +1324,7 @@ def build():
                 dim="softmax sobre los N parches · llena cada slot")
     _proc_claro(s, 5.75, 4.54, 3.95, 0.50, "combine", size=11,
                 dim="softmax sobre los 300 slots · rearma cada parche")
-    notes(s, "Conviene detenerse en una duda que suele aparecer: si hay dieciséis cabezas, ¿son "
+    notes(s, "Una duda que suele aparecer acá: si hay dieciséis cabezas, ¿son "
              "dieciséis expertos? No. Cabezas y expertos son ejes distintos. Las dieciséis cabezas "
              "son vistas paralelas sobre subespacios del parche, como en atención multi-cabeza. Los "
              "treinta expertos son especialistas por morfología. Y cada cabeza no manda a un solo "
@@ -1424,20 +1423,20 @@ def build():
     caption(s, 5.42, 4.12, 2.55, "Morfología que cada experto rutea (Fig 3.2)", size=9)
     takeaway_bar(s, "Heatmap = dónde · top-k = qué morfología. Emergió sin supervisión de tejido "
                     "(el paper lo validó con patólogos).", t=4.82, size=12)
-    notes(s, "Estas dos vistas cuentan una sola historia y conviene leerlas juntas. A la "
+    notes(s, "Estas dos vistas cuentan una sola historia, así que las leo juntas. A la "
              "izquierda, cada uno de los treinta cuadros es la misma slide pintada según cuánto el "
              "router manda cada parche a un experto: rojo, mucho; azul, casi nada. Lo que se "
              "observa es que los treinta encienden zonas distintas de la lámina; es decir, la capa "
              "lineal única quedó reemplazada por especialistas que miran regiones diferentes del "
-             "tejido. Sobre el color, una precisión honesta: está normalizado por percentil dentro "
+             "tejido. Una precisión sobre el color: está normalizado por percentil dentro "
              "de cada experto, así que sirve para ver qué regiones prefiere cada uno, no para "
              "decir cuál se usa más; medido aparte, el uso sale casi uniforme, sin expertos "
              "muertos ni acaparadores. Ahora bien, el mapa de calor dice dónde, no qué tejido hay "
              "en esas zonas. Eso lo cierra la derecha: para cada experto se toman los parches que "
              "más rutea y se recortan a alta resolución real. Ahí se ve directo: el experto ocho "
              "mira nidos de epitelio tumoral, el veintiséis mira estroma fibroso rosado, el tres "
-             "mira ductos. Es la misma especialización que el paper validó con dos patólogos, y lo "
-             "notable es que emerge sola: nadie le indicó al modelo qué es estroma. Los expertos "
+             "mira ductos. Es la misma especialización que el paper validó con dos patólogos, y "
+             "emerge sola: nadie le indicó al modelo qué es estroma. Los expertos "
              "mixtos que aparecen son esperables, porque el ruteo es suave y reparte cada parche "
              "entre varios.")
 
@@ -1462,7 +1461,7 @@ def build():
          "patólogo).", 10.5, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.TOP)
     takeaway_bar(s, "Que la especialización sea real y aun así no mueva la métrica es la evidencia "
                     "de que el cuello no está en la 1ª capa, sino en el dato.", t=4.82, size=12)
-    notes(s, "Esta es la prueba más fina, y con ella cierra la presentación. Como los prototipos "
+    notes(s, "Con esta prueba, la más fina de las tres, cierra la presentación. Como los prototipos "
              "son parámetros compartidos del modelo, el experto ocho es el mismo experto en todas "
              "las slides. Eso permite una prueba limpia: si su especialización es real, tiene que "
              "elegir la misma morfología en todas. Y así ocurre. En las dos grillas, cada fila es "
@@ -1474,12 +1473,12 @@ def build():
              "sea positiva se decide después, en la atención y el clasificador. De ahí sale el "
              "punto para la discusión: que los expertos separen bien los tejidos y aun así MAMMOTH "
              "no le gane a CLAM en métrica es la evidencia de que el cuello de botella no está en "
-             "la primera capa, sino en el dato. Con la honestidad por delante: es una cala chica, "
+             "la primera capa, sino en el dato. Los límites de la prueba: es una cala chica, "
              "cuatro slides, una tarea, un fold, y las etiquetas de tejido todavía son "
              "provisionales, a la espera del visto bueno de un patólogo. Son dos ejes distintos: "
              "que MAMMOTH no mejore la métrica está cerrado; qué aprende por dentro está abierto, "
-             "y es lo que trae esta presentación. Mostrar qué mira no reabre el rendimiento, le "
-             "pone un mecanismo.")
+             "y es lo que trae esta presentación. Mirar qué mira por dentro no reabre la pregunta "
+             "del rendimiento; explica por qué dio lo que dio.")
 
     # ========================================================================
     # SECCIÓN COMPARACIÓN PAREADA (resultados nuevos: entrenamiento 3 tareas x 2
@@ -1525,7 +1524,7 @@ def build():
          "corrido el umbral. Pero son 65 negativos en total.", 10.5, False, GRIS_BODY, F_BODY)])
     takeaway_bar(s, "Candidato a réplica con más semillas antes de contarlo como mejora.",
                  t=4.62, size=12)
-    notes(s, "El diseño es lo primero que quiero destacar, porque es lo que hace que los números "
+    notes(s, "Empiezo por el diseño, porque es lo que hace que los números "
              "signifiquen algo. Los dos modelos corrieron sobre exactamente las mismas "
              "particiones, y eso no se asumió: se comprobó comparando la firma de los "
              "identificadores de lámina del conjunto de prueba, partición por partición. Así la "
@@ -1533,7 +1532,7 @@ def build():
              "completas. En tipo histológico y en invasión linfovascular el resultado es el que "
              "estaba anticipado por escrito antes de correr: la diferencia se queda dentro del "
              "ruido, la desviación entre particiones iguala o supera a la media, no hay señal. La "
-             "tercera fila es distinta y la quiero presentar con cuidado. En carcinoma ductal in "
+             "tercera fila es distinta. En carcinoma ductal in "
              "situ MAMMOTH mide mejor en las cinco particiones, tanto en exactitud balanceada "
              "como en área bajo la curva. Y hay un detalle que importa: suben los dos recalls a la "
              "vez, el de la clase minoritaria y el de la mayoritaria. Cuando uno simplemente mueve "
@@ -1570,7 +1569,7 @@ def build():
     takeaway_bar(s, "Que la mayor difusión aparezca donde MAMMOTH también mide mejor es "
                     "sugerente, pero con siete láminas es hipótesis, no explicación.",
                  t=4.62, size=11.5)
-    notes(s, "Este es el resultado central de la parte nueva. Se eligieron siete láminas, una por "
+    notes(s, "El resultado central de la parte nueva sale de acá. Se eligieron siete láminas, una por "
              "cada clase de cada tarea, todas del conjunto de prueba, es decir nunca vistas en "
              "entrenamiento, y además bien clasificadas por los dos modelos. Esa segunda condición "
              "es deliberada: si uno de los dos se equivoca, la comparación de dónde mira queda "
@@ -1585,8 +1584,8 @@ def build():
              "bajo, y si mira el uno por ciento, es casi nulo. Mismo barrio, distintas casas. La "
              "tercera es que la variante reparte la atención y CLAM la concentra: la "
              "entropía es mayor en seis de las siete láminas. Y hay algo que da ganas de conectar: "
-             "la mayor difusión aparece justo en la tarea donde MAMMOTH también mide mejor. Lo "
-             "digo como lo que es, una hipótesis. Con siete láminas no alcanza para atribuir la "
+             "la mayor difusión aparece justo en la tarea donde MAMMOTH también mide mejor. Es "
+             "una hipótesis, nada más. Con siete láminas no alcanza para atribuir la "
              "diferencia de métrica a la forma de la atención.")
 
     # ---- 11e. Cuántos expertos y cuántos slots se usan de verdad ----
@@ -1623,7 +1622,7 @@ def build():
     takeaway_bar(s, "Si hay que ajustar capacidad, el parámetro a tocar son los slots, no los "
                     "expertos.", t=4.56, size=12)
     notes(s, "Quedaba una pregunta concreta de la vez pasada: cuántos expertos y cuántos slots usa "
-             "realmente el modelo. Antes de responder conviene precisar qué se mide, porque hay "
+             "realmente el modelo. Antes de responder tengo que precisar qué se mide, porque hay "
              "dos cosas que se confunden. El peso por slot es la segunda distribución softmax, la "
              "que combina las trescientas salidas, treinta expertos por diez slots cada uno. No es "
              "el conteo de parches que cada experto atiende, que es otra medida distinta. Y hay un "
@@ -1769,7 +1768,7 @@ def build():
 
     takeaway_bar(s, "La pirámide se define en µm/px físicos, no en «level»; así el campo de visión "
                     "es comparable entre cohortes.", t=4.48, size=12.5)
-    notes(s, "Esta lámina responde una pregunta que suele surgir: cómo se relacionan la "
+    notes(s, "Acá respondo una pregunta que suele surgir: cómo se relacionan la "
              "magnificación, el área de tejido y el tamaño del parche en píxeles. La cantidad que "
              "manda es las micras por píxel, el eme pe pe. El lado físico de un parche es el número "
              "de píxeles por las micras por píxel, y el área es ese lado al cuadrado. Con la "
@@ -1840,7 +1839,7 @@ def build():
         add_textbox(s, x, 3.78, 3.00, 1.16,
                     [(grupo, 10.5, True, TEAL_TITLE, F_BODY)]
                     + [("· " + r, 9, False, INK, F_BODY) for r in refs])
-    notes(s, "Antes de elegir números conviene apoyarse en la patología, y hay dos hechos que "
+    notes(s, "Antes de elegir números me apoyo en la patología, donde hay dos hechos que "
              "mandan. El primero es que no todas las calcificaciones se ven igual en la tinción "
              "de rutina. Las de oxalato de calcio son casi invisibles en campo claro, solo "
              "aparecen con luz polarizada; el modelo, que trabaja sobre la tinción normal, está "
@@ -1885,7 +1884,7 @@ def build():
          "del contexto.", 10, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
     takeaway_bar(s, "Fusión por promedio → un token [N,512] → CLAM_MB intacto, la comparación más "
                     "limpia.", t=4.50, size=12.5)
-    notes(s, "Esta es la decisión concreta, y es donde pido guía. La propuesta son dos escalas. "
+    notes(s, "Llego a la decisión concreta, y es donde pido guía. La propuesta son dos escalas. "
              "Una fina, de ciento doce micras de campo, cerca de veinte magnificaciones, que es "
              "justo donde el encoder fue entrenado: ahí se detecta la calcificación y su forma. Y "
              "una de contexto, de quinientas doce micras, cerca de cinco magnificaciones, que "
