@@ -1664,8 +1664,8 @@ def build():
     # #386271 (el color de conector) el contraste contra #3E6877 era nulo y el eje se leía
     # como un solo tramo largo, justo lo contrario de lo que la lámina quiere mostrar.
     scale_axis(s, 0.45, 1.86, 9.10, [
-        (_f(50), _f(500), "la calcificación  50–500 µm", True, ONCO_DARK),
-        (_f(500), _f(2000), "el conducto anfitrión  0.5–2 mm", True, ONCO_INK),
+        (_f(50), _f(500), "la calcificación  50-500 µm", True, ONCO_DARK),
+        (_f(500), _f(2000), "el conducto anfitrión  0.5-2 mm", True, ONCO_INK),
         (_f(60), _f(120), "el parche fino de hoy  ~100 µm", False, ONCO_CONN),
     ])
     add_textbox(s, 0.30, 2.36, 9.4, 0.30, [
@@ -1810,8 +1810,8 @@ def build():
                     [(visnota, 9.5, False, ONCO_DARK, F_BODY, PP_ALIGN.RIGHT)])
 
     add_textbox(s, 0.30, 3.32, 9.4, 0.30, [
-        ("La calcificación (50–500 µm) entra en un parche fino; el conducto anfitrión "
-         "(0.5–2 mm), no.", 12, True, TEAL_TITLE, F_BODY, PP_ALIGN.CENTER)])
+        ("La calcificación (50-500 µm) entra en un parche fino; el conducto anfitrión "
+         "(0.5-2 mm), no.", 12, True, TEAL_TITLE, F_BODY, PP_ALIGN.CENTER)])
 
     # referencias: tres grupos al pie, una línea por cita
     _rect(s, 0.30, 3.70, 9.4, 1.30, TEAL_CARD2, line=TEAL_SQ)
