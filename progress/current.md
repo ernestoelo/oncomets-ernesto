@@ -270,6 +270,32 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   - **Menor, registrado sin tocar:** la s16 tiene una raya larga **dentro del PNG** del
     heatmap (`clase si — rama 1`); el chequeo es estructuralmente ciego al raster. Y Consolas
     (bloques de código, s07/s10/s22) no viaja embebida — riesgo bajo, es fuente de Office.
+- **✅ Pasada de `@humanizer-es` sobre el guion hablado (20-jul, commit `03cba8f`).** Pedido
+  explícito de Ernesto, pendiente desde el handoff anterior. Las 21 láminas con notas, sobre la
+  fuente versionada (el generador), no sobre el `.pptx` derivado. **El guion ya estaba limpio de
+  vocabulario de IA** (cero «profundizar/robusto/abordar/panorama/sinergia») y con cero rayas
+  desde `f9f1c0c` → lo que quedaba eran **tells de ritmo y de fórmula**, en racimo:
+  - «conviene» como apertura formulaica **8 → 1** (sobrevive la s19, que es el uso genuino y
+    calibra con la voz de los guiones B5, que lo usan una vez).
+  - **Anunciar la honestidad en vez de ser honesto 5 → 0** («Con la honestidad por delante»,
+    «una precisión honesta», «la quiero presentar con cuidado», «Lo digo como lo que es»). Se
+    preservan **todos** los límites que esas frases introducían (cala chica, n=65 negativos,
+    sign-off de patólogo pendiente): sale la ceremonia, no el contenido.
+  - Aperturas «Esta es la / Este es el» **5 → 1** (la s08 queda: ahí es **deíctica**, señala la
+    figura en pantalla). Tropos de autoridad **4 → 0** («el corazón del mecanismo», «la parte
+    que quiero dejar clarísima», «lo notable es que», «un punto clave»). Aforismo de remate de
+    la s13, reescrito como reclamo concreto.
+  - **No tocado a propósito:** los seis quiasmos «X, no Y» («tejido, no clase», «contexto, no
+    detalle») son **contrastes técnicos reales**, no el paralelismo retórico del patrón §9;
+    aplanarlos costaba precisión. Idem los giros humanos («Fíjense en», «Mismo barrio,
+    distintas casas») y los números hablados.
+  - Guion **4026 → 3982 palabras (−1,1 %)** = la medida de que salió ceremonia y no contenido.
+    Chequeo de conformidad en verde (fills · colores de fuente · <10 pt · rayas incl. notas) y
+    fuentes embebidas intactas (5 `.fntdata`, Barlow + Cambria Math). Solo cambió el generador.
+  - **Gotcha del método, nuevo:** la propia reescritura **introdujo** una repetición (s09 y s10
+    abriendo las dos con «Hay una…»). Se cazó **listando las 21 aperturas en fila**, no
+    releyendo lámina por lámina. Registrado en [[humanizer-es]] §ADDENDUM.
+  - **Ernesto todavía NO validó esta pasada** (se suma a las tres anteriores sin ver).
 
 ### Preguntas abiertas resueltas (13-jul, citadas a código)
 

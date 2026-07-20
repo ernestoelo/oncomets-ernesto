@@ -183,6 +183,14 @@ Se regenera con `generate_b7_deck.py` (el .pptx es derivado y está gitignorado)
 > la escala fina en **112 µm**. Cada uno es correcto por separado (256 = extraído, 224 =
 > entrada de CONCH, 112 = objetivo de la pirámide) pero **no hay puente** entre ellos.
 > Material de pregunta para Benjamín; la decisión es de Ernesto.
+>
+> **Actualizado el 20-jul (2) — el guion hablado pasó por `@humanizer-es`** (commit `03cba8f`).
+> Cambiaron **solo las notas del presentador**, no el contenido de ninguna lámina. El guion ya
+> estaba limpio de vocabulario de IA; lo que se sacó fueron **fórmulas de ritmo repetidas**:
+> «conviene» como apertura (8 → 1), anunciar la honestidad en vez de serlo (5 → 0), aperturas
+> «Esta es la…» (5 → 1) y cuatro tropos de autoridad. **Los límites y salvedades se preservan
+> enteros** (cala chica, n=65, sign-off pendiente): salió la frase que los anunciaba, no ellos.
+> 4026 → 3982 palabras. Detalle y gotcha del método: [[humanizer-es]] §ADDENDUM.
 
 ### Bloque A: apertura (1 a 3)
 | # | Contenido |
