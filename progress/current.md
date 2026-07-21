@@ -351,6 +351,22 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   `attention_side_by_side.png` bajo `results/b7_mammoth_interp/interpretabilidad/<tarea>/<slide>/`) y el
   generador inserta el side-by-side en la **lámina 16 «Mismo barrio, distintas casas»**
   (`generate_b7_deck.py:191` y :1546-1589). **No re-abrirla como pendiente.**
+- ➡️ **Nuevo pedido de Sebastián (20-jul, tarde) — heatmaps con vs sin `no_identificado`, lo ejecuta ÉL.**
+  Sebastián propuso comparar heatmaps de la MISMA tarea en sus dos formulaciones (con y sin `no_identificado`)
+  para tipo/CDIS/LVI y ver si el modelo mira lo mismo. **Es un eje distinto al CLAM vs Mammoth que ya
+  entregamos.** Verificado contra disco en esta sesión (para poder responderle preciso): (1) los splits
+  «con `no_identificado`» de las 3 **YA EXISTEN**, no hay que generar nada — **tipo** →
+  `splits_5fold_balanced/tipo_histologico_4clases_pth_balance_100` (2815 = las 3 clases del `_ci` +
+  `no_identificado` como 4ª; **sgaete ya tiene checkpoint fold-0** en
+  `results_modelo_pth_balance/tipo_histologico_4clases_pth_balance_s1`, test_auc 0.844); **CDIS/LVI** → sus
+  `_ci` tal cual (2815, `no_id` plegado al negativo). El CSV viejo `dataset_tipo_histologico_4clases_label.csv`
+  (1396) es un corte anterior, **descartado**. (2) La «con» y la «sin» son **particiones distintas** (no
+  anidadas salvo fold-0 de tipo, ~92% igual) → una lámina de heatmap debe caer en **test de las dos** para que
+  ningún modelo la haya visto en train (intersección fold-0: tipo ~186, CDIS 7, LVI 3). (3) Matiz para
+  interpretar el resultado, no bloqueante: en CDIS/LVI el «sin» (reform) además **restringe a invasivas**, así
+  que una diferencia puede venir del `no_id` o de esa restricción. **Sebastián se encarga de este eje**
+  (respuesta precisa enviada por chat); **nuestro foco sigue siendo CLAM vs Mammoth** (ya entregado) y el
+  repaso pedagógico para la reunión del miércoles 22. [[b7-splits-con-sin-no-identificado-ya-existen]].
 
 ---
 
