@@ -12,21 +12,21 @@
 > de tejido limpia sin fragmentos sueltos que inviten preguntas de artefacto, y es de
 > **tipo histológico**, así que no arrastra el punto delicado de CDIS.
 
-te mando una de las comparaciones de atención, clam contra mammoth sobre la misma lámina
-(carcinoma lobulillar invasivo, del test del fold 0, y las dos ramas la clasifican bien).
-izquierda clam, centro mammoth, derecha la resta.
+te mando una comparación de atención, clam contra mammoth sobre la misma lámina: carcinoma
+lobulillar invasivo, del test del fold 0 y bien clasificada por las dos. izquierda clam,
+centro mammoth, derecha la resta.
 
-la lámina tiene 4201 parches. mirando el orden completo los dos coinciden harto: la
-correlación de rangos da 0.885, o sea ordenan el tejido casi igual.
+la lámina tiene 4201 parches y cada modelo le da un puntaje de atención a cada uno. ordeno
+los parches por ese puntaje en cada modelo y comparo los dos ordenamientos (correlación de
+rangos): 0.885 sobre 1, o sea ordenan el tejido casi igual.
 
-pero si te quedás solo con la cima cambia la foto. el 5% más atendido son 210 parches por
-modelo, y de esos comparten apenas 82. cada uno se queda con 128 propios que el otro ni
-marca. el solapamiento queda en 0.243, cuando al azar daría 0.026. o sea no eligen al
-voleo, hay estructura en común, pero eligen distinto y de forma sistemática.
+después miro solo el tejido más atendido, el 5% de arriba: 210 parches por modelo. de esos
+comparten 82 y cada uno se queda con 128 que el otro ni marca. el solapamiento da 0.243,
+cuando al azar daría 0.026.
 
-resumido: coinciden en qué zona del tejido importa y no coinciden en qué parches puntuales
-miran ahí adentro. si usáramos esto para señalarle regiones a un patólogo, los dos le
-apuntarían al mismo sector pero a parches distintos.
+resumido: coinciden en qué zona del tejido importa y no en qué parches puntuales miran ahí
+adentro. si le señaláramos regiones a un patólogo con esto, los dos le apuntarían al mismo
+sector pero a parches distintos.
 
 ojo que el mapa es la atención sobre los parches, no el ruteo de expertos: en mammoth los
 30 ya vienen mezclados en cada parche antes de esta etapa.
