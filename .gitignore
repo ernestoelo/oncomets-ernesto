@@ -122,3 +122,7 @@ conf.env
 # backup local de 23 MB (incluye assets/PDFs de MAMMOTH), no va a git.
 sprints/B4_sprint4/objetivo_6_mammoth/eduardo_snapshot/*.tar.gz
 .handoffs/
+
+# Paquete de envio de heatmaps (derivado; el original versionado esta en results/)
+sprints/B7_sprint7/envio_heatmaps/*.png
+sprints/B7_sprint7/envio_heatmaps/*.zip

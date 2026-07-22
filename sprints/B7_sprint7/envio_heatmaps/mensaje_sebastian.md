@@ -1,0 +1,61 @@
+# Mensaje para Sebastián (chat) + inventario del envío
+
+> Fuente canónica versionada. Los PNG y el .zip de esta carpeta son **derivados**
+> (gitignorados); el original versionado vive en
+> `results/b7_mammoth_interp/interpretabilidad/<tarea>/<lámina>/attention_side_by_side.png`.
+> Redactado en el registro de Ernesto ([[entregable-externo-sanitizado]]).
+
+## Texto para copiar y pegar
+
+te paso los mapas de atención de las 7 láminas, clam contra mammoth. son 7 imágenes y cada
+una tiene tres paneles: clam a la izquierda, mammoth al medio, y la resta de los dos a la
+derecha.
+
+los nombres van por tarea y lámina, así que se ubican solos: tipo_TCGA-AO-A12D_ductal-NST,
+tipo_TCGA-AC-A8OS_lobulillar, tipo_TCGA-E9-A1NE_otros, cdis_TCGA-D8-A1XB_si,
+cdis_TCGA-A7-A4SB_no, lvi_TCGA-D8-A1X5_presente, lvi_TCGA-D8-A1XW_ausente.
+
+todas son del test del fold 0, o sea ninguna la vieron entrenando, y las dos ramas las
+clasifican bien. así lo que se ve es dónde mira cada una y no que alguna se esté
+equivocando.
+
+lo que dicen los números: la correlación de rangos entre los dos mapas da 0.805 promedio,
+pero si te quedás con el 5% de parches más atendidos el solapamiento cae a 0.172, y con el
+1% a 0.073. o sea ordenan el tejido parecido, pero los parches puntuales que ponen arriba
+son casi todos distintos.
+
+la otra diferencia es que mammoth reparte más la atención: entropía 0.894 contra 0.781 de
+clam, y pasa en 6 de las 7. donde más se nota es en la lámina de cdis positiva, que clam
+concentra harto (0.642) y mammoth abre (0.927).
+
+una salvedad: en cdis mammoth también mide un poco mejor, pero con 7 láminas no me da para
+decir que sea por la forma de la atención. queda como sospecha nomás.
+
+## Inventario del paquete
+
+| Archivo | Tarea | Clase real | N parches | Spearman | Jaccard top-5% |
+|---|---|---|---|---|---|
+| `tipo_TCGA-AO-A12D_ductal-NST.png` | tipo histológico | inv. tipo no especificado | 7097 | 0.848 | 0.079 |
+| `tipo_TCGA-AC-A8OS_lobulillar.png` | tipo histológico | lobulillar invasivo | 4201 | 0.885 | 0.243 |
+| `tipo_TCGA-E9-A1NE_otros.png` | tipo histológico | otros | 5592 | 0.669 | 0.315 |
+| `cdis_TCGA-D8-A1XB_si.png` | CDIS | si | 16442 | 0.847 | 0.202 |
+| `cdis_TCGA-A7-A4SB_no.png` | CDIS | no | 2793 | 0.921 | 0.261 |
+| `lvi_TCGA-D8-A1X5_presente.png` | invasión linfovascular | presente | 28170 | 0.668 | 0.008 |
+| `lvi_TCGA-D8-A1XW_ausente.png` | invasión linfovascular | ausente | 22206 | 0.796 | 0.101 |
+
+Total 7.4 MB sueltos, 7.3 MB comprimidos (`heatmaps_clam_vs_mammoth.zip`).
+
+## Salvedades que NO deben caerse si repregunta
+
+- Los nombres de tejido son **lectura visual nuestra, no anotación**: no hay etiqueta de
+  tejido por parche, sólo la clínica de la lámina. Sign-off de patólogo pendiente.
+- La mayor difusión de Mammoth en CDIS **no explica** que mida mejor ahí. Con n=7 no se
+  atribuye.
+- CDIS **no es una mejora establecida** (65 negativos en total).
+
+## Defecto conocido del raster
+
+Las 7 figuras llevan una raya larga en el título («TCGA-… — clase … (rama N)»), generada en
+`scripts/clam_vs_mammoth_attention.py:236`. Es cosmético y viaja dentro del PNG. Arreglarlo
+exige re-correr el forward de las 7 láminas (CPU, ~70 min, desatado por workaround J), porque
+las atenciones no quedan cacheadas en disco.
