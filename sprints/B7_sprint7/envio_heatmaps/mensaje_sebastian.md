@@ -5,7 +5,41 @@
 > `results/b7_mammoth_interp/interpretabilidad/<tarea>/<lámina>/attention_side_by_side.png`.
 > Redactado en el registro de Ernesto ([[entregable-externo-sanitizado]]).
 
-## Texto para copiar y pegar
+## Texto para copiar y pegar — ENVÍO DE UNA SOLA IMAGEN (el elegido)
+
+> Adjuntar `tipo_TCGA-AC-A8OS_lobulillar.png`. Es la que sostiene las dos mitades del
+> mensaje a la vez (Spearman 0.885, de las más altas, y Jaccard top-5% 0.243), es una cuña
+> de tejido limpia sin fragmentos sueltos que inviten preguntas de artefacto, y es de
+> **tipo histológico**, así que no arrastra el punto delicado de CDIS.
+
+te mando una de las comparaciones de atención, clam contra mammoth sobre la misma lámina
+(carcinoma lobulillar invasivo, del test del fold 0, y las dos ramas la clasifican bien).
+izquierda clam, centro mammoth, derecha la resta.
+
+la lámina tiene 4201 parches. mirando el orden completo los dos coinciden harto: la
+correlación de rangos da 0.885, o sea ordenan el tejido casi igual.
+
+pero si te quedás solo con la cima cambia la foto. el 5% más atendido son 210 parches por
+modelo, y de esos comparten apenas 82. cada uno se queda con 128 propios que el otro ni
+marca. el solapamiento queda en 0.243, cuando al azar daría 0.026. o sea no eligen al
+voleo, hay estructura en común, pero eligen distinto y de forma sistemática.
+
+resumido: coinciden en qué zona del tejido importa y no coinciden en qué parches puntuales
+miran ahí adentro. si usáramos esto para señalarle regiones a un patólogo, los dos le
+apuntarían al mismo sector pero a parches distintos.
+
+ojo que el mapa es la atención sobre los parches, no el ruteo de expertos: en mammoth los
+30 ya vienen mezclados en cada parche antes de esta etapa.
+
+tengo las otras 6 láminas si las querés ver.
+
+### De dónde salen esas cuentas
+
+`topk_jaccard` (`scripts/clam_vs_mammoth_attention.py`) toma `k = round(N · 0.05)` parches
+por modelo y devuelve intersección sobre unión. Para N = 4201: k = 210, y J = 0.243 implica
+82 compartidos (82/338). El azar sería k²/N ≈ 10.5 compartidos → J ≈ 0.026.
+
+## Texto alternativo — ENVÍO DE LAS 7 LÁMINAS
 
 te paso los mapas de atención de las 7 láminas, clam contra mammoth. son 7 imágenes y cada
 una tiene tres paneles: clam a la izquierda, mammoth al medio, y la resta de los dos a la
