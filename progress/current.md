@@ -366,7 +366,36 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   interpretar el resultado, no bloqueante: en CDIS/LVI el «sin» (reform) además **restringe a invasivas**, así
   que una diferencia puede venir del `no_id` o de esa restricción. **Sebastián se encarga de este eje**
   (respuesta precisa enviada por chat); **nuestro foco sigue siendo CLAM vs Mammoth** (ya entregado) y el
-  repaso pedagógico para la reunión del miércoles 22. [[b7-splits-con-sin-no-identificado-ya-existen]].
+  repaso pedagógico para la reunión. [[b7-splits-con-sin-no-identificado-ya-existen]].
+- ⚠️ **LA REUNIÓN ES EL VIERNES 24, no el miércoles 22** (Ernesto, 22-jul: «el viernes hay reunión
+  bisemanal con benja»). Las entradas anteriores de este archivo que dicen «miércoles 22» quedan
+  **superseded**. **Pendiente que esto abre**: `generate_b7_deck.py:66` tiene
+  `FECHA_REUNION = "22/07/2026"  # miércoles` **hardcodeada y se imprime en la lámina 2** → hay que
+  corregirla y regenerar el deck. No se hizo en esta sesión (el deck no se toca sin pedido explícito).
+- ✅ **Envío del heatmap CLAM vs Mammoth a Sebastián PREPARADO y ENVIADO (22-jul).** Ernesto pidió
+  mandar **una sola imagen** con un mensaje corto. Elegida `tipo_TCGA-AC-A8OS_lobulillar.png`
+  (carcinoma lobulillar invasivo): es la única que sostiene **las dos mitades** del mensaje a la vez
+  (Spearman 0.885, de las más altas, con Jaccard top-5% 0.243), es una cuña de tejido limpia sin
+  fragmentos sueltos que inviten preguntas de artefacto, y es de **tipo histológico**, así que no
+  arrastra el punto delicado de CDIS. Descartadas: la CDIS positiva (masa grande y pareja, la
+  diferencia no salta), la de `otros` (fragmento aislado al rojo vivo en ambos modelos) y la de LVI
+  presente (Jaccard 0.008 pero correlación baja → rompe la mitad de «mismo barrio»).
+  Paquete derivado (7 PNG renombrados + zip, **gitignorados**) y **mensaje canónico** en
+  `sprints/B7_sprint7/envio_heatmaps/mensaje_sebastian.md`. Commits `72d2400`, `1356f21`, `3cd7fee`.
+  **Enviado por chat 14:36-14:42**, pero Ernesto mandó sólo los 3 primeros párrafos: **quedaron
+  fuera** el cierre interpretativo, la calibración del 0.243 contra el azar (0.026) y la salvedad de
+  que el mapa no es ruteo de expertos. Si Sebastián repregunta, están en el `.md`.
+- ✅ **Aclarado el mecanismo del heatmap (duda de Ernesto, verificada contra código).** El mapa **no
+  es de un experto ni el promedio de los 30**: es la **atención de CLAM sobre los parches**, mismo
+  mecanismo en los dos brazos (`CLAM_MB_Mammoth` hereda el `forward` de `CLAM_MB`). Con
+  `keep_slots=False` los **300 slots ya vienen fundidos por parche** vía `combine_weights`
+  (`mammoth.py:366`) **antes** de la atención. El artefacto per-experto es otro:
+  `expertos/heatmap_montage.png`. Nueva memoria [[heatmap-atencion-no-es-per-experto]].
+- ➡️ **Precisión sobre un pendiente menor ya registrado**: la raya larga «—» del título **está en las
+  7 figuras**, no sólo en la de la lámina 16. Sale de `scripts/clam_vs_mammoth_attention.py:236`
+  (el `suptitle`). Arreglarla exige re-correr el forward de las 7 láminas (CPU, ~70 min, desatado por
+  workaround J) porque **las atenciones no quedan cacheadas en disco**: `attention_stats.json` sólo
+  guarda escalares. Cosmético; se envió así.
 
 ---
 
