@@ -492,6 +492,32 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   23-jul de [[notas-presentador-guion-didactico]]: el guion **narraba la tabla fila por fila** (5 de
   5 aperturas eran «La X fila…»), y humanizar arregla ritmo pero **no arregla comprensión**.
 
+#### Sesión de ESTUDIO del deck (23-jul, madrugada 24) — lámina 7 CERRADA
+
+- ✅ **Lámina 7 CERRADA en dos rondas más.** Reescritura completa de los puntos 2 a 6 del guion con
+  la estrategia de la lámina 6 (desmontar la lectura equivocada → dar la correcta → mini-ejemplo
+  numérico) + amarrar **cada punto a su línea del código por nombre** (`dispatch`, `expert_heads`,
+  `combine`). El guion pasó de 5 a **6 puntos** (cada uno una sola operación) y de ~623 a **~510
+  palabras**. Cómo se destrabó: ADDENDUM 3 de [[notas-presentador-guion-didactico]].
+- ✅ **Cambios en la lámina misma (no solo el guion), resolviendo 3 decisiones que estaban abiertas:**
+  (1) la fila `S · prototipos (slot_embeds)` → **`S · 300 prototipos de 256`** (el 300 impreso mata
+  el anidamiento falso en el origen; la forma `[30,16,10,16]` queda como dato al lado); (2) el pie
+  dejó de repetir «30×10=300» y ahora dice lo que sí necesitaba respaldo visual — **los tramos no se
+  cruzan y salen 4800 parecidos por parche** (se había caído al recortar la 6); (3) `drop-in` salió
+  de la tabla (`combine → salida por parche`) y del comentario del código (`keep_slots=False (camino
+  base)`), por la regla de vocabulario.
+- ⚠️ **Feedback de vocabulario (2ª ronda):** Ernesto pidió *«más preciso y profesional»* y rechazó
+  dos coloquialismos — **«flaca»** (matriz de bajo rango) → «de bajo rango / dos matrices de rango
+  pequeño (LoRA)»; **«al revés»** (la reconstrucción) → «la segunda softmax, el combine, simétrica a
+  la del dispatch». Registrado en [[deck-estilo-sin-rayas-ni-palanca]] ADDENDUM 2.
+- ⏳ **Próximo: la lámina 8**, la figura del paper — y detrás la **9** («la relación 16×30×10»,
+  esquema anidado + tabla grande), que es **la más densa del deck**. El punto 6 de la 7 ya entrega a
+  la 8 («en la lámina siguiente lo vemos dibujado por los autores»).
+- ℹ️ **Untracked de sesión paralela (NO commiteados por esta sesión):**
+  `scripts/build_slot_softmax_tables.py` + `sprints/B7_sprint7/slot_softmax/*.csv` (13:35-13:36 hoy).
+  Material para la respuesta a Sebastián (2ª softmax por slot, `combine_weights` sobre los 300);
+  no son de esta sesión, se dejan intactos para quien los creó.
+
 ---
 
 ## Eje que continúa de B6 — Magnificación multi-escala (CONCH) sobre CLAM (pipeline armado, NO lanzado)
