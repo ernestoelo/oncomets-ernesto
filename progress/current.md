@@ -397,6 +397,41 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   workaround J) porque **las atenciones no quedan cacheadas en disco**: `attention_stats.json` sólo
   guarda escalares. Cosmético; se envió así.
 
+#### Sesión de ESTUDIO del deck (23-jul) — láminas 3 y 5
+
+- ✅ **Formato nuevo de las notas del presentador: punteadas por viñeta.** Ernesto pidió un punto
+  numerado por cada viñeta de la lámina, separados por línea en blanco («para que al leerlas me sea
+  más fácil visualmente»). Sigue siendo guion hablado; **no** son etiquetas de fase. Aplicado a las
+  láminas 3 y 5 y validado («me encantó el punteo así»). ADDENDUM en
+  [[notas-presentador-guion-didactico]].
+- ✅ **Lámina 3:** el objetivo 1 pierde «y explicarlo con una analogía simple» (queda «Dominar el
+  mecanismo de MAMMOTH»), y con eso el deck deja de prometer una analogía que había que entregar.
+- ⚠️ **ERROR FACTUAL corregido en la lámina 5.** El pie de la Fig. 3 decía «cada color es el ruteo de
+  un experto sobre la slide». Leyendo la figura real: los paneles están rotulados por **par
+  experto+slot** (`Expert 16 Slot 4`) y la barra es `Patch-slot similarity`. **La morfología la
+  captura el slot, no el experto** (e16·s1 alvéolos vs e16·s4 estroma) → nueva memoria
+  [[slot-unidad-de-morfologia]] + precisión en CLAUDE.md Hallazgo 12. Decirlo «por experto» además
+  contradecía la lámina 17.
+- ✅ **Vocabulario:** fuera «blando»/«duro» (soft/hard routing, opacos para Ernesto) y «reclama» →
+  **«concentra»** en las 9 apariciones del generador. ADDENDUM en
+  [[deck-estilo-sin-rayas-ni-palanca]].
+- ⚠️ **CORRECCIÓN de un enunciado que estaba en 3 docs:** «las dos láminas de CDIS son los dos
+  extremos» es falso — 89.7 es el mínimo, pero el máximo 196.4 es de **LVI** (180.3 es la 2ª más
+  alta). Reescrito como «cubren casi todo el rango solas». Corregido en `resultados_interpretabilidad.md`,
+  `material_reunion.md`, `guia_estudio_b7.md` y CLAUDE.md. Registrado además que la tendencia con el
+  tamaño **no es monótona** (la lámina más grande rompe el orden; por eso ρ=0.750).
+- ✅ **Dato nuevo, triangulación de Q1:** 38.7 slots juntan el 50 % del peso y 164.4 el 90 %, contra
+  `N_eff`=158.7 → dos medidas independientes convergen en ~160 de 300. Y los expertos están en el
+  **techo teórico** (29.969-29.987 de 30 = 99.9 %), que solo se alcanza con reparto uniforme.
+  En `resultados_interpretabilidad.md` §5 con la fórmula de `exp(entropía)` escrita para explicarla.
+- ⏳ **Sebastián respondió y PREGUNTÓ (23-jul):** «lo que representarían los slots y cuántos
+  deberíamos ocupar». Respuesta redactada en la voz de Ernesto, **sin enviar todavía**. La parte de
+  «cuántos» incluye una **propuesta de experimento** (E=30, S=5 → 150 slots, paired sobre los mismos
+  splits) que, si Sebastián acepta, **toca el modelo** ⇒ regla 9 + reviewer.
+  [[sprint7-interpretabilidad-clam-vs-mammoth]].
+- ⚠️ **La fecha del deck SIGUE mal.** Se ofreció corregirla dos veces en la sesión y Ernesto no se
+  pronunció; no se tocó.
+
 ---
 
 ## Eje que continúa de B6 — Magnificación multi-escala (CONCH) sobre CLAM (pipeline armado, NO lanzado)
