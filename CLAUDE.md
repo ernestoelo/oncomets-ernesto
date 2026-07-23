@@ -811,9 +811,15 @@ re-validar y actualizar `docs/codebase_map.md`.
     `e90=27`, los valores exactos del reparto uniforme, idénticos en las 3 tareas) → **E=30 no está
     sobredimensionado**; y **slots 158.7 de 300** → el margen de recorte de capacidad está en **S,
     no en E**. La dispersión de slots (89.7–196.4) sigue al **tamaño de la lámina**, no a la tarea
-    (las 2 láminas de CDIS son los dos extremos). Refuerza este Hallazgo: el modelo ocupa todos sus
+    (las 2 láminas de CDIS cubren casi todo el rango solas: la más baja y la 2ª más alta; el máximo
+    196.4 es de LVI). Refuerza este Hallazgo: el modelo ocupa todos sus
     expertos, así que el cuello no es falta de capacidad de ruteo. Detalle:
     [[mammoth-slot-routing-weight]] + `sprints/B7_sprint7/resultados_interpretabilidad.md` §5.
+    **Precisión 23-jul:** la morfología la captura el **slot**, no el experto — la Fig. 3 del paper
+    rotula sus mapas por **par experto+slot** y el mismo experto tiene slots de tejido distinto
+    (e16·s1 alvéolos vs e16·s4 estroma). Explica por qué los expertos salen uniformes y el margen
+    está en S. Nuestro OBJ-A midió a nivel de **experto**, no de slot: no presentarlo como si
+    hubiéramos medido morfología por slot. [[slot-unidad-de-morfologia]].
     **DATO ABIERTO (18-jul, job 4589) — NO reabre este Hallazgo, pero queda registrado:** en la
     formulación NUEVA `carcinoma_ductal_insitu_presente_ci_reform` (85% positivo, jamás incluida
     en las 12 configs que cerraron este Hallazgo) Mammoth dio Δbal_acc **+0.074 ± 0.033 (5/5

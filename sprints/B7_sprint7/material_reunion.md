@@ -155,7 +155,8 @@ así que el número de expertos no está sobredimensionado: el modelo los ocupa 
 **El margen de recorte está en los slots.** El promedio es 158.7 de 300, es decir que cerca
 de la mitad del presupuesto de slots aporta poco. La dispersión entre láminas (de 89.7 a
 196.4) no responde a la tarea sino al **tamaño de la lámina**: las dos láminas de ductal in
-situ son justamente los dos extremos, y el orden sigue al número de parches (correlación de
+situ cubren casi todo ese rango por sí solas (89.7, el mínimo, y 180.3, la segunda más
+alta), y el orden sigue al número de parches (correlación de
 rangos 0.75, al borde de la significancia con siete láminas). Descontando la lámina más
 chica, que tiene la mitad de parches que la siguiente, el rango se cierra en 170.2 ± 18.1.
 La lectura razonable es que una lámina con pocos parches ofrece menos morfología distinta

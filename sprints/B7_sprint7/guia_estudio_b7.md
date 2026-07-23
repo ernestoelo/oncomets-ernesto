@@ -94,7 +94,8 @@ Los expertos dan 30.0 de 30 en **las 7 láminas**, y los cuantiles (15 expertos 
 50% del peso, 27 para el 90%) son exactamente los del reparto uniforme. Sólido.
 
 Los slots varían entre 89.7 y 196.4, y esa dispersión **no depende de la tarea**: las dos
-láminas de CDIS son justamente los dos extremos. Sigue al **tamaño de la lámina**
+láminas de CDIS cubren casi todo el rango solas (89.7, el mínimo, y 180.3, la segunda
+más alta). Sigue al **tamaño de la lámina**
 (ρ = 0.750, p = 0.052). Con siete láminas eso describe, no establece.
 
 > Ojo con la nomenclatura: "peso por slot" es `combine_weights`, la segunda softmax sobre

@@ -190,11 +190,31 @@ las 3 tareas.
 **Slots: ahí está el margen de recorte.** Media 158.7/300 (sd 34.6): cerca de la mitad del
 presupuesto aporta poco al peso final.
 
-**La dispersión NO es por tarea, sigue al tamaño de la lámina.** Las dos láminas de CDIS son
-los **dos extremos** del rango (89.7 y 180.3), lo que descarta el efecto de tarea. El orden
+**Triangulación por masa acumulada (23-jul, calculado sobre `respuesta_q1_expertos_slots.json`).**
+Promediando las 7 láminas, **38.7 slots juntan el 50 % del peso** y **164.4 juntan el 90 %**.
+Que ese 164.4 caiga tan cerca del `N_eff`=158.7 es lo que sostiene el "~160 de 300": dos medidas
+independientes (entropía vs masa acumulada) apuntan al mismo lugar. Corolario a tener listo para
+la repregunta: `N_eff`=158.7 **no** dice que 159 slots trabajen por partes iguales — la
+distribución es sesgada y 39 slots llevan la mitad.
+
+**Los expertos están en el techo teórico, no solo "altos".** Los valores exactos del JSON van de
+**29.969 a 29.987 sobre un máximo de 30** (99.9 %). Como `N_eff = n` se alcanza **sólo** en el
+reparto uniforme (máximo de la entropía), eso *es* reparto uniforme.
+
+> **La cuenta, para explicarla.** Con `p_j = w_j / Σw` sobre los 300 slots (`w_j` =
+> `mean_combine_weight` de la lámina): `H = −Σ p_j ln p_j` y `N_eff = exp(H)`. Forma equivalente:
+> `N_eff = Π (1/p_j)^{p_j}`, la media geométrica ponderada de `1/p_j`, que es lo que le da unidades
+> de "nº de slots". Calibración: uniforme sobre k ítems ⇒ `H = ln k` ⇒ `N_eff = k` exacto; cotas
+> `1 ≤ N_eff ≤ n`. Se llama perplejidad (NLP) o número de Hill de orden 1 (ecología).
+
+**La dispersión NO es por tarea, sigue al tamaño de la lámina.** Las dos láminas de CDIS cubren
+casi todo el rango por sí solas (89.7, el mínimo de las 7, y 180.3, la segunda más
+alta), lo que descarta el efecto de tarea. El orden
 sigue al nº de parches: Spearman ρ=0.750 (p=0.052, n=7); excluyendo la lámina chica (2 793
 parches, la mitad que la siguiente) queda **170.2 ± 18.1**. Lectura mecánica: menos parches,
-menos morfología distinta que rutear.
+menos morfología distinta que rutear. **La tendencia no es monótona**: la lámina más grande de
+las 7 (28 170 parches) da 162.4 y rompe el orden, que es por qué ρ=0.750 y no 1.0. Conviene
+decirlo antes de que lo vean en la tabla.
 
 > **Fuerza de la evidencia.** Con n=7 esto **describe** el comportamiento, no lo establece:
 > la correlación con el tamaño se apoya en **un solo** caso de lámina chica, y p=0.052 está
