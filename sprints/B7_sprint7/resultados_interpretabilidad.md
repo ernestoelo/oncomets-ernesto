@@ -119,6 +119,38 @@ Figuras por slide en `results/b7_mammoth_interp/interpretabilidad/<tarea>/<slide
 `attention_clam.png`, `attention_mammoth.png`, `attention_side_by_side.png` (CLAM |
 Mammoth | delta) y `attention_stats.json`.
 
+### 3.1 Anatomía del desacuerdo: cómo conviven ρ=0.885 y Jaccard=0.243 (23-jul)
+
+La pregunta natural al ver la tabla ("ordenan casi igual" pero "comparten 1 de cada 4 del
+top") tiene respuesta medible. Recalculado sobre `TCGA-AC-A8OS` (N=4201, k=5 % = 210
+parches; los puntajes por parche no se guardan, se re-derivan con
+`clam_vs_mammoth_attention.py`):
+
+**Los parches en disputa no están en el fondo del otro modelo.**
+
+| Conjunto | Puesto mediano en el **otro** modelo | En la mitad inferior |
+|---|---|---|
+| Los 128 del top de CLAM que Mammoth no marca | **721 de 4201** (percentil 17 %) | **0 %** |
+| Los 128 del top de Mammoth que CLAM no marca | **422 de 4201** (percentil 10 %) | **0 %** |
+
+Ni un solo parche en disputa cae en la mitad de abajo del otro modelo; el peor caso está en
+el puesto 1577 (tercio superior). Además el top-5 % de CLAM concentra el **21.5 %** de toda
+la atención de Mammoth, y el de Mammoth el **31.1 %** de la de CLAM (si fueran
+independientes: 5 %).
+
+**Mecanismo: la cola alta está aplastada.** En Mammoth el parche #210 pesa solo **1.20×** el
+#420 (en CLAM, 2.19×). Cortar al 5 % con esa diferencia es trazar una raya donde los valores
+están casi empatados → la membresía del top es inestable, mientras que la correlación de
+rangos casi no se entera de que un parche se mueva del puesto 210 al 420 sobre 4201.
+
+**Las dos métricas contestan preguntas distintas** — la correlación, si coinciden en el
+orden general; el solapamiento, si coinciden en la selección exacta de los 210 mejores. Las
+dos pueden ser ciertas a la vez.
+
+> **No usar como hallazgo:** la correlación restringida a la unión de los dos tops da −0.426,
+> pero es **artefacto de selección** (condicionar sobre "estar arriba en al menos uno"), no
+> evidencia de orden invertido.
+
 ## 4. Hallazgo lateral: la geometría del parche no se puede inferir de la magnificación
 
 Al montar los heatmaps apareció un **bug en el tooling heredado de OBJ-A**.
@@ -224,6 +256,63 @@ decirlo antes de que lo vean en la tabla.
 `slot_usage.csv`, que es un artefacto **intermedio** — podía promediar una lámina en vuelo
 (CSV a medio escribir) o de una corrida cortada, **sin avisar**. Ahora filtra por `meta.json`
 (marcador final, misma regla que el driver reanudable) y reporta las excluidas.
+
+### 5.2 La softmax por slot, tabla y mapa (23-jul)
+
+Pedido de Ernesto para que Sebastián viera **literalmente** la segunda softmax, con la
+cola de slots que pesan ~0. Generado por `scripts/build_slot_softmax_tables.py` (tablas) y
+`scripts/slot_heatmaps_contraste.py` (mapas), ambos CPU post-hoc sobre los `slot_usage.csv`
+ya existentes. Salidas en `sprints/B7_sprint7/slot_softmax/`.
+
+**La cola es basura numérica, y el umbral a ojo es arbitrario.** En `TCGA-AC-A8OS`: ningún
+slot vale exactamente 0 (el mínimo es `3.98e-05`, unas 84× menos que el uniforme 0.00333),
+así que "contar los no nulos" da **300 siempre**. Y el conteo depende del corte elegido:
+
+| Corte | Slots que pasan |
+|---|---|
+| > 0 | 300 |
+| > 0.0001 | 299 |
+| > el uniforme (0.333 %) | 91 |
+| > 0.5 % | 53 |
+| > 1 % | 25 |
+
+De 25 a 300 según dónde se corte → **por eso `N_eff = exp(H)` es la medida honesta: no
+tiene parámetro libre.** Triangula con la masa acumulada (38 slots = 51 %, 164 = 91 %,
+contra `N_eff` 156) — dos medidas independientes convergen en ~160/300.
+
+**Agregado por tarea** (`slot_softmax_resumen.csv`):
+
+| Tarea | N_eff (promedio de tarea) | N_eff por lámina | Sobre el uniforme | ≈0 | Top-1 |
+|---|---|---|---|---|---|
+| tipo histológico | 199.3 | 156 / 178 / 148 | 103 | 197 | e12·s2 (3.72 %, 11.1× el uniforme) |
+| CDIS | 160.1 | 90 / 180 | 82 | 218 | e13·s6 (3.24 %, 9.7×) |
+| LVI | 195.9 | 162 / 196 | 98 | 202 | e6·s7 (3.22 %, 9.7×) |
+
+> **Gotcha del promediado.** El `N_eff` de la columna "promedio de tarea" sale **inflado**
+> respecto al por-lámina (199 vs ~161 en tipo): promediar distribuciones de láminas
+> distintas **sube la entropía**. Para el argumento de recortar S hay que citar el
+> **por-lámina**; la tabla por tarea sirve para *ver qué slots se activan*, no para
+> re-medir cuántos. Por eso la tabla mini se emite **por lámina**.
+
+**Mapa de calor por slot (no por experto).** Los heatmaps que ya existían
+(`expertos/heatmaps/expert_N.png`) son por **experto** y usan la **primera** softmax
+(`dispatch`); la tabla rankea **slots** con la **segunda** (`combine`). Contrastarlas
+mezclaría dos niveles y dos softmax — y a nivel experto el ruteo es uniforme (30.0/30), así
+que la tabla no discrimina ahí. `slot_heatmaps_contraste.py` toma `combine` **sin colapsar
+el eje espacial N**, selecciona la columna del slot `(e,s)` y pinta el **top-15 % de
+parches** de ese slot sobre el tejido (recorte visual; con todos los parches pintados el
+contraste entre slots se aplasta). Es el análogo de la Fig. 3 del paper.
+
+**Los slots top NO son redundantes entre sí** (medido sobre `TCGA-AC-A8OS`): la correlación
+espacial de rangos entre los **top-8** slots tiene media **−0.00**, y el #1 (`e12·s2`) está
+**anti-correlacionado con el #2** (`e5·s5`, **−0.62**) — encienden regiones opuestas. Pero
+algunos pares sí se parecen mucho (`e5·s5` vs `e24·s9`, **+0.89**). Complementa
+[[slot-unidad-de-morfologia]] con evidencia sobre **nuestras** láminas, no solo la figura
+del paper.
+
+> **Honestidad:** esto muestra que slots distintos se concentran en **regiones distintas**
+> del tejido, que es medible. **Qué tejido es cada región sigue siendo lectura visual, no
+> anotación** — sign-off de patólogo pendiente (igual que en OBJ-A).
 
 ## 6. Tabla por tarea (requisito de Sebastián)
 
