@@ -314,6 +314,70 @@ del paper.
 > del tejido, que es medible. **Qué tejido es cada región sigue siendo lectura visual, no
 > anotación** — sign-off de patólogo pendiente (igual que en OBJ-A).
 
+### 5.3 Corrección de los mapas y la cota sobre la softmax (23-jul, tarde)
+
+Los dos encargos de la reunión con Sebastián (`reunion_23jul_acuerdos.md` §1 y §4).
+
+**(a) Los mapas ahora dibujan el top-4 PURO del ranking.** `pick_diverse_slots` elegía slots
+espacialmente diversos dentro del top-20 y salteaba puestos (en tipo mostraba #1, #2, #4,
+#13). Eso escondía justo el caso que Sebastián quiere ver: **dos slots del mismo experto**.
+La función queda en el archivo, sin llamarse. Los slots dibujados hoy son:
+
+| Tarea | Lámina | #1 | #2 | #3 | #4 |
+|---|---|---|---|---|---|
+| tipo histológico | `TCGA-AC-A8OS` | `e12·s2` 3.8 % | `e5·s5` 2.5 % | `e24·s9` 2.4 % | `e11·s3` 2.2 % |
+| CDIS | `TCGA-D8-A1XB` | `e28·s4` 2.9 % | `e6·s9` 2.8 % | `e13·s6` 2.4 % | `e28·s5` 2.1 % |
+| LVI | `TCGA-D8-A1X5` | `e6·s7` 4.9 % | `e15·s5` 2.9 % | `e19·s9` 2.8 % | `e15·s7` 2.7 % |
+
+**(b) ¿Los slots de un mismo experto ven lo mismo?** Correlación espacial de rangos entre los
+top-12 de cada lámina (`slot_corr_<tarea>.csv`), 198 pares en total, 6 de ellos del mismo
+experto:
+
+| Par mismo experto | Corr | | Par mismo experto | Corr |
+|---|---|---|---|---|
+| `e28·s4` vs `e28·s5` (CDIS) | **−0.56** | | `e8·s6` vs `e8·s9` (LVI) | +0.59 |
+| `e15·s5` vs `e15·s7` (LVI) | +0.07 | | `e19·s9` vs `e19·s5` (CDIS) | +0.62 |
+| `e11·s3` vs `e11·s4` (tipo) | +0.11 | | `e13·s6` vs `e13·s5` (CDIS) | +0.71 |
+
+**Compartir experto no predice qué ve el slot.** Los 6 pares del mismo experto cubren de
+**−0.56 a +0.71**, casi el mismo rango que los 192 pares de expertos distintos (−0.78 a
++0.89). El caso que pidió ver, `e28·s4` (#1) vs `e28·s5` (#4) en CDIS, va en la dirección
+fuerte: **−0.56**, regiones opuestas de la misma lámina, con el mismo experto. Hay una leve
+tendencia a parecerse más entre hermanos (media **+0.26** vs **+0.04** entre expertos
+distintos), pero con **n=6 pares esto describe, no establece**, y el caso principal la
+contradice. Consistente con [[slot-unidad-de-morfologia]]: la unidad es el **slot**.
+
+**(c) La cota sobre la softmax: el reparto uniforme, 1/300 = 0.333 %.** Es el único corte
+**sin parámetro libre** (misma virtud que `N_eff = exp(H)`): un slot por debajo recibe menos
+de lo que le tocaría si el ruteo fuera ciego, así que no está concentrando nada. Los cortes a
+ojo dan de 25 a 300 slots según dónde se pongan (tabla de arriba), que es exactamente por qué
+la cota hay que justificarla. Medido **por lámina** (`slot_cota_por_lamina.csv`, generado por
+`scripts/slot_cota_softmax.py`):
+
+| Tarea | Slots sobre la cota | Masa que concentran | `N_eff` |
+|---|---|---|---|
+| tipo histológico | 80 / 91 / 96 | 71–76 % | 148 / 156 / 178 |
+| CDIS | 63 / 90 | 69–82 % | 90 / 180 |
+| LVI | 82 / 95 | 68–70 % | 162 / 196 |
+| **7 láminas** | **63–96, media 85** (28 % de 300) | **73 %** | **158.7** |
+
+El recuento es **notablemente estable entre tareas** (80–96 en seis de las siete); el 63 es la
+lámina chica de CDIS, 2 793 parches, coherente con "menos parches, menos morfología que
+rutear". En el otro extremo, el slot más chico de cada lámina recibe entre **15× y 161× menos**
+que el uniforme: la cola es cero en la práctica.
+
+> **Las tres medidas no se contradicen, miden cosas distintas.** 85 slots es *cuántos
+> concentran*; `N_eff`≈159 es *cuántos hay contando a cada uno en proporción a su peso*, y sale
+> más alto porque los ~215 de la cola, aunque individualmente pesen menos que el reparto ciego,
+> **entre todos suman el 27 % restante**. La masa acumulada al 90 % (~164) triangula con
+> `N_eff`. Al citarlas juntas hay que decir qué mide cada una.
+
+**Cuántos slots requiere cada tarea, entonces.** De 80 a 96 hacen el trabajo de concentración
+en las tres tareas, con el total efectivo alrededor de 160. Bajar de 300 a 270 (el primer par
+del eje E×S, §6 de los acuerdos) queda **holgado por las dos medidas**. Bajar a 150 queda por
+encima del recuento de slots que concentran pero **por debajo** del `N_eff`, así que ahí ya es
+pregunta empírica, no aritmética. Esto **encuadra** el experimento de recorte; no lo anticipa.
+
 ## 6. Tabla por tarea (requisito de Sebastián)
 
 `tabla_por_tarea.md`: slides usadas, magnificación física µm/px leída de cada WSI,

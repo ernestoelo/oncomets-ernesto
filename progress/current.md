@@ -669,13 +669,8 @@ nada commiteado/pusheado (pendiente OK + pase formal del reviewer).**
 - **Reunión con Sebastián (14:30): salió bien, le gustó el trabajo.** Pidió incorporar
   tablas + mapas al deck del 24-jul. Acuerdos y encargos completos en
   `sprints/B7_sprint7/reunion_23jul_acuerdos.md`.
-- **PENDIENTE (delegado a sesión limpia)**: regenerar los 3 mapas con el **top-4 puro del
-  ranking** aunque se repita experto (él quiere ver si dos slots del mismo experto ven
-  cosas distintas: CDIS tiene `e28·s4` #1 y `e28·s5` #4); armar **una lámina** con las 3
-  imágenes + su tabla al lado; explicar entropía (idea general, `N_eff` **por tarea
-  separada**, efecto del tamaño de lámina), qué es el % de la softmax y qué es el 15 %;
-  y **definir una cota conveniente** sobre la softmax para estimar cuántos slots requiere
-  cada tarea.
+- ~~PENDIENTE (delegado a sesión limpia)~~ → **HECHO la misma noche del 23-jul** (ver
+  bloque siguiente).
 - **Eje siguiente (post-presentación)**: «perillar» E y S de Mammoth para mama —
   reducir uno con el otro fijo a igual total (27×10 vs 30×9 = 270) sobre las 3 tareas.
   Regla 9 + reviewer + paired sobre los splits del 4589. [[mammoth-grid-expertos-slots]].
@@ -693,3 +688,31 @@ nada commiteado/pusheado (pendiente OK + pase formal del reviewer).**
 - Reportar SIEMPRE balanced_acc Y AUC juntos + confusión + n/clase (política eval B5).
 - GPU solo vía `sbatch`; cortesía single-GPU; preflight obligatorio; workspace containment.
 - Entregables: notas concisas, guion hablado, sin nº de job, baselines "Environ vX".
+
+### Sesión 23-jul (noche) — encargos de la reunión ejecutados, deck a 24 láminas
+
+Ejecutados los puntos **§1 a §5** de `sprints/B7_sprint7/reunion_23jul_acuerdos.md`.
+Todo CPU post-hoc, read-only sobre artefactos ya existentes (regla 9 no aplica).
+
+- **Mapas regenerados con el top-4 PURO del ranking.** `pick_diverse_slots` queda en
+  `scripts/slot_heatmaps_contraste.py` pero **sin llamarse**. Los slots dibujados ahora
+  calzan 1:1 con las 4 primeras filas de la tabla mini.
+- **Respondida la pregunta de Sebastián** («¿los slots de un mismo experto ven lo mismo?»):
+  198 pares de correlación espacial, 6 del mismo experto. **`e28·s4` (#1) vs `e28·s5` (#4)
+  en CDIS da −0.56** (regiones opuestas). Pero no es regla: `e13·s6` vs `e13·s5` da +0.71.
+  Los hermanos cubren −0.56 a +0.71, casi el rango entero de los no-hermanos (−0.78 a
+  +0.89). Media +0.26 vs +0.04, **con n=6 describe, no establece**.
+- **Cota sobre la softmax definida: el reparto uniforme, 1/300 = 0.333 %** (único corte sin
+  parámetro libre). Da **63 a 96 slots por lámina** que concentran el **73 %** del peso;
+  estable entre las 3 tareas. Nuevo `scripts/slot_cota_softmax.py` +
+  `slot_softmax/slot_cota_por_lamina.csv`. [[cota-softmax-slots-uniforme]].
+- **Deck: 22 → 24 láminas.** Nuevas **18** («Dónde se concentra cada slot»: las 3 tiras +
+  tabla nativa al lado, con el % y el 15 % explicados) y **19** («Una cota para decidir qué
+  slot aporta»: corte a ojo vs cota, tabla por tarea, idea general de entropía y el efecto
+  del tamaño de lámina). Ambas con guion hablado y QA rasterizado mirado.
+- **Dos defectos cazados por el QA visual** (el chequeo programático no los ve): el
+  `suptitle` de las figuras se montaba sobre los títulos de panel (faltaba el `rect` en
+  `tight_layout`), y los rótulos a 11 pt aterrizaban en ~3.5 pt proyectados. De ahí la
+  variante `_deck` de cada PNG (sin suptitle, rótulos ~3× más grandes) y el ancho
+  **adaptativo** al alto real de las tiras en la lámina 18.
+- Detalle técnico completo: `resultados_interpretabilidad.md` **§5.3**.

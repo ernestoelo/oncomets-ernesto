@@ -830,7 +830,17 @@ re-validar y actualizar `docs/codebase_map.md`.
     visual, sign-off pendiente). El **heatmap por slot** usa `combine` (2ª softmax) **sin colapsar N**
     y NO es el heatmap por **experto** que ya existía (ese usa `dispatch`, 1ª softmax, y a nivel
     experto el ruteo es uniforme) — no cruzarlos. Tablas + mapas en `sprints/B7_sprint7/slot_softmax/`.
-    [[slot-unidad-de-morfologia]]. **Eje de trabajo abierto (NO reabre rendimiento):** afinar **E y S**
+    [[slot-unidad-de-morfologia]].
+    **Precisión 23-jul (4) — compartir experto no predice qué ve el slot, y la cota es el uniforme:**
+    sobre 198 pares, los 6 del **mismo experto** cubren **−0.56 a +0.71**, casi el rango entero de
+    los 192 de expertos distintos (−0.78 a +0.89); `e28·s4` (#1) vs `e28·s5` (#4) en CDIS da
+    **−0.56** (regiones opuestas) pero `e13·s6` vs `e13·s5` da +0.71 → decir "dos slots del mismo
+    experto encienden regiones distintas" (medido), NO "siempre ven cosas distintas" (falso). Y la
+    **cota** para decidir qué slot aporta es el **reparto uniforme 1/300 = 0.333 %**, único corte
+    sin parámetro libre (a ojo la respuesta va de 25 a 300 slots): deja **63–96 slots por lámina**
+    que concentran el **73 %** del peso, estable entre tareas. Los 85 (concentran) y el `N_eff` 159
+    (cuenta cada slot en proporción a su peso) **no se contradicen**, miden cosas distintas. Detalle:
+    `sprints/B7_sprint7/resultados_interpretabilidad.md` §5.3 + [[cota-softmax-slots-uniforme]]. **Eje de trabajo abierto (NO reabre rendimiento):** afinar **E y S**
     para mama reduciendo uno con el otro fijo a igual total (27×10 vs 30×9), regla 9 + reviewer +
     paired sobre los splits del 4589 — [[mammoth-grid-expertos-slots]].
     **DATO ABIERTO (18-jul, job 4589) — NO reabre este Hallazgo, pero queda registrado:** en la
