@@ -820,6 +820,10 @@ re-validar y actualizar `docs/codebase_map.md`.
     (e16·s1 alvéolos vs e16·s4 estroma). Explica por qué los expertos salen uniformes y el margen
     está en S. Nuestro OBJ-A midió a nivel de **experto**, no de slot: no presentarlo como si
     hubiéramos medido morfología por slot. [[slot-unidad-de-morfologia]].
+    **Precisión 23-jul (2):** tampoco lo captura la **cabeza** — las 16 cabezas son un *corte* del
+    query de 256 en 16 tramos de 16, no miradas semánticas, y los prototipos son **300 cortados
+    igual** (NO uno por cabeza) ⇒ **16 tablas de N×300**, 4800 parecidos por parche.
+    [[mammoth-cabezas-son-tramos]].
     **DATO ABIERTO (18-jul, job 4589) — NO reabre este Hallazgo, pero queda registrado:** en la
     formulación NUEVA `carcinoma_ductal_insitu_presente_ci_reform` (85% positivo, jamás incluida
     en las 12 configs que cerraron este Hallazgo) Mammoth dio Δbal_acc **+0.074 ± 0.033 (5/5

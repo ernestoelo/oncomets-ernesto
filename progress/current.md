@@ -430,7 +430,42 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   splits) que, si Sebastián acepta, **toca el modelo** ⇒ regla 9 + reviewer.
   [[sprint7-interpretabilidad-clam-vs-mammoth]].
 - ⚠️ **La fecha del deck SIGUE mal.** Se ofreció corregirla dos veces en la sesión y Ernesto no se
-  pronunció; no se tocó.
+  pronunció; no se tocó. **RESUELTO en la sesión siguiente** (ver abajo).
+
+#### Sesión de ESTUDIO del deck (23-jul, tarde) — lámina 6
+
+- ✅ **Fecha del deck CORREGIDA.** `generate_b7_deck.py:66` pasó de `"22/07/2026"  # miércoles` a
+  `"24/07/2026"  # viernes`. Verificado por round-trip en la lámina 2. Cierra el pendiente que
+  venía arrastrándose de la sesión anterior.
+- ✅ **Lámina 6 («Dónde entra MAMMOTH en el pipeline») reescrita, 3 iteraciones.** El guion viejo
+  era un bloque corrido que narraba **sólo la fila de arriba**: la expansión punteada, los 4 pasos
+  internos y la frase del promedio ponderado quedaban dibujados y sin decir. Quedó punteado en
+  **9 puntos, 717 palabras**, con el interior llevándose el 73 % del guion.
+- ⚠️ **HALLAZGO de mecanismo, disparado por una pregunta de Ernesto.** Preguntó: *«si el tercer
+  tramo del parche sólo se compara con el tercer tramo de los prototipos, ¿no deberían existir 16
+  prototipos, uno por cabeza?»*. La respuesta, verificada contra `mammoth.py`: **no**. `slot_embeds`
+  es `(e,h,s,d)=(30,16,10,16)` ⇒ **300 prototipos, cada uno cortado en los mismos 16 tramos** que el
+  parche, y el `einsum` de `get_logits` deja `h` compartido ⇒ **16 tablas de N×300, no una** ⇒
+  **4800 parecidos por parche**. Nueva memoria [[mammoth-cabezas-son-tramos]] + ADDENDUM en
+  [[mammoth-slot-routing-weight]] (`combine` normaliza **por parche Y por tramo**, no globalmente).
+- ⚠️ **Dos defectos del guion que esa pregunta destapó**, ambos corregidos: (1) decir «una tabla de
+  parecidos contra los 300» **después** de explicar el corte en tramos **se contradice solo**;
+  (2) el guion llenaba los slots y saltaba al concat **sin contar nunca cómo el parche recupera su
+  vector** (se había perdido el abanico). La reconstrucción quedó explícita: mezcla convexa de los
+  300 slots ya transformados, pesada por el parecido, y **sin conexión residual** (el parche
+  sobrevive sólo a través de esos parecidos). Cierre aritmético: 256 = 16×16 a la entrada,
+  512 = 16×32 a la salida.
+- ✅ **Las cabezas, que fueron la confusión de la reunión pasada, ocupan ahora 3 puntos enteros.**
+  La estrategia que funcionó es **desmontar primero la lectura equivocada** («no es que una mire el
+  color y otra la textura») y recién después dar la correcta, más el ejemplo numérico del corte
+  (1 al 16, 17 al 32). Reacción: *«ahora sí quedó mucho más claro»*.
+- ⏳ **Menor, ofrecido y no respondido:** la lámina 5 dice «una tabla de parches contra prototipos»
+  y difiere explícitamente («ahí vamos a volver con las dimensiones puestas»), promesa que la 6
+  ahora cobra. Funciona por el diferimiento, pero se puede dejar sin filo con una frase en la 5
+  («una tabla de parecidos, que después vamos a ver que son dieciséis»).
+- ⏳ **«drop-in» salió del guion de la 6**, reemplazado por lo que hace («el resto del modelo no se
+  entera del reemplazo»), por la regla de vocabulario del 23-jul. Sigue en la tabla de la lámina 7
+  (`combine → salida drop-in`). Se ofreció reponerlo y Ernesto no se pronunció.
 
 ---
 
