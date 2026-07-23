@@ -72,6 +72,8 @@ DIAG_FUSED = os.path.join(PRES, "Diagrama_mammoth_fused.pptx")  # s0 flujo ofici
 FIG1_MAM = os.path.join(PAPER_FIGS, "mammoth_fig1_overview.png")  # t-SNE + barras (paper Fig 1)
 FIG3_MAM = os.path.join(PAPER_FIGS, "mammoth_fig3_routing.png")   # ruteo→fenotipo (paper Fig 3)
 FIG2_ARCH = os.path.join(PAPER_FIGS, "mammoth_fig2_arch.png")     # arquitectura oficial (Fig 2, 4375x1758)
+SLOT_DIR = os.path.join(REPO, "sprints/B7_sprint7/slot_softmax")   # softmax por slot (23-jul)
+SLOT_HEAT = os.path.join(SLOT_DIR, "heatmaps")                     # mapas `_deck` sin suptitle
 A14Q = os.path.join(OBJA, "TCGA-E2-A14Q-01Z-00-DX1_cdis_f0")
 HEATMAP_MONTAGE = os.path.join(A14Q, "heatmap_montage.png")
 TOPK_SUBSET = os.path.join(A14Q, "topk_subset_6experts.png")
@@ -1040,6 +1042,69 @@ def _leer_q1():
                    f"{max(slots):.0f} según tamaño de lámina · efectivo = exp(entropía)"}
 
 
+def _leer_slot_mini(label, k=4):
+    """Top-k slots de UNA lámina + la fila de resto, desde slot_mini_<label>.csv.
+
+    El CSV lo emite `scripts/slot_heatmaps_contraste.py` junto con los mapas, así que las
+    filas calzan 1:1 con los paneles dibujados. Se lee del artefacto (no se hardcodea) para
+    que la tabla no se desincronice si se regeneran los mapas.
+    """
+    import csv
+    p = os.path.join(SLOT_HEAT, "slot_mini_%s.csv" % label)
+    if not os.path.exists(p):
+        return [("pendiente", "pendiente")]
+    with open(p) as fh:
+        filas = list(csv.DictReader(fh))[:k]
+    top = [(f["slot"], "%.1f %%" % float(f["peso_pct"])) for f in filas]
+    resto = 100.0 - sum(float(f["peso_pct"]) for f in filas)
+    return top + [("resto (%d slots)" % (300 - k), "%.0f %%" % resto)]
+
+
+def _leer_cortes_a_ojo(prefijo="TCGA-AC-A8OS"):
+    """Cuántos slots pasan según dónde se ponga el corte, sobre UNA lámina.
+
+    Es el argumento de por qué la cota hay que justificarla: elegida a ojo, la respuesta va
+    de 25 a 300 slots. Se recalcula del artefacto en vez de copiar los números del informe.
+    """
+    import csv
+    import glob
+    pat = os.path.join(REPO, "results/b7_mammoth_interp/interpretabilidad",
+                       "*", prefijo + "*", "expertos", "slot_usage.csv")
+    hits = sorted(glob.glob(pat))
+    if not hits:
+        return [("pendiente", "pendiente")]
+    with open(hits[0]) as fh:
+        w = [float(r["mean_combine_weight"]) for r in csv.DictReader(fh)]
+    p = [x / sum(w) for x in w]
+    cortes = [("más de 1 %", 0.01), ("más de 0,5 %", 0.005),
+              ("más que el reparto parejo", 1.0 / 300), ("más de 0,01 %", 0.0001)]
+    return [(t, str(sum(1 for x in p if x > c))) for t, c in cortes]
+
+
+def _leer_cota():
+    """Rango por tarea de la cota sobre la softmax, desde slot_cota_por_lamina.csv.
+
+    Se reporta RANGO entre las láminas de la tarea, nunca un promedio de sus pesos:
+    promediar distribuciones de láminas distintas sube la entropía y aplana la cola.
+    """
+    import csv
+    p = os.path.join(SLOT_DIR, "slot_cota_por_lamina.csv")
+    nombre = {"tipo_histologico": "Tipo histológico", "cdis": "CDIS", "lvi": "LVI"}
+    if not os.path.exists(p):
+        return [(v, "pendiente", "pendiente", "pendiente") for v in nombre.values()]
+    with open(p) as fh:
+        filas = list(csv.DictReader(fh))
+    out = []
+    for clave, titulo in nombre.items():
+        g = [f for f in filas if f["tarea"] == clave]
+        rango = lambda c, fmt="%.0f": ("%s a %s" % (fmt % min(float(f[c]) for f in g),
+                                                    fmt % max(float(f[c]) for f in g))
+                                       if len(g) > 1 else fmt % float(g[0][c]))
+        out.append((titulo, rango("slots_sobre_uniforme"),
+                    rango("masa_de_esos_pct") + " %", rango("N_eff")))
+    return out
+
+
 def build():
     # Base = template válido, con sus fuentes embebidas y sus 2 láminas de apertura
     # (portada de marca + lámina de título) conservadas NATIVAS a 13.333.
@@ -1784,6 +1849,127 @@ def build():
              "número efectivo queda bastante por debajo del total. La conclusión práctica es que "
              "el número de expertos no está sobredimensionado, y que si en algún momento hay que "
              "recortar capacidad, el parámetro a tocar son los slots.")
+
+    # ---- 11f. NUEVA (reunión 23-jul §1/§2/§5): la 2ª softmax puesta sobre el tejido ----
+    # Pedido literal de Sebastián: las 3 imágenes, una por tarea, CON su tabla resumen al
+    # lado. Los mapas dibujan el top-4 PURO del ranking (antes se elegían slots espacialmente
+    # diversos y eso salteaba puestos, escondiendo el caso mismo-experto que él quiere ver).
+    # Imagen = excepción a "todo nativo" (figura rasterizada); la tabla SÍ es nativa.
+    s = content(prs, "Dónde se concentra cada slot", size=25)
+    add_textbox(s, 0.30, 0.86, 9.4, 0.38, [
+        ("De cada parche, qué fracción de su peso de combinación se va a ese slot. A la "
+         "izquierda la lámina limpia; después, los cuatro slots que más concentran en ella.",
+         11, False, GRIS_BODY, F_BODY)])
+
+    filas_mapa = [(l, t) for l, t in (("tipo_histologico", "Tipo histológico"),
+                                      ("cdis", "CDIS"), ("lvi", "LVI"))
+                  if os.path.exists(os.path.join(SLOT_HEAT, "slot_heatmaps_%s_deck.png" % l))]
+    # Ancho ADAPTATIVO al alto real de las tiras: las 3 no comparten aspect ratio (dependen
+    # de la forma de la lámina) y el alto del rótulo cambia si se retoca el tamaño de fuente.
+    # Fijando la banda vertical disponible y despejando el ancho, la fila de abajo no se
+    # monta nunca sobre la barra de remate (defecto cazado en el QA rasterizado).
+    Y0, Y1, GAP = 1.24, 4.68, 0.13
+    ratios = [(lambda wh: wh[0] / wh[1])(Image.open(
+        os.path.join(SLOT_HEAT, "slot_heatmaps_%s_deck.png" % l)).size) for l, _ in filas_mapa]
+    banda = (Y1 - Y0) - GAP * (len(filas_mapa) - 1)
+    w_img = min(5.40, banda / sum(1.0 / r for r in ratios))
+
+    y = Y0
+    for (label, titulo), ratio in zip(filas_mapa, ratios):
+        h = w_img / ratio
+        add_image_fit(s, os.path.join(SLOT_HEAT, "slot_heatmaps_%s_deck.png" % label),
+                      0.30, y, w_img, h)
+        filas = _leer_slot_mini(label)
+        th = 0.155 * (len(filas) + 1)
+        simple_table(s, 0.30 + w_img + 0.20, y + max(0.0, (h - th) / 2),
+                     9.70 - (0.30 + w_img + 0.20),
+                     (titulo, "% del peso"), filas, (0.60, 0.40), row_h=0.155, fs=8)
+        y += h + GAP
+
+    takeaway_bar(s, "Dos slots del mismo experto encienden regiones distintas: la morfología "
+                    "la separa el slot.", t=4.80, size=12)
+    notes(s, "Esta lámina pone la segunda distribución softmax sobre el tejido. Cada mapa toma "
+             "un slot concreto, mira qué fracción del peso le dedica cada parche de la lámina y "
+             "pinta esa fracción sobre la imagen. A la izquierda de cada fila está la lámina "
+             "limpia como referencia, y a la derecha los cuatro slots que más peso concentran en "
+             "esa lámina, en orden.\n"
+             "El porcentaje que aparece sobre cada mapa es el peso de ese slot promediado sobre "
+             "todos los parches, y hay que leerlo contra el reparto parejo, que sería un tercio "
+             "de uno por ciento. Los slots que encabezan están entre nueve y quince veces por "
+             "encima de lo que les tocaría si el ruteo fuera ciego.\n"
+             "El quince por ciento del título es otra cosa y conviene separarla, porque se "
+             "confunde. No es un parámetro del modelo: es un recorte de dibujo. Se pintan solo "
+             "los parches donde ese slot pesa más, el quince por ciento superior, y el resto "
+             "queda transparente para que se vea el tejido debajo. Pintando todos los parches "
+             "los mapas salen casi iguales entre sí y el contraste se pierde.\n"
+             "La tabla al lado es el mismo ranking en números, y deja ver la cola. Los cuatro "
+             "primeros juntan algo más del diez por ciento del peso; los doscientos noventa y "
+             "seis restantes se reparten el resto.\n"
+             "Y hay un caso que quiero señalar, en la fila del medio. El slot que va primero y "
+             "el que va cuarto son del mismo experto, el veintiocho. Si el experto fuera la "
+             "unidad de morfología, esos dos mapas tendrían que parecerse. No se parecen: la "
+             "correlación espacial entre ellos es negativa, encienden regiones distintas de la "
+             "misma lámina. Es lo mismo que muestra la figura del paper cuando rotula sus mapas "
+             "por par de experto y slot, y encaja con que a nivel de experto el ruteo salga "
+             "uniforme. Con la salvedad de siempre: qué tejido es cada región es lectura "
+             "nuestra, todavía no tiene la revisión de un patólogo.")
+
+    # ---- 11g. NUEVA (reunión 23-jul §3/§4): la cota sobre la softmax ----
+    # Encargo: qué cota separa "aporta" de "no aporta", y cuántos slots pide cada tarea.
+    # El argumento es que el corte a ojo da cualquier respuesta -> por eso la tabla de la
+    # izquierda va PRIMERO: instala el problema antes de dar la solución.
+    s = content(prs, "Una cota para decidir qué slot aporta", size=25)
+    simple_table(s, 0.30, 0.92, 4.30, ("Si el corte se elige a ojo", "Slots que pasan"),
+                 _leer_cortes_a_ojo(), (0.66, 0.34), row_h=0.28, fs=10)
+    panel(s, 4.90, 0.92, 4.80, 1.40, "La cota: el reparto parejo", TEAL_TITLE,
+          ["Un slot entre 300 es 0,333 % del peso.",
+           "Por debajo recibe menos que si el ruteo fuera ciego."],
+          border=TEAL_SQ)
+
+    simple_table(s, 0.30, 2.52, 9.4,
+                 ("Tarea", "Slots sobre la cota", "Peso que concentran", "Número efectivo"),
+                 _leer_cota(), (0.28, 0.24, 0.24, 0.24), row_h=0.30, fs=10)
+
+    _grupo(s, 0.30, 3.92, 9.4, 0.78)
+    add_textbox(s, 0.48, 3.98, 9.04, 0.66, [
+        ("La entropía mide cuán repartido está el peso: daría 300 con reparto perfecto y 1 si "
+         "colapsara en un slot.", 11, True, ONCO_DARK, F_BODY),
+        ("El número efectivo no cambia con la tarea sino con el tamaño de la lámina: menos "
+         "parches, menos morfología que rutear.", 10, False, ONCO_DARK, F_BODY)])
+    takeaway_bar(s, "Unos 85 slots de 300 concentran tres cuartas partes del peso: recortar el "
+                    "presupuesto de slots tiene margen.", t=4.78, size=12)
+    notes(s, "Con los mapas a la vista aparece la pregunta natural: cuántos de los trescientos "
+             "slots hacen falta de verdad. Para responderla hay que fijar una cota, y ahí está "
+             "el problema que muestra la tabla de la izquierda. Cortando en uno por ciento "
+             "quedan veinticinco slots; cortando en cero coma cero uno por ciento quedan "
+             "doscientos noventa y nueve. El número que uno reporta termina diciendo más sobre "
+             "dónde puso el corte que sobre el modelo.\n"
+             "La cota que elegimos es el reparto parejo, uno entre trescientos, cero coma tres "
+             "tres por ciento. Tiene una ventaja sobre cualquier otra: no hay nada que elegir a "
+             "mano. Un slot que recibe menos que eso está recibiendo menos de lo que le tocaría "
+             "si el ruteo fuera ciego, así que no está concentrando nada.\n"
+             "Con esa cota, midiendo lámina por lámina, quedan entre sesenta y tres y noventa y "
+             "seis slots por encima, y esos concentran alrededor de tres cuartas partes del "
+             "peso total. Lo notable es que el recuento es parecido en las tres tareas.\n"
+             "El número efectivo, el de la exponencial de la entropía, da más alto, alrededor de "
+             "ciento sesenta. No se contradicen: miden cosas distintas. Los ochenta y cinco son "
+             "los que concentran. El número efectivo cuenta a cada slot en proporción a su peso, "
+             "y sale más alto porque los doscientos quince de la cola, aunque cada uno pese menos "
+             "que el reparto ciego, entre todos suman la cuarta parte que falta.\n"
+             "Sobre la entropía en sí, la idea es simple: mide cuán repartido está el peso. Si "
+             "estuviera perfectamente repartido entre los trescientos, la exponencial daría "
+             "trescientos exacto. Si todo cayera en un solo slot, daría uno. Nuestro ciento "
+             "sesenta dice que el reparto quedó a mitad de camino.\n"
+             "Una advertencia sobre la dispersión, porque se ve en la última columna. Ese número "
+             "no varía con la tarea, varía con el tamaño de la lámina: las dos láminas de una "
+             "misma tarea cubren casi todo el rango por sí solas. Cuantos menos parches tiene la "
+             "lámina, menos morfología distinta hay que rutear. Y la tendencia tampoco es limpia, "
+             "porque la lámina más grande de todas rompe el orden.\n"
+             "La lectura práctica es que hay margen para recortar el presupuesto de slots. Bajar "
+             "de trescientos a doscientos setenta queda holgado por las dos medidas. Bajar a "
+             "ciento cincuenta queda por encima de los que concentran pero por debajo del número "
+             "efectivo, así que desde ahí ya es una pregunta que se responde entrenando, no "
+             "calculando.")
 
     # ========================================================================
     # SECCIÓN MAGNIFICACIÓN MULTI-ESCALA (reunión Sebastián — decisión de escalas)
