@@ -1,0 +1,8 @@
+tarea,lamina,parches,N_eff,slots_sobre_uniforme,masa_de_esos_pct,slots_50pct,slots_90pct,top1_pct,min_vs_uniforme
+cdis,TCGA-A7-A4SB,2793,89.7,63,81.8,18,100,5.77,0.0062
+cdis,TCGA-D8-A1XB,16442,180.3,90,69.4,45,183,2.86,0.0524
+lvi,TCGA-D8-A1XW,22206,196.4,95,67.9,53,192,2.76,0.0525
+lvi,TCGA-D8-A1X5,28170,162.4,82,69.7,39,175,4.93,0.0681
+tipo_histologico,TCGA-AC-A8OS,4201,156.0,91,75.8,36,157,3.79,0.012
+tipo_histologico,TCGA-E9-A1NE,5592,147.5,80,71.2,34,171,4.48,0.0518
+tipo_histologico,TCGA-AO-A12D,7097,178.3,96,72.4,46,173,2.88,0.0421
