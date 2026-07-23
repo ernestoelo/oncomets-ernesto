@@ -1055,7 +1055,7 @@ def build():
              "lo que trata esta presentación, es distinto: qué aprende MAMMOTH por dentro y en qué "
              "se fija cada experto. El recorrido tiene dos partes. Primero el mecanismo, esta vez "
              "explicado con calma y hasta el fondo. Después, la evidencia visual de qué morfología "
-             "reclama cada experto, mirada sobre las propias slides de mama del proyecto.")
+             "concentra cada experto, mirada sobre las propias slides de mama del proyecto.")
 
     # ---- 2. Recapitulación de objetivos (MISMO formato que B4 slide 2:
     #        título 32pt + lista numerada en un solo cuadro, 24pt Barlow bold gris) ----
@@ -1066,10 +1066,10 @@ def build():
     # Enunciados en infinitivo (sin 1ª persona), concisos, sin resultados.
     # (texto, estado): "done" = ticket verde (cerrado) · "prog" = pill "En progreso" (abierto)
     recap = [
-        ("1. Dominar el mecanismo de MAMMOTH y explicarlo con una analogía simple.", "done"),
+        ("1. Dominar el mecanismo de MAMMOTH.", "done"),
         ("2. Precisar qué es una cabeza y el tensor de prototipos (30×16×10×16).", "done"),
         ("3. Distinguir MoE de PoE y situar el número de cabezas para mama.", "done"),
-        ("4. Interpretar los expertos: qué región y qué morfología reclama cada uno.", "prog"),
+        ("4. Interpretar los expertos: qué región y qué morfología concentra cada uno.", "prog"),
         ("5. Comparar dónde mira cada modelo, entrenados sobre las mismas particiones.", "done"),
         ("6. Medir cuántos expertos y cuántos slots se usan de verdad.", "done"),
     ]
@@ -1085,20 +1085,31 @@ def build():
             status_done(s, 8.98, cy)
         else:
             status_progress(s, 8.98, cy)
+    # Guion en 6 puntos numerados, uno por objetivo de la lámina: sigue siendo prosa
+    # hablada (convención vigente), pero partida para poder engancharla de un vistazo
+    # mientras se presenta. Los "\n" son párrafos reales en el panel de notas.
     notes(s, "Antes de entrar en el mecanismo, fijemos qué nos propusimos entender: es el eje de "
-             "la reunión. El primer objetivo era dominar el mecanismo de MAMMOTH a fondo "
-             "y poder explicarlo con una analogía simple. El segundo, precisar dos puntos que "
-             "habían quedado sin respuesta: qué es exactamente una cabeza y cómo se lee el tensor "
-             "de prototipos, el treinta por dieciséis por diez por dieciséis. El tercero, "
-             "distinguir una mezcla de expertos de un producto de expertos, y ubicar cuántas "
-             "cabezas convienen para mama. Esos tres quedaron cerrados. El cuarto abre la segunda "
-             "parte y sigue en progreso: interpretar a los expertos, es decir, mirar sobre las "
-             "propias slides qué región reclama cada uno y qué morfología hay ahí; falta el visto "
-             "bueno de un patólogo. Los dos últimos son el trabajo nuevo desde la vez pasada. El "
-             "quinto es comparar dónde mira cada modelo, entrenando los dos sobre exactamente las "
-             "mismas particiones para que la comparación sea limpia. Y el sexto responde una "
-             "pregunta concreta que había quedado abierta: cuántos expertos y cuántos slots se "
-             "usan de verdad.")
+             "la reunión.\n"
+             "\n"
+             "1. El primero era dominar el mecanismo de MAMMOTH a fondo.\n"
+             "\n"
+             "2. El segundo, precisar dos puntos que habían quedado sin respuesta: qué es "
+             "exactamente una cabeza y cómo se lee el tensor de prototipos, el treinta por "
+             "dieciséis por diez por dieciséis.\n"
+             "\n"
+             "3. El tercero, distinguir una mezcla de expertos de un producto de expertos, y "
+             "ubicar cuántas cabezas convienen para mama. Esos tres quedaron cerrados.\n"
+             "\n"
+             "4. El cuarto abre la segunda parte y sigue en progreso: interpretar a los expertos, "
+             "es decir, mirar sobre las propias slides qué región concentra cada uno y qué "
+             "morfología hay ahí; falta el visto bueno de un patólogo.\n"
+             "\n"
+             "5. Los dos últimos son el trabajo nuevo desde la vez pasada. El quinto es comparar "
+             "dónde mira cada modelo, entrenando los dos sobre exactamente las mismas particiones "
+             "para que la comparación sea limpia.\n"
+             "\n"
+             "6. Y el sexto responde una pregunta concreta que había quedado abierta: cuántos "
+             "expertos y cuántos slots se usan de verdad.")
 
     # ---- 3. Divisoria: MAMMOTH ----
     s = divider(prs, "MAMMOTH", "Mixture-of-Experts en la primera capa de CLAM (patch-embed)")
@@ -1122,23 +1133,44 @@ def build():
             "Fig. 1: el espacio interno pasa de una nube continua a grupos por experto,\n"
             "y mejora a todos los agregadores MIL (Shao et al., ICLR 2026)", size=8)
     add_image_fit(s, FIG3_MAM, 5.95, 3.42, 3.85, 1.42, align="top")
+    # El pie decía "cada color es el ruteo de un experto": mal en dos puntos. Los paneles
+    # de la Fig. 3 están rotulados por PAR experto+slot ("Expert 16 Slot 4") y la barra de
+    # color es "Patch-slot similarity". Decir "por experto" contradice además la lámina 17
+    # (los 30 expertos salen uniformes; el margen está en los slots).
     caption(s, 5.95, 4.86, 3.85,
-            "Fig. 3: cada color es el ruteo de un experto sobre la slide; abajo, la "
-            "morfología que resume (tumor, estroma, alvéolos)", size=8)
-    notes(s, "El nombre es un acrónimo y cada parte nombra un paso del modelo: cabezas de "
-             "transformación, una mezcla de expertos y una factorización de matrices de bajo "
-             "rango. La idea de fondo es simple. En CLAM, una sola capa lineal proyecta todos los "
-             "parches al espacio interno, y esa única matriz tiene que servir a la vez para "
-             "epitelio, estroma y ductos, así que queda en un punto intermedio, mediocre para "
-             "todos. El paper lo compara con un traductor obligado a traducir chino, árabe y ruso "
-             "con la misma plantilla. MAMMOTH reemplaza esa matriz por treinta expertos "
-             "especializados y un router que decide, para cada parche, cuánto mandarlo a cada "
-             "experto. Las dos figuras de la derecha son la evidencia del paper. Arriba, el "
-             "espacio interno pasa de una nube continua a grupos separados, uno por experto, y la "
-             "mejora aparece en todos los agregadores MIL. Abajo, cada color es el ruteo de un "
-             "experto sobre la lámina, con la morfología que resume justo debajo. Esa segunda "
-             "figura es exactamente el análisis que la segunda parte reproduce sobre las slides de "
-             "mama del proyecto.")
+            "Fig. 3: cada mapa pinta el parecido de los parches contra un prototipo\n"
+            "(experto + slot); abajo, el tejido que concentra cada uno", size=8)
+    # Lámina ya vista la sesión pasada: el guion pasa rápido por el acrónimo y el porqué,
+    # y gasta el tiempo en las dos cosas que quedaron sin cerrar, el ruteo y la Fig. 3.
+    notes(s, "Esta lámina ya la vimos, así que paso rápido por lo de arriba y me detengo en dos "
+             "cosas: el ruteo y la figura de abajo.\n"
+             "\n"
+             "1. En CLAM, una sola matriz proyecta todos los parches, y tiene que servir a la vez "
+             "para epitelio, estroma y ductos, así que queda en un punto intermedio. MAMMOTH la "
+             "reemplaza por treinta expertos.\n"
+             "\n"
+             "2. El ruteo. Cada experto tiene diez prototipos aprendidos, que el paper llama "
+             "slots: trescientos en total. Todo el ruteo consiste en medir cuánto se parece cada "
+             "parche a cada uno de esos trescientos prototipos, y eso arma una tabla de parches "
+             "contra prototipos. Esos parecidos se convierten después en porcentajes con una "
+             "softmax, y ahí vamos a volver con las dimensiones puestas. Lo que importa acá es "
+             "que ningún parche va a un solo experto: participan los trescientos, unos con un "
+             "porcentaje grande y otros con uno casi nulo.\n"
+             "\n"
+             "3. El motivo de fondo es bajar la interferencia: en una sola matriz, los gradientes "
+             "de parches muy distintos se pisan entre sí.\n"
+             "\n"
+             "4. La figura de arriba es la evidencia del paper: el espacio interno pasa de una "
+             "nube continua a grupos separados, y la mejora aparece en todos los agregadores.\n"
+             "\n"
+             "5. La figura de abajo es la que quiero que se lea bien. Cada panel es una lámina de "
+             "pulmón pintada con el parecido de cada parche contra un solo prototipo, no contra un "
+             "experto entero: por eso los títulos dicen experto veintiuno slot cinco, o experto "
+             "dieciséis slot cuatro. Y ahí está el detalle que más dice: el experto dieciséis "
+             "tiene un slot que se enciende en alvéolos y otro que se enciende en estroma, así que "
+             "la unidad que captura una morfología es el slot y no el experto. Abajo del todo, la "
+             "fila de parches muestra qué morfología concentra cada uno. Ese es exactamente el análisis que la "
+             "segunda parte reproduce, pero sobre mama y con las láminas del proyecto.")
 
     # ---- 5. Diagrama: pipeline CLAM + punto de integración (NATIVO, Deep-LLM-V) ----
     # Antes se traía de B4 con copy_diagram_scaled(DIAG_MAM, 0, scale=0.63): venía en
@@ -1402,7 +1434,7 @@ def build():
     s = divider(prs, "¿Qué mira cada experto?",
                 "Interpretabilidad post-hoc sobre un checkpoint entrenado · 4 slides TCGA-BRCA")
     notes(s, "Con el mecanismo claro, empieza la segunda parte: mirar, sobre las propias slides "
-             "del proyecto, qué región reclama cada experto y qué morfología hay ahí. Es un "
+             "del proyecto, qué región concentra cada experto y qué morfología hay ahí. Es un "
              "análisis post-hoc, en CPU, sobre un modelo ya entrenado; no reentrena nada.")
 
     # ---- 10. Ruteo espacial (dónde) + morfología top-k (qué) — FUSIÓN ----
@@ -1414,7 +1446,7 @@ def build():
     add_image_fit(s, TOPK_SUBSET, 5.42, 0.98, 2.55, 3.05, align="top")
     add_textbox(s, 8.05, 1.05, 1.80, 3.2, [
         ("Top-k a alta resolución:", 11.5, True, INK, F_BODY),
-        ("cada experto reclama un patrón de tejido consistente", 11, True, TEAL_TITLE, F_BODY),
+        ("cada experto concentra un patrón de tejido consistente", 11, True, TEAL_TITLE, F_BODY),
         ("los patrones (e8, e26, e3) se nombran por inspección visual; falta sign-off de patólogo",
          9.5, False, GRIS_BODY, F_BODY),
         ("Color = percentil por experto (estructura relativa, no magnitud de uso).",
@@ -1451,7 +1483,7 @@ def build():
     # El pie decía el sign-off y el párrafo lo repetía: dos líneas de más que hacían
     # que el pie pisara al párrafo. La honestidad completa vive en el párrafo.
     caption(s, 0.35, 0.86 + xh + 0.02, SW - 0.7,
-            "el mismo experto (e8, e26) reclama el mismo patrón en las 4 slides TCGA-BRCA · tarea cdis",
+            "el mismo experto (e8, e26) concentra el mismo patrón en las 4 slides TCGA-BRCA · tarea cdis",
             size=10.5, bold=True, col=INK)
     add_textbox(s, 0.35, 0.86 + xh + 0.30, SW - 0.7, 0.62, [
         ("Dos slides positivas y dos negativas.  "
@@ -1489,7 +1521,7 @@ def build():
     s = divider(prs, "¿Dónde mira cada modelo?",
                 "Entrenamiento pareado sobre tres tareas clínicas · comparación de la atención "
                 "sobre las mismas láminas")
-    notes(s, "Hasta acá vimos el mecanismo por dentro y qué reclama cada experto sobre una cala "
+    notes(s, "Hasta acá vimos el mecanismo por dentro y qué concentra cada experto sobre una cala "
              "chica. Esta parte es el trabajo nuevo: entrenar los dos modelos sobre exactamente "
              "las mismas particiones de tres tareas clínicas, y después comparar, lámina por "
              "lámina, dónde pone la atención cada uno. La pregunta ya no es cuál mide mejor, es "
