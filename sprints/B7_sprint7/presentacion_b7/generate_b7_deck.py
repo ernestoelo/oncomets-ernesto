@@ -1176,13 +1176,94 @@ def build():
     # Antes se traía de B4 con copy_diagram_scaled(DIAG_MAM, 0, scale=0.63): venía en
     # Carlito a 6pt y con la paleta de B4. Ver pipeline_mammoth() para el detalle.
     s = pipeline_mammoth(prs)
-    notes(s, "Sobre el pipeline completo de CLAM el mecanismo se ubica mejor. La slide entra "
-             "troceada en parches; el encoder CONCH le asigna a cada parche un vector de "
-             "quinientos doce; de ahí siguen la atención y el clasificador. El único bloque que "
-             "cambia es el del medio: ahí MAMMOTH reemplaza la primera capa lineal. Fíjense en "
-             "las tres formas de abajo, que son la misma: entra un vector de quinientos doce por "
-             "parche y sale un vector de quinientos doce por parche. Por eso decimos que es "
-             "drop-in. Todo lo que viene después es CLAM tal cual.")
+    # Guion punteado (formato validado en las láminas 3 y 5): un punto por elemento del
+    # dibujo, con el CENTRO DE GRAVEDAD en el interior expandido y no en la fila de arriba.
+    # Los puntos 4 a 6 son las cabezas, que fueron el punto de confusión de la reunión
+    # anterior: la lectura equivocada es "cada cabeza mira una cosa distinta" (una el color,
+    # otra la textura). Lo que hace el código es CORTAR el query de 256 en 16 tramos de 16
+    # (rearrange "b n (h d) -> b n h d", h=16, mammoth.py:342) y comparar tramo contra tramo,
+    # porque el einsum del ruteo (mammoth.py:384) deja el índice h COMPARTIDO y contrae sólo
+    # sobre d: las 16 comparaciones nunca se mezclan.
+    #
+    # El punto 5 sale de una pregunta de Ernesto y NO se puede omitir: si cada tramo se
+    # compara aparte, parece que hicieran falta 16 prototipos, uno por cabeza. No: slot_embeds
+    # es (e,h,s,d)=(30,16,10,16), o sea 300 prototipos y cada uno cortado en los mismos 16
+    # tramos que el parche. Son 16 tablas de N x 300, no una sola de N x 300; de ahí que los
+    # logits salgan (n,e,h,s). Decir "la tabla de parecidos contra los 300" justo después de
+    # explicar el corte se contradice solo, que es como estaba antes.
+    #
+    # Los puntos 7 a 9 restituyen la VUELTA (embudo y abanico): una versión anterior llenaba
+    # los slots y saltaba al concat sin contar nunca cómo el parche recupera su vector. La
+    # clave que pidió Ernesto explicitar es que las dos lecturas son la MISMA tabla de
+    # parecidos normalizada en direcciones distintas (get_weights, mammoth.py:410-413):
+    # dispatch = softmax sobre los N parches (por columna, llena los slots), combine = softmax
+    # sobre los 300 slots por parche y por tramo (por fila, reconstruye). La reconstrucción es
+    # entonces una mezcla convexa de los 300 slots ya transformados, pesada por el parecido:
+    # einsum("b h p d, b n h p -> b n h d"). Cada tramo devuelve out_features//num_heads =
+    # 512/16 = 32 (mammoth.py:168), y 16 x 32 = 512 cierra la vuelta.
+    #
+    # El interior va sin números a propósito; los pone la lámina siguiente.
+    notes(s, "1. Arriba está el pipeline de CLAM, y lo recorro rápido porque ya lo vimos: la "
+             "lámina entra troceada en parches, CONCH le pone a cada parche un vector de "
+             "quinientos doce números, la atención decide qué parches pesan y el clasificador "
+             "entrega el resultado de la lámina.\n"
+             "\n"
+             "2. De esos cinco bloques MAMMOTH toca uno solo, el del medio, donde reemplaza la "
+             "primera capa lineal. Los otros cuatro quedan intactos, y las tres etiquetas de abajo "
+             "lo muestran: entra un vector de quinientos doce por parche y sale un vector de "
+             "quinientos doce por parche. Como la forma no cambia, el resto del modelo no se "
+             "entera del reemplazo, y eso es lo que después nos deja comparar los dos modelos con "
+             "limpieza: si la atención mira distinto, el cambio salió de ese único bloque.\n"
+             "\n"
+             "3. El resto de la lámina es abrir ese bloque, que es lo que muestra la línea "
+             "punteada. Son cuatro pasos, todavía sin números.\n"
+             "\n"
+             "4. El primero es el que quiero dejar bien claro, porque la vez pasada quedó dando "
+             "vueltas: las dieciséis cabezas. Una cabeza no es una manera de mirar el parche; no "
+             "es que una mire el color y otra la textura. La descripción del parche son "
+             "doscientos cincuenta y seis números, y esos números se cortan en dieciséis tramos de "
+             "dieciséis: el primer tramo son los números del uno al dieciséis, el segundo del "
+             "diecisiete al treinta y dos, y así hasta completar los doscientos cincuenta y seis. "
+             "Nadie decide qué significa cada tramo. Lo decide el entrenamiento, y no tiene por "
+             "qué tener nombre.\n"
+             "\n"
+             "5. Acá aparece la pregunta natural: si cada tramo se compara por separado, ¿hacen "
+             "falta dieciséis prototipos, uno por cabeza? No. Los prototipos siguen siendo "
+             "trescientos, y cada uno de ellos es otra ficha de doscientos cincuenta y seis "
+             "números, cortada exactamente en los mismos dieciséis tramos que el parche. Así que "
+             "el tramo tres del parche se compara contra el tramo tres de los trescientos "
+             "prototipos, el tramo cuatro contra el tramo cuatro de esos mismos trescientos, y así "
+             "con los dieciséis. No es una tabla de parecidos: son dieciséis tablas, una por "
+             "tramo, todas contra los mismos trescientos. Un solo parche produce dieciséis por "
+             "trescientos, cuatro mil ochocientos parecidos.\n"
+             "\n"
+             "6. El corte tiene un motivo: que un parche no tenga que parecerse a un prototipo "
+             "entero. Puede coincidir con uno en un tramo y con otro distinto en el tramo "
+             "siguiente, y eso da una descripción mucho más fina sin agregar un solo parámetro, "
+             "porque dieciséis por dieciséis son los mismos doscientos cincuenta y seis números de "
+             "antes. Un detalle que vuelve más adelante: el tejido no vive en la cabeza, vive en "
+             "el slot.\n"
+             "\n"
+             "7. Cada tabla se lee dos veces, y las dos lecturas son un embudo y un abanico. "
+             "Primero por columnas: dentro de una columna, o sea para un prototipo fijo, los "
+             "porcentajes se reparten entre todos los parches de la lámina y suman uno. Con eso "
+             "cada prototipo se queda con un promedio ponderado de los parches que se le parecen, "
+             "que es la frase de abajo. Ahí la lámina entera, que pueden ser veinte o treinta mil "
+             "parches, queda resumida en trescientos, y cada experto transforma los suyos.\n"
+             "\n"
+             "8. Y después la misma tabla se lee por filas, que es donde se reconstruye el parche. "
+             "Ahora los porcentajes se reparten al revés: para un parche fijo, y dentro de un "
+             "mismo tramo, los trescientos porcentajes suman uno. El parche nuevo se arma como una "
+             "mezcla de esos trescientos resultados, cada uno pesado por cuánto se le parecía el "
+             "parche. El prototipo al que se parecía mucho aporta casi todo; los que no se le "
+             "parecían no aportan casi nada. Lo que quiero que quede de esta lámina es eso: el "
+             "parche deja de estar descrito por sus propios números y pasa a estar descrito por "
+             "cuánto tiene de cada uno de los trescientos prototipos.\n"
+             "\n"
+             "9. Todo esto pasa dentro de cada tramo por separado, así que cada tramo devuelve "
+             "treinta y dos números, y el último paso los pega: dieciséis tramos por treinta y "
+             "dos, quinientos doce. Ese es el vector con el que sigue CLAM. La lámina que viene "
+             "abre estos mismos cuatro pasos con las dimensiones puestas y el código al lado.")
 
     # ---- 6. Interior de MAMMOTH: matrices+dims Y código en paralelo (NATIVO) ----
     s = content(prs, "Por dentro de MAMMOTH: dimensiones y código")
