@@ -1248,16 +1248,26 @@ def build():
         ("z · features CONCH (parche)", "[N, 512]"),
         ("q = LN(Wq · z)", "[N, 256]"),
         ("split en 16 cabezas", "[N, 16, 16]"),
-        ("S · prototipos (slot_embeds)", "[30,16,10,16]"),
+        # La fila decía «S · prototipos (slot_embeds)» y dejaba que el lector dedujera el
+        # conteo de la forma [30,16,10,16]. Leída de izquierda a derecha esa forma parece una
+        # jerarquía (30 × 16 × 10 = 4800) y CONTRADECÍA el pie de la propia lámina. Ahora el
+        # número va en la etiqueta y la forma real queda al lado como dato, no como acertijo.
+        ("S · 300 prototipos de 256", "[30,16,10,16]"),
         ("logits de ruteo ⟨q, S⟩", "[N,30,16,10]"),
         ("D = softmax sobre N (dispatch)", "[N,30,16,10]"),
         ("u · slots (media ponderada)", "[30,16,10,16]"),
         ("expertos LoRA + concat cabezas", "[300, 512]"),
-        ("combine → salida drop-in", "[N, 512]"),
+        # «drop-in» salió del guion de las láminas 6 y 7 por la regla de vocabulario del
+        # 23-jul; dejarlo impreso acá lo volvía la única palabra de la lámina que no se dice.
+        ("combine → salida por parche", "[N, 512]"),
     ], row_h=0.30)
-    add_textbox(s, 0.30, 4.24, 4.72, 0.44, [
-        ("El 16 aparece dos veces: nº de cabezas y dimensión de cada prototipo (256/16), para "
-         "compararlos con un producto interno. 30 expertos × 10 slots = 300.",
+    # El pie ya no tiene que explicar el conteo (lo hace la fila) y queda libre para lo que
+    # SÍ necesita respaldo visual: que los tramos no se cruzan, y las 4800 comparaciones por
+    # parche, que se habían caído al recortar la lámina 6.
+    add_textbox(s, 0.30, 4.24, 4.72, 0.50, [
+        ("Cada prototipo está cortado en los mismos 16 tramos que el parche, y los tramos no se "
+         "cruzan: el tramo k del parche sólo se compara con el tramo k de los 300 → 4800 "
+         "parecidos por parche.",
          8.5, False, GRIS_BODY, F_BODY)])
     add_textbox(s, 5.20, 0.86, 4.6, 0.3, [("El código real (mammoth.py)", 13, True, TEAL_TITLE, F_TITLE)])
     code_panel(s, 5.20, 1.20, 4.60, 3.00, [
@@ -1271,59 +1281,86 @@ def build():
         'u = einsum("n h d, n e h s',
         '            -> e h s d", q, dispatch)',
         "out = expert_heads(u)        # LoRA -> [300,512]",
-        "# drop-in (keep_slots=False):",
+        "# keep_slots=False (camino base):",
         'out = einsum("h p d, n h p -> n h d",',
         "             out, combine)   # -> [N,512]",
     ])
     takeaway_bar(s, "Las cabezas son subespacios aprendidos (multi-head), no textura/forma/color: "
                     "la semántica de tejido vive en los slots.", t=4.80, size=12)
-    # Guion punteado (formato validado en las láminas 3, 5 y 6): un punto por tramo de la
-    # tabla, cada uno amarrado a su línea del código. SIN referencias a lo que quedó pendiente
-    # en la lámina anterior y sin preámbulo sobre vocabulario (pedido de Ernesto, 23-jul):
-    # la lámina se narra sola, fila por fila.
+    # Guion punteado (formato validado en las láminas 3, 5 y 6). CUARTA VERSIÓN: los puntos 2
+    # a 5 de la tercera no se entendían. Las tres pasadas anteriores (punteo -> corrección del
+    # anidamiento -> @humanizer-es) fallaron por la misma causa: el guion NARRABA LA TABLA fila
+    # por fila (5 de 5 aperturas eran "La X fila...") y humanizar arregla ritmo, no comprensión
+    # ([[notas-presentador-guion-didactico]] ADDENDUM 2 del 23-jul).
     #
-    # DOS CORRECCIONES DE FONDO respecto de la versión en bloque corrido:
+    # Lo que se aplica acá es la estrategia que SÍ funcionó en la lámina 6 ("quedaron
+    # excelentes"): desmontar primero la lectura equivocada, dar después la correcta, anclar
+    # con un mini-ejemplo numérico. Cambios respecto de la versión anterior:
     #
-    #   (a) LA LECTURA DE slot_embeds ERA UN ANIDAMIENTO FALSO. Decía "treinta expertos, cada
-    #       experto con dieciséis cabezas, cada cabeza con diez slots", que implicaría
-    #       30 x 16 x 10 = 4800 slots y CONTRADECÍA el pie impreso en esta misma lámina
-    #       ("30 expertos x 10 slots = 300"). La forma (e,h,s,d)=(30,16,10,16)
-    #       (mammoth.py:281) NO es una jerarquía: los prototipos son 300 (e x s) y los otros
-    #       dos ejes describen a cada uno POR DENTRO, cortado en los mismos 16 tramos de 16
-    #       que el parche. El eje h va segundo por conveniencia del einsum, no porque
-    #       contenga slots. Fue el punto donde Ernesto se trabó, y con razón.
-    #   (b) EL DISPATCH NO "REPARTE CADA PARCHE ENTRE LOS SLOTS". Eso es el combine. El
-    #       dispatch es softmax sobre los N parches (mammoth.py:410, dim=1 sobre (b,n,e,h,s)),
-    #       tal como dice la fila de la tabla: para un prototipo fijo son los parches los que
-    #       se reparten un total de uno, y de ahí que el slot sea un promedio de parches.
+    #   (a) SEIS PUNTOS EN VEZ DE CINCO. El 4 viejo cargaba tres filas (dispatch, slots y los
+    #       expertos LoRA) y el 5 cargaba el combine mas el cartel. Ahora los expertos tienen
+    #       punto propio y cada punto lleva UNA idea.
+    #   (b) EL PUNTO 3 HACE LA MATEMÁTICA, no la parafrasea (pedido literal de Ernesto): qué
+    #       calcula el producto interno, por qué eso mide parecido, qué contrae el einsum (los
+    #       16 números del tramo, índice d) y qué índices quedan libres (n, e, s), con h
+    #       compartido. La versión anterior decía "compara tramo contra tramo" y daba por
+    #       entendido justamente lo que había que explicar.
+    #   (c) EL PUNTO 4 DESMONTA PRIMERO. La lectura natural, y la que Ernesto tenía, es que
+    #       cada parche reparte su cien por ciento entre los 300 prototipos. Eso ocurre, pero
+    #       en el combine, al final. El dispatch es softmax sobre los N parches (mammoth.py:410,
+    #       dim=1 sobre (b,n,e,h,s)), así que se dice explícito que es al revés y por qué el
+    #       slot termina siendo un promedio DE PARCHES.
+    #   (d) FUERA "ficha" (nombre de más en una lámina que ya tiene slot, prototipo, experto y
+    #       cabeza) y fuera "conteo", que a Ernesto no le cerraba como referencia.
+    #
+    # Se mantiene de la versión anterior la corrección del anidamiento falso: la forma
+    # (e,h,s,d)=(30,16,10,16) (mammoth.py:281) NO es una jerarquía, los prototipos son 300
+    # (e x s) y los otros dos ejes describen a cada uno POR DENTRO. Ahora la fila de la tabla
+    # imprime el 300, así que el guion se apoya en la lámina en vez de corregirla.
     notes(s, "1. El parche entra por arriba con sus quinientos doce números, la z de la primera "
              "fila. La primera línea del código lo proyecta a doscientos cincuenta y seis, y la "
              "segunda lo corta en dieciséis tramos de dieciséis, que es lo que la tabla llama "
              "cabezas. Eso es todo lo que pasa antes del ruteo.\n"
              "\n"
-             "2. Un prototipo es una ficha del mismo tamaño que el parche: doscientos cincuenta y "
-             "seis números, cortados en los mismos dieciséis tramos. De esos prototipos hay "
-             "trescientos, diez por cada uno de los treinta expertos, y ahí está todo el conteo. "
-             "Los otros dos números de la fila no cuentan prototipos, dicen cómo está armado cada "
-             "uno. Leída de corrido, la fila parece decir que hay más; son trescientos.\n"
+             "2. Un prototipo es un vector de doscientos cincuenta y seis números, del mismo "
+             "tamaño que la descripción del parche que acabamos de cortar, y hay trescientos: "
+             "diez por cada uno de los treinta expertos. La forma que está al lado se presta a "
+             "confusión, porque leída de izquierda a derecha suena a que cada experto tuviera "
+             "dieciséis cosas y cada una de esas otras diez. No es así: los que cuentan "
+             "prototipos son el treinta y el diez, y los otros dos números dicen cómo está armado "
+             "cada uno por dentro, dieciséis tramos de dieciséis, los mismos en los que acabamos "
+             "de cortar el parche.\n"
              "\n"
-             "3. El einsum de al lado compara tramo contra tramo, y los tramos nunca se mezclan: el "
-             "tramo cinco del parche va contra el tramo cinco de los trescientos prototipos, nunca "
-             "contra el seis. De ahí la forma de los logits, N por treinta por dieciséis por diez, "
-             "que son cuatro mil ochocientas comparaciones para un solo parche.\n"
+             "3. Con eso ya se puede medir el parecido, y es lo que hace la línea del einsum. "
+             "Tomo el tramo cinco del parche, que son dieciséis números, y el tramo cinco de un "
+             "prototipo, que son otros dieciséis: multiplico posición contra posición y sumo los "
+             "dieciséis productos. Queda un número solo, alto cuando los dos tienen valores "
+             "grandes en las mismas posiciones y cerca de cero cuando lo que uno tiene el otro no "
+             "lo tiene. Eso es medir parecido. El einsum hace todas las combinaciones de una vez, "
+             "y lo único que suma y desaparece son esos dieciséis números del tramo; quedan "
+             "abiertos el parche, el experto y el slot, y el tramo no se cruza con ningún otro, "
+             "el cinco sólo contra el cinco. Por eso cada parche deja dieciséis tramos por "
+             "trescientos prototipos, cuatro mil ochocientos parecidos.\n"
              "\n"
-             "4. Para llenar un slot, la softmax va sobre los parches y no sobre los prototipos: "
-             "para un prototipo fijo, los parches de la lámina se reparten un total de uno, y con "
-             "esos pesos se arma el promedio ponderado que lo llena. Después cada experto "
-             "transforma los suyos con una operación de bajo rango, que es lo que le permite tener "
-             "treinta expertos sin gastar más parámetros, y al concatenar las cabezas cada slot "
-             "queda otra vez en quinientos doce.\n"
+             "4. Con esos parecidos se llenan los slots, y es la línea del dispatch. La "
+             "dirección es lo que confunde: la softmax va sobre N, sobre los parches, no sobre "
+             "los prototipos. Fijo un prototipo y reparto un uno entre todos los parches de la "
+             "lámina según cuánto se le parecen; el einsum de abajo usa esos pesos para promediar "
+             "los parches, y así cada slot queda siendo un promedio de parches. Trescientos slots "
+             "resumen la lámina entera.\n"
              "\n"
-             "5. Al final una segunda softmax recombina los trescientos y devuelve un vector por "
-             "parche, con la misma forma que tendría una capa lineal. Abajo está el punto que "
-             "quiero dejar afinado: las cabezas no son textura, forma ni color, son subespacios "
-             "aprendidos igual que en atención multi-cabeza, y la semántica de tejido vive en los "
-             "slots. Lo que viene es esta misma arquitectura dibujada por los autores.")
+             "5. La línea de expert_heads transforma los diez slots de cada experto. Es una "
+             "operación de bajo rango, la LoRA: en lugar de una matriz densa usa dos de rango "
+             "pequeño, y por eso caben treinta expertos sin multiplicar por treinta los "
+             "parámetros. Salen los trescientos slots, ya en quinientos doce, como indica el "
+             "comentario.\n"
+             "\n"
+             "6. El último einsum reconstruye el parche con la segunda softmax, el combine, "
+             "simétrica a la del dispatch: antes fijábamos un prototipo y repartíamos un uno "
+             "entre los parches; ahora fijamos un parche y repartimos un uno entre los "
+             "trescientos slots. El vector nuevo es la combinación de los trescientos slots ya "
+             "transformados, ponderada por esos pesos. Sale en quinientos doce, la misma "
+             "dimensión que entró, y en la lámina siguiente lo vemos dibujado por los autores.")
 
     # ---- 7. La arquitectura oficial del paper: figura GRANDE y SIN callouts encima que
     #        tapen las variables. Lleva cabecera OncoMets como el resto de las técnicas
