@@ -63,7 +63,7 @@ TEMPLATE = os.path.join(REPO, "sprints/B7_sprint7/Modelo OncoMets Spatial V1 Dee
 # Láminas del template que se CONSERVAN tal cual (nativas, ya a 13.333): portada de marca
 # y lámina de título. Reemplazan a la portada JPG que se usaba antes.
 TPL_KEEP = (0, 1)
-FECHA_REUNION = "22/07/2026"   # miércoles
+FECHA_REUNION = "24/07/2026"   # viernes
 
 # --- diagramas standalone (13.333x7.5, sin header) que reusamos escalados ---
 DIAG_MAM = os.path.join(PRES, "Diagrama_CLAM_mammoth.pptx")     # s0 pipeline · s1 interior/tensor
