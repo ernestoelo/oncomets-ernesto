@@ -467,6 +467,31 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   entera del reemplazo»), por la regla de vocabulario del 23-jul. Sigue en la tabla de la lámina 7
   (`combine → salida drop-in`). Se ofreció reponerlo y Ernesto no se pronunció.
 
+#### Sesión de ESTUDIO del deck (23-jul, noche) — lámina 6 cerrada, lámina 7 ABIERTA
+
+- ✅ **Lámina 6 CERRADA.** Recortada a **6 puntos / 458 palabras** (venía de 9 / 717). Salieron: la
+  narración de la tabla de parecidos leída «por filas y por columnas» (Ernesto: *no hay respaldo
+  visual en esa lámina y no quiere agregarlo*, la 7 fija la idea con el código) y la imagen del
+  **embudo y el abanico**, que rechazó. Las dos lecturas se nombran ahora por lo que hacen, llenar
+  los slots y rearmar el parche. Reacción: *«quedaron excelentes»*.
+  - Se cayeron dos cosas, **ofrecidas y sin respuesta**: la frase «el tejido no vive en la cabeza,
+    vive en el slot» (adelanto a la interpretabilidad) y las 4800 comparaciones por parche.
+- ⚠️ **HALLAZGO — el guion de la lámina 7 leía `slot_embeds` como una jerarquía FALSA.** Decía
+  «treinta expertos, cada experto con dieciséis cabezas, cada cabeza con diez slots», que implicaría
+  **30×16×10 = 4800 slots** y **contradecía el pie impreso en la propia lámina** («30 expertos × 10
+  slots = 300»). Verificado: `slot_embeds = nn.Parameter(torch.randn(num_experts, num_heads,
+  num_slots, head_dim_input))` = `(30,16,10,16)`, `mammoth.py:281`. Los prototipos son **300**
+  (`e × s`); los otros dos ejes describen a cada uno **por dentro**, cortado en los mismos 16 tramos
+  de 16 que el parche. ADDENDUM en [[mammoth-cabezas-son-tramos]].
+- ⚠️ **HALLAZGO — el guion cruzaba `dispatch` con `combine`.** Decía que el dispatch «reparte cada
+  parche entre los slots»; eso es el combine. Verificado `mammoth.py:410`:
+  `dispatch_weights = F.softmax(logits, dim=1)` sobre `(b,n,e,h,s)`, o sea el eje **n**. Corregido.
+- ❌ **Lámina 7 NO CERRADA — es el pendiente central.** Tres pasadas (punteo → corrección del
+  anidamiento → `@humanizer-es`) y **los puntos 2, 3, 4 y 5 siguen sin entenderse**. Ernesto la
+  declaró *«super importante»*. Lo que aprendimos de los intentos fallidos está en el ADDENDUM 2 del
+  23-jul de [[notas-presentador-guion-didactico]]: el guion **narraba la tabla fila por fila** (5 de
+  5 aperturas eran «La X fila…»), y humanizar arregla ritmo pero **no arregla comprensión**.
+
 ---
 
 ## Eje que continúa de B6 — Magnificación multi-escala (CONCH) sobre CLAM (pipeline armado, NO lanzado)
