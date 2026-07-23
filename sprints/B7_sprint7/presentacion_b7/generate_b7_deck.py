@@ -1178,92 +1178,68 @@ def build():
     s = pipeline_mammoth(prs)
     # Guion punteado (formato validado en las láminas 3 y 5): un punto por elemento del
     # dibujo, con el CENTRO DE GRAVEDAD en el interior expandido y no en la fila de arriba.
-    # Los puntos 4 a 6 son las cabezas, que fueron el punto de confusión de la reunión
-    # anterior: la lectura equivocada es "cada cabeza mira una cosa distinta" (una el color,
-    # otra la textura). Lo que hace el código es CORTAR el query de 256 en 16 tramos de 16
-    # (rearrange "b n (h d) -> b n h d", h=16, mammoth.py:342) y comparar tramo contra tramo,
-    # porque el einsum del ruteo (mammoth.py:384) deja el índice h COMPARTIDO y contrae sólo
-    # sobre d: las 16 comparaciones nunca se mezclan.
     #
-    # El punto 5 sale de una pregunta de Ernesto y NO se puede omitir: si cada tramo se
-    # compara aparte, parece que hicieran falta 16 prototipos, uno por cabeza. No: slot_embeds
-    # es (e,h,s,d)=(30,16,10,16), o sea 300 prototipos y cada uno cortado en los mismos 16
-    # tramos que el parche. Son 16 tablas de N x 300, no una sola de N x 300; de ahí que los
-    # logits salgan (n,e,h,s). Decir "la tabla de parecidos contra los 300" justo después de
-    # explicar el corte se contradice solo, que es como estaba antes.
+    # RECORTADO el 23-jul a pedido de Ernesto: venía en 9 puntos y 717 palabras y quedó en 6.
+    # Dos decisiones suyas gobiernan esta versión:
     #
-    # Los puntos 7 a 9 restituyen la VUELTA (embudo y abanico): una versión anterior llenaba
-    # los slots y saltaba al concat sin contar nunca cómo el parche recupera su vector. La
-    # clave que pidió Ernesto explicitar es que las dos lecturas son la MISMA tabla de
-    # parecidos normalizada en direcciones distintas (get_weights, mammoth.py:410-413):
-    # dispatch = softmax sobre los N parches (por columna, llena los slots), combine = softmax
-    # sobre los 300 slots por parche y por tramo (por fila, reconstruye). La reconstrucción es
-    # entonces una mezcla convexa de los 300 slots ya transformados, pesada por el parecido:
-    # einsum("b h p d, b n h p -> b n h d"). Cada tramo devuelve out_features//num_heads =
-    # 512/16 = 32 (mammoth.py:168), y 16 x 32 = 512 cierra la vuelta.
+    #   (a) NADA de tablas de parecidos. El mecanismo fino es correcto (una misma tabla
+    #       normalizada en dos direcciones: dispatch = softmax sobre los N parches, combine =
+    #       softmax sobre los 300 slots por parche y por tramo, get_weights, mammoth.py:410-413;
+    #       y son 16 tablas de N x 300, no una, porque el einsum de get_logits :384 deja h
+    #       compartido) pero NO tiene respaldo visual acá: no hay ninguna tabla dibujada. Se
+    #       decidió no agregar el dibujo porque la lámina siguiente fija la idea con el código
+    #       y las dimensiones al lado. La pregunta "¿no hacen falta 16 prototipos, uno por
+    #       cabeza?" sobrevive en el punto 4 con su respuesta, pero contestada por la FORMA de
+    #       los prototipos (300 fichas cortadas en los mismos tramos, slot_embeds
+    #       (e,h,s,d)=(30,16,10,16)), no por el conteo de tablas.
+    #   (b) SIN la imagen del embudo y el abanico. Las dos lecturas se nombran por lo que
+    #       hacen, "llenar los slots" y "rearmar el parche", que es lo que el diagrama dibuja.
+    #
+    # Lo que NO se toca aunque haya que recortar: desmontar la lectura equivocada de las
+    # cabezas ("una mira el color, otra la textura") ANTES de dar la correcta, y el ejemplo
+    # numérico del corte (1 al 16, 17 al 32). Fue el punto de confusión de la reunión anterior
+    # y es lo que Ernesto validó. Se comprimió de 3 puntos a 2, no se resumió por dentro.
     #
     # El interior va sin números a propósito; los pone la lámina siguiente.
-    notes(s, "1. Arriba está el pipeline de CLAM, y lo recorro rápido porque ya lo vimos: la "
-             "lámina entra troceada en parches, CONCH le pone a cada parche un vector de "
-             "quinientos doce números, la atención decide qué parches pesan y el clasificador "
-             "entrega el resultado de la lámina.\n"
+    notes(s, "1. Arriba está el pipeline de CLAM, que ya lo vimos: la lámina entra troceada en "
+             "parches, CONCH le pone a cada parche un vector de quinientos doce números, la "
+             "atención decide qué parches pesan y el clasificador entrega el resultado.\n"
              "\n"
              "2. De esos cinco bloques MAMMOTH toca uno solo, el del medio, donde reemplaza la "
-             "primera capa lineal. Los otros cuatro quedan intactos, y las tres etiquetas de abajo "
-             "lo muestran: entra un vector de quinientos doce por parche y sale un vector de "
-             "quinientos doce por parche. Como la forma no cambia, el resto del modelo no se "
-             "entera del reemplazo, y eso es lo que después nos deja comparar los dos modelos con "
-             "limpieza: si la atención mira distinto, el cambio salió de ese único bloque.\n"
+             "primera capa lineal. Las etiquetas de abajo lo muestran: entra un vector de "
+             "quinientos doce por parche y sale un vector de quinientos doce. Como la forma no "
+             "cambia, el resto del modelo no se entera del reemplazo, y por eso después podemos "
+             "comparar los dos modelos con limpieza: si la atención mira distinto, salió de ese "
+             "bloque.\n"
              "\n"
-             "3. El resto de la lámina es abrir ese bloque, que es lo que muestra la línea "
-             "punteada. Son cuatro pasos, todavía sin números.\n"
+             "3. La línea punteada abre ese bloque en cuatro pasos, todavía sin números. El "
+             "primero es el que quiero dejar claro, porque la vez pasada quedó dando vueltas: las "
+             "dieciséis cabezas. Una cabeza no es una manera de mirar el parche, no es que una "
+             "mire el color y otra la textura. La descripción del parche son doscientos cincuenta "
+             "y seis números, y se cortan en dieciséis tramos de dieciséis: el primero va del uno "
+             "al dieciséis, el segundo del diecisiete al treinta y dos, y así. Qué significa cada "
+             "tramo lo decide el entrenamiento, y no tiene por qué tener nombre.\n"
              "\n"
-             "4. El primero es el que quiero dejar bien claro, porque la vez pasada quedó dando "
-             "vueltas: las dieciséis cabezas. Una cabeza no es una manera de mirar el parche; no "
-             "es que una mire el color y otra la textura. La descripción del parche son "
-             "doscientos cincuenta y seis números, y esos números se cortan en dieciséis tramos de "
-             "dieciséis: el primer tramo son los números del uno al dieciséis, el segundo del "
-             "diecisiete al treinta y dos, y así hasta completar los doscientos cincuenta y seis. "
-             "Nadie decide qué significa cada tramo. Lo decide el entrenamiento, y no tiene por "
-             "qué tener nombre.\n"
+             "4. Podría parecer que entonces hacen falta dieciséis prototipos, uno por cabeza. No: "
+             "son trescientos, y cada uno es otra ficha de doscientos cincuenta y seis números "
+             "cortada en los mismos tramos. Ese es el motivo del corte, que un parche no tenga que "
+             "parecerse a un prototipo entero: puede coincidir con uno en un tramo y con otro "
+             "distinto en el siguiente, y es una descripción más fina sin un solo parámetro "
+             "nuevo.\n"
              "\n"
-             "5. Acá aparece la pregunta natural: si cada tramo se compara por separado, ¿hacen "
-             "falta dieciséis prototipos, uno por cabeza? No. Los prototipos siguen siendo "
-             "trescientos, y cada uno de ellos es otra ficha de doscientos cincuenta y seis "
-             "números, cortada exactamente en los mismos dieciséis tramos que el parche. Así que "
-             "el tramo tres del parche se compara contra el tramo tres de los trescientos "
-             "prototipos, el tramo cuatro contra el tramo cuatro de esos mismos trescientos, y así "
-             "con los dieciséis. No es una tabla de parecidos: son dieciséis tablas, una por "
-             "tramo, todas contra los mismos trescientos. Un solo parche produce dieciséis por "
-             "trescientos, cuatro mil ochocientos parecidos.\n"
+             "5. El segundo paso es el ruteo, que mide cuánto se parece cada parche a cada "
+             "prototipo, y ese parecido se usa en las dos direcciones. Primero para llenar los "
+             "trescientos slots, que es la frase de abajo: cada slot se queda con un promedio "
+             "ponderado de los parches que se le parecen. La lámina entera, que pueden ser treinta "
+             "mil parches, queda resumida en trescientos, y cada experto transforma los suyos.\n"
              "\n"
-             "6. El corte tiene un motivo: que un parche no tenga que parecerse a un prototipo "
-             "entero. Puede coincidir con uno en un tramo y con otro distinto en el tramo "
-             "siguiente, y eso da una descripción mucho más fina sin agregar un solo parámetro, "
-             "porque dieciséis por dieciséis son los mismos doscientos cincuenta y seis números de "
-             "antes. Un detalle que vuelve más adelante: el tejido no vive en la cabeza, vive en "
-             "el slot.\n"
-             "\n"
-             "7. Cada tabla se lee dos veces, y las dos lecturas son un embudo y un abanico. "
-             "Primero por columnas: dentro de una columna, o sea para un prototipo fijo, los "
-             "porcentajes se reparten entre todos los parches de la lámina y suman uno. Con eso "
-             "cada prototipo se queda con un promedio ponderado de los parches que se le parecen, "
-             "que es la frase de abajo. Ahí la lámina entera, que pueden ser veinte o treinta mil "
-             "parches, queda resumida en trescientos, y cada experto transforma los suyos.\n"
-             "\n"
-             "8. Y después la misma tabla se lee por filas, que es donde se reconstruye el parche. "
-             "Ahora los porcentajes se reparten al revés: para un parche fijo, y dentro de un "
-             "mismo tramo, los trescientos porcentajes suman uno. El parche nuevo se arma como una "
-             "mezcla de esos trescientos resultados, cada uno pesado por cuánto se le parecía el "
-             "parche. El prototipo al que se parecía mucho aporta casi todo; los que no se le "
-             "parecían no aportan casi nada. Lo que quiero que quede de esta lámina es eso: el "
-             "parche deja de estar descrito por sus propios números y pasa a estar descrito por "
-             "cuánto tiene de cada uno de los trescientos prototipos.\n"
-             "\n"
-             "9. Todo esto pasa dentro de cada tramo por separado, así que cada tramo devuelve "
-             "treinta y dos números, y el último paso los pega: dieciséis tramos por treinta y "
-             "dos, quinientos doce. Ese es el vector con el que sigue CLAM. La lámina que viene "
-             "abre estos mismos cuatro pasos con las dimensiones puestas y el código al lado.")
+             "6. Y después al revés, para rearmar el parche: el parche nuevo es una mezcla de esos "
+             "trescientos resultados, cada uno pesado por cuánto se le parecía. Eso es lo que "
+             "quiero que se lleven de la lámina, que el parche deja de estar descrito por sus "
+             "propios números y pasa a estar descrito por cuánto tiene de cada prototipo. El "
+             "último bloque pega las cabezas de vuelta hasta los quinientos doce de la etiqueta de "
+             "arriba, y la lámina que viene abre estos mismos cuatro pasos con las dimensiones "
+             "puestas y el código al lado.")
 
     # ---- 6. Interior de MAMMOTH: matrices+dims Y código en paralelo (NATIVO) ----
     s = content(prs, "Por dentro de MAMMOTH: dimensiones y código")
@@ -1301,30 +1277,53 @@ def build():
     ])
     takeaway_bar(s, "Las cabezas son subespacios aprendidos (multi-head), no textura/forma/color: "
                     "la semántica de tejido vive en los slots.", t=4.80, size=12)
-    notes(s, "El interior de MAMMOTH, con las dimensiones a la izquierda y el código real a la "
-             "derecha, para seguir cada paso sin ambigüedad. La entrada es un parche, un vector de "
-             "quinientos doce, la z. Primero se proyecta a un query de doscientos cincuenta y seis "
-             "y se parte en dieciséis cabezas de dieciséis. En paralelo, el modelo guarda sus "
-             "prototipos aprendidos en el tensor treinta por dieciséis por diez por dieciséis. "
-             "Se lee de izquierda a "
-             "derecha: treinta expertos, cada experto con dieciséis cabezas, cada cabeza con diez "
-             "slots, y cada slot es un vector de dieciséis dimensiones. El dieciséis aparece dos "
-             "veces por una razón concreta. El primero es el número de cabezas; el último es la "
-             "dimensión de cada prototipo, que sale de dividir el query, doscientos cincuenta y "
-             "seis, entre las dieciséis cabezas. Tienen que coincidir porque el ruteo compara cada "
-             "prototipo con el query mediante un producto interno, y un producto interno exige que "
-             "ambos vectores vivan en el mismo espacio de dieciséis. Treinta expertos por diez "
-             "slots dan los trescientos slots que reaparecen más adelante. De ahí en adelante la "
-             "tabla y el código van paso a paso: el ruteo compara query contra prototipos, una "
-             "softmax reparte cada parche entre los slots, con esos pesos se arma el promedio "
-             "ponderado que llena cada slot, cada experto lo transforma con una operación de bajo "
-             "rango y se concatenan las cabezas para dar trescientos por quinientos doce. En la "
-             "variante base, una segunda softmax recombina los trescientos slots y reconstruye los "
-             "parches, así que la salida tiene la misma forma que tendría una capa lineal; por eso "
-             "el reemplazo es directo. Y un punto que en su momento se respondió mal y hay "
-             "que dejar afinado: las cabezas no son textura, forma ni color. Son subespacios "
-             "aprendidos, igual que en atención multi-cabeza; la semántica de tejido no vive en "
-             "las cabezas, vive en los slots.")
+    # Guion punteado (formato validado en las láminas 3, 5 y 6): un punto por tramo de la
+    # tabla, cada uno amarrado a su línea del código. SIN referencias a lo que quedó pendiente
+    # en la lámina anterior y sin preámbulo sobre vocabulario (pedido de Ernesto, 23-jul):
+    # la lámina se narra sola, fila por fila.
+    #
+    # DOS CORRECCIONES DE FONDO respecto de la versión en bloque corrido:
+    #
+    #   (a) LA LECTURA DE slot_embeds ERA UN ANIDAMIENTO FALSO. Decía "treinta expertos, cada
+    #       experto con dieciséis cabezas, cada cabeza con diez slots", que implicaría
+    #       30 x 16 x 10 = 4800 slots y CONTRADECÍA el pie impreso en esta misma lámina
+    #       ("30 expertos x 10 slots = 300"). La forma (e,h,s,d)=(30,16,10,16)
+    #       (mammoth.py:281) NO es una jerarquía: los prototipos son 300 (e x s) y los otros
+    #       dos ejes describen a cada uno POR DENTRO, cortado en los mismos 16 tramos de 16
+    #       que el parche. El eje h va segundo por conveniencia del einsum, no porque
+    #       contenga slots. Fue el punto donde Ernesto se trabó, y con razón.
+    #   (b) EL DISPATCH NO "REPARTE CADA PARCHE ENTRE LOS SLOTS". Eso es el combine. El
+    #       dispatch es softmax sobre los N parches (mammoth.py:410, dim=1 sobre (b,n,e,h,s)),
+    #       tal como dice la fila de la tabla: para un prototipo fijo son los parches los que
+    #       se reparten un total de uno, y de ahí que el slot sea un promedio de parches.
+    notes(s, "1. El parche entra por arriba con sus quinientos doce números, la z de la primera "
+             "fila. La primera línea del código lo proyecta a doscientos cincuenta y seis, y la "
+             "segunda lo corta en dieciséis tramos de dieciséis, que es lo que la tabla llama "
+             "cabezas. Eso es todo lo que pasa antes del ruteo.\n"
+             "\n"
+             "2. Un prototipo es una ficha del mismo tamaño que el parche: doscientos cincuenta y "
+             "seis números, cortados en los mismos dieciséis tramos. De esos prototipos hay "
+             "trescientos, diez por cada uno de los treinta expertos, y ahí está todo el conteo. "
+             "Los otros dos números de la fila no cuentan prototipos, dicen cómo está armado cada "
+             "uno. Leída de corrido, la fila parece decir que hay más; son trescientos.\n"
+             "\n"
+             "3. El einsum de al lado compara tramo contra tramo, y los tramos nunca se mezclan: el "
+             "tramo cinco del parche va contra el tramo cinco de los trescientos prototipos, nunca "
+             "contra el seis. De ahí la forma de los logits, N por treinta por dieciséis por diez, "
+             "que son cuatro mil ochocientas comparaciones para un solo parche.\n"
+             "\n"
+             "4. Para llenar un slot, la softmax va sobre los parches y no sobre los prototipos: "
+             "para un prototipo fijo, los parches de la lámina se reparten un total de uno, y con "
+             "esos pesos se arma el promedio ponderado que lo llena. Después cada experto "
+             "transforma los suyos con una operación de bajo rango, que es lo que le permite tener "
+             "treinta expertos sin gastar más parámetros, y al concatenar las cabezas cada slot "
+             "queda otra vez en quinientos doce.\n"
+             "\n"
+             "5. Al final una segunda softmax recombina los trescientos y devuelve un vector por "
+             "parche, con la misma forma que tendría una capa lineal. Abajo está el punto que "
+             "quiero dejar afinado: las cabezas no son textura, forma ni color, son subespacios "
+             "aprendidos igual que en atención multi-cabeza, y la semántica de tejido vive en los "
+             "slots. Lo que viene es esta misma arquitectura dibujada por los autores.")
 
     # ---- 7. La arquitectura oficial del paper: figura GRANDE y SIN callouts encima que
     #        tapen las variables. Lleva cabecera OncoMets como el resto de las técnicas
