@@ -824,6 +824,15 @@ re-validar y actualizar `docs/codebase_map.md`.
     query de 256 en 16 tramos de 16, no miradas semánticas, y los prototipos son **300 cortados
     igual** (NO uno por cabeza) ⇒ **16 tablas de N×300**, 4800 parecidos por parche.
     [[mammoth-cabezas-son-tramos]].
+    **Precisión 23-jul (3) — slots no redundantes + heatmap por slot:** medido en nuestras láminas,
+    la correlación espacial entre los **top-8 slots** es **−0.00** de media y el #1 vs #2 da **−0.62**
+    (regiones opuestas) → slots distintos se concentran en tejido distinto (qué tejido = lectura
+    visual, sign-off pendiente). El **heatmap por slot** usa `combine` (2ª softmax) **sin colapsar N**
+    y NO es el heatmap por **experto** que ya existía (ese usa `dispatch`, 1ª softmax, y a nivel
+    experto el ruteo es uniforme) — no cruzarlos. Tablas + mapas en `sprints/B7_sprint7/slot_softmax/`.
+    [[slot-unidad-de-morfologia]]. **Eje de trabajo abierto (NO reabre rendimiento):** afinar **E y S**
+    para mama reduciendo uno con el otro fijo a igual total (27×10 vs 30×9), regla 9 + reviewer +
+    paired sobre los splits del 4589 — [[mammoth-grid-expertos-slots]].
     **DATO ABIERTO (18-jul, job 4589) — NO reabre este Hallazgo, pero queda registrado:** en la
     formulación NUEVA `carcinoma_ductal_insitu_presente_ci_reform` (85% positivo, jamás incluida
     en las 12 configs que cerraron este Hallazgo) Mammoth dio Δbal_acc **+0.074 ± 0.033 (5/5

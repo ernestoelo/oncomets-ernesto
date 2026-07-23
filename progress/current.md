@@ -652,6 +652,34 @@ nada commiteado/pusheado (pendiente OK + pase formal del reviewer).**
   (augmentación en espacio de features, verificar CONCH v1 512) y **TITAN** (caro,
   re-extrae CONCHv1.5 768). [[insuficiencia-datos-ejes-investigacion]].
 
+### Sesión 23-jul (tarde) — softmax por slot + reunión con Sebastián
+
+- **Generado**: tablas de la 2ª softmax por slot (`sprints/B7_sprint7/slot_softmax/`:
+  300 slots por tarea + `slot_softmax_resumen.csv` + mini **por lámina**) y **mapas de
+  calor por SLOT** (`slot_heatmaps_<tarea>.png`), vía `scripts/build_slot_softmax_tables.py`
+  y `scripts/slot_heatmaps_contraste.py`. Todo CPU post-hoc. Detalle:
+  `resultados_interpretabilidad.md` §5.2.
+- **Medido**: los slots top **no son redundantes** (corr. espacial media −0.00 entre los
+  top-8; #1 vs #2 = **−0.62**, regiones opuestas) → evidencia propia de
+  [[slot-unidad-de-morfologia]], que antes se apoyaba solo en la Fig. 3 del paper.
+- **Medido**: la **anatomía del desacuerdo** CLAM/Mammoth (§3.1) — los parches en disputa
+  del top-5 % están en el **percentil 10-17 %** del otro modelo, **0 %** en la mitad
+  inferior; la cola alta está aplastada (#210 pesa 1.20× el #420 en Mammoth). Explica
+  ρ=0.885 con Jaccard=0.243 sin contradicción.
+- **Reunión con Sebastián (14:30): salió bien, le gustó el trabajo.** Pidió incorporar
+  tablas + mapas al deck del 24-jul. Acuerdos y encargos completos en
+  `sprints/B7_sprint7/reunion_23jul_acuerdos.md`.
+- **PENDIENTE (delegado a sesión limpia)**: regenerar los 3 mapas con el **top-4 puro del
+  ranking** aunque se repita experto (él quiere ver si dos slots del mismo experto ven
+  cosas distintas: CDIS tiene `e28·s4` #1 y `e28·s5` #4); armar **una lámina** con las 3
+  imágenes + su tabla al lado; explicar entropía (idea general, `N_eff` **por tarea
+  separada**, efecto del tamaño de lámina), qué es el % de la softmax y qué es el 15 %;
+  y **definir una cota conveniente** sobre la softmax para estimar cuántos slots requiere
+  cada tarea.
+- **Eje siguiente (post-presentación)**: «perillar» E y S de Mammoth para mama —
+  reducir uno con el otro fijo a igual total (27×10 vs 30×9 = 270) sobre las 3 tareas.
+  Regla 9 + reviewer + paired sobre los splits del 4589. [[mammoth-grid-expertos-slots]].
+
 ### Lo que NO se reabre (cerrado con argumento)
 
 - Otro agregador / otro patch-embed / "mammoth #3" → null garantizado (Hallazgos 11/12).
