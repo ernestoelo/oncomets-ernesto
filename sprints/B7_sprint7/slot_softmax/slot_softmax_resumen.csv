@@ -1,0 +1,4 @@
+tarea,laminas,N_eff_slots,N_eff_por_lamina,slots_sobre_uniforme,slots_bajo_uniforme_≈0,slots_para_50pct,slots_para_90pct,masa_top10_pct,top1_id,top1_pct,top1_vs_uniforme,peso_min_pct
+tipo_histologico,3,199.3,156 / 178 / 148,103,197,57,195,18.4,e12·s2,3.715,11.145,0.02065
+cdis,2,160.1,90 / 180,82,218,37,170,23.8,e13·s6,3.2441,9.732,0.01155
+lvi,2,195.9,162 / 196,98,202,53,193,18.7,e6·s7,3.2187,9.656,0.02247
