@@ -71,6 +71,14 @@ después de la migración de cabeceras del commit `42280de`.
 había que arreglarlas. Es una **segunda causa, independiente y dominante**: la tipografía
 afecta a las 22 láminas, la cabecera a unas pocas.
 
+> **ADDENDUM 23-jul-2026** — el diagnóstico de arriba sigue en pie, pero el dato
+> «Barlow no está en el servidor» quedó **superado**: desde esa noche está instalada
+> bajo containment (`clam_testing2/fonts/`, se activa por `FONTCONFIG_FILE`), así que el
+> rasterizado local ya sirve para juzgar tipografía. Sigue valiendo que **no está
+> necesariamente en la máquina donde se presenta**, que es lo que hace obligatorio
+> construir sobre el `.pptx` del template para heredar las fuentes embebidas.
+> Procedimiento: `sprints/B7_sprint7/presentacion_b7/fuentes_barlow.md`.
+
 **Verificación** (round-trip, este es el método reusable): abrir el template con
 python-pptx, borrarle todas las láminas, guardar → los 11 `.fntdata` y los 4
 `embeddedFont` sobreviven. Construir **sobre el archivo** en vez de con `Presentation()`
