@@ -716,3 +716,33 @@ Todo CPU post-hoc, read-only sobre artefactos ya existentes (regla 9 no aplica).
   variante `_deck` de cada PNG (sin suptitle, rótulos ~3× más grandes) y el ancho
   **adaptativo** al alto real de las tiras en la lámina 18.
 - Detalle técnico completo: `resultados_interpretabilidad.md` **§5.3**.
+
+### Sesión 23-jul (noche, 2ª) — guion de la 8 a la 24 y tipografía Barlow
+
+Sesión de deck, sin GPU ni CPU pesado. Commits `f88e891` y `1421868`.
+
+- **Guion hablado reescrito de la lámina 8 a la 24** (5.962 palabras en total) con la
+  lógica de las láminas 5 a 7: párrafos numerados que recorren la lámina en su orden
+  visual, cada una abriendo con el cierre de la anterior. Antes venían en un bloque único
+  (la 8, con 617 palabras) o demasiado cortas para lo que muestra la lámina.
+- **Cinco correcciones de fondo, no de estilo:**
+  - **Lámina 9**: ata el `16 × 30 = 480` impreso en la lámina a los **4800** parecidos por
+    parche de la lámina 7. Son cuentas distintas (pares cabeza-experto vs comparaciones),
+    y sin el puente las dos láminas se contradecían. Era el riesgo registrado en el
+    handoff de las 13:47.
+  - **Lámina 13**: decía «con esta prueba cierra la presentación» con once láminas por
+    delante. Ahora cierra la parte de interpretabilidad y entrega a la 14.
+  - **Lámina 12**: suma la salvedad de que los nombres de tejido son lectura visual
+    nuestra, que ya estaba escrita en la lámina y faltaba en el guion.
+  - **Lámina 21**: sale «al revés», del vocabulario vetado.
+  - **Lámina 15**: se lee por la columna de la diferencia pareada (convención de láminas
+    de resultados, `convenciones_deck_b5.md` §3.b regla 11).
+- **Tipografía: TODO el deck en Barlow** (pedido de Sebastián). `F_MONO` deja Consolas y
+  se agrega `forzar_barlow(prs)` al generador, porque poner Barlow en los runs **no
+  alcanza**: el `fontScheme` del theme es el de Office (Arial) y las láminas heredadas del
+  template traen Calibri en `endParaRPr`/`buFont`. Verificado sobre el `.pptx`: 1.172
+  referencias forzadas, cero Calibri, cero Consolas. Detalle y método de verificación en
+  [[deck-template-fuentes-embebidas]] (ADDENDUM 23-jul noche).
+- **Queda fuera de Barlow lo que no es texto del `.pptx`**: los rótulos dentro de los PNG
+  de matplotlib (mapas por slot de la lámina 18, figuras de atención de la 16). Pendiente
+  para la próxima sesión, junto con instalar la fuente en el servidor.

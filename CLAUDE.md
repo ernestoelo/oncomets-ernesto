@@ -927,6 +927,15 @@ plano. Estilo visual: `Modelo_OncoMets_Spatial_V1.pdf`. Estructura:
 > contenido va con cabecera OncoMets, incluida la recapitulación. La regla "la
 > Environ queda para agenda/recapitulación" aplica a Plantilla, no acá.
 >
+> **ADDENDUM 23-jul-2026 — TODA la tipografía del deck va en Barlow** (regla de
+> Sebastián). Poner Barlow en los runs que uno escribe **no alcanza**: el
+> `fontScheme` del theme de Deep-LLM-V es el de Office (**Arial**) y las láminas
+> heredadas del template traen **Calibri** en `endParaRPr`/`buFont`, que gobierna
+> lo que se escriba encima en OnlyOffice. Los paneles de código pierden Consolas
+> (no viaja embebida). Fix reusable = `forzar_barlow(prs)` en
+> `generate_b7_deck.py`; verificación = `unzip` del `.pptx` y contar
+> `typeface="..."` bajo `ppt/`. Detalle: [[deck-template-fuentes-embebidas]].
+>
 > **Y la causa raíz de un deck que "no se ve como el template" suele ser
 > tipográfica, no de branding**: los templates **embeben sus fuentes** y
 > `Presentation()` (default de python-pptx) no embebe ninguna → PowerPoint
