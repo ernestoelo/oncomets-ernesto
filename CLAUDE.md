@@ -936,6 +936,15 @@ plano. Estilo visual: `Modelo_OncoMets_Spatial_V1.pdf`. Estructura:
 > `generate_b7_deck.py`; verificación = `unzip` del `.pptx` y contar
 > `typeface="..."` bajo `ppt/`. Detalle: [[deck-template-fuentes-embebidas]].
 >
+> **ADDENDUM 23-jul (noche) — Barlow ya está instalada en el servidor**, bajo
+> containment: `clam_testing2/fonts/barlow/` (18 TTF) + `fonts.conf` que hereda el
+> del sistema. Se activa por `FONTCONFIG_FILE`; sin esa variable el server queda
+> como estaba. Con eso **el rasterizado de LibreOffice ya sirve para juzgar
+> tipografía**. Matplotlib no lee fontconfig: `font_manager.addfont()` +
+> `rcParams["font.family"]`. Barlow **no trae** `→`, `⟨⟩`, `≡` ni U+2011, que caen
+> a DejaVu: es esperado y PowerPoint hará lo mismo, **no es un defecto**.
+> Procedimiento: `sprints/B7_sprint7/presentacion_b7/fuentes_barlow.md`.
+>
 > **Y la causa raíz de un deck que "no se ve como el template" suele ser
 > tipográfica, no de branding**: los templates **embeben sus fuentes** y
 > `Presentation()` (default de python-pptx) no embebe ninguna → PowerPoint

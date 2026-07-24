@@ -746,3 +746,34 @@ Sesión de deck, sin GPU ni CPU pesado. Commits `f88e891` y `1421868`.
 - **Queda fuera de Barlow lo que no es texto del `.pptx`**: los rótulos dentro de los PNG
   de matplotlib (mapas por slot de la lámina 18, figuras de atención de la 16). Pendiente
   para la próxima sesión, junto con instalar la fuente en el servidor.
+
+### Sesión 23-jul (noche, 3ª) — Barlow instalada y QA tipográfico fiel
+
+Sesión de deck, sin GPU ni CPU pesado. Sin cambios al `.pptx` ni al generador.
+
+- **Barlow instalada bajo containment** (Ernesto autorizó la descarga): 18 TTF en
+  `clam_testing2/fonts/barlow/` desde el repo `google/fonts`, más
+  `clam_testing2/fonts/fonts.conf`, que **hereda** `/etc/fonts/fonts.conf` y le suma el
+  directorio. Se activa por `FONTCONFIG_FILE`. Huella cero fuera del workspace: sin la
+  variable, `fc-list | grep -ci barlow` sigue en **0**, y las 574 del sistema quedan
+  intactas. Procedimiento completo en `presentacion_b7/fuentes_barlow.md`.
+  - Gotcha: `fonts.google.com/download?family=Barlow` devuelve **HTML**, no un zip. Los
+    TTF salen de `raw.githubusercontent.com/google/fonts/main/ofl/barlow/`.
+- **El rasterizado local ya sirve para juzgar tipografía.** El PDF de LibreOffice embebe
+  `Barlow-Regular` y `Barlow-Bold` reales (antes sustituía). **Matplotlib** también la ve
+  vía `font_manager.addfont()`, así que regenerar los PNG está de-riskeado.
+- **Barlow no trae 4 glifos** del deck y caen a DejaVu: `→` (7 láminas), `⟨⟩` (7), `≡`
+  (22) y el guion duro U+2011 (20). Mirado rasterizado en la 7 y la 22: indistinguible, y
+  PowerPoint sustituirá igual. **No es defecto**; es el límite real de "todo en Barlow".
+- **QA visual** de las láminas 1, 7, 18 y 22. Nada desborda. La **18** muestra el único
+  choque tipográfico visible del deck: rótulos de PNG en DejaVu (ancha) contra la tabla
+  nativa en Barlow (condensada), lado a lado. **Ernesto decidió NO regenerar los PNG**
+  antes de la reunión; queda como pendiente.
+- **Verificado que el `112 µm` de la lámina 24 no es un error**: es la escala fina
+  propuesta de la pirámide, con su cuenta propia coherente (`112/0.2325 = 482 px` en
+  TCGA, `112/0.465 = 241 px` en privado, ambos impresos). La 22 habla del campo de HOY
+  (`224 × 0.465 = 104 µm`). El pendiente 7 del handoff sigue siendo de **puente
+  narrativo**, no de aritmética, y el puente natural es que 112 ≈ 104.
+- **Observación sin accionar** (no se barrió, Ernesto no lo pidió): el pie de la lámina 18
+  dice «Dos slots del mismo experto encienden regiones distintas», que se lee como
+  afirmación general; `e13·s6` vs `e13·s5` da **+0.71**. Ver §8 del handoff.
