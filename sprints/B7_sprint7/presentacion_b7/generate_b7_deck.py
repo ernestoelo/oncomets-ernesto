@@ -23,6 +23,7 @@ import copy
 import io
 import os
 
+from lxml import etree
 from pptx import Presentation
 from pptx.util import Inches, Pt, Emu
 from pptx.dml.color import RGBColor
@@ -136,10 +137,11 @@ PANEL_NEU  = TEAL_CARD2                   # panel neutro
 # propio template (25pt Barlow bold #3E6877) → más fiel Y sin riesgo de sustitución.
 F_TITLE = "Barlow"
 F_BODY  = "Barlow"
-# Consolas tampoco viaja en este template, pero se instala con Office en Windows, que es
-# donde se presenta. Se conserva para los paneles de código; si alguna vez falla, el
-# reemplazo seguro es Barlow (se pierde el ancho fijo).
-F_MONO  = "Consolas"
+# 23-jul (pedido de Sebastián): TODA la tipografía del deck va en Barlow. Consolas no
+# viaja embebida en este template (solo llegaba por venir con Office en Windows), así que
+# los paneles de código pasan también a Barlow: se pierde el ancho fijo de columna, y a
+# cambio no queda ni una letra expuesta a sustitución.
+F_MONO  = "Barlow"
 
 # --- geometría B4 (10 x 5.625), extraída del volcado real ---
 SW, SH = 10.0, 5.625
@@ -980,6 +982,73 @@ def reflow_onco(prs, skip=()):
 # ============================================================================
 # Re-base al template de Sebastián: escala uniforme 10x5.625 → 13.333x7.5
 # ============================================================================
+def forzar_barlow(prs, fuente=F_BODY):
+    """Deja Barlow como ÚNICA tipografía del archivo (pedido de Sebastián, 23-jul).
+
+    Los runs que escribe este generador ya salen en Barlow, pero quedan tres focos
+    fuera de nuestro alcance directo:
+
+    - `endParaRPr` / `buFont` de las láminas que vienen del template (portada y lámina
+      de título): no se ven, pero gobiernan lo que se escriba encima en OnlyOffice.
+    - Las tablas y los cuadros de texto que hereden del tema: el fontScheme de este
+      template es el de Office (Arial), así que cualquier run sin `latin` explícito
+      caería en Arial.
+    - `defRPr` de listas del master y los layouts.
+
+    Se normaliza el XML entero: theme + master + layouts + slides + notas.
+    """
+    A = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
+    tags = tuple(A + t for t in ("latin", "ea", "cs", "sym", "buFont"))
+
+    def normaliza(root):
+        tocados = 0
+        for el in root.iter():
+            if el.tag in tags and el.get("typeface") != fuente:
+                el.set("typeface", fuente)
+                tocados += 1
+        return tocados
+
+    # recorrido en anchura: de las láminas se llega a layouts, del layout al master y de
+    # ahí al theme, que es donde vive el fontScheme que gobierna todo lo no explícito.
+    cola = [prs.part] + [s.part for s in prs.slides]
+    cola += [s.notes_slide.part for s in prs.slides if s.has_notes_slide]
+    vistos, partes = set(), []
+    while cola:
+        p = cola.pop()
+        if id(p) in vistos:
+            continue
+        vistos.add(id(p))
+        partes.append(p)
+        for rel in p.rels.values():
+            if not rel.is_external and rel.reltype.endswith(
+                    ("slideLayout", "slideMaster", "notesMaster", "theme")):
+                cola.append(rel.target_part)
+    n = 0
+    for p in partes:
+        el = getattr(p, "_element", None)
+        if el is not None:
+            n += normaliza(el)
+            continue
+        # El theme llega como Part genérica (sin árbol expuesto): se edita el blob. Acá
+        # sólo se toca el `latin` de major/minorFont, que es la fuente que hereda todo lo
+        # que no la declara. La lista `<a:font script=...>` se deja intacta: son los
+        # respaldos por alfabeto (cirílico, CJK), no tipografía de este deck.
+        if str(p.partname).startswith("/ppt/theme/"):
+            raiz = etree.fromstring(p.blob)
+            tocados = 0
+            for cual in ("majorFont", "minorFont"):
+                for fs in raiz.iter(A + cual):
+                    for lat in fs.findall(A + "latin"):
+                        if lat.get("typeface") != fuente:
+                            lat.set("typeface", fuente)
+                            tocados += 1
+            if tocados:
+                p._blob = etree.tostring(raiz, xml_declaration=True,
+                                         encoding="UTF-8", standalone=True)
+                n += tocados
+    print("  tipografía: %d referencias forzadas a %s" % (n, fuente))
+
+
 def scale_deck_to_1610(prs, k=13.333 / 10.0, skip=()):
     """Escala TODO el deck (geometría + fuentes + tablas + líneas) por k y cambia el tamaño
     de slide a 13.333x7.5 (16:9, = el de los templates de Sebastián). Misma relación de
@@ -2370,6 +2439,7 @@ def build():
     # Re-base al template de Sebastián: escalar el deck terminado a 13.333x7.5.
     reflow_onco(prs, skip=keep_ids)
     scale_deck_to_1610(prs, skip=keep_ids)
+    forzar_barlow(prs)
     os.makedirs(OUT_DIR, exist_ok=True)
     prs.save(DST)
     print("Guardado:", DST, "·", len(prs.slides), "slides ·", "13.333x7.5")
