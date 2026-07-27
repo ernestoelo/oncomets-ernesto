@@ -1,0 +1,10 @@
+{
+  "task": "tipo_histologico_3clases_ci",
+  "fold": 2,
+  "n_laminas": 202,
+  "ckpt": "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/b7_mammoth_interp/tipo_histologico_3clases_ci/clam_mammoth_tipo_histologico_3clases_ci_f2_20260717_1812_s1/s_2_checkpoint.pt",
+  "fuente_laminas": "test_predictions.csv del brazo clam_mammoth (job 4589)",
+  "chunk": 2048,
+  "medida": "combine_weights (slots) + dispatch_weights (expertos)",
+  "terminado": "2026-07-27 17:39:08"
+}

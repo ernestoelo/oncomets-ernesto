@@ -52,6 +52,11 @@ Por tarea:
 contundente todavía: `e50 = 15` y `e90 = 27`, los valores exactos del reparto uniforme
 sobre 30, salen **idénticos en las 1858 láminas**, sin una sola excepción.
 
+Un cuarto ángulo, independiente de los tres anteriores: los expertos que superan el peso
+uniforme 1/30 son **14.96 de media** (rango 8 a 20), o sea la mitad justa de los 30, que es
+lo que da una distribución simétrica y plana. Si algún experto dominara, esa cuenta se
+desplomaría.
+
 Como `N_eff = n` se alcanza **sólo** en el reparto uniforme (máximo de la entropía), esto
 es reparto uniforme, no «muchos expertos usados». **E=30 no está sobredimensionado**, y el
 margen de recorte de capacidad está en **S**, tal como decía el B7. Eso se sostiene ahora

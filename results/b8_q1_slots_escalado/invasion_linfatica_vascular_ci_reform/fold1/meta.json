@@ -1,0 +1,10 @@
+{
+  "task": "invasion_linfatica_vascular_ci_reform",
+  "fold": 1,
+  "n_laminas": 83,
+  "ckpt": "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/b7_mammoth_interp/invasion_linfatica_vascular_ci_reform/clam_mammoth_invasion_linfatica_vascular_ci_reform_f1_20260717_1812_s1/s_1_checkpoint.pt",
+  "fuente_laminas": "test_predictions.csv del brazo clam_mammoth (job 4589)",
+  "chunk": 2048,
+  "medida": "combine_weights (slots) + dispatch_weights (expertos)",
+  "terminado": "2026-07-27 17:48:38"
+}
