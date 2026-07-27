@@ -11,7 +11,13 @@
 
 ---
 
-## Sprint actual: B7 / Sprint 7 — Interpretabilidad CLAM vs Mammoth + ¿cuántos expertos/slots?
+## B7 / Sprint 7 — Interpretabilidad CLAM vs Mammoth + ¿cuántos expertos/slots?
+
+> **PRESENTADO el 24-jul-2026** ante Sebastián y Benjamín, y salió bien. El foco pasó al
+> **B8**, cuyos cuatro encargos están al final de este archivo y desarrollados en
+> `sprints/B8_sprint8/objetivos_sprint8.md`. El B7 **no se movió a `history.md`**: quedan
+> pendientes vivos del deck y ese traspaso lo decide Ernesto (mismo caso que el B6, ver
+> cabecera del archivo). Lo de abajo es el registro del sprint tal como se ejecutó.
 
 **Abierto 13-jul-2026.** Nace de la reunión con Sebastián (deck B6 presentado, salió
 bien). Eje de **entendimiento / interpretabilidad** (ortogonal al de rendimiento, cerrado

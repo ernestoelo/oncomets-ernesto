@@ -815,6 +815,18 @@ re-validar y actualizar `docs/codebase_map.md`.
     196.4 es de LVI). Refuerza este Hallazgo: el modelo ocupa todos sus
     expertos, así que el cuello no es falta de capacidad de ruteo. Detalle:
     [[mammoth-slot-routing-weight]] + `sprints/B7_sprint7/resultados_interpretabilidad.md` §5.
+    **ADDENDUM 24-jul (reunión con Sebastián y Benjamín) — «CERRADA» vale para los expertos,
+    no para el número de slots.** Benjamín observó que **158.7 sale de 7 láminas y no
+    generaliza** al dataset de la tarea → escalarlo es el encargo 1 del B8. **Sigue en pie**
+    lo de los expertos (30.0/30 con los cuantiles exactos del uniforme, transversal a las 3
+    tareas) y por lo tanto que **E=30 no está sobredimensionado** y que el margen está en
+    **S**; **queda pendiente de escalar** el 158.7 como número de la tarea y la correlación
+    con el tamaño de lámina (ρ=0.750, p=0.052, que con n=7 describe y no establece). No es
+    corrección: el resultado ya llevaba esa salvedad. **Dato que lo destraba:** la medición
+    **no necesita la WSI** (features y coords salen del mismo h5,
+    `scripts/mammoth_interpretability.py:128`; openslide solo dibuja) → se puede barrer el
+    test de los 5 folds de las 3 tareas en CPU. [[reunion-24jul-encargos-b8]] +
+    `sprints/B8_sprint8/objetivos_sprint8.md` §1.
     **Precisión 23-jul:** la morfología la captura el **slot**, no el experto — la Fig. 3 del paper
     rotula sus mapas por **par experto+slot** y el mismo experto tiene slots de tejido distinto
     (e16·s1 alvéolos vs e16·s4 estroma). Explica por qué los expertos salen uniformes y el margen
