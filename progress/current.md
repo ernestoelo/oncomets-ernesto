@@ -777,3 +777,45 @@ Sesión de deck, sin GPU ni CPU pesado. Sin cambios al `.pptx` ni al generador.
 - **Observación sin accionar** (no se barrió, Ernesto no lo pidió): el pie de la lámina 18
   dice «Dos slots del mismo experto encienden regiones distintas», que se lee como
   afirmación general; `e13·s6` vs `e13·s5` da **+0.71**. Ver §8 del handoff.
+
+---
+
+## Reunión del 24-jul-2026 (viernes) — B7 presentado, se abre B8
+
+Presentación del Sprint 7 ante **Sebastián y Benjamín**. Según Ernesto, **la mejor
+reunión hasta ahora**: quedó demostrado el entendimiento del mecanismo al explicar
+slots, expertos, cabezas y el diagrama original del paper, que es lo que Benjamín
+venía exigiendo ([[feedback-benjamin-entender-mammoth]]). Los mapas de calor fueron
+el material central, tanto el de los 30 expertos como los de slots; ahí estuvo el
+hilado fino.
+
+**Encargos para el sprint siguiente** (registro completo, con verificaciones,
+presupuesto de GPU y restricciones: `sprints/B8_sprint8/objetivos_sprint8.md`):
+
+1. **Escalar la medición de slots ocupados.** Benjamín observó que el promedio de
+   **158.7 slots útiles de 300** sale de **7 láminas** y no generaliza a la tarea
+   entera. Objeción correcta y coherente con lo que ya decíamos («con n=7 describe, no
+   establece»). **Camino despejado:** la medición **no necesita la WSI**, features y
+   coords salen del mismo h5 (`mammoth_interpretability.py:128`); openslide entra solo
+   para miniatura y recortes. Un script reducido, sin rasterizado, barre los test de
+   los 5 folds de las 3 tareas. CPU post-hoc, regla 9 no aplica.
+2. **Entrenar los slots de MAMMOTH con nuestro dataset.** ⚠ **Discrepancia a aclarar
+   con Sebastián:** `slot_embeds` es `nn.Parameter` con init aleatorio
+   (`MAMMOTH/src/mammoth/mammoth.py:281-285`) y el job 4589 entrenó Mammoth **desde
+   cero sobre nuestros splits** → los slots analizados **ya** están entrenados con
+   nuestro dataset. Lectura más plausible del pedido: verlos sobre **láminas privadas**
+   (las 7 del B7 son todas TCGA). Otra: una etapa de pre-entrenamiento del ruteo, que
+   sería objetivo nuevo con prereg propio.
+3. **Grid de E y S**, comparando contra **CLAM baseline** y **Mammoth baseline** con
+   los mismos hiperparámetros; varias ramas, un fin de semana de GPU. Amplía el eje del
+   23-jul ([[mammoth-grid-expertos-slots]]). **`train_dsmil.py` ya expone
+   `--mammoth_num_experts` y `--mammoth_num_slots` (L223-224)** → es configuración, no
+   código nuevo. **Presupuesto:** el 4589 hizo 30 runs en ~20 h (~40 min/run) → un fin
+   de semana son **~70 runs**, y cada configuración sobre 3 tareas × 5 folds cuesta 15.
+   O pocas configuraciones sobre las 3 tareas, o un grid ancho sobre una sola. Falta
+   prereg (regla 9) + `reviewer`, y cuidado con 9.b si se plantea como reapertura del
+   eje de rendimiento.
+4. **Tres papers para discutir con Sebastián esta semana**: Hover-Net (núcleos),
+   SI-MIL (interpretabilidad dentro del MIL) y el de invasión linfovascular para
+   metástasis ganglionar. **Ninguno está en `papers/`** → pendiente de que Ernesto los
+   suba o autorice la descarga (workaround E).
