@@ -827,6 +827,22 @@ re-validar y actualizar `docs/codebase_map.md`.
     `scripts/mammoth_interpretability.py:128`; openslide solo dibuja) → se puede barrer el
     test de los 5 folds de las 3 tareas en CPU. [[reunion-24jul-encargos-b8]] +
     `sprints/B8_sprint8/objetivos_sprint8.md` §1.
+    **ADDENDUM 27-jul (encargo 1 EJECUTADO, `scripts/q1_slots_escalado.py`) — el número
+    aguanta, la explicación de la dispersión NO.** Barridas **1858 láminas-fold** (1176
+    únicas: los test de los 5 folds de las 3 tareas, las 3 cohortes) en 18 min de CPU
+    post-hoc. **Slots efectivos 159.5 ± 26.3 de 300** contra 158.7 ± 34.6 con n=7 → el
+    número se sostiene y ahora **es** el de la tarea. **Expertos 29.98/30**, con `e50=15` y
+    `e90=27` exactos en las 1858 sin una sola excepción → **E=30 no está sobredimensionado**
+    y **el margen de capacidad está en S**, confirmado con n grande (insumo directo del grid
+    del encargo 3). **Lo que sí se corrige:** el B7 decía que la dispersión «sigue al TAMAÑO
+    de la lámina y no a la tarea» (ρ=0.750, n=7); con n grande **se invierte el orden y las
+    dos explican poco** — tarea eta²=0.086, tamaño ρ²=0.020 (ρ cae 0.750→0.141), cohorte
+    0.018; el ~88 % de la varianza es variabilidad entre láminas. **La cohorte casi no mueve
+    la aguja** (privado 162.7 vs TCGA 162.2 vs HistAI 154.9), lo que descarta que medir solo
+    TCGA en el B7 sesgara el número. Detalle:
+    `sprints/B8_sprint8/q1_slots_escalado/{resultados.md,metodologia.md}` +
+    [[mammoth-slot-routing-weight]]. Gotcha mecanístico que salió al implementarlo:
+    [[mammoth-dispatch-softmax-sobre-parches]].
     **Precisión 23-jul:** la morfología la captura el **slot**, no el experto — la Fig. 3 del paper
     rotula sus mapas por **par experto+slot** y el mismo experto tiene slots de tejido distinto
     (e16·s1 alvéolos vs e16·s4 estroma). Explica por qué los expertos salen uniformes y el margen

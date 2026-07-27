@@ -252,6 +252,16 @@ decirlo antes de que lo vean en la tabla.
 > la correlación con el tamaño se apoya en **un solo** caso de lámina chica, y p=0.052 está
 > al borde. Lo que sí es sólido es el resultado de expertos (idéntico en 7/7).
 
+> **ADDENDUM 27-jul-2026 (B8) — el párrafo de arriba quedó SUPERSEDED por la medición a
+> escala.** Barridas 1858 láminas-fold (`sprints/B8_sprint8/q1_slots_escalado/resultados.md`),
+> **la correlación con el tamaño se cae**: ρ pasa de 0.750 a **0.141** (ρ²=0.020), y la
+> **tarea explica más** (eta²=0.086) aunque las dos expliquen poco: el ~88 % de la varianza
+> es variabilidad entre láminas. O sea que «no es por tarea, sigue al tamaño» **se invierte**.
+> Se cumplió exactamente la salvedad del recuadro. **Lo que sí se confirmó** con n grande:
+> el número de slots (159.5 ± 26.3 contra 158.7 acá) y el resultado de expertos (29.98/30,
+> con `e50=15` y `e90=27` exactos en las 1858). El texto original se conserva como registro
+> de lo que se presentó el 24-jul.
+
 **Gotcha del agregador (fix `f0d043e`):** `answer_q1_expertos_slots.py` globeaba
 `slot_usage.csv`, que es un artefacto **intermedio** — podía promediar una lámina en vuelo
 (CSV a medio escribir) o de una corrida cortada, **sin avisar**. Ahora filtra por `meta.json`

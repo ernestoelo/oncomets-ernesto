@@ -823,5 +823,53 @@ presupuesto de GPU y restricciones: `sprints/B8_sprint8/objetivos_sprint8.md`):
    eje de rendimiento.
 4. **Tres papers para discutir con Sebastián esta semana**: Hover-Net (núcleos),
    SI-MIL (interpretabilidad dentro del MIL) y el de invasión linfovascular para
-   metástasis ganglionar. **Ninguno está en `papers/`** → pendiente de que Ernesto los
-   suba o autorice la descarga (workaround E).
+   metástasis ganglionar. **2 de 3 descargados** el 27-jul con autorización de Ernesto
+   (workaround E), en `sprints/B8_sprint8/` y no en `papers/`: `hovernet_graham2019.pdf`
+   (arXiv:1812.06499v5) y `simil_kapse2024.pdf` (arXiv:2312.15010v2). El tercero (Chen
+   et al., Human Pathology 131:26-37, 2023) es **de suscripción**, sin PMC ni preprint
+   → lo consigue Ernesto por acceso institucional. Fichas y abstract:
+   `sprints/B8_sprint8/papers_b8.md`.
+
+---
+
+## Sesión del 27-jul-2026 (tarde) — encargo 1 del B8 ejecutado
+
+**Escalado de la Q1: cuántos slots usa Mammoth, ahora con n grande.** Es el encargo de
+Benjamín (158.7 de 300 salía de 7 láminas y no generalizaba). CPU post-hoc sobre
+checkpoints congelados del job 4589, sin GPU, regla 9 no aplica.
+
+**Tooling nuevo**, los dos validados antes de usarse:
+
+- `scripts/q1_slots_escalado.py` — barre las láminas de test de los 5 folds de las 3
+  tareas midiendo `combine_weights` (slots) y `dispatch_weights` (expertos), sin openslide
+  ni matplotlib. Reanudable por fold marcando con `meta.json` (workaround J).
+- `scripts/q1_slots_analisis.py` — separa las dos explicaciones candidatas de la
+  dispersión (tamaño de lámina contra tarea).
+
+**Validación:** `--self-test` compara el camino con streaming contra la implementación del
+B7 (tolerancia relativa, porque son las mismas sumas float32 en distinto orden), y
+`--validate-b7` remide las 7 láminas del Sprint 7 y **reproduce exactamente** sus números
+(158.7 y 30.0/30, peor delta relativo 4e-08). Recién entonces se barrió el resto.
+
+**Barrido:** 1858 láminas-fold (1176 únicas, las 3 cohortes) en **18 min**.
+
+| | n=7 (B7) | n=1858 (B8) |
+|---|---|---|
+| Slots efectivos (de 300) | 158.7 ± 34.6 | **159.5 ± 26.3** |
+| Expertos efectivos (de 30) | 30.0 | **29.98** (`e50=15`, `e90=27` exactos en las 1858) |
+
+- **El número aguanta el escalado** y ahora es el número de la tarea, no de 7 láminas.
+- **E=30 no está sobredimensionado y el margen de recorte está en S**, confirmado con n
+  grande y transversal a tareas y cohortes. Es el insumo directo del grid del encargo 3.
+- **Se corrige lo que decía el B7 sobre la dispersión.** Con n=7 se concluyó que seguía al
+  tamaño de la lámina y no a la tarea (ρ=0.750); con n grande se invierte el orden y las
+  dos explican poco: tarea eta²=0.086, tamaño ρ²=0.020 (ρ cae a 0.141), cohorte 0.018. El
+  ~88 % de la varianza es variabilidad entre láminas. La salvedad «describe, no establece»
+  que el propio resultado llevaba es exactamente lo que se cumplió.
+- **La cohorte casi no mueve la aguja**: privado 162.7, TCGA 162.2, HistAI 154.9. Medir
+  solo TCGA en el B7 no sesgó el número, y roza (sin cerrar) la lectura 1 del encargo 2.
+
+Detalle: `sprints/B8_sprint8/q1_slots_escalado/{resultados.md,metodologia.md}`. Verdad de
+campo: `results/b8_q1_slots_escalado/`. Memorias: [[mammoth-slot-routing-weight]] y
+[[mammoth-dispatch-softmax-sobre-parches]] (las dos softmax de Mammoth normalizan sobre
+ejes distintos, que es lo que obliga al streaming en dos pasadas).
