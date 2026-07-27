@@ -162,10 +162,14 @@ Para discutirlos con Sebastián en la reunión de esta semana:
 3. *Further predictive value of lymphovascular invasion explored via supervised deep
    learning for lymph node metastases in breast cancer*.
 
-**Ninguno de los tres está en `papers/`** (verificado hoy; el inventario tiene DSMIL,
-Mammoth, PCGrad, CPathAgent, los dos CAP y los tres de Eduardo). Workaround E: no se
-descarga nada de afuera sin que Ernesto lo pida, así que **quedan pendientes de que
-Ernesto los suba** o autorice la descarga, igual que con Barlow.
+**Estado (27-jul, con autorización de Ernesto): 2 de 3 descargados en esta carpeta.**
+Ficha completa, citas BibTeX y abstract del tercero: [`papers_b8.md`](papers_b8.md).
+
+| Paper | Archivo | Estado |
+|---|---|---|
+| Hover-Net | `hovernet_graham2019.pdf` | ✅ arXiv:1812.06499v5 |
+| SI-MIL | `simil_kapse2024.pdf` | ✅ arXiv:2312.15010v2 |
+| LVI → metástasis ganglionar | (sin PDF) | ⚠ Human Pathology 131:26-37 (2023), DOI `10.1016/j.humpath.2022.11.007`. **De suscripción**, sin PMC ni preprint (verificado en Europe PMC). Requiere acceso institucional UTFSM o de Environ |
 
 **Por qué encajan con lo que estamos haciendo, a confirmar leyéndolos:**
 
