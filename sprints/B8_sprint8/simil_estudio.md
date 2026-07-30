@@ -7,6 +7,13 @@
 >
 > Ficha bibliográfica y cita BibTeX: [`papers_b8.md`](papers_b8.md) §2.
 > Código y dataset que anuncian: `github.com/bmi-imaginelab/SI-MIL` (no descargado).
+>
+> **La matemática desarmada, ecuación por ecuación, vive aparte** en
+> [`simil_explicacion_matematica.md`](simil_explicacion_matematica.md) (30-jul): mapa de
+> símbolos, ecuaciones 1 y 2 con mini-ejemplos numéricos, la Figura 2 panel por panel, y el
+> mapeo verificado contra el código de CLAM. Este documento sigue siendo el canónico de
+> **qué propone el método y qué reporta**; aquel es el canónico de **cómo funcionan las
+> fórmulas**. No se duplican.
 
 ---
 
