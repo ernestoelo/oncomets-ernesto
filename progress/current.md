@@ -910,3 +910,14 @@ diferencias inesperadas en los 6.
 > no están versionados por diseño (`.gitignore`, «Precedente: 0 pptx trackeados»), así que
 > no hay red de git, y **un respaldo hermano comparte el radio de acción de un borrado de
 > carpeta**. El respaldo va a otro árbol.
+
+> **ADDENDUM 30-jul-2026 — no hubo incidente: los borró Ernesto, a propósito.** Lo aclaró
+> él al abrir la sesión del 30: **ya le mandó las presentaciones sin notas a Sebastián**,
+> las eliminó del servidor después de enviarlas y **tiene todo respaldado en su máquina
+> local**. Con eso, el entregable **está cumplido**, no hay que rehacerlo, y no hubo
+> pérdida de datos. Queda **una sola pregunta abierta**: si el respaldo local incluye
+> también los **originales con notas** (en particular el del B2, cuyo guion no tiene copia
+> en el servidor) o solamente las copias sin notas que se enviaron. La parte del
+> procedimiento sigue valiendo entera (la cirugía de zip funcionó y quedó verificada por
+> CRC); lo que se cae es el diagnóstico de causa. El consejo de respaldar fuera del árbol
+> sigue siendo bueno, pero como precaución, no como conclusión de este episodio.
