@@ -1036,3 +1036,54 @@ va como **imagen** (única excepción a «todo nativo»); el resto de los diagra
 Los candidatos a lámina visual están listados en §8 del documento nuevo.
 
 Sin GPU y sin procesos CPU en esta sesión.
+
+## Sesión del 30-jul-2026 (noche) — el deck de SI-MIL, construido
+
+**Estado: HECHO.** `sprints/B8_sprint8/presentacion_b8/` con el generador, el `.pptx` de
+**19 láminas** y la Fig. 2 del paper recortada. Documentación de las decisiones en el
+`README.md` del directorio; no se repite acá.
+
+**Alcance, decidido por Ernesto al abrir la sesión: solo el deck.** Las ecuaciones 3 a 10
+quedan **en panorama** (una línea de glosa cada una, con la 9 destacada) y desarmarlas una
+por una sigue pendiente. La lámina de objetivos lo declara con su marcador de estado en
+lugar de disimularlo.
+
+**Lo que el deck presenta:**
+
+- Las **ecuaciones 1 y 2 desarmadas**, conservando la secuencia que funcionó al
+  explicárselas a Ernesto: la analogía de la licuadora contra la libreta, después el mini
+  ejemplo numérico, y al final la tabla de qué queda en memoria tras el forward, que era el
+  malentendido de fondo.
+- La **Fig. 2 completa** (pág. 4, extraída a 400 DPI) más los paneles (b) y (c) por
+  separado, en las láminas de la ecuación 1 y de la rama interpretable. Es la **única
+  imagen** del deck; todo lo demás es nativo.
+- El **embudo del PAG Top-K** con la cuenta hecha sobre una lámina nuestra de 10 000
+  parches: 5 120 000 números que se descartan, contra 4920 que tienen nombre.
+- El **límite de nuestros mapas de atención**, con la tabla del caso extremo. Al presentar:
+  «acá el modelo puso su atención», no «acá el modelo encontró el tumor».
+- La **Tabla 2 con la fila de CLAM destacada** (0.937 → 0.925 en accuracy, 0.972 → 0.957 en
+  AUC): el método NO se presenta como mejora de rendimiento.
+- Que **HoVer-Net y SI-MIL son la misma cadena**, en la lámina de las dos entradas.
+
+**Dos cosas reusables que salieron de acá** (detalle en el README y en las memorias):
+
+- **Un deck de ecuaciones obliga a decidir qué pasa con las griegas.** Barlow no las trae, y
+  el template también embebe Cambria Math. Se rasterizaron las variantes y **gana Barlow con
+  el fallback**: las griegas de Cambria Math son serif finas y contrastan con el Barlow que
+  las rodea. ADDENDUM en [[deck-template-fuentes-embebidas]].
+- **El punto ciego «texto que desborda su caja» sí se puede automatizar: hay que medir el
+  texto.** Con Barlow instalada se mide con sus propios TTF, y los paneles calculan su
+  propio alto. En la primera pasada había **seis láminas** con la última línea afuera y una
+  tabla montada sobre un panel. ADDENDUM en [[deck-qa-puntos-ciegos-chequeo]]. La auditoría
+  no reemplaza mirar: los defectos de diseño (una flecha que sugería el flujo equivocado, un
+  rótulo compitiendo con la barra de remate) solo salieron mirando las láminas.
+
+**Guion del presentador** pasado por `@humanizer-es`. El vocabulario salió limpio y los
+tells eran **de ritmo**: diez láminas abrían su último párrafo con «Y » (quedaron cero) y
+catorce párrafos abrían señalando una posición del layout (quedaron seis, que es lo que la
+convención pide para seguir la figura).
+
+**Ojo al retomar:** la fecha de la lámina de título es **30/07/2026**, el día en que se
+construyó. Si la reunión es otro día, se cambia en `FECHA_REUNION` o en OnlyOffice.
+
+Sin GPU y sin procesos CPU en esta sesión.
