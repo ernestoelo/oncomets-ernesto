@@ -167,9 +167,10 @@ Ficha completa, citas BibTeX y abstract del tercero: [`papers_b8.md`](papers_b8.
 
 | Paper | Archivo | Estado |
 |---|---|---|
-| Hover-Net | `hovernet_graham2019.pdf` | ✅ arXiv:1812.06499v5 |
-| SI-MIL | `simil_kapse2024.pdf` | ✅ arXiv:2312.15010v2 |
+| Hover-Net | `hovernet_graham2019.pdf` | ✅ arXiv:1812.06499v5. **Subió de prioridad**: es el front-end de SI-MIL |
+| SI-MIL | `simil_kapse2024.pdf` | ✅ arXiv:2312.15010v2. **LEÍDO 30-jul** → [`simil_estudio.md`](simil_estudio.md) |
 | LVI → metástasis ganglionar | (sin PDF) | ⚠ Human Pathology 131:26-37 (2023), DOI `10.1016/j.humpath.2022.11.007`. **De suscripción**, sin PMC ni preprint (verificado en Europe PMC). Requiere acceso institucional UTFSM o de Environ |
+| Co-assistant networks (foundation model + CNN) | (sin PDF) | ⚠ **Pedido nuevo de Sebastián, 29-jul**, marcado por él como opcional («si no lo dejamos para la próxima semana»). No está en el repo y no se buscó afuera. Ficha en [`papers_b8.md`](papers_b8.md) §4 |
 
 **Por qué encajan con lo que estamos haciendo, a confirmar leyéndolos:**
 

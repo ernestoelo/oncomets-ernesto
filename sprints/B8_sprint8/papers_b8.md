@@ -61,6 +61,19 @@ del Sprint 7 pero con otra estrategia. Nuestro análisis de expertos y slots es 
 sobre un modelo ya entrenado; este propone que la interpretabilidad salga del propio
 diseño. Buen contraste para la discusión.
 
+**✅ LEÍDO el 30-jul-2026** (principal + suplementario §8 a §17). El estudio completo, con
+el contraste contra lo nuestro, los bloqueos para aplicarlo acá y las preguntas para la
+reunión, está en [`simil_estudio.md`](simil_estudio.md). Tres cosas que salieron de la
+lectura y conviene tener a mano:
+
+- **HoVer-Net es el front-end de SI-MIL**, así que los papers 1 y 2 de este encargo no son
+  dos ángulos separados sino la misma cadena.
+- En la única celda que nos corresponde (**CLAM** como MIL de base, Tabla 2) SI-MIL rinde
+  un poco **menos** que CLAM a secas (0.937 → 0.925 acc, 0.972 → 0.957 AUC). El titular de
+  «sin compromiso entre rendimiento e interpretabilidad» está sostenido sobre ABMIL.
+- **HoVer-Net exige 40×** y ellos filtraron sus datasets a eso, lo que choca con nuestras
+  cohortes a magnificación física distinta ([[cohortes-magnificacion-fisica]]).
+
 ## 3. Invasión linfovascular ⚠ NO descargable
 
 Chen J, Yang Y, Luo B, Wen Y, Chen Q, Ma R, Huang Z, Zhu H, Li Y, Chen Y, Qian D.
@@ -123,3 +136,29 @@ Se consigue con acceso institucional UTFSM o la suscripción de Environ.
   rectángulo mínimo, razón de áreas, solidez) estratifican dentro de los positivos. Eso es
   el mismo salto que discutimos con los slots: pasar de "está" a "cómo es".
 - Ojo con el n: **40 casos LBVI-positivos** para la parte de deep learning, sobre 685 IDC.
+
+---
+
+## 4. Co-assistant networks ⚠ pedido nuevo, sin PDF
+
+**Pedido de Sebastián por correo el 29-jul-2026, 12:15**, con prioridad explícita de
+relleno: *«Solo si te queda tiempo revisemos este también. Si no lo dejamos para la próxima
+semana.»*
+
+Título tal como lo mandó: *Co-assistant networks by pathology foundation model and
+convolutional neural network for gigapixel whole slide image analysis*.
+
+**Estado: no está en el repo** (verificado con `grep -rli` sobre `papers/`, `sprints/` y
+`docs/`) **y no se buscó ni se descargó de afuera** (workaround E: nada entra sin pedido
+explícito de Ernesto). Faltan autores, año y venue: lo único que tenemos es el título del
+correo, así que la ficha bibliográfica queda pendiente de la primera búsqueda autorizada.
+
+**Por qué encaja, a confirmar leyéndolo.** Por el título, junta un **foundation model de
+patología** con una **CNN** en un esquema de dos redes que se asisten. Suena al mismo
+patrón de dos ramas que acabamos de estudiar en SI-MIL (una red potente que guía a otra más
+acotada), pero con la CNN en el rol que allá cumplen las features hechas a mano. Si el
+paralelo se sostiene, se lee corto y suma al mismo hilo del encargo 4. El foundation model
+además nos toca de cerca porque CONCH es el nuestro.
+
+**Prioridad: después de Hover-Net.** El propio Sebastián lo puso como opcional, y Hover-Net
+subió de importancia con la lectura de SI-MIL (es su front-end, ver §2).

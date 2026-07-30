@@ -921,3 +921,56 @@ diferencias inesperadas en los 6.
 > procedimiento sigue valiendo entera (la cirugía de zip funcionó y quedó verificada por
 > CRC); lo que se cae es el diagnóstico de causa. El consejo de respaldar fuera del árbol
 > sigue siendo bueno, pero como precaución, no como conclusión de este episodio.
+> **Confirmado el mismo día: el respaldo local sí incluye los originales con notas**, así
+> que el guion del B2 tampoco se perdió y el pendiente muere entero.
+
+---
+
+## Sesión del 30-jul-2026 — SI-MIL leído
+
+**Corrección del cierre anterior**, arriba en el ADDENDUM del 28: no hubo incidente con las
+presentaciones. Los pendientes 3 y 4 del handoff quedan cerrados.
+
+**SI-MIL leído completo** (paper principal y suplementario §8 a §17). El estudio, con el
+contraste contra lo nuestro y las preguntas para la reunión, en
+[`sprints/B8_sprint8/simil_estudio.md`](../sprints/B8_sprint8/simil_estudio.md). Lo que
+importa de la lectura:
+
+- **Los dos papers del encargo 4 son la misma cadena, no dos ángulos.** HoVer-Net es el
+  front-end de SI-MIL: segmenta y clasifica los núcleos en 5 clases, y de ahí salen las 246
+  features «PathExpert» sobre las que predice la rama interpretable. Eso sube a Hover-Net
+  de prioridad.
+- **En la celda que nos corresponde, SI-MIL rinde un poco menos.** Su Tabla 2 adapta el
+  método a otros MIL sobre TCGA-BRCA: con ABMIL la accuracy sube (0.937 → 0.944), pero con
+  **CLAM baja** (0.937 → 0.925 acc, 0.972 → 0.957 AUC) y con TransMIL también. El titular
+  de «sin compromiso entre rendimiento e interpretabilidad» está sostenido sobre ABMIL.
+  **No reabre el Hallazgo 12**: es un trabajo de diseño de interpretabilidad, y traerlo
+  como propuesta de mejora activaría la regla 9.b sin con qué citarla.
+- **Su crítica al post-hoc nos apunta y conviene aceptarla:** dicen que explicar un modelo
+  con features distintas de aquellas con las que fue entrenado deja una desconexión. El
+  OBJ-A cae ahí, porque nombramos morfología mirando parches y el modelo nunca vio esa
+  noción.
+- **Dispersión impuesta contra dispersión medida.** Ellos fuerzan con un percentil que
+  pocas features expliquen la predicción, porque un reporte de 246 renglones no lo lee
+  nadie. Nuestro encargo 1 midió sin forzar nada que el modelo usa 29.98 de 30 expertos y
+  159.5 de 300 slots. No se contradicen: la capacidad que un modelo usa y la que necesita
+  para explicarse no tienen por qué ser el mismo número.
+- **Ya medimos lo que ellos miden en su §16.** Comparan top-K entre SI-MIL y MIL
+  convencional y les da 6 de 20 parches compartidos en IDC y 0 de 20 en ILC. Nuestro
+  Jaccard del top-5 % entre CLAM y Mammoth fue 0.172 con Spearman 0.805. Las cifras no son
+  comparables (ellos usan K=20 fijo, nosotros el 5 % de N), pero el fenómeno sí: dos MIL
+  que aciertan igual coinciden en el mapa grueso y discrepan en los picos.
+- **Bloqueo concreto para aplicarlo acá:** HoVer-Net está entrenado solo a 40× y ellos
+  filtraron sus datasets a eso. Nuestras cohortes están a magnificación física distinta
+  ([[cohortes-magnificacion-fisica]]), así que sin restringir a TCGA las features de
+  núcleos saldrían bajo escalas distintas según el origen de la lámina. Y el
+  preprocesamiento cuesta ~2 h por WSI, ~4400 h para 2.2K láminas con 3 GPU. **Lo primero
+  a verificar es si el dataset que publican cubre nuestras láminas de TCGA-BRCA**, porque
+  eso saltea el costo entero.
+
+**Pedido nuevo de Sebastián** (correo del 29-jul, 12:15), marcado por él como opcional:
+*Co-assistant networks by pathology foundation model and convolutional neural network for
+gigapixel whole slide image analysis*. No está en el repo y no se buscó afuera
+(workaround E). Ficha con lo que sabemos en `papers_b8.md` §4.
+
+Sin GPU y sin procesos CPU en esta sesión.
