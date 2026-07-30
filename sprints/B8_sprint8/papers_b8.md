@@ -139,26 +139,81 @@ Se consigue con acceso institucional UTFSM o la suscripción de Environ.
 
 ---
 
-## 4. Co-assistant networks ⚠ pedido nuevo, sin PDF
+## 4. ILSC / Co-assistant networks ⚠ NO descargable, pero el código es público
 
 **Pedido de Sebastián por correo el 29-jul-2026, 12:15**, con prioridad explícita de
 relleno: *«Solo si te queda tiempo revisemos este también. Si no lo dejamos para la próxima
 semana.»*
 
-Título tal como lo mandó: *Co-assistant networks by pathology foundation model and
-convolutional neural network for gigapixel whole slide image analysis*.
+Liu Z, Shen JY, Cui L, Xu M, Zhu X, Shi X. *Co-assistant networks by pathology foundation
+model and convolutional neural network for gigapixel whole slide image analysis*.
+**Medical Image Analysis, 2026.** DOI `10.1016/j.media.2026.104202` · PMID `42398343`.
 
-**Estado: no está en el repo** (verificado con `grep -rli` sobre `papers/`, `sprints/` y
-`docs/`) **y no se buscó ni se descargó de afuera** (workaround E: nada entra sin pedido
-explícito de Ernesto). Faltan autores, año y venue: lo único que tenemos es el título del
-correo, así que la ficha bibliográfica queda pendiente de la primera búsqueda autorizada.
+```bibtex
+@article{liu2026ilsc,
+  title   = {Co-assistant networks by pathology foundation model and convolutional neural
+             network for gigapixel whole slide image analysis},
+  author  = {Liu, Zhuoran and Shen, Jun-yi and Cui, Lei and Xu, Meilian and Zhu, Xiaofeng
+             and Shi, Xiaoshuang},
+  journal = {Medical Image Analysis},
+  year    = {2026},
+  doi     = {10.1016/j.media.2026.104202}
+}
+```
 
-**Por qué encaja, a confirmar leyéndolo.** Por el título, junta un **foundation model de
-patología** con una **CNN** en un esquema de dos redes que se asisten. Suena al mismo
-patrón de dos ramas que acabamos de estudiar en SI-MIL (una red potente que guía a otra más
-acotada), pero con la CNN en el rol que allá cumplen las features hechas a mano. Si el
-paralelo se sostiene, se lee corto y suma al mismo hilo del encargo 4. El foundation model
-además nos toca de cerca porque CONCH es el nuestro.
+**Estado: de suscripción (Elsevier), sin PDF abierto.** Búsqueda autorizada por Ernesto el
+30-jul-2026 y hecha: Europe PMC devuelve `isOpenAccess: N`, `inPMC: N`, `hasPDF: N`, sin
+PMCID y con un único enlace de texto completo marcado *«Subscription required»*; la API de
+arXiv devuelve **0 entradas** para el título, y Semantic Scholar lo da como `Closed` sin
+`openAccessPdf`. **No se descargó**: bajarlo exigiría saltar el paywall. Es el mismo caso
+que el paper de Human Pathology (§3), y se resuelve igual: acceso institucional UTFSM o
+suscripción de Environ.
 
-**Prioridad: después de Hover-Net.** El propio Sebastián lo puso como opcional, y Hover-Net
-subió de importancia con la lectura de SI-MIL (es su front-end, ver §2).
+**Lo que sí es público: el código.** Los autores publican la implementación en
+`github.com/lZhuoRan/ILSC`. **No clonado** (containment: iría a `clam_testing2/<nombre>/`,
+decisión pendiente de Ernesto).
+
+**Abstract** (de PubMed, distribución libre):
+
+> Multiple instance learning (MIL) with pre-trained models to extract patch-level features
+> has been widely used in whole slide image (WSI) analysis to avoid expensive pixel-level
+> annotations. Although pre-trained pathology foundation model (PFM) have achieved
+> promising performance on WSI analysis, their performance is still restricted by two key
+> challenges: (i) self-attention mechanisms might encode trivial or noisy relations during
+> fine-grained feature aggregation, and (ii) self-attention mechanisms struggle to capture
+> local patterns. To overcome these limitations, we propose an Interpretable Large-Small
+> Co-assistant (ILSC) framework, which synergistically integrates a PFM with a small
+> convolutional neural network (CNN) to leverage their complementary advantages. The
+> framework comprises three core components: (i) a general-feature extraction model that
+> leverages a pre-trained PFM with adapter and attention modules to capture global and
+> universal pathological features, (ii) a specific-feature extraction model that employs a
+> CNN with cell-level attention to mine discriminative task-specific local features, and
+> (iii) a feature fusion module that integrates both pathways using patch-attention for
+> slide-level classification. Extensive experiments demonstrate that the proposed framework
+> achieves superior classification performance compared to recent state-of-the-art methods,
+> while also offering enhanced interpretability and generalizability. Furthermore,
+> experiments illustrate that the small CNN model can boost the interpretability of PFM,
+> while the pre-trained PFM can strengthen the generalizability of CNN for WSI analysis.
+
+**Por qué nos toca, y qué se puede leer ya sin el PDF:**
+
+- **Es la misma familia de idea que SI-MIL** (§2): dos ramas donde una red potente se
+  aparea con otra más acotada y legible. En SI-MIL la segunda rama es un lineal sobre
+  features de patología con nombre; acá es una CNN chica con atención a nivel de célula.
+  El hilo del encargo 4 se sostiene solo.
+- **Su premisa es una crítica al foundation model, que es nuestro caso.** Dicen que el
+  problema del PFM son las relaciones triviales o ruidosas que mete la self-attention y su
+  dificultad para captar patrones locales. CONCH es nuestro PFM, así que la crítica aplica
+  a nuestro pipeline sin traducción.
+- **La barrera de entrada es mucho más baja que la de SI-MIL.** Según el README, su
+  preprocesamiento es **CLAM** (usa los `.h5` de coordenadas), que es exactamente lo que
+  corremos nosotros; y su demo es CAMELYON16, binario. SI-MIL, en cambio, exige HoVer-Net a
+  40× y unas 2 h por lámina. Si en algún momento se prueba algo de esta línea, esta cuesta
+  menos.
+- **Ojo con dos cosas antes de entusiasmarse.** El PFM de su implementación es **PLIP**, no
+  CONCH (dato del README, no verificado contra el código). Y «superior classification
+  performance» viene del abstract: no hay tabla a la vista, así que **no se cita como
+  resultado** hasta leer el paper.
+
+**Prioridad: tercero.** El propio Sebastián lo puso como opcional, y Hover-Net subió de
+importancia con la lectura de SI-MIL (es su front-end, ver §2).

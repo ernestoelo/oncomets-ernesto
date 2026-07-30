@@ -970,7 +970,22 @@ importa de la lectura:
 
 **Pedido nuevo de Sebastián** (correo del 29-jul, 12:15), marcado por él como opcional:
 *Co-assistant networks by pathology foundation model and convolutional neural network for
-gigapixel whole slide image analysis*. No está en el repo y no se buscó afuera
-(workaround E). Ficha con lo que sabemos en `papers_b8.md` §4.
+gigapixel whole slide image analysis*. **Localizado con búsqueda autorizada por Ernesto:**
+Liu et al., **Medical Image Analysis 2026**, DOI `10.1016/j.media.2026.104202`, PMID
+42398343. **De suscripción y sin vía abierta** (Europe PMC `isOpenAccess: N`, `hasPDF: N`,
+sin PMCID; arXiv devuelve 0 entradas; Semantic Scholar lo da `Closed`), así que **no se
+descargó**: es el mismo caso que el paper de Human Pathology y se resuelve igual, con
+acceso institucional. Lo que sí es público es el **código**, en `github.com/lZhuoRan/ILSC`,
+no clonado.
+
+El método se llama **ILSC** (*Interpretable Large-Small Co-assistant*) y por el abstract es
+la misma familia de idea que SI-MIL: dos ramas, una potente y otra acotada y legible. Acá
+la segunda es una CNN chica con atención a nivel de célula, y la crítica que abre el paper
+apunta al **foundation model**, que es nuestro caso con CONCH: dicen que la self-attention
+del PFM codifica relaciones triviales o ruidosas y le cuesta el patrón local. Detalle
+importante para cualquier prueba futura: según su README el preprocesamiento es **CLAM**,
+o sea lo que ya corremos, así que la barrera de entrada es mucho menor que la de SI-MIL
+(HoVer-Net a 40× y ~2 h por lámina). Su PFM es PLIP, no CONCH. Ficha completa con abstract
+en `papers_b8.md` §4.
 
 Sin GPU y sin procesos CPU en esta sesión.
