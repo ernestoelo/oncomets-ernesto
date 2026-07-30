@@ -54,7 +54,8 @@ Acceso: **VPN oficial Environ + SSH**. Stack registrado el 19 may 2026
 ├── clam_testing/        ← workspace COMPARTIDO y activo (owner sdonoso; Sebastián/sgaete y otros corren ahí). Read-only por defecto; escribir solo si Sebastián lo pide (regla 3.a).
 └── clam_testing2/       ← MI workspace (todo lo mío vive acá; ver "Workspace containment")
     ├── oncomets-ernesto/        ← este repo
-    └── CLAM_official_reference/ ← CLAM oficial Mahmood Lab (REFERENCE ONLY — not in PYTHONPATH)
+    ├── CLAM_official_reference/ ← CLAM oficial Mahmood Lab (REFERENCE ONLY — not in PYTHONPATH)
+    └── ILSC_reference/          ← ILSC (Liu et al., MedIA 2026) (REFERENCE ONLY — not in PYTHONPATH)
 ```
 
 - **Codebase compartido (READ-ONLY)**: `/media/administrador/Storage1/sdonoso/clam_environ/`
@@ -64,6 +65,14 @@ Acceso: **VPN oficial Environ + SSH**. Stack registrado el 19 may 2026
   — repo Mahmood Lab clonado como referencia y fuente de `create_heatmaps.py`.
   HEAD `53e2409` (19 may 2026). **NO se agrega al PYTHONPATH, NO se mezcla ni
   se importa cruzado con el codebase de Sebastián.** Solo lectura/consulta.
+- **ILSC (REFERENCE ONLY)**: `/media/administrador/Storage1/sdonoso/clam_testing2/ILSC_reference/`
+  — implementación oficial de Liu et al., *Co-assistant networks…*, Medical Image
+  Analysis 2026 (`github.com/lZhuoRan/ILSC`). Clonado el **30-jul-2026** con
+  autorización de Ernesto porque **el paper es de suscripción**: el código es la
+  única vía abierta al método. HEAD `f193187`, 117 MB. Su PFM es **PLIP, no
+  CONCH** (verificado: 89 menciones de plip, cero de conch). Mismas reglas que
+  el anterior: **NO al PYTHONPATH, NO import cruzado**, solo lectura. Ficha del
+  paper en `sprints/B8_sprint8/papers_b8.md` §4.
 
 ## Workarounds operativos del servidor Environ
 

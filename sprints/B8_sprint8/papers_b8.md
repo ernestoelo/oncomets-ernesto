@@ -169,9 +169,13 @@ arXiv devuelve **0 entradas** para el título, y Semantic Scholar lo da como `Cl
 que el paper de Human Pathology (§3), y se resuelve igual: acceso institucional UTFSM o
 suscripción de Environ.
 
-**Lo que sí es público: el código.** Los autores publican la implementación en
-`github.com/lZhuoRan/ILSC`. **No clonado** (containment: iría a `clam_testing2/<nombre>/`,
-decisión pendiente de Ernesto).
+**Lo que sí es público: el código, y ya está clonado.** Los autores publican la
+implementación en `github.com/lZhuoRan/ILSC`. Clonado el **30-jul-2026** con autorización
+de Ernesto a `clam_testing2/ILSC_reference/` (HEAD `f193187`, 117 MB), bajo las mismas
+reglas que `CLAM_official_reference/`: **solo lectura, NO al PYTHONPATH, NO import
+cruzado**. Como el paper es de suscripción, **el código es la única vía abierta al
+método**. Estructura: `main.py`, `model/{model.py,PFM_model.py}`, `preprocess/`
+(incluido `process_for_clam.py` y `generate_npy.py`), `datasets/`, `utils/`, `ILSC.yml`.
 
 **Abstract** (de PubMed, distribución libre):
 
@@ -211,7 +215,8 @@ decisión pendiente de Ernesto).
   40× y unas 2 h por lámina. Si en algún momento se prueba algo de esta línea, esta cuesta
   menos.
 - **Ojo con dos cosas antes de entusiasmarse.** El PFM de su implementación es **PLIP**, no
-  CONCH (dato del README, no verificado contra el código). Y «superior classification
+  CONCH: **verificado contra el código clonado** (89 menciones de `plip` entre `.py`, `.md`
+  y `.yml`, y cero de `conch`), no solo contra el README. Y «superior classification
   performance» viene del abstract: no hay tabla a la vista, así que **no se cita como
   resultado** hasta leer el paper.
 
