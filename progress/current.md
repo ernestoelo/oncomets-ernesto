@@ -989,3 +989,50 @@ o sea lo que ya corremos, así que la barrera de entrada es mucho menor que la d
 en `papers_b8.md` §4.
 
 Sin GPU y sin procesos CPU en esta sesión.
+
+## Sesión del 30-jul-2026 (tarde) — SI-MIL explicado, insumo del deck listo
+
+Sesión de explicación, sin código ni experimentos. Ernesto había leído el paper y pidió que
+se le explicara la matemática, empezando por las **ecuaciones 1 y 2**, que eran las que no
+le cerraban. Lo producido está en
+[`sprints/B8_sprint8/simil_explicacion_matematica.md`](../sprints/B8_sprint8/simil_explicacion_matematica.md),
+que es material pedagógico, **no** un segundo estudio del paper (ese sigue siendo
+`simil_estudio.md`).
+
+Cubierto y cerrado: el mapa de símbolos con la trampa `D` contra `d`, la **ecuación 1**
+(bolsa, proyector, atención y sobre qué eje normaliza), la **ecuación 2** completa, y la
+**Figura 2** panel por panel como recorrido de un tensor. Quedaron **sin explicar** las
+ecuaciones 3 a 10 y las secciones posteriores a las fórmulas; el plan de cómo desarmarlas
+está escrito en §6.2 y §7 de ese documento, con las fórmulas ya transcritas literales para
+no re-extraerlas.
+
+Lo durable que salió, verificado contra `models/model_clam.py` y no inferido:
+
+- **Mapeo exacto de las ecuaciones 1 y 2 a `CLAM_MB`**: `H` es la línea 191 (la misma capa
+  que Mammoth reemplaza), `A^p` son la 193 y la 213, `C` es la 198, y el orden
+  agregar-y-después-clasificar son la 239 y la 243.
+- **La distinción de orden es el nudo del paper.** El orden A (agregar y clasificar, que es
+  CLAM) y el orden B aditivo (clasificar por parche y sumar, que es la ecuación 2) dan **el
+  mismo número** cuando `C` es lineal. Lo que cambia es que el orden B deja las
+  contribuciones por parche **con signo**, y el A las pierde en una fusión irreversible.
+- **Acota lo que pueden afirmar nuestros heatmaps del B7.** `α` es post-softmax y por lo
+  tanto siempre positiva: dice cuánto miró el modelo, nunca hacia qué clase empujó lo que
+  miró. No invalida el B7, porque ahí la pregunta era dónde mira cada modelo. Pero al
+  presentar corresponde decir «acá el modelo puso su atención», no «acá encontró el tumor».
+  Memoria [[mil-orden-aditivo-vs-agregado]], más un ADDENDUM en
+  [[heatmap-atencion-no-es-per-experto]].
+- **En SI-MIL `β` es por feature y no suma 1**, porque termina en sigmoide (ecuación 5):
+  son 246 compuertas independientes, no una torta. `α`, en cambio, es por parche y suma 1
+  sobre `N`. Es justo la clase de confusión de eje que ya costó una memoria en Mammoth.
+- **Dos notas de lectura del paper**: el `+ b` de la ecuación 9 es una simplificación de
+  notación (sustituyendo la 7 en la 8 sale `K·b`, no `b`), y el **stop-gradient de la
+  destilación está en el suplementario**, no en el paper principal. Si se cita, citar el
+  suplementario.
+
+**Lo que sigue es la presentación.** El B8 todavía no tiene directorio de deck; el tooling
+vive en `sprints/B7_sprint7/presentacion_b7/generate_b7_deck.py` y las convenciones en
+`sprints/B5_sprint5/presentacion_b5/convenciones_deck_b5.md`. La figura original del paper
+va como **imagen** (única excepción a «todo nativo»); el resto de los diagramas van nativos.
+Los candidatos a lámina visual están listados en §8 del documento nuevo.
+
+Sin GPU y sin procesos CPU en esta sesión.
