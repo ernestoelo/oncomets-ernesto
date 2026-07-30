@@ -873,3 +873,40 @@ Detalle: `sprints/B8_sprint8/q1_slots_escalado/{resultados.md,metodologia.md}`. 
 campo: `results/b8_q1_slots_escalado/`. Memorias: [[mammoth-slot-routing-weight]] y
 [[mammoth-dispatch-softmax-sobre-parches]] (las dos softmax de Mammoth normalizan sobre
 ejes distintos, que es lo que obliga al streaming en dos pasadas).
+
+---
+
+## Sesión del 28-jul-2026 — verificación del escalado y entregable de presentaciones
+
+**La re-corrida del barrido cerró bien.** El proceso desatado (PID 2989473) terminó por
+finalización normal: 1858 láminas en 17.4 min, con los mismos números (slots 159.5 ± 26.3,
+expertos 29.98). La corrección que la motivaba quedó efectivamente en disco: la columna
+`expertos_sobre_uniforme` ahora da 14.96 de media (rango 8 a 20, cero filas en 0) contra el
+0 constante de antes, y cae justo sobre el `e50 = 15` del reparto uniforme, que es lo
+esperado. Los CSV se escribieron 17:51:13 y el commit `b3cb700` es de 17:51:43, así que la
+verdad de campo versionada es la corregida. **El pendiente 1 del handoff queda cerrado.**
+
+**Inventario de las comparaciones de atención CLAM contra Mammoth** (consulta de la
+sesión, sin trabajo nuevo): viven en `results/b7_mammoth_interp/interpretabilidad/<tarea>/
+<lámina>/`, con `attention_side_by_side.png`, los dos mapas por separado y
+`attention_stats.json`. Son 7 láminas, **todas del test del fold 0**, y en las 7 aciertan
+los dos modelos. La copia curada para enviar ya existe en `sprints/B7_sprint7/
+envio_heatmaps/`. Lo que dicen los stats (Spearman alto 0.67 a 0.92 pero Jaccard del top
+5 % bajo, 0.01 a 0.31) **ya estaba documentado** en
+`sprints/B7_sprint7/resultados_interpretabilidad.md` §3 y §3.1: no es hallazgo nuevo.
+
+**Presentaciones del semestre sin notas del presentador (pedido de Sebastián).** Se
+quitaron las notas de los 6 decks (B2 a B7, 102 guiones, ~158k caracteres) por cirugía de
+zip, dejando todo lo demás byte-idéntico y verificado por CRC parte por parte. Cero
+diferencias inesperadas en los 6.
+
+> **Incidente, y es lo que hay que leer de esta entrada.** Después de terminar y verificar,
+> `papers/presentaciones-semestre/` **y su carpeta de respaldo hermana desaparecieron las
+> dos**. No queda ningún `.pptx` con mtime posterior al 24-jul en todo el árbol. Los decks
+> B3, B4, B6 y B7 sobreviven en sus carpetas de sprint (el del B6 como
+> `CLAM_Reunion_Mammoth.pptx`) y el del B5 existe en otra versión en
+> `papers/presentations/`, pero **el del B2 no tiene copia en ningún lado del servidor y su
+> guion se perdió**. La lección durable, en [[pptx-quitar-notas-y-respaldo]]: los `.pptx`
+> no están versionados por diseño (`.gitignore`, «Precedente: 0 pptx trackeados»), así que
+> no hay red de git, y **un respaldo hermano comparte el radio de acción de un borrado de
+> carpeta**. El respaldo va a otro árbol.
