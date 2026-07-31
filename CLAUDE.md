@@ -982,6 +982,17 @@ plano. Estilo visual: `Modelo_OncoMets_Spatial_V1.pdf`. Estructura:
 > a DejaVu: es esperado y PowerPoint hará lo mismo, **no es un defecto**.
 > Procedimiento: `sprints/B7_sprint7/presentacion_b7/fuentes_barlow.md`.
 >
+> **ADDENDUM 30-jul-2026 — esa lista de glifos NO es exhaustiva, y en un deck de
+> ECUACIONES la diferencia importa.** Barlow tampoco trae **griegas** (`α β ψ γ λ
+> Σ`) ni `ℝ ∈ ⊗`. Con cuatro flechas el fallback era despreciable; con griegas en
+> cada fórmula, no. El template embebe **Barlow + Cambria Math**, así que declarar
+> Cambria Math en esos glifos era una opción real; se rasterizaron las variantes y
+> **gana Barlow con el fallback** (las griegas de Cambria Math son serif finas y
+> contrastan con el Barlow que las rodea). Sub/superíndices: `_add_runs()` con
+> `baseline` OOXML, y **escapar el `_` de los nombres de archivo** (`model\_clam.py`,
+> si no queda «model_lam.py»). Detalle: [[deck-template-fuentes-embebidas]] y
+> `sprints/B8_sprint8/presentacion_b8/README.md`.
+>
 > **Y la causa raíz de un deck que "no se ve como el template" suele ser
 > tipográfica, no de branding**: los templates **embeben sus fuentes** y
 > `Presentation()` (default de python-pptx) no embebe ninguna → PowerPoint
