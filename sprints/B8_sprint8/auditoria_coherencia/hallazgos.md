@@ -111,3 +111,88 @@ sobreviven ([[verificar-antes-de-pedir-dato]]).
 Sobreviven de verdad: el **sign-off de patólogo** (§7.13, y ahora conecta con Hover-Net),
 el pie engañoso de la lámina 18 (§7.12, es exactitud factual y aguanta mientras el deck
 exista) y regenerar los PNG en Barlow (§7.1, solo si el deck se reusa).
+
+---
+---
+
+# Segunda pasada — cierre de la sesión de HoVer-Net (31-jul-2026, tarde)
+
+Alcance **acotado al cierre de esta sesión**, no una auditoría de la base entera. Cubre lo
+escrito hoy sobre HoVer-Net (`hovernet_estudio.md`, `papers_b8.md` §1, la memoria nueva y el
+índice compactado) contra `CLAUDE.md`, las memorias de interpretabilidad y el registro de la
+reunión del 24-jul.
+
+**Contexto operativo:** rama `main`, sincronizada con `origin/main`, árbol limpio.
+**Sin jobs propios** en `squeue` (sí ajenos: `capstone` 4736/4749 corriendo, 4750/4751
+encolados), así que no aplica workaround H y no se hizo ningún checkout. **Sesión paralela
+activa** bajo la misma cuenta trabajando el deck de SI-MIL: sus archivos se dejaron
+intactos y los commits de hoy fueron todos con path explícito.
+
+## Resumen
+
+| id | Hallazgo | Tipo | Severidad | Acción |
+|---|---|---|---|---|
+| B1 | `CLAUDE.md` «Paths críticos» no lista `sdonoso/hover_net/`, un hermano nuevo de `sgaete` que una sesión futura va a encontrar con un `find` | stale | media | Línea aditiva en el árbol de paths |
+| B2 | `reunion-24jul-encargos-b8` §4 da Hover-Net como «paper a leer»; está leído y además ya corre en el servidor | stale | media | ADDENDUM fechado, sin reescribir el encargo |
+| B3 | ¿El geojson anotado invalida el «sign-off de patólogo pendiente» de OBJ-A? | reconciliación | **alta** | Verificado: **no lo invalida**. Puntero, sin tocar la afirmación |
+| B4 | `progress/current.md` no tiene la sesión de HoVer-Net (la paralela escribió la suya) | stale | media | Sección nueva al final, sin tocar la ajena |
+
+---
+
+## B1 — `hover_net/` no está en el mapa de paths
+
+- `CLAUDE.md` § «Paths críticos» dibuja el árbol de `/media/administrador/Storage1/sdonoso/`
+  con `clam_environ/`, `clam_testing/` y `clam_testing2/`. No menciona `hover_net/`.
+- Verificado hoy: `/media/administrador/Storage1/sdonoso/hover_net/` existe, es de **`sgaete`**
+  y tiene trabajo vivo (jobs del 29 y 30-jul). Es exactamente el caso que
+  [[paths-absolutos-fuera-del-repo]] anticipa: un hermano, no un subdirectorio.
+- La regla 3 protege `clam_testing/` por nombre; este directorio cae bajo la misma lógica
+  (workspace ajeno y activo) pero no está nombrado en ningún lado.
+- **Acción**: línea aditiva en el árbol de paths, con el puntero a la memoria. No se toca la
+  regla 3 ni su redacción (edición aditiva de reglas duras).
+
+## B2 — El encargo 4 daba Hover-Net como pendiente de lectura
+
+- `reunion-24jul-encargos-b8` §4: *«Tres papers para discutir con Sebastián… 2 de 3
+  descargados»*, con Hover-Net descrito por su motivación, no por su contenido.
+- Hoy quedó leído completo y, más importante, el terreno está más adelante que el encargo:
+  ya está instalado y corriendo.
+- **Acción**: ADDENDUM fechado en esa memoria más el enlace a la nueva. **No se reescribe**
+  el texto del encargo: es el registro de lo que se pidió en la reunión y vale como
+  histórico (misma criterio que se usó con la pre-registración).
+
+## B3 — El geojson anotado NO cierra el sign-off pendiente
+
+Es el punto delicado de esta pasada, porque la tentación es cantar victoria.
+
+- `mammoth-interpretabilidad-objA:55-63` afirma dos cosas: **(1)** *«NO tenemos anotación de
+  tejido por parche»* y **(2)** *«Pendiente sign-off de patólogo»*, con la instrucción
+  explícita de no presentar «e8 = epitelio tumoral» como hecho anotado.
+- `slot-unidad-de-morfologia:60,98` repite lo mismo para los slots.
+- Lo encontrado hoy es `129741.bif - GDT.geojson`: **61 polígonos de región** sobre **una**
+  lámina.
+
+**Las dos afirmaciones siguen siendo correctas, y por tres razones distintas:**
+
+1. **Región ≠ parche.** Son 61 polígonos dibujados a mano, no una etiqueta por cada uno de
+   los miles de parches de la lámina. Habría que intersectar geometrías para derivar algo
+   por parche, y lo que quede afuera de los 61 polígonos sigue sin etiqueta.
+2. **Una lámina no es la cohorte.** OBJ-A midió sobre TCGA-BRCA; esta es una privada.
+3. **No sabemos quién firmó.** Verificado además que el archivo **no lo produce el pipeline
+   de `sgaete`** (sus exportaciones van a `output/<run>/qupath_regions/` y ninguno de sus
+   scripts menciona ni «GDT» ni esta lámina), así que es una anotación **traída de afuera**.
+   Eso lo hace más probable que sea de un patólogo, pero probable no es verificado.
+
+- **Acción**: **no se toca ninguna de las dos afirmaciones.** Se agrega en
+  `mammoth-interpretabilidad-objA` un puntero de una línea a la memoria nueva, diciendo que
+  apareció un **candidato** a material de sign-off y qué habría que preguntar. El estado
+  sigue siendo «pendiente».
+
+## B4 — La sesión de HoVer-Net no está en `progress/current.md`
+
+- La sesión paralela escribió su propia entrada (`## Sesión del 31-jul-2026 — el deck de
+  SI-MIL recortado a 14 láminas`, línea 1094) y registró en su cierre que había detectado
+  archivos de una sesión ajena sin commitear.
+- **Acción**: sección nueva al final del archivo, **sin tocar** la de la sesión paralela.
+  Las dos entradas del 31-jul conviven, distinguidas por el sufijo «(tarde)», que es la
+  convención que el archivo ya usa.

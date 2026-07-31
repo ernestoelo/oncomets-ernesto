@@ -52,6 +52,7 @@ Acceso: **VPN oficial Environ + SSH**. Stack registrado el 19 may 2026
 ├── clam_environ/        ← CODEBASE CLAM de Sebastián. READ-ONLY. No tocar.
 │   └── environ/         ← DATOS del proyecto (features .pt, CSVs, splits). READ-ONLY.
 ├── clam_testing/        ← workspace COMPARTIDO y activo (owner sdonoso; Sebastián/sgaete y otros corren ahí). Read-only por defecto; escribir solo si Sebastián lo pide (regla 3.a).
+├── hover_net/           ← HoVer-Net de sgaete (29-jul-2026), CON TRABAJO VIVO. Ajeno → READ-ONLY, misma lógica que clam_testing/. [[hovernet-ya-corriendo-sgaete]]
 └── clam_testing2/       ← MI workspace (todo lo mío vive acá; ver "Workspace containment")
     ├── oncomets-ernesto/        ← este repo
     ├── CLAM_official_reference/ ← CLAM oficial Mahmood Lab (REFERENCE ONLY — not in PYTHONPATH)

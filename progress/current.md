@@ -1129,3 +1129,64 @@ el otro paper del sprint. Su trabajo **NO se commiteó** acá. ADDENDUM en
 [[git-main-shared-pushes]].
 
 Sin GPU y sin procesos CPU en esta sesión.
+
+---
+
+## Sesión del 31-jul-2026 (tarde) — HoVer-Net estudiado, y ya estaba corriendo
+
+**Pedido de Ernesto:** estudiar HoVer-Net mientras él corregía las láminas del deck de
+SI-MIL en una sesión paralela. Todo lo de esta sesión es lectura y documentación: **sin GPU,
+sin procesos CPU, sin tocar nada ajeno**.
+
+Paper leído completo (principal más el apéndice A de ablaciones) y volcado en
+[`sprints/B8_sprint8/hovernet_estudio.md`](../sprints/B8_sprint8/hovernet_estudio.md): el
+mecanismo de los mapas horizontal y vertical con un ejemplo en una dimensión, las tres ramas
+sobre el encoder compartido, la loss de seis términos, el watershed por marcadores y las
+métricas PQ y Fc que el paper propone de paso.
+
+**El mecanismo, en una línea:** en vez de dibujar el contorno, se predice dentro de cada
+núcleo la distancia con signo a su propio centro de masa, normalizada a [−1, +1]. Dos núcleos
+pegados producen un salto de +1 a −1 en la costura, y la derivada ahí vale el triple que
+adentro del núcleo. La señal ocupa el núcleo entero, no una línea de un píxel.
+
+**Dos cosas que salieron de verificar en vez de leer:**
+
+1. **La Tabla A1 del paper tiene las columnas mal rotuladas, y el texto se equivoca al
+   citarla.** Dice que la ganancia de su loss está en SQ. Con la identidad `PQ = DQ × SQ` la
+   fila no cierra con los encabezados impresos (0.773 × 0.597 ≠ 0.618) y sí cierra
+   reordenando (0.770 × 0.773 ≈ 0.597), en las cuatro filas y los dos datasets. La ganancia
+   real está en **DQ**, la detección, que además es lo coherente con el mecanismo: el
+   gradiente sirve para cortar, y cortar bien es encontrar más instancias.
+2. **La clase *miscelánea* agrupa necrótico y mitótico** y es la peor del paper (F 0.426 en
+   CoNSeP, 0.178 en CRCHisto, contra ~0.6 de las demás). Si alguien propone contar mitosis
+   con esto, ese número es la respuesta.
+
+**El hallazgo que corre el encuadre del encargo 4:** HoVer-Net **ya está instalado y
+corriendo en el servidor**, no es una hipótesis. Lo montó `sgaete` el 29-jul en
+`/media/administrador/Storage1/sdonoso/hover_net/` (ajeno, leído y nada más) con los pesos de
+**PanNuke**, el mismo checkpoint que usa SI-MIL. El job 4714 completó una lámina de TCGA el
+30-jul en **3 h 36 min**, y hay **881 en cola**. Detalle verificado en el §10 del estudio y
+en la memoria [[hovernet-ya-corriendo-sgaete]].
+
+Y en ese mismo directorio hay **`129741.bif - GDT.geojson`**: 61 regiones dibujadas a mano en
+QuPath, en español y con vocabulario clínico. La lámina **está en nuestras features y en los
+splits de las 3 tareas del B7**, incluidos los `_ci_reform` del job 4589. **No cierra el
+sign-off de patólogo que arrastramos desde OBJ-A** (región no es parche, es una sola lámina,
+y no sabemos quién la firmó), pero es el primer material concreto con el que se podría
+contrastar. Está razonado en la segunda pasada de
+[`auditoria_coherencia/hallazgos.md`](../sprints/B8_sprint8/auditoria_coherencia/hallazgos.md)
+§B3.
+
+**La asimetría que vuelve todo esto viable:** SI-MIL corre HoVer-Net sobre todos los parches
+porque necesita entrenar su rama; nosotros solo queremos leer los que el modelo ya destacó.
+Veinte parches de 256 px son 1.3 Mpx contra los 7530 de la lámina completa. Segundos de GPU
+por lámina en vez de horas, y el `run_infer_tile.slurm` con `--save_raw_map` que hace
+exactamente eso ya está escrito en el repo de sgaete.
+
+Sigue en pie el bloqueo de magnificación: la corrida usa `--proc_mag=40` y la cohorte privada
+está a ≈20× ([[cohortes-magnificacion-fisica]]).
+
+**Nota de convivencia:** la sesión paralela tenía cambios sin commitear en
+`presentacion_b8/`. Todos los commits de esta sesión se hicieron con **path explícito**, y el
+índice de memorias se compactó de 19.8 a 13.2 KB verificando que las 76 entradas y sus
+enlaces siguieran resolviendo.
