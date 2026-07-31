@@ -159,8 +159,8 @@ posición siguen siendo seis en todo el deck.
 
 ## Lo que NO se hizo
 
-- **La fecha de la lámina de título es 30/07/2026**, el día en que se construyó. Si la
-  reunión es otro día, se cambia en `FECHA_REUNION` o directamente en OnlyOffice.
+- ~~La fecha de la lámina de título es la de construcción.~~ **Resuelto el 31-jul**: Ernesto
+  confirmó que la reunión es **el viernes 07/08/2026** y `FECHA_REUNION` ya la tiene.
 - Las ecuaciones **3 a 10 no están explicadas** una por una. El plan de cómo desarmarlas está
   en la §6.2 del insumo.
 - No se tocó nada de GPU, ni se descargó nada del repositorio ni del dataset de SI-MIL.

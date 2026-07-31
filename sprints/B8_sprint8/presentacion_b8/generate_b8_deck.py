@@ -51,7 +51,7 @@ DST = os.path.join(OUT_DIR, "CLAM_Sprint8_SIMIL.pptx")
 
 TEMPLATE = os.path.join(REPO, "sprints/B7_sprint7/Modelo OncoMets Spatial V1 Deep-LLM-V.pptx")
 TPL_KEEP = (0, 1)          # portada de marca + lámina de título, nativas a 13.333
-FECHA_REUNION = "30/07/2026"
+FECHA_REUNION = "07/08/2026"      # confirmada por Ernesto el 31-jul: «el próximo viernes»
 
 # --- figura del paper (única imagen del deck), recortada de la página 4 a 400 DPI ---
 FIG2_FULL = os.path.join(ASSETS, "simil_fig2_full.png")   # los tres paneles

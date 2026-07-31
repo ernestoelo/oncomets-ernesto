@@ -1050,17 +1050,18 @@ lugar de disimularlo.
 
 **Lo que el deck presenta:**
 
-- Las **ecuaciones 1 y 2 desarmadas**, conservando la secuencia que funcionó al
-  explicárselas a Ernesto: la analogía de la licuadora contra la libreta, después el mini
-  ejemplo numérico, y al final la tabla de qué queda en memoria tras el forward, que era el
-  malentendido de fondo.
+- Las **ecuaciones 1 y 2 desarmadas**. *(Recortado el 31-jul: la 2 entra ahora entera en
+  UNA lámina, la analogía de la licuadora contra la libreta pasó al guion y el mini ejemplo
+  numérico se retiró; queda el diagrama de los dos órdenes más la tabla de qué queda en
+  memoria tras el forward, que era el malentendido de fondo.)*
 - La **Fig. 2 completa** (pág. 4, extraída a 400 DPI) más los paneles (b) y (c) por
   separado, en las láminas de la ecuación 1 y de la rama interpretable. Es la **única
   imagen** del deck; todo lo demás es nativo.
 - El **embudo del PAG Top-K** con la cuenta hecha sobre una lámina nuestra de 10 000
   parches: 5 120 000 números que se descartan, contra 4920 que tienen nombre.
-- El **límite de nuestros mapas de atención**, con la tabla del caso extremo. Al presentar:
-  «acá el modelo puso su atención», no «acá el modelo encontró el tumor».
+- El **límite de nuestros mapas de atención**. Al presentar: «acá el modelo puso su
+  atención», no «acá el modelo encontró el tumor». *(Recortado el 31-jul: se fusionó con el
+  mapeo a `model_clam.py` y salió la segunda tabla numérica, α contra contribución.)*
 - La **Tabla 2 con la fila de CLAM destacada** (0.937 → 0.925 en accuracy, 0.972 → 0.957 en
   AUC): el método NO se presenta como mejora de rendimiento.
 - Que **HoVer-Net y SI-MIL son la misma cadena**, en la lámina de las dos entradas.
@@ -1083,7 +1084,48 @@ tells eran **de ritmo**: diez láminas abrían su último párrafo con «Y » (q
 catorce párrafos abrían señalando una posición del layout (quedaron seis, que es lo que la
 convención pide para seguir la figura).
 
-**Ojo al retomar:** la fecha de la lámina de título es **30/07/2026**, el día en que se
-construyó. Si la reunión es otro día, se cambia en `FECHA_REUNION` o en OnlyOffice.
+~~**Ojo al retomar:** la fecha de la lámina de título…~~ **Resuelto el 31-jul**: Ernesto
+confirmó que la reunión es el **viernes 07/08/2026**; `FECHA_REUNION` ya la tiene.
+
+Sin GPU y sin procesos CPU en esta sesión.
+
+---
+
+## Sesión del 31-jul-2026 — el deck de SI-MIL recortado a 14 láminas
+
+**Pedido de Ernesto:** menos láminas, y sobre todo **fuera el ejemplo numérico del orden de
+las operaciones**, que tenía que quedar claro en una sola lámina. Quedó en **14** (de 19).
+Commit `665ad5e` + el de la fecha. Auditoría sin avisos y QA visual sobre el rasterizado con
+Barlow real.
+
+**Supersede una decisión que el handoff daba por cerrada:** la secuencia «analogía → ejemplo
+numérico → tabla de qué queda» del 30-jul. La ecuación 2 entra ahora entera en una lámina
+con el diagrama de los dos órdenes arriba y la tabla de qué queda en memoria abajo,
+recortada a las tres filas que de verdad separan a los órdenes.
+
+**Las cinco fusiones** (tabla completa en `sprints/B8_sprint8/presentacion_b8/README.md`
+§«El recorte del 31-jul»):
+
+| Antes | Ahora |
+|---|---|
+| divisoria de sección + «qué propone» | una: la ficha del paper entra como línea de referencia |
+| ecuación 2 + el ejemplo numérico | **una** |
+| «por qué la atención no rescata» + «dónde queda nuestro modelo» | una: mapeo a `model_clam.py` arriba, dos paneles abajo |
+| «qué reportan» + «el contraste» | una: dos tablas, sin los cuatro paneles |
+| «qué costaría» + «preguntas» | una: bloqueos en tira, preguntas en rejilla 2 × 2 |
+
+**Nada de contenido se perdió: se movió al guion hablado.** La crítica del paper a la
+interpretación post-hoc, los dos puntos donde coincidimos con ellos y las dos diferencias
+entre su formulación y la nuestra se cuentan hablando. Los guiones de las fusionadas se
+**reescribieron**, no se pegaron: el deck bajó de **3705 a 3199 palabras**, y se verificó
+que no reaparecieran los tells de ritmo que la primera pasada había corregido.
+
+**Fecha de la reunión confirmada: viernes 07/08/2026.**
+
+**Hallazgo operativo del cierre:** el preflight encontró en el árbol un archivo nuevo
+(`hovernet_estudio.md`) y un `papers_b8.md` modificado que **esta sesión no tocó**, y `ps`
+mostró **dos** procesos `claude` vivos bajo `sdonoso`. Es una **sesión paralela** trabajando
+el otro paper del sprint. Su trabajo **NO se commiteó** acá. ADDENDUM en
+[[git-main-shared-pushes]].
 
 Sin GPU y sin procesos CPU en esta sesión.
