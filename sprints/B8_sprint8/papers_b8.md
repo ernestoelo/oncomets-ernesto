@@ -36,6 +36,19 @@ para ponerle nombre real al tejido que hoy nombramos por **lectura visual nuestr
 es la salvedad que arrastramos desde OBJ-A y que sigue sin sign-off de patólogo
 ([[mammoth-interpretabilidad-objA]], [[slot-unidad-de-morfologia]]).
 
+**✅ LEÍDO el 31-jul-2026** (principal + apéndice A de ablaciones). El estudio completo, con
+el mecanismo desarmado, el contraste con lo nuestro y el costo medido, está en
+[`hovernet_estudio.md`](hovernet_estudio.md). Tres cosas de la lectura:
+
+- **Ya está instalado y corriendo en el servidor**, montado por `sgaete` el 29-jul con los
+  pesos de **PanNuke** (el mismo checkpoint que usa SI-MIL). Una lámina de TCGA completa el
+  30-jul en **3 h 36 min**, y 881 láminas en cola. Inventario verificado en §10 del estudio.
+- En ese mismo directorio hay `129741.bif - GDT.geojson`, **61 regiones anotadas a mano**
+  (Mitosis, Tumor, Stroma, necrosis…) sobre una lámina privada que **está en nuestros
+  splits de las 3 tareas del B7**. Falta saber quién la anotó.
+- Su clase *miscelánea* agrupa **necrótico y mitótico** y es la peor de todas (F 0.426), así
+  que **no sirve para contar mitosis**, que es una de nuestras tareas.
+
 ## 2. SI-MIL ✅ descargado
 
 **Archivo:** `simil_kapse2024.pdf` (28 MB, arXiv:2312.15010v2, 18-may-2024)
