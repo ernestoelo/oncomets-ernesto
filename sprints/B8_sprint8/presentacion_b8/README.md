@@ -2,13 +2,16 @@
 
 > Construida el **30-jul-2026**. Pedido de Ernesto: **las ecuaciones**, la **figura original
 > del diagrama del modelo** (Fig. 2 del paper, pág. 4) y el **formato de deck del proyecto**.
+>
+> **Recortada el 31-jul-2026** de 19 a 14 láminas, también a pedido de Ernesto, sacando el
+> ejemplo numérico del orden de las operaciones. Ver «El recorte del 31-jul» más abajo.
 
 ## Qué hay acá
 
 | Archivo | Qué es |
 |---|---|
 | `generate_b8_deck.py` | genera el deck end-to-end; se corre y reproduce el `.pptx` |
-| `CLAM_Sprint8_SIMIL.pptx` | el deck, **19 láminas**, 13.333 × 7.5 |
+| `CLAM_Sprint8_SIMIL.pptx` | el deck, **14 láminas**, 13.333 × 7.5 |
 | `assets/simil_fig2_full.png` | Fig. 2 completa, recortada de la pág. 4 a 400 DPI |
 | `assets/simil_fig2_{a,b,c}.png` | los tres paneles por separado |
 
@@ -23,10 +26,11 @@ PYTHONPATH=/media/administrador/Storage1/sdonoso/clam_testing2/.pylibs \
 El insumo es [`simil_explicacion_matematica.md`](../simil_explicacion_matematica.md) y los
 números salen de [`simil_estudio.md`](../simil_estudio.md). No se rehízo ninguno de los dos.
 
-- **Ecuaciones 1 y 2: desarmadas.** Son las que Ernesto marcó como las que no cerraban, y
-  el deck conserva la secuencia que funcionó al explicárselas: primero la analogía de la
-  licuadora contra la libreta, después el mini ejemplo numérico, y al final la tabla de qué
-  queda en memoria tras el forward, que era el malentendido de fondo.
+- **Ecuaciones 1 y 2: desarmadas.** Son las que Ernesto marcó como las que no cerraban.
+  La 2 entra ahora en **una sola lámina**: la analogía de la licuadora contra la libreta
+  quedó en el guion, y en la lámina van los dos caminos dibujados más la tabla de qué queda
+  en memoria tras el forward, que era el malentendido de fondo. El mini ejemplo numérico
+  **se retiró** (ver «El recorte del 31-jul»).
 - **Ecuaciones 3 a 10: en panorama**, una línea de glosa cada una, con la **9 destacada**.
   Desarmarlas con el mismo detalle sigue **pendiente**, y la lámina de objetivos lo declara
   con su marcador de estado en vez de disimularlo.
@@ -36,15 +40,50 @@ números salen de [`simil_estudio.md`](../simil_estudio.md). No se rehízo ningu
 - **HoVer-Net y SI-MIL son la misma cadena**, no dos ángulos. Está en la lámina de las dos
   entradas y en el guion.
 
-## Estructura (19 láminas)
+## Estructura (14 láminas)
 
-Portada y lámina de título (heredadas del template) · objetivos · [divisoria SI-MIL] · qué
-propone en una frase · **la Fig. 2 completa** · dos descripciones del mismo parche ·
-**ecuación 1** · **ecuación 2, el orden de dos operaciones** · el mismo número, distinto lo
-que queda · por qué la atención no rescata lo perdido · dónde queda nuestro modelo parado ·
-el puente PAG Top-K · la otra rama, α contra β · las ecuaciones 3 a 10 · qué reportan y la
-celda que nos toca · el contraste con lo nuestro · qué costaría llevarlo a nuestros datos ·
-preguntas para la discusión.
+Portada y lámina de título (heredadas del template) · objetivos · qué propone en una frase ·
+**la Fig. 2 completa** · dos descripciones del mismo parche · **ecuación 1** · **ecuación 2,
+el orden de dos operaciones** · qué implica para nuestro modelo · el puente PAG Top-K · la
+otra rama, α contra β · las ecuaciones 3 a 10 · qué reportan y el contraste con lo nuestro ·
+qué costaría llevarlo acá y qué preguntar.
+
+## El recorte del 31-jul (19 → 14 láminas)
+
+Pedido de Ernesto: menos láminas, y sobre todo **fuera el ejemplo numérico del orden**, que
+debía quedar claro en una sola lámina. Esto **supersede** la decisión del 30-jul de conservar
+la secuencia «analogía → ejemplo numérico → tabla de qué queda».
+
+Salió una lámina entera (el ejemplo numérico) y se fusionaron cuatro pares:
+
+| Antes | Ahora | Qué se hizo |
+|---|---|---|
+| divisoria de sección + «qué propone» | **una** | la divisoria solo aportaba la ficha del paper, que entra como línea de referencia sobre la lámina |
+| «ecuación 2, el orden» + «el mismo número, distinto lo que queda» | **una** | se borró el ejemplo numérico entero y la tabla de qué queda tras el forward pasó abajo de los dos caminos, recortada a las 3 filas que separan a los órdenes |
+| «por qué la atención no rescata» + «dónde queda nuestro modelo» | **una** | se borró la segunda tabla numérica (α contra contribución) y las tres tarjetas de diferencias; queda el mapeo a `model_clam.py` arriba y dos paneles abajo |
+| «qué reportan» + «el contraste con lo nuestro» | **una** | dos tablas, sin los cuatro paneles; la celda que nos toca ya está destacada en la Tabla 2 |
+| «qué costaría» + «preguntas» | **una** | los tres bloqueos como tira de paneles y las preguntas en rejilla 2 × 2 |
+
+**Nada de lo que salió de las láminas se perdió: está en el guion hablado.** La crítica del
+paper a la interpretación post-hoc, los dos puntos donde nuestro trabajo coincide con el de
+ellos, y las dos diferencias entre la formulación del paper y nuestro modelo se cuentan
+hablando.
+
+El guion de las fusionadas se **reescribió**, no se pegó, y ninguna estrenó las aperturas de
+párrafo formulaicas que la primera pasada había corregido:
+
+| Lámina fusionada | Suma de los originales | Ahora |
+|---|---|---|
+| qué propone (con la ficha del paper) | 229 | 225 |
+| ecuación 2, el orden | 454 | 268 |
+| qué implica para nuestro modelo | 452 | 316 |
+| qué reportan y el contraste | 441 | 373 |
+| qué costaría y qué preguntar | 472 | 360 |
+
+El guion completo bajó de **3705 a 3199 palabras**.
+
+Los dos numéricos que salieron eran ilustrativos, no resultados: no hay ningún número del
+paper ni nuestro que se haya ido con ellos.
 
 ## Decisiones de construcción
 
@@ -113,6 +152,10 @@ dominantes, con su corrección:
 Más «vale la pena» ×3 → cero. El largo de oración quedó con mediana 15 palabras, decil
 inferior 5 y superior 29, y 47 oraciones de ocho palabras o menos: variedad suficiente para
 leerlo en voz alta.
+
+Al fusionar el 31-jul se verificó que ninguno de los párrafos reescritos reintrodujera esas
+dos cadencias: ningún párrafo de cierre abre con «Y », y los que abren señalando una
+posición siguen siendo seis en todo el deck.
 
 ## Lo que NO se hizo
 

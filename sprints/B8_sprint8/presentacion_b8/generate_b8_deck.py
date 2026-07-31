@@ -11,6 +11,12 @@ Alcance: las ecuaciones 1 y 2 van DESARMADAS (que es lo que Ernesto marcó como 
 cerraba); las 3 a 10 van en panorama, una línea cada una, con la 9 destacada. Explicarlas
 una por una queda pendiente.
 
+Recorte del 31-jul (pedido de Ernesto): de 19 a 14 láminas. Se retiró el EJEMPLO NUMÉRICO
+del orden de las operaciones, que ahora entra entero en una sola lámina, y se fusionaron
+cuatro pares: divisoria + qué propone, orden + qué queda, atención sin signo + mapeo a
+CLAM, resultados + contraste, y costos + preguntas. Lo que salió de las láminas está en el
+guion, no borrado.
+
 Reglas que gobiernan el archivo:
   - Se construye SOBRE el template válido (Deep-LLM-V), nunca con Presentation() a secas:
     el template EMBEBE sus fuentes y ese es el motivo real de que un deck "no parezca el
@@ -835,16 +841,14 @@ def build():
              "6. Y el sexto es situar todo esto frente a lo que venimos haciendo nosotros, con los "
              "costos reales que tendría llevarlo a nuestros datos.")
 
-    # ---- 3. Divisoria ----
-    s = divider(prs, "SI-MIL", "Taming Deep MIL for Self-Interpretability in Gigapixel "
-                               "Histopathology · Kapse et al., CVPR 2024")
-    notes(s, "Empecemos por el método. El nombre completo del paper habla de domesticar un modelo "
-             "profundo para que se explique solo, y eso resume bien la ambición: no acompañar la "
-             "predicción con una explicación, sino conseguir que la explicación sea la predicción.")
-
-    # ---- 4. Qué propone, en una frase ----
-    s = content(prs, "Qué propone, en una frase")
-    add_textbox(s, 0.36, TOP, 9.28, 0.52, [
+    # ---- 3. Qué propone, en una frase ----
+    # La divisoria de sección se retiró al recortar el deck: lo único que aportaba era la
+    # ficha del paper, y esa cabe como línea de referencia sobre esta misma lámina.
+    s = content(prs, "SI-MIL: qué propone, en una frase")
+    caption(s, 0.36, TOP, 9.28,
+            "Taming Deep MIL for Self-Interpretability in Gigapixel Histopathology · "
+            "Kapse et al., CVPR 2024", size=11, col=GRIS_BODY, bold=True)
+    add_textbox(s, 0.36, TOP + 0.32, 9.28, 0.52, [
         ("Que el modelo prediga con una combinación lineal de mediciones de núcleos que "
          "tienen nombre de patología, y que la red profunda quede como el maestro que le "
          "enseña dónde mirar.", 15, True, TEAL_TITLE, F_BODY, PP_ALIGN.CENTER)],
@@ -855,7 +859,7 @@ def build():
         "En inferencia la rama profunda se descarta entera.",
     ]
     for i, txt in enumerate(tarjetas):
-        add_card(s, 0.36, TOP + 0.72 + i * 0.76, 9.28, 0.64, i + 1, txt, size=13)
+        add_card(s, 0.36, TOP + 1.04 + i * 0.76, 9.28, 0.64, i + 1, txt, size=13)
     # La ficha del paper como bloques de dato: es metadato, no argumento.
     fichas = [("CVPR 2024", "Kapse et al."), ("246", "features con nombre"),
               ("20", "parches por lámina"), ("625 K", "parámetros en total")]
@@ -863,12 +867,16 @@ def build():
     fx = (SW - (4 * fw + 3 * fgap)) / 2
     for i, (val, sub) in enumerate(fichas):
         x = fx + i * (fw + fgap)
-        _grupo(s, x, TOP + 3.10, fw, 0.68, fill=TEAL_CARD2)
-        add_textbox(s, x, TOP + 3.14, fw, 0.34,
+        _grupo(s, x, TOP + 3.34, fw, 0.68, fill=TEAL_CARD2)
+        add_textbox(s, x, TOP + 3.38, fw, 0.34,
                     [(val, 17, True, TEAL_TITLE, F_TITLE, PP_ALIGN.CENTER)])
-        add_textbox(s, x, TOP + 3.46, fw, 0.28,
+        add_textbox(s, x, TOP + 3.70, fw, 0.28,
                     [(sub, 10, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
-    notes(s, "La idea del paper cabe en una frase, y está arriba. Que el modelo prediga con una "
+    notes(s, "Empecemos por el método. El nombre completo habla de domesticar un modelo profundo "
+             "para que se explique solo, y eso resume bien la ambición: no acompañar la predicción "
+             "con una explicación, sino conseguir que la explicación sea la predicción.\n"
+             "\n"
+             "La idea cabe en una frase, y está arriba. Que el modelo prediga con una "
              "combinación lineal de mediciones de núcleos que tienen nombre de patología, y que la "
              "red profunda quede como el maestro que le enseña dónde mirar.\n"
              "\n"
@@ -884,7 +892,7 @@ def build():
              "sale a producción tiene seiscientos veinticinco mil parámetros, que es del mismo "
              "orden que el modelo profundo con el que lo comparan. La mejora no viene de tamaño.")
 
-    # ---- 5. La figura oficial (única imagen del deck) ----
+    # ---- 4. La figura oficial (única imagen del deck) ----
     s = content(prs, "La arquitectura, en la figura del paper")
     add_image_fit(s, FIG2_FULL, 0.22, TOP + 0.02, 9.56, 3.10, align="top")
     # Rótulos de panel bajo la figura, alineados a los tercios que ocupa cada uno.
@@ -914,7 +922,7 @@ def build():
              "Los dos paneles de la derecha son ampliaciones de esas dos ramas, y los vamos a ir "
              "viendo de a uno.")
 
-    # ---- 6. Las dos entradas ----
+    # ---- 5. Las dos entradas ----
     s = content(prs, "Dos descripciones del mismo parche")
     BW, BH = 2.36, 0.74
     y1, y2 = TOP + 0.30, TOP + 1.34
@@ -965,7 +973,7 @@ def build():
              "que no son dos ángulos distintos: son la misma cadena, y HoVer-Net es la primera "
              "mitad.")
 
-    # ---- 7. Ecuación 1 ----
+    # ---- 6. Ecuación 1 ----
     s = content(prs, "Ecuación 1: proyectar y repartir la atención")
     eq(s, 0.36, TOP, 9.28, "g̃_i = H(g_i)          α_i = A^p(g̃_i)          i ∈ {1, 2, … N}",
        num="(1)", size=16, h=0.60)
@@ -1008,34 +1016,39 @@ def build():
              "presupuesto. El mismo tejido en una lámina chica y en una grande recibe atención "
              "distinta.")
 
-    # ---- 8. Ecuación 2: el orden ----
+    # ---- 7. Ecuación 2: el orden, en UNA lámina ----
+    # El ejemplo numérico que acompañaba a esta ecuación se retiró al recortar el deck
+    # (pedido de Ernesto). El argumento son dos cosas, el orden de las operaciones y qué
+    # queda en memoria después del forward, y ninguna de las dos necesita que la cuenta
+    # esté hecha en la lámina: la tabla de abajo la reemplaza entera.
     s = content(prs, "Ecuación 2: el orden de dos operaciones")
-    eq(s, 0.36, TOP, 9.28, "Ŷ_g = ψ( Σ_i C( α_i · g̃_i ) )", num="(2)", size=17, h=0.58)
-    # camino A
-    ya, yb = TOP + 0.78, TOP + 2.20
-    _rot_label(s, -0.30, ya + 0.32, 1.40, 0.32, "ORDEN A", col=GRIS_BODY)
-    _rot_label(s, -0.30, yb + 0.32, 1.40, 0.32, "ORDEN B", col=ONCO_DARK)
+    eq(s, 0.36, TOP, 9.28, "Ŷ_g = ψ( Σ_i C( α_i · g̃_i ) )", num="(2)", size=17, h=0.50)
+    ya, yb = TOP + 0.60, TOP + 1.28
+    _rot_label(s, -0.30, ya + 0.13, 1.40, 0.32, "ORDEN A", col=GRIS_BODY)
+    _rot_label(s, -0.30, yb + 0.13, 1.40, 0.32, "ORDEN B", col=ONCO_DARK)
     axs = [0.52, 2.66, 4.80, 6.94]
     pasos_a = [("Pesar cada parche", "α_i · g̃_i"), ("Sumar", "una sola ficha"),
                ("Clasificar", "C( · )"), ("Un logit", "y nada más")]
     for x, (t1, t2) in zip(axs, pasos_a):
-        _proc_claro(s, x, ya, 1.86, 0.72, t1, size=11.5, dim=t2)
+        _proc_claro(s, x, ya, 1.86, 0.58, t1, size=11.5, dim=t2)
     for i in range(3):
-        _conn(s, axs[i] + 1.86, ya + 0.36, axs[i + 1], ya + 0.36)
-    _dim(s, 8.92, ya + 0.22, 1.00, "= CLAM", size=11, align=PP_ALIGN.LEFT, col=GRIS_BODY)
+        _conn(s, axs[i] + 1.86, ya + 0.29, axs[i + 1], ya + 0.29)
+    _dim(s, 8.92, ya + 0.16, 1.00, "= CLAM", size=11, align=PP_ALIGN.LEFT, col=GRIS_BODY)
     pasos_b = [("Pesar cada parche", "α_i · g̃_i"), ("Clasificar cada uno", "C( · ) N veces"),
                ("Sumar los puntajes", "N sumandos"), ("El mismo logit", "y el desglose")]
     for x, (t1, t2) in zip(axs, pasos_b):
-        _proc(s, x, yb, 1.86, 0.72, t1, size=11.5, dim=t2)
+        _proc(s, x, yb, 1.86, 0.58, t1, size=11.5, dim=t2)
     for i in range(3):
-        _conn(s, axs[i] + 1.86, yb + 0.36, axs[i + 1], yb + 0.36)
-    _dim(s, 8.92, yb + 0.22, 1.10, "= ecuación 2", size=11, align=PP_ALIGN.LEFT, col=ONCO_DARK)
-    add_textbox(s, 0.52, TOP + 1.62, 9.10, 0.42, [
-        ("Toda la diferencia está en dónde cierra el paréntesis de C.",
-         12.5, True, TEAL_TITLE, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
-    add_textbox(s, 0.52, TOP + 3.06, 9.10, 0.42, [
-        ("Lo que se suma ya no son fichas: son N puntajes.",
-         12.5, True, TEAL_TITLE, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
+        _conn(s, axs[i] + 1.86, yb + 0.29, axs[i + 1], yb + 0.29)
+    _dim(s, 8.92, yb + 0.16, 1.10, "= ecuación 2", size=11, align=PP_ALIGN.LEFT, col=ONCO_DARK)
+    simple_table(s, 0.36, TOP + 1.98, 9.28,
+                 ["Después del forward queda", "Orden A", "Orden B"],
+                 [["la ficha fundida", "sí, un vector de 512", "no existe"],
+                  ["el logit final", "un número", "el mismo número"],
+                  ["desglose por parche", "no existe", "N números CON SIGNO"]],
+                 col_fracs=[0.30, 0.34, 0.36], row_h=0.36, fs=11, destacar=2)
+    takeaway_bar(s, "Toda la diferencia está en dónde cierra el paréntesis de C: el número "
+                    "es el mismo, lo que queda en la mano no.", t=TOP + 3.46, size=12.5)
     notes(s, "Esta es la ecuación que cuesta, y cuesta porque parece decir algo obvio. Uno la lee "
              "y entiende multiplicá por la atención, sumá y clasificá. En realidad está diciendo "
              "algo muy específico sobre el orden de dos operaciones.\n"
@@ -1050,121 +1063,17 @@ def build():
              "haya, y recién después se suma. Siguiendo la analogía: se prueba cada fruta ya "
              "medida en su proporción, se anota su puntaje en una libreta y se suma la columna.\n"
              "\n"
-             "La diferencia entre los dos, escrita, es solamente dónde cierra el paréntesis del "
-             "clasificador. Y lo que cambia es qué se está sumando: arriba se suman fichas y queda "
-             "una sola; abajo se suman puntajes, y quedan tantos como parches. Con eso ya "
-             "adelanto lo que viene: el veredicto va a ser el mismo número por los dos caminos. Lo "
-             "que no es el mismo es lo que queda en la mano al terminar.")
+             "Escrita, la diferencia es solamente dónde cierra el paréntesis del clasificador. Y "
+             "acá viene lo que importa, que es la tabla de abajo: el logit final es el mismo "
+             "número por los dos caminos. Lo que cambia es qué queda en memoria cuando el modelo "
+             "termina de calcular. Arriba queda una ficha fundida y ningún desglose; abajo no hay "
+             "ficha fundida, pero quedan tantos puntajes como parches, con signo, que suman exacto "
+             "el resultado. Una vez licuado el jugo no hay manera de separarlo en frutas; uno se "
+             "acuerda de las proporciones que usó, pero la proporción dice cuánta fruta se puso, "
+             "no si esa fruta era dulce o ácida.")
 
-    # ---- 9. El mismo número, distinto lo que queda ----
-    s = content(prs, "El mismo número, distinto lo que queda")
-    add_textbox(s, 0.36, TOP, 4.42, 0.34, [
-        ("Cuatro parches, fichas de dos números, C lineal con w = (1, −2)",
-         11, False, GRIS_BODY, F_BODY)])
-    simple_table(s, 0.36, TOP + 0.36, 4.42,
-                 ["parche", "α_i", "α_i · g̃_i", "C(α_i · g̃_i)"],
-                 [["1", "0,6", "(1,8 ; 0,6)", "+0,6"],
-                  ["2", "0,1", "(0,1 ; 0,0)", "+0,1"],
-                  ["3", "0,1", "(0,0 ; 0,2)", "−0,4"],
-                  ["4", "0,2", "(0,4 ; 0,4)", "−0,4"]],
-                 col_fracs=[0.20, 0.20, 0.32, 0.28], row_h=0.34, fs=11, markup=True)
-    _grupo(s, 0.36, TOP + 2.10, 4.42, 0.86, fill=TEAL_CARD)
-    add_textbox(s, 0.46, TOP + 2.16, 4.22, 0.38, [
-        ("Orden A:  suma primero  →  (2,3 · 1,2)  →  −0,1",
-         11.5, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
-    add_textbox(s, 0.46, TOP + 2.54, 4.22, 0.38, [
-        ("Orden B:  suma la columna  →  −0,1",
-         11.5, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
-    simple_table(s, 5.02, TOP + 0.36, 4.62,
-                 ["Después del forward queda", "Orden A", "Orden B"],
-                 [["la ficha fundida", "sí, un vector de 512", "no existe"],
-                  ["el logit final", "un número", "el mismo número"],
-                  ["desglose por parche", "no existe", "N números CON SIGNO"],
-                  ["la atención", "N valores, todos positivos", "igual"]],
-                 col_fracs=[0.36, 0.34, 0.30], row_h=0.40, fs=10.5, destacar=2)
-    add_textbox(s, 5.02, TOP + 2.34, 4.62, 0.62, [
-        ("El parche 4 tiene el doble de atención que el 3 y contribuye lo mismo. "
-         "Si la atención fuera un indicador de la contribución, esa fila sería imposible.",
-         11, False, INK, F_BODY)])
-    takeaway_bar(s, "En el orden A el eje de los parches se pierde ANTES de que el "
-                    "clasificador opine: nunca vio parches, vio un promedio.",
-                 t=TOP + 3.20, size=12.5)
-    notes(s, "Hagamos la cuenta con números chicos, porque es lo que termina de convencer.\n"
-             "\n"
-             "A la izquierda hay cuatro parches con fichas de apenas dos números, para poder "
-             "hacerlo a mano, y un clasificador lineal. Por el camino de arriba se pesan los "
-             "cuatro, se suman en una sola ficha y se clasifica esa ficha: sale un número "
-             "levemente negativo. Por el camino de abajo se clasifica cada parche por separado y "
-             "se suma la columna de la derecha: sale exactamente el mismo número.\n"
-             "\n"
-             "Lo que de verdad importa es qué queda en memoria "
-             "cuando el modelo termina de calcular, y eso es la tabla de la derecha. El logit es el "
-             "mismo por los dos caminos. La "
-             "atención también. La fila que los separa es la tercera: por el camino de arriba no "
-             "existe un desglose por parche, y por el de abajo sí, y son números con signo que "
-             "suman exacto el resultado. Una vez licuado el jugo no hay manera de separarlo en "
-             "frutas; uno se acuerda de las proporciones que usó, pero la proporción dice cuánta "
-             "fruta se puso, no si esa fruta era dulce o ácida.\n"
-             "\n"
-             "En "
-             "este ejemplo hay un parche con el doble de atención que otro y los dos contribuyen "
-             "lo mismo. Si la atención sirviera para leer la contribución, esa situación no podría "
-             "darse.")
-
-    # ---- 10. Por qué la atención no alcanza ----
-    s = content(prs, "Por qué la atención no rescata lo perdido")
-    add_textbox(s, 0.36, TOP, 4.62, 0.72, [
-        ("La atención sale de una softmax, así que todos sus valores son positivos.",
-         13, True, TEAL_TITLE, F_BODY),
-        ("Un número positivo expresa cuánto, nunca hacia dónde.",
-         13, True, TEAL_TITLE, F_BODY)])
-    simple_table(s, 0.36, TOP + 0.86, 4.62,
-                 ["parche", "α", "contribución"],
-                 [["1", "0,60", "−3,6"],
-                  ["2", "0,20", "+0,8"],
-                  ["3", "0,10", "+0,5"],
-                  ["4", "0,10", "+0,6"]],
-                 col_fracs=[0.34, 0.30, 0.36], row_h=0.34, fs=11, destacar=0)
-    add_textbox(s, 0.36, TOP + 2.60, 4.62, 0.72, [
-        ("El parche que se llevó el 60 % de la atención es el que más empuja EN CONTRA "
-         "de la clase positiva.", 11.5, False, INK, F_BODY)])
-    sp = panel(s, 5.22, TOP, 4.42, None, "Lo que el paper llama reparto del crédito", TEAL_TITLE,
-               ["Repartir el crédito de la predicción entre las regiones, con signo y "
-                "magnitud, de manera exacta y no aproximada.",
-                "Un mapa hecho con la atención le pinta rojo intenso al parche de arriba, "
-                "y ahí se lee lo contrario de lo que pasó."],
-               TEAL_SQ, tsize=13, bsize=10.5)
-    panel(s, 5.22, TOP + Emu(sp.height).inches + 0.16, 4.42, None,
-          "Qué acota de nuestros mapas de atención", ONCO_DARK,
-          ["Nuestros mapas de CLAM contra Mammoth son de ATENCIÓN: dicen dónde mira cada "
-           "modelo, y esa pregunta la responden.",
-           "No dicen hacia qué clase empujó lo que miraron, y por lo de la izquierda no lo "
-           "pueden decir.",
-           "Al presentarlos: «acá el modelo puso su atención», no «acá el modelo encontró "
-           "el tumor»."],
-          ONCO_DARK, fill=TEAL_CARD, tsize=13, bsize=10.5)
-    notes(s, "Uno podría pensar que la atención rescata lo que el otro camino pierde, y no. La "
-             "razón es de una línea: la atención sale de una softmax, así que todos sus valores "
-             "son positivos, y un número positivo puede expresar cuánto, nunca hacia dónde.\n"
-             "\n"
-             "La tabla de la izquierda es el caso extremo, que es el que le preocupa al paper. Hay "
-             "un parche que se llevó más de la mitad de la atención y que es, al mismo tiempo, el "
-             "que más empuja en contra de la clase positiva. Los otros tres, con mucha menos "
-             "atención, empujan a favor. Un mapa de calor construido con la atención le pinta un "
-             "rojo intenso justo a ese parche, y quien lo mira lee que ahí el modelo encontró la "
-             "evidencia, cuando el modelo lo usó como evidencia de lo contrario. Con el primer "
-             "camino ese caso no se puede ni detectar ni descartar; con el segundo está escrito.\n"
-             "\n"
-             "Esto nos toca directamente. Los mapas que "
-             "presentamos la vez pasada, comparando nuestros dos modelos, son mapas de atención. "
-             "Lo que comparamos fue dónde mira cada uno, y para esa pregunta la herramienta es la "
-             "correcta. Lo que no pueden decir es hacia qué clase empujó lo que miraron. No "
-             "invalida nada de lo que mostramos, pero marca el límite exacto, y de acá en adelante "
-             "conviene decirlo con cuidado: acá el modelo puso su atención, no acá el modelo "
-             "encontró el tumor.")
-
-    # ---- 11. Dónde queda CLAM parado ----
-    s = content(prs, "Dónde queda nuestro modelo parado")
+    # ---- 8. Qué implica para nuestro modelo (atención sin signo + mapeo a CLAM) ----
+    s = content(prs, "Qué implica para nuestro modelo")
     # El `_` de model_clam.py va escapado: sin la barra, el markup de subíndices se come
     # la «c» y el archivo queda escrito «model_lam.py».
     simple_table(s, 0.36, TOP, 9.28,
@@ -1177,46 +1086,52 @@ def build():
                    "model\\_clam.py:198"],
                   ["el orden", "ORDEN A: funde y después clasifica",
                    "model\\_clam.py:239 y 243"]],
-                 col_fracs=[0.26, 0.46, 0.28], row_h=0.42, fs=11, destacar=3, markup=True)
-    dif = [("Usamos el orden A, no el aditivo.",
-            "Como nuestro predictor es lineal, el logit SE PODRÍA desarmar por parche a "
-            "posteriori. En SI-MIL el desglose ES la definición del modelo, no algo que uno "
-            "deriva después."),
-           ("Tenemos una atención por clase.",
-            "La ecuación 1 escribe una sola por parche; nuestro modelo es multirrama."),
-           ("Tenemos ramas de instancia con su propia pérdida.",
-            "No existen en esta formulación: las ecuaciones 1 y 2 son una versión más limpia "
-            "que la nuestra, no más compleja.")]
-    yy = TOP + 2.22
-    for i, (tit, cuerpo) in enumerate(dif):
-        _grupo(s, 0.36, yy, 9.28, 0.62, fill=TEAL_CARD2 if i % 2 else TEAL_CARD)
-        add_textbox(s, 0.52, yy + 0.02, 3.20, 0.58, [(tit, 11, True, ONCO_DARK, F_BODY)],
-                    anchor=MSO_ANCHOR.MIDDLE)
-        add_textbox(s, 3.80, yy + 0.02, 5.70, 0.58, [(cuerpo, 10, False, INK, F_BODY)],
-                    anchor=MSO_ANCHOR.MIDDLE)
-        yy += 0.70
-    takeaway_bar(s, "Interpretable por construcción contra explicado después: esa distinción "
-                    "es la tesis entera del paper.", t=yy + 0.06, size=12.5)
-    notes(s, "Aterricemos las dos ecuaciones en nuestro propio código, porque el paper "
-             "las escribe como repaso de lo que ya existía y eso incluye a nuestro modelo.\n"
+                 col_fracs=[0.26, 0.46, 0.28], row_h=0.36, fs=10.5, destacar=3, markup=True)
+    panel(s, 0.36, TOP + 1.90, 4.54, None, "La atención no dice hacia dónde", TEAL_TITLE,
+          ["Sale de una softmax: todos sus valores son positivos, y un número positivo "
+           "expresa cuánto, nunca hacia dónde.",
+           "El parche más atendido puede ser el que más empuja EN CONTRA de la clase, y el "
+           "mapa lo pinta rojo intenso igual."],
+          TEAL_SQ, tsize=12.5, bsize=10)
+    panel(s, 5.10, TOP + 1.90, 4.54, None, "Qué acota de nuestros mapas", ONCO_DARK,
+          ["Los de CLAM contra Mammoth son de ATENCIÓN: dicen dónde mira cada modelo, no "
+           "hacia qué clase empujó lo que miró.",
+           "Al presentarlos: «acá el modelo puso su atención», no «acá el modelo encontró "
+           "el tumor»."],
+          ONCO_DARK, fill=TEAL_CARD, tsize=12.5, bsize=10)
+    takeaway_bar(s, "Nuestro predictor también es lineal, así que el desglose por parche se "
+                    "PODRÍA calcular después. En SI-MIL ese desglose ES el modelo.",
+                 t=TOP + 3.42, size=12.5)
+    notes(s, "Aterricemos las dos ecuaciones en nuestro propio código, porque el paper las "
+             "escribe como repaso de lo que ya existía y eso incluye a nuestro modelo.\n"
              "\n"
              "La tabla de arriba es el mapeo, verificado línea por línea. El proyector es nuestra "
-             "primera capa lineal con su activación. La atención es nuestro módulo con compuerta, "
-             "normalizando sobre los parches. El predictor son nuestras capas de salida, una por "
-             "clase. Y el orden, que es la fila destacada, es el primero de los dos: nuestro "
-             "modelo funde y después clasifica.\n"
+             "primera capa lineal con su activación, la atención es nuestro módulo con compuerta "
+             "normalizando sobre los parches, y el predictor son nuestras capas de salida, una "
+             "por clase. El orden, que es la fila destacada, es el primero de los dos: nuestro "
+             "modelo funde y después clasifica. Con dos diferencias, porque el paper escribe una "
+             "versión más limpia que la nuestra: nuestra atención es por clase, y tenemos ramas "
+             "de instancia que en esta formulación no existen.\n"
              "\n"
-             "Hay tres diferencias que conviene no perder de vista, para no confundir el paper con "
-             "nuestro modelo. La primera es la más interesante: como nuestro predictor también es "
-             "lineal, el resultado se podría desarmar por parche a posteriori, haciendo la cuenta "
-             "después. La diferencia con el paper es que ahí el desglose es la definición del "
-             "modelo, no algo que uno deriva por su cuenta cuando ya terminó. Esa distinción entre "
-             "un modelo interpretable por construcción y uno explicado después es la tesis entera "
-             "del trabajo. Las otras dos son que nuestra atención es por clase, y que tenemos unas "
-             "ramas de instancia que en esta formulación no existen: las ecuaciones del paper son "
-             "una versión más limpia que la nuestra, no más complicada.")
+             "Uno podría pensar que la atención rescata lo que el orden A pierde, y no. Sale de "
+             "una softmax, así que todos sus valores son positivos, y un número positivo expresa "
+             "cuánto, nunca hacia dónde. El caso que le preocupa al paper es un parche que se "
+             "lleva más de la mitad de la atención y que al mismo tiempo es el que más empuja en "
+             "contra de la clase: el mapa de calor le pinta un rojo intenso, y quien lo mira lee "
+             "que ahí estaba la evidencia, cuando el modelo lo usó como evidencia de lo "
+             "contrario.\n"
+             "\n"
+             "Esto nos toca directamente. Los mapas que presentamos la vez pasada son de "
+             "atención: comparamos dónde mira cada modelo, y para esa pregunta la herramienta es "
+             "la correcta. No invalida nada de lo que mostramos, pero marca el límite exacto.\n"
+             "\n"
+             "Queda algo que sí podríamos hacer. Como nuestro predictor también es lineal, el "
+             "resultado se podría desarmar por parche a posteriori. La diferencia es que en el "
+             "paper ese desglose es la definición del modelo, no algo que uno deriva cuando ya "
+             "terminó, y esa distinción entre interpretable por construcción y explicado después "
+             "es la tesis entera del trabajo.")
 
-    # ---- 12. El puente: PAG Top-K ----
+    # ---- 9. El puente: PAG Top-K ----
     s = content(prs, "El puente: los índices salen de un camino, la selección se aplica al otro")
     add_textbox(s, 0.36, TOP, 9.28, 0.40, [
         ("Sobre una lámina nuestra de 10 000 parches", 12, True, GRIS_BODY, F_BODY,
@@ -1276,7 +1191,7 @@ def build():
              "usan una versión perturbada de esa selección, que sí deja pasar el gradiente. Si no, "
              "las dos ramas nunca aprenderían la una de la otra.")
 
-    # ---- 13. La rama interpretable ----
+    # ---- 10. La rama interpretable ----
     s = content(prs, "La otra rama: de pesar parches a pesar mediciones")
     add_image_fit(s, FIG2_C, 0.30, TOP, 5.30, 1.85, align="top")
     caption(s, 0.30, TOP + 1.90, 5.30, "panel (c) de la figura del paper", size=9.5)
@@ -1325,7 +1240,7 @@ def build():
              "en vez de doscientos cuarenta y seis. Con un reparto de suma fija esa dispersión "
              "vendría impuesta de fábrica y no se podría regular.")
 
-    # ---- 14. Las ecuaciones 3 a 10 ----
+    # ---- 11. Las ecuaciones 3 a 10 ----
     s = content(prs, "Las ecuaciones 3 a 10, en panorama")
     filas = [("S_K = TopK(α, K)", "(3)", "elegir los K parches más atendidos: salen ÍNDICES"),
              ("β_j = G(PF(M^T))", "(4)", "un peso por cada medición, sobre la matriz girada"),
@@ -1386,192 +1301,135 @@ def build():
              "interpretable a acercarse a la profunda, con un peso bastante alto. Sin ese término "
              "serían dos modelos separados corriendo en paralelo.")
 
-    # ---- 15. Qué reportan ----
-    s = content(prs, "Qué reportan, y la celda que nos toca")
-    add_textbox(s, 0.36, TOP, 9.28, 0.34, [
+    # ---- 12. Qué reportan y el contraste con lo nuestro ----
+    # Fusión de dos láminas al recortar el deck. Los cuatro paneles que tenían entre las
+    # dos se fueron al guion: la celda que nos toca ya está destacada en la tabla, y las
+    # dos tablas juntas cuentan el contraste sin ayuda.
+    s = content(prs, "Qué reportan, y el contraste con lo nuestro")
+    add_textbox(s, 0.36, TOP, 9.28, 0.30, [
         ("Su Tabla 2: el mismo método aplicado sobre distintos modelos de base, en TCGA-BRCA",
-         11.5, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
-    simple_table(s, 1.30, TOP + 0.42, 7.40,
+         11, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
+    simple_table(s, 1.30, TOP + 0.32, 7.40,
                  ["Modelo de base", "Profundo  Acc / AUC", "Con SI-MIL  Acc / AUC"],
                  [["ABMIL", "0,937 / 0,974", "0,944 / 0,968"],
                   ["CLAM (el nuestro)", "0,937 / 0,972", "0,925 / 0,957"],
                   ["TransMIL", "0,934 / 0,936", "0,929 / 0,933"]],
-                 col_fracs=[0.32, 0.34, 0.34], row_h=0.44, fs=12, destacar=1)
-    panel(s, 0.36, TOP + 2.30, 4.54, None, "Lo que sí sostienen", TEAL_TITLE,
-          ["Un modelo que use SOLO las mediciones con nombre pierde bastante; el "
-           "co-aprendizaje recupera casi todo.",
-           "Quitar la selección guiada o la destilación cuesta entre 2 y 4 puntos: las dos "
-           "piezas hacen trabajo."], TEAL_SQ, tsize=13, bsize=10.5)
-    panel(s, 5.10, TOP + 2.30, 4.54, None, "El matiz que conviene llevar dicho", ONCO_DARK,
-          ["El titular «no hay compromiso entre rendimiento e interpretabilidad» se "
-           "sostiene sobre ABMIL.",
-           "Sobre nuestro modelo de base, la accuracy BAJA de 0,937 a 0,925 y el AUC de "
-           "0,972 a 0,957. Es la celda que nos tocaría."],
-          ONCO_DARK, fill=TEAL_CARD, tsize=13, bsize=10.5)
-    notes(s, "Los resultados. Esta tabla nos interesa más que las otras porque no compara "
-             "el método contra otros métodos, sino el método aplicado sobre distintos modelos de "
-             "base, y uno de esos modelos es el nuestro.\n"
-             "\n"
-             "Sobre el primero, que es el modelo de atención más simple, la exactitud sube un poco "
-             "al agregarle la rama interpretable. Sobre el tercero baja apenas. Y sobre el "
-             "nuestro, que es la fila destacada, baja: la exactitud pasa de nueve coma tres siete "
-             "a nueve coma dos cinco, y el área bajo la curva de nueve coma siete dos a nueve coma "
-             "cinco siete.\n"
-             "\n"
-             "Lo digo sin ánimo de desacreditar el trabajo, que me parece muy sólido. Pero el "
-             "titular de que no hay compromiso entre rendimiento e interpretabilidad se sostiene "
-             "sobre el primer modelo, y en las otras dos arquitecturas hay un costo chico. Como "
-             "esa fila del medio es exactamente la que nos correspondería a nosotros, prefiero "
-             "traerlo dicho de entrada.\n"
-             "\n"
-             "Lo que sí sostienen con firmeza está a la izquierda: un modelo que use únicamente "
-             "las mediciones con nombre, sin la red profunda guiándolo, pierde bastante, y el "
-             "co-aprendizaje recupera casi todo. Y cuando sacan cualquiera de las dos piezas "
-             "centrales, el rendimiento cae de forma clara, así que ninguna está de adorno.")
-
-    # ---- 16. El contraste con lo nuestro ----
-    s = content(prs, "El contraste con lo que venimos haciendo")
-    simple_table(s, 0.36, TOP, 9.28,
+                 col_fracs=[0.32, 0.34, 0.34], row_h=0.38, fs=12, destacar=1)
+    simple_table(s, 0.36, TOP + 2.06, 9.28,
                  ["", "SI-MIL", "Lo nuestro"],
                  [["Cuándo aparece la interpretación", "durante el entrenamiento, por diseño",
                    "después, sobre modelos ya entrenados"],
                   ["Qué se interpreta", "mediciones con nombre de patología",
                    "expertos y slots aprendidos, sin nombre"],
-                  ["Quién puso los nombres", "la literatura, antes de entrenar",
-                   "nuestra lectura visual, sin visto bueno"],
                   ["Qué afecta al modelo", "lo cambia: la rama reorienta la atención",
-                   "nada: el modelo ya está entrenado"],
-                  ["Costo de equivocarse", "un modelo peor", "una descripción equivocada"]],
-                 col_fracs=[0.30, 0.36, 0.34], row_h=0.42, fs=10.5)
-    add_textbox(s, 0.36, TOP + 2.44, 9.28, 0.44, [
-        ("Responden preguntas distintas: la nuestra es qué hace este modelo; la de ellos, "
-         "cómo construyo uno que se explique solo.", 12, True, TEAL_TITLE, F_BODY,
-         PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
-    panel(s, 0.36, TOP + 2.94, 4.54, None, "Donde su crítica nos apunta", ONCO_DARK,
-          ["Dicen que explicar después sufre de desconexión entre las features con las que "
-           "el modelo se entrenó y aquellas con las que uno lo explica.",
-           "Nombramos morfología mirando parches, y el modelo nunca vio esa noción de "
-           "morfología."],
-          ONCO_DARK, fill=TEAL_CARD, tsize=13, bsize=10)
-    panel(s, 5.10, TOP + 2.94, 4.54, None, "Donde nuestro trabajo coincide", TEAL_TITLE,
-          ["Ellos comparan los parches elegidos por dos modelos y encuentran muy poco "
-           "solapamiento; nosotros medimos lo mismo entre nuestros dos modelos y vimos lo "
-           "mismo.",
-           "Y para comparar eligen solo láminas donde ambos aciertan."],
-          TEAL_SQ, tsize=13, bsize=10)
-    notes(s, "Puesto al lado de lo que venimos haciendo, el contraste es bastante nítido y no es "
-             "una competencia: son dos preguntas distintas.\n"
+                   "nada: el modelo ya está entrenado"]],
+                 col_fracs=[0.30, 0.36, 0.34], row_h=0.34, fs=10.5)
+    takeaway_bar(s, "Responden preguntas distintas: la nuestra es qué hace este modelo; la de "
+                    "ellos, cómo construir uno que se explique solo.", t=TOP + 3.50, size=12.5)
+    notes(s, "Los resultados. Esta tabla nos interesa más que las otras porque no compara el "
+             "método contra otros métodos, sino el método aplicado sobre distintos modelos de "
+             "base, y uno de esos modelos es el nuestro.\n"
              "\n"
-             "La interpretación de ellos aparece durante el entrenamiento y por diseño; la nuestra "
-             "aparece después, sobre modelos que ya están entrenados y congelados. Ellos "
-             "interpretan mediciones que tienen nombre desde antes; nosotros interpretamos "
-             "expertos y unidades internas que no tienen nombre, y los nombres se los pusimos "
-             "nosotros mirando. Lo de ellos cambia el modelo; lo nuestro no lo toca. Y por eso el "
-             "costo de equivocarse también es distinto: si ellos se equivocan, el modelo empeora; "
-             "si nos equivocamos nosotros, lo que queda mal es la descripción.\n"
+             "Sobre el primero, que es el modelo de atención más simple, la exactitud sube un "
+             "poco al agregarle la rama interpretable. Sobre el tercero baja apenas. Y sobre el "
+             "nuestro, que es la fila destacada, baja: la exactitud pasa de nueve coma tres siete "
+             "a nueve coma dos cinco, y el área bajo la curva de nueve coma siete dos a nueve "
+             "coma cinco siete. Lo digo sin ánimo de desacreditar el trabajo, que me parece muy "
+             "sólido, pero el titular de que no hay compromiso entre rendimiento e "
+             "interpretabilidad se sostiene sobre el primer modelo, y esa fila del medio es "
+             "exactamente la que nos correspondería a nosotros.\n"
              "\n"
-             "Ahora, hay una crítica en su introducción que nos apunta directamente, y está abajo "
-             "a la izquierda. Dicen que explicar un modelo después sufre de una desconexión entre "
-             "las características con las que el modelo fue entrenado y aquellas con las que uno "
-             "después lo explica. Nuestro trabajo cae justo ahí: nombramos morfología mirando "
-             "parches, y el modelo nunca vio esa noción de morfología.\n"
+             "Lo que sí sostienen con firmeza es lo otro: un modelo que use únicamente las "
+             "mediciones con nombre pierde bastante, y el co-aprendizaje recupera casi todo. "
+             "Cuando sacan cualquiera de las dos piezas centrales el rendimiento cae de forma "
+             "clara, así que ninguna está de adorno.\n"
              "\n"
-             "Hay dos puntos donde coincidimos. Ellos comparan qué "
-             "parches elige un modelo y cuáles otro, y encuentran muy poco solapamiento: nosotros "
-             "medimos exactamente eso entre nuestros dos modelos y vimos el mismo fenómeno. Y para "
-             "comparar interpretabilidad entre dos modelos eligen solo láminas donde los dos "
-             "aciertan, que es el mismo criterio que usamos nosotros.")
+             "La tabla de abajo pone el método al lado de lo nuestro, y el contraste es nítido "
+             "sin ser una competencia. La interpretación de ellos aparece durante el "
+             "entrenamiento y por diseño, sobre mediciones que tienen nombre desde antes; la "
+             "nuestra aparece después, sobre modelos ya congelados, y sobre expertos y unidades "
+             "internas cuyos nombres se los pusimos nosotros mirando, todavía sin visto bueno. Lo "
+             "de ellos cambia el modelo, lo nuestro no lo toca, y por eso el costo de equivocarse "
+             "también es distinto: allá empeora el modelo, acá queda mal la descripción.\n"
+             "\n"
+             "Hay una crítica en su introducción que nos apunta directamente. Dicen que explicar "
+             "un modelo después sufre de una desconexión entre las características con las que "
+             "fue entrenado y aquellas con las que uno lo explica. Nuestro trabajo cae justo ahí. "
+             "Aunque también coincidimos en dos cosas: ellos comparan qué parches elige un modelo "
+             "y cuáles otro y encuentran muy poco solapamiento, que es lo mismo que medimos "
+             "nosotros entre nuestros dos modelos, y para esa comparación eligen solo láminas "
+             "donde los dos aciertan, que es nuestro mismo criterio.")
 
-    # ---- 17. Qué costaría correrlo acá ----
-    s = content(prs, "Qué costaría llevarlo a nuestros datos")
+    # ---- 13. Qué costaría llevarlo acá, y qué preguntar ----
+    # Fusión del inventario de costos con la lámina de preguntas: las preguntas 2 y 3 son
+    # consecuencia directa de los dos bloqueos, así que se leen mejor debajo de ellos.
+    s = content(prs, "Qué costaría llevarlo acá, y qué preguntar")
     bloqueos = [
-        ("La magnificación es un bloqueo duro",
-         ["El segmentador de núcleos está entrenado solo a 40 aumentos, y por eso ellos "
-          "filtraron sus datasets a láminas de 40.",
-          "Nuestras cohortes están a escala física distinta: la pública cerca de 40, la "
-          "privada cerca de 20 y la tercera sin dato confiable.",
-          "Lo aplicable sin pelear con esto sería la cohorte pública solamente."]),
-        ("El preprocesamiento es de otro orden",
-         ["Reportan cerca de 2 horas por lámina, y unas 4400 horas para 2200 láminas, con "
-          "tres tarjetas y una máquina de 40 núcleos con 500 GB de memoria.",
-          "Nosotros tenemos una sola tarjeta, compartida, hoy con trabajos de otros en cola.",
-          "Esto no entra en un fin de semana."]),
+        ("La magnificación es un bloqueo duro", TEAL_CARD2, ONCO_DARK,
+         ["El segmentador de núcleos anda solo a 40 aumentos.",
+          "Nuestras cohortes están a escalas distintas: sin pelear con esto, solo se "
+          "aplicaría la cohorte pública."]),
+        ("El preprocesamiento es de otro orden", TEAL_CARD2, ONCO_DARK,
+         ["Cerca de 2 horas por lámina, unas 4400 para 2200, con tres tarjetas.",
+          "Nosotros tenemos una sola, compartida y hoy con cola."]),
+        ("El dato que puede cambiar todo", TEAL_CARD, TEAL_SQ,
+         ["Publican el dataset YA PROCESADO, con la cohorte pública de mama adentro "
+          "(910 láminas).",
+          "Verificar el cruce es una tarde, y evita las 4400 horas."]),
     ]
-    yy = TOP
-    for tit, lineas in bloqueos:
-        sp = panel(s, 0.36, yy, 9.28, None, tit, ONCO_DARK, lineas, ONCO_DARK,
-                   fill=TEAL_CARD2, tsize=13, bsize=10.5)
-        yy += Emu(sp.height).inches + 0.16
-    panel(s, 0.36, yy, 9.28, None, "Y el dato que puede cambiar todo lo anterior", TEAL_TITLE,
-          ["Publican el dataset YA PROCESADO: mapas de núcleos y mediciones para más de 2200 "
-           "láminas, con la cohorte pública de mama incluida (910 láminas).",
-           "Si esas láminas se cruzan con las nuestras, el punto anterior desaparece.",
-           "Verificarlo es una tarde de trabajo. Es la diferencia entre 4400 horas de "
-           "cómputo y una descarga."],
-          TEAL_SQ, fill=TEAL_CARD, tsize=13, bsize=10.5)
+    bw = (9.28 - 2 * 0.16) / 3
+    alto_max = 0.0
+    for i, (tit, fill, borde, lineas) in enumerate(bloqueos):
+        sp = panel(s, 0.36 + i * (bw + 0.16), TOP, bw, None, tit,
+                   ONCO_DARK if fill is TEAL_CARD2 else TEAL_TITLE, lineas, borde,
+                   fill=fill, tsize=12, bsize=9.5)
+        alto_max = max(alto_max, Emu(sp.height).inches)
+    yy = TOP + alto_max + 0.16
+    add_textbox(s, 0.36, yy, 9.28, 0.28, [
+        ("Preguntas para la discusión", 13, True, TEAL_TITLE, F_BODY, PP_ALIGN.CENTER)],
+        anchor=MSO_ANCHOR.MIDDLE)
+    preguntas = [
+        "¿El interés es ENTENDER esta línea, o EVALUARLA como candidata? Entenderla ya está "
+        "hecho; evaluarla empieza por el segmentador de núcleos.",
+        "Si es lo segundo, ¿se acepta acotarla a la cohorte pública, por la escala física?",
+        "¿Vale una tarde verificar si su dataset publicado cubre nuestras láminas?",
+        "Su patólogo declaró no relevante el 27 % de las mediciones. ¿Es aceptable para el "
+        "estándar clínico?",
+    ]
+    yq = yy + 0.36
+    for i, q in enumerate(preguntas):
+        add_card(s, 0.36 + (i % 2) * 4.74, yq + (i // 2) * 0.94, 4.54, 0.82, i + 1, q,
+                 size=10.5)
     notes(s, "Si en algún momento quisiéramos probar esto acá, conviene tener el inventario de "
              "costos antes que después. No es una propuesta, es lo que costaría.\n"
              "\n"
              "El primer bloqueo es el más duro y es de escala física. El segmentador de núcleos "
              "que usan está entrenado a cuarenta aumentos y solo a cuarenta, tanto que ellos "
-             "mismos filtraron sus datasets para quedarse únicamente con láminas de esa "
-             "magnificación. Nuestras cohortes están a escalas distintas entre sí: la pública "
-             "cerca de cuarenta, la privada cerca de veinte, y de la tercera no tenemos un dato "
-             "confiable. Calcular mediciones de núcleos sobre todo eso junto agregaría una "
-             "distorsión nueva encima de la que ya arrastramos, así que lo aplicable sin pelear "
-             "sería la cohorte pública sola.\n"
+             "mismos filtraron sus datasets para quedarse con láminas de esa magnificación. "
+             "Nuestras cohortes están a escalas distintas entre sí: la pública cerca de cuarenta, "
+             "la privada cerca de veinte, y de la tercera no tenemos un dato confiable.\n"
              "\n"
-             "El segundo es de cómputo, y el número asusta un poco: cerca de dos horas por lámina, "
-             "unas cuatro mil cuatrocientas horas en total para su colección, con tres tarjetas y "
-             "una máquina muy grande. Nosotros tenemos una tarjeta compartida, que hoy además "
-             "está con trabajos de otra gente en cola.\n"
+             "El segundo es de cómputo, y el número asusta un poco: cerca de dos horas por "
+             "lámina, unas cuatro mil cuatrocientas en total para su colección, con tres tarjetas "
+             "y una máquina muy grande. Nosotros tenemos una sola, compartida, hoy con trabajos "
+             "de otra gente en cola. Pero ellos publican el dataset ya procesado, mapas de "
+             "núcleos y mediciones incluidos, y la cohorte pública de mama está adentro. Si esas "
+             "láminas se cruzan con las nuestras, el problema de cómputo desaparece entero.\n"
              "\n"
-             "Queda el dato que puede cambiar todo lo anterior. Ellos publican el dataset ya "
-             "procesado, mapas de núcleos y mediciones incluidos, para más de dos mil doscientas "
-             "láminas, y la cohorte pública de mama está adentro. Si esas láminas se cruzan con "
-             "las nuestras, el problema de cómputo desaparece entero. Verificar ese cruce es una "
-             "tarde de trabajo, y es la diferencia entre cuatro mil cuatrocientas "
-             "horas de cómputo y una descarga.")
-
-    # ---- 18. Preguntas para llevar ----
-    s = content(prs, "Preguntas para la discusión")
-    preguntas = [
-        "¿El interés es ENTENDER esta línea de trabajo, o EVALUARLA como candidata? "
-        "Entenderla ya está hecho; evaluarla empieza por el segmentador de núcleos.",
-        "Si es lo segundo, ¿se acepta acotarlo a la cohorte pública, por lo de la escala física?",
-        "¿Vale una tarde verificar si su dataset publicado cubre nuestras láminas?",
-        "El 27 % de mediciones que su patólogo declaró no relevantes, ¿es aceptable para el "
-        "estándar clínico, o es el argumento de que esto todavía no llega?",
-    ]
-    yy = TOP + 0.10
-    for i, q in enumerate(preguntas):
-        add_card(s, 0.36, yy, 9.28, 0.74, i + 1, q, size=11.5)
-        yy += 0.84
-    takeaway_bar(s, "Pendiente inmediato: desarmar las ecuaciones 3 a 10 con el mismo "
-                    "detalle que las dos primeras.", t=yy + 0.10, size=13)
-    notes(s, "Cierro con las preguntas que me quedaron, que son las que me gustaría conversar.\n"
+             "De ahí salen las preguntas que me gustaría conversar. La primera es de alcance y de "
+             "ella depende todo lo demás: si el interés es entender esta línea de trabajo, eso ya "
+             "está hecho; si es evaluarla como candidata, empieza por poner a andar el "
+             "segmentador sobre nuestras láminas, y no cabe al lado de lo que ya está en marcha. "
+             "La segunda y la tercera son consecuencia de los dos bloqueos: acotar la prueba a la "
+             "cohorte pública, y gastar una tarde en verificar el cruce con su dataset, que es lo "
+             "más barato que hay sobre la mesa.\n"
              "\n"
-             "La primera es de alcance, y de la respuesta depende todo lo demás. ¿El interés es "
-             "entender esta línea de trabajo, o evaluarla como candidata para nosotros? "
-             "Entenderla ya está hecho, es esto que acabo de mostrar. Evaluarla es otra cosa: "
-             "empieza por poner a andar el segmentador de núcleos sobre nuestras láminas, y no "
-             "cabe al lado de lo que ya está en marcha.\n"
-             "\n"
-             "La segunda es la consecuencia de lo anterior: si vamos a evaluarlo, propongo "
-             "acotarlo a la cohorte pública, porque es la única forma de que las mediciones de "
-             "núcleos sean comparables entre láminas.\n"
-             "\n"
-             "La tercera es la más barata y la de mejor relación entre esfuerzo y resultado: "
-             "verificar si el dataset que ellos publican cubre nuestras láminas.\n"
-             "\n"
-             "La cuarta es más de fondo. Cuando le mostraron los reportes a un patólogo, algo "
-             "más de un cuarto de las mediciones que el modelo declara importantes le resultaron "
-             "no relevantes. Me parece muy honesto de su parte publicarlo, y la pregunta es si ese "
-             "número es aceptable para el estándar clínico que manejamos, o si es justamente el "
-             "argumento de que la interpretabilidad automática todavía no llega.\n"
-             "\n"
-             "Queda un pendiente mío: desarmar las ecuaciones de la tres a "
-             "la diez con el mismo detalle que las dos primeras.")
+             "La cuarta es más de fondo. Cuando le mostraron los reportes a un patólogo, algo más "
+             "de un cuarto de las mediciones que el modelo declara importantes le resultaron no "
+             "relevantes. Me parece muy honesto publicarlo, y la pregunta es si ese número es "
+             "aceptable para el estándar clínico que manejamos, o si es el argumento de que la "
+             "interpretabilidad automática todavía no llega. Me queda un pendiente: desarmar las "
+             "ecuaciones de la tres a la diez con el mismo detalle que las dos primeras.")
 
     # ---- cierre: reflow, auditoría, escala al tamaño del template, tipografía ----
     reflow_onco(prs, skip=keep_ids)
