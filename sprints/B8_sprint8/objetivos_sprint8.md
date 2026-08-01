@@ -187,6 +187,45 @@ Ficha completa, citas BibTeX y abstract del tercero: [`papers_b8.md`](papers_b8.
 
 ---
 
+---
+
+## ADDENDUM 31-jul-2026 — reunión con Sebastián: el encargo 4 cierra con decisión y se abre un objetivo 5
+
+Registro completo: [`reunion_31jul_redireccion.md`](reunion_31jul_redireccion.md).
+
+**El encargo 4 (papers) queda cerrado con una decisión, no con una lectura.**
+
+- **SI-MIL no se implementa.** Gana interpretabilidad a costa de empeorar levemente la
+  métrica, y lo que se busca es métrica. Coincide con lo que su Tabla 2 ya mostraba en la
+  celda que nos toca (0.937 → 0.925 accuracy, 0.972 → 0.957 AUC con CLAM de base).
+- **HoVer-Net y sus features de núcleo quedan en pausa por costo.** Sebastián lo corrió él
+  mismo: 3.3 h por lámina, el mismo número que habíamos leído de sus logs. **Se conserva** su
+  propia idea de correrlo solo sobre los **20 mejores parches que CLAM selecciona**, para
+  cuando haya más GPU.
+- El tercer paper (LVI, de suscripción) y el cuarto (ILSC) no se movieron.
+
+**El encargo 3 (grid de E y S) pasa a prioridad confirmada.** Sigue sin pre-registro escrito
+y sin `reviewer`, que es lo primero que hay que producir antes de cualquier `sbatch`. Todo lo
+de la §3 de arriba sigue vigente, incluido el presupuesto: o pocas configuraciones sobre las
+3 tareas, o un grid ancho sobre una sola.
+
+**Objetivo 5, nuevo: ramas por tarea para mitosis y grado nuclear.** Salió de mirar una
+lámina con el patólogo. Argumento, medidas y las cuatro familias de respuesta en
+[`tareas_geometricas/README.md`](tareas_geometricas/README.md). Tres números que lo anclan:
+la marca de mitosis del patólogo ocupa el **1.54 %** del área de un parche; los 2 mm² del
+recuento clínico son **~141 parches contiguos**, o sea el **2.9 %** de la lámina, contra el
+promedio ponderado sobre las 4799 que hace CLAM; y en esa tarea la calibración ya capturó
+casi todo su margen (bal_acc 0.531 de un techo de 0.571), así que lo que quede tiene que
+venir de la representación. **Sin código todavía**, por regla 9.
+
+**Material nuevo disponible:** la anotación del patólogo sobre la lámina 129741, alineada y
+convertida a parches en [`anotaciones_patologo/`](anotaciones_patologo/). Ojo con dos cosas:
+el geojson **no está en coordenadas de openslide** (sin corregir, 0 de 26 marcas de mitosis
+caen sobre un parche extraído), y las marcas son **positivos parciales**, no una
+segmentación.
+
+---
+
 ## 5. Qué no se afirma
 
 - Que 158.7 sea el número de slots útiles de la tarea. **Es de 7 láminas.** Ese es

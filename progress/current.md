@@ -1190,3 +1190,65 @@ está a ≈20× ([[cohortes-magnificacion-fisica]]).
 `presentacion_b8/`. Todos los commits de esta sesión se hicieron con **path explícito**, y el
 índice de memorias se compactó de 19.8 a 13.2 KB verificando que las 76 entradas y sus
 enlaces siguieran resolviendo.
+
+---
+
+## Sesión del 31-jul-2026 (noche) — reunión con Sebastián: se descarta SI-MIL y el sprint gira
+
+**Ernesto volvió de la reunión con Sebastián con una redirección.** Registro completo en
+[`sprints/B8_sprint8/reunion_31jul_redireccion.md`](../sprints/B8_sprint8/reunion_31jul_redireccion.md).
+⚠ La fecha exacta de la reunión quedó **sin confirmar**: el repo tenía anotada una para el
+viernes 07/08 con el deck de SI-MIL construido para ella.
+
+**Lo decidido.** SI-MIL **no se implementa**: gana interpretabilidad a costa de empeorar
+levemente la métrica, y lo que se busca es métrica. Coincide con lo que su Tabla 2 ya
+mostraba en nuestra celda (0.937 → 0.925 acc, 0.972 → 0.957 AUC con CLAM de base), así que
+el estudio no queda desmentido, queda usado. **HoVer-Net en pausa por costo**: Sebastián lo
+corrió él mismo y midió 3.3 h por lámina, el mismo número que habíamos leído de sus logs
+(3 h 36 min, job 4714), o sea que llega por dos vías independientes. **Se conserva** su idea
+de correrlo solo sobre los **20 mejores parches de CLAM**, para cuando haya más GPU.
+
+**Lo encargado.** Seguir con las configuraciones de hiperparámetros de Mammoth con CLAM (es
+el encargo 3, que pasa a prioridad y sigue **sin pre-registro**), e investigar **ramas aparte
+de CLAM dedicadas a una tarea**: mitosis y grado nuclear, que dependen de una geometría
+particular. Argumento en
+[`sprints/B8_sprint8/tareas_geometricas/README.md`](../sprints/B8_sprint8/tareas_geometricas/README.md).
+**Cero código escrito**, por regla 9.
+
+**El material del patólogo, y la trampa que traía.** El patólogo le mostró la lámina en
+**QuPath** y compartió sus etiquetas. Ese archivo **es** el geojson que la sesión de la tarde
+había encontrado en el directorio de `sgaete` con autoría desconocida: el pendiente queda
+resuelto en lo esencial. Y al medirlo apareció algo que había que cazar antes de que alguien
+construyera encima: **el geojson no está en coordenadas de openslide**. Superpuesto tal cual,
+**0 de las 26 marcas de mitosis** caen sobre un parche extraído, y contra la máscara de
+tejido de la propia WSI acierta 1 de 61. Con el desplazamiento correcto caen **58 de 61**, y
+las 3 que fallan son las de fondo y grasa. El desplazamiento es **`dx = level0.width −
+region[0].width` = 39669 − 35840 = 3829, `dy = 0`**, o sea derivable de las propiedades del
+`.bif`: el óptimo empírico por área cae a **3 px en x y 13 px en y** de esa predicción.
+Script reproducible en
+[`scripts/alinear_anotaciones_qupath.py`](../scripts/alinear_anotaciones_qupath.py), hallazgo
+en [`sprints/B8_sprint8/anotaciones_patologo/hallazgos.md`](../sprints/B8_sprint8/anotaciones_patologo/hallazgos.md).
+Resultado: **163 parches de 4799** quedan bajo alguna anotación, de ellos **28 de mitosis** y
+**13 de núcleos de alto grado**.
+
+**La restricción que hay que respetar al usarlas:** textual del patólogo, el cáncer cubre toda
+la zona pero él solo marca donde se evidencia con mayor exactitud. Son **positivos parciales,
+no una segmentación**: un parche sin marca **no** es un negativo. Sirven para evaluar y como
+semilla, no como verdad de campo exhaustiva.
+
+**Medidas nuevas que sostienen el objetivo 5**, todas verificadas en esta sesión: la marca de
+mitosis del patólogo es de 36 × 36 px = 16.7 µm, el **1.54 %** del área de un parche de 256 px
+que se comprime a un vector de 512; los 2 mm² del recuento clínico de Nottingham son **~141
+parches contiguos**, el **2.9 %** de la lámina, contra el promedio ponderado sobre las 4799
+que hace CLAM; la lámina mide **0.465 µm/px con `objective-power = 20`**, que confirma en el
+caso concreto lo que [[cohortes-magnificacion-fisica]] decía de la cohorte y deja abierto que
+le estemos pidiendo a 20× lo que el patólogo hace a 40×; y en `grado_mitotic_3clases` la
+calibración Tier 0 ya capturó casi todo su margen (bal_acc **0.531** de un techo de **0.571**,
+AUC 0.721), así que lo que quede tiene que venir de la representación.
+
+**Siguiente barato, sin GPU:** medir si nuestros modelos ya entrenados miran donde mira el
+patólogo. La lámina 129741 está en **val** del split de `grado_histologico_mitotic_rate` y de
+su `_combined`, hay checkpoints, y la medida es el percentil de atención de los 28 parches de
+mitosis entre los 4799. Diseño en `tareas_geometricas/README.md` §4.
+
+Sin GPU y sin procesos CPU largos en esta sesión.
