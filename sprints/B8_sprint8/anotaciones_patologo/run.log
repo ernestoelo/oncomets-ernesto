@@ -1,0 +1,50 @@
+lamina 129741: 4799 parches de 256 px, 61 anotaciones
+
+inventario de anotaciones:
+  Mitosis                n= 26  area mediana       1012 px2 =   1.54 % de un parche de 256 px
+  Nucleos alto grado     n= 14  area mediana       1042 px2 =   1.59 % de un parche de 256 px
+  necrosis               n=  6  area mediana      10027 px2 =  15.30 % de un parche de 256 px
+  Immune cells           n=  5  area mediana      33764 px2 =  51.52 % de un parche de 256 px
+  Tumor                  n=  5  area mediana      41850 px2 =  63.86 % de un parche de 256 px
+  Tejido Adiposo         n=  2  area mediana    1068091 px2 = 1629.78 % de un parche de 256 px
+  Negative               n=  2  area mediana    6591379 px2 = 10057.65 % de un parche de 256 px
+  Stroma                 n=  1  area mediana     217746 px2 = 332.25 % de un parche de 256 px
+
+criterio (a) parche extraido, SIN traslacion: 3/61
+criterio (a) mejor: 58/61  plateau dx [3096, 4440]  dy [-808, 1816]
+
+WSI: mpp=0.46500000000000002 mag=20 vendor=ventana; tejido 0.072 de la miniatura
+   openslide.region[0].height = 30720
+   openslide.region[0].width = 35840
+   openslide.region[0].x = 0
+   openslide.region[0].y = 0
+   openslide.region[1].height = 30720
+   openslide.region[1].width = 34560
+   openslide.region[1].x = 0
+   openslide.region[1].y = 49920
+
+criterio (b) tejido, SIN traslacion: 1/61
+criterio (b) mejor: 58/61  plateau dx [3352, 4376]  dy [-616, 1560]
+
+INTERSECCION de los dos plateaus: 46 offsets, dx [3352, 4376] dy [-616, 1560]  -> punto de partida dx=3936 dy=853
+
+criterio (c) refinamiento por area: dx=3832 dy=13  score=56.799
+   control, sin traslacion:            score=-0.748
+   control geometrico del contenedor: dx = level0.width - region[0].width = 39669 - 35840 = 3829, dy = 0  ->  score=56.762
+   distancia entre el optimo empirico y el geometrico: 3 px en x, 13 px en y
+   -> el dato no los separa (tolerancia 0.5%); se adopta el geometrico
+
+offset adoptado: dx=3829 dy=0  [geometria del contenedor (el area no separa los candidatos)]
+
+con dx=3829 dy=0: 163 parches distintos quedan bajo alguna anotacion (3.40 % de la lamina)
+   Tumor                    48 parches
+   Mitosis                  28 parches
+   Tejido Adiposo           27 parches
+   Immune cells             23 parches
+   necrosis                 18 parches
+   Nucleos alto grado       13 parches
+   Stroma                   12 parches
+
+escrito: sprints/B8_sprint8/anotaciones_patologo/parches_anotados_129741.csv
+         sprints/B8_sprint8/anotaciones_patologo/offset_129741.json
+RECORDATORIO: un parche sin anotacion NO es un negativo.
