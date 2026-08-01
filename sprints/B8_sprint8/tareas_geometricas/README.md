@@ -163,6 +163,24 @@ láminas, y sabiendo que las marcas son parciales
 
 ## 4. El primer experimento, que es barato y no depende de nadie
 
+> **EJECUTADO el 1-ago-2026. Resultado: gana H_alternativa.**
+> Los parches marcados **sí** rankean alto (AUC de ranking **0.890 ± 0.039** para mitosis en
+> los 4 checkpoints que nunca vieron la lámina; percentil mediano 91), y sobreviven al nulo
+> por traslación rígida (p = 0.0021–0.0023, ninguna de ~440 traslaciones lo alcanza). Y el
+> dato que reordena el mapa: **3 de esos 4 checkpoints clasifican mal la lámina** (dicen
+> `score_2`, es `score_3`) *mientras* su atención está sobre las mitosis. El modelo mira bien
+> y responde mal. Consecuencia para el §3: **la familia A pierde su motivación principal**
+> (la frase del patólogo queda refutada acá) pero **conserva la del §2.b**, que este
+> experimento no evalúa; **B y C se fortalecen**. Para grado nuclear el efecto es más débil
+> y no aguanta el nulo espacial (1 de 4 checkpoints bajo p = 0.05).
+> Detalle, matices y lo que NO se afirma: [`../atencion_vs_patologo/resultados.md`](../atencion_vs_patologo/resultados.md).
+> Pre-registro previo a correr: [`../atencion_vs_patologo/prereg.md`](../atencion_vs_patologo/prereg.md).
+>
+> El gotcha del checkpoint se resolvió sin la disyuntiva que planteaba el cuadro de abajo: la
+> corrida 5-fold de Sebastián tiene 129741 en `val` en los folds 0 y 2 y en `train` en 1, 3 y
+> 4, así que el contraste visto/no-visto quedó **dentro de una misma corrida** (haber visto la
+> lámina suma ~0.056 de AUC, y el efecto no depende de eso).
+
 **Pregunta:** ¿nuestros modelos ya entrenados miran donde mira el patólogo?
 
 Se puede responder hoy, en CPU, sin GPU y sin reentrenar:

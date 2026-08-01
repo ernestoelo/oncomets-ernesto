@@ -1260,3 +1260,67 @@ tarea) en vez de presentarse como estaba; y el orden de trabajo es **primero la 
 CPU, después el pre-registro del grid de E y S**.
 
 Sin GPU y sin procesos CPU largos en esta sesión.
+
+---
+
+## Sesión del 1-ago-2026 — la medición de atención vs las marcas del patólogo
+
+Se ejecutó el primer experimento del objetivo 5, el que el cierre anterior dejó como
+«siguiente barato, sin GPU». **Todo CPU, post-hoc, sin GPU y sin `sbatch`.** Pre-registro
+escrito y commiteado **antes** de correr (`d52676f`), porque la elección de checkpoint era
+el grado de libertad que podía fabricar el resultado:
+`sprints/B8_sprint8/atencion_vs_patologo/prereg.md`. Resultado completo, con lo que no se
+afirma: `sprints/B8_sprint8/atencion_vs_patologo/resultados.md`.
+
+**El gotcha del checkpoint se resolvió sin tener que elegir entre las dos familias.** La
+corrida 5-fold de Sebastián (`environ/results_modelo_combined_5fold/`) tiene 129741 en `val`
+en los folds 0 y 2 y en `train` en 1, 3 y 4, o sea que el contraste visto/no-visto quedó
+**dentro de una misma corrida**, con el mismo modelo y los mismos hiperparámetros. Se
+corrieron los 12 checkpoints con roles asimétricos fijados de antemano: 4 primarios (lámina
+nunca vista), 3 de control interno (misma corrida, vista) y los 5 de Tier 0 como
+corroboración, rotulados como lámina de train.
+
+**Ganó la hipótesis alternativa: el modelo sí mira donde marcó el patólogo.** Los 28 parches
+de mitosis dan un AUC de ranking de **0.890 ± 0.039** en los checkpoints que nunca vieron la
+lámina, con percentil mediano **91** sobre 100. Mitosis es el grupo mejor rankeado de los
+siete, **por encima de Tumor** (0.826), y la atención cae ordenadamente hasta linfocitos
+(0.322) y grasa (0.154). Sobrevive al nulo espacial por traslación rígida (p = 0.0021–0.0023:
+ninguna de las ~440 traslaciones válidas alcanzó el valor observado) y no es memorización
+(los checkpoints que la vieron en train dan 0.946, apenas +0.056).
+
+**El hallazgo que reordena el sprint: mira bien y responde mal.** 3 de los 4 checkpoints
+primarios **clasifican mal** la lámina — predicen `score_2` siendo `score_3` — mientras su
+atención está puesta sobre las mitosis. El caso extremo es `seba_5fold_f0`, que tiene el mejor
+AUC de atención del grupo (0.926) y la predicción más equivocada (0.712 a `score_2`). El
+cuello no está en **elegir** los parches.
+
+**Consecuencia para las cuatro familias de `tareas_geometricas/README.md` §3.** La familia A
+pierde su motivación principal: la frase del patólogo sobre que esos parches no reciben
+atención suficiente queda refutada en esta lámina. **Conserva** el otro argumento, el del
+máximo local de Nottingham contra el promedio ponderado, que este experimento no evalúa; si A
+se pre-registra, tiene que apoyarse en ese y no en la frase. Las familias B y C se
+fortalecen, que es hacia donde apunta la disociación. Para **grado nuclear** el efecto es más
+débil y no hay que estirarlo: 0.828, pero contra el nulo por traslación solo 1 de 4
+checkpoints baja de p = 0.05, y con 13 parches no se distingue de cualquier mancha compacta.
+
+**Dos cosas metodológicas que quedan para reusar.** El nulo por permutación de etiquetas es
+**inválido** cuando los parches marcados son contiguos: dio p = 0.0005, el piso, en
+absolutamente todo, incluido lo que contra el nulo bueno no es significativo
+([[nulo-espacial-traslacion-rigida]]). Y la lámina 129741 tiene **dos regiones de escaneo**
+con parches extraídos de las dos (2303 arriba, 2496 abajo), así que el tejido aparece dos
+veces en cualquier heatmap; las 163 marcas están todas abajo. Se verificó que no es un
+artefacto de región: la región anotada recibe *menos* atención que la otra (AUC 0.462–0.478)
+y al confinar la medición ahí el efecto **sube** a 0.903.
+
+**Subproducto:** las cabezas por clase de CLAM_MB no son específicas por clase en esta lámina
+(Spearman entre pares de cabezas 0.72–0.94; la cabeza `no_identificado` rankea las mitosis
+casi igual que la de `score_3`). El modelo tiene una sola noción de «tejido interesante».
+
+**Proceso CPU desatado al cierre** (workaround J): la corrida definitiva con los dos universos
+y 2000 traslaciones cada uno, hacia
+`sprints/B8_sprint8/atencion_vs_patologo/con_region/`, log en
+`logs/atencion_region_desatado.log`. Los AUC ya están confirmados por una corrida previa; lo
+que agrega son los p-valores del universo confinado. **Sin GPU y sin jobs SLURM propios.**
+
+**Quedaron sin empezar** los otros dos puntos del handoff anterior: el pre-registro del grid
+de E y S, y rehacer el deck del B8.
