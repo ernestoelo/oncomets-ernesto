@@ -1,0 +1,17 @@
+{
+  "slide": "129741",
+  "N": 4799,
+  "step": 256,
+  "seed": 1,
+  "n_perm": 2000,
+  "n_transl": 2000,
+  "grupos": {
+    "Nucleos alto grado": 13,
+    "Mitosis": 28,
+    "Immune cells": 23,
+    "Tumor": 48,
+    "necrosis": 18,
+    "Stroma": 12,
+    "Tejido Adiposo": 27
+  }
+}

@@ -1,0 +1,75 @@
+[data] 129741: N=4799 parches, features (4799, 512)
+[data] paso de grilla (moda) = 256 px
+[data] grupo Tumor                  n=48
+[data] grupo Mitosis                n=28
+[data] grupo Tejido Adiposo         n=27
+[data] grupo Immune cells           n=23
+[data] grupo necrosis               n=18
+[data] grupo Nucleos alto grado     n=13
+[data] grupo Stroma                 n=12
+Setting tau to 1.0
+
+=== seba_privado_s0 [primario/val] privado, 4 clases, single-split
+    pred=score_2  probs=[0.0, 0.004000000189989805, 0.6449999809265137, 0.35100001096725464]  (verdadera: score_3)
+Setting tau to 1.0
+
+=== seba_combined_s0 [primario/val] priv+TCGA, 4 clases, single-split
+    pred=score_3  probs=[0.17499999701976776, 0.07599999755620956, 0.2240000069141388, 0.5249999761581421]  (verdadera: score_3)
+Setting tau to 1.0
+
+=== seba_5fold_f0 [primario/val] priv+TCGA, 4 clases, 5-fold fold 0
+    pred=score_2  probs=[0.01600000075995922, 0.01600000075995922, 0.7120000123977661, 0.25600001215934753]  (verdadera: score_3)
+Setting tau to 1.0
+
+=== seba_5fold_f2 [primario/val] priv+TCGA, 4 clases, 5-fold fold 2
+    pred=score_2  probs=[0.024000000208616257, 0.050999999046325684, 0.5239999890327454, 0.4009999930858612]  (verdadera: score_3)
+Setting tau to 1.0
+
+=== seba_5fold_f1 [control_interno/train] priv+TCGA, 4 clases, 5-fold fold 1
+    pred=score_3  probs=[0.014999999664723873, 0.0020000000949949026, 0.05000000074505806, 0.9330000281333923]  (verdadera: score_3)
+Setting tau to 1.0
+
+=== seba_5fold_f3 [control_interno/train] priv+TCGA, 4 clases, 5-fold fold 3
+    pred=score_3  probs=[0.006000000052154064, 0.07999999821186066, 0.44600000977516174, 0.46799999475479126]  (verdadera: score_3)
+Setting tau to 1.0
+
+=== seba_5fold_f4 [control_interno/train] priv+TCGA, 4 clases, 5-fold fold 4
+    pred=score_3  probs=[0.013000000268220901, 0.05400000140070915, 0.1599999964237213, 0.7730000019073486]  (verdadera: score_3)
+Setting tau to 1.0
+
+=== tier0_f0 [corroboracion/train] nuestro k-fold Tier 0, 3 clases, fold 0
+    pred=score_3  probs=[0.013000000268220901, 0.12300000339746475, 0.8640000224113464]  (verdadera: score_3)
+Setting tau to 1.0
+
+=== tier0_f1 [corroboracion/train] nuestro k-fold Tier 0, 3 clases, fold 1
+    pred=score_3  probs=[0.035999998450279236, 0.1509999930858612, 0.8130000233650208]  (verdadera: score_3)
+Setting tau to 1.0
+
+=== tier0_f2 [corroboracion/train] nuestro k-fold Tier 0, 3 clases, fold 2
+    pred=score_3  probs=[0.03799999877810478, 0.289000004529953, 0.6729999780654907]  (verdadera: score_3)
+Setting tau to 1.0
+
+=== tier0_f3 [corroboracion/train] nuestro k-fold Tier 0, 3 clases, fold 3
+    pred=score_3  probs=[0.06599999964237213, 0.32199999690055847, 0.6119999885559082]  (verdadera: score_3)
+Setting tau to 1.0
+
+=== tier0_f4 [corroboracion/train] nuestro k-fold Tier 0, 3 clases, fold 4
+    pred=score_3  probs=[0.03099999949336052, 0.14399999380111694, 0.8240000009536743]  (verdadera: score_3)
+
+==============================================================================
+RESUMEN — cabeza de la clase VERDADERA (score_3), AUC de ranking (nulo 0.5)
+==============================================================================
+
+[primario]
+  Mitosis                AUC 0.890 ± 0.034   (n_ckpt=4, rango 0.840–0.926)
+  Nucleos alto grado     AUC 0.828 ± 0.047   (n_ckpt=4, rango 0.766–0.898)
+
+[control_interno]
+  Mitosis                AUC 0.946 ± 0.004   (n_ckpt=3, rango 0.942–0.951)
+  Nucleos alto grado     AUC 0.839 ± 0.054   (n_ckpt=3, rango 0.762–0.878)
+
+[corroboracion]
+  Mitosis                AUC 0.928 ± 0.029   (n_ckpt=5, rango 0.872–0.948)
+  Nucleos alto grado     AUC 0.867 ± 0.016   (n_ckpt=5, rango 0.848–0.895)
+
+[out] /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/sprints/B8_sprint8/atencion_vs_patologo/auc_por_checkpoint.csv  (301 filas)
