@@ -1247,8 +1247,16 @@ calibración Tier 0 ya capturó casi todo su margen (bal_acc **0.531** de un tec
 AUC 0.721), así que lo que quede tiene que venir de la representación.
 
 **Siguiente barato, sin GPU:** medir si nuestros modelos ya entrenados miran donde mira el
-patólogo. La lámina 129741 está en **val** del split de `grado_histologico_mitotic_rate` y de
-su `_combined`, hay checkpoints, y la medida es el percentil de atención de los 28 parches de
-mitosis entre los 4799. Diseño en `tareas_geometricas/README.md` §4.
+patólogo, con el percentil de atención de los 28 parches de mitosis entre los 4799. **Con un
+gotcha que apareció al preparar la corrida:** 129741 cae en `val` en los splits de Sebastián
+(`grado_histologico_mitotic_rate{,_combined}_100`, 4 clases) pero en **`train` en los 5 folds**
+del k-fold nuestro (`grado_mitotic_3clases_pth_100`, 3 clases), que es **justamente el de los
+checkpoints con el baseline que citamos**. Hay que elegir familia antes de correr, no después
+de ver el número. Las dos opciones, en `tareas_geometricas/README.md` §4.
+
+**Decisiones de Ernesto al cierre:** el deck del B8 **se rehace con la línea nueva** (mitosis
+y grado nuclear, el argumento geométrico, las anotaciones del patólogo y el plan de ramas por
+tarea) en vez de presentarse como estaba; y el orden de trabajo es **primero la medición en
+CPU, después el pre-registro del grid de E y S**.
 
 Sin GPU y sin procesos CPU largos en esta sesión.

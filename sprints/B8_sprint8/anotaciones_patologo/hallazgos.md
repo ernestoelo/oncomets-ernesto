@@ -135,11 +135,11 @@ marcado el ejemplo claro. Las consecuencias son concretas:
 
 ## 5. Lo que sí habilita, en orden de costo
 
-1. **Medir si nuestros modelos miran donde mira el patólogo** (CPU, horas). 129741 está en
-   **val** del split de `grado_histologico_mitotic_rate` y de su variante `_combined`, o sea
-   fuera de entrenamiento, y hay checkpoints entrenados de esa tarea. La pregunta es el
-   ranking de atención de los 28 parches de mitosis entre los 4799 de la lámina. Detalle del
-   diseño en [`../tareas_geometricas/README.md`](../tareas_geometricas/README.md) §4.
+1. **Medir si nuestros modelos miran donde mira el patólogo** (CPU, horas). La pregunta es el
+   ranking de atención de los 28 parches de mitosis entre los 4799 de la lámina. **Ojo con el
+   checkpoint**: 129741 cae en `val` en los splits de Sebastián pero en **`train` en los 5
+   folds** del k-fold nuestro que usó Tier 0. Las dos opciones y qué cuesta cada una, en
+   [`../tareas_geometricas/README.md`](../tareas_geometricas/README.md) §4.
 2. **Pedir más láminas anotadas**, ahora con un pedido preciso: qué clases, cuántas láminas,
    y dejando dicho que sabemos que las marcas son parciales.
 3. **Contrastar contra los mapas de expertos y slots** del B7, que es el uso que empuja el

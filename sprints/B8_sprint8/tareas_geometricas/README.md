@@ -169,9 +169,20 @@ Se puede responder hoy, en CPU, sin GPU y sin reentrenar:
 
 - **Insumos que ya existen:** los 28 parches de mitosis y 13 de núcleo de alto grado de la
   lámina 129741 (`../anotaciones_patologo/parches_anotados_129741.csv`), sus features en
-  `features/h5_files/129741.h5`, y checkpoints entrenados de
-  `grado_histologico_mitotic_rate` y su variante `_combined`.
-- **La lámina está en `val`** de los dos splits de esa tarea, o sea fuera de entrenamiento.
+  `features/h5_files/129741.h5`, y checkpoints entrenados de mitosis.
+- **⚠ Elegir bien el checkpoint, porque las dos familias no coinciden** (verificado 31-jul):
+
+  | Familia | Split | Dónde cae 129741 |
+  |---|---|---|
+  | Nuestro k-fold, el que usó Tier 0 (`results/pathpt_etapa1/mitotic/`, tarea `grado_mitotic_3clases`, 3 clases) | `data/splits_kfold/grado_mitotic_3clases_pth_100` | **`train` en los 5 folds** |
+  | De Sebastián (`environ/results_modelo*/grado_histologico_mitotic_rate*`, 4 clases con `no_identificado`) | `environ/splits/grado_histologico_mitotic_rate{,_combined}_100` | **`val`** (single-split) |
+
+  O sea que el checkpoint con el baseline que citamos en §2.e es justamente el que **vio esta
+  lámina en entrenamiento**. Las salidas: usar los checkpoints de Sebastián, donde está en
+  `val` (a costa de que la tarea tiene 4 clases y otro baseline), o reportar con los de Tier 0
+  dejando explícito que es una lámina de train, que **debilita** la conclusión pero no la
+  anula si la pregunta es de ranking relativo de atención dentro de la lámina. Decidirlo
+  antes de correr, no después de ver el número.
 - **Medida:** el percentil de atención de los parches anotados entre los 4799 de la lámina.
   Con CLAM la atención se toma como `softmax(A_raw, dim=1)`, porque `forward` devuelve la
   atención **pre-softmax** (CLAUDE.md, hechos validados), y CLAM_MB tiene una cabeza por
