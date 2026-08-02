@@ -149,6 +149,47 @@ rama con un job corriendo** (workaround H,
 todo lo que el job lee tiene que estar commiteado en la rama que queda checked out,
 idealmente `main`.
 
+### ADDENDUM 2-ago-2026 — la disyuntiva queda resuelta y el presupuesto, corregido
+
+**Decisión de Ernesto: grid ANCHO sobre UNA sola tarea.** Es la tercera fila de la tabla de
+arriba. Cierra la elección de diseño que este documento había dejado abierta a propósito.
+Motivo operativo: la GPU está vacía un domingo y la ventana hay que aprovecharla.
+
+**El «~40 min por run» de arriba es un promedio engañoso y sobreestima esta tarea.** Medido
+run por run desde los mtime de los `test_metrics.json` del 4589, las tres tareas no cuestan
+lo mismo ni de cerca:
+
+| Tarea del 4589 | slides de train | min/run (mediana) |
+|---|---:|---:|
+| `tipo_histologico_3clases_ci` (3 clases) | 1621 | **83.0** |
+| `invasion_linfatica_vascular_ci_reform` | 669 | 37.0 |
+| `carcinoma_ductal_insitu_presente_ci_reform` | 692 | **36.2** |
+
+El promedio de 40 min salía de mezclar la tarea cara con las dos baratas. Para la candidata
+el número real es **36.2 min/run**, así que 40 runs son **~24 h**, no ~27.
+
+**Los dos baselines de esta tarea YA están corridos, y son reusables.** Los 10 runs del 4589
+(5 CLAM + 5 Mammoth 30×10) viven en
+`results/b7_mammoth_interp/carcinoma_ductal_insitu_presente_ci_reform/` sobre **los mismos
+splits** que usaría el grid. Verificado el 2-ago que **ninguna feature cambió desde
+entonces**: cero `.pt` con mtime posterior al 17-jul (el directorio quedó en 28-jun, que es
+el parche de magnificación de Sebastián, [[features-tcga-drift-reextraccion]]). Con features
+y splits idénticos, el reuso pareado es válido por construcción y **libera 10 runs** para
+configuraciones nuevas.
+
+**Consecuencia para el tamaño del grid**, a decidir en el pre-registro:
+
+| Opción | Baselines | Configs nuevas | Runs | Horas |
+|---|---|---:|---:|---:|
+| Conservadora (re-corre todo) | 2 re-corridos | 6 | 40 | ~24 |
+| Con reuso + control | Mammoth 30×10 re-corrido como control de reproducibilidad | 7 | 40 | ~24 |
+| Reuso pleno | ambos del 4589 | 8 | 40 | ~24 |
+
+La del medio es la que recomienda esta nota: re-correr **solo** el Mammoth 30×10 cuesta 5
+runs y compra la verificación de que la tanda nueva reproduce el 4589, que es justamente lo
+que haría defendible reusar el resto. Si esos 5 runs **no** reproducen, el reuso se cae y hay
+que saberlo antes de interpretar el grid, no después.
+
 ---
 
 ## 4. Papers a estudiar esta semana

@@ -1324,3 +1324,49 @@ que agrega son los p-valores del universo confinado. **Sin GPU y sin jobs SLURM 
 
 **Quedaron sin empezar** los otros dos puntos del handoff anterior: el pre-registro del grid
 de E y S, y rehacer el deck del B8.
+
+---
+
+## Sesión del 2-ago-2026 — cerrado el universo confinado, y el grid queda decidido
+
+Sesión corta de cierre. Se retomó el handoff del 1-ago y se cerró su pendiente inmediato;
+lo demás fue dejar el grid de E y S listo para que una sesión limpia lo escriba y lo lance.
+
+**El pendiente del §4 quedó cerrado.** El proceso desatado (PID 1741266) había terminado
+bien antes de que muriera la sesión anterior: escribió los tres archivos de
+`atencion_vs_patologo/con_region/`. Se hizo el cotejo que pedía el handoff y **pasa**: los
+AUC del universo `lamina` son idénticos dígito a dígito a los ya commiteados (delta
+0.000e+00 en las 301 filas, y lo mismo en los percentiles); entre las dos corridas solo
+difieren los p, por remuestreo.
+
+**Lo que agrega el universo confinado.** Dentro de la región anotada (N = 2496) caben
+**~1300 traslaciones válidas** en vez de las ~440 de la lámina entera, así que el nulo
+espacial se vuelve más exigente. Mitosis vuelve a dar el piso 1/(1+N), **p =
+0.00075–0.00078** en las 7 combinaciones checkpoint × cabeza de los 4 primarios. Grado
+nuclear queda **igual de mixto** que en la lámina completa (p = 0.012–0.093, bajo 0.05 en 4
+de 7): confinar no lo rescata, que es coherente con no estirar ese resultado. La conclusión
+no se movió. Documentado en el §2.b de `atencion_vs_patologo/resultados.md`.
+
+**Decisión de Ernesto sobre el grid: va ANCHO sobre UNA sola tarea.** Cierra la disyuntiva
+que el §3 de `objetivos_sprint8.md` había dejado abierta (o pocas configuraciones sobre las
+3 tareas, o un grid ancho sobre una). Motivo operativo: es domingo y la GPU está vacía, hay
+que aprovechar la ventana.
+
+**El presupuesto del §3 estaba inflado por un promedio engañoso.** Medido el tiempo real por
+run del 4589 desde los mtime de los `test_metrics.json`, las tres tareas no cuestan lo
+mismo: `tipo_histologico_3clases_ci` **83 min/run** (1621 slides de train, 3 clases), contra
+**36.2 min/run** de `carcinoma_ductal_insitu_presente_ci_reform` y 37.0 de LVI reform. El
+«~40 min por run» del §3 era el promedio de las tres y sobreestima la tarea candidata en más
+de un 10 %.
+
+**Y los baselines de esa tarea ya existen, verificado.** Los 10 runs del 4589 (5 CLAM + 5
+Mammoth 30×10) están en `results/b7_mammoth_interp/carcinoma_ductal_insitu_presente_ci_reform/`
+sobre los **mismos splits**, y **ninguna feature cambió desde entonces** (cero `.pt` con
+mtime posterior al 17-jul; el dir quedó en 28-jun, que es el parche de magnificación). O sea
+que el reuso pareado es válido por construcción y **libera 10 runs** para configuraciones
+nuevas.
+
+**Sin GPU, sin jobs SLURM propios y sin procesos CPU al cierre.** La cola estaba vacía.
+
+**Quedaron sin empezar** el pre-registro del grid (que la próxima sesión escribe y lanza) y
+rehacer el deck del B8.
