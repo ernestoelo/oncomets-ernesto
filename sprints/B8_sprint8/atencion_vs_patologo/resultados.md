@@ -49,6 +49,14 @@ Al repetir todo confinado a esa región, el efecto **sube** (0.890 → 0.903). D
 (Las dos regiones son tejido distinto, no un duplicado: coseno medio entre parches
 geométricamente «gemelos» 0.708 contra 0.503 entre parches al azar.)
 
+La corrida confinada (`con_region/`, universo `region_anotada`, N = 2496) también rehace el
+nulo espacial dentro de esa región, donde caben **~1300 traslaciones válidas** en vez de
+~440: mitosis vuelve a dar el piso 1/(1+N), p = **0.00075–0.00078** en las 7 combinaciones
+checkpoint × cabeza de los 4 primarios. Grado nuclear queda igual de mixto que en la lámina
+completa (p = 0.012–0.093, por debajo de 0.05 en 4 de 7), así que confinar no lo rescata.
+Los AUC del universo `lamina` de esa corrida son idénticos dígito a dígito a los de este
+documento; lo único que cambia entre las dos corridas son los p, por remuestreo.
+
 **c) El sesgo de la anotación parcial juega en contra, no a favor.** Las marcas son positivos
 parciales: mitosis no marcadas quedan en el conjunto «no anotado» y **acercan el AUC a 0.5**.
 Un 0.89 es creíble justamente porque el sesgo lo empuja hacia abajo.
