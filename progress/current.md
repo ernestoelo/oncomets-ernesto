@@ -1631,3 +1631,50 @@ cerrados, `15×10` en curso, **26 de 40 runs**, cero `Traceback` y cero `FAILED`
 que es coherente con que los runs pasaran de ~37 a ~70 min. Refuerza que el cierre del grid caiga
 en la madrugada o mañana del **martes 4-ago**. No hay que lanzar nada, así que la regla de
 cortesía no obliga a ninguna acción; queda anotado para el `resultados.md`.
+
+---
+
+## Sesión del 3-ago-2026 (lunes, 17:20) — el hallazgo de mitosis necesita forma presentable
+
+**Sesión de exposición**, sin GPU y sin tocar nada que el job 4774 lea (workaround H).
+
+**Ernesto no recordaba cómo verificamos que CLAM atiende las mitosis.** Preguntó qué pruebas
+habíamos revisado antes de buscar papers y dijo que creía que «habíamos hecho algo de los mapas de
+calor». Se le expuso la medición del 1-ago completa: el estadístico es el **AUC de ranking** de la
+atención sobre los parches anotados (nulo 0.5), no el mapa de calor, que fue el subproducto.
+Mitosis dio **0.890 ± 0.039** sobre los 4 checkpoints que nunca vieron la lámina (percentil mediano
+91), el grupo mejor rankeado de los siete, por encima de Tumor (0.826), con grasa en 0.154. Con los
+cuatro controles: nulo por traslación rígida (p en el piso, ninguna de las ~440 traslaciones
+válidas lo alcanza), descarte del efecto de región (confinado sube a 0.903), control de
+memorización (haberla visto suma solo ~0.056) y el sesgo de la anotación parcial jugando en contra.
+Y el hallazgo que reordenó el sprint: **3 de esos 4 checkpoints clasifican mal la lámina**
+(predicen `score_2` siendo `score_3`) mientras su atención está sobre las mitosis.
+
+**Lo que eso destapó, y es el hallazgo de la sesión.** El resultado más importante del B8 no existe
+en ningún entregable presentable: vive en `prereg.md`, `resultados.md`, dos memorias y dos PNG
+sueltos. Si el que lo encargó no lo retuvo, Sebastián y Benjamín tampoco lo van a retener leyendo
+un documento técnico. Queda como hallazgo **F1** de la sexta pasada de la auditoría.
+
+**Entregado: [`papers_explicados.md`](../sprints/B8_sprint8/tareas_geometricas/papers_explicados.md).**
+Tercer documento sobre los mismos cuatro papers, y complementario, no redundante: `papers_mitosis.md`
+responde «qué encontramos y con qué evidencia», `hojas_reunion.md` responde «qué digo el viernes», y
+este responde **«cómo funciona por dentro»**. Vocabulario común primero (clasificación contra
+detección contra segmentación, MIL, los cuatro grados de supervisión, por qué la precisión deja de
+ser medible con positivos parciales, µm/px), y después un capítulo por paper con una analogía por
+término antes de la fórmula y un mini-ejemplo numérico por mecanismo: la loss PU con la cuenta
+hecha, la caída de recall de CellViT explicada por los píxeles que pierde un núcleo de 8 µm, el
+top-K derivable y el producto de Kronecker de ZoomMIL desarmados, y la ec. 3 de MS-CLAM aplicada a
+cinco parches, que es donde se ve por qué la parcialidad lo mata. **No agrega ninguna afirmación**:
+todo sale de los cinco estudios ya verificados contra los PDF el 2-ago.
+
+**Encargo nuevo para la próxima sesión: rehacer el deck del B8.** Compactar **a la mitad** las
+láminas de SI-MIL (no borrarlas: fue una de las tareas de investigación) y agregar la sección de la
+medición de atención con sus dos PNG, tablas y conclusiones, en registro **muy pedagógico**, porque
+va para Sebastián y Benjamín y porque el propio Ernesto dice que todavía no le queda claro. Esto
+**precisa** la decisión del 31-jul («el deck se rehace con esta línea en vez de presentar el de
+SI-MIL»), que leída sola autorizaba a borrar SI-MIL entero. Hallazgo **F2**.
+
+**Job 4774 a las 21:07:** vivo, 21 h 07 min, **28 de 40 runs**, cero `Traceback` y cero `FAILED`,
+en el brazo `15×10`. Siguen los **tres** jobs ajenos de `capstone` (4778, 4780, 4782) compartiendo
+la GPU. No se leyó ninguna métrica parcial: solo se contaron archivos y se miró `squeue`, así que
+el pre-registro sigue intacto.

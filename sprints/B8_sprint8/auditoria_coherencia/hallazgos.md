@@ -427,3 +427,107 @@ suponía que los brazos chicos serían más rápidos». Es cierto, pero **incomp
 - **`results/b8_grid_es/` sigue deliberadamente sin versionar**, con 27 de 40 runs. Se commitea
   cuando cierren los 8 brazos.
 - **Skills y agentes**: sin cambios; la sesión fue documental y no tocó modelo ni training.
+
+---
+
+# Sexta pasada — cierre de la sesión de exposición (3-ago-2026, tarde, 2ª)
+
+Sesión **documental**: el job 4774 sigue vivo (21 h 07, 28 de 40 runs, cero errores), así que
+cero checkouts y cero ediciones de lo que el job lee (workaround H). La sesión expuso el material
+de la reunión, respondió una pregunta de Ernesto sobre la medición del 1-ago y produjo un
+documento nuevo.
+
+| id | Hallazgo | Tipo | Severidad | Acción |
+|---|---|---|---|---|
+| F1 | **El resultado del 1-ago no existe en ningún entregable presentable.** Ernesto, que lo encargó, no retuvo cómo se verificó: preguntó si «habíamos hecho algo de los mapas de calor» | gap | **alta** | Encargo del deck + memoria de feedback |
+| F2 | La decisión del 31-jul («el deck del B8 se rehace con esta línea **en vez de** presentar el de SI-MIL») queda **precisada**: SI-MIL sobrevive, compactado a la mitad | precisión | media | ADDENDUM fechado, aditivo; no se borra la decisión original |
+| F3 | Tercer documento sobre los mismos cuatro papers (`papers_explicados.md`) | redundancia potencial, **descartada** | baja | Verificado complementario; queda la tabla de «cuál es cuál» en su §0 |
+| F4 | Las dos figuras de atención muestran el tejido **dos veces** (dos regiones de escaneo del `.bif`) | trampa de lectura | media | Instrucción explícita: van al deck **con leyenda**, si no se leen como defecto |
+
+## F1 — El hallazgo más importante del B8 no tiene forma presentable
+
+**Lo que pasó.** Ernesto preguntó qué pruebas habíamos revisado de mitosis antes de buscar
+papers, y dijo textualmente que en su memoria no recordaba cómo verificamos que CLAM estuviera
+prestando atención correctamente, que *«creo que hicimos algo de los mapas de calor»*.
+
+**Lo que el repo tiene, y está bien.** `sprints/B8_sprint8/atencion_vs_patologo/resultados.md` es
+completo, correcto y verificado: AUC de ranking 0.890 ± 0.039, el nulo por traslación rígida, el
+descarte del efecto de región, el control de memorización, y la disociación *mira bien y responde
+mal*. Nada de eso hay que rehacerlo ni re-verificarlo.
+
+**El problema no es de conocimiento, es de forma.** El resultado vive solo en documentos técnicos
+(`prereg.md`, `resultados.md`, dos memorias, dos PNG sueltos). No hay ninguna lámina, ninguna
+tabla presentable, ningún guion. Y es, por lejos, el hallazgo con más contenido del sprint: es el
+que **reordenó las cuatro familias** y el que decidió que la búsqueda bibliográfica apuntara a B,
+C y D y no a la A.
+
+**Corolario incómodo y útil:** si el que lo encargó no lo retuvo, Sebastián y Benjamín no lo van a
+retener leyendo un `resultados.md`. La medición cambia lo que el sprint hace a continuación, así
+que tiene que poder explicarse en voz alta.
+
+**Acción.** Encargo del deck (F2) y memoria de feedback nueva, `hallazgo-necesita-forma-presentable`.
+
+## F2 — La decisión del 31-jul se precisa, no se contradice
+
+**Lo que dice el registro vigente.** La memoria `tareas-geometricas-mitosis-grado-nuclear`:
+*«Decidido con Ernesto el 31-jul: el deck del B8 se rehace con esta línea en vez de presentar el
+de SI-MIL»*. Leída sola, esa frase autoriza a borrar SI-MIL del deck.
+
+**Lo que Ernesto pidió hoy.** Compactar las láminas de SI-MIL **a la mitad**, no eliminarlas,
+*«que fue una de las tareas de investigación»*, y agregar la sección de mitosis.
+
+**No es contradicción, es refinamiento**, y hay que registrarlo para que la próxima sesión no
+borre SI-MIL creyendo que cumple la decisión del 31-jul. El deck pasa de ser monográfico de SI-MIL
+a tener dos ejes, con el peso invertido respecto de hoy: SI-MIL como tarea de investigación
+cerrada y resumida, mitosis como la línea viva.
+
+**Estado real del deck, verificado.** `sprints/B8_sprint8/presentacion_b8/CLAM_Sprint8_SIMIL.pptx`,
+**14 láminas** (2 heredadas del template + 12 de contenido), generado por `generate_b8_deck.py`
+(81 KB), ya recortado una vez el 31-jul de 19 a 14. Su README se titula «Presentación B8 —
+SI-MIL», que a partir de este encargo queda **stale** y hay que reescribir junto con el deck.
+
+**Acción.** ADDENDUM fechado en la memoria; el detalle operativo va al handoff.
+
+## F3 — El tercer documento es complementario, verificado
+
+Los tres cubren los mismos cuatro papers y respondían a la sospecha de redundancia. Verificado
+que no la hay, porque responden preguntas distintas:
+
+| Archivo | Pregunta | Uso |
+|---|---|---|
+| `papers_mitosis.md` (36 KB) | ¿qué encontramos y con qué evidencia? | referencia, no se lee de corrido |
+| `hojas_reunion.md` (25 KB) | ¿qué digo el viernes? | exposición en la reunión |
+| `papers_explicados.md` (nuevo) | ¿cómo funciona por dentro? | entender el mecanismo |
+
+El nuevo **no agrega ninguna afirmación**: todos sus números salen de los cinco estudios ya
+verificados contra los PDF el 2-ago, y sus ejemplos numéricos están rotulados como ilustrativos.
+La tabla de arriba vive en su §0, así que la pregunta «cuál es cuál» queda contestada dentro del
+propio documento. **Canonical sigue siendo `papers_mitosis.md`** si alguna vez divergen, y eso
+está dicho ahí.
+
+**Sin cambios** en `hojas_reunion.md`: está terminado y verificado, y el handoff anterior pedía
+explícitamente no reescribirlo de oficio.
+
+## F4 — Las figuras de atención tienen una trampa de lectura
+
+`figura_atencion_vs_anotaciones.png` y `figura_mitosis_sobre_atencion.png` muestran **el tejido dos
+veces**, porque el lienzo de openslide contiene las **dos regiones de escaneo** del Ventana `.bif`
+(`region[1].y = 49920`) y el pipeline extrajo parches de las dos: 2303 arriba, 2496 abajo. Las 163
+anotaciones caen **todas** en la de abajo.
+
+Ya está anotado como nota de lectura al pie de `atencion_vs_patologo/resultados.md`, pero en una
+lámina proyectada, sin esa nota, se lee como un error de la figura. **Si van al deck, van con
+leyenda**, y conviene que la leyenda diga además que se midió y se descartó que la región
+explicara el efecto (AUC región anotada contra la otra = 0.462-0.478, o sea que recibe *algo
+menos* de atención).
+
+## Verificado sin cambios
+
+- **CLAUDE.md, Hallazgos 11 a 14**: ninguno se toca. La sesión no produjo resultados
+  experimentales.
+- **El pre-registro del grid sigue intacto.** No se leyó ninguna métrica parcial del 4774 en esta
+  sesión: solo se contaron archivos (`test_metrics.json`) y se miró `squeue`.
+- **`results/b8_grid_es/` sigue deliberadamente sin versionar**, ahora con 28 de 40 runs.
+- **`atencion_vs_patologo/`**: nada que re-medir. Los AUC, los p del nulo espacial y la corrida
+  confinada están cerrados desde el 2-ago.
+- **Skills y agentes**: sin cambios; la sesión fue documental y no tocó modelo ni training.
