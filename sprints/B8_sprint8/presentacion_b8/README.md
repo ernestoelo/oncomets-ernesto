@@ -1,166 +1,193 @@
-# Presentación B8 — SI-MIL
+# Presentación B8 — dos ejes: SI-MIL y la medición de atención
 
-> Construida el **30-jul-2026**. Pedido de Ernesto: **las ecuaciones**, la **figura original
-> del diagrama del modelo** (Fig. 2 del paper, pág. 4) y el **formato de deck del proyecto**.
+> Construida el **30-jul-2026** como monográfico de SI-MIL. **Rehecha el 3-ago-2026** a
+> pedido de Ernesto: SI-MIL se compacta **a la mitad** y entra la medición de atención
+> contra las marcas del patólogo, en registro **muy pedagógico**.
 >
-> **Recortada el 31-jul-2026** de 19 a 14 láminas, también a pedido de Ernesto, sacando el
-> ejemplo numérico del orden de las operaciones. Ver «El recorte del 31-jul» más abajo.
+> Reunión: **viernes 07/08/2026**. `FECHA_REUNION` del generador ya la tiene.
 
 ## Qué hay acá
 
 | Archivo | Qué es |
 |---|---|
 | `generate_b8_deck.py` | genera el deck end-to-end; se corre y reproduce el `.pptx` |
-| `CLAM_Sprint8_SIMIL.pptx` | el deck, **14 láminas**, 13.333 × 7.5 |
-| `assets/simil_fig2_full.png` | Fig. 2 completa, recortada de la pág. 4 a 400 DPI |
-| `assets/simil_fig2_{a,b,c}.png` | los tres paneles por separado |
+| `prep_assets_atencion.py` | recorta las figuras de `atencion_vs_patologo/` para proyectar |
+| `CLAM_Sprint8.pptx` | el deck, **17 láminas**, 13.333 × 7.5 |
+| `assets/simil_fig2_{full,a,b,c}.png` | Fig. 2 del paper, recortada de la pág. 4 a 400 DPI |
+| `assets/atencion_dos_regiones.png` | los 4 paneles (atención \| marcas) × (región 1 \| región 2) |
+| `assets/mitosis_region_anotada.png` | la región anotada, con el recuadro del detalle |
+| `assets/mitosis_zoom.png` | el detalle: los parches de mitosis sobre el rojo |
 
 ```bash
+PYTHONPATH=/media/administrador/Storage1/sdonoso/clam_testing2/.pylibs \
+/home/sdonoso/miniconda3/envs/clam_latest/bin/python \
+  sprints/B8_sprint8/presentacion_b8/prep_assets_atencion.py     # solo si cambian las figuras
 PYTHONPATH=/media/administrador/Storage1/sdonoso/clam_testing2/.pylibs \
 /home/sdonoso/miniconda3/envs/clam_latest/bin/python \
   sprints/B8_sprint8/presentacion_b8/generate_b8_deck.py
 ```
 
-## Alcance de contenido (lo que entra y lo que no)
+> El generador **borra `CLAM_Sprint8_SIMIL.pptx`** si lo encuentra: es el nombre previo,
+> de cuando el deck era monográfico, y dejarlo al lado del nuevo solo genera confusión.
+> Ningún `.pptx` está versionado.
 
-El insumo es [`simil_explicacion_matematica.md`](../simil_explicacion_matematica.md) y los
-números salen de [`simil_estudio.md`](../simil_estudio.md). No se rehízo ninguno de los dos.
+## Estructura (17 láminas)
 
-- **Ecuaciones 1 y 2: desarmadas.** Son las que Ernesto marcó como las que no cerraban.
-  La 2 entra ahora en **una sola lámina**: la analogía de la licuadora contra la libreta
-  quedó en el guion, y en la lámina van los dos caminos dibujados más la tabla de qué queda
-  en memoria tras el forward, que era el malentendido de fondo. El mini ejemplo numérico
-  **se retiró** (ver «El recorte del 31-jul»).
-- **Ecuaciones 3 a 10: en panorama**, una línea de glosa cada una, con la **9 destacada**.
-  Desarmarlas con el mismo detalle sigue **pendiente**, y la lámina de objetivos lo declara
-  con su marcador de estado en vez de disimularlo.
-- **No se presenta como mejora de rendimiento.** En la celda que nos corresponde (CLAM de
-  base, su Tabla 2) rinde menos: 0.937 → 0.925 en accuracy y 0.972 → 0.957 en AUC. La
-  lámina de resultados lo dice con esa fila destacada.
-- **HoVer-Net y SI-MIL son la misma cadena**, no dos ángulos. Está en la lámina de las dos
-  entradas y en el guion.
-
-## Estructura (14 láminas)
-
-Portada y lámina de título (heredadas del template) · objetivos · qué propone en una frase ·
-**la Fig. 2 completa** · dos descripciones del mismo parche · **ecuación 1** · **ecuación 2,
-el orden de dos operaciones** · qué implica para nuestro modelo · el puente PAG Top-K · la
-otra rama, α contra β · las ecuaciones 3 a 10 · qué reportan y el contraste con lo nuestro ·
-qué costaría llevarlo acá y qué preguntar.
-
-## El recorte del 31-jul (19 → 14 láminas)
-
-Pedido de Ernesto: menos láminas, y sobre todo **fuera el ejemplo numérico del orden**, que
-debía quedar claro en una sola lámina. Esto **supersede** la decisión del 30-jul de conservar
-la secuencia «analogía → ejemplo numérico → tabla de qué queda».
-
-Salió una lámina entera (el ejemplo numérico) y se fusionaron cuatro pares:
-
-| Antes | Ahora | Qué se hizo |
+| # | Lámina | Eje |
 |---|---|---|
-| divisoria de sección + «qué propone» | **una** | la divisoria solo aportaba la ficha del paper, que entra como línea de referencia sobre la lámina |
-| «ecuación 2, el orden» + «el mismo número, distinto lo que queda» | **una** | se borró el ejemplo numérico entero y la tabla de qué queda tras el forward pasó abajo de los dos caminos, recortada a las 3 filas que separan a los órdenes |
-| «por qué la atención no rescata» + «dónde queda nuestro modelo» | **una** | se borró la segunda tabla numérica (α contra contribución) y las tres tarjetas de diferencias; queda el mapeo a `model_clam.py` arriba y dos paneles abajo |
-| «qué reportan» + «el contraste con lo nuestro» | **una** | dos tablas, sin los cuatro paneles; la celda que nos toca ya está destacada en la Tabla 2 |
-| «qué costaría» + «preguntas» | **una** | los tres bloqueos como tira de paneles y las preguntas en rejilla 2 × 2 |
+| 1-2 | portada y lámina de título | heredadas del template |
+| 3 | dos cosas, y una cambia el plan | mapa del recorrido |
+| 4 | SI-MIL: qué propone, y su arquitectura (Fig. 2) | SI-MIL |
+| 5 | dos descripciones del mismo parche, y la ecuación 1 | SI-MIL |
+| 6 | ecuación 2: el orden de dos operaciones | SI-MIL |
+| 7 | el puente, y la rama que sí se lee | SI-MIL |
+| 8 | las ecuaciones 3 a 10, en panorama | SI-MIL |
+| 9 | qué reportan, qué costaría, y qué preguntar | SI-MIL |
+| 10 | la observación del patólogo, convertida en pregunta medible | atención |
+| 11 | qué se mide exactamente: un ranking, no un mapa | atención |
+| 12 | los dos mapas, sobre la misma lámina | atención |
+| 13 | el resultado: la escalera de los siete grupos | atención |
+| 14 | los 28 parches de mitosis, sobre el mapa | atención |
+| 15 | el hallazgo: mira bien y responde mal | atención |
+| 16 | por qué esto no es una casualidad | atención |
+| 17 | qué mueve esto en lo que viene | atención |
 
-**Nada de lo que salió de las láminas se perdió: está en el guion hablado.** La crítica del
-paper a la interpretación post-hoc, los dos puntos donde nuestro trabajo coincide con el de
-ellos, y las dos diferencias entre la formulación del paper y nuestro modelo se cuentan
-hablando.
+## El recorte de SI-MIL del 3-ago (12 láminas de contenido a 6)
 
-El guion de las fusionadas se **reescribió**, no se pegó, y ninguna estrenó las aperturas de
-párrafo formulaicas que la primera pasada había corregido:
+Pedido textual: *«compactando y resumiendo a la mitad las slides actuales de SI-MIL, que
+fue una de las tareas de investigación»*. O sea **no se borra**. Es una precisión de la
+decisión del 31-jul, que leída sola autorizaba a eliminarlo entero.
 
-| Lámina fusionada | Suma de los originales | Ahora |
+Método, el mismo del recorte anterior: se fusionan pares y **lo que sale de la lámina se
+cuenta hablando**, con el guion **reescrito**, no pegado.
+
+| Antes (12) | Ahora (6) | Qué se fue al guion |
 |---|---|---|
-| qué propone (con la ficha del paper) | 229 | 225 |
-| ecuación 2, el orden | 454 | 268 |
-| qué implica para nuestro modelo | 452 | 316 |
-| qué reportan y el contraste | 441 | 373 |
-| qué costaría y qué preguntar | 472 | 360 |
+| qué propone + la Fig. 2 | **una** | las 3 tarjetas de consecuencias y la fila de cifras del paper |
+| las dos entradas + ecuación 1 | **una** | los tres paneles de glosa de la ecuación (bolsa, proyector, atención) |
+| ecuación 2 + qué implica para nuestro modelo | **una** | la tabla de mapeo línea por línea contra `model_clam.py` y el panel de la atención sin signo, que pasa al remate |
+| el puente Top-K + la rama interpretable | **una** | el panel del gradiente de la selección y el de por qué se gira la matriz |
+| las ecuaciones 3 a 10 | **una** | sin cambios |
+| qué reportan + qué costaría + qué preguntar | **una** | la tabla de contraste con lo nuestro y 2 de las 4 preguntas |
 
-El guion completo bajó de **3705 a 3199 palabras**.
+Ningún número del paper ni nuestro se fue con las fusiones: lo que salió son glosas y
+tablas ilustrativas.
 
-Los dos numéricos que salieron eran ilustrativos, no resultados: no hay ningún número del
-paper ni nuestro que se haya ido con ellos.
+## La sección de atención (láminas 10 a 17)
+
+Todo sale de `../atencion_vs_patologo/{prereg.md,resultados.md,auc_por_checkpoint.csv}`.
+**Nada se re-mide**: el experimento cerró el 2-ago, corrida confinada incluida. Los siete
+AUC de la escalera se verificaron contra el CSV antes de escribirlos (4 checkpoints
+primarios, cabeza de la clase verdadera).
+
+El argumento entra en el orden que fija la memoria `deck-b8-dos-ejes-simil-mitosis`:
+
+1. **El estadístico es el AUC de ranking**, no el mapa de calor, que fue el subproducto.
+   Va en su propia lámina y con su propia figura (lámina 11), porque el número sin dibujo
+   es exactamente lo que no se retuvo cuando se hizo la medición.
+2. **0,890 ± 0,039**, percentil mediano 91, el mejor de los siete grupos, con la escalera
+   completa hasta grasa 0,154 (lámina 13, barras nativas).
+3. **Los cuatro controles**, con el nulo por traslación rígida al frente (lámina 16).
+4. **Mira bien y responde mal** (lámina 15).
+5. **La consecuencia sobre las cuatro familias**, que es por qué la búsqueda de papers
+   apuntó a B, C y D (lámina 17).
+
+### La leyenda obligatoria de las figuras
+
+Las dos figuras muestran el tejido **dos veces**, porque el `.bif` tiene dos regiones de
+escaneo y el pipeline extrajo parches de las dos (2303 arriba, 2496 abajo; las 163
+anotaciones caen **todas** abajo). En una lámina proyectada, sin explicación, eso se lee
+como un defecto de la figura. La lámina 12 lleva el panel que lo explica **y** el dato de
+que se midió y se descartó el efecto de región (0,462 a 0,478, o sea que la región anotada
+recibe *algo menos* de atención). Hallazgo **F4** de la sexta pasada de la auditoría.
+
+### Lo que la sección declara que NO dice
+
+Una lámina y un anotador **describen, no establecen**; está pre-registrado así y la lámina
+16 lo dice. Grado nuclear **no entra a la par de mitosis**: da 0,828 pero solo 1 de 4
+checkpoints baja de p = 0,05, y aparece únicamente como advertencia hablada sobre la
+escalera. Las clases de contraste **no son control negativo**.
 
 ## Decisiones de construcción
 
-### 1. Tipografía de las ecuaciones: Barlow con fallback, NO Cambria Math
+### 1. Las figuras de atención van como imagen, y es legítimo
 
-Barlow **no trae griegas** (`α β ψ γ λ Σ`) ni `ℝ ∈ → ⊗`, y este deck es de ecuaciones, así
-que el problema pesa mucho más que el de las cuatro flechas del B7. El template embebe
-Barlow **y Cambria Math**, así que declarar Cambria Math en esos glifos era una opción real
-y con la ventaja de viajar embebida.
+La convención pide **todo nativo** salvo figuras de paper. Estas no son de un paper: son
+producción nuestra, y son mapas de una lámina real, que no se pueden redibujar con shapes.
+Van como imagen; las tablas y la escalera que las acompañan van **nativas**.
 
-**Se rasterizaron las dos y se miró.** Gana Barlow con el fallback del sistema: sus griegas
-salen en un sans de peso parecido y la línea se lee homogénea, mientras que las de Cambria
-Math son serif finas y contrastan con el Barlow que las rodea. Verificado con
-`FONTCONFIG_FILE` apuntando a `clam_testing2/fonts/fonts.conf`, o sea con Barlow real.
+### 2. Por qué las figuras se recortan antes de entrar
 
-`pdffonts` sobre el PDF lista `Barlow-Bold` y `Barlow-Regular` embebidos, más `DejaVuSans`,
-que es el fallback de esos glifos y **no es un defecto**.
+Se generaron para archivo, no para proyectar: traen los títulos de matplotlib y un hueco
+de ~390 px entre las dos regiones de escaneo. Puestas tal cual, el tejido queda del tamaño
+de una moneda. `prep_assets_atencion.py` las recompone **sin alterar el contenido**, y
+conserva las dos regiones en la figura de los mapas, porque esconder una sería esconder
+justo lo que la leyenda tiene que explicar.
 
-### 2. Subíndices y superíndices REALES
+Gotcha del detector del zoom: buscar los parches de mitosis por «blanco puro» **no
+funciona**, porque el fondo del lienzo también es casi blanco y aporta 27 000 píxeles de
+ruido. Lo que los distingue es la **vecindad saturada**: son los únicos blancos rodeados
+de mapa de calor. Con eso salen 11 grupos limpios.
 
-`_add_runs()` (portado de `scripts/generate_clam_mammoth_pptx.py`, con Barlow en vez de
-Carlito) emite runs con `baseline` OOXML: `_x` / `_(xx)` subíndice, `^x` / `^(xx)`
-superíndice. Hace falta porque Unicode no tiene subíndice para casi ninguna letra, y acá se
-escriben cosas como `M_(ij)`, `w_j`, `β_j`, `A^p`.
+### 3. Las cajas de imagen se dimensionan con la relación de aspecto exacta
 
-**Gotcha que ya mordió:** en una tabla con `markup=True`, el `_` de `model_clam.py` se
-interpretó como subíndice y el archivo quedó escrito **«model_lam.py»** con la `c` chiquita.
-Se escapa con `model\\_clam.py`.
+`add_image_fit` centra la imagen dentro de su caja. Si la caja no tiene la relación de
+aspecto de la figura, sobra aire a los costados y los rótulos de columna quedan corridos
+respecto de lo que rotulan. Pasó en la primera pasada de la lámina 12. Se corrige fijando
+`h = w / ar` en vez de elegir los dos valores a ojo.
 
-### 3. Los paneles se dimensionan midiendo el texto
+### 4. Las tiras de paneles se igualan en alto después de dibujarlas
 
-El chequeo programático de conformidad da «todo limpio» con texto que desborda su caja,
-porque nadie mide el texto ([[deck-qa-puntos-ciegos-chequeo]]). En la primera pasada **seis
-láminas** tenían la última línea de un panel afuera, y una tenía una tabla montada sobre un
-panel.
+`panel(..., h=None)` calcula su propio alto midiendo el texto, así que una tira de cuatro
+sale dentada. Se igualan al más alto **después**, con `sp.height = Inches(alto_max)`: el
+texto está anclado arriba, así que alargar la caja no mueve nada. Y el bloque siguiente se
+posiciona desde ese alto medido, no desde una constante.
 
-`text_w()` mide con los TTF de Barlow instalados bajo containment, `wrap_lines()` cuenta las
-líneas reales dentro del ancho disponible, y `panel(..., h=None)` calcula su propio alto. La
-posición del panel siguiente se toma de `Emu(sp.height).inches`, no de una constante.
+### 5. Tipografía de las ecuaciones: Barlow con fallback, NO Cambria Math
 
-`auditar(prs)` corre antes del escalado y avisa de tres cosas: texto que no entra en su caja,
-shapes fuera del lienzo y cuerpos por debajo del mínimo del template (7 pt). Ignora los
-shapes rotados para los límites, porque un shape a 270° reporta su bbox sin rotar y daba
-falso positivo. **No reemplaza mirar las láminas**: caza la clase de defecto que más apareció
-acá, nada más.
+Barlow **no trae griegas** (`α β ψ γ λ Σ`) ni `ℝ ∈ → ⊗`, y este deck es de ecuaciones. El
+template embebe Barlow **y Cambria Math**, así que declarar Cambria Math era una opción
+real. **Se rasterizaron las dos y se miró:** gana Barlow con el fallback del sistema, cuyas
+griegas salen en un sans de peso parecido, mientras que las de Cambria Math son serif finas
+y contrastan con el Barlow que las rodea. `pdffonts` lista `Barlow-Bold` y `Barlow-Regular`
+embebidos más `DejaVuSans`, que es ese fallback y **no es un defecto**.
 
-### 4. Extracción de la Fig. 2
+### 6. Subíndices y superíndices REALES
 
-`pdftoppm -f 4 -l 4 -r 400` sobre el PDF y recorte por perfil de contenido: la figura vive
-entre las filas 402 y 1221 de la página, con el caption abajo separado por una franja
-blanca. Los tres paneles se cortan del recorte grande. La figura del paper es la **única
-imagen** del deck; todo lo demás es nativo.
+`_add_runs()` emite runs con `baseline` OOXML: `_x` / `_(xx)` subíndice, `^x` / `^(xx)`
+superíndice. Hace falta porque Unicode no tiene subíndice para casi ninguna letra.
+
+**Gotcha:** en un shape con `markup=True` el `_` de `model_clam.py` se interpreta como
+subíndice y el archivo queda escrito «model_lam.py». Se escapa con `model\\_clam.py`. Por
+eso los `score_2` / `score_3` de la sección de atención van en tablas y textboxes **sin**
+markup, donde el guión bajo es literal.
+
+### 7. Los paneles se dimensionan midiendo el texto
+
+`text_w()` mide con los TTF de Barlow instalados bajo containment, `wrap_lines()` cuenta
+las líneas reales, y `panel(..., h=None)` calcula su alto. `auditar(prs)` corre antes del
+escalado y avisa de texto que no entra, shapes fuera del lienzo y cuerpos por debajo del
+mínimo del template (7 pt). **No reemplaza mirar las láminas**, y de hecho las cuatro
+correcciones de layout de esta pasada salieron de mirarlas con la auditoría en cero.
+
+### 8. Extracción de la Fig. 2 del paper
+
+`pdftoppm -f 4 -l 4 -r 400` sobre el PDF y recorte por perfil de contenido. Es la **única
+imagen de paper** del deck.
 
 ## Guion del presentador
 
 Prosa hablada corrida, sin etiquetas de fase, en primera persona
-([[notas-presentador-guion-didactico]]). Pasado por `@humanizer-es`: el vocabulario salió
-limpio y **los tells eran de ritmo**, como suele pasar en un guion maduro. Los dos
-dominantes, con su corrección:
+([[notas-presentador-guion-didactico]]). Sin números de job ni nombres propios: los
+checkpoints se rotulan por su cohorte («privado», «privado + TCGA», «5 folds, fold 0»).
 
-- **Diez láminas abrían su último párrafo con «Y »**. Quedaron cero.
-- **Casi todos los párrafos medios abrían señalando una posición** («La tabla de la
-  derecha…», «El panel de la derecha…»), que es cadencia de máquina recorriendo un plano.
-  Bajaron de catorce a seis, que es lo que la convención pide para seguir la figura.
-
-Más «vale la pena» ×3 → cero. El largo de oración quedó con mediana 15 palabras, decil
-inferior 5 y superior 29, y 47 oraciones de ocho palabras o menos: variedad suficiente para
-leerlo en voz alta.
-
-Al fusionar el 31-jul se verificó que ninguno de los párrafos reescritos reintrodujera esas
-dos cadencias: ningún párrafo de cierre abre con «Y », y los que abren señalando una
-posición siguen siendo seis en todo el deck.
+Los guiones de las seis láminas fusionadas de SI-MIL se **reescribieron**, no se pegaron, y
+absorbieron lo que salió de las láminas. Los ocho de la sección de atención se escribieron
+de cero para este deck.
 
 ## Lo que NO se hizo
 
-- ~~La fecha de la lámina de título es la de construcción.~~ **Resuelto el 31-jul**: Ernesto
-  confirmó que la reunión es **el viernes 07/08/2026** y `FECHA_REUNION` ya la tiene.
-- Las ecuaciones **3 a 10 no están explicadas** una por una. El plan de cómo desarmarlas está
-  en la §6.2 del insumo.
-- No se tocó nada de GPU, ni se descargó nada del repositorio ni del dataset de SI-MIL.
+- Las ecuaciones **3 a 10 siguen sin explicarse** una por una. La lámina 3 lo declara con
+  su marcador de estado y el remate de esa lámina lo dice en voz alta.
+- **Grado nuclear no tiene lámina propia**, por lo dicho arriba.
+- No se tocó nada de GPU, ni se re-midió nada de `atencion_vs_patologo/`.

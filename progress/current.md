@@ -1678,3 +1678,39 @@ SI-MIL»), que leída sola autorizaba a borrar SI-MIL entero. Hallazgo **F2**.
 en el brazo `15×10`. Siguen los **tres** jobs ajenos de `capstone` (4778, 4780, 4782) compartiendo
 la GPU. No se leyó ninguna métrica parcial: solo se contaron archivos y se miró `squeue`, así que
 el pre-registro sigue intacto.
+
+## Sesión del 3-ago-2026 (lunes, 18:20) — el deck del B8 pasa a dos ejes
+
+**Sesión de construcción**, sin GPU y sin tocar nada que el job 4774 lea (workaround H).
+
+**Entregado: el deck rehecho, `sprints/B8_sprint8/presentacion_b8/CLAM_Sprint8.pptx`, 17 láminas.**
+Cumple el encargo del 3-ago en sus tres partes. **SI-MIL compactado a la mitad y no borrado**: de
+12 láminas de contenido a 6, fusionando pares con el método del 31-jul, o sea que lo que sale de
+la lámina se cuenta hablando y el guion de la fusionada se reescribe. **Entra la sección de
+atención**, ocho láminas, con las dos figuras y la leyenda obligatoria de las dos regiones de
+escaneo. **Registro pedagógico**: el estadístico tiene lámina y figura propias, que es lo que
+faltaba, y la escalera de los siete grupos es un gráfico de barras nativo y no una lista.
+
+El archivo pasó a llamarse `CLAM_Sprint8.pptx`; el generador retira el `CLAM_Sprint8_SIMIL.pptx`
+previo, que ya no describe el contenido. Ningún `.pptx` está versionado.
+
+**Colisión de sesiones, resuelta.** Al interrumpir y retomar, el proceso anterior de esta misma
+sesión quedó vivo y siguió trabajando solo: escribió 151 líneas del generador a las 17:49, con el
+mismo plan. Se verificó que no fuera trabajo ajeno, Ernesto autorizó cerrarlo, y la construcción
+siguió **sobre** lo que había dejado, que estaba bien hecho. Es el riesgo que el handoff anticipaba
+en su §11 y la primera vez que se materializa: dos procesos con el mismo id de sesión escribiendo
+el mismo archivo.
+
+**Los números de la sección se verificaron contra `auc_por_checkpoint.csv` antes de escribirlos**
+(4 checkpoints primarios, cabeza de la clase verdadera): la escalera completa reproduce el
+`resultados.md` dígito a dígito. **Nada se re-midió.**
+
+**QA visual hecho y con hallazgos**, que es la razón por la que se hace: la auditoría programática
+dio cero avisos en las dos pasadas, y aun así mirando las láminas rasterizadas aparecieron cuatro
+defectos de layout, todos corregidos. Dos figuras centradas en cajas con otra relación de aspecto,
+que dejaban los rótulos de columna corridos respecto de lo que rotulaban; una tira de cuatro
+paneles dentada porque cada uno se auto-dimensiona; y jerga interna en un remate («commiteadas»).
+
+**Job 4774 a las 18:20:** vivo, 22 h 10 min, **29 de 40 runs**, cero `Traceback` y cero `FAILED`.
+Siguen los tres jobs ajenos de `capstone`. No se leyó ninguna métrica parcial: el pre-registro
+sigue intacto.
