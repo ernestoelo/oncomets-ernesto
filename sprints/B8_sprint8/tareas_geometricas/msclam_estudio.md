@@ -8,7 +8,7 @@
 > Código clonado en `clam_testing2/MSCLAM_reference/` (HEAD `18e8827`, 29-ago-2024, 5.1 MB),
 > **reference only**: solo lectura, NO al PYTHONPATH, NO import cruzado.
 >
-> **Bajado el 3-ago-2026.** Ficha: [`papers_mitosis.md`](papers_mitosis.md) §5.
+> **Bajado el 2-ago-2026 (noche).** Ficha: [`papers_mitosis.md`](papers_mitosis.md) §5.
 >
 > Se lo incluyó porque el encargo dice "aprovechando la información del patólogo sobre las
 > etiquetas" y este es el que responde a esa frase de la forma más literal. Queda quinto en

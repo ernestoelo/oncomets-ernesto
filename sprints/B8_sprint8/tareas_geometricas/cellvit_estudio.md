@@ -8,7 +8,7 @@
 > **reference only**: solo lectura, NO al PYTHONPATH, NO import cruzado. **Los pesos no se
 > bajaron** (el clon no los trae).
 >
-> **Bajado el 3-ago-2026.** Ficha: [`papers_mitosis.md`](papers_mitosis.md) §3.
+> **Bajado el 2-ago-2026 (noche).** Ficha: [`papers_mitosis.md`](papers_mitosis.md) §3.
 > Contraparte obligatoria: [`../hovernet_estudio.md`](../hovernet_estudio.md), porque CellViT es
 > un HoVer-Net con el encoder cambiado y hereda su post-procesamiento.
 

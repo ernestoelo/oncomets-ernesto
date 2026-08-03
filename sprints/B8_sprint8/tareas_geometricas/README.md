@@ -134,7 +134,7 @@ Extraer, solo para estas tareas, parches parametrizados en **µm/px físicos** e
 Lo que cambia hoy es que hay un argumento clínico específico para gastarlo acá (§2.c y §2.d)
 en vez de como mejora genérica.
 
-> **ADDENDUM 3-ago-2026, leído ZoomMIL** ([`zoommil_estudio.md`](zoommil_estudio.md)): el paper
+> **ADDENDUM 2-ago-2026 (noche), leído ZoomMIL** ([`zoommil_estudio.md`](zoommil_estudio.md)): el paper
 > de referencia de esta familia **se degrada cuando el objeto es chico, y lo dice él mismo**. En
 > CAMELYON16 tuvieron que subir la magnificación más baja a 10× porque las metástasis son muy
 > chicas, y aun así perdieron rendimiento. Una mitosis marcada mide 16.7 µm, mucho menos que una
@@ -173,7 +173,7 @@ Dos cosas para cuando se retome, que conviene dejar escritas ahora:
   > preprint. Y la cuenta que reordena la familia: cambiar de modelo rinde 1.85×, mientras que
   > acotar a los **20 mejores parches de CLAM** (la idea del propio Sebastián) rinde ~240×. El
   > paper es de segundo orden frente al subconjunto de parches.
-  > > **ADDENDUM 3-ago, con el PDF de CellViT leído** ([`cellvit_estudio.md`](cellvit_estudio.md)):
+  > > **ADDENDUM 2-ago (noche), con el PDF de CellViT leído** ([`cellvit_estudio.md`](cellvit_estudio.md)):
   > > el **1.85× es de la variante chica** (CellViT256); la de mejores números, SAM-H, rinde
   > > **1.39×**. Y el speedup viene sobre todo del **parche de inferencia de 1024 px**, no de la
   > > arquitectura, así que el mismo truco podría aplicarse a HoVer-Net. Lo que sí es nuevo y

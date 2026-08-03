@@ -56,7 +56,11 @@ Acceso: **VPN oficial Environ + SSH**. Stack registrado el 19 may 2026
 └── clam_testing2/       ← MI workspace (todo lo mío vive acá; ver "Workspace containment")
     ├── oncomets-ernesto/        ← este repo
     ├── CLAM_official_reference/ ← CLAM oficial Mahmood Lab (REFERENCE ONLY — not in PYTHONPATH)
-    └── ILSC_reference/          ← ILSC (Liu et al., MedIA 2026) (REFERENCE ONLY — not in PYTHONPATH)
+    ├── ILSC_reference/          ← ILSC (Liu et al., MedIA 2026) (REFERENCE ONLY — not in PYTHONPATH)
+    ├── PUcell_reference/        ← PU learning cell detection, Zhao MELBA 2022  ┐ los 4 del encargo
+    ├── CellViT_reference/       ← CellViT, Hörst MedIA 2024                    │ de mitosis (2-ago),
+    ├── ZoomMIL_reference/       ← ZoomMIL, Thandiackal ECCV 2022               │ MISMA regla:
+    └── MSCLAM_reference/        ← MS-CLAM, Tourniaire MedIA 2023               ┘ REFERENCE ONLY
 ```
 
 - **Codebase compartido (READ-ONLY)**: `/media/administrador/Storage1/sdonoso/clam_environ/`
@@ -74,6 +78,13 @@ Acceso: **VPN oficial Environ + SSH**. Stack registrado el 19 may 2026
   CONCH** (verificado: 89 menciones de plip, cero de conch). Mismas reglas que
   el anterior: **NO al PYTHONPATH, NO import cruzado**, solo lectura. Ficha del
   paper en `sprints/B8_sprint8/papers_b8.md` §4.
+- **Los 4 repos del encargo de mitosis (REFERENCE ONLY)**, clonados el 2-ago-2026
+  con autorización explícita de Ernesto, bajo `clam_testing2/`: `PUcell_reference/`
+  (`1bce728`), `CellViT_reference/` (`05097e1`), `ZoomMIL_reference/` (`da7bb7f`),
+  `MSCLAM_reference/` (`18e8827`). **Mismas reglas que los dos anteriores: solo
+  lectura, NO al PYTHONPATH, NO import cruzado.** Sin checkpoints descargados.
+  Estudios y correcciones en `sprints/B8_sprint8/tareas_geometricas/` +
+  [[papers-rama-mitosis-bcd]].
 
 ## Workarounds operativos del servidor Environ
 
@@ -128,6 +139,20 @@ aplicar el fix correspondiente sin investigar de nuevo.
 - **Fix**: los papers y artefactos del proyecto viven en `papers/`,
   `sprints/`, `docs/` del repo personal. No descargar nada de afuera: si
   falta algo, reportarlo y que Ernesto lo suba.
+- **E.a — «No descargar» es POLÍTICA, no una limitación técnica** (verificado
+  2-ago-2026): el server **SÍ tiene salida a internet** (`curl` a arXiv y
+  `git clone` de GitHub funcionan). Los `WebFetch` de las sesiones salen por el
+  harness, que es otra cosa y no prueba nada sobre la máquina. El default sigue
+  siendo **no bajar nada sin autorización explícita de Ernesto**; lo que cambia
+  es que, cuando la autoriza, se baja **desde el server y al destino correcto**,
+  sin pedirle que suba archivos a mano. Precedente: los 5 papers de mitosis y sus
+  repos, autorizados el 2-ago ([[papers-rama-mitosis-bcd]]). Una autorización es
+  **para esa lista**, no para el tema.
+- **E.b — Gotcha del cache del harness**: un `WebFetch` sobre la URL de un PDF
+  deja una copia en `~/.claude/projects/<hash>/<sesión>/tool-results/*.pdf`,
+  **fuera del containment**. Si la regla vigente es no descargar, borrarla en el
+  momento; si está autorizado, bajar **a propósito y al destino correcto**, no de
+  rebote.
 
 ### F. `git push` por SSH
 

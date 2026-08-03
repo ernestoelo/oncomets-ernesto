@@ -2,7 +2,7 @@
 
 > Aubreville M et al., *Mitosis domain generalization in histopathology images: The MIDOG
 > challenge*, **Medical Image Analysis 84:102699 (2023)**. arXiv:2204.03742.
-> PDF en [`midog_aubreville2023.pdf`](midog_aubreville2023.pdf) (19 pág.). Bajado el 3-ago-2026.
+> PDF en [`midog_aubreville2023.pdf`](midog_aubreville2023.pdf) (19 pág.). Bajado el 2-ago-2026 (noche).
 >
 > No es uno de los papers del encargo: es la **fuente de datos** que el go/no-go del paso 1
 > necesita. Esta nota existe para tapar el hueco #1 del handoff (el µm/px, que estaba sin

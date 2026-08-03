@@ -260,3 +260,82 @@ memorias, `.claude/skills/`). **Cero checkouts** (workaround H).
 - **Acción**: corregir esa línea, concisa ([[edicion-concisa-agentes-skills]]). Las dos
   pasadas anteriores de esta misma auditoría ya habían hecho lo correcto en la práctica (cero
   checkouts con un job vivo), así que el texto es lo único desalineado.
+
+---
+
+# Cuarta pasada — cierre de la sesión de lectura de los papers (2-ago-2026, noche, 3ª)
+
+> Contexto: se bajaron y leyeron los 5 papers del encargo de mitosis, con dos correcciones a
+> `tareas_geometricas/papers_mitosis.md`. La auditoría revisa qué quedó stale **por esas
+> correcciones** y qué hallazgo operativo nuevo merece subir a las instrucciones.
+> Job 4774 vivo durante toda la pasada: cero branch-switch, cero edición de inputs del job
+> (workaround H). Todo lo tocado son docs, memorias y `CLAUDE.md`, que el job no lee.
+
+## Resumen
+
+| id | Hallazgo | Tipo | Sev | Acción |
+|---|---|---|---|---|
+| D1 | La memoria `papers-rama-mitosis-bcd` dice en su **cuerpo** «código no localizado» (D), «µm/px de MIDOG NO verificado» y «el dato de ZoomMIL no está verificado»; los tres se resolvieron en el ADDENDUM del final | stale | **alta** | Marcar los tres inline apuntando al ADDENDUM, sin borrar el texto original |
+| D2 | El workaround E de `CLAUDE.md` se puede leer como que el server **no tiene salida a internet** | error de lectura inducido | media | Sub-cláusula aditiva: la restricción es de **política**, no técnica |
+| D3 | «Paths críticos» de `CLAUDE.md` lista 2 repos reference-only; ahora son **6** | stale | media | Agregar los 4 nuevos con la misma regla |
+| D4 | Los estudios nuevos fechados **3-ago** cuando la sesión fue la noche del **2-ago** | error | media | **Ya corregido** antes de esta pasada |
+| D5 | `papers_mitosis.md` terminaba con dos etiquetas sueltas (`</content>`, `</invoke>`) commiteadas el 2-ago | error | baja | **Ya corregido** en el commit `c9dd72a` |
+
+## D1 — La memoria contradice su propio ADDENDUM
+
+La memoria se escribió el 2-ago con tres cosas marcadas como no verificadas, y esta sesión las
+verificó. El ADDENDUM está al final y las corrige, pero **el cuerpo sigue afirmando lo viejo**, y
+alguien que escanee la tabla de la línea 20 (`Código: no localizado`) o la línea 44 (`µm/px de
+MIDOG: NO verificado`) se lleva el dato equivocado sin llegar al final.
+
+- **Qué dice cada fuente.** Cuerpo de la memoria: no localizado / no verificado. ADDENDUM de la
+  misma memoria + `pulearning_estudio.md` + `midog_notas.md` + `zoommil_estudio.md`: resueltos,
+  con cita al PDF y al código.
+- **Cuál es canónica:** el ADDENDUM y los estudios.
+- **Acción:** marcar los tres puntos **inline** con un puntero al ADDENDUM. No se borra el texto
+  original, porque registra qué se sabía el 2-ago y por qué la búsqueda falló (se buscó en la
+  página de abstract y el link estaba en el cuerpo del paper), que es una lección reusable.
+
+## D2 — El workaround E induce a creer que el server está aislado
+
+`CLAUDE.md:123-130` dice: «No descargar nada de afuera: si falta algo, reportarlo y que Ernesto lo
+suba». Es una regla de política, y está bien que exista. Pero el título del workaround es
+«`/mnt/project/` no existe en este server» y el texto no aclara si el server **puede** salir.
+
+Esta sesión lo verificó: `curl` a arXiv y `git clone` de GitHub **funcionan** desde la máquina.
+Los `WebFetch` de sesiones anteriores salían por el harness, que es otra cosa y no probaba nada
+sobre el server.
+
+- **Por qué importa:** una sesión futura podría descartar una opción legítima (bajar algo que
+  Ernesto ya autorizó) creyendo que técnicamente no se puede, o al revés, gastar tiempo pidiéndole
+  a Ernesto que suba a mano algo que él ya autorizó bajar.
+- **Acción:** sub-cláusula aditiva al workaround E. **No se relaja la regla**: el default sigue
+  siendo no descargar sin autorización explícita. Solo se separa «no está permitido» de «no se
+  puede».
+
+## D3 — El mapa de paths quedó corto
+
+`CLAUDE.md:56-71` lista `CLAM_official_reference/` e `ILSC_reference/` bajo `clam_testing2/`, con
+la regla dura de reference-only. Esta sesión agregó cuatro directorios con exactamente el mismo
+estatuto: `PUcell_reference/`, `CellViT_reference/`, `ZoomMIL_reference/`, `MSCLAM_reference/`.
+
+- **Acción:** agregarlos al árbol y una línea con la regla compartida, sin repetir el párrafo
+  completo para cada uno (canonical + puntero, [[edicion-concisa-agentes-skills]]).
+
+## D4 y D5 — Ya corregidos antes de esta pasada
+
+- **D4:** los cinco documentos nuevos se fecharon **3-ago** cuando el reloj local del server
+  marcaba **domingo 2-ago 21:58**. Se corrigieron todas las ocurrencias propias, preservando las
+  referencias legítimas a «la reunión del **lunes** 3-ago». La fecha es provenance y otros docs la
+  citan, así que no es cosmético.
+- **D5:** `papers_mitosis.md` terminaba con `</content>` y `</invoke>`, residuo de la escritura
+  del 2-ago que se commiteó. Corregido en `c9dd72a`.
+
+## Verificado sin cambios
+
+- **Skills y agentes:** las 12 skills tienen su `SKILL.md`; `trainer.md` y `reviewer.md` intactos.
+  Ninguna de las dos correcciones de esta sesión toca sus reglas.
+- **Hallazgos 11 a 14 de `CLAUDE.md`:** ninguno se toca. La lectura de los papers no reabre el eje
+  de arquitectura ni contradice nada de lo cerrado; lo que hace es fichar métodos externos.
+- **La familia A sigue descartada para los papers.** Ningún paper leído propone cambiar el
+  operador de agregación, así que la restricción del encargo se respetó.

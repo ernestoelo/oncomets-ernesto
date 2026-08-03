@@ -1517,7 +1517,7 @@ todavía corriendo.
 
 ---
 
-## Sesión del 3-ago-2026 — los papers bajados y leídos, con dos correcciones a la ficha
+## Sesión del 2-ago-2026 (noche, 3ª) — los papers bajados y leídos, con dos correcciones a la ficha
 
 Se ejecutó el handoff del 2-ago 20:57: bajar los papers **con su código**, estudiarlos, y dejar
 la reunión del lunes preparada. El job 4774 corrió toda la sesión sin que se lo tocara.

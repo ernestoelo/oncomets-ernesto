@@ -8,7 +8,7 @@
 > mismo contenido). Versión previa MICCAI 2021, más corta:
 > [`pulearning_zhao2021_miccai.pdf`](pulearning_zhao2021_miccai.pdf) (arXiv:2106.15918).
 >
-> **Bajados el 3-ago-2026** con autorización explícita de Ernesto. Ficha bibliográfica y BibTeX:
+> **Bajados el 2-ago-2026 (noche)** con autorización explícita de Ernesto. Ficha bibliográfica y BibTeX:
 > [`papers_mitosis.md`](papers_mitosis.md) §2.
 >
 > **Código: SÍ existe**, y el 2-ago se dio por no localizado. Está citado en el cuerpo del paper

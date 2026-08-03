@@ -6,7 +6,7 @@
 > Código clonado en `clam_testing2/ZoomMIL_reference/` (HEAD `da7bb7f`, 3-nov-2022, 1.6 MB),
 > **reference only**: solo lectura, NO al PYTHONPATH, NO import cruzado.
 >
-> **Bajados el 3-ago-2026.** Ficha: [`papers_mitosis.md`](papers_mitosis.md) §4.
+> **Bajados el 2-ago-2026 (noche).** Ficha: [`papers_mitosis.md`](papers_mitosis.md) §4.
 >
 > **Corrección de entrada, y es la principal razón por la que valía bajarlo:** los números
 > **68.3 / 69.3** con la cadena **1.25× → 2.5× → 10×** que la ficha del 2-ago atribuía a
