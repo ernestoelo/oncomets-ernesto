@@ -1588,5 +1588,13 @@ lámina**.
 **Estado del job 4774 al cierre:** vivo, ~1 h 45 de corrida, brazo control 30×10, sin `Traceback`
 ni `FAILED`. ETA ~lunes 20:30.
 
+> **Actualización lunes 3-ago 15:25** (la sesión quedó abierta hasta el día siguiente): el job
+> lleva **19 h 12 min** y **cerró 5 de 8 brazos** (`30×10`, `27×10`, `30×9`, `21×10`, `30×7`),
+> va por `15×10`, **26 de 40 runs**, sigue sin `Traceback` ni `FAILED`. **La ETA del prereg
+> quedó corta:** suponía que los brazos chicos serían más rápidos (~37 min/run) y los `mtime`
+> reales dan **~70 min/run** en los últimos, así que el cierre cae en la **madrugada o mañana
+> del martes 4-ago**, no el lunes 20:30. No es un fallo del job; conviene anotarlo al escribir
+> `resultados.md`.
+
 **Sigue sin empezar** rehacer el deck del B8, que ahora tiene material nuevo para una lámina de
 «hacia dónde sigue».
