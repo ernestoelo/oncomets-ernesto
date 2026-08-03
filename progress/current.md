@@ -1502,3 +1502,15 @@ PMC, HAL), que es lo que se usó para todo lo demás.
 hardcodeado, así que el contador corre pero no dispara antes de la época 50.
 
 **Sigue sin empezar** rehacer el deck del B8.
+
+**Al cerrar la sesión, Ernesto autorizó descargar los papers con su código.** Levanta el
+workaround E **para los cinco de `papers_mitosis.md` y sus repos**, y solo para ellos (los dos
+de suscripción del encargo anterior, LVI e ILSC, **no** quedan cubiertos). Destinos: los PDF a
+`sprints/B8_sprint8/tareas_geometricas/` y se commitean, que es la convención verificada del
+encargo anterior; los repos a `clam_testing2/<Nombre>_reference/` con las mismas reglas que
+`CLAM_official_reference/` (solo lectura, NO al PYTHONPATH, NO import cruzado). Código
+localizado: CellViT `TIO-IKIM/CellViT`, ZoomMIL `histocartography/zoommil`, MS-CLAM
+`paul-tourniaire/MS-CLAM`. **Del paper de PU learning no se encontró repo**, y eso cambia el
+costo de la familia D: si no hay implementación, el detector y la loss se escriben desde cero.
+La próxima sesión estudia cada uno y **confirma o corrige** la recomendación, con el job 4774
+todavía corriendo.
