@@ -159,14 +159,23 @@ Motivo operativo: la GPU está vacía un domingo y la ventana hay que aprovechar
 run por run desde los mtime de los `test_metrics.json` del 4589, las tres tareas no cuestan
 lo mismo ni de cerca:
 
-| Tarea del 4589 | slides de train | min/run (mediana) |
-|---|---:|---:|
-| `tipo_histologico_3clases_ci` (3 clases) | 1621 | **83.0** |
-| `invasion_linfatica_vascular_ci_reform` | 669 | 37.0 |
-| `carcinoma_ductal_insitu_presente_ci_reform` | 692 | **36.2** |
+| Tarea del 4589 (brazo Mammoth) | slides de train | min/run (mediana) | min/run (mínimo) |
+|---|---:|---:|---:|
+| `tipo_histologico_3clases_ci` (3 clases) | 1621 | **83.6** | 83.0 |
+| `invasion_linfatica_vascular_ci_reform` | 669 | 37.4 | 37.0 |
+| `carcinoma_ductal_insitu_presente_ci_reform` | 692 | **36.4** | 36.2 |
 
 El promedio de 40 min salía de mezclar la tarea cara con las dos baratas. Para la candidata
-el número real es **36.2 min/run**, así que 40 runs son **~24 h**, no ~27.
+el número real es **36.4 min/run**, así que 40 runs son **~24 h**, no ~27.
+
+> **Corrección 2-ago (noche), al pre-registrar el grid.** La primera versión de esta tabla
+> rotulaba «mediana» a lo que eran los **mínimos** (83.0 / 37.0 / 36.2). Los recalculé desde
+> los mismos mtime: las medianas son 83.6 / 37.4 / 36.4. La columna del mínimo queda para no
+> perder la trazabilidad de lo que decía antes. No cambia ninguna decisión (40 × 36.4 ≈ 24.3 h
+> contra `--time 48:00:00`), pero el texto dice «medido run por run» y el número tiene que ser
+> el que dice ser. Los costos son del **brazo Mammoth**, que es el relevante: los runs CLAM de
+> las mismas tareas cuestan alrededor de la mitad (19.3 min en CDIS reform) y mezclarlos
+> subestimaría un grid de 40 runs todos Mammoth.
 
 **Los dos baselines de esta tarea YA están corridos, y son reusables.** Los 10 runs del 4589
 (5 CLAM + 5 Mammoth 30×10) viven en
