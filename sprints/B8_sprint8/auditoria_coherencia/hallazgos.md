@@ -196,3 +196,67 @@ Es el punto delicado de esta pasada, porque la tentación es cantar victoria.
 - **Acción**: sección nueva al final del archivo, **sin tocar** la de la sesión paralela.
   Las dos entradas del 31-jul conviven, distinguidas por el sufijo «(tarde)», que es la
   convención que el archivo ya usa.
+
+---
+
+# Tercera pasada — cierre de la sesión del grid E×S (2-ago-2026, noche)
+
+Auditoría acotada, del tamaño de la sesión: el grid quedó lanzado y sus hallazgos ya se
+escribieron en el pre-registro, en `progress/current.md` y en la memoria del eje, así que lo
+que falta registrar son dos cosas que aparecieron al cerrar, más una incoherencia que se cruzó
+en el camino.
+
+**Contexto operativo:** rama `main`, job **4774** (nuestro, grid E×S) **corriendo**. La
+auditoría es documental y toca solo archivos que el job no lee (`progress/`, `sprints/`,
+memorias, `.claude/skills/`). **Cero checkouts** (workaround H).
+
+| id | Hallazgo | Tipo | Severidad | Acción |
+|---|---|---|---|---|
+| C1 | El repo tiene «Reunión confirmada: viernes 07/08/2026» en 3 lugares; Ernesto avisó el 2-ago que la reunión con Sebastián es **mañana lunes 3-ago** | stale parcial | **alta** | Registrar la del 3-ago **sin borrar** el registro del 07/08 |
+| C2 | Encargo nuevo de Ernesto: **3 papers** para subir métricas en tareas específicas como mitosis, en una **rama aparte de CLAM**, especializándose con la información del patólogo sobre las etiquetas | registro | **alta** | Anclarlo donde ya vive su contexto: objetivo 5 y familias B/C/D |
+| C3 | La skill `@knowledge-audit` dice crear branch nueva «si hay un job GPU corriendo (workaround H)», que es **al revés** de lo que manda el workaround H | contradicción | media | Corrección concisa de esa línea |
+
+## C1 — La fecha de la reunión
+
+- Lo que dice el repo: `sprints/B8_sprint8/reunion_31jul_redireccion.md:5`,
+  `progress/current.md:1088` y `:1123`, y la memoria `reunion-24jul-encargos-b8` (ADDENDUM
+  31-jul) fijan **viernes 07/08/2026**, y el deck de SI-MIL se construyó para esa fecha.
+- Lo que dice Ernesto el 2-ago: hay reunión con Sebastián **mañana, lunes 3-ago**.
+- **Lo que NO se sabe y no se inventa**: si la del 3-ago **reemplaza** a la del 07/08, si es
+  una reunión adicional, o si el 07/08 quedó obsoleto desde la del 31-jul. El handoff anterior
+  ya arrastraba esta duda y la dejaba explícitamente en manos de Ernesto.
+- **Acción**: registrar la reunión del **lunes 3-ago** como un hecho nuevo y fechado, dejando
+  el registro del 07/08 intacto y marcado como «sin resolver si sigue en pie». No se toca la
+  lámina de título de ningún deck: eso depende de la respuesta que solo Ernesto tiene.
+
+## C2 — El encargo de los 3 papers
+
+- **Dónde ancla**: no es un encargo huérfano. `tareas_geometricas/README.md` §3 ya tiene las
+  **cuatro familias de respuesta** (A operador de agregación, B campo de visión, C unidad de
+  representación del parche al núcleo, D detector dedicado con anotaciones de objeto), y el
+  ADDENDUM 31-jul de [[reunion-24jul-encargos-b8]] ya abrió el **objetivo 5**, «ramas aparte
+  de CLAM dedicadas a mitosis y grado nuclear». El encargo nuevo es **la búsqueda
+  bibliográfica que le faltaba a ese objetivo**.
+- **Lo que el resultado del 1-ago ya decidió sobre el encuadre**: la atención **sí** cae sobre
+  las mitosis (AUC 0.890 ± 0.039) y el modelo igual responde mal, así que la familia **A**
+  perdió su motivación principal y los papers tienen que apuntar a **B, C y D**, no a
+  reemplazar el operador de agregación.
+- **La parte de «con la información del patólogo sobre las etiquetas»** conecta con la familia
+  **D** y con [[anotaciones-patologo-qupath]]: el geojson de 129741 son **positivos
+  parciales** (lo no marcado no es negativo) y está en coordenadas que no son las de openslide.
+  Un paper que pida supervisión densa por objeto choca con eso; uno que trabaje con
+  supervisión parcial o por puntos, no.
+- **Acción**: registrar el encargo en el objetivo 5 y en la memoria del eje, con esas tres
+  restricciones (apuntar a B/C/D, no a A; positivos parciales; workaround E) para que la
+  sesión que lo ejecute no las re-derive.
+
+## C3 — La skill contradice el workaround H
+
+- `.claude/skills/knowledge-audit/SKILL.md`, sección Setup: «create a NEW branch
+  `chore/audit-coherencia-<sprint>` only if the audit will carry changes into model/training
+  code (regla 9) **or a GPU job is running (workaround H)**».
+- El workaround H de `CLAUDE.md` manda exactamente lo contrario: **con un job en curso NO se
+  cambia de rama**. La cita del workaround está usada como si lo respaldara.
+- **Acción**: corregir esa línea, concisa ([[edicion-concisa-agentes-skills]]). Las dos
+  pasadas anteriores de esta misma auditoría ya habían hecho lo correcto en la práctica (cero
+  checkouts con un job vivo), así que el texto es lo único desalineado.

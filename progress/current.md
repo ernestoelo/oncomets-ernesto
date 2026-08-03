@@ -1426,4 +1426,15 @@ ejecución está pensado para eso).
 **Con el job vivo: no cambiar de rama ni editar archivos versionados que el job lea**
 (workaround H). El `.slurm` ahora loguea `commit=` y `rama=` para dejar la provenance.
 
+**Dos cosas que Ernesto avisó al cerrar la sesión.** Hay **reunión con Sebastián el lunes
+3-ago**. El repo tenía anotada una para el **viernes 07/08** (`reunion_31jul_redireccion.md:5`,
+este archivo en las líneas 1088 y 1123) y el deck de SI-MIL se construyó para esa fecha; **no
+se sabe** si la del 3-ago la reemplaza, la adelanta o es adicional, y eso lo resuelve Ernesto,
+no el repo. Y queda un **encargo nuevo**: buscar **3 papers** para subir métrica en tareas
+específicas como mitosis, con una **rama aparte de CLAM** especializada en ellas y usando la
+información del patólogo sobre las etiquetas, **para presentar en esa reunión**. Es la
+búsqueda bibliográfica que le faltaba al objetivo 5; restricciones ya decididas (apuntar a las
+familias B/C/D y no a la A, supervisión de positivos parciales, no descargar papers) en el
+ADDENDUM 2-ago del §4 de `objetivos_sprint8.md`.
+
 **Sigue sin empezar** rehacer el deck del B8.

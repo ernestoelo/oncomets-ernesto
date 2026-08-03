@@ -274,6 +274,29 @@ el geojson **no está en coordenadas de openslide** (sin corregir, 0 de 26 marca
 caen sobre un parche extraído), y las marcas son **positivos parciales**, no una
 segmentación.
 
+### ADDENDUM 2-ago-2026 (noche) — encargo nuevo: 3 papers para la rama de mitosis
+
+Pedido de Ernesto al cerrar la sesión del grid: **buscar 3 papers** que permitan subir la
+métrica en tareas específicas como **mitosis**, montando una **rama aparte de CLAM** que se
+especialice en ellas, y aprovechando **la información del patólogo sobre las etiquetas**. Es
+la búsqueda bibliográfica que le faltaba al objetivo 5, y **se presenta en la reunión con
+Sebastián del lunes 3-ago**.
+
+Tres restricciones que ya están decididas y que la búsqueda **no tiene que re-derivar**:
+
+1. **Apuntar a las familias B, C y D del README, no a la A.** El experimento del 1-ago cerró
+   que la atención **sí** cae sobre las mitosis (AUC de ranking 0.890 ± 0.039 en los
+   checkpoints que nunca vieron la lámina) y que el modelo igual responde mal. Cambiar el
+   operador de agregación perdió su motivación principal; lo que queda es campo de visión (B),
+   unidad de representación (C) y detector dedicado con anotaciones de objeto (D).
+2. **La supervisión disponible son positivos parciales.** Lo que el patólogo no marcó **no es
+   negativo**, y es una lámina, un anotador. Un método que exija segmentación densa por objeto
+   no es aplicable hoy; uno que tolere supervisión parcial, por puntos o por conteo, sí.
+   Detalle en [[anotaciones-patologo-qupath]].
+3. **No se descargan papers** (workaround E). Se identifican, se justifica por qué cada uno
+   viene al caso y qué exigiría implementarlo; si alguno es de suscripción, lo consigue
+   Ernesto. Es el mismo protocolo que siguió el encargo 4.
+
 ---
 
 ## 5. Qué no se afirma
