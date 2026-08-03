@@ -1598,3 +1598,36 @@ ni `FAILED`. ETA ~lunes 20:30.
 
 **Sigue sin empezar** rehacer el deck del B8, que ahora tiene material nuevo para una lámina de
 «hacia dónde sigue».
+
+---
+
+## Sesión del 3-ago-2026 (lunes, tarde)
+
+**La fecha de la reunión quedó resuelta, y era la que el repo ya tenía.** Ernesto confirmó a las
+15:30 que **la reunión del lunes 3-ago no ocurrió** (se movió o se canceló) y que **sigue en pie
+la del viernes 07/08/2026**. Con eso se cierra el hallazgo **C1** de la auditoría, abierto desde
+el 2-ago: los tres registros del 07/08 (`reunion_31jul_redireccion.md:5`, `current.md:1088` y
+`:1123`, más la memoria `reunion-24jul-encargos-b8`) **no estaban stale**, eran correctos. La
+decisión de la auditoría de registrar la del 3-ago sin borrarlos fue la correcta. **El deck de
+SI-MIL, construido para el 07/08, apunta a la fecha correcta y no hay título que corregir.**
+
+**Entregado: el material de los papers, en el formato que pidió Ernesto.**
+[`sprints/B8_sprint8/tareas_geometricas/hojas_reunion.md`](../sprints/B8_sprint8/tareas_geometricas/hojas_reunion.md),
+una hoja por paper, condensado de los cinco estudios del 2-ago sin volver a abrir un PDF. Cuatro
+hojas (PU learning, CellViT, ZoomMIL, MS-CLAM) más media hoja de anexo de MIDOG, que no es
+candidato sino la fuente de datos que vuelve ejecutable el paso 1. Adelante va la recomendación
+(**D primero, en dos pasos**) con la tabla comparativa de los cuatro por supervisión exigida, y
+las **tres cosas que hay que decir sí o sí**: que el paso 1 está desacoplado del paper de Zhao,
+que el régimen de anotación que ese paper evalúa (~73 % de retención) no es el nuestro (26 marcas
+en 4799 parches), y que la pregunta que decide si la familia D existe es si hay más láminas
+anotadas y quién es «GDT». Todos los números salen de los estudios ya verificados contra los PDF;
+no se agregó ninguna afirmación nueva.
+
+**Job 4774, a las 15:27:** sin cambios respecto del handoff de las 15:25. 19 h 17 min, 5 brazos
+cerrados, `15×10` en curso, **26 de 40 runs**, cero `Traceback` y cero `FAILED`.
+
+**Novedad de la cola, que explica la ETA:** aparecieron **dos jobs ajenos** de `capstone` (4778 y
+4780, lanzados hace 6 h y 4 h) en el mismo nodo. La GPU está compartida entre tres trabajos, lo
+que es coherente con que los runs pasaran de ~37 a ~70 min. Refuerza que el cierre del grid caiga
+en la madrugada o mañana del **martes 4-ago**. No hay que lanzar nada, así que la regla de
+cortesía no obliga a ninguna acción; queda anotado para el `resultados.md`.

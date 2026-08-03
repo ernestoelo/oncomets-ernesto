@@ -229,6 +229,17 @@ memorias, `.claude/skills/`). **Cero checkouts** (workaround H).
   el registro del 07/08 intacto y marcado como «sin resolver si sigue en pie». No se toca la
   lámina de título de ningún deck: eso depende de la respuesta que solo Ernesto tiene.
 
+> **RESUELTO el lunes 3-ago-2026, 15:30, por Ernesto. C1 se cierra.**
+> **La reunión del lunes 3-ago no ocurrió** (se movió o se canceló) y **queda en pie la del
+> viernes 07/08/2026**, que es la que el repo ya tenía anotada en los tres lugares. O sea que
+> los tres registros del 07/08 **no estaban stale**: eran correctos, y la del 3-ago era la
+> excepción. La decisión de no borrarlos fue la correcta.
+>
+> **Consecuencias**: el deck de SI-MIL construido para el 07/08 **sigue apuntando a la fecha
+> correcta** y no hay lámina de título que corregir; y el material de los papers, que el
+> handoff daba por urgente para hoy, pasa a tener hasta el viernes. Se entregó igual, en el
+> formato que pidió Ernesto: [`../tareas_geometricas/hojas_reunion.md`](../tareas_geometricas/hojas_reunion.md).
+
 ## C2 — El encargo de los 3 papers
 
 - **Dónde ancla**: no es un encargo huérfano. `tareas_geometricas/README.md` §3 ya tiene las

@@ -1,9 +1,16 @@
 # Tres papers para la rama de mitosis
 
-> Encargo de Ernesto del 2-ago-2026, para la reunión con Sebastián del **lunes 3-ago**.
+> Encargo de Ernesto del 2-ago-2026. ~~Para la reunión con Sebastián del **lunes 3-ago**.~~
+> **Corregido el 3-ago:** esa reunión no ocurrió; el material va a la del **viernes 07/08/2026**,
+> que es la que el repo ya tenía anotada (hallazgo C1 de la auditoría, ahora cerrado).
 > Registro del encargo: [`../objetivos_sprint8.md`](../objetivos_sprint8.md) §4, ADDENDUM
 > 2-ago (noche). Mapa contra el que se ubican:
 > [`README.md`](README.md) §3, las cuatro familias de respuesta.
+>
+> **➜ Para la reunión, el entregable es [`hojas_reunion.md`](hojas_reunion.md)** (3-ago): una
+> hoja por paper, con la recomendación adelante, condensada de los cinco estudios. **Este
+> documento es la fuente larga**, con las fichas bibliográficas, los abstracts verbatim y el
+> historial de correcciones; no se lee en la reunión.
 >
 > **Restricciones que la búsqueda no re-deriva** (ya decididas):
 > 1. Apuntar a las familias **B** (campo de visión), **C** (unidad de representación) y **D**
