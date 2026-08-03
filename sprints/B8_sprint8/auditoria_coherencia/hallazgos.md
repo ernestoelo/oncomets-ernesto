@@ -350,3 +350,80 @@ estatuto: `PUcell_reference/`, `CellViT_reference/`, `ZoomMIL_reference/`, `MSCL
   de arquitectura ni contradice nada de lo cerrado; lo que hace es fichar métodos externos.
 - **La familia A sigue descartada para los papers.** Ningún paper leído propone cambiar el
   operador de agregación, así que la restricción del encargo se respetó.
+
+---
+
+# Quinta pasada — cierre de la sesión del material de la reunión (3-ago-2026, tarde)
+
+Sesión corta y **documental**: el job 4774 sigue vivo (19 h 44, 27 de 40 runs), así que cero
+checkouts y cero ediciones de lo que el job lee (workaround H). Lo auditado es lo que esta sesión
+produjo o cambió de estado.
+
+| id | Hallazgo | Tipo | Severidad | Acción |
+|---|---|---|---|---|
+| E1 | **C1 queda RESUELTO por Ernesto**: la reunión del lunes 3-ago no ocurrió y sigue en pie la del **viernes 07/08/2026** | resolución | **alta** | Cerrar C1 con la resolución fechada; corregir la cabecera de `papers_mitosis.md` |
+| E2 | La memoria `papers-rama-mitosis-bcd` dice «para la reunión con Sebastián del **lunes 3-ago**» y apunta a `papers_mitosis.md` como entregable de reunión | stale | media | ADDENDUM fechado, aditivo |
+| E3 | La memoria `reunion-24jul-encargos-b8` dice «Reunión confirmada: viernes 07/08/2026» | **correcto, no stale** | baja | Marcar que quedó reconfirmado, para que no se vuelva a dudar |
+| E4 | La ETA del grid se explicó como «la estimación del prereg quedó corta»; hay **3 jobs ajenos** compartiendo la GPU | precisión | media | Sub-línea en la regla de cortesía de `CLAUDE.md` |
+
+## E1 — C1 resuelto, y los registros que parecían stale eran los correctos
+
+Ernesto confirmó a las 15:30 del 3-ago que **la reunión del lunes no ocurrió** (se movió o se
+canceló) y que **sigue en pie la del viernes 07/08/2026**.
+
+- **Lo que esto invierte:** C1 (cuarta pasada) tenía los tres registros del 07/08 como «stale
+  parcial». **No lo estaban**: eran correctos, y la reunión del 3-ago era la excepción. La acción
+  que C1 eligió, registrar la nueva **sin borrar** los del 07/08, resultó ser la correcta, y es un
+  buen argumento para la regla de edición aditiva.
+- **Consecuencia práctica:** el deck de SI-MIL, construido para el 07/08, **apunta a la fecha
+  correcta**; no hay lámina de título que corregir en ningún deck.
+- **Aplicado:** resolución fechada bajo C1 (arriba en este mismo doc); cabecera de
+  `tareas_geometricas/papers_mitosis.md` corregida con tachado y no con borrado, para que quede
+  registrado que el documento se escribió apuntando al lunes.
+
+## E2 — La memoria de los papers quedó stale en dos puntos
+
+- `papers-rama-mitosis-bcd`, cuerpo: «ejecutado esa misma noche para la reunión con Sebastián del
+  **lunes 3-ago**». La fecha ya no vale.
+- La misma memoria da `papers_mitosis.md` como «Entregable». Sigue siendo cierto que es el
+  documento del encargo, pero **el que se lleva a la reunión ahora es
+  `tareas_geometricas/hojas_reunion.md`** (3-ago), una hoja por paper, condensado de los cinco
+  estudios; `papers_mitosis.md` pasa a ser la **fuente larga** (fichas, abstracts verbatim,
+  historial de correcciones).
+- **Acción**: ADDENDUM 3-ago al final de la memoria. **No se reescribe** el cuerpo ni el ADDENDUM
+  del 2-ago: el registro de que el trabajo se hizo contra la fecha del lunes es parte de la
+  historia, y ninguna de las conclusiones técnicas cambia.
+
+## E3 — La memoria de la reunión estaba bien, y conviene dejarlo dicho
+
+`reunion-24jul-encargos-b8` (ADDENDUM 31-jul) cierra con «**Reunión confirmada: viernes
+07/08/2026**». Con la resolución de E1 eso es **correcto y vigente**. Se agrega una marca de
+reconfirmación para que una sesión futura no vuelva a abrir la duda que costó el hallazgo C1.
+
+## E4 — La ETA del grid: contención de GPU, no solo mala estimación
+
+El commit `3f292d1` (y el handoff de las 15:25) atribuyen la desviación de la ETA a que «el prereg
+suponía que los brazos chicos serían más rápidos». Es cierto, pero **incompleto**.
+
+- **Medido a las 15:54**: `squeue` muestra **tres jobs ajenos** de `capstone` en el mismo nodo
+  (4778 desde hace 6 h 37, 4780 hace 4 h 53, 4782 hace 7 min), más el nuestro. La GPU está
+  repartida entre **cuatro** trabajos.
+- La ventana en que los runs pasaron de ~37 a ~70 min **coincide** con la aparición de los ajenos.
+  No se afirma causalidad exacta (no hay traza por-job de utilización de GPU, y `sacct` está
+  deshabilitado, workaround C), pero es una explicación al menos tan fuerte como la de la
+  estimación, y **hay que decirla al escribir `resultados.md`** en vez de dejar registrado que
+  pre-registramos mal.
+- **Lo que NO cambia**: el job no tiene errores y los resultados no se invalidan. La contención
+  afecta el **tiempo de pared**, no la métrica.
+- **Acción**: sub-línea en la regla de cortesía de `CLAUDE.md`, que hoy solo dice cómo no
+  monopolizar la GPU y no dice nada del caso inverso, que es el que nos tocó.
+
+## Verificado sin cambios
+
+- **CLAUDE.md, Hallazgos 11 a 14**: ninguno se toca. Esta sesión no produjo resultados
+  experimentales.
+- **El pre-registro del grid está intacto.** No se leyó ninguna métrica parcial ni se escribió
+  nada que condicione la lectura del prereg §6.
+- **`results/b8_grid_es/` sigue deliberadamente sin versionar**, con 27 de 40 runs. Se commitea
+  cuando cierren los 8 brazos.
+- **Skills y agentes**: sin cambios; la sesión fue documental y no tocó modelo ni training.

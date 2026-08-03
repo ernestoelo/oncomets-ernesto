@@ -410,6 +410,16 @@ sinfo                   # estado del nodo
 Si hay jobs ajenos pendientes por `Resources`, **no monopolizar** — esperar
 o coordinar.
 
+> **El caso inverso también existe: jobs ajenos que alargan EL NUESTRO** (3-ago-2026).
+> SLURM admite varios jobs concurrentes en el único nodo, así que un job propio ya
+> lanzado **comparte la GPU** con los que entren después. Caso real: el 4774 (grid E×S)
+> pasó de ~37 a ~70 min por run en la ventana en que aparecieron **tres** jobs de
+> `capstone`. **Antes de concluir que un `.slurm` es lento o que la ETA se estimó mal,
+> correr `squeue` y mirar quién más está en el nodo**, y anotarlo en el `resultados.md`.
+> Afecta el **tiempo de pared, no la métrica** — no invalida nada. Con `sacct`
+> deshabilitado (workaround C) no hay traza retrospectiva de utilización por job, así que
+> el dato hay que capturarlo **en vivo** o se pierde.
+
 ### Plantilla mínima `.slurm` (espejo de `run_training.slurm`, con MIS paths)
 
 ```bash
