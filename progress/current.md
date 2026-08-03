@@ -1514,3 +1514,79 @@ localizado: CellViT `TIO-IKIM/CellViT`, ZoomMIL `histocartography/zoommil`, MS-C
 costo de la familia D: si no hay implementación, el detector y la loss se escriben desde cero.
 La próxima sesión estudia cada uno y **confirma o corrige** la recomendación, con el job 4774
 todavía corriendo.
+
+---
+
+## Sesión del 3-ago-2026 — los papers bajados y leídos, con dos correcciones a la ficha
+
+Se ejecutó el handoff del 2-ago 20:57: bajar los papers **con su código**, estudiarlos, y dejar
+la reunión del lunes preparada. El job 4774 corrió toda la sesión sin que se lo tocara.
+
+**Bajado, bajo la autorización explícita de Ernesto y solo para esta lista.** Ocho PDF en
+`sprints/B8_sprint8/tareas_geometricas/` y cuatro repos en `clam_testing2/<Nombre>_reference/`
+(reference only, sin checkpoints). Inventario con tamaños y HEAD en
+[`papers_mitosis.md`](../sprints/B8_sprint8/tareas_geometricas/papers_mitosis.md) §7. El servidor
+sí tiene salida a internet, cosa que no estaba verificada: los `WebFetch` anteriores salían por
+el harness.
+
+**Cuatro estudios nuevos**, del formato de `hovernet_estudio.md`: `pulearning_estudio.md`,
+`cellvit_estudio.md`, `zoommil_estudio.md`, `msclam_estudio.md`, más `midog_notas.md` para el
+dataset.
+
+**Los cinco huecos del handoff quedaron cerrados, y dos eran errores, no huecos.**
+
+1. **El paper de PU learning SÍ tiene código.** Está citado en la pág. 3 del cuerpo, no en la
+   página de abstract, que es por donde se buscó el 2-ago:
+   `github.com/zipeizhao/PU-learning-for-cell-detection`. Pero encontrarlo cambia menos de lo que
+   parece: pide **PyTorch 0.4.0 y CUDA 8.0** (*"now it does not support 0.4.1 or higher"*) y no
+   corre en una RTX A6000. Lo reusable es la loss, que es **una línea**
+   (`faster_rcnn.py:121`), con el prior **hardcodeado en 0.04** y solo el caso binario. El costo
+   de la familia D baja respecto de "escribir todo de cero", pero no baja a "clonar y correr".
+2. **Los 68.3 / 69.3 de ZoomMIL estaban mal atribuidos.** Son de **BRIGHT** (Tabla 2, un dataset
+   de mama), no de CAMELYON16. En CAMELYON16 (Tabla 3) usa 10× → 20× y da 83.3 / 84.2, **a la par
+   de CLAM-SB**. La fuente secundaria estaba cruzada.
+3. **El µm/px de MIDOG: 0.23 a 0.26** en sus seis escáneres, y MITOS-ATYPIA-14 a 0.2455. **TCGA
+   (0.2325) cae dentro del rango** y corre sin reescalar; el privado (0.465) está a 2× de todos.
+4. **ZoomMIL tolera una pirámide en µm/px, pero su preprocesamiento no.** El factor de expansión
+   entre magnificaciones se deriva de la razón medida de parches (`zoommil.py:114`), así que
+   admite razones arbitrarias. Pero `preprocessing.py:452` lee el aumento **solo de
+   `aperio.AppMag`** y, si no está, **asume 40× con un warning**: nuestro privado es Ventana
+   `.bif` y caería ahí, tratado como 40× estando a 20×. Error silencioso de factor 2.
+5. **MS-CLAM sin anotación de parche degrada con gracia hasta ser CLAM** (tiene una §2.5 para
+   eso). Así que no lo mata la escasez: lo mata la **parcialidad**. El primer término de su loss
+   de atención empuja a cero la atención de todo lo no marcado, que con positivos parciales es el
+   gradiente exactamente equivocado. Es la hipótesis **opuesta** a la del paper de PU learning.
+
+**La recomendación se sostiene: D primero.** Pero se reestructura en un punto que la mejora: **el
+paso 1 (go/no-go) no depende del paper de Zhao**, porque necesita pesos públicos de un detector y
+ese paper no publica ninguno. Quien tiene tooling público es el ecosistema de MIDOG
+(`DeepPathology/MIDOG_reference_docker` y `MIDOG_evaluation_docker`, no bajados). Desacoplar la
+prueba barata de la decisión cara es exactamente lo que uno quiere.
+
+**Dos matices que hay que llevar a la reunión y no estaban.**
+
+- **El régimen de "incompleto" que testea el paper de PU learning es suave**: borran hasta dejar
+  una marca por parche de 500×500, o sea **~73 % de retención**. Nosotros tenemos 26 marcas en
+  4799 parches. **No evalúan ese régimen.** Esa es la salvedad honesta, más que el tamaño del
+  efecto. (Que además estaba subvalorado: el +0.011 es contra BDE; contra el baseline es
+  **+0.037**, el 70 % del hueco recuperable, y el recall llega casi al techo.)
+- **CellViT a 0.50 µm/px, la escala del privado, pierde mucho**: recall de detección 0.82 → 0.60,
+  quedando por debajo de HoVer-Net a 0.25. Y el 1.85× es de la variante chica; SAM-H rinde 1.39×.
+  Que no tiene clase mitótica quedó verificado del modo más fuerte: **cero apariciones** de la
+  palabra en 23 páginas.
+
+**Un dato lindo de MIDOG:** su unidad de dato **no son WSI**, son **ROI de 2.0 mm²** elegidas por
+un patólogo, que es exactamente el campo del recuento de Nottingham y por lo tanto los ~141
+parches contiguos del §2.b del README. MIDOG resuelve "cuántas mitosis hay acá dentro" y nos deja
+"dónde está el acá dentro". Y sus ROI tienen 20 o menos mitosis cada una, comparable a nuestras
+26: la diferencia no es la densidad de anotación, son los **200 casos** contra nuestra **una
+lámina**.
+
+**Defecto encontrado y corregido:** `papers_mitosis.md` terminaba con dos etiquetas sueltas
+(`</content>`, `</invoke>`) de una escritura anterior, commiteadas el 2-ago.
+
+**Estado del job 4774 al cierre:** vivo, ~1 h 45 de corrida, brazo control 30×10, sin `Traceback`
+ni `FAILED`. ETA ~lunes 20:30.
+
+**Sigue sin empezar** rehacer el deck del B8, que ahora tiene material nuevo para una lámina de
+«hacia dónde sigue».

@@ -134,6 +134,15 @@ Extraer, solo para estas tareas, parches parametrizados en **µm/px físicos** e
 Lo que cambia hoy es que hay un argumento clínico específico para gastarlo acá (§2.c y §2.d)
 en vez de como mejora genérica.
 
+> **ADDENDUM 3-ago-2026, leído ZoomMIL** ([`zoommil_estudio.md`](zoommil_estudio.md)): el paper
+> de referencia de esta familia **se degrada cuando el objeto es chico, y lo dice él mismo**. En
+> CAMELYON16 tuvieron que subir la magnificación más baja a 10× porque las metástasis son muy
+> chicas, y aun así perdieron rendimiento. Una mitosis marcada mide 16.7 µm, mucho menos que una
+> micro-metástasis. **Para mitosis, B se debilita.** Donde sí gana es en **mama**: en BRIGHT le
+> saca 5.2 puntos de weighted-F1 a CLAM-SB con 12.8× menos FLOPs, en clasificación de subtipo.
+> Conviene separar los dos objetivos: el confundido de µm/px entre cohortes (§2.c) es un buen
+> motivo para gastar el pipeline del B6; mitosis, no.
+
 ### C. Cambiar la unidad de representación: del parche al núcleo (cara hoy)
 
 Es lo que hacen HoVer-Net y las 246 features de SI-MIL, y es lo que Sebastián descartó **por
@@ -164,6 +173,14 @@ Dos cosas para cuando se retome, que conviene dejar escritas ahora:
   > preprint. Y la cuenta que reordena la familia: cambiar de modelo rinde 1.85×, mientras que
   > acotar a los **20 mejores parches de CLAM** (la idea del propio Sebastián) rinde ~240×. El
   > paper es de segundo orden frente al subconjunto de parches.
+  > > **ADDENDUM 3-ago, con el PDF de CellViT leído** ([`cellvit_estudio.md`](cellvit_estudio.md)):
+  > > el **1.85× es de la variante chica** (CellViT256); la de mejores números, SAM-H, rinde
+  > > **1.39×**. Y el speedup viene sobre todo del **parche de inferencia de 1024 px**, no de la
+  > > arquitectura, así que el mismo truco podría aplicarse a HoVer-Net. Lo que sí es nuevo y
+  > > pesa: a **0.50 µm/px**, que es la escala de nuestra cohorte privada, el recall de detección
+  > > de CellViT cae de 0.82 a **0.60**, quedando **por debajo de HoVer-Net a 0.25**. En TCGA no
+  > > pasa; en el privado sí. Y la ausencia de clase mitótica queda verificada de la forma más
+  > > fuerte: la palabra «mitosis» **no aparece ni una vez** en las 23 páginas.
 
 ### D. Un detector dedicado, entrenado con anotaciones de objeto (la que necesita al patólogo)
 

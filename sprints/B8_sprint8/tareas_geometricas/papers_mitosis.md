@@ -13,13 +13,42 @@
 >    ([`../atencion_vs_patologo/resultados.md`](../atencion_vs_patologo/resultados.md)).
 > 2. La supervisión disponible son **positivos parciales**: una lámina, un anotador, y lo no
 >    marcado **no es negativo** ([[anotaciones-patologo-qupath]]).
-> 3. **No se descarga nada** (workaround E). Acá se identifican y se justifican; el PDF lo baja
->    Ernesto si decide leerlos.
+> 3. ~~**No se descarga nada** (workaround E).~~ **Superado el 3-ago-2026:** Ernesto autorizó
+>    explícitamente bajar estos papers y sus repos. Ver el ADDENDUM de abajo.
 >
 > **Nota de acceso, y es buena noticia: los cinco papers de este documento se leen sin
 > paywall**, tres por su versión de autor (arXiv o HAL) y uno por ser de una revista
 > enteramente abierta. No hace falta acceso institucional para ninguno, a diferencia de los
-> dos pendientes del encargo anterior (LVI e ILSC). **Ninguno se descargó.**
+> dos pendientes del encargo anterior (LVI e ILSC).
+>
+> ---
+>
+> ## ADDENDUM 3-ago-2026: bajados, leídos, y qué cambió
+>
+> Los ocho PDF están en esta carpeta y los cuatro repos en `clam_testing2/<Nombre>_reference/`
+> (**reference only**: solo lectura, NO al PYTHONPATH, NO import cruzado). Inventario en §7.
+> Un estudio por paper, del tipo `hovernet_estudio.md`:
+> [`pulearning_estudio.md`](pulearning_estudio.md) (D),
+> [`cellvit_estudio.md`](cellvit_estudio.md) (C),
+> [`zoommil_estudio.md`](zoommil_estudio.md) (B),
+> [`msclam_estudio.md`](msclam_estudio.md) (el cuarto),
+> [`midog_notas.md`](midog_notas.md) (el dataset).
+>
+> **La recomendación se sostiene: D sigue primero.** Pero la lectura movió cuatro cosas, y dos
+> son correcciones a este documento, no matices:
+>
+> 1. **El paper de PU learning SÍ tiene código** (`github.com/zipeizhao/PU-learning-for-cell-detection`,
+>    citado en la pág. 3 del cuerpo, no en la página de abstract, que es por donde se buscó el
+>    2-ago). Pero pide **PyTorch 0.4.0 y CUDA 8.0** y no corre en una RTX A6000; lo reusable es
+>    la loss, que son **cinco líneas** con el prior hardcodeado en 0.04.
+> 2. **Los números 68.3 / 69.3 de ZoomMIL con la cadena 1.25×→2.5×→10× son de BRIGHT, no de
+>    CAMELYON16.** La fuente secundaria estaba cruzada. En CAMELYON16 usa 10×→20× y da 83.3 /
+>    84.2, o sea **a la par** de CLAM-SB, no mejor. Corregido en §4.
+> 3. **El paso 1 (go/no-go) no depende del paper de PU learning.** Necesita pesos públicos de un
+>    detector de mitosis, y quien los tiene es el ecosistema de MIDOG. Eso **desacopla** la
+>    prueba barata de la decisión cara, que es justo lo que uno quiere.
+> 4. **CellViT pierde mucho a la escala de nuestra cohorte privada**: a 0.50 µm/px su recall de
+>    detección cae de 0.82 a 0.60. Ver §3.
 
 ---
 
@@ -57,6 +86,17 @@ un conteo es producir exactamente la cantidad que define el puntaje.
    las mitosis que el patólogo marcó, la familia D se cierra ahí y no se gastó un fin de semana
    de GPU. Es el mismo patrón «Etapa 0 antes de Etapa 1» que ya ahorró 18 a 24 h en PathPT
    (Hallazgo 13).
+
+   > **Precisión del 3-ago, y mejora el argumento: este paso NO depende del paper de Zhao.**
+   > Lo que necesita son pesos públicos de un detector de mitosis, y el paper de PU learning no
+   > publica ninguno (su repo trae la loss, no un modelo entrenado). Quien sí tiene tooling
+   > público es el ecosistema de MIDOG: `DeepPathology/MIDOG_reference_docker` (algoritmo de
+   > referencia) y `MIDOG_evaluation_docker` (el evaluador oficial), ninguno bajado todavía.
+   > Que el paso 1 sea independiente del paso 2 es una ventaja: se puede medir si la detección
+   > de mitosis transfiere a nuestras láminas **antes** de comprometerse con la familia D
+   > entera. Y el criterio de acierto del challenge (centroide a menos de **7.5 µm**) cae
+   > holgadamente dentro de nuestras marcas de 16.7 µm, así que la evaluación contra el geojson
+   > es viable sin inventar tolerancias. Detalle: [`midog_notas.md`](midog_notas.md).
 2. **Solo si el paso 1 pasa**: fine-tuning con PU learning sobre nuestra cohorte a medida que
    lleguen más láminas anotadas, y de ahí el conteo en el punto caliente como entrada de un
    clasificador chico de `score_1/2/3`.
@@ -98,7 +138,11 @@ reabre por el subconjunto de parches, no por el paper.
 
 ## 2. Familia D. Aprendizaje positivo-no-etiquetado para detección celular con anotaciones incompletas
 
-**Estado: abierto, no descargado.** MELBA es de acceso abierto y además hay arXiv.
+**Estado: BAJADO el 3-ago-2026** ([`pulearning_zhao2022_melba.pdf`](pulearning_zhao2022_melba.pdf),
+[`pulearning_zhao2022_arxiv.pdf`](pulearning_zhao2022_arxiv.pdf) y el previo de MICCAI
+[`pulearning_zhao2021_miccai.pdf`](pulearning_zhao2021_miccai.pdf)) **y leído**:
+[`pulearning_estudio.md`](pulearning_estudio.md). **Código encontrado y clonado** en
+`clam_testing2/PUcell_reference/`.
 
 Zhao Z, Pang F, Liu Y, Liu Z, Ye C. *Positive-unlabeled learning for binary and multi-class
 cell detection in histopathology images with incomplete annotations*. **Machine Learning for
@@ -161,6 +205,20 @@ magnitud del efecto, y así hay que presentarlo. Con el historial del proyecto (
 cerrados sin mejora) conviene no prometer que el método por sí solo mueva la métrica: lo que
 aporta es **permitir entrenar con lo que tenemos**, que hoy directamente no se puede.
 
+> **ADDENDUM 3-ago, con el PDF leído: el encuadre de arriba subvalora el resultado, aunque la
+> conclusión no cambia.** El +0.011 es contra **BDE**, que es el competidor especializado.
+> Contra el **baseline**, que es lo que haríamos nosotros si entrenáramos de la forma normal, la
+> diferencia es **+0.037** (0.470 → 0.507). Y el paper publica el *upper bound* con anotación
+> completa, **0.523**: el hueco que abre la anotación incompleta es 0.053, y el método recupera
+> **el 70 % de él**. En recall recupera casi todo (0.608 contra un techo de 0.613). Es
+> consistente en los 5 folds y significativo con t-test pareado y corrección Benjamini-Hochberg.
+>
+> **Y aparece una limitación que este documento no tenía, más importante que la magnitud:** el
+> régimen de «incompleto» que testean es suave. Borran anotaciones hasta dejar **una por parche
+> de 500×500**, lo que deja **~73 % de las marcas**. Nosotros tenemos 26 marcas en 4799 parches.
+> **El paper no evalúa ese régimen** y no hay forma de extrapolar la curva. Esa es la salvedad
+> que hay que decir en la reunión, más que el tamaño del efecto.
+
 **Qué exigiría implementarlo acá.**
 
 - Un detector base con anotación por punto o por caja. No hay nada de eso en `clam_environ`; es
@@ -168,8 +226,11 @@ aporta es **permitir entrenar con lo que tenemos**, que hoy directamente no se p
 - Datos públicos para arrancar, porque 26 mitosis no entrenan nada. MIDOG 2021 es el candidato
   natural (§2.d) y es CC-BY.
 - Resolver la magnificación **antes** de escribir código: nuestras marcas están a 0.465 µm/px y
-  los datasets de mitosis se anotan a 40×. **No verifiqué el µm/px exacto de MIDOG** y no lo doy
-  por sabido; hay que confirmarlo.
+  los datasets de mitosis se anotan a 40×. ~~**No verifiqué el µm/px exacto de MIDOG**~~
+  **VERIFICADO el 3-ago: MIDOG va de 0.23 a 0.26 µm/px** en sus seis escáneres, y
+  **MITOS-ATYPIA-14 está a 0.2455 µm/px**. **TCGA (0.2325) cae dentro del rango** y corre sin
+  reescalar; el privado (0.465) está a **2×** de todos ellos. Tabla completa en
+  [`midog_notas.md`](midog_notas.md) §1.
 - Y después el paso que convierte detección en métrica: agregar el conteo sobre el **mejor
   bloque contiguo de ~141 parches** y clasificar el puntaje. Eso no está en el paper, lo
   ponemos nosotros, y sale del §2.b del README.
@@ -231,6 +292,21 @@ J, Kleesiek J. *CellViT: Vision Transformers for precise cell segmentation and c
 | Velocidad contra HoVer-Net | **1.85× más rápido** (parches de 1024×1024 px, solape 64 px, 10 WSI de esófago) |
 | Magnificación esperada | **40× (0.25 µm/px)**; hay experimentos suplementarios a 20× (0.50 µm/px) |
 | Clases | 5 de PanNuke: neoplásica, epitelial, inflamatoria, conectiva, muerta |
+
+> **Precisiones del 3-ago, con el PDF completo** ([`cellvit_estudio.md`](cellvit_estudio.md)):
+>
+> - **El 1.85× es de la variante chica.** Contra HoVer-Net son **1.85× para CellViT256** y
+>   **1.39× para CellViT-SAM-H**, que es la de mejores números. Y el speedup viene sobre todo del
+>   **parche de inferencia de 1024 px**: el mismo modelo acelera 2.49× al pasar de 256 a 1024. El
+>   truco es del tamaño de parche, no de la arquitectura.
+> - **A 0.50 µm/px, que es la escala de nuestra cohorte privada, se cae fuerte.** El recall de
+>   detección pasa de **0.82 a 0.60** (CellViT256) y de **0.81 a 0.63** (SAM-H), y el F1 baja a
+>   0.71 a 0.73, o sea **por debajo de HoVer-Net a 0.25 µm/px (0.80)**. En TCGA el problema no
+>   existe; en el privado sí.
+> - **La clase mitótica no existe, verificado de la forma más fuerte posible:** la palabra
+>   «mitosis» **no aparece ni una vez** en las 23 páginas.
+> - Dato de hardware: el paper dice que una **RTX A6000 de 48 GB alcanza** para entrenar las
+>   variantes ViT256 y SAM-B. Es nuestra GPU.
 
 **Por qué nos toca.** Es el reemplazo directo del HoVer-Net que `sgaete` ya tiene corriendo:
 mismo dataset de entrenamiento (PanNuke), misma familia de salida (instancias de núcleo con
@@ -322,9 +398,26 @@ escrita y sin lanzar del eje de magnificación del B6
 ([[magnificacion-cpathagent-proxima-direccion]], `scripts/extract_multiscale_features.py`), y
 este paper es el argumento para gastarla acá en vez de como mejora genérica.
 
-**Un dato que NO verifiqué contra el paper.** Circula que en CAMELYON16 usan la cadena
-1.25× → 2.5× → 10× y que dan F1 ponderado 68.3 ± 1.1 y accuracy 69.3 ± 1.0. Lo leí en fuentes
-secundarias, **no en el PDF**, así que no se cita como número del paper hasta confirmarlo.
+~~**Un dato que NO verifiqué contra el paper.** Circula que en CAMELYON16 usan la cadena
+1.25× → 2.5× → 10× y que dan F1 ponderado 68.3 ± 1.1 y accuracy 69.3 ± 1.0.~~
+
+> **CORREGIDO el 3-ago contra el PDF: ese dato estaba mal atribuido.** Los 68.3 ± 1.1 / 69.3 ± 1.0
+> con la cadena 1.25× → 2.5× → 10× son de **BRIGHT** (Tabla 2), que es un dataset de **mama**.
+> En **CAMELYON16** (Tabla 3) ZoomMIL usa **10× → 20×** y da **83.3 ± 0.3 / 84.2 ± 0.4**, contra
+> CLAM-SB 83.3 ± 1.5 / 84.0 ± 1.3 y TransMIL 83.6 ± 2.6 / 85.3 ± 1.9: **queda a la par, no
+> mejor**, con ~2.6× menos FLOPs.
+>
+> **Y la corrección viene con el dato que más pesa para mitosis, que es del propio paper.** Los
+> autores explican que en CAMELYON16 tuvieron que **subir la magnificación más baja a 10×**
+> porque *«las regiones metastásicas pueden ser extremadamente chicas»*, y agregan que **aun así
+> eso perjudica el rendimiento**. O sea que el mecanismo de zoom **se degrada cuando el objeto es
+> chico**, dicho por ellos. Una micro-metástasis mide cientos de micras; una figura mitótica
+> marcada mide **16.7 µm**. Esto **refuerza** que B quede tercera para mitosis, y ahora es un
+> número del paper y no una inferencia nuestra.
+>
+> **Donde B sí gana es en mama:** en BRIGHT le saca **5.2 puntos de weighted-F1 a CLAM-SB** con
+> 12.8× menos FLOPs. Ese es el argumento honesto para probarlo, y es sobre tareas que **no**
+> dependen de objetos chicos. Detalle: [`zoommil_estudio.md`](zoommil_estudio.md) §4 y §5.
 
 **Qué exigiría implementarlo acá.** Re-extraer features en varias escalas para la tarea de
 mitosis (GPU, y el pipeline existe), un `--model_type` nuevo en `scripts/train_dsmil.py` según
@@ -365,6 +458,24 @@ no hay con qué. Sirve como respuesta preparada si en la reunión sale «¿y por
 supervisión de parche a CLAM y listo?»: se puede, está publicado, y necesita un orden de
 magnitud más de anotación del que tenemos.
 
+> **ADDENDUM 3-ago: leído, y el diagnóstico se afina** ([`msclam_estudio.md`](msclam_estudio.md)).
+> El paper tiene una sección entera, **§2.5 «MS-CLAM without tile-level labels»**, para el caso
+> sin anotación: las láminas sin etiquetas de parche usan las **pseudo-etiquetas de atención** de
+> CLAM de siempre, y el método **degrada con gracia** hasta volver a ser CLAM. Su ajuste más chico
+> usa 11 láminas tumorales anotadas.
+>
+> **Así que la escasez no es lo que lo mata; lo que lo mata es la parcialidad.** El primer término
+> de su loss de atención minimiza la suma de atención de los parches marcados como **no**
+> tumorales, o sea **empuja a cero la atención de todo lo no marcado**. Con positivos parciales
+> ese es el gradiente exactamente equivocado: castigaría al modelo por mirar una mitosis que el
+> patólogo no marcó. Es la **hipótesis opuesta** a la del paper de PU learning, y por eso los dos
+> no se pueden mezclar sin reescribir la ec. 3.
+>
+> Nota que conviene tener a mano: el problema que MS-CLAM resuelve es que **la atención de CLAM
+> se derrama** (Dice 0.520 en Camelyon16, cubriendo casi todo el tejido). En nuestra medición del
+> 1-ago la atención **no** se derramó: cayó sobre las marcas. Llegamos a este paper con el
+> síntoma que arregla ya bastante ausente.
+
 ---
 
 ## 6. Lo que este documento no afirma
@@ -375,15 +486,54 @@ magnitud más de anotación del que tenemos.
 - **Que la familia D vaya a transferir a nuestra cohorte.** MIDOG existe justamente porque los
   detectores de mitosis se caen al cambiar de escáner, y el nuestro (Ventana) no está entre los
   suyos. Por eso el paso 1 es un go/no-go, no un supuesto.
-- **Ningún número que no haya verificado en la fuente.** Los de CellViT salen del texto del
+- **Ningún número que no haya verificado en la fuente.** ~~Los de CellViT salen del texto del
   preprint; los de MIDOG y del paper de PU learning, de sus abstracts y de la página de MELBA.
   El de ZoomMIL sobre CAMELYON16 queda marcado como **no verificado** en §4, y el µm/px de MIDOG
-  como **no verificado** en §2.
+  como **no verificado** en §2.~~
+  **Al 3-ago los cinco huecos están cerrados contra los PDF**: el µm/px de MIDOG (§2.d y
+  [`midog_notas.md`](midog_notas.md)), los números de ZoomMIL (§4, **estaban mal atribuidos**),
+  el código de D (§2, **existe**), el mecanismo de agregación de ZoomMIL
+  ([`zoommil_estudio.md`](zoommil_estudio.md) §6) y qué hace MS-CLAM sin anotación de parche
+  (§5). Lo que **sigue sin verificar**: si LSP-DETR tiene pesos públicos, y todo lo de MIDOG 2022.
 - **Que estos sean los únicos candidatos.** Es una búsqueda de una sesión con una fecha encima.
   Quedaron sin fichar, entre otros, las ediciones 2023 a 2025 de MIDOG, la línea de detección de
   figuras mitóticas atípicas en mama (AMi-Br), y los métodos multi-escala alternativos a ZoomMIL
   (HIPT, ensambles multi-magnificación).
 - **Nada de esto está implementado ni pre-registrado.** Regla 9: si alguno avanza, va con
   hipótesis pre-registrada, métrica y dirección esperada, y `reviewer` antes de tocar código.
-</content>
-</invoke>
+
+---
+
+## 7. Inventario de lo descargado (3-ago-2026)
+
+Descarga autorizada explícitamente por Ernesto al cerrar la sesión del 2-ago, **acotada a estos
+papers y estos repos**. No se extiende a nada más: si aparece un sexto paper interesante, se ficha
+y se pregunta.
+
+**PDF, en esta carpeta.** Todos verificados como PDF válido y abiertos con `pdftotext`.
+
+| Archivo | Fuente | Tamaño |
+|---|---|---|
+| `pulearning_zhao2022_melba.pdf` | `melba-journal.org/pdf/2022:027.pdf` | 4.9 M, 30 pág. |
+| `pulearning_zhao2022_arxiv.pdf` | arXiv:2302.08050 | 5.0 M, 30 pág. |
+| `pulearning_zhao2021_miccai.pdf` | arXiv:2106.15918 | 1.6 M, 11 pág. |
+| `cellvit_horst2024.pdf` | arXiv:2306.15350 | 11 M, 23 pág. |
+| `zoommil_thandiackal2022.pdf` | arXiv:2204.12454 | 15 M, 19 pág. |
+| `msclam_tourniaire2023.pdf` | HAL `inria.hal.science/hal-03972289` | 9.7 M, 17 pág. |
+| `midog_aubreville2023.pdf` | arXiv:2204.03742 | 11 M, 19 pág. |
+| `lspdetr_pekar2026.pdf` | arXiv:2601.03163 | 5.5 M, 34 pág. (sin leer todavía) |
+
+**Repos, en `clam_testing2/`, fuera del repo personal.** Mismas reglas que
+`CLAM_official_reference/` e `ILSC_reference/`: **solo lectura, NO al PYTHONPATH, NO import
+cruzado** con el codebase de Sebastián. **No se bajó ningún checkpoint.**
+
+| Directorio | Origen | HEAD | Tamaño |
+|---|---|---|---|
+| `PUcell_reference/` | `zipeizhao/PU-learning-for-cell-detection` | `1bce728` (6-nov-2022) | 120 M |
+| `CellViT_reference/` | `TIO-IKIM/CellViT` | `05097e1` (23-jul-2025) | 130 M |
+| `ZoomMIL_reference/` | `histocartography/zoommil` | `da7bb7f` (3-nov-2022) | 1.6 M |
+| `MSCLAM_reference/` | `paul-tourniaire/MS-CLAM` | `18e8827` (29-ago-2024) | 5.1 M |
+
+**No se bajó:** el tooling de MIDOG (`DeepPathology/MIDOG_reference_docker` y
+`MIDOG_evaluation_docker`) ni el dataset de MIDOG, porque están fuera de la lista autorizada.
+Son el primer lugar donde mirar si el paso 1 se aprueba.
