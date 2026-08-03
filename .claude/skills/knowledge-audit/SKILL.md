@@ -32,7 +32,9 @@ fixes second.**
 - `git branch --show-current`. A documental-only audit (no model/training edits) may
   stay on `main` (Ernesto's default, [[git-trabajar-en-main-por-defecto]]); create a NEW
   branch `chore/audit-coherencia-<sprint>` only if the audit will carry changes into
-  model/training code (regla 9) **or** a GPU job is running (workaround H).
+  model/training code (regla 9). **With a GPU job running, do NOT branch — workaround H
+  forbids branch-switching while a job reads the shared tree; stay on `main` and touch
+  only files the job does not read.**
 - `git fetch` (main is shared, multiple authors — [[git-main-shared-pushes]]).
 - **Do NOT touch running GPU jobs** (`squeue` first): neither cancel them **nor**
   `git checkout`/merge that changes tracked files while one runs — the job reads its
