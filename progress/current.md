@@ -1370,3 +1370,60 @@ nuevas.
 
 **Quedaron sin empezar** el pre-registro del grid (que la próxima sesión escribe y lanza) y
 rehacer el deck del B8.
+
+---
+
+## Sesión del 2-ago-2026 (noche) — el grid de E y S, pre-registrado y LANZADO (job 4774)
+
+Se cumplió la misión del handoff en el orden que pedía: pre-registro → `reviewer` → commit →
+`sbatch`. **Job 4774** corriendo desde las 20:47 del domingo, 8 brazos × 5 folds = 40 runs
+sobre `carcinoma_ductal_insitu_presente_ci_reform`, ~24.3 h estimadas.
+
+**El encuadre quedó escrito, que era el punto delicado.** El pre-registro
+(`sprints/B8_sprint8/grid_expertos_slots/prereg.md`) elige **capacidad**, no rendimiento, y lo
+sostiene con el diseño y no con una etiqueta: el contraste primario es **Mammoth contra
+Mammoth** (cada brazo contra el control 30×10), CLAM entra solo como fila de referencia y
+**sin Δ por brazo**, porque calcular 8 Δ contra CLAM justo en la tarea del dato abierto serían
+8 disparos al eje cerrado del Hallazgo 12. El `reviewer` verificó los cuatro puntos del diseño
+y dictaminó que **no aplica regla 9.b**, así que no hizo falta citar hallazgo habilitante.
+
+**El grid.** Escalera de capacidad total con los dos recortes apareados en cada peldaño:
+control 30×10, después 27×10 contra 30×9 (E·S=270, que es el par textual que pidió Sebastián
+el 23-jul), 21×10 contra 30×7 (210), 15×10 contra 30×5 (150) y el piso 30×3 (90), este último
+solo en la rama S. Orden de ejecución elegido para que un corte por cortesía o por tiempo se
+lleve el peldaño más agresivo y no el control. La hipótesis pre-registrada sale del encargo 1
+de este mismo sprint (expertos 29.98/30 uniforme, slots 159.5/300 sobre 1858 láminas-fold):
+**a igual E·S, recortar S debería tolerarse mejor que recortar E**.
+
+**Hallazgo mecanístico que salió al preparar el grid: los pares a igual E·S son casi
+iso-parámetro, y no era obvio.** `auto_rank` deriva el `lora_rank` de
+`(input_dim, slot_dim, output_dim, num_experts)`, o sea que **depende de E y no de S**
+(`MAMMOTH/src/mammoth/mammoth.py:297-322`): recortar E sube el rank (8→9→12→17) y compensa el
+presupuesto, mientras que recortar S solo achica `slot_embeds`. Medido, la diferencia dentro
+de cada par es de **+0.20 %, +0.33 % y +0.89 %**. El contraste A contra B aísla entonces
+**dónde** está la capacidad, no cuántos parámetros hay.
+
+**Preflight nuevo, reusable:** `scripts/grid_es_config_check.py` construye las 8
+configuraciones en CPU, les corre un forward y verifica que `A_raw` conserve la forma
+`(n_classes, N)`. Tarda segundos y evita descubrir una config rota a mitad de 24 h de GPU. Es
+el segundo de los tres preflights del `.slurm` (test CPU del modelo → configs →
+`preflight_minpatch` por fold); los tres pasaron en el 4774.
+
+**Dos correcciones que trajo el `reviewer`.** La tabla de min/run del ADDENDUM 2-ago rotulaba
+«mediana» a lo que eran los **mínimos**: las medianas del brazo Mammoth son 83.6 / 37.4 /
+**36.4**, no 83.0 / 37.0 / 36.2 (commit `322dd40`). Y faltaba decir **cuál métrica manda si
+balanced_acc y AUC se contradicen**: con 13 negativos por test la balanced accuracy se mueve a
+saltos de 0.038, así que la consistencia de signo de un par puede depender de una sola lámina.
+Queda pre-registrado que la decisiva es el **AUC**, con balanced_acc al lado como lectura del
+punto de operación, y que un desacuerdo se declara **ambiguo** (sería calibración, no
+capacidad). Las dos métricas se siguen reportando juntas, así que la política B5 se cumple.
+
+**Ventana de GPU:** la cola estaba vacía y el nodo `idle` al momento del `sbatch`, pero 24 h
+lanzadas un domingo a la noche **ocupan el lunes laboral entero**. Si aparecen jobs ajenos,
+aplica la cortesía de `CLAUDE.md` y se evalúa `scancel` de los brazos que falten (el orden de
+ejecución está pensado para eso).
+
+**Con el job vivo: no cambiar de rama ni editar archivos versionados que el job lea**
+(workaround H). El `.slurm` ahora loguea `commit=` y `rama=` para dejar la provenance.
+
+**Sigue sin empezar** rehacer el deck del B8.
