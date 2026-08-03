@@ -8,6 +8,11 @@ autorización de Ernesto (workaround E: no se baja nada de afuera sin pedido exp
 > carpeta del sprint. Si conviene, se mueven después y se indexan allá; lo que **no** hay
 > que hacer es duplicar el PDF en los dos lugares.
 
+> **Éste no es el único encargo de papers del B8.** El del **2-ago** (3 papers para la rama de
+> mitosis, familias B/C/D) tiene su propio documento:
+> [`tareas_geometricas/papers_mitosis.md`](tareas_geometricas/papers_mitosis.md). Reusa el
+> formato de ficha de acá y **ninguno de sus papers se descargó**.
+
 ---
 
 ## 1. Hover-Net ✅ descargado

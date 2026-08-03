@@ -297,6 +297,16 @@ Tres restricciones que ya están decididas y que la búsqueda **no tiene que re-
    viene al caso y qué exigiría implementarlo; si alguno es de suscripción, lo consigue
    Ernesto. Es el mismo protocolo que siguió el encargo 4.
 
+**EJECUTADO el 2-ago-2026 (noche).** Entregable:
+[`tareas_geometricas/papers_mitosis.md`](tareas_geometricas/papers_mitosis.md), con los tres
+lado a lado (supervisión y costo como ejes) y una recomendación. Los tres son **D**
+Zhao et al., PU learning con anotaciones incompletas (MELBA 2022); **C** CellViT (MedIA 2024);
+**B** ZoomMIL (ECCV 2022). Se recomienda **D primero y en dos pasos**, porque es el único cuyo
+régimen de supervisión coincide con nuestros positivos parciales y el que vuelve **entrenables**
+las 26 marcas del patólogo, con un **go/no-go barato** antes de gastar GPU (detector público
+sobre TCGA a 40× nativo, medido contra las marcas). Los cinco papers del documento se leen **sin
+paywall**; ninguno se descargó.
+
 ---
 
 ## 5. Qué no se afirma

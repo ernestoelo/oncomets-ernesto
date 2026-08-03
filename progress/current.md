@@ -1438,3 +1438,67 @@ familias B/C/D y no a la A, supervisión de positivos parciales, no descargar pa
 ADDENDUM 2-ago del §4 de `objetivos_sprint8.md`.
 
 **Sigue sin empezar** rehacer el deck del B8.
+
+---
+
+## Sesión del 2-ago-2026 (noche, 2ª) — los 3 papers de la rama de mitosis, para la reunión del lunes
+
+Entregable: [`sprints/B8_sprint8/tareas_geometricas/papers_mitosis.md`](../sprints/B8_sprint8/tareas_geometricas/papers_mitosis.md).
+Tabla con los tres lado a lado (**supervisión y costo** como ejes), una recomendación, y las
+fichas detrás. El job 4774 siguió corriendo toda la sesión, sin tocarlo.
+
+**Los tres, uno por familia.** **D**, Zhao et al., *Positive-unlabeled learning… with incomplete
+annotations* (MELBA 2022, abierto): reformula el entrenamiento del detector como PU learning, o
+sea que lo no anotado tiene etiqueta **desconocida** y no negativa. **C**, CellViT (MedIA 2024):
+núcleos con ViT, 1.85× sobre HoVer-Net, pesos públicos. **B**, ZoomMIL (ECCV 2022): aprende a
+qué zonas hacer zoom, solo con etiqueta de lámina y hasta 40× menos cómputo.
+
+**La recomendación es D, y en dos pasos.** Es el único cuyo régimen de supervisión coincide con
+el nuestro: hoy las 26 marcas del patólogo solo sirven de validación, y este método las vuelve
+**entrenables** sin mentir sobre los negativos. Además ataca el argumento que **sobrevivió** al
+1-ago (el §2.b: el recuento de Nottingham es un conteo en el punto caliente, no un promedio
+ponderado). Paso 1 = **go/no-go barato**: detector público sobre unas pocas láminas, medido
+contra las 26 marcas, **primero en TCGA** porque está a ~40× nativo y el privado a 20×. Paso 2,
+solo si el 1 pasa: fine-tuning PU sobre nuestra cohorte. Es el patrón «Etapa 0 antes de Etapa 1»
+que ya ahorró 18 a 24 h en PathPT.
+
+**Dos cosas que salieron de la búsqueda y que valen aparte del ranking.**
+
+- **Se cierra con números una frase que el README §3.C había dejado abierta.** «Mucho más
+  barato» que HoVer-Net = CellViT, 1.85×, pero **sigue usando watershed controlado por
+  marcadores** (verificado en el texto), así que **no** elimina los 75 min de CPU. El que sí los
+  elimina es **LSP-DETR** (arXiv:2601.03163, ene-2026), polígonos estrella-convexos sin
+  post-procesamiento, >5× sobre el siguiente más rápido, todavía preprint. Y la cuenta que
+  reordena la familia C: cambiar de modelo rinde 1.85×, acotar a los **20 mejores parches de
+  CLAM** (idea del propio Sebastián) rinde **~240×**. El paper es de segundo orden frente al
+  subconjunto de parches.
+- **CellViT no tiene clase mitótica** (las 5 de PanNuke), igual que HoVer-Net. Para grado
+  nuclear sirve; **para contar mitosis no**.
+
+**Lo que frena a cada uno, dicho en la ficha.** D: con 1 lámina y 26 mitosis no se entrena nada,
+hay que arrancar de datos públicos (MIDOG 2021 son 200 casos de mama humana, 4 escáneres, CC-BY)
+y el escáner nuestro (Ventana) no está entre los suyos, que es justamente el resultado central
+del challenge. B: el privado está a **20×** y la mitosis se cuenta a **40×**, así que un método
+que aprende a hacer zoom no tiene a dónde hacerlo; su aporte real es el confundido de µm/px
+entre cohortes (§2.c).
+
+**Un cuarto, fuera de las tres familias, incluido a propósito:** **MS-CLAM** (MedIA 2023,
+abierto por HAL), que es CLAM con **supervisión mixta** y responde de la forma más literal a
+«aprovechar la información del patólogo sobre las etiquetas». Queda quinto en prioridad con un
+motivo concreto y no por desinterés: su 12 a 62 % es una fracción de un conjunto **completo** de
+anotaciones de parche, y nosotros tenemos **una** lámina, con positivos parciales. Sirve como
+respuesta preparada si en la reunión sale «¿y por qué no le agregamos supervisión de parche a
+CLAM y listo?».
+
+**Acceso: los cinco se leen sin paywall**, tres por versión de autor (arXiv, HAL) y uno por
+revista abierta. **Ninguno se descargó** (workaround E). Un `WebFetch` al PDF de ZoomMIL dejó una
+copia de 5.5 MB en el cache del harness (`~/.claude/.../tool-results/`); se borró en el momento.
+Para leer detalles finos de un paper conviene quedarse en páginas de abstract y APIs (Europe
+PMC, HAL), que es lo que se usó para todo lo demás.
+
+**Estado del job 4774 al cierre de esta sesión:** vivo, brazo control 30×10, fold 0, sin
+`Traceback` ni `FAILED`, ningún `test_metrics.json` escrito todavía. El
+`EarlyStopping counter: N out of 20` con N>20 en el log **es normal**: `stop_epoch=50` está
+hardcodeado, así que el contador corre pero no dispara antes de la época 50.
+
+**Sigue sin empezar** rehacer el deck del B8.

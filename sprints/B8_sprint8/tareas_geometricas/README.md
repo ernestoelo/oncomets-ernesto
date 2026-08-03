@@ -110,6 +110,11 @@ vista.
 
 Cada una ataca una de las medidas de arriba. No son excluyentes.
 
+> **Búsqueda bibliográfica hecha el 2-ago-2026:**
+> [`papers_mitosis.md`](papers_mitosis.md) ficha un paper por cada una de B, C y D (la A quedó
+> descartada por el §4 de acá), los compara con **supervisión y costo** como ejes, y recomienda
+> **D primero**. Ese documento es el que se lleva a la reunión.
+
 ### A. Cambiar el operador de agregación (barata, sin datos nuevos)
 
 Reemplazar el promedio ponderado por atención por algo que se parezca a la regla clínica:
@@ -151,6 +156,14 @@ Dos cosas para cuando se retome, que conviene dejar escritas ahora:
   las afirmo con números**: no tenemos los papers acá y no se descarga nada (workaround E).
   Si esta familia se reabre, el primer paso es que Ernesto suba los PDF y se los fiche como
   se hizo con HoVer-Net y SI-MIL.
+  > **ADDENDUM 2-ago-2026: los números ya están, en
+  > [`papers_mitosis.md`](papers_mitosis.md) §3.** «Mucho más barato» = **CellViT**, 1.85×
+  > sobre HoVer-Net, publicado y con pesos, pero **sigue usando watershed** y **no tiene clase
+  > mitótica**. «Evitan ese paso» = **LSP-DETR** (arXiv:2601.03163, ene-2026), polígonos
+  > estrella-convexos sin post-procesamiento, >5× sobre el siguiente más rápido, todavía
+  > preprint. Y la cuenta que reordena la familia: cambiar de modelo rinde 1.85×, mientras que
+  > acotar a los **20 mejores parches de CLAM** (la idea del propio Sebastián) rinde ~240×. El
+  > paper es de segundo orden frente al subconjunto de parches.
 
 ### D. Un detector dedicado, entrenado con anotaciones de objeto (la que necesita al patólogo)
 
