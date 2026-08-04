@@ -812,3 +812,118 @@ agrega la línea, porque el reflejo natural con un resultado nulo es justamente 
 - **Cero Δ contra CLAM por brazo** en el deck, que era la regla de diseño del prereg §6. CLAM
   no aparece en ninguna de las tres láminas, ni siquiera como fila de escala.
 - **Agentes y skills**: sin cambios, esta sesión no los tocó.
+
+---
+
+# Décima pasada — cierre de la sesión de revisión del deck completo (4-ago-2026, martes, 3ª)
+
+> Sin jobs propios en toda la pasada. Ajenos: `4778` y `4780` de `capstone`; el `4791` de
+> `dbustama` ya no está en cola. Ninguno lee este árbol. Lo único tocado es el generador del
+> deck y documentación.
+
+Primera sesión que mira **las 20 láminas de una sentada** y lee el guion **de corrido**, que es
+lo que el handoff pedía. Seis defectos, y el dato que los ordena a todos está en el hallazgo J2.
+
+| id | Hallazgo | Tipo | Severidad | Acción |
+|---|---|---|---|---|
+| J1 | Una convención nueva (`_num`, coma decimal) se aplicó solo a las figuras nuevas; la función vieja `barras_ranking` siguió con `"%.3f"` y dejó la lámina 13 con punto decimal al lado de su propio `0,890` | error | alta | Fix en el generador + ADDENDUM a la memoria de puntos ciegos |
+| J2 | **Los seis defectos estaban en láminas previas al grid. Las tres nuevas salieron limpias.** El riesgo de ampliar un deck no está en lo que se agrega | ampliación | alta | ADDENDUM con la lección + línea en el README |
+| J3 | El arco se rompió en el **empalme** entre tandas, y solo se ve leyendo de corrido: la 17 prometía continuidad hacia algo que la tanda nueva desplazó | gap | media | Fix en el generador + registro de la clase |
+| J4 | El markup de subíndice `_x` aplicado a un subíndice de **dos** caracteres es silencioso: `L_CE` produce «L꜀E» y no falla | error | media | Fix + una línea en el README §6 |
+| J5 | El README de la presentación no tiene la tabla de esta pasada ni registra que el deck se revisó entero | stale | media | Sección nueva |
+| J6 | `progress/current.md` no tiene la sesión del 4-ago por la noche | stale | media | Sección nueva |
+
+## J1 — La convención nueva no alcanzó a la función vieja
+
+`_num()` nació el 4-ago con la sección del grid y formatea con coma decimal y menos
+tipográfico. Se aplicó a `barras_divergentes()` y `escalera_capacidad()`, las dos figuras
+nuevas. Pero `barras_ranking()`, escrita el 3-ago para la lámina 13, siguió con
+`"%.3f" % auc`, así que los siete valores de la escalera salían **`0.890`, `0.828`…** en una
+lámina que en el mismo alto dice `azar = 0,5` y `Mitosis: 0,890 ± 0,039`.
+
+**Por qué ningún chequeo lo ve.** No es layout: el texto entra en su caja, nada se sale del
+lienzo, nada se pisa. Es una **inconsistencia entre una parte vieja y una convención nueva**,
+y la única consulta que la caza es una que nadie había escrito: buscar `\d+\.\d+` en todo el
+texto del deck. Se corrió y dio exactamente los siete de la lámina 13 y ninguno más.
+
+**La regla que generaliza:** cuando una sesión introduce una convención de formato, el barrido
+tiene que ser sobre el deck entero, no sobre lo que esa sesión escribió. El chequeo es de una
+línea y ahora existe.
+
+## J2 — Los seis defectos estaban en lo viejo, no en lo nuevo
+
+Es el hallazgo de la pasada y conviene que quede escrito con el reparto a la vista:
+
+| Láminas | Cuándo se escribieron | Defectos encontrados |
+|---|---|---|
+| 4 a 9 (SI-MIL) | 30-jul, recortadas el 3-ago | 2 (láminas 8 y 9) |
+| 10 a 17 (atención) | 3-ago | 4 (láminas 12, 13, 15, 17) |
+| **18 a 20 (grid)** | **4-ago, ya miradas** | **0** |
+
+Las tres del grid se habían mirado en su propia sesión y sus tres defectos se corrigieron
+entonces. Lo que nadie había hecho es volver sobre las diecisiete anteriores **después** de que
+el deck creciera, ni leer el guion entero de una sentada.
+
+**La lección, que es la que va a la memoria:** al ampliar un deck, el QA de las láminas nuevas
+es el barato y el que se hace solo. El que paga es releer lo que ya estaba, porque lo viejo
+acumula la deriva de las convenciones que llegaron después (J1), las promesas de continuidad
+que la ampliación invalidó (J3) y los choques de números entre láminas que antes no eran
+vecinas. Ninguno de los tres es visible mirando la lámina sola.
+
+## J3 — El arco se rompe en el empalme, y solo se ve de corrido
+
+La lámina 17 cerraba el eje de atención con dos frases que prometían continuidad hacia los
+papers: en el panel, «Es la parte que sigue en la agenda de hoy»; en el guion, «Esa es la parte
+que sigue». Lo que sigue, desde el 4-ago, es la sección del grid. Y encima las dos láminas del
+empalme abrían con la misma construcción: «Cierro con lo que esto cambia» en la 17 y «Cierro
+con un encargo» en la 18.
+
+Ninguna de las dos cosas es visible mirando una lámina. La primera exige saber qué viene
+después; la segunda, haber leído las dos seguidas.
+
+**Fix aplicado**, mínimo y sin tocar la decisión de encuadre: la 17 ahora remata con «Los
+traigo aparte, en las hojas que preparé para hoy» (panel y guion) y abre con «Termino esta
+parte con lo que cambia». Con eso el «Cierro con un encargo» de la 18 aterriza limpio y es el
+único cierre del deck. **La lámina 3 no se tocó** y el deck sigue siendo de dos ejes con una
+sección de cierre.
+
+**La regla:** cuando una tanda nueva se agrega al final, hay que releer el remate de la lámina
+que antes era la última. Una promesa de continuidad envejece en el momento en que algo se pone
+detrás.
+
+## J4 — El subíndice multi-carácter sin paréntesis es silencioso
+
+`_add_runs()` documenta las dos formas, `_x` para un carácter y `_(xx)` para varios. La
+ecuación 10 estaba escrita `L_CE(...) + λ L_KD(...)`, así que el parser bajó **solo la C y la
+K** y dejó la E y la D a tamaño completo: en pantalla se leía «L꜀E» y «LₖD».
+
+No falla, no avisa y la auditoría no lo ve, porque el resultado es texto válido dentro de su
+caja. El README §6 tenía anotado el gotcha del `_` **literal** (el `model\_clam.py`), que es el
+caso inverso; faltaba éste. Corregido a `L_(CE)` / `L_(KD)`, verificado sobre los runs del XML.
+
+## J5 y J6 — README de la presentación y `progress/current.md`
+
+El README gana una sección con la tabla de los seis defectos de esta pasada y el reparto de J2.
+`progress/current.md` gana la sesión del 4-ago por la noche.
+
+## Verificado sin cambios
+
+- **`CLAUDE.md`**: nada que tocar. Revisar láminas no cambia ninguna regla, y las convenciones
+  de deck que la pasada usó (todo nativo, Barlow, cero rayas, notas como guion hablado) se
+  cumplieron sin excepción.
+- **Los dos `prereg.md` y los dos `resultados.md`** (grid y atención): intactos, como pedía el
+  handoff. Los seis fixes son de generador y de guion; **ningún número cambió**. Los valores de
+  la lámina 13 se re-verificaron contra `auc_por_checkpoint.csv` al cambiarles el formato.
+- **Cero Δ contra CLAM por brazo**: sigue sin aparecer en las tres láminas del grid.
+- **El veredicto H_nula del grid**: la sección se releyó entera y lo sigue contando como tal.
+- **Agentes y skills**: sin cambios.
+
+## Lo que queda abierto y va al handoff
+
+Dos decisiones de Ernesto, ninguna bloqueante:
+
+- **La lámina 12**: el cuadrante inferior derecho queda vacío, cerca del 30 % de la lámina, y
+  las filas de la grilla 2×2 no tienen rótulo (las columnas sí). Es la lámina de la leyenda
+  obligatoria, así que es la que más conviene que se lea sola.
+- **La lámina 20**: sigue abriendo en voz alta el pendiente de la réplica. Viene así desde el
+  4-ago por la tarde, a propósito, y todavía sin respuesta.
