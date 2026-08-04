@@ -493,6 +493,27 @@ patrón: skill `@slurm-submission` (sección "Comparación pareada por
 reuso de splits") y memoria
 [[patron-paired-comparison-reuso-splits]].
 
+**P1.a — El pipeline es DETERMINISTA bit a bit** (verificado 4-ago-2026, job
+4774 contra 4589). Re-correr una config con **la misma semilla, los mismos
+splits y las mismas features** reproduce hasta el `s_<f>_checkpoint.pt` **byte
+a byte** (`md5` idéntico en los 5 folds). Dos consecuencias operativas
+opuestas, las dos importan:
+
+- **A favor del reuso**: un baseline viejo que comparta semilla/splits/features
+  es comparador válido **por construcción**, no "referencia informativa". No
+  hace falta presupuestar runs de control por miedo al no-determinismo de GPU.
+- **Contra el mal uso**: re-correr la misma config con la misma semilla **no
+  aporta ni un bit de evidencia nueva**. **Toda réplica que pretenda ser
+  independiente TIENE que cambiar la semilla.** Un "lo volvimos a correr y dio
+  igual" con `--seed` fijo no replica nada.
+- **Corolario de debugging**: si dos runs que deberían ser idénticos difieren,
+  hay una variable oculta real (features mutadas, código distinto, otra
+  semilla), **no** "ruido de GPU". El `md5sum` del checkpoint es un test de
+  regresión barato y concluyente.
+
+Acotado a esta GPU (RTX A6000) y este stack; el determinismo cross-hardware no
+se midió. Detalle: [[pipeline-determinista-bit-a-bit]].
+
 **Cómo documentarlo en la hipótesis**: declarar `**Comparación**:
 paired vs <job baseline> reusando `<path/al/split_dir>`` antes del
 sbatch. El reviewer lo verifica como parte del checklist.
@@ -855,7 +876,8 @@ re-validar y actualizar `docs/codebase_map.md`.
     número efectivo = exp(entropía) da **expertos 30.0 de 30 en las 7 láminas** (con `e50=15` /
     `e90=27`, los valores exactos del reparto uniforme, idénticos en las 3 tareas) → **E=30 no está
     sobredimensionado**; y **slots 158.7 de 300** → el margen de recorte de capacidad está en **S,
-    no en E**. La dispersión de slots (89.7–196.4) sigue al **tamaño de la lámina**, no a la tarea
+    no en E** (⚠ esa última inferencia quedó **acotada el 4-ago**: describe el reparto, no predice
+    capacidad; ver los dos ADDENDUM de abajo). La dispersión de slots (89.7–196.4) sigue al **tamaño de la lámina**, no a la tarea
     (las 2 láminas de CDIS cubren casi todo el rango solas: la más baja y la 2ª más alta; el máximo
     196.4 es de LVI). Refuerza este Hallazgo: el modelo ocupa todos sus
     expertos, así que el cuello no es falta de capacidad de ruteo. Detalle:
@@ -879,7 +901,12 @@ re-validar y actualizar `docs/codebase_map.md`.
     número se sostiene y ahora **es** el de la tarea. **Expertos 29.98/30**, con `e50=15` y
     `e90=27` exactos en las 1858 sin una sola excepción → **E=30 no está sobredimensionado**
     y **el margen de capacidad está en S**, confirmado con n grande (insumo directo del grid
-    del encargo 3). **Lo que sí se corrige:** el B7 decía que la dispersión «sigue al TAMAÑO
+    del encargo 3). **⚠ ACOTADO 4-ago por el grid E×S (job 4774): «el margen está en S» vale
+    como descripción del reparto del peso, NO como predicción de capacidad.** Puesta a prueba
+    de frente, la dirección del recorte resultó indistinguible (§ADDENDUM 4-ago del cierre de
+    este Hallazgo). **Los números de arriba no cambian** — 159.5/300 y 29.98/30 siguen
+    medidos y vigentes; lo que no se sostiene es inferir de ellos **dónde** conviene recortar.
+    **Lo que sí se corrige:** el B7 decía que la dispersión «sigue al TAMAÑO
     de la lámina y no a la tarea» (ρ=0.750, n=7); con n grande **se invierte el orden y las
     dos explican poco** — tarea eta²=0.086, tamaño ρ²=0.020 (ρ cae 0.750→0.141), cohorte
     0.018; el ~88 % de la varianza es variabilidad entre láminas. **La cohorte casi no mueve
@@ -916,6 +943,24 @@ re-validar y actualizar `docs/codebase_map.md`.
     `sprints/B7_sprint7/resultados_interpretabilidad.md` §5.3 + [[cota-softmax-slots-uniforme]]. **Eje de trabajo abierto (NO reabre rendimiento):** afinar **E y S**
     para mama reduciendo uno con el otro fijo a igual total (27×10 vs 30×9), regla 9 + reviewer +
     paired sobre los splits del 4589 — [[mammoth-grid-expertos-slots]].
+    **ADDENDUM 4-ago-2026 — ese eje EJECUTADO y CERRADO en H_nula (job 4774, 8 brazos × 5 folds,
+    40/40 runs). Este Hallazgo 12 NO se movió:** el grid midió **capacidad**, no rendimiento, y por
+    diseño no calculó ningún Δ contra CLAM por brazo. Lo que cerró: el contraste primario
+    `(recorta S) − (recorta E)` a igual E·S dio **+0.022 / −0.014 / −0.002** de AUC en los peldaños
+    270 / 210 / 150 → **el signo de la media se invierte entre peldaños**, sd > |media| en los tres,
+    y el único peldaño a favor tiene 3/5 folds ⇒ **la dirección del recorte es indistinguible** y la
+    ocupación medida (§ADDENDUM 27-jul) **describe el reparto pero no dimensiona la capacidad**.
+    Secundarios, los dos hacia que la capacidad sobra: el piso **30×3 (−70 % de capacidad) pierde
+    solo 0.039 ± 0.062 de AUC** (cruza cero), y dentro de la rama S **no hay dosis-respuesta**
+    (0.792 → 0.797 → 0.802 → 0.786 de 270 a 90, rango menor que la sd de un brazo); la rama E ni
+    siquiera es monótona (el **peor** brazo del grid es 27×10, el recorte más chico). **Hallazgo
+    operativo transversal que salió de acá:** el control 30×10 reprodujo al 4589 **bit a bit**
+    (`md5` idéntico en los 5 folds, checkpoint de 2.5 MB incluido) ⇒ el pipeline es **determinista**
+    en esta GPU con la misma semilla, lo que valida el reuso pareado por construcción (patrón P1) y
+    a la vez confirma que el control **no** replicó el DATO ABIERTO de abajo y no podía hacerlo
+    (misma semilla) — esa réplica **sigue pendiente y exige semillas nuevas**. Detalle:
+    `sprints/B8_sprint8/grid_expertos_slots/{prereg.md,resultados.md}` +
+    [[mammoth-grid-expertos-slots]] + [[pipeline-determinista-bit-a-bit]].
     **DATO ABIERTO (18-jul, job 4589) — NO reabre este Hallazgo, pero queda registrado:** en la
     formulación NUEVA `carcinoma_ductal_insitu_presente_ci_reform` (85% positivo, jamás incluida
     en las 12 configs que cerraron este Hallazgo) Mammoth dio Δbal_acc **+0.074 ± 0.033 (5/5

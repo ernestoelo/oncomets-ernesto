@@ -633,3 +633,100 @@ cerrar el viejo y la construcción siguió sobre lo que había dejado.
 - **`atencion_vs_patologo/`**: nada que re-medir. Los siete AUC de la escalera del deck se
   verificaron contra `auc_por_checkpoint.csv` y reproducen el `resultados.md` dígito a dígito.
 - **Skills y agentes**: sin cambios; la sesión no tocó modelo ni training.
+
+---
+
+# Octava pasada — cierre de la sesión del grid E×S (4-ago-2026, martes)
+
+> Job 4774 **cerrado** al abrir la pasada (4-ago 07:04, 40/40 runs, cero `Traceback`). Sin jobs
+> propios en cola; los dos de `capstone` son ajenos y no leen este árbol. Todo lo tocado es
+> documental más el `git add` de la verdad de campo, que el handoff bloqueaba hasta el cierre
+> de los 8 brazos.
+
+| id | Hallazgo | Tipo | Severidad | Acción |
+|---|---|---|---|---|
+| H1 | **«El margen de recorte está en S y no en E» está propagado en 5 lugares y el grid NO lo sostuvo.** La medición que lo originó sigue siendo correcta; lo que cae es la inferencia de capacidad que se le colgó encima | contradicción | **alta** | Precisar en los 5, aditivo, sin borrar la medición |
+| H2 | CLAUDE.md declara el eje E×S como **«Eje de trabajo abierto»** al cierre del Hallazgo 12; el eje cerró en H_nula | stale | alta | ADDENDUM fechado en el Hallazgo 12 |
+| H3 | **El pipeline es determinista bit a bit**, hecho nuevo y transversal que refuerza el patrón P1 y a la vez acota qué cuenta como réplica independiente | hallazgo nuevo | alta | Sub-cláusula aditiva en P1 + memoria nueva |
+| H4 | `progress/current.md` no tiene la sesión del 4-ago | stale | media | Sección nueva |
+| H5 | La línea de `MEMORY.md` del grid decía «PRE-REGISTRADO Y LANZADO» | stale | baja | Ya reescrita en esta sesión |
+
+## H1 — La frase propagada que el grid puso a prueba, y que no aguantó
+
+**Dónde vive**, verificado con `grep -n`:
+
+| Fuente | Línea | Qué dice |
+|---|---|---|
+| `CLAUDE.md` | 857 | «el margen de recorte de capacidad está en **S**, no en E» (ADDENDUM 24-jul, n=7) |
+| `CLAUDE.md` | 881 | «**el margen de capacidad está en S**, confirmado con n grande» (ADDENDUM 27-jul, n=1858) |
+| memoria `mammoth-slot-routing-weight` | description, 57, 69, 178 | idem, cuatro veces |
+| `MEMORY.md` | 68 | «⇒ margen en S» |
+
+**Qué pasó.** El grid E×S (job 4774) existía justamente para poner a prueba esa frase, y el
+contraste primario `(recorta S) − (recorta E)` a igual E·S dio **+0.022 / −0.014 / −0.002** de
+AUC en los peldaños 270 / 210 / 150: **el signo de la media se invierte entre peldaños**, la
+desviación supera a la media en los tres, y el único peldaño a favor tiene 3 de 5 folds.
+
+**Qué se corrige y qué NO.** Hay que separar dos afirmaciones que venían pegadas:
+
+- **La medición se mantiene intacta**: slots efectivos 159.5 ± 26.3 de 300 y expertos 29.98 de
+  30 con `e50=15` / `e90=27` exactos sobre 1858 láminas-fold. Nadie la contradijo, y **no se
+  toca**.
+- **La inferencia de capacidad NO se sostiene**: de «poco más de la mitad de los slots concentra
+  el peso» no se sigue «entonces conviene recortar S y no E». El 30×5 tiene 150 slots totales,
+  prácticamente el N_eff medido, y no marca ningún quiebre.
+
+Lectura durable, que es lo que va a los cinco lugares: **la ocupación describe cómo se reparte
+el peso, no dimensiona la capacidad necesaria.** Es exactamente la lectura que el pre-registro
+le había asignado por anticipado a H_nula (`grid_expertos_slots/prereg.md` §3), así que la
+interpretación no se eligió después de ver el número.
+
+**Criterio aplicado**: edición aditiva, la medición se preserva palabra por palabra y se le
+agrega el límite. Nada se borra: el ADDENDUM del 27-jul es registro histórico de qué se sabía
+y cuándo.
+
+## H2 — El eje E×S ya no está abierto
+
+`CLAUDE.md:916-918`, al cerrar el Hallazgo 12, dice **«Eje de trabajo abierto (NO reabre
+rendimiento): afinar E y S para mama reduciendo uno con el otro fijo a igual total (27×10 vs
+30×9), regla 9 + reviewer + paired sobre los splits del 4589»**. Ese eje se ejecutó y cerró.
+
+Va como ADDENDUM fechado del Hallazgo 12, **sin tocar** el texto del eje abierto: el Hallazgo 12
+es «Mammoth no es palanca» y el grid **no lo movió**, porque midió capacidad y no rendimiento
+y no calculó ningún Δ contra CLAM por brazo. El ADDENDUM cierra el eje y deja el Hallazgo donde
+estaba.
+
+## H3 — Determinismo bit a bit: refuerza P1 y acota qué es una réplica
+
+El control 30×10 del grid re-corrió el mismo Mammoth del job 4589 y salió **`md5` idéntico en
+los 5 folds**, incluido el `s_<f>_checkpoint.pt` de 2.5 MB. Verificado que los runs fueron
+reales (mtime del 2-ago, 260 épocas loggeadas, 40 `[DONE]`), no un reuso encubierto.
+
+Toca el patrón **P1** (`CLAUDE.md:465`) en dos direcciones opuestas, y por eso conviene que
+esté escrito ahí y no solo en la memoria:
+
+- **A favor**: el reuso pareado de un baseline con la misma semilla, splits y features es válido
+  **por construcción**, no «referencia informativa». El prereg del grid solo se animaba a pedir
+  que el control cayera «dentro de lo que se mueve una corrida», asumiendo no-determinismo de
+  GPU; no hay tal cosa acá.
+- **En contra de un mal uso**: re-correr la misma config con la misma semilla **no aporta
+  evidencia nueva**. Aplica directo al pendiente de replicar el Δ +0.074 del 4589, que el
+  control **no** replicó y no podía replicar.
+
+Memoria nueva `pipeline-determinista-bit-a-bit` + línea en el índice. Alcance acotado a esta
+GPU y este stack: el determinismo cross-hardware no se midió y no se afirma.
+
+## H4 — `progress/current.md`
+
+Sección nueva `## Sesión del 4-ago-2026 (martes)`, con el cierre del job, el veredicto, el
+hallazgo del determinismo y el estado de los pendientes.
+
+## Verificado sin cambios
+
+- **El pre-registro no se tocó**, en ninguna de sus secciones. El resultado se escribió contra
+  las hipótesis tal como estaban (regla 9).
+- **El Hallazgo 12 no se movió**: el grid midió capacidad. Cero Δ contra CLAM por brazo, que
+  era el riesgo que el prereg §6 identificó y evitó por diseño.
+- **La política de eval B5** se cumple en el `resultados.md`: balanced accuracy y AUC juntos,
+  matrices de confusión y n por clase en los 8 brazos.
+- **Los cuatro frentes**: agentes y skills sin cambios, no los tocó esta sesión.
