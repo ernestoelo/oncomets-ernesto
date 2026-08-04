@@ -1909,3 +1909,33 @@ anteriores la habían tratado como un problema de explicación y le dedicaron un
 la lámina; no alcanzó. Esa fila no aporta: las 163 marcas caen todas en la otra región. El
 generador conserva `FIG_MAPAS` en la grilla vieja y deja el asset nuevo en `FIG_MAPAS_ANOTADA`,
 así que el deck **sigue regenerando idéntico**: 20 láminas, auditoría en cero.
+
+---
+
+## Sesión del 4-ago-2026 (martes, 19:00) — el rediseño quedó planificado, no ejecutado
+
+Sesión corta, **sin editar el generador y sin GPU**. Rama `main` sincronizada, árbol limpio,
+ningún job propio; ajenos `4778` y `4780` de `capstone` y `4800` de `gvenegas`, ninguno lee
+este árbol. Se leyó el contexto completo que el handoff pedía (CLAUDE.md, el README de la
+presentación, esta bitácora, las siete memorias del deck y los 2101 renglones de
+`generate_b8_deck.py`) y se armó el plan de ejecución de los doce puntos. **Se cerró antes de
+tocar código, por presupuesto de contexto**: el rediseño toca casi las veinte láminas y no
+entra en lo que quedaba.
+
+**Lo que sí quedó versionado**, en `presentacion_b8/README.md` §«Preparado para ejecutarlo»,
+que es lo que la próxima sesión tendría que volver a derivar:
+
+- **El mapeo de numeración**: la «lámina N» de los pedidos es el comentario `# ---- N-1 ----`
+  del `build()`, porque las dos de apertura salen del template y no llevan comentario.
+- **Cuál hipótesis es la primaria**, verificado contra `atencion_vs_patologo/prereg.md` §2: la
+  primaria es **la del patólogo** (los marcados **no** rankean mejor que el azar), así que
+  «Si tuviera razón» es la primaria y «Si no la tuviera» la alternativa, que es la que el
+  resultado apoyó. Es la trampa del punto 3 del pedido: cambiarlas de lado tergiversaría el
+  pre-registro.
+- **La caja de la lámina 12 con la cuenta hecha**: ar 2,407 y `h = w / ar`, así que con las
+  tres líneas de procedencia al pie el ancho tiene tope en ≈ 8,10 y cada panel queda en
+  ≈ 4,05", contra 2,17" de la grilla actual.
+- **Los dieciocho títulos propuestos** para el pedido transversal, a confirmar al ejecutar.
+
+**El deck no cambió**: sigue en 20 láminas y regenera idéntico. El plan completo, lámina por
+lámina y con la geometría de las cuatro figuras nuevas, viaja en el handoff de las 19:15.

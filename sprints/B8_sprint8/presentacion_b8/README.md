@@ -327,6 +327,37 @@ dicen «nunca se vio **en entrenamiento**». En los cuatro primarios la lámina 
 corrida de cinco. Sus datasets de entrenamiento son 153 láminas (privado), 978 (privado + TCGA)
 y 934 (privado + TCGA, cinco particiones).
 
+### Preparado para ejecutarlo (sesión del 4-ago, 19:00)
+
+Sesión de lectura y plan, **sin editar el generador**. Lo que queda escrito acá es lo que la
+sesión de ejecución necesitaría volver a derivar.
+
+**Numeración**: la «lámina N» de los pedidos de Ernesto es el comentario `# ---- N-1 ----` del
+`build()`, porque las dos láminas de apertura salen del template y no llevan comentario. Así,
+la 3 es el `# ---- 2.`, la 12 es el `# ---- 11.` y la 20 que se borra es el `# ---- 19.`.
+
+**Cuál hipótesis es la primaria, que el punto 3 puede invertir.** Verificado contra
+`../atencion_vs_patologo/prereg.md` §2: la **primaria es la del patólogo**, o sea que los
+parches marcados **no** rankean mejor que el azar. Entonces el rótulo «Si tuviera razón» pasa a
+**hipótesis primaria** y «Si no la tuviera» a **alternativa**, y lo que el resultado apoyó fue
+la **alternativa**. Cambiarlos de lado convertiría la lámina en una tergiversación del
+pre-registro, que es justo lo que el rótulo profesional tiene que evitar.
+
+**La caja de la lámina 12, con la cuenta hecha.** `atencion_region_anotada.png` mide
+1502 × 624, o sea **ar = 2,407**, y `add_image_fit` impone `h = w / ar`. Con las tres líneas de
+`PROVENANCIA` al pie (8 pt, interlineado mínimo, unas 0,49") el ancho tiene tope: **w ≈ 8,10 →
+h ≈ 3,37**, imagen desde `TOP + 0,28` y pie desde ≈ 4,92. Cada panel queda en ≈ 4,05" contra
+los 2,17" de la grilla 2×2 actual, que es el «al doble» que pidió. `caption` no sirve de pie
+acá, porque gasta 0,4" por renglón.
+
+**Títulos propuestos** para el pedido transversal, a confirmar al ejecutar: 3 Objetivos del
+sprint · 4 SI-MIL: qué propone · 5 Ecuación 1: las dos entradas · 6 Ecuación 2: el orden ·
+7 El puente entre las dos ramas · 8 Ecuaciones 3 a 10 · 9 Resultados y costo de adopción ·
+10 La pregunta medible · 11 El estadístico: un ranking, no un mapa · 12 Atención y marcas del
+patólogo · 13 El resultado, grupo por grupo · 14 Los 28 parches de mitosis · 15 Mira bien y
+responde mal · 16 Los cuatro controles · 17 ¿Recortar expertos o slots? · 18 El costo de sacar
+capacidad · 19 Tres papers para la rama de mitosis · 20 Objetivos propuestos.
+
 ## Guion del presentador
 
 Prosa hablada corrida, sin etiquetas de fase, en primera persona
