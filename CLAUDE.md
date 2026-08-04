@@ -1116,7 +1116,13 @@ duplicar trabajo. **NO** intentar editar el `.pptx` ni el PDF del deck
 > confusión como tabla-heatmap nativa (`add_confusion`), diagramas de bloques (shapes /
 > copia de spTree) y esquemas (`draw_*`). **Regla de ahora en más: tablas, gráficos y
 > diagramas = NATIVOS de PowerPoint, NO PNG matplotlib** (Ernesto quiere agrandar/editar).
-> Única excepción: **figuras externas de un paper** (van como imagen). Los PNG de
+> Única excepción: **figuras externas de un paper** (van como imagen). **Precisión 3-ago-2026:
+> la excepción cubre también las figuras de producción PROPIA que no se pueden dibujar con
+> shapes** — un mapa de atención sobre tejido es la fotografía de un resultado, no un diagrama
+> (deck B8, `atencion_dos_regiones.png` y las dos de mitosis). Lo que las acompaña sigue siendo
+> nativo, incluida una escalera de AUC, que va como barras con la gramática del template y NO
+> como PNG de matplotlib. El criterio real no es «de dónde salió la imagen» sino **si el objeto
+> es dibujable**: tabla, gráfico o diagrama ⇒ nativo, siempre. Los PNG de
 > `generate_slide_assets.py` quedan como respaldo, no como entrega por defecto. Receta y
 > branding completos: `sprints/B5_sprint5/presentacion_b5/convenciones_deck_b5.md` +
 > memoria [[deck-completo-pptx-buildable]]. Diagramas de arquitectura: estilo

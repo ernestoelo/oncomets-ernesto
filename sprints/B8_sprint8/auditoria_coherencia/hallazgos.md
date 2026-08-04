@@ -531,3 +531,105 @@ menos* de atención).
 - **`atencion_vs_patologo/`**: nada que re-medir. Los AUC, los p del nulo espacial y la corrida
   confinada están cerrados desde el 2-ago.
 - **Skills y agentes**: sin cambios; la sesión fue documental y no tocó modelo ni training.
+
+---
+
+# Séptima pasada — cierre de la sesión del deck a dos ejes (3-ago-2026, tarde, 3ª)
+
+> Job 4774 vivo durante toda la pasada (22 h 14 min, 29 de 40 runs): cero branch-switch,
+> cero edición de inputs del job. Todo lo tocado es documental.
+
+| id | Hallazgo | Tipo | Severidad | Acción |
+|---|---|---|---|---|
+| G1 | **F1 y F4 de la sexta pasada quedan RESUELTOS.** El resultado del 1-ago ya tiene forma presentable (8 láminas + guion) y las figuras llevan su leyenda obligatoria | cierre | alta | Marcar resueltos acá y en las memorias |
+| G2 | CLAUDE.md dice que la **única** excepción a «todo nativo» son las figuras externas de un paper, y el deck lleva 3 imágenes que son **producción nuestra** | reconciliación | media | Sub-cláusula aditiva; no se reescribe la regla |
+| G3 | La memoria de puntos ciegos del QA **no cubre las dos clases de defecto** que aparecieron en esta pasada, ambas con la auditoría en cero | gap | media | ADDENDUM fechado |
+| G4 | Dos procesos con el mismo id de sesión escribiendo el mismo archivo | gotcha nuevo | media | Memoria nueva + línea en el índice |
+| G5 | Dos líneas de `MEMORY.md` quedaron stale: el encargo del deck ya se ejecutó, y el hallazgo del 1-ago ya tiene forma | stale | baja | Reescribir las dos líneas |
+
+## G1 — El hallazgo del 1-ago ya tiene forma presentable
+
+**Qué decía la sexta pasada.** F1: *«el resultado más importante del B8 no existe en ningún
+entregable presentable»*, con severidad **alta**, y F4: *«las dos figuras muestran el tejido
+dos veces … si van al deck, van con leyenda»*.
+
+**Qué hay ahora.** `presentacion_b8/CLAM_Sprint8.pptx`, 17 láminas, de las cuales **ocho** son
+la medición: la pregunta con sus dos hipótesis pre-registradas, qué se mide exactamente, los
+dos mapas, la escalera de los siete grupos, los 28 parches sobre el mapa, la disociación, los
+cuatro controles, y qué mueve en las cuatro familias. Con guion hablado en las ocho.
+
+**F4 cumplido al pie.** La lámina de los mapas lleva el panel que explica las dos regiones de
+escaneo (2303 arriba, 2496 abajo, las 163 marcas todas abajo) **y** el dato de que se midió y
+se descartó el efecto de región (0,462 a 0,478). Sin eso la figura se lee como un defecto.
+
+**F2 no requiere acción**: era una precisión de registro y ya estaba aplicada como ADDENDUM.
+
+## G2 — «Todo nativo salvo figuras de paper» necesita una segunda excepción
+
+**Lo que dice CLAUDE.md** (línea 1119): *«Única excepción: **figuras externas de un paper**
+(van como imagen)»*.
+
+**Lo que hace el deck.** Lleva tres imágenes que **no** son de un paper:
+`atencion_dos_regiones.png`, `mitosis_region_anotada.png` y `mitosis_zoom.png`. Son mapas de
+atención sobre una lámina real, producidos por nosotros.
+
+**No es una violación de la regla, es un caso que la regla no contempló.** El espíritu de
+«todo nativo» es que Ernesto pueda agrandar y editar tablas, gráficos y diagramas, y que nada
+que se pueda dibujar con shapes viaje como raster. Un mapa de atención sobre tejido **no se
+puede dibujar con shapes**: es una fotografía de un resultado. Lo que sí se mantuvo nativo es
+todo lo que lo acompaña, incluida la escalera de los siete AUC, que es un gráfico de barras
+dibujado con la gramática del template y no un PNG de matplotlib.
+
+**Fix**: sub-cláusula aditiva en la misma línea, sin reescribir la regla.
+
+## G3 — Dos clases de defecto que el chequeo programático tampoco ve
+
+La auditoría dio **cero avisos** en las dos pasadas de generación, y aun así mirando las
+láminas rasterizadas aparecieron cuatro defectos. Dos son de una clase que la memoria
+[[deck-qa-puntos-ciegos-chequeo]] todavía no registraba:
+
+- **Imagen centrada en una caja con otra relación de aspecto.** `add_image_fit` centra la
+  figura dentro de su caja; si la caja no tiene el aspecto de la figura, sobra aire a los
+  costados y **los rótulos de columna quedan corridos respecto de lo que rotulan**. El
+  chequeo no lo ve porque nada se sale de su caja: la caja está bien, la imagen está bien, y
+  la relación entre las dos es la que falla. Se corrige fijando `h = w / ar`.
+- **Tira de paneles auto-dimensionados, dentada.** `panel(..., h=None)` calcula su alto
+  midiendo el texto, que es justamente el fix del ADDENDUM del 30-jul; el efecto lateral es
+  que una tira de cuatro sale con cuatro alturas distintas. Se igualan **después** de
+  dibujarlos con `sp.height = Inches(alto_max)`, que es seguro porque el texto está anclado
+  arriba.
+
+Las otras dos fueron un pie de figura lejos de su figura y jerga interna en un remate
+(«commiteadas»), que son de la clase que ya estaba registrada: solo salen mirando.
+
+## G4 — Dos procesos con el mismo id de sesión
+
+Al interrumpir la sesión y retomarla, el proceso anterior **no murió** y siguió editando el
+generador por su cuenta: 151 líneas a las 17:49, con el mismo plan ya aprobado. Se detectó
+por un `Edit` que falló con «modified since read».
+
+El síntoma es idéntico al de una sesión ajena pisando el árbol compartido, y la reacción
+correcta es la misma (parar y mirar el diff antes de escribir), pero el diagnóstico cambia
+qué se hace con lo encontrado: trabajo ajeno se preserva, trabajo propio huérfano se
+aprovecha o se descarta. Se distinguen por el `--resume` de cada proceso. Ernesto autorizó
+cerrar el viejo y la construcción siguió sobre lo que había dejado.
+
+**Fix**: memoria nueva [[proceso-viejo-vivo-tras-interrumpir]] + línea en el índice.
+
+## G5 — Dos líneas del índice de memoria quedaron stale
+
+- La de `deck-b8-dos-ejes-simil-mitosis` empieza con «encargo 3-ago», y el encargo ya está
+  ejecutado.
+- La de `hallazgo-necesita-forma-presentable` termina con «el del 1-ago no lo tenía», que
+  después de esta sesión es falso.
+
+## Verificado sin cambios
+
+- **CLAUDE.md, Hallazgos 11 a 14**: ninguno se toca. La sesión no produjo resultados
+  experimentales.
+- **El pre-registro del grid sigue intacto.** No se leyó ninguna métrica parcial del 4774:
+  solo se contaron archivos (`test_metrics.json`, 29 de 40) y se miró `squeue`.
+- **`results/b8_grid_es/` sigue deliberadamente sin versionar.**
+- **`atencion_vs_patologo/`**: nada que re-medir. Los siete AUC de la escalera del deck se
+  verificaron contra `auc_por_checkpoint.csv` y reproducen el `resultados.md` dígito a dígito.
+- **Skills y agentes**: sin cambios; la sesión no tocó modelo ni training.
