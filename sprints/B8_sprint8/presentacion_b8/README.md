@@ -212,6 +212,11 @@ subíndice y el archivo queda escrito «model_lam.py». Se escapa con `model\\_c
 eso los `score_2` / `score_3` de la sección de atención van en tablas y textboxes **sin**
 markup, donde el guión bajo es literal.
 
+**Gotcha inverso, y es silencioso:** `_x` baja **un solo carácter**. Un subíndice de dos o más
+escrito sin paréntesis no falla ni avisa, simplemente sale a medias: `L_CE` baja la C y deja la
+E a tamaño completo («L꜀E»). Para dos o más va siempre `_(CE)`. Cazado el 4-ago en la ecuación
+10, que llevaba `L_CE` y `L_KD`.
+
 ### 7. Los paneles se dimensionan midiendo el texto
 
 `text_w()` mide con los TTF de Barlow instalados bajo containment, `wrap_lines()` cuenta
@@ -229,6 +234,33 @@ fuera de su caja ni shape fuera del lienzo, sino **dos objetos válidos superpue
 | La línea de tendencia cruzaba los rótulos de valor de la lámina 19 | el rótulo entra perfecto en su caja; lo que lo tapa es un conector | el valor se dibuja **dentro** de la barra, en blanco |
 | Los paneles de la lámina 20 chocaban con la regla de `takeaway_bar` | el panel se auto-dimensiona y queda dentro del lienzo, y la regla está en su sitio | subir el bloque 0,10" y bajar los cuerpos de 3 líneas a 2 |
 | El pie de la lámina 18 no decía qué significaba el relleno de los cuadros | es una omisión de contenido, no de layout | se completó la leyenda |
+
+Y volvió a pasar la noche del 4-ago, en la primera pasada que miró **las 20 de una sentada** y
+leyó el guion **de corrido**: auditoría en cero y **seis defectos**. El reparto es el hallazgo,
+más que los defectos:
+
+| Láminas | Cuándo se escribieron | Defectos |
+|---|---|---|
+| 4 a 9 (SI-MIL) | 30-jul, recortadas el 3-ago | 2 |
+| 10 a 17 (atención) | 3-ago | 4 |
+| **18 a 20 (grid)** | **4-ago, ya miradas** | **0** |
+
+**Al ampliar un deck, el QA de las láminas nuevas es el barato y se hace solo. El que paga es
+releer lo que ya estaba**, porque lo viejo acumula la deriva de las convenciones que llegaron
+después, las promesas de continuidad que la ampliación invalidó, y los choques de números entre
+láminas que antes no eran vecinas. Ninguno se ve mirando la lámina sola.
+
+| Defecto | Por qué la auditoría no lo ve | Fix |
+|---|---|---|
+| Los 7 valores de la escalera de la lámina 13 salían con **punto** decimal, junto a su propio `0,890 ± 0,039` y `azar = 0,5` | `_num()` llegó con las figuras del grid y `barras_ranking()`, de la tanda anterior, siguió con `"%.3f"`. No es layout | `barras_ranking` pasa a `_num()`; y el barrido `\d+\.\d+` sobre el deck entero queda como chequeo |
+| Ecuación 10: `L_CE` / `L_KD` bajaban solo la C y la K («L꜀E») | el subíndice `_x` es de UN carácter; el resultado es texto válido en su caja | `L_(CE)` / `L_(KD)` |
+| La lámina 17 remataba con «Es la parte que sigue», apuntando a los papers, y detrás quedó el grid | es de arco: exige saber qué viene después | «Los traigo aparte, en las hojas que preparé para hoy»; y abre con «Termino esta parte con…» para no repetir el «Cierro con» de la 18 |
+| La 15 decía «26 mitosis marcadas» al lado de la 13 y la 14, que dicen 28 parches | los dos números son correctos y salen del mismo `resultados.md`; chocan solo por ser vecinos | «26 **marcas** de mitosis»: se nombra la unidad, no se cambia el número |
+| Guion de la 9: «la exactitud pasa de **nueve coma tres siete**» por 0,937 | las notas no se auditan, y leído suena a una exactitud de 9,37 | «cero coma nueve tres siete», y los otros tres números de la frase |
+| Guion de la 12: «cero coma cuatro seis y cero coma **cuarenta y ocho**» | dos formas de decir el número en la misma frase | «cuatro seis» y «cuatro ocho» |
+
+Ningún número cambió y no se tocaron el `prereg.md` ni el `resultados.md` de ninguno de los dos
+experimentos. Detalle: `../auditoria_coherencia/hallazgos.md`, **décima pasada**.
 
 ### 8. Extracción de la Fig. 2 del paper
 
