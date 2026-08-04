@@ -1815,3 +1815,49 @@ una leyenda que no decía qué significaba el relleno de sus cuadros.
 `@humanizer-es`. Commit `e938bec`.
 
 **Auditoría, novena pasada**: cinco hallazgos (I1 a I5), todos documentales y aditivos.
+
+## Sesión del 4-ago-2026 (martes, noche) — el deck se revisó entero, y los defectos estaban en lo viejo
+
+**Sesión de revisión**, sin GPU y sin jobs propios. Ajenos en el nodo: `4778` y `4780` de
+`capstone`; el `4791` de `dbustama` ya salió de la cola. Ninguno lee este árbol, así que el
+workaround H no aplicó en ningún momento.
+
+**La misión del handoff se cumplió entera**: mirar las **20 láminas de una sentada** y leer el
+guion **de corrido**, que es lo que el deck nunca había tenido. Se armó en tres tandas (30-jul,
+3-ago, 4-ago) y cada una revisó lo suyo.
+
+**Seis defectos, y el reparto es el hallazgo.** Dos en SI-MIL (láminas 8 y 9), cuatro en la
+sección de atención (12, 13, 15 y 17) y **cero en las tres del grid**, que eran las nuevas y las
+que ya se habían mirado. La lección que queda: al ampliar un deck, el QA de lo que uno acaba de
+escribir es el barato y se hace solo; **el que paga es releer lo que ya estaba**, porque lo
+viejo acumula la deriva de las convenciones que llegaron después, las promesas de continuidad
+que la ampliación invalidó, y los choques de números entre láminas que antes no eran vecinas.
+
+Los seis, y por qué ninguno es de layout:
+
+- **La lámina 13 tenía punto decimal** en los siete valores de la escalera, al lado de su propio
+  `0,890 ± 0,039` y de `azar = 0,5`. `_num()` nació con las figuras del grid el 4-ago y se
+  aplicó solo a ellas; `barras_ranking()`, del 3-ago, siguió con `"%.3f"`. Queda como chequeo un
+  barrido `\d+\.\d+` sobre el deck entero.
+- **La ecuación 10 bajaba medio subíndice**: `L_CE` deja la E a tamaño completo porque `_x` es
+  de un carácter. Silencioso y válido. Va `L_(CE)`.
+- **El empalme de la 17 a la 18**, que el handoff había marcado como sospechoso y lo era. La 17
+  cerraba prometiendo los papers («Es la parte que sigue») y detrás quedó el grid; y las dos
+  láminas abrían con «Cierro con». **La lámina 3 no se tocó**: el deck sigue siendo de dos ejes
+  con una sección de cierre.
+- **26 contra 28 mitosis** en láminas contiguas. Los dos números son correctos, son marcas y
+  parches. Se nombró la unidad en la 15, no se cambió el número.
+- **Dos del guion**, que solo aparecen leyéndolo en voz alta: «nueve coma tres siete» donde el
+  número es 0,937, y una frase que decía el mismo tipo de número de dos maneras distintas.
+
+**Ningún número cambió** y no se tocaron el `prereg.md` ni el `resultados.md` de ninguno de los
+dos experimentos, como pedía el handoff. Los valores de la lámina 13 se re-verificaron contra
+`auc_por_checkpoint.csv` al cambiarles el formato. Verificado tras regenerar: auditoría en cero,
+20 láminas, cero rayas, cero puntos decimales, un solo «Cierro con».
+
+**Quedan dos decisiones de Ernesto**, ninguna bloqueante: el aire del cuadrante inferior derecho
+de la **lámina 12** (cerca del 30 %) junto con los rótulos de fila que le faltan a su grilla
+2×2, y si la **lámina 20** sigue abriendo en voz alta el pendiente de la réplica.
+
+**Auditoría, décima pasada** (`sprints/B8_sprint8/auditoria_coherencia/hallazgos.md`): seis
+hallazgos, J1 a J6.
