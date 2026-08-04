@@ -37,6 +37,7 @@ FIG_MITOSIS = os.path.join(SRC, "figura_mitosis_sobre_atencion.png")
 # re-detectarlas: las figuras están congeladas desde el 31-jul y un detector automático es
 # una fuente de sorpresas silenciosas al regenerar el deck.
 MAPAS_FILAS = [(122, 745), (1135, 1759)]      # región 1 (arriba), región 2 (la anotada)
+MAPAS_FILA_ANOTADA = (1135, 1759)             # solo la región donde caen las 163 marcas
 MAPAS_COLS = [(96, 832), (1488, 2228)]        # atención, anotaciones
 MITOSIS_REGION2 = (1171, 1847)                # la fila con las marcas
 MITOSIS_COLS = (278, 1078)
@@ -105,6 +106,15 @@ def main():
     p = os.path.join(DST, "atencion_dos_regiones.png")
     out.save(p)
     print("  %-28s %s" % ("atencion_dos_regiones.png", out.size))
+
+    # Solo la región anotada. La grilla 2x2 de arriba tiene un problema de lectura que no se
+    # arregla con leyenda: la fila de la región sin marcas muestra el mismo tejido y su panel
+    # de anotaciones queda idéntico al de abajo pero vacío, así que se lee como una imagen
+    # repetida. Y esa fila no aporta: las 163 marcas caen todas en la otra. Se proyecta esta,
+    # que ocupa el doble de lado, y las dos regiones se cuentan en una línea de pie.
+    solo = _grilla_paneles(mapas, [MAPAS_FILA_ANOTADA], MAPAS_COLS)
+    solo.save(os.path.join(DST, "atencion_region_anotada.png"))
+    print("  %-28s %s" % ("atencion_region_anotada.png", solo.size))
 
     mit = Image.open(FIG_MITOSIS).convert("RGB")
     reg = mit.crop((MITOSIS_COLS[0], MITOSIS_REGION2[0], MITOSIS_COLS[1], MITOSIS_REGION2[1]))

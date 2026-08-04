@@ -75,9 +75,26 @@ FIG2_C = os.path.join(ASSETS, "simil_fig2_c.png")         # (c) Self-Interpretab
 # --- figuras de la medición de atención (producción NUESTRA, no figura de paper) ---
 # Recortadas de las originales por prep_assets_atencion.py: las de archivo traen títulos de
 # matplotlib y un hueco de ~390 px entre las dos regiones de escaneo del .bif.
-FIG_MAPAS = os.path.join(ASSETS, "atencion_dos_regiones.png")      # grilla 2x2
+FIG_MAPAS = os.path.join(ASSETS, "atencion_dos_regiones.png")      # grilla 2x2 (ar 1.1827)
+# Preparado para el rediseño de la lámina 12: solo la región anotada, atención | marcas, que
+# es el doble de lado y no arrastra la fila que se lee como imagen repetida. ar = 2.407, así
+# que la caja de la lámina hay que recalcularla al adoptarlo (add_image_fit usa `h = w / ar`).
+FIG_MAPAS_ANOTADA = os.path.join(ASSETS, "atencion_region_anotada.png")
 FIG_MITOSIS = os.path.join(ASSETS, "mitosis_region_anotada.png")   # con el recuadro de foco
 FIG_ZOOM = os.path.join(ASSETS, "mitosis_zoom.png")                # el detalle del recuadro
+
+# --- procedencia de la lámina anotada, para la lámina de los mapas ---
+# Sebastián preguntó de dónde salió la lámina y con qué checkpoints se midió. Las tres líneas
+# de abajo son la respuesta, verificadas el 4-ago contra los CSV de labels de `environ/`, el
+# `offset_129741.json` de `anotaciones_patologo/` y los `splits_*_bool.csv` de cada corrida.
+PROVENANCIA = [
+    "Lámina 129741, cohorte privada. H&E Ventana .bif a 20× (0,465 µm/px), bajo wsi/129741/. "
+    "4799 parches de 256 px, 163 bajo alguna marca.",
+    "Marcas del patólogo, 61 polígonos exportados de QuPath: 26 mitosis · 14 núcleos de alto "
+    "grado · 6 necrosis · 5 células inmunes · 5 tumor · 2 tejido adiposo · 1 estroma · 2 fondo.",
+    "Sus etiquetas en nuestros CSV: tasa mitótica score_3 · pleomorfismo nuclear score_2 · "
+    "diferenciación tubular score_3 · grado general 3 · grado nuclear del CDIS alto.",
+]
 
 # --- números de la medición, verificados contra auc_por_checkpoint.csv (4 ckpt primarios,
 # cabeza de la clase verdadera). El orden es el de la escalera que se dibuja en la lámina.
@@ -105,6 +122,30 @@ RAMA_S = [("30×10", 0.825, "300"), ("30×9", 0.792, "270"), ("30×7", 0.797, "2
           ("30×5", 0.802, "150"), ("30×3", 0.786, "90")]
 RAMA_E = [("30×10", 0.825, "300"), ("27×10", 0.770, "270"), ("21×10", 0.812, "210"),
           ("15×10", 0.804, "150")]
+
+# --- los tres papers de la rama de mitosis (../tareas_geometricas/hojas_reunion.md, hoja 0) ---
+# Se ordenan por el único criterio que descarta rápido: qué supervisión exige cada uno contra
+# la que efectivamente tenemos, que son POSITIVOS PARCIALES. Sin las letras de familia, que
+# fuera de nuestros documentos no significan nada.
+PAPERS = [
+    ("Detección con positivos parciales", "Zhao et al., MELBA 2022",
+     "Marcas parciales, las nuestras", "Montar un detector nuevo cuesta"),
+    ("Segmentación de núcleos", "Hörst et al., MedIA 2024",
+     "Ninguna nuestra: pesos públicos", "No tiene clase mitótica"),
+    ("Atención multi-escala", "Thandiackal et al., ECCV 2022",
+     "Solo la etiqueta de lámina", "En el privado no hay 40× al que acercarse"),
+]
+
+# --- objetivos del sprint, de la reunión del 24-jul más la redirección del 31-jul ---
+# En infinitivo, sin resultados, con el marcador de estado del molde de recapitulación.
+OBJETIVOS = [
+    ("1. Escalar a toda la tarea la medición de slots ocupados.", "done"),
+    ("2. Entrenar los slots del modelo con nuestro dataset.", "prog"),
+    ("3. Medir, a igual capacidad, si conviene recortar expertos o slots.", "done"),
+    ("4. Estudiar el paper de MIL auto-interpretable y decidir si se adopta.", "done"),
+    ("5. Medir si la atención cae donde el patólogo marcó las mitosis.", "done"),
+    ("6. Revisar la literatura para una rama dedicada a mitosis.", "done"),
+]
 
 # ---- paleta Deep-LLM-V (medida sobre el template) ----
 ONCO_DARK = RGBColor(0x3E, 0x68, 0x77)    # bloque de proceso
