@@ -267,12 +267,37 @@ experimentos. Detalle: `../auditoria_coherencia/hallazgos.md`, **décima pasada*
 `pdftoppm -f 4 -l 4 -r 400` sobre el PDF y recorte por perfil de contenido. Es la **única
 imagen de paper** del deck.
 
-## Rediseño pedido el 4-ago (17:30) — PENDIENTE DE EJECUTAR
+## Rediseño pedido el 4-ago (17:30) — EJECUTADO el 4-ago (20:00)
 
-Ernesto revisó el deck construido y pidió doce cambios. **Nada de esto está ejecutado**: la
-sesión del 4-ago por la tarde verificó los datos que faltaban, cerró con él las dos decisiones
-abiertas y preparó el asset nuevo. El deck de este directorio sigue siendo el de las 20 láminas
-descritas arriba.
+Ernesto revisó el deck construido y pidió doce cambios. **Los doce están ejecutados**, más los
+dos transversales de títulos y notas. El deck sigue en **20 láminas**, regenera limpio y la
+auditoría da cero avisos; **ningún número cambió** y ni el `prereg.md` ni el `resultados.md` de
+los dos experimentos se tocaron.
+
+> La tabla de abajo es la estructura **destino**, que ahora es la vigente. La sección
+> «Estructura (20 láminas)» del principio de este README describe el deck **anterior al
+> rediseño** y quedó stale: los títulos y el reparto de las dos puntas cambiaron.
+
+### Lo que quedó sin hacer
+
+- **QA visual de nueve láminas tocadas**: 9, 10, 11, 13, 14, 15, 17, 18 y 19. Se miraron
+  rasterizadas solo la 3, la 12, la 16 y la 20, que son las rehechas de cero. La auditoría
+  programática pasa en las veinte, pero eso no ve colores, contraste ni texto dentro de un PNG.
+- **El guion sin pasar por `@humanizer-es`** ni leído en voz alta.
+- **Un defecto que no es del deck**: la leyenda de la figura de marcas de la lámina 12 mezcla
+  español e inglés («Immune cells», «Stroma», «Nucleos» sin tilde). Sale de la figura de
+  `../atencion_vs_patologo/`, así que arreglarlo es regenerar esa figura, no tocar el generador.
+
+### Los cuatro helpers nuevos
+
+Van todos después de `escalera_capacidad()`, que es donde termina el bloque de figuras nativas.
+
+| Helper | Para qué | Detalle que importa |
+|---|---|---|
+| `pie_lineas` | las tres líneas de procedencia de la 12 | un solo textbox: `caption` gasta 0,4" por renglón y tres renglones se comen la figura |
+| `escala_auc` | el estadístico de la 11, que era un panel de texto | barra de 0 a 1 + azar punteado + la marca del valor |
+| `_mancha` / `_RACIMO` | el racimo de parches de la 16 | «hueco» se dibuja con relleno **blanco**, no con `fill.background()` |
+| `nube_traslaciones` | la distribución del nulo de la 16 | la banda es el **rango medido**; el jitter usa `_lcg`, semilla fija, para no cambiar entre regeneradas |
 
 ### Estructura destino (sigue en 20 láminas)
 
@@ -295,20 +320,20 @@ descritas arriba.
 Y dos pedidos transversales: **todos los títulos** a minimalistas, precisos y profesionales, y
 **todas las notas** con un punteo guía arriba antes de la prosa hablada.
 
-### Lo único ya ejecutado
+### El asset de la lámina 12
 
 `prep_assets_atencion.py` emite `assets/atencion_region_anotada.png` (1502 × 624, relación de
 aspecto **2,407**), que es solo la región anotada, atención y marcas. La grilla 2×2 anterior
 arrastraba la fila de la región sin marcas, cuyo panel de anotaciones es tejido pelado y se lee
 como la misma imagen dos veces; ese es exactamente el defecto que Ernesto marcó. Esa fila no
 aporta, porque las 163 marcas caen todas en la otra región y el efecto de región ya está medido
-y descartado. El generador conserva `FIG_MAPAS` apuntando a la grilla vieja y deja el asset
-nuevo en `FIG_MAPAS_ANOTADA`, para que el deck siga regenerando igual hasta que la lámina 12 se
-rehaga: **la caja hay que recalcularla**, porque `add_image_fit` usa `h = w / ar` y la relación
-pasó de 1,183 a 2,407.
+y descartado.
 
-También quedan en el generador, sin usar todavía, las constantes `PROVENANCIA`, `PAPERS` y
-`OBJETIVOS`.
+**La lámina 12 ya lo adopta**, con la caja recalculada (`add_image_fit` usa `h = w / ar`, y la
+relación pasó de 1,183 a 2,407): `w = 8,10 → h = 3,37`, centrada en `l = 0,95`, con las tres
+líneas de `PROVENANCIA` al pie a 8 pt. `FIG_MAPAS` sigue declarado apuntando a la grilla vieja,
+que ya **no se usa en ninguna lámina**. Las constantes `PROVENANCIA`, `PAPERS` y `OBJETIVOS`
+están las tres en uso.
 
 ### La procedencia, que es lo que preguntó Sebastián
 
