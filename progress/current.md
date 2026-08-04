@@ -1714,3 +1714,56 @@ paneles dentada porque cada uno se auto-dimensiona; y jerga interna en un remate
 **Job 4774 a las 18:20:** vivo, 22 h 10 min, **29 de 40 runs**, cero `Traceback` y cero `FAILED`.
 Siguen los tres jobs ajenos de `capstone`. No se leyó ninguna métrica parcial: el pre-registro
 sigue intacto.
+
+## Sesión del 4-ago-2026 (martes) — el grid E×S cierra en H_nula, y el pipeline resultó determinista
+
+**Sesión de cierre de objetivo**, sin GPU. El job 4774 ya había terminado al abrirla, así que el
+workaround H dejó de aplicar: no hubo jobs propios en cola en toda la sesión.
+
+**El job.** 4774 cerrado el **4-ago 07:04**, lanzado el domingo 2-ago 20:10. **40 de 40 runs, cero
+`Traceback`, cero `FAILED`, 40 `[DONE]`.** La provenance del `.out` confirma que corrieron los 8
+brazos pre-registrados en el orden pre-registrado (`brazos=30:10 27:10 30:9 21:10 30:7 15:10 30:5
+30:3`) desde el commit `b69531c` en `main`. **34 h 54 min de pared contra 24.3 h presupuestadas**:
+el costo por run arranca en 36-37 min, exactamente lo estimado, y se dispara a 87 en la ventana de
+los tres jobs ajenos de `capstone`, para bajar a ~62 al final. Tiempo de pared, no métrica, y así
+quedó escrito.
+
+**El veredicto: H_nula.** El contraste primario `(recorta S) − (recorta E)` a igual E·S da
+**+0.022 / −0.014 / −0.002** de AUC en los peldaños 270 / 210 / 150. El signo de la media **se
+invierte entre peldaños**, la desviación supera a la media en los tres, y el único peldaño a favor
+tiene 3 de 5 folds. La frase que el grid ponía a prueba, «el margen de recorte está en S y no en
+E», **no se sostiene**. Tampoco es H_alternativa: recortar expertos no gana con consistencia, gana
+en un peldaño y pierde en otro.
+
+Lo durable: **la ocupación describe cómo se reparte el peso, no dimensiona la capacidad
+necesaria.** El brazo 30×5 tiene 150 slots totales, prácticamente el N_eff de 159.5 medido en el
+encargo 1, y no marca ningún quiebre. Es la lectura que el pre-registro le había asignado por
+anticipado a H_nula, así que no se eligió después de ver el número. Dos secundarios, los dos hacia
+que la capacidad sobra: el piso 30×3 pierde **0.039 ± 0.062** con un 70 % menos de capacidad
+(cruza cero), y dentro de la rama S no hay dosis-respuesta, hay un escalón y después meseta
+(0.792, 0.797, 0.802, 0.786). La rama E ni siquiera es monótona: el **peor** brazo del grid es
+27×10, que es el recorte más chico.
+
+**El hallazgo que no se buscaba: el pipeline es determinista bit a bit.** El control 30×10, que el
+prereg había presupuestado como verificación de reproducibilidad, salió **`md5` idéntico al job
+4589 en los cinco folds**, incluido el `s_<f>_checkpoint.pt` de 2.5 MB. Se verificó que los runs
+fueron reales (mtime del 2-ago, 260 épocas loggeadas, 40 `[DONE]`) y no un reuso encubierto de
+artefactos. Vale para todo el proyecto y corta en dos direcciones: el reuso pareado de baselines
+con misma semilla, splits y features es válido **por construcción**, y **cualquier réplica que
+pretenda ser independiente tiene que cambiar la semilla**. El control **no** replicó el Δ +0.074
+del 4589 y no podía hacerlo.
+
+**Entregado**: `sprints/B8_sprint8/grid_expertos_slots/resultados.md` (10 secciones según el
+prereg §6, con AUC y balanced accuracy por brazo y fold, matrices de confusión con el n por clase,
+CLAM como fila de escala sin Δ por brazo, y la sección de lo que el resultado no dice) y
+`results/b8_grid_es/` versionado, 200 archivos, ahora que los 8 brazos cerraron. **El pre-registro
+no se tocó.**
+
+**El Hallazgo 12 no se movió**: el grid midió capacidad, no rendimiento, y por diseño no calculó
+ningún Δ contra CLAM por brazo. Lo que se cerró es el «eje de trabajo abierto» que colgaba de él.
+
+**Auditoría, octava pasada** (`sprints/B8_sprint8/auditoria_coherencia/hallazgos.md`): cinco
+hallazgos. El importante es H1, la frase «el margen está en S» propagada en cinco lugares que el
+grid no sostuvo; se acotó en los cinco de forma aditiva, **preservando la medición**, que sigue
+siendo correcta. La memoria de slots ya llevaba la salvedad bien puesta («no afirmar que recortar
+S salga gratis, eso es el grid»); lo que se había propagado a `CLAUDE.md` era la versión sin ella.
