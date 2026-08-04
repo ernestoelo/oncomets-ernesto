@@ -1861,3 +1861,51 @@ de la **lámina 12** (cerca del 30 %) junto con los rótulos de fila que le falt
 
 **Auditoría, décima pasada** (`sprints/B8_sprint8/auditoria_coherencia/hallazgos.md`): seis
 hallazgos, J1 a J6.
+
+---
+
+## 4-ago-2026 (tarde, 17:30 a 17:55) — Ernesto revisó el deck y pidió un rediseño de doce puntos
+
+Sesión corta y de análisis, **sin ejecutar el rediseño**. Se abrió para ejecutar las dos
+decisiones de diseño que el handoff de las 17:30 dejaba abiertas y terminó siendo otra cosa:
+Ernesto había estado mirando la presentación y trajo doce cambios propios, que **superan** a
+esas dos y a la decisión de encuadre de la lámina 3.
+
+**Las dos decisiones abiertas quedan resueltas por arriba.** La 12 no se retoca con rótulos de
+fila y aire redistribuido: se rehace entera, con las figuras al doble y sin panel de texto. Y la
+20, la del determinismo, **se borra**, con lo que la pregunta de si el pendiente de la réplica
+se dice en voz alta deja de existir en el deck.
+
+**Lo que Ernesto pidió**, en una línea cada uno: la 3 pasa a objetivos del sprint en el molde de
+recapitulación; la 9 más sintética alrededor de su tabla; los rótulos de hipótesis de la 10 más
+profesionales; el renglón que define el estadístico en la 11 convertido en figura; la 12 con las
+figuras grandes, sin el panel, sin la fila que se lee repetida y con la procedencia escrita; el
+guion de la 13 y el de la 14 más pedagógicos y el «lo que se ve» de la 14 a una línea; la 15 con
+la tabla intacta y una sola lectura sintética; las cuatro familias reemplazadas por una lámina
+de los tres papers, al final y sin las letras A/B/C/D; el grid sin «el encargo de julio» y con
+el dataset nombrado; la 20 borrada; y una lámina nueva de objetivos propuestos al cierre. Más
+dos pedidos transversales: **todos los títulos** minimalistas y precisos, y **todas las notas**
+con un punteo guía antes de la prosa.
+
+**Dos decisiones nuevas, elegidas por él en la sesión.** Los cuatro controles **se quedan**,
+rehechos para que el nulo por traslación sea la figura de la lámina: dijo que la idea de mover
+la mancha por la lámina le gustó pero que **no la entendió del todo**, así que esa lámina se
+mide por si se entiende sola. Y los objetivos propuestos son **dos**: llevar la medición a más
+láminas anotadas, y el paper de positivos parciales empezando por su go/no-go barato.
+
+**La procedencia que preguntó Sebastián quedó verificada de punta a punta** y escrita en el
+README de la presentación: la lámina, dónde vive, el geojson del patólogo con sus 61 polígonos,
+las etiquetas de la lámina en nuestros CSV tarea por tarea, y los cuatro checkpoints con su
+dataset de entrenamiento. De ahí salió **una corrección para el rediseño**: el deck dice
+«checkpoints que NUNCA vieron esta lámina» y lo que se puede defender es «no la vieron **en
+entrenamiento**», porque en los cuatro está en **validación**, que gobierna el early stopping.
+El `prereg.md` y el `resultados.md` ya lo decían bien y **no se tocaron**. Se corrobora con la
+fila `129741` de los `splits_*_bool.csv`, que es una línea y la puede correr cualquiera.
+
+**Ejecutado, y es lo único**: `prep_assets_atencion.py` emite
+`assets/atencion_region_anotada.png`, solo la región anotada. La fila que Ernesto vio repetida
+es la de la región **sin** marcas, cuyo panel de anotaciones es tejido pelado. Dos pasadas
+anteriores la habían tratado como un problema de explicación y le dedicaron un panel entero de
+la lámina; no alcanzó. Esa fila no aporta: las 163 marcas caen todas en la otra región. El
+generador conserva `FIG_MAPAS` en la grilla vieja y deja el asset nuevo en `FIG_MAPAS_ANOTADA`,
+así que el deck **sigue regenerando idéntico**: 20 láminas, auditoría en cero.

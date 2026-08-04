@@ -267,6 +267,66 @@ experimentos. Detalle: `../auditoria_coherencia/hallazgos.md`, **décima pasada*
 `pdftoppm -f 4 -l 4 -r 400` sobre el PDF y recorte por perfil de contenido. Es la **única
 imagen de paper** del deck.
 
+## Rediseño pedido el 4-ago (17:30) — PENDIENTE DE EJECUTAR
+
+Ernesto revisó el deck construido y pidió doce cambios. **Nada de esto está ejecutado**: la
+sesión del 4-ago por la tarde verificó los datos que faltaban, cerró con él las dos decisiones
+abiertas y preparó el asset nuevo. El deck de este directorio sigue siendo el de las 20 láminas
+descritas arriba.
+
+### Estructura destino (sigue en 20 láminas)
+
+| # | Lámina | Qué cambia |
+|---|---|---|
+| 3 | **Objetivos del sprint** | reemplaza «dos cosas, y una cambia el plan»; molde de recapitulación del B6/B7 (título 32 pt, lista numerada, marcador de estado) |
+| 9 | resultados y costo de adopción | menos renglones, sintética alrededor de la tabla |
+| 10 | la pregunta medible | los rótulos «si tuviera razón» / «si no la tuviera» pasan a hipótesis primaria y alternativa |
+| 11 | el estadístico | el renglón que define el número se vuelve figura |
+| 12 | atención y marcas | figuras al doble, sin panel de texto, con la procedencia |
+| 13 | la escalera | solo el guion, más pedagógico |
+| 14 | los 28 parches | «lo que se ve» a una línea; guion pedagógico |
+| 15 | mira bien y responde mal | se conserva la tabla, una sola lectura sintética |
+| 16 | por qué el resultado aguanta | rehecha: el nulo por traslación pasa a ser la figura |
+| 17-18 | el grid | sin «el encargo de julio»; se nombra el dataset |
+| ~~19~~ | ~~el determinismo~~ | **se borra**; la sección cierra en la escalera de capacidad |
+| 19 | **los tres papers** | hereda la lámina de las cuatro familias, sin las letras A/B/C/D |
+| 20 | **objetivos propuestos** | nueva |
+
+Y dos pedidos transversales: **todos los títulos** a minimalistas, precisos y profesionales, y
+**todas las notas** con un punteo guía arriba antes de la prosa hablada.
+
+### Lo único ya ejecutado
+
+`prep_assets_atencion.py` emite `assets/atencion_region_anotada.png` (1502 × 624, relación de
+aspecto **2,407**), que es solo la región anotada, atención y marcas. La grilla 2×2 anterior
+arrastraba la fila de la región sin marcas, cuyo panel de anotaciones es tejido pelado y se lee
+como la misma imagen dos veces; ese es exactamente el defecto que Ernesto marcó. Esa fila no
+aporta, porque las 163 marcas caen todas en la otra región y el efecto de región ya está medido
+y descartado. El generador conserva `FIG_MAPAS` apuntando a la grilla vieja y deja el asset
+nuevo en `FIG_MAPAS_ANOTADA`, para que el deck siga regenerando igual hasta que la lámina 12 se
+rehaga: **la caja hay que recalcularla**, porque `add_image_fit` usa `h = w / ar` y la relación
+pasó de 1,183 a 2,407.
+
+También quedan en el generador, sin usar todavía, las constantes `PROVENANCIA`, `PAPERS` y
+`OBJETIVOS`.
+
+### La procedencia, que es lo que preguntó Sebastián
+
+Verificada de punta a punta el 4-ago. La lámina es **129741** de la cohorte privada, H&E Ventana
+`.bif` a 20× (0,465 µm/px), bajo `wsi/129741/`; las marcas son
+`hover_net/129741.bif - GDT.geojson`, 61 polígonos de QuPath (26 mitosis, 14 núcleos de alto
+grado, 6 necrosis, 5 células inmunes, 5 tumor, 2 adiposo, 1 estroma, 2 fondo); y sus etiquetas
+en nuestros CSV son tasa mitótica `score_3`, pleomorfismo nuclear `score_2`, diferenciación
+tubular `score_3`, grado general `grado_3` y grado nuclear del CDIS `grado_3_alto`.
+
+**Y una corrección que el rediseño tiene que llevar**: el deck dice «checkpoints que NUNCA
+vieron esta lámina» y eso se pasa de lo que sostienen el `prereg.md` y el `resultados.md`, que
+dicen «nunca se vio **en entrenamiento**». En los cuatro primarios la lámina está en
+**validación**, que gobierna el early stopping. Se corrobora con la fila `129741` de los
+`splits_*_bool.csv`: `False,True,False` en los dos single-split, y val en los folds 0 y 2 de la
+corrida de cinco. Sus datasets de entrenamiento son 153 láminas (privado), 978 (privado + TCGA)
+y 934 (privado + TCGA, cinco particiones).
+
 ## Guion del presentador
 
 Prosa hablada corrida, sin etiquetas de fase, en primera persona
