@@ -618,7 +618,7 @@ def barras_ranking(slide, l, t, w, h, datos, x_eje=2.62, ancho_eje=5.40, fs=10.5
         _rect(slide, x0, cy - alto_barra / 2, ancho_eje * auc, alto_barra,
               ONCO_DARK if interes else ONCO_PANEL)
         add_textbox(slide, x0 + ancho_eje * auc + 0.08, cy - 0.15, 0.72, 0.30,
-                    [("%.3f" % auc, fs, interes, ONCO_DARK if interes else GRIS_BODY, F_BODY)],
+                    [(_num(auc), fs, interes, ONCO_DARK if interes else GRIS_BODY, F_BODY)],
                     anchor=MSO_ANCHOR.MIDDLE)
     # el azar, que es la única referencia que este estadístico tiene
     x_nulo = x0 + ancho_eje * 0.5
@@ -1351,7 +1351,7 @@ def build():
          11, True, ONCO_DARK, F_BODY)], anchor=MSO_ANCHOR.MIDDLE)
     _grupo(s, 0.36, yy + 0.74, 9.28, 0.42, fill=TEAL_CARD2)
     add_textbox(s, 0.50, yy + 0.74, 3.30, 0.42, [
-        ("L = L_CE(Y, Ŷ_g) + L_CE(Y, Ŷ_f) + λ L_KD(Ŷ_g, Ŷ_f)", 11, False, ONCO_INK, F_BODY)],
+        ("L = L_(CE)(Y, Ŷ_g) + L_(CE)(Y, Ŷ_f) + λ L_(KD)(Ŷ_g, Ŷ_f)", 11, False, ONCO_INK, F_BODY)],
         anchor=MSO_ANCHOR.MIDDLE, markup=True)
     add_textbox(s, 3.86, yy + 0.74, 0.50, 0.42, [("(10)", 9.5, False, GRIS_BODY, F_BODY)],
                 anchor=MSO_ANCHOR.MIDDLE)
@@ -1427,9 +1427,10 @@ def build():
              "\n"
              "Sobre el primero, que es el modelo de atención más simple, la exactitud sube un "
              "poco al agregarle la rama interpretable. Sobre el tercero baja apenas. Y sobre el "
-             "nuestro, que es la fila destacada, baja: la exactitud pasa de nueve coma tres "
-             "siete a nueve coma dos cinco, y el área bajo la curva de nueve coma siete dos a "
-             "nueve coma cinco siete. Lo digo sin ánimo de desacreditar el trabajo, que me "
+             "nuestro, que es la fila destacada, baja: la exactitud pasa de cero coma nueve "
+             "tres siete a cero coma nueve dos cinco, y el área bajo la curva de cero coma "
+             "nueve siete dos a cero coma nueve cinco siete. Lo digo sin ánimo de desacreditar "
+             "el trabajo, que me "
              "parece muy sólido, pero el titular de que no hay compromiso entre rendimiento e "
              "interpretabilidad se sostiene sobre el primer modelo, y esa fila del medio es "
              "exactamente la que nos correspondería.\n"
@@ -1626,7 +1627,7 @@ def build():
              "Eso abre un problema serio, y fuimos a cerrarlo. Si la región de abajo recibiera "
              "de por sí más atención que la de arriba, el número no estaría midiendo las marcas, "
              "estaría midiendo la región. Lo medimos: la región anotada contra la otra da entre "
-             "cero coma cuatro seis y cero coma cuarenta y ocho, o sea que recibe algo menos de "
+             "cero coma cuatro seis y cero coma cuatro ocho, o sea que recibe algo menos de "
              "atención, no más. Y después repetimos todo confinando la medición a esa sola "
              "región, con lo cual la pregunta de la región deja de existir: el efecto no baja, "
              "sube, de cero coma ochenta y nueve a cero coma noventa.")
@@ -1709,7 +1710,7 @@ def build():
     # ---- 14. Mira bien y responde mal ----
     s = content(prs, "El hallazgo: mira bien y responde mal")
     add_textbox(s, 0.36, TOP, 9.28, 0.36, [
-        ("La lámina es score_3, tasa mitótica alta, coherente con las 26 mitosis marcadas.",
+        ("La lámina es score_3, tasa mitótica alta, coherente con las 26 marcas de mitosis.",
          12.5, True, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
     simple_table(s, 0.86, TOP + 0.44, 8.28,
                  ["Modelo", "Qué respondió", "Confianza en score_2", "AUC de atención"],
@@ -1853,9 +1854,9 @@ def build():
           ONCO_DATA, fill=TEAL_CARD2, tsize=12.5, bsize=10)
     panel(s, 5.10, TOP + 3.12, 4.54, None, "Y por eso los papers que traje", ONCO_DARK,
           ["La búsqueda apuntó a B, C y D, no a A.",
-           "Es la parte que sigue en la agenda de hoy."],
+           "Los traigo aparte, en las hojas que preparé para hoy."],
           ONCO_DARK, fill=TEAL_CARD, tsize=12.5, bsize=10)
-    notes(s, "Cierro con lo que esto cambia, que es la razón por la que le dediqué tanto "
+    notes(s, "Termino esta parte con lo que cambia, que es la razón por la que le dediqué tanto "
              "tiempo.\n"
              "\n"
              "Teníamos cuatro maneras posibles de atacar el problema de mitosis, y estaban "
@@ -1880,7 +1881,7 @@ def build():
              "quién las anotó.\n"
              "\n"
              "Y esto explica por qué los papers que revisé apuntan a las tres últimas y no a la "
-             "primera. Esa es la parte que sigue.")
+             "primera. Esos los traigo aparte, en las hojas que preparé para hoy.")
 
     # =======================================================================
     # CIERRE — el grid E×S, como «lo que además cerró este sprint»
