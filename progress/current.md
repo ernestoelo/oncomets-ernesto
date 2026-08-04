@@ -1939,3 +1939,54 @@ que es lo que la próxima sesión tendría que volver a derivar:
 
 **El deck no cambió**: sigue en 20 láminas y regenera idéntico. El plan completo, lámina por
 lámina y con la geometría de las cuatro figuras nuevas, viaja en el handoff de las 19:15.
+
+---
+
+## Sesión del 4-ago-2026 (martes, 19:10-20:00) — el rediseño de doce puntos, EJECUTADO
+
+Sesión de escritura, **sin GPU**. Rama `main` sincronizada, árbol limpio al abrir; ningún job
+propio, y de los ajenos solo `4780` de `capstone` y `4800` de `gvenegas`, que no leen este
+árbol. Se ejecutaron **los doce puntos** del rediseño que Ernesto pidió a las 17:30, más los dos
+transversales de títulos y notas. El deck sigue en **20 láminas**, regenera limpio, la auditoría
+da **cero avisos**, y el barrido de `\d+\.\d+` sobre el archivo entero no encuentra ningún punto
+decimal. **Ningún número cambió**, y ni el `prereg.md` ni el `resultados.md` de los dos
+experimentos se tocaron.
+
+**Lo estructural.** Las dos puntas del deck cambiaron de contenido. La lámina 3 pasó del mapa
+del recorrido a **objetivos del sprint**, en el molde de recapitulación del B7: los seis en
+infinitivo con su marcador de estado, y el objetivo 1, el escalado de slots, es **el único sin
+lámina propia**, así que se cuenta en el guion con sus números (1858 láminas-fold, 159,5 de 300
+slots, 29,98 de 30 expertos) y de paso deja dicho uno de los tres mensajes que hay que llevar a
+la reunión. El final son ahora los **tres papers** (heredan el lugar de la lámina de las cuatro
+familias, cuyo reordenamiento pasó entero al guion, y sin las letras A/B/C/D) y una lámina nueva
+de **objetivos propuestos**, los dos que eligió Ernesto. La lámina del **determinismo se
+retiró**: lo único que quedaba en pie de ella es una línea de comparabilidad en el guion del
+grid, por si preguntan.
+
+**Cuatro helpers nuevos**, todos después de `escalera_capacidad()`: `pie_lineas` (varias líneas
+en un solo textbox, porque `caption` gasta 0,4" por renglón y las tres de procedencia no
+entraban), `escala_auc`, `_mancha` con su `_RACIMO`, y `nube_traslaciones` con un generador
+propio `_lcg` de semilla fija, para que el jitter salga igual en cada regenerada.
+
+**La lámina 16 se rehizo entera**, que era la más importante porque Ernesto dijo que no la
+entendía. El nulo por traslación es ahora el objeto visual: la lámina como panel, la zona de
+atención alta adentro, la mancha real sólida dentro de esa zona, y tres traslaciones huecas, una
+de ellas **también** dentro de la zona caliente, que es lo que explica que el nulo parta de 0,67
+y no de 0,5. Debajo, la distribución contra el valor observado, que es la brecha que sostiene el
+resultado.
+
+**Tres defectos salieron de mirarla rasterizada**, y ninguno lo habría visto la auditoría: la
+banda no decía en qué valores caía, el pie se partía en dos renglones, y **un racimo dibujado
+con `fill.background()` se lee casi igual que uno sólido** sobre el celeste, con lo que la
+distinción que sostiene la figura desaparecía. El fix del tercero es relleno blanco explícito.
+Registrado en [[deck-qa-puntos-ciegos-chequeo]].
+
+**La lámina 12** adoptó `FIG_MAPAS_ANOTADA` con la caja recalculada (`w = 8,10`, `h = 3,37`) y
+las tres líneas de `PROVENANCIA` al pie. El panel de las dos regiones **se fue entero al
+guion**: con la fila repetida fuera del asset, ya no explicaba nada de lo que se ve.
+
+**Se miraron rasterizadas solo cuatro láminas**, las rehechas de cero: la 3, la 12, la 16 y la
+20. Las otras nueve que se tocaron (9, 10, 11, 13, 14, 15, 17, 18, 19) **quedan sin QA visual**,
+igual que el guion sin pasar por `@humanizer-es`. Y quedó anotado un defecto que **no es del
+deck**: la leyenda de la figura de marcas mezcla español e inglés, y sale de la figura de
+`atencion_vs_patologo/`, así que arreglarlo es regenerar esa figura.
