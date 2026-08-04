@@ -23,6 +23,12 @@ preguntar.
 
 Recorte previo del 31-jul: de 19 a 14 láminas, retirando el ejemplo numérico del orden.
 
+Sección de cierre (4-ago): el grid E×S (`../grid_expertos_slots/resultados.md`, encargo 3 del
+B8) entra DESPUÉS de los dos ejes y NO como tercer eje, por decisión de Ernesto. La lámina del
+mapa del recorrido queda intacta. Tres láminas: el veredicto H_nula, la escalera de capacidad
+de cada rama, y el determinismo bit a bit que salió del control. Cero Δ contra CLAM por brazo,
+que es lo que el pre-registro §6 prohibió por diseño.
+
 Reglas que gobiernan el archivo:
   - Se construye SOBRE el template válido (Deep-LLM-V), nunca con Presentation() a secas:
     el template EMBEBE sus fuentes y ese es el motivo real de que un deck "no parezca el
@@ -84,6 +90,21 @@ ESCALERA = [
     ("Linfocitos", 23, 0.322, False),
     ("Tejido adiposo", 27, 0.154, False),
 ]
+
+# --- números del grid E×S, verificados contra grid_expertos_slots/resultados.md ---
+# Contraste primario del pre-registro §6: (brazo que recorta S) menos (brazo que recorta E),
+# pareado por fold, dentro de cada peldaño de igual capacidad total E·S. Signo positivo =
+# a favor de recortar slots. Los signos por fold salen de la tabla del §4.
+PELDANOS = [
+    ("E·S = 270", "30×9  contra  27×10", +0.022, 0.063, "+-+-+"),
+    ("E·S = 210", "30×7  contra  21×10", -0.014, 0.034, "--+-+"),
+    ("E·S = 150", "30×5  contra  15×10", -0.002, 0.048, "--++-"),
+]
+# AUC medio por brazo (§6 del resultados.md). Rótulo, AUC, capacidad total.
+RAMA_S = [("30×10", 0.825, "300"), ("30×9", 0.792, "270"), ("30×7", 0.797, "210"),
+          ("30×5", 0.802, "150"), ("30×3", 0.786, "90")]
+RAMA_E = [("30×10", 0.825, "300"), ("27×10", 0.770, "270"), ("21×10", 0.812, "210"),
+          ("15×10", 0.804, "150")]
 
 # ---- paleta Deep-LLM-V (medida sobre el template) ----
 ONCO_DARK = RGBColor(0x3E, 0x68, 0x77)    # bloque de proceso
@@ -628,6 +649,113 @@ def cinta_ranking(slide, l, t, w, marcados, n=34, h=0.40, fs=9):
                 [("más atención", fs, True, ONCO_DARK, F_BODY)])
     add_textbox(slide, l + w - 2.60, t + h + 0.26, 2.60, 0.26,
                 [("menos atención", fs, True, GRIS_BODY, F_BODY, PP_ALIGN.RIGHT)])
+
+
+# ============================================================================
+# Figuras nativas de la sección del grid E×S
+# ============================================================================
+def _num(v, dec=3, signo=False):
+    """Número con coma decimal y, si se pide, el signo delante (menos tipográfico)."""
+    s = ("%+.*f" % (dec, v)) if signo else ("%.*f" % (dec, v))
+    return s.replace("-", "−").replace(".", ",")
+
+
+def barras_divergentes(slide, l, t, w, h, filas, esc=0.10, fs=10.5, destacar=None,
+                       izq="gana recortar expertos", der="gana recortar slots"):
+    """Δ pareado por peldaño alrededor del cero, con la desviación como bigote.
+
+    Esta figura NO está para leer la magnitud del Δ. Está para que se vea que el bigote cruza
+    el cero en los tres peldaños y que la media se cambia de lado entre ellos: eso es lo que
+    separa un resultado nulo de un «casi», y es justo lo que una tabla de tres números deja
+    sin mostrar. Por eso el cero es una línea con peso, la escala va rotulada y la barra de
+    la media se dibuja ENCIMA del bigote, no al lado."""
+    lab_w, val_w, chip_w = 2.50, 1.42, 0.96
+    x0 = l + lab_w + 0.12
+    ancho = w - lab_w - val_w - chip_w - 0.42
+    semi = ancho / 2
+    xc = x0 + semi
+    fila = h / len(filas)
+
+    # la banda del peldaño que se resalta va PRIMERO: si se dibujara después taparía el
+    # cero, el bigote y los cuadros de esa misma fila
+    if destacar is not None:
+        _grupo(slide, l, t + destacar * fila + 0.02, w, fila - 0.04, fill=TEAL_CARD2)
+    # los dos lados, que es lo que le da sentido al signo
+    add_textbox(slide, xc - 2.70, t - 0.34, 2.58, 0.26,
+                [(izq, 9.5, True, GRIS_BODY, F_BODY, PP_ALIGN.RIGHT)], anchor=MSO_ANCHOR.MIDDLE)
+    add_textbox(slide, xc + 0.12, t - 0.34, 2.58, 0.26,
+                [(der, 9.5, True, ONCO_DARK, F_BODY)], anchor=MSO_ANCHOR.MIDDLE)
+    ln = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, Inches(xc), Inches(t - 0.04),
+                                    Inches(xc), Inches(t + h + 0.04))
+    ln.line.color.rgb = ONCO_INK; ln.line.width = Pt(1.5); ln.shadow.inherit = False
+
+    for i, (rot, sub, media, sd, signos) in enumerate(filas):
+        cy = t + i * fila + fila / 2
+        add_textbox(slide, l, cy - 0.26, lab_w, 0.26,
+                    [(rot, fs, True, ONCO_DARK, F_BODY, PP_ALIGN.RIGHT)], anchor=MSO_ANCHOR.MIDDLE)
+        add_textbox(slide, l, cy + 0.01, lab_w, 0.24,
+                    [(sub, fs - 1.5, False, GRIS_BODY, F_BODY, PP_ALIGN.RIGHT)],
+                    anchor=MSO_ANCHOR.MIDDLE)
+        # el bigote primero: la barra de la media va encima
+        xa, xb = xc + (media - sd) / esc * semi, xc + (media + sd) / esc * semi
+        _rect(slide, xa, cy - 0.015, xb - xa, 0.03, ONCO_DATA)
+        for x in (xa, xb):
+            _rect(slide, x - 0.01, cy - 0.11, 0.02, 0.22, ONCO_DATA)
+        # la media, con ancho mínimo para que un Δ de dos milésimas no desaparezca
+        dx = media / esc * semi
+        ancho_bar = max(abs(dx), 0.03)
+        _rect(slide, xc if dx >= 0 else xc - ancho_bar, cy - 0.10, ancho_bar, 0.20, ONCO_DARK)
+        add_textbox(slide, l + w - chip_w - val_w - 0.10, cy - 0.14, val_w, 0.28,
+                    [("%s ± %s" % (_num(media, 3, True), _num(sd)), fs - 0.5, True, INK,
+                      F_BODY, PP_ALIGN.RIGHT)], anchor=MSO_ANCHOR.MIDDLE)
+        # un cuadro por fold: relleno = a favor de recortar slots
+        cw, gap = 0.16, 0.04
+        xs = l + w - chip_w
+        for j, sg in enumerate(signos):
+            sp = _rect(slide, xs + j * (cw + gap), cy - cw / 2, cw, cw,
+                       ONCO_DARK if sg == "+" else TEAL_CARD2)
+            sp.line.color.rgb = ONCO_CONN; sp.line.width = Pt(0.75)
+    caption(slide, x0 - 0.90, t + h + 0.06, ancho + 1.80,
+            "escala: ± %s de AUC   ·   cada cuadro es un fold, relleno = a favor de recortar "
+            "slots" % _num(esc, 2), size=9)
+
+
+def escalera_capacidad(slide, l, t, w, h, puntos, lo=0.75, hi=0.84, nota=None, fs=9.5):
+    """Una rama del grid: AUC medio por brazo, con la línea que une los topes de las barras.
+
+    El eje arranca en 0,75 y no en cero, y va rotulado en la lámina: entre el mejor y el peor
+    brazo hay 0,055 de AUC, y a escala completa los ocho brazos serían la misma barra. Lo que
+    la figura tiene que dejar ver es la FORMA (un escalón y después una meseta en una rama,
+    una curva que ni siquiera es monótona en la otra), no la altura de cada barra."""
+    paso = w / len(puntos)
+    ancho_barra = min(0.58, paso * 0.50)
+    base = t + h
+    topes = []
+    for i, (rot, auc, cap) in enumerate(puntos):
+        cx = l + paso * (i + 0.5)
+        alto = max(0.06, (auc - lo) / (hi - lo) * h)
+        _rect(slide, cx - ancho_barra / 2, base - alto, ancho_barra, alto,
+              ONCO_PANEL if i == 0 else ONCO_DARK)
+        # el valor va DENTRO de la barra, no encima: la línea de tendencia llega al tope de
+        # cada barra desde el tope del vecino, así que a los costados del rótulo pasa mucho
+        # más arriba y lo cruza. Adentro no hay nada que la línea pueda tapar.
+        add_textbox(slide, cx - 0.52, base - alto + 0.05, 1.04, 0.24,
+                    [(_num(auc), fs, True, ONCO_DARK if i == 0 else WHITE, F_BODY,
+                      PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
+        add_textbox(slide, cx - 0.52, base + 0.04, 1.04, 0.24,
+                    [(rot, fs, True, INK if i else GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
+        add_textbox(slide, cx - 0.52, base + 0.25, 1.04, 0.22,
+                    [(cap, fs - 1.0, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
+        topes.append((cx, base - alto))
+    for (x0, y0), (x1, y1) in zip(topes, topes[1:]):
+        ln = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, Inches(x0), Inches(y0),
+                                        Inches(x1), Inches(y1))
+        ln.line.color.rgb = ONCO_INK; ln.line.width = Pt(1.25); ln.shadow.inherit = False
+    if nota:
+        i, texto = nota
+        cx = l + paso * (i + 0.5)
+        add_textbox(slide, cx - 1.10, base + 0.48, 2.20, 0.24,
+                    [(texto, fs - 1.0, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER)])
 
 
 # ============================================================================
@@ -1753,6 +1881,163 @@ def build():
              "\n"
              "Y esto explica por qué los papers que revisé apuntan a las tres últimas y no a la "
              "primera. Esa es la parte que sigue.")
+
+    # =======================================================================
+    # CIERRE — el grid E×S, como «lo que además cerró este sprint»
+    # =======================================================================
+    # Entra DESPUÉS de los dos ejes y no como tercer eje (decisión de Ernesto, 4-ago): el
+    # hallazgo que cambia el plan es el de atención, el deck ya venía largo y la lámina del
+    # mapa del recorrido queda intacta. La sección se marca con su propio rótulo.
+    #
+    # Dos reglas que vienen del pre-registro y gobiernan estas tres láminas:
+    #   - El veredicto es H_nula y se cuenta como tal. El +0,022 del primer peldaño es
+    #     justamente lo que NO alcanza; presentarlo como hallazgo contradiría el prereg.
+    #   - CERO Δ contra CLAM por brazo. El prereg §6 lo prohibió por diseño para no
+    #     disparar ocho veces sobre el eje ya cerrado del Hallazgo 12, y encima sobre la
+    #     tarea del dato abierto. Por eso CLAM no aparece en ninguna de las tres.
+
+    # ---- 17. La pregunta y el veredicto ----
+    s = content(prs, "El encargo de julio: ¿recortar expertos o slots?")
+    add_textbox(s, 0.36, TOP, 9.28, 0.22,
+                [("LO QUE ADEMÁS CERRÓ ESTE SPRINT", 10.5, True, GRIS_BODY, F_BODY)])
+    caption(s, 0.36, TOP + 0.22, 9.28,
+            "A igual capacidad total, la diferencia pareada fold por fold entre recortar "
+            "slots y recortar expertos.", size=11.5, col=INK, align=PP_ALIGN.LEFT)
+    barras_divergentes(s, 0.36, TOP + 0.84, 9.28, 1.80, PELDANOS, destacar=0)
+    add_textbox(s, 0.36, TOP + 2.96, 9.28, 0.26,
+                [("El peldaño resaltado es el par que quedó pedido en julio: la diferencia "
+                  "es de dos centésimas, con 3 folds de 5.", 11, True, ONCO_DARK, F_BODY,
+                  PP_ALIGN.CENTER)])
+    takeaway_bar(s, "El signo se cambia de lado entre peldaños y la desviación supera a la "
+                    "media en los tres: la dirección del recorte es indistinguible.",
+                 t=TOP + 3.42, size=13)
+    notes(s, "Cierro con un encargo que había quedado del sprint pasado, y que este sprint "
+             "cerró. No es de mitosis ni del paper.\n"
+             "\n"
+             "El modelo con expertos tiene por dentro treinta expertos y diez unidades por "
+             "experto, trescientas en total. Habíamos medido cómo se reparte el peso entre "
+             "esas trescientas y vimos que poco más de la mitad concentra casi todo. De ahí "
+             "salió la lectura de que, si sobraba capacidad, sobraba del lado de las unidades "
+             "y no del lado de los expertos. Lo que quedó pendiente era si eso se sostenía al "
+             "ponerlo a prueba de frente.\n"
+             "\n"
+             "A igual capacidad total, comparamos recortar por un lado contra recortar por el "
+             "otro, con las mismas particiones y midiendo la diferencia fold por fold. Tres "
+             "pares, uno por nivel de capacidad.\n"
+             "\n"
+             "Lo que ven es esa diferencia. La barra es el promedio y la línea gris es cuánto "
+             "se mueve entre folds. En el primer par va a favor de recortar unidades, en el "
+             "segundo se da vuelta, y en el tercero es prácticamente cero. En los tres, lo "
+             "que se mueve entre folds es más grande que la diferencia misma.\n"
+             "\n"
+             "Cuando el signo se da vuelta entre niveles, lo que queda no es un efecto chico: "
+             "es ruido alrededor de cero. Si la dirección del recorte importara, el signo "
+             "sería el mismo en los tres.\n"
+             "\n"
+             "El primer par es el que había quedado pedido explícitamente. Su respuesta es "
+             "que la diferencia es de dos centésimas a favor de recortar unidades, con tres "
+             "folds de cinco, y eso no alcanza para afirmar una dirección.")
+
+    # ---- 18. La escalera de capacidad ----
+    # Las dos ramas por separado. El objeto de la lámina es la FORMA de cada una: escalón y
+    # meseta en la de slots, y una curva que ni siquiera es monótona en la de expertos. Esa
+    # segunda es la que convence de que lo de la lámina anterior es ruido y no un efecto
+    # chico, así que va con el mismo peso visual y no como nota al pie.
+    s = content(prs, "Cuánto cuesta sacar capacidad, rama por rama")
+    for x, titulo in ((0.36, "Sacando slots, con los 30 expertos fijos"),
+                      (5.22, "Sacando expertos, con los 10 slots fijos")):
+        add_textbox(s, x, TOP, 4.42, 0.26,
+                    [(titulo, 12, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER)])
+    escalera_capacidad(s, 0.36, TOP + 0.36, 4.42, 1.66, RAMA_S,
+                       nota=(3, "150 slots ≈ los 159,5 que medimos"))
+    escalera_capacidad(s, 5.22, TOP + 0.36, 4.42, 1.66, RAMA_E)
+    caption(s, 0.36, TOP + 2.82, 4.42,
+            "Un escalón en el primer recorte y después una meseta: de 270 a 90 el AUC se "
+            "mueve 0,016.", size=9.5, col=INK)
+    caption(s, 5.22, TOP + 2.82, 4.42,
+            "Ni siquiera es monótona: el peor brazo de la tanda es el recorte más chico.",
+            size=9.5, col=INK)
+    caption(s, 0.36, TOP + 3.30, 9.28,
+            "AUC medio de los 5 folds. Eje vertical recortado, desde 0,75, o los ocho brazos "
+            "serían la misma barra.", size=9, col=GRIS_BODY)
+    takeaway_bar(s, "La distancia entre dos folds del mismo brazo es de otro orden que la "
+                    "distancia entre el mejor y el peor brazo: 0,25 contra 0,05 de AUC.",
+                 t=TOP + 3.62, size=13)
+    notes(s, "Acá está la misma tanda mirada de otra manera: qué pasa a medida que le "
+             "sacamos capacidad, con cada lado por separado.\n"
+             "\n"
+             "A la izquierda, dejando fijos los expertos y sacando unidades. A la derecha, "
+             "dejando fijas las unidades y sacando expertos. La barra clara del extremo "
+             "izquierdo de cada gráfico es el modelo completo, que es el mismo en los dos.\n"
+             "\n"
+             "Del lado de las unidades hay un escalón y después una meseta. Baja en el primer "
+             "recorte y ahí se queda: entre doscientas setenta y noventa unidades totales el "
+             "número se mueve menos de lo que se mueve un solo brazo entre folds. Y el punto "
+             "donde el total cae justo sobre lo que habíamos medido de ocupación no marca "
+             "ningún quiebre, que es la parte que más me interesa, porque era exactamente la "
+             "predicción.\n"
+             "\n"
+             "Del lado de los expertos ni siquiera baja de forma ordenada. El peor caso de "
+             "toda la tanda es el recorte más chico, y sacando más expertos el número vuelve "
+             "a subir. Una curva de capacidad no se comporta así.\n"
+             "\n"
+             "La distancia entre dos folds del mismo brazo es de otro orden que la distancia "
+             "entre el mejor y el peor brazo, y eso enmarca todo lo demás. Con esa relación "
+             "un efecto de este tamaño queda debajo del ruido, y por eso comparamos de a "
+             "pares y fold por fold en lugar de mirar promedios sueltos.")
+
+    # ---- 19. El determinismo, que salió de un control presupuestado como trámite ----
+    # Lámina de MÉTODO, no de resultado, y probablemente la más útil a largo plazo: fija qué
+    # cuenta como comparación válida y qué cuenta como réplica. Va sin números de job, así
+    # que las dos corridas se rotulan por su momento.
+    s = content(prs, "Y algo que no fuimos a buscar: el pipeline es determinista")
+    for x, rot, sub in ((0.72, "La corrida del sprint pasado", "el modelo completo, 30×10"),
+                        (5.98, "El control de esta tanda", "misma semilla, mismas particiones")):
+        _proc(s, x, TOP, 3.30, 0.56, rot, size=12)
+        _dim(s, x, TOP + 0.60, 3.30, sub, size=10)
+    _oper(s, 5.00, TOP + 0.28, sym="=", d=0.40)
+    _conn(s, 5.00, TOP + 0.86, 5.00, TOP + 1.12)
+    _proc_claro(s, 3.10, TOP + 1.12, 3.80, 0.50, "Idéntico byte a byte en los 5 folds", size=12)
+    _dato(s, 2.20, TOP + 1.74, 5.60, 0.34,
+          "métricas, predicciones, historial de entrenamiento y el modelo de 2,5 MB", size=10)
+    caption(s, 0.36, TOP + 2.12, 9.28,
+            "Medido en esta GPU y con este entorno. Entre máquinas distintas no se probó.",
+            size=9, col=GRIS_BODY)
+    panel(s, 0.36, TOP + 2.36, 4.54, None, "Lo que habilita", ONCO_DARK,
+          ["Comparar contra un modelo de referencia anterior, con las mismas particiones y "
+           "la misma semilla, es válido por construcción."],
+          ONCO_DARK, fill=TEAL_CARD, tsize=12.5, bsize=10)
+    panel(s, 5.10, TOP + 2.36, 4.54, None, "Lo que obliga", GRIS_BODY,
+          ["Repetir una configuración con la misma semilla no aporta evidencia. Una réplica "
+           "independiente tiene que cambiar la semilla."],
+          ONCO_DATA, fill=TEAL_CARD2, tsize=12.5, bsize=10)
+    takeaway_bar(s, "Cinco corridas presupuestadas como trámite terminaron pagando el "
+                    "resultado más transversal del sprint.", t=TOP + 3.42, size=13)
+    notes(s, "Y salió un resultado que no fuimos a buscar.\n"
+             "\n"
+             "Para asegurarnos de que la tanda nueva era comparable con la anterior, gastamos "
+             "cinco corridas en repetir exactamente la configuración completa, la misma que "
+             "ya habíamos corrido el sprint pasado. Esperábamos que diera parecido, dentro de "
+             "lo que se mueve una corrida a otra.\n"
+             "\n"
+             "Dio idéntico. No parecido: idéntico. Las métricas, las predicciones, el "
+             "historial de entrenamiento y hasta el archivo del modelo entrenado, dos megas y "
+             "medio, coinciden byte por byte en los cinco folds. Verificamos además que las "
+             "corridas fueran reales y no un archivo viejo reciclado, y lo eran.\n"
+             "\n"
+             "Esto tiene dos consecuencias, y tiran para lados opuestos. La cómoda es que "
+             "cuando comparamos algo nuevo contra un modelo de referencia anterior, sobre las "
+             "mismas particiones y con la misma semilla, esa comparación es válida por "
+             "construcción. Veníamos siendo bastante más tímidos que eso.\n"
+             "\n"
+             "La incómoda es que volver a correr algo con la misma semilla no aporta ni un "
+             "dato nuevo. Y eso toca algo que teníamos pendiente: hay un resultado del sprint "
+             "pasado que queremos replicar, y este control no lo replicó ni podía hacerlo. "
+             "Para replicarlo de verdad hay que cambiar la semilla, y conviene además una "
+             "tarea con más casos de la clase chica en cada partición de prueba.\n"
+             "\n"
+             "Y lo dejo acotado: esto está medido en esta máquina y con este entorno. Entre "
+             "máquinas distintas no lo probamos.")
 
     # ---- cierre: reflow, auditoría, escala al tamaño del template, tipografía ----
     reflow_onco(prs, skip=keep_ids)

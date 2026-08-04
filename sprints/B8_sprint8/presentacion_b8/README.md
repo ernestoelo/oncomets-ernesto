@@ -1,8 +1,13 @@
-# Presentación B8 — dos ejes: SI-MIL y la medición de atención
+# Presentación B8 — dos ejes, y una sección de cierre
 
 > Construida el **30-jul-2026** como monográfico de SI-MIL. **Rehecha el 3-ago-2026** a
 > pedido de Ernesto: SI-MIL se compacta **a la mitad** y entra la medición de atención
 > contra las marcas del patólogo, en registro **muy pedagógico**.
+>
+> **Ampliada el 4-ago-2026**: el grid E×S entra como **sección de cierre** después de los dos
+> ejes (opción (b) de las tres que planteaba el handoff, elegida por Ernesto). La lámina del
+> mapa del recorrido **no se toca** y el deck sigue siendo de dos ejes; el grid se cuenta como
+> «lo que además cerró este sprint». Tres láminas, de 17 a **20**.
 >
 > Reunión: **viernes 07/08/2026**. `FECHA_REUNION` del generador ya la tiene.
 
@@ -12,7 +17,7 @@
 |---|---|
 | `generate_b8_deck.py` | genera el deck end-to-end; se corre y reproduce el `.pptx` |
 | `prep_assets_atencion.py` | recorta las figuras de `atencion_vs_patologo/` para proyectar |
-| `CLAM_Sprint8.pptx` | el deck, **17 láminas**, 13.333 × 7.5 |
+| `CLAM_Sprint8.pptx` | el deck, **20 láminas**, 13.333 × 7.5 |
 | `assets/simil_fig2_{full,a,b,c}.png` | Fig. 2 del paper, recortada de la pág. 4 a 400 DPI |
 | `assets/atencion_dos_regiones.png` | los 4 paneles (atención \| marcas) × (región 1 \| región 2) |
 | `assets/mitosis_region_anotada.png` | la región anotada, con el recuadro del detalle |
@@ -31,7 +36,7 @@ PYTHONPATH=/media/administrador/Storage1/sdonoso/clam_testing2/.pylibs \
 > de cuando el deck era monográfico, y dejarlo al lado del nuevo solo genera confusión.
 > Ningún `.pptx` está versionado.
 
-## Estructura (17 láminas)
+## Estructura (20 láminas)
 
 | # | Lámina | Eje |
 |---|---|---|
@@ -51,6 +56,51 @@ PYTHONPATH=/media/administrador/Storage1/sdonoso/clam_testing2/.pylibs \
 | 15 | el hallazgo: mira bien y responde mal | atención |
 | 16 | por qué esto no es una casualidad | atención |
 | 17 | qué mueve esto en lo que viene | atención |
+| 18 | el encargo de julio: ¿recortar expertos o slots? | grid E×S |
+| 19 | cuánto cuesta sacar capacidad, rama por rama | grid E×S |
+| 20 | el pipeline es determinista | grid E×S |
+
+## La sección de cierre del grid E×S (láminas 18 a 20)
+
+Todo sale de `../grid_expertos_slots/{prereg.md,resultados.md}`, encargo 3 del B8. **Nada se
+re-mide**: el job cerró el 4-ago con 40 de 40 runs. Los números se transcribieron a las
+constantes `PELDANOS`, `RAMA_S` y `RAMA_E` del generador, contra los §4 y §6 del
+`resultados.md`.
+
+**Por qué va al final y no como tercer eje.** De las tres opciones que planteaba el handoff,
+Ernesto eligió la (b). El hallazgo que cambia el plan es el de atención, no el grid, y el deck
+ya venía largo: meterlo como tercer eje obligaba a rehacer la lámina del mapa del recorrido,
+cuya tira de dos tarjetas está **calculada** (`bw = (9.28 - 0.34) / 2`), y a reescribir su
+guion. Como sección de cierre, la lámina 3 queda intacta y el grid se presenta por lo que es.
+
+### Las dos reglas que vienen del pre-registro
+
+1. **El veredicto es H_nula y la lámina lo dice como tal.** El +0,022 del primer peldaño es
+   justamente lo que **no** alcanza, y venderlo como hallazgo contradiría el pre-registro. Por
+   eso el mensaje visual de la lámina 18 no es la magnitud del Δ sino que **el signo se cambia
+   de lado entre peldaños** y que el bigote de la desviación cruza el cero en los tres.
+2. **Cero Δ contra CLAM por brazo.** El prereg §6 lo prohibió por diseño para no disparar ocho
+   veces sobre el eje ya cerrado del Hallazgo 12, y encima sobre la tarea del dato abierto.
+   CLAM **no aparece** en ninguna de las tres láminas, ni siquiera como fila de escala: el §8
+   del `resultados.md` la tiene y con eso alcanza para el documento.
+
+### Las dos figuras nativas nuevas
+
+- **`barras_divergentes()`** (lámina 18): Δ pareado alrededor del cero, con la desviación como
+  bigote y un cuadro por fold. La barra de la media se dibuja **encima** del bigote, y la
+  banda del peldaño resaltado va **primero**, porque dibujada después taparía el cero, el
+  bigote y los cuadros de esa fila. Un Δ de dos milésimas se dibujaría de ancho cero, así que
+  hay un ancho mínimo de 0,03".
+- **`escalera_capacidad()`** (lámina 19): AUC medio por brazo con la línea que une los topes.
+  El eje arranca en **0,75**, rotulado en la lámina: entre el mejor y el peor brazo hay 0,055
+  de AUC y a escala completa los ocho serían la misma barra.
+
+### Lo que la sección declara que NO dice
+
+La lámina 20 lleva su propio límite escrito: el determinismo está medido **en esta GPU y con
+este entorno**, y entre máquinas distintas no se probó. Y su panel de la derecha deja la
+consecuencia incómoda a la vista, que es la que toca un pendiente real: el control **no**
+replicó el resultado del sprint pasado y **no podía**, porque compartía la semilla.
 
 ## El recorte de SI-MIL del 3-ago (12 láminas de contenido a 6)
 
@@ -169,6 +219,16 @@ las líneas reales, y `panel(..., h=None)` calcula su alto. `auditar(prs)` corre
 escalado y avisa de texto que no entra, shapes fuera del lienzo y cuerpos por debajo del
 mínimo del template (7 pt). **No reemplaza mirar las láminas**, y de hecho las cuatro
 correcciones de layout de esta pasada salieron de mirarlas con la auditoría en cero.
+
+Volvió a pasar con la sección del grid el 4-ago: **auditoría en cero y tres defectos a la
+vista**. Los tres son de una clase que ningún chequeo de cajas puede ver, porque no hay texto
+fuera de su caja ni shape fuera del lienzo, sino **dos objetos válidos superpuestos**.
+
+| Defecto | Por qué la auditoría no lo ve | Fix |
+|---|---|---|
+| La línea de tendencia cruzaba los rótulos de valor de la lámina 19 | el rótulo entra perfecto en su caja; lo que lo tapa es un conector | el valor se dibuja **dentro** de la barra, en blanco |
+| Los paneles de la lámina 20 chocaban con la regla de `takeaway_bar` | el panel se auto-dimensiona y queda dentro del lienzo, y la regla está en su sitio | subir el bloque 0,10" y bajar los cuerpos de 3 líneas a 2 |
+| El pie de la lámina 18 no decía qué significaba el relleno de los cuadros | es una omisión de contenido, no de layout | se completó la leyenda |
 
 ### 8. Extracción de la Fig. 2 del paper
 
