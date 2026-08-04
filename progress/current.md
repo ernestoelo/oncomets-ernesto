@@ -1767,3 +1767,51 @@ hallazgos. El importante es H1, la frase «el margen está en S» propagada en c
 grid no sostuvo; se acotó en los cinco de forma aditiva, **preservando la medición**, que sigue
 siendo correcta. La memoria de slots ya llevaba la salvedad bien puesta («no afirmar que recortar
 S salga gratis, eso es el grid»); lo que se había propagado a `CLAUDE.md` era la versión sin ella.
+
+## Sesión del 4-ago-2026 (martes, tarde) — el grid entra al deck, sin volverlo de tres ejes
+
+**Sesión de entregable**, sin GPU y sin jobs propios. Ajenos en el nodo: los dos de `capstone`
+y uno nuevo, `4791 oncomets` de `dbustama`, que arrancó durante la sesión. Ninguno lee este
+árbol.
+
+**La decisión, que era de Ernesto y no de la sesión.** El handoff dejaba tres encuadres
+posibles para meter el grid E×S en `CLAM_Sprint8.pptx` y bloqueaba explícitamente decidirlo
+solo. Ernesto eligió **(b): sección de cierre**, después de los dos ejes. Con eso **la lámina
+del mapa del recorrido queda intacta**, el deck sigue siendo de dos ejes, y el grid se cuenta
+como «lo que además cerró este sprint» con su propio rótulo. El motivo pesa más que la
+elección: el hallazgo que cambia el plan es el de atención y no el grid, así que el grid no le
+roba espacio; y pasar la lámina 3 a tres tarjetas costaba **reescribir su guion hablado**, no
+mover geometría (su tira está calculada, `bw = (9.28 - 0.34) / 2`).
+
+**Las tres láminas**, todas a partir de `grid_expertos_slots/resultados.md` y **sin re-medir
+nada**:
+
+- **18, el veredicto.** Los tres peldaños como barras divergentes alrededor del cero, con la
+  desviación como bigote y un cuadro por fold. El mensaje visual es **el signo que se cambia de
+  lado** y el bigote que cruza el cero en los tres, no la magnitud del Δ. El peldaño que pidió
+  Sebastián va resaltado con su respuesta honesta: dos centésimas, 3 folds de 5, no alcanza.
+- **19, la escalera de capacidad.** Las dos ramas con la línea que une los topes: escalón y
+  meseta del lado de S, curva que ni siquiera es monótona del lado de E. Eje recortado desde
+  0,75 y **rotulado en la lámina**. El remate pone la escala real, 0,25 entre folds contra 0,05
+  entre brazos.
+- **20, el determinismo**, como lámina de MÉTODO, con su límite escrito (esta GPU, este
+  entorno) y las dos consecuencias opuestas en paneles.
+
+**Las dos reglas del pre-registro se respetaron**: el H_nula se cuenta como tal, sin buscarle
+el ángulo positivo, y **cero Δ contra CLAM por brazo**, ni siquiera como fila de escala. El
+`prereg.md` y el `resultados.md` no se tocaron.
+
+**El QA visual volvió a pagar, con la auditoría programática en cero.** Tres defectos, y dos de
+ellos de una clase que las pasadas anteriores no habían registrado: **dos objetos válidos
+superpuestos**. Un conector cruzando un rótulo que entra perfecto en su caja, y dos paneles
+auto-dimensionados metiéndose bajo la regla de `takeaway_bar`. La lección que generaliza es que
+el `h=None` que resolvió el desborde **creó** esta clase, porque un alto calculado al vuelo
+puede invadir cualquier cosa posicionada con una constante. El tercer defecto era de contenido:
+una leyenda que no decía qué significaba el relleno de sus cuadros.
+
+**Entregado**: `generate_b8_deck.py` con la sección nueva y dos figuras nativas
+(`barras_divergentes`, `escalera_capacidad`), `presentacion_b8/README.md` con la estructura de
+**20 láminas** y la tabla de los tres defectos, y el guion hablado de las tres pasado por
+`@humanizer-es`. Commit `e938bec`.
+
+**Auditoría, novena pasada**: cinco hallazgos (I1 a I5), todos documentales y aditivos.
