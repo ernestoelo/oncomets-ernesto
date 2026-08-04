@@ -730,3 +730,85 @@ hallazgo del determinismo y el estado de los pendientes.
 - **La política de eval B5** se cumple en el `resultados.md`: balanced accuracy y AUC juntos,
   matrices de confusión y n por clase en los 8 brazos.
 - **Los cuatro frentes**: agentes y skills sin cambios, no los tocó esta sesión.
+
+# Novena pasada — cierre de la sesión del grid al deck (4-ago-2026, martes, 2ª)
+
+> Sin jobs propios en toda la pasada. Ajenos: los dos de `capstone` y uno nuevo, `4791
+> oncomets` de `dbustama`, que arrancó durante la sesión. Ninguno lee este árbol. Todo lo
+> tocado es el generador del deck, su README y documentación.
+
+| id | Hallazgo | Tipo | Severidad | Acción |
+|---|---|---|---|---|
+| I1 | La memoria del deck y su línea de índice dicen **«17 láminas»** y describen el deck como de dos ejes; ahora tiene **20** con una sección de cierre | stale | alta | ADDENDUM fechado, sin tocar el registro del 3-ago |
+| I2 | La memoria de puntos ciegos del QA **no cubre la clase de defecto** de esta pasada: dos objetos válidos superpuestos | gap | alta | ADDENDUM fechado con la clase y su regla |
+| I3 | La memoria del grid lista los pendientes del cierre pero no registra que el resultado **ya tiene forma presentable** | stale | baja | Una línea |
+| I4 | `progress/current.md` no tiene la sesión del 4-ago por la tarde | stale | media | Sección nueva |
+| I5 | La memoria de «un hallazgo necesita forma presentable» está escrita sobre un resultado **positivo**; el del grid es **nulo** y también la necesitó | ampliación | baja | Una línea |
+
+## I1 — El deck dejó de tener 17 láminas, y la decisión de encuadre es lo que hay que preservar
+
+**Dónde vive**, verificado con `grep -n`:
+
+| Fuente | Qué dice |
+|---|---|
+| memoria `deck-b8-dos-ejes-simil-mitosis`, ADDENDUM 3-ago | «`CLAM_Sprint8.pptx`, **17 láminas**: 2 heredadas + 1 de mapa + 6 de SI-MIL + 8 de atención» |
+| `MEMORY.md` L86 | «EJECUTADO 3-ago: CLAM_Sprint8.pptx, 17 láminas» |
+| `presentacion_b8/README.md` | ya actualizado en esta sesión, con la estructura de 20 |
+
+**Criterio aplicado.** El ADDENDUM del 3-ago **no se reescribe**: es el registro de qué se
+ejecutó ese día y su cuenta de láminas era correcta entonces. Va un ADDENDUM nuevo fechado.
+
+**Lo que hay que preservar, que no es la cuenta sino la decisión.** El handoff planteaba tres
+encuadres posibles y Ernesto eligió **(b), sección de cierre**. Lo que importa registrar es el
+**motivo**, porque es lo que evita que una sesión futura lo re-decida: el hallazgo que cambia
+el plan es el de atención y no el grid, el deck ya venía largo, y meterlo como tercer eje
+obligaba a rehacer la lámina del mapa del recorrido (cuya tira de dos tarjetas está
+**calculada**, `bw = (9.28 - 0.34) / 2`) y a reescribir su guion, que es la parte cara.
+
+## I2 — La clase de defecto que faltaba: dos objetos válidos superpuestos
+
+Con `auditar(prs)` en **cero**, el QA visual encontró **tres** defectos en las tres láminas
+nuevas. Dos de ellos son de una clase que los ADDENDUM anteriores de esa memoria no cubren.
+
+Los puntos ciegos ya registrados son: colores de fuente, texto dentro de un PNG, texto que
+desborda su caja (resuelto midiendo con los TTF), imagen centrada en una caja con otro aspecto,
+y tira de paneles dentada. Los de hoy no son ninguno de esos: **cada objeto está bien por
+separado y dentro del lienzo**, y lo que falla es que dos se pisan.
+
+| Defecto | Los dos objetos | Por qué ninguna consulta lo ve |
+|---|---|---|
+| La línea de tendencia cruzaba los rótulos de valor | un conector y un textbox | el rótulo entra perfecto en su caja; el conector está en su sitio; no hay desborde de nada |
+| Los paneles chocaban con la regla de `takeaway_bar` | un panel `h=None` y un rectángulo de posición fija | el panel se auto-dimensiona y queda dentro del lienzo, y la regla está donde se la puso |
+
+**La regla que generaliza**, y es la que va a la memoria: el auto-dimensionado (`h=None`)
+resolvió el desborde pero **creó** una clase nueva, porque un alto que se calcula al vuelo
+puede invadir cualquier cosa posicionada con una constante. Cuando un bloque auto-dimensionado
+va seguido de un elemento fijo, el fijo tiene que posicionarse **desde el alto medido**, igual
+que ya se hace con las tiras de paneles.
+
+## I3 — El grid ya tiene forma presentable
+
+La memoria del grid cierra con la lista de pendientes post-cierre. Se agrega que las tres
+láminas existen, dónde, y que el pendiente que sigue vivo es la réplica con semillas nuevas.
+
+## I4 — `progress/current.md`
+
+Sección nueva `## Sesión del 4-ago-2026 (martes, tarde)`, con la decisión de encuadre, las tres
+láminas, los tres defectos del QA visual y el estado de los pendientes.
+
+## I5 — Un resultado NULO también necesita forma presentable
+
+`hallazgo-necesita-forma-presentable` nació de un resultado **positivo** que cambiaba el plan y
+no existía en ninguna lámina. El del grid es el caso simétrico: un **H_nula** que además
+responde un encargo explícito, y que sin lámina llega a la reunión como «no dio nada». Se
+agrega la línea, porque el reflejo natural con un resultado nulo es justamente no presentarlo.
+
+## Verificado sin cambios
+
+- **`CLAUDE.md`**: el ADDENDUM del 4-ago del Hallazgo 12 y el patrón **P1.a** siguen correctos
+  y completos. Armar láminas no cambia ninguna regla; nada que agregar.
+- **El pre-registro y el `resultados.md` del grid**: intactos, como pedía el handoff. Las tres
+  láminas se hicieron **a partir** de ellos.
+- **Cero Δ contra CLAM por brazo** en el deck, que era la regla de diseño del prereg §6. CLAM
+  no aparece en ninguna de las tres láminas, ni siquiera como fila de escala.
+- **Agentes y skills**: sin cambios, esta sesión no los tocó.
