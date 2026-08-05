@@ -2157,3 +2157,52 @@ mezclada español/inglés de la figura de la 12, que es de `atencion_vs_patologo
 Registro: `auditoria_coherencia/hallazgos.md` duodécima pasada (L1 a L5),
 `presentacion_b8/README.md` §«La lectura en voz alta», y las memorias
 [[deck-qa-puntos-ciegos-chequeo]] y [[deck-b8-dos-ejes-simil-mitosis]].
+
+---
+
+## Sesión del 4-ago-2026 (martes, 23:20) — las siete de vocabulario, resueltas
+
+**Misión del handoff de las 23:06**, cumplida entera. Sesión de escritura, **sin GPU**. Rama
+`main` sincronizada con `origin` al abrir y árbol limpio. Ningún job propio: el `4813`
+(`test_vista`, sucesor del `4809`) volvió a aparecer bajo la cuenta compartida con
+`WorkDir=.../Test_D/D_abs` y terminó durante la sesión. Ajenos: `4780` de `capstone`, `4800`
+de `gvenegas`.
+
+### Lo que se hizo
+
+Deck regenerado, guion extraído de nuevo a un archivo aparte, y las siete de vocabulario
+puestas a decidir con recomendación y frase antes/después por cada una. Ernesto aprobó las
+siete: **once ediciones** en `generate_b8_deck.py`, **todas en notas**. Prosa de 6104 a
+**6117 palabras**, +13. Barrido de reglas duras sobre cuerpo y notas en **cero avisos**, deck
+en 20 láminas con auditoría en cero. Ninguna lámina se tocó, ningún número cambió de valor,
+ni `prereg.md` ni `resultados.md` se abrieron para escribir.
+
+### Lo durable
+
+**Una decisión de vocabulario del guion no se resuelve solo en el guion.** Tres de las siete
+**cambiaron de dirección** al verificar el generador, porque el término está escrito en el
+**cuerpo** de la lámina: `logit`, `softmax` y `sigmoide con temperatura` se leen en las
+láminas 6, 7 y 8, y «rankearían» está en los dos paneles de hipótesis de la 10. Con el cuerpo
+congelado, el guion **hereda su vocabulario**: quitar la palabra habría dejado al presentador
+diciendo una cosa distinta de la proyectada, y ese desajuste cuesta más que el tell. Lo que
+pide la convención es **definir antes de usar**, no evitar, así que se glosaron en vez de
+sacarlas.
+
+El mismo criterio dio vuelta lo de «fold» contra «partición»: la mezcla resultó **del deck**
+—el cuerpo de la 17 usa las dos en el mismo bloque y «fold» está en tres cuerpos— así que se
+arregló la **única frase del guion** donde conviven, en lugar de unificar todo.
+
+Y queda fijada una convención nueva de pronunciación: **un decimal se dice tal cual, dos se
+agrupan en decenas, tres en centenas** (`convenciones_deck_b5.md` §3.b, regla 12). No toca el
+«0,89 vs 0,890», que es qué se escribe en la lámina y está cerrado.
+
+### Queda abierto
+
+**La leyenda mezclada español/inglés** de la figura de la lámina 12, que es de
+`atencion_vs_patologo/` y no del generador: arreglarla es regenerar esa figura, y es decisión
+de Ernesto. Es **el único pendiente que le queda al deck** de cara al viernes 07/08.
+
+Registro: `auditoria_coherencia/hallazgos.md` decimotercera pasada (V1 a V5),
+`presentacion_b8/README.md` §«Las siete de vocabulario, resueltas», y las memorias
+[[deck-qa-puntos-ciegos-chequeo]], [[notas-presentador-guion-didactico]] y
+[[deck-b8-dos-ejes-simil-mitosis]].

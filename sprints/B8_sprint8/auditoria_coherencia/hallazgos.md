@@ -1191,3 +1191,129 @@ El README gana la sección de la lectura en voz alta, y `progress/current.md` la
 
 **Y lo de siempre**: la leyenda mezclada español/inglés de la figura de la 12, que es de
 `atencion_vs_patologo/` y no del generador.
+
+---
+
+# Decimotercera pasada — las siete de vocabulario, resueltas (4-ago-2026, martes, 7ª)
+
+> Sin jobs propios: el `4813` (`test_vista`, sucesor del `4809`) volvió a aparecer bajo la
+> cuenta compartida `sdonoso` con el mismo `WorkDir=/media/administrador/Storage1/sdonoso/
+> Test_D/D_abs`, fuera de este árbol y de `clam_environ`, y terminó durante la sesión. Ajenos:
+> `4780` de `capstone`, `4800` de `gvenegas`. Workaround H sin efecto. Lo único tocado es el
+> generador del deck y documentación.
+
+La misión que dejó la duodécima: **decidir las siete de vocabulario**. Ernesto aprobó las siete
+recomendaciones, que son **once ediciones** en `generate_b8_deck.py`, **todas en notas**. Ningún
+número cambió de valor, ninguna lámina se tocó, y ni `prereg.md` ni `resultados.md` se abrieron
+para escribir.
+
+| id | Hallazgo | Tipo | Severidad | Acción |
+|---|---|---|---|---|
+| V1 | Tres de las siete **cambian de dirección** al verificar que el término está escrito en el CUERPO de la lámina | método | alta | ADDENDUM a [[deck-qa-puntos-ciegos-chequeo]] |
+| V2 | La mezcla «fold»/«partición» es **del deck**, no del guion: el cuerpo de la 17 ya las usa juntas y «fold» está en el cuerpo de tres láminas | error de encuadre | media | Se arregla **solo la frase** donde conviven |
+| V3 | No había convención de **pronunciación de decimales**; con tres sistemas en uso hacía falta una | convención | media | Regla nueva en `convenciones_deck_b5.md` §3.b |
+| V4 | «pipeline» y «rankearían» tenían una **segunda ocurrencia** que el handoff no listaba | stale | baja | «pipeline» se cambia en las dos; «rankearían» no se toca |
+| V5 | El README del deck y `progress/current.md` no registran esta pasada | stale | media | Secciones nuevas |
+
+## V1 — Una decisión de vocabulario del guion no se resuelve solo en el guion
+
+Es el hallazgo de la pasada, y contradice el reflejo natural. Las siete llegaron descritas como
+decisiones sobre **cómo se dice** algo, así que parecían resolverse leyendo el guion. Tres de
+ellas se dieron vuelta al abrir el generador:
+
+- **Los tres términos técnicos** (`logit`, `softmax`, `sigmoide con temperatura`) están
+  **escritos en las láminas 6, 7 y 8** (`generate_b8_deck.py:1378`, `:1398`, `:1477`, `:1529`).
+  Quitarlos del guion, que era la lectura obvia del hallazgo, habría dejado al presentador
+  diciendo una palabra distinta de la proyectada. Lo que pide la convención (§3.b, regla 5) es
+  **definir antes de usar**, no evitar: así que se **glosaron** los dos que no tenían glosa y el
+  tercero se dejó, porque ya la traía.
+- **«fold»** está en el cuerpo de la tabla de la 15, en el rótulo de la figura de la 17 y en el
+  rótulo más el remate de la 18. Ver V2.
+- **«rankearían»** está en los **dos paneles de hipótesis** de la lámina 10 (`:1700`, `:1706`).
+  Cambiarlo solo en el guion desajusta voz y pantalla, y el cuerpo está congelado por el pedido
+  del rediseño del 4-ago. **No se tocó.**
+
+**La clase**, que es lo que generaliza: cuando el cuerpo está congelado, el guion **hereda su
+vocabulario**, y el desajuste entre lo que se oye y lo que se lee cuesta más que el tell que uno
+venía a sacar. Antes de reescribir una palabra del guion hay que **grepear el generador** para
+ver si está proyectada. Es hermano del criterio de las tres capas (L3 de la duodécima), pero
+apunta a otra cosa: no a qué capa caza el defecto, sino a **dónde se verifica el arreglo**.
+
+## V2 — La mezcla «fold»/«partición» ya estaba en el deck
+
+El handoff la planteaba como un problema del guion con una excepción en el cuerpo de la 17. La
+verificación muestra algo distinto: el cuerpo de la 17 **usa las dos palabras en el mismo
+bloque** (`:2141` «la diferencia pareada fold por fold» junto a `:2144` «5 particiones»), y
+«fold» aparece además en `:1972-1973` (tabla de la 15), `:779` (rótulo de la figura del grid) y
+`:2214`/`:2216` (rótulo y remate de la 18).
+
+Con el cuerpo congelado, unificar el guion entero a «partición» habría contradicho cuatro
+rótulos proyectados. Se hizo lo contrario de lo global: **hay una sola frase donde las dos
+palabras conviven** (`:2173`), y es la que se arregló. El resto de los «folds» del guion queda,
+porque cada uno está respaldado por algo que se lee en pantalla.
+
+> **Antes**: «…comparamos recortar por un lado contra recortar por el otro, con las mismas
+> particiones y midiendo la diferencia **fold por fold**.»
+> **Después**: «…comparamos recortar por un lado contra recortar por el otro **sobre las mismas
+> particiones, midiendo la diferencia en cada una**.»
+
+## V3 — La regla de decimales que faltaba
+
+El guion tenía tres maneras de pronunciar un decimal y ninguna razón para elegir entre ellas. La
+regla que se fija, y que sirve para cualquier guion futuro: **un decimal se dice tal cual, dos se
+agrupan en decenas, tres en centenas.** Con eso el guion entero queda consistente y solo cambian
+dos frases: `0,46 / 0,48` en la 12 y `0,056` en la 16.
+
+La regla **no toca** el «0,89 vs 0,890», que es qué se escribe en la lámina y está cerrado: al
+contrario, lo respeta, porque cada uno se pronuncia según sus decimales y el guion sigue diciendo
+lo que la lámina muestra.
+
+## V4 — Las segundas ocurrencias
+
+«pipeline» aparecía también en la nota de la lámina 5 (`:1341`, «en nuestro pipeline son
+quinientos doce números»), no solo en la 12. Se cambiaron las dos, porque dejar una sola habría
+sido peor que no cambiar ninguna. «rankearían» tiene su segunda en la 10 (`rankeen`), y las dos
+se quedan por lo de V1.
+
+## Las once ediciones
+
+| Lámina | Antes | Después |
+|---|---|---|
+| 5 | «en nuestro **pipeline** son quinientos doce números» | «en nuestro **caso**…» |
+| 6 | «el **logit final** es el mismo número por los dos caminos» | «el logit final, **ese número que sale del clasificador**, es el mismo…» |
+| 6 | «sale de una **softmax**, así que todos sus valores son positivos» | «sale de una softmax, **el reparto del cien por ciento que vimos recién**, así que…» |
+| 9 | recorrido 1 → 3 → 2, y «la fila destacada» + «esa fila del medio» | recorrido **1 → 2 → 3**, y **«la fila destacada»** las dos veces |
+| 11 | «Se toman **los cuatro mil setecientos noventa y nueve** parches» | «Se toman **todos los** parches» (el número está proyectado) |
+| 12 | «el **pipeline** extrajo parches de las dos» | «el **procesamiento** extrajo…» |
+| 12 | «entre cero coma **cuatro seis** y cero coma **cuatro ocho**» | «entre cero coma **cuarenta y seis** y cero coma **cuarenta y ocho**» |
+| 13 | «está **entre** el nueve por ciento más atendido» | «está **dentro del** nueve por ciento…» |
+| 16 | «cero coma **cero cinco seis**» | «cero coma **cero cincuenta y seis**» |
+| 17 | «con las mismas particiones y midiendo la diferencia **fold por fold**» | «**sobre** las mismas particiones, midiendo la diferencia **en cada una**» |
+| 20 | «**agarrar** un detector de mitosis público» | «**tomar** un detector…» |
+
+La de la lámina 9 arregla las dos cosas de una: el orden pasa a ser el que sigue el ojo, y la
+fila queda con **un solo apodo**. Cumple además la regla 11 de la convención (recorrer la tabla
+en el orden en que se lee). La tabla es ABMIL / **CLAM destacada** / TransMIL (`:1601-1603`).
+
+## Verificado sin cambios
+
+- **Los dos `prereg.md` y los dos `resultados.md`**: intactos, ni leídos para escribir.
+- **Las láminas**: cero cambios. Títulos, remates, rótulos y punteos guía como los dejó el
+  rediseño del 4-ago. El «fold por fold» del cuerpo de la 17 sigue ahí, ahora **por decisión
+  verificada** y no por omisión.
+- **Ningún número cambió de valor.** Los dos decimales que se tocaron cambiaron de
+  **pronunciación**, no de cifra.
+- **Barrido de reglas duras sobre las 20 láminas, cuerpo y notas**: cero rayas, cero «palanca»,
+  cero letras de rotulación, cero decimales en cifras dentro de la prosa hablada.
+- **Deck**: 20 láminas, auditoría del generador en cero avisos, 1172 referencias forzadas a
+  Barlow. Prosa de 6104 a **6117 palabras**, +13.
+- **`CLAUDE.md`, agentes y skills**: sin cambios. Ninguna regla dura se movió.
+- **No se volvió a pasar `@humanizer-es`** ni a leer el guion entero en voz alta: las once son
+  ediciones de frase, no reescrituras de lámina, y el handoff anterior lo dejaba explícito.
+
+## Lo que queda abierto y va al handoff
+
+- **La leyenda mezclada español/inglés** de la figura de la 12 («Immune cells», «Stroma»,
+  «Nucleos» sin tilde). Sigue siendo de `atencion_vs_patologo/`, no del generador: arreglarlo es
+  regenerar esa figura, y es decisión de Ernesto si vale la pena antes del viernes. **Es el único
+  pendiente que le queda al deck.**

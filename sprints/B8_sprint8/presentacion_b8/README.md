@@ -488,6 +488,32 @@ cierre de deck: el barrido automático ve reglas duras y geometría, `@humanizer
 (racimos de ritmo, arcos rotos), y la lectura en voz alta **entiende de a una frase**.
 Detalle y las siete abiertas: `auditoria_coherencia/hallazgos.md`, duodécima pasada (L1 a L5).
 
+### Las siete de vocabulario, resueltas (4-ago, 23:20)
+
+Ernesto aprobó las siete recomendaciones: **once ediciones**, todas en notas, ninguna en
+lámina y ninguna sobre un número de valor. La prosa pasó de 6104 a **6117 palabras**. El
+detalle edición por edición está en `auditoria_coherencia/hallazgos.md`, decimotercera
+pasada.
+
+**Lo que cambió el enfoque de la tanda:** tres de las siete se dieron vuelta al abrir el
+generador, porque el término estaba escrito **en el cuerpo de la lámina**. `logit`,
+`softmax` y `sigmoide con temperatura` se leen en las láminas 6, 7 y 8, así que no se
+quitaron: se **glosaron**, que es lo que pide la convención (§3.b, regla 5, definir antes
+de usar). «rankearían» está en los dos paneles de hipótesis de la 10 y **no se tocó**. Y
+«fold» aparece en el cuerpo de tres láminas —la tabla de la 15, el rótulo de la figura de
+la 17, el rótulo y el remate de la 18—, con la 17 usando «fold» y «partición» en el mismo
+bloque: la mezcla era del deck, no del guion, así que se arregló **la única frase del
+guion donde conviven** en lugar de unificar todo.
+
+**La regla que queda fijada** para cualquier guion futuro: un decimal se dice tal cual,
+dos se agrupan en decenas, tres en centenas. No toca el «0,89 vs 0,890» de las láminas,
+que es qué se escribe y está cerrado.
+
+**Lo que sí se unificó sin reparos**: «pipeline» salió de las dos notas donde estaba (la 5
+y la 12), «agarrar» pasó a «tomar» en la 20, el 4799 se dice entero solo en la 10 y la 12
+—la 11 lo tiene proyectado—, la 13 dice «dentro del» en vez de «entre», y la 9 recorre la
+tabla en el orden en que se lee, con un solo apodo para la fila.
+
 ## Lo que NO se hizo
 
 - Las ecuaciones **3 a 10 siguen sin explicarse** una por una. La lámina 3 lo declara con
