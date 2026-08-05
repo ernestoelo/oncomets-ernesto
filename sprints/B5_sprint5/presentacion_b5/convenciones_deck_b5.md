@@ -89,6 +89,16 @@ Reglas del formato vigente:
     nota, y **referenciar los paneles de la figura** para que el guion siga la imagen. Refuerza la
     regla 5: **no introducir nomenclatura no presentada antes** (cazado: `slot_dropout`, "token")
     — definirla o quitarla.
+12. **Decimales, cómo se pronuncian** (fijado 4-ago-2026, deck B8): **un decimal se dice tal
+    cual** («cero coma cinco»), **dos se agrupan en decenas** («cero coma ochenta y nueve»),
+    **tres en centenas** («cero coma ochocientos noventa»). Dígito a dígito solo si la cifra no
+    entra en ninguno de los tres casos. Es independiente de **cuántos decimales se escriben en
+    la lámina**, que es otra decisión: el guion pronuncia según los que la lámina muestre.
+13. **Si el término está escrito en el cuerpo, el guion lo hereda** (4-ago-2026). Antes de
+    quitar del guion un término técnico o un anglicismo, **grepear el generador**: si la palabra
+    está proyectada, sacarla desajusta lo que se oye de lo que se lee, y eso cuesta más que el
+    tell. En ese caso aplica la regla 5 en su forma literal — **definirla, no evitarla**.
+    Cazado con `logit`/`softmax` y con «fold» ([[deck-qa-puntos-ciegos-chequeo]]).
 
 **Autoría / divergencia intencional:** Ernesto edita las notas **directo en OnlyOffice**. El motor
 `set_notes(slide, proposito, sections)` de `generate_b5_deck.py` todavía RINDE el formato por-fases
