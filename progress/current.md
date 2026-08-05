@@ -2105,3 +2105,55 @@ que caza lo que leer no caza.
 
 Registro: `presentacion_b8/README.md` §«La pasada de `@humanizer-es`» y la memoria
 [[deck-b8-dos-ejes-simil-mitosis]].
+
+---
+
+## Sesión del 4-ago-2026 (martes, 23:00) — el guion leído en voz alta
+
+**Misión del handoff de las 22:41**, cumplida entera. Sesión de escritura, **sin GPU**. Rama
+`main` sincronizada con `origin` al abrir y árbol limpio. Ningún job propio: el `4809` sigue
+siendo de la cuenta compartida pero con `WorkDir=.../Test_D/D_abs`, fuera de este árbol y de
+`clam_environ`, así que el workaround H no restringió nada. Ajenos: `4780` de `capstone`,
+`4800` de `gvenegas`.
+
+### Lo que se hizo
+
+Deck regenerado (20 láminas, auditoría en cero), guion de las **19 láminas con notas**
+extraído a un archivo aparte, y leído **de corrido**. **20 hallazgos**: **13 aplicados**
+—los que son defecto real o frase que no entra en un respiro— y **7 dejados para Ernesto**
+por ser decisiones de vocabulario. De 6089 a **6114 palabras** de prosa, +25 netas. Las
+láminas no se tocaron, ni `prereg.md` ni `resultados.md`.
+
+### Los dos que justifican la pasada
+
+- **La lámina 12 decía «las ciento sesenta y tres marcas»** veinte segundos después de decir
+  que las marcas son «sesenta y un polígonos». Son **163 parches**, no marcas
+  (`atencion_vs_patologo/resultados.md:45`). Leído en pantalla uno completa solo; **dicho en
+  voz alta es una contradicción**.
+- **La lámina 6 decía «se pesa cada parche igual»**, con el sentido de «igual que arriba».
+  Pronunciado se entiende «todos los parches pesan lo mismo», que es **lo contrario** de la
+  ecuación que la lámina explica. Una frase correcta escrita que se vuelve falsa al decirla,
+  y no hay cuenta ni skill que la detecte.
+
+Los otros once: la unidad de la 3 (ahora dice «mil ciento setenta y seis láminas distintas,
+mil ochocientas cincuenta y ocho contando cada partición por separado»), cuatro concordancias
+y una comparación colgada, los cuatro decimales seguidos de la 9 —que la tabla ya muestra—,
+dos frases de 55 y 48 palabras partidas, el rango de la 18 dicho de menor a mayor, y el
+trabalenguas de la 5.
+
+### Lo durable
+
+**Las tres capas de QA cazan cosas disjuntas**: el barrido automático ve reglas duras y
+geometría, `@humanizer-es` **cuenta** (racimos, arcos rotos), y la lectura en voz alta
+**entiende de a una frase**. Ninguna sustituye a las otras.
+
+### Queda abierto
+
+Las **siete de vocabulario** (fold contra partición, los tres sistemas para decir decimales,
+los términos técnicos sin definir, el orden 1 → 3 → 2 de la tabla de la 9, tres anglicismos,
+el 4799 repetido y el «entre el nueve por ciento»), todas decisión de Ernesto. Y la leyenda
+mezclada español/inglés de la figura de la 12, que es de `atencion_vs_patologo/`.
+
+Registro: `auditoria_coherencia/hallazgos.md` duodécima pasada (L1 a L5),
+`presentacion_b8/README.md` §«La lectura en voz alta», y las memorias
+[[deck-qa-puntos-ciegos-chequeo]] y [[deck-b8-dos-ejes-simil-mitosis]].
