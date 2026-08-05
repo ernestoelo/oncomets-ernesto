@@ -2206,3 +2206,35 @@ Registro: `auditoria_coherencia/hallazgos.md` decimotercera pasada (V1 a V5),
 `presentacion_b8/README.md` §«Las siete de vocabulario, resueltas», y las memorias
 [[deck-qa-puntos-ciegos-chequeo]], [[notas-presentador-guion-didactico]] y
 [[deck-b8-dos-ejes-simil-mitosis]].
+
+---
+
+## Sesión 5-ago-2026 — evaluación de `wayfinder` y cosecha de dos primitivas
+
+Ernesto trajo la skill `wayfinder` de mattpocock para evaluar si integrarla. **No se
+integró**, y la evaluación está en [[wayfinder-evaluacion-y-cosecha]]: exige un tracker con
+blocking nativo (`gh` **no está instalado**, y el remoto es un repo personal que Sebastián y
+Benjamín no miran), traerla son 6 archivos porque su tipo de ticket por defecto depende de
+otras cuatro skills, y su regla central de **un ticket por sesión** choca de frente con
+[[procede-con-todo-el-plan-momentum]].
+
+Lo que sí se hizo, que es trabajo de método y no de sprint:
+
+- **`objetivos_sprint8.md` reestructurado como índice**, 319 → 168 líneas, adoptando la
+  gramática de secciones del mapa: Destino / Notas / Decisiones tomadas / Todavía sin
+  especificar (+ Pendiente sharp) / Fuera de alcance, conservando el «Qué no se afirma»
+  propio. **Ningún dato se perdió**: cada número distintivo de la narrativa vieja se
+  verificó presente en otro archivo antes de sacarlo. El formato quedó fijado en `CLAUDE.md`.
+- **El encargo 2 salió a archivo propio**, `slots_entrenados_encargo2.md`, porque era lo
+  único del doc sin otro hogar y sigue abierto.
+- **`@grilling` portada y validada** (110 líneas, PASS), adaptada: los hechos los busca ella
+  sin subagentes, y aterriza en el prereg de regla 9 o en las secciones del mapa.
+  **Sin usar en producción todavía** ([[grilling-skill-portada]]).
+
+`sprints/B7_sprint7/objetivos_sprint7.md` **queda en formato viejo a propósito**: el sprint
+está cerrado y presentado, el formato es hacia adelante.
+
+### Queda abierto (sin cambios respecto de lo de arriba)
+
+La leyenda de la figura de la lámina 12 sigue siendo el único pendiente del deck de cara al
+viernes 07/08. Esta sesión no lo tocó.
