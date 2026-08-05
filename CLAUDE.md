@@ -674,6 +674,38 @@ sprint.
 | `summary.csv` | `core_utils.py` (fin) | post-hoc | `test_auc/acc`, `val_auc/acc` por fold |
 | `split_0_results.pkl` | `core_utils.py` | post-hoc | predicciones por slide |
 
+## Formato de `objetivos_sprintN.md` — índice, no almacén
+
+Fijado el **5-ago-2026** al reestructurar el B8 (319 → 168 líneas, sin perder un dato).
+Adoptado de la skill *wayfinder* de mattpocock; la evaluación de por qué se tomó la
+gramática y no la skill entera está en [[wayfinder-evaluacion-y-cosecha]].
+
+**Regla: cada decisión vive en exactamente UN lugar, su archivo.** El doc de objetivos la
+resume en una línea y enlaza. Si algo se explica dos veces, la copia del doc de objetivos
+es la que sobra. Esto ataca la acumulación de ADDENDUMs, que es la forma en que estos docs
+se venían pudriendo (el B8 llegó a 3, `CLAUDE.md` tiene 20).
+
+Cinco secciones fijas:
+
+| Sección | Qué va |
+|---|---|
+| **Destino** | Qué significa llegar al final del sprint. 1-2 líneas; toda sesión se orienta con esto antes de elegir en qué trabajar |
+| **Notas** | Dominio, skills que toda sesión debe consultar, restricciones permanentes del sprint |
+| **Decisiones tomadas** | El índice. Una línea por asunto cerrado: lo justo para juzgar si hay que abrir el enlace |
+| **Todavía sin especificar** | La niebla: se intuye que viene, no se puede formular todavía. Gradúa a pre-registro cuando una resolución la aclara. Sub-sección **Pendiente sharp** para lo ya enunciable que aún no es accionable |
+| **Fuera de alcance** | Descartado **por decisión**, no por falta de nitidez. NO gradúa: vuelve solo si se redibuja el destino, y como esfuerzo nuevo |
+
+**El test para separar niebla de pendiente sharp es si podés ENUNCIAR la pregunta con
+precisión ahora, no si podés responderla ahora.** No pre-cortes la niebla en pedazos del
+tamaño de una pregunta.
+
+La sección **Qué no se afirma** (invención propia, B8) se conserva: es higiene epistémica y
+no tiene equivalente en la gramática importada.
+
+Esto le da a la **regla 9.b** un lugar único donde mirar qué fue descartado. Hoy eso vive
+repartido en `ejes_futuros_*.md`, apéndices "descartado", veredictos NO-GO y memorias (33
+archivos bajo `sprints/` lo mencionan), y por eso la regla tiene que enumerar los cuatro.
+
 ## Hechos validados contra el código real (19 may 2026, server Environ)
 
 Números de línea del codebase actual en `clam_environ/`. Si Sebastián edita,
@@ -1218,6 +1250,12 @@ el balanced. Memoria [[readme-resultados-formato-minimalista]].
   [[notas-presentador-guion-didactico]]) y prosa de entregables; NO toca docs técnicos
   estructurados, tablas, READMEs canónicos, código ni memorias. Probada en sesión fresca
   9-jul (PASS): `sprints/B6_sprint6/humanizer_es_validacion.md`.
+- `@grilling` — interroga por rondas (árbol de decisiones + frontera) hasta el
+  entendimiento compartido, **antes** de escribir un `prereg.md`. Los hechos los busca
+  ella con Read/Grep/Bash (sin subagentes); las decisiones son de Ernesto. Levanta en la
+  1ª ronda si la premisa no calza ([[surface-premise-discrepancies]]) o si es decisión
+  revisitada (regla 9.b). Aterriza en el prereg o en las secciones del mapa del sprint.
+  Portada de mattpocock (`8b36d4f`) el 5-ago-2026.
 - `@session-close` — rutina de cierre de sesión en 3 fases (orden estricto):
   documentar con `@knowledge-audit` → `@handoff` arrastrando TODOS los pendientes
   sin terminar → commit + push. Invocarla **es** la autorización de push (default
