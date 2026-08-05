@@ -280,13 +280,41 @@ los dos experimentos se tocaron.
 
 ### Lo que quedó sin hacer
 
-- **QA visual de nueve láminas tocadas**: 9, 10, 11, 13, 14, 15, 17, 18 y 19. Se miraron
-  rasterizadas solo la 3, la 12, la 16 y la 20, que son las rehechas de cero. La auditoría
-  programática pasa en las veinte, pero eso no ve colores, contraste ni texto dentro de un PNG.
+- ~~**QA visual de nueve láminas tocadas**: 9, 10, 11, 13, 14, 15, 17, 18 y 19.~~ **HECHO el
+  4-ago a las 22:00**, ver §«El QA de las nueve» abajo.
 - **El guion sin pasar por `@humanizer-es`** ni leído en voz alta.
 - **Un defecto que no es del deck**: la leyenda de la figura de marcas de la lámina 12 mezcla
   español e inglés («Immune cells», «Stroma», «Nucleos» sin tilde). Sale de la figura de
   `../atencion_vs_patologo/`, así que arreglarlo es regenerar esa figura, no tocar el generador.
+
+### El QA de las nueve (4-ago, 22:00)
+
+Un defecto real de nueve láminas, y era la **17**. El deck sigue en 20 láminas, **ningún número
+cambió**, y ni los `prereg.md` ni los `resultados.md` se tocaron.
+
+| Lámina | Qué se miró | Resultado |
+|---|---|---|
+| **17** | los rótulos de lado de `barras_divergentes` | **defecto**: se dibujan en `t − 0,34` y caían sobre el renglón de dataset de 9 pt. Se leía «5 particiones» tachado |
+| 9 | la tabla agrandada a `row_h=0,50`, `fs=13` | limpia, sin desborde |
+| 15 | dos paneles menos y remate más abajo | limpia |
+| 18 | la polilínea de las dos escaleras | **falsa alarma**: a 100 dpi parecía arrancar en la esquina de la primera barra; arranca en el centro |
+| 14 | el pie «la región anotada» | correcto: el asset ya viene recortado a esa región |
+| 10, 11, 13, 19 | layout y contenido | limpias |
+
+**El fix de la 17**: la figura baja a `TOP + 1,06` y **cede 0,10" de alto** para pagarlo, así que
+el remate y todo lo de abajo quedan donde estaban. La lección durable, que una figura puede
+dibujar por encima de su propio `t` y el que la llama no lo sabe, está en la memoria de puntos
+ciegos del QA.
+
+**El método que lo verificó**, y que conviene reusar: medir **tinta por renglón** sobre el PNG
+(`(im < 200).sum(axis=1)`) y listar las bandas. Antes de arreglarlo, una sola banda de 25 px con
+el renglón y los rótulos fundidos; después, dos bandas de 15 y 16 px con 24 px limpios entre
+medio. Distingue la colisión real del solape nominal de cajas (el chequeo de solapes reportaba
+tres en esa lámina y solo uno era real) y no gasta presupuesto de imágenes. **No reemplaza
+mirar.**
+
+**Barrido de reglas duras sobre las 20 láminas, cuerpo y notas**: cero `\d+\.\d+`, cero `—`,
+cero letras A/B/C/D.
 
 ### Los cuatro helpers nuevos
 

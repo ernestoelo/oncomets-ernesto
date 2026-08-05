@@ -927,3 +927,127 @@ Dos decisiones de Ernesto, ninguna bloqueante:
   obligatoria, así que es la que más conviene que se lea sola.
 - **La lámina 20**: sigue abriendo en voz alta el pendiente de la réplica. Viene así desde el
   4-ago por la tarde, a propósito, y todavía sin respuesta.
+
+---
+
+# Undécima pasada — QA visual de las nueve láminas del rediseño (4-ago-2026, martes, 4ª)
+
+> Sin jobs propios: esta sesión no lanzó ninguno. El `4809` (`test_vis`) corre bajo la cuenta
+> compartida `sdonoso` desde `Test_D/D_abs/`, fuera de este árbol y de `clam_environ`, así que
+> el workaround H no restringe el cierre. Ajenos: `4780` de `capstone`, `4800` de `gvenegas`.
+> Lo único tocado es el generador del deck y documentación.
+
+La tanda que el handoff de las 20:00 dejó pendiente: mirar rasterizadas las nueve láminas que el
+rediseño tocó y nadie miró (9, 10, 11, 13, 14, 15, 17, 18, 19). **Un defecto real de nueve**, y
+dos sospechas que se cayeron al verificarlas, que es de donde salen K2 y K3.
+
+| id | Hallazgo | Tipo | Severidad | Acción |
+|---|---|---|---|---|
+| K1 | La lámina 17 se pisa a sí misma: `barras_divergentes` dibuja sus rótulos de lado en `t − 0,34` y caían sobre el renglón de dataset del bloque de arriba | error | alta | Fix en el generador + ADDENDUM a la memoria de puntos ciegos |
+| K2 | Una sospecha de defecto geométrico nacida de un rasterizado a 100 dpi resultó **falsa** al mirarla a 200 y contra el código | falso positivo | media | ADDENDUM: verificar antes de «arreglar» |
+| K3 | Medir **tinta por renglón** sobre el PNG separa una colisión real de un solape nominal de cajas, y verifica el fix sin gastar presupuesto de imágenes | método | alta | ADDENDUM con la receta |
+| K4 | El «26 vs 28» que la sesión volvió a levantar **ya estaba resuelto** en la décima pasada | stale | baja | Se cierra acá, no viaja al handoff |
+| K5 | `progress/current.md` y el README del deck no registran esta pasada | stale | media | Secciones nuevas |
+
+## K1 — Una figura que dibuja por encima de su propio `t`
+
+`barras_divergentes()` pone los dos textos que nombran los lados («gana recortar expertos» /
+«gana recortar slots») en `t − 0,34` (`generate_b8_deck.py:744`). Quien la llama razona con el
+`t` y el alto que le pasa, así que **cree que la figura empieza en `t`** y apila lo suyo hasta
+ahí. En la 17 el bloque de arriba había ganado en el rediseño un renglón de dataset de 9 pt, y
+con la figura en `TOP + 0,84` los rótulos aterrizaron encima: se leía «5 particiones» tachado
+por «gana recortar expertos».
+
+**Por qué no lo caza ni el chequeo de solapes.** Solape hay, pero el chequeo de esta lámina
+reporta **tres** y solo uno es real: las cajas de texto son más altas que su texto (una
+`caption` mide 0,4" y su renglón de 9 pt ocupa 0,17"), así que dos cajas se solapan sin que las
+tintas se toquen. Un solape de cajas no es evidencia de que haya colisión **ni de que no la
+haya**; por eso hizo falta K3.
+
+**El fix y por qué es ese.** La figura baja a `TOP + 1,06` y **cede 0,10" de alto** para
+pagarlo, así que la barra de remate y todo lo que va debajo quedan donde estaban (verificado:
+las bandas de tinta por debajo de y=618 son idénticas antes y después). Empujar hacia abajo sin
+ceder alto habría llevado el remate contra el borde inferior.
+
+**La regla que generaliza:** una figura que dibuja por encima de su propio `t` tiene un alto
+efectivo mayor que el declarado, y quien la llama no lo sabe. Es la imagen espejo del bloque
+auto-dimensionado que invade un elemento fijo (ADDENDUM del 4-ago): allá el alto crece hacia
+abajo y se calcula al vuelo, acá crece hacia arriba y está escondido en una constante del
+helper. Mientras el helper no devuelva su extensión real, **el margen superior es responsabilidad
+del que llama** y hay que dejarlo a mano.
+
+## K2 — El rasterizado a 100 dpi puede fabricar un defecto
+
+A 100 dpi la polilínea de la lámina 18 parecía arrancar en la **esquina superior derecha** de la
+primera barra en vez de su centro, en las dos ramas. A 200 dpi arranca en el centro, y el código
+lo confirma sin ambigüedad (`topes.append((cx, base - alto))`, con `cx` el centro de la barra).
+Lo que engañaba es que la línea baja apenas sale del vértice, así que sobre la mitad izquierda de
+esa barra no hay línea y el vértice se lee corrido.
+
+**La regla:** 100 dpi alcanza para leer una lámina, no para juzgar una geometría de pocos
+píxeles. Antes de tocar el generador por un defecto geométrico, subir el dpi **y** leer la
+función que lo dibuja. Creerle sale más caro que el defecto, porque se «arregla» algo que estaba
+bien.
+
+Es simétrico del falso positivo ya anotado (un solape de cajas que no es colisión) pero por el
+otro lado: aquel es un falso positivo del chequeo programático, este es uno de **la mirada**.
+
+## K3 — Medir tinta por renglón
+
+```python
+ink = (np.array(Image.open(png).convert("L")) < 200).sum(axis=1)
+```
+
+y listar las corridas de filas con tinta. Cada banda es un renglón de texto o un objeto, y los
+huecos entre bandas son el aire real. En la 17: **antes** una sola banda de 25 px (y=232..256),
+que es el renglón de dataset y los rótulos **fundidos**; **después** dos bandas, de 15 y 16 px,
+con 24 px limpios entre medio.
+
+Sirve para tres cosas que mirar no da:
+
+- **Distingue** la colisión real del solape nominal de cajas, que es lo que K1 necesitaba.
+- **Verifica un fix cuantitativamente**, y el número queda en el commit.
+- **No gasta presupuesto de imágenes** ([[image-api-qa-limit]]), que en una sesión larga es el
+  recurso que se acaba primero. Se puede correr sobre las 20 láminas de una.
+
+**No reemplaza mirar**, y no hay que venderlo como que sí: no ve colores, no ve qué dice el
+texto, no ve si una flecha apunta al lado equivocado, no ve nada dentro de un PNG. Es el
+complemento del orden de siempre, no su sustituto.
+
+## K4 — El «26 vs 28» ya estaba cerrado
+
+La sesión lo volvió a levantar al ver «26 marcas» en la 15 y «28 parches» en la 13 y la 14.
+**Ya estaba resuelto**: es el punto ciego nuevo 3 de la décima pasada, y su fix (nombrar la
+unidad, «26 marcas de mitosis») está aplicado en la lámina. Los dos números son correctos y
+salen del mismo `resultados.md`. Se cierra acá para que no vuelva a viajar en un handoff.
+
+## K5 — README de la presentación y `progress/current.md`
+
+El README gana el resultado de la tanda de QA en su sección «Lo que quedó sin hacer», que la
+daba por pendiente. `progress/current.md` gana la sesión.
+
+## Verificado sin cambios
+
+- **Las otras ocho láminas** (9, 10, 11, 13, 14, 15, 18, 19): limpias. Las dos que el handoff
+  marcaba como de mayor riesgo por cambio de geometría, la **9** (tabla a `row_h=0,50`, `fs=13`)
+  y la **15** (dos paneles menos y remate más abajo), no tienen desborde ni solape.
+- **La 14**: el pie «la región anotada» es correcto. El asset es `mitosis_region_anotada.png`,
+  ya recortado a esa región, no el lienzo con las dos.
+- **Barrido de reglas duras sobre las 20 láminas, cuerpo Y notas**: cero `\d+\.\d+`, cero `—`,
+  cero letras A/B/C/D. El de puntos decimales es el que nació en J1 y ahora se corre completo.
+- **Los dos `prereg.md` y los dos `resultados.md`**: intactos. **Ningún número cambió**; el
+  único fix es de geometría.
+- **Cero Δ contra CLAM por brazo** y **veredicto H_nula**: siguen como estaban en las láminas
+  del grid.
+- **`CLAUDE.md`, agentes y skills**: sin cambios. Mirar láminas no mueve ninguna regla.
+
+## Lo que queda abierto y va al handoff
+
+- **El guion sin pasar por `@humanizer-es`**, que era el segundo pendiente de la tanda.
+- **La leyenda mezclada español/inglés** de la figura de la 12 («Immune cells», «Stroma»,
+  «Nucleos» sin tilde). Es de `atencion_vs_patologo/`, no del generador: arreglarlo es regenerar
+  esa figura. Decisión de Ernesto si vale la pena antes del viernes.
+- **Una duda de estilo menor, no bloqueante**: la lámina 11 dice el mismo número con dos
+  precisiones, «0,89» junto a la cinta y «0,890» en la banda de abajo. Hay argumento para
+  dejarlo, porque las cintas son ilustración (7 bloques marcados de 33, no los 163 de 4799
+  reales) y la banda es el valor medido. No se tocó.
