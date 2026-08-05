@@ -1,319 +1,168 @@
-# Sprint 8 (B8) — objetivos, de la reunión del 24-jul-2026
+# Sprint 8 (B8) — mapa
 
-Reunión del **viernes 24-jul-2026** con Sebastián y Benjamín, sobre la presentación
-del Sprint 7 (interpretabilidad CLAM vs Mammoth). **Es la mejor reunión hasta ahora**
-según Ernesto: quedó demostrado el entendimiento del mecanismo al explicar slots,
-expertos, cabezas y el diagrama original del paper, que era exactamente lo que
-Benjamín venía exigiendo ([[feedback-benjamin-entender-mammoth]]). Los mapas de calor
-fueron el material central, tanto el de los 30 expertos como los de slots.
-
-Este documento registra los cuatro encargos que salieron de esa reunión. **No es un
-pre-registro**: los objetivos 2 y 3 tocan entrenamiento y exigen su propio prereg
-(regla 9) + `reviewer` antes de tocar código o mandar un `sbatch`.
-
----
-
-## 1. Escalar la medición de slots ocupados (encargo de Benjamín)
-
-**Lo que dijo:** el promedio de **158.7 slots útiles de 300** se midió sobre **7
-láminas**, y con ese n no generaliza al conjunto de la tarea. Hay que encontrar ese
-número **con más datos**.
-
-**Es una objeción correcta y ya estaba anticipada de nuestro lado.** La respuesta a Q1
-(`sprints/B7_sprint7/respuesta_q1_expertos_slots.md`, §5 de
-`resultados_interpretabilidad.md`) dice literalmente que con n=7 el número **describe,
-no establece**, y que la dispersión (89.7 a 196.4) sigue al **tamaño de la lámina**
-(Spearman ρ=0.750, p=0.052) y no a la tarea. Escalar el n es justamente lo que
-convierte esa descripción en un resultado.
-
-**Qué se escala y qué no:**
-
-| Medida | n=7 | ¿Escala? |
-|---|---|---|
-| Expertos efectivos (`exp(H)` sobre los 30) | **30.0 / 30** en las 7, con `e50=15` y `e90=27` = los valores exactos del reparto uniforme | Sí, pero se espera que se confirme: es el resultado sólido y transversal a las 3 tareas |
-| Slots efectivos (`exp(H)` sobre los 300) | **158.7 ± 34.6** | **Este es el que Benjamín pide** |
-| Slots sobre la cota uniforme (1/300 = 0.333 %) | **63 a 96 por lámina**, concentran el 73 % del peso | Escala igual, es la misma pasada ([[cota-softmax-slots-uniforme]]) |
-| Correlación con el tamaño de lámina | ρ=0.750, p=0.052 (n=7, no significativa) | Con n grande pasa a ser testeable de verdad |
-
-**El camino técnico está despejado** (verificado hoy, 27-jul, sobre el código):
-
-- `scripts/mammoth_interpretability.py` lee **features y coords del MISMO h5**
-  (`load_feats_and_coords`, L128). La WSI `.svs` se abre **solo** para la miniatura,
-  los overlays y los recortes de alta resolución (`openslide`, L230 en adelante).
-- Por lo tanto **la medición de Q1 no necesita la WSI**: con el h5 alcanza. Eso saca
-  de encima la restricción que limitó el Sprint 7 a 7 láminas TCGA (se eligieron por
-  tener `.svs` disponible y estar bien clasificadas por ambos brazos).
-- Lo caro de los ~10 min por lámina es el rasterizado de los 30 paneles del montage,
-  no el forward. Un script que solo calcule `combine_weights` → entropía → `N_eff`
-  debería correr en segundos por lámina.
-
-**Plan propuesto:** script nuevo y reducido (`scripts/q1_slots_escalado.py` o similar)
-que reuse `build_mammoth` + `load_feats_and_coords` de
-`mammoth_interpretability.py`, sin openslide ni matplotlib, y barra **todas las
-láminas de test de los 5 folds** de las 3 tareas (tipo n=2027, CDIS n=862, LVI n=836).
-Salida: un CSV por lámina con `N_parches`, `N_eff_expertos`, `N_eff_slots`,
-`slots_sobre_cota`, tarea, fold, cohorte, y el agregado por tarea. Con eso se responde
-además, ahora sí con potencia, si la dispersión es por tamaño de lámina o por tarea.
-
-**Restricciones a respetar:** CPU post-hoc, sin GPU. Si la corrida pasa de una hora,
-va **desatada** con `setsid nohup` y reanudable marcando con el artefacto final
-(workaround J, [[proceso-cpu-largo-desatado-setsid]]). Regla 9 **no aplica**: es
-inferencia sobre checkpoints congelados, no toca modelo ni entrenamiento.
+> **Reestructurado el 5-ago-2026** como índice, adoptando la gramática de secciones de la
+> skill *wayfinder* (Destino / Decisiones / Todavía sin especificar / Fuera de alcance).
+> Antes era una narrativa cronológica de 319 líneas con tres ADDENDUMs encima, que
+> **duplicaba** el detalle que ya vive en los subdirectorios del sprint.
+>
+> **Regla de este documento: es un índice, no un almacén.** Cada decisión vive en
+> exactamente un lugar (su archivo), y acá aparece con una línea que alcanza para juzgar si
+> hay que abrirlo. Si algo se explica dos veces, la copia de acá es la que sobra.
+>
+> Origen: reunión del **viernes 24-jul-2026** con Sebastián y Benjamín sobre la
+> presentación del Sprint 7. La mejor reunión hasta ahora según Ernesto: quedó demostrado
+> el entendimiento del mecanismo al explicar slots, expertos, cabezas y el diagrama del
+> paper, que era lo que Benjamín venía exigiendo ([[feedback-benjamin-entender-mammoth]]).
 
 ---
 
-## 2. Entrenar los slots de MAMMOTH con nuestro dataset
+## Destino
 
-**Lo que pidieron:** entrenar los slots de MAMMOTH con nuestro dataset.
+Cerrar el eje de **capacidad y entendimiento** de Mammoth con números de tarea y no de
+muestra (cuántos expertos y slots hacen falta, y si recortarlos cuesta métrica), y dejar
+**elegida y justificada** la dirección de la rama por tarea para mitosis, sin código.
 
-**⚠ Discrepancia con el estado real del repo, a aclarar con Sebastián antes de
-ejecutar** ([[surface-premise-discrepancies]]). Verificado hoy contra el código:
+El B8 llega a su fin cuando no queda nada por **decidir** antes de que alguien se siente a
+construir esa rama.
 
-- `slot_embeds` es un `nn.Parameter` del paquete `mammoth` instalado
-  (`clam_testing2/MAMMOTH/src/mammoth/mammoth.py:281`), inicializado al azar
-  (`orthogonal_` y después `xavier_uniform_`, L284-285) y **entrenado de punta a punta
-  con el resto del modelo**. No hay pesos pre-entrenados del paper en juego.
-- El job **4589** (17-18 jul) entrenó `CLAM_MB_Mammoth` **desde cero sobre nuestros
-  splits** (`tipo_histologico_4clases_ci_100` de Sebastián y los `_ci_reform` nuestros).
-  O sea: **los slots que analizamos ya están entrenados con nuestro dataset.**
+## Notas
 
-**Lecturas posibles del pedido, en orden de plausibilidad:**
-
-1. **Analizar sobre nuestras láminas privadas, no sobre TCGA.** Las 7 del Sprint 7 son
-   **todas TCGA** (`interp_slides.json`), porque necesitábamos el `.svs` para el
-   overlay. Si lo que quieren es ver los slots sobre la cohorte de Environ, el pedido
-   se solapa con el objetivo 1 y se resuelve barriendo las privadas. Hay que verificar
-   la disponibilidad de WSI privadas si además quieren los mapas, no solo el número.
-2. **Una etapa de pre-entrenamiento de los slots** (por ejemplo auto-supervisada, o
-   congelar el resto y entrenar solo el ruteo). Eso sí sería un objetivo nuevo, con
-   prereg propio.
-3. Que en la reunión haya quedado la impresión de que los slots venían del paper. Si
-   es esto, se cierra mostrando el `nn.Parameter` y el job 4589.
-
-**Acción antes de codear:** preguntarle a Sebastián cuál de las tres es. No es
-bloqueante para el objetivo 1 ni para el 3.
+- **Dominio:** interpretabilidad y capacidad de MoE sobre MIL en patología computacional.
+  Ortogonal al eje de rendimiento, cerrado en los Hallazgos 11-14 de `CLAUDE.md`.
+- **Skills a consultar en cada sesión:** `@slurm-submission` antes de cualquier `sbatch`,
+  `@mammoth` para el modelo, `@knowledge-audit` al documentar, `@humanizer-es` para el
+  guion del deck.
+- **Restricciones permanentes:** regla 9 (argumento y pre-registro antes de código) en todo
+  lo que toque entrenamiento; regla 9.b si algo pretende reabrir el eje de rendimiento;
+  workaround H (no cambiar de rama con un job vivo); workaround J (proceso CPU largo va
+  desatado y reanudable).
+- **Comparaciones:** siempre pareadas reusando el `--split_dir` del baseline
+  ([[patron-paired-comparison-reuso-splits]]). El pipeline es determinista bit a bit, así
+  que una réplica que quiera ser independiente **tiene que cambiar la semilla**
+  ([[pipeline-determinista-bit-a-bit]]).
 
 ---
 
-## 3. Grid de hiperparámetros: E y S, contra CLAM y contra Mammoth baseline
+## Decisiones tomadas
 
-**Lo que pidieron:** pruebas de MAMMOTH + CLAM variando **cantidad de expertos y de
-slots**, comparando contra **CLAM baseline** y contra **Mammoth baseline** con los
-mismos hiperparámetros. Varias ramas, dejarlo corriendo un fin de semana.
+Una línea por asunto cerrado. El detalle está en el enlace.
 
-Formaliza y amplía el eje que Sebastián ya había planteado el 23-jul: reducir uno con
-el otro fijo a igual total, 27×10 contra 30×9 ([[mammoth-grid-expertos-slots]]). Ahora
-es un grid con dos baselines.
-
-**Lo que ya está listo (verificado hoy):**
-
-- `scripts/train_dsmil.py` **ya expone las dos perillas**: `--mammoth_num_experts`
-  (L223) y `--mammoth_num_slots` (L224), más `--mammoth_num_heads`,
-  `--mammoth_slot_dim`, `--mammoth_slot_dropout` y `--mammoth_keep_slots`. **No hace
-  falta tocar `models_mammoth/clam_mammoth.py` ni el harness** para correr el grid, lo
-  que deja el cambio en configuración pura.
-- Los splits del 4589 están y son los que hay que reusar para que la comparación quede
-  pareada por construcción ([[patron-paired-comparison-reuso-splits]]).
-- El `.slurm` del 4589 (`sprints/B7_sprint7/run_b7_mammoth_interp_kfold.slurm`) es el
-  molde: 30 runs, 3 tareas × 2 brazos × 5 folds.
-
-**Presupuesto, que es la restricción real.** El 4589 corrió 30 runs en ~20 h (lanzado
-el 17-jul 18:12, cerrado el 18-jul 14:20), o sea **~40 min por run**. Un fin de semana
-de GPU son ~48 h, es decir **~70 runs**. Con 5 folds y 3 tareas, cada configuración
-del grid cuesta 15 runs:
-
-| Alcance | Configs | Runs | Horas estimadas |
-|---|---|---|---|
-| 3 tareas × 5 folds × (CLAM + Mammoth 30×10 + 2 configs nuevas) | 4 brazos | 60 | ~40 h |
-| 3 tareas × 5 folds × (CLAM + Mammoth 30×10 + 4 configs nuevas) | 6 brazos | 90 | ~60 h |
-| 1 tarea × 5 folds × 8 configs de grid | 8 | 40 | ~27 h |
-
-Es decir: **o pocas configuraciones sobre las 3 tareas, o un grid ancho sobre una sola
-tarea.** Las dos no entran en un fin de semana. Hay que elegir, y la elección es de
-diseño experimental, no de infraestructura. Candidata natural para la tarea única:
-**CDIS `_ci_reform`**, que es donde apareció el dato abierto del 4589 (Δbal_acc +0.074,
-5/5 folds) y donde una réplica con más configuraciones aporta doble.
-
-**Pendiente antes del `sbatch`:** pre-registro con hipótesis, métrica, subset y
-dirección esperada (regla 9 y 9.a) + `reviewer`. Ojo con **regla 9.b**: si el grid se
-plantea como reapertura del eje de rendimiento cerrado en el Hallazgo 12, necesita
-citar el hallazgo habilitante. El dato abierto del CDIS `_ci_reform` es candidato a
-serlo, pero eso hay que escribirlo explícito en el prereg, no darlo por sentado. Como
-eje de **capacidad y entendimiento** (cuántos E y S hacen falta) no reabre nada, que
-es como venía planteado el 23-jul.
-
-**Nota operativa sobre "varias ramas":** el árbol de trabajo es compartido y un job
-relee su código y sus inputs del working tree en cada invocación. **No se cambia de
-rama con un job corriendo** (workaround H,
-[[working-tree-compartido-job-en-curso]]). Si el fin de semana corren varios brazos,
-todo lo que el job lee tiene que estar commiteado en la rama que queda checked out,
-idealmente `main`.
-
-### ADDENDUM 2-ago-2026 — la disyuntiva queda resuelta y el presupuesto, corregido
-
-**Decisión de Ernesto: grid ANCHO sobre UNA sola tarea.** Es la tercera fila de la tabla de
-arriba. Cierra la elección de diseño que este documento había dejado abierta a propósito.
-Motivo operativo: la GPU está vacía un domingo y la ventana hay que aprovecharla.
-
-**El «~40 min por run» de arriba es un promedio engañoso y sobreestima esta tarea.** Medido
-run por run desde los mtime de los `test_metrics.json` del 4589, las tres tareas no cuestan
-lo mismo ni de cerca:
-
-| Tarea del 4589 (brazo Mammoth) | slides de train | min/run (mediana) | min/run (mínimo) |
-|---|---:|---:|---:|
-| `tipo_histologico_3clases_ci` (3 clases) | 1621 | **83.6** | 83.0 |
-| `invasion_linfatica_vascular_ci_reform` | 669 | 37.4 | 37.0 |
-| `carcinoma_ductal_insitu_presente_ci_reform` | 692 | **36.4** | 36.2 |
-
-El promedio de 40 min salía de mezclar la tarea cara con las dos baratas. Para la candidata
-el número real es **36.4 min/run**, así que 40 runs son **~24 h**, no ~27.
-
-> **Corrección 2-ago (noche), al pre-registrar el grid.** La primera versión de esta tabla
-> rotulaba «mediana» a lo que eran los **mínimos** (83.0 / 37.0 / 36.2). Los recalculé desde
-> los mismos mtime: las medianas son 83.6 / 37.4 / 36.4. La columna del mínimo queda para no
-> perder la trazabilidad de lo que decía antes. No cambia ninguna decisión (40 × 36.4 ≈ 24.3 h
-> contra `--time 48:00:00`), pero el texto dice «medido run por run» y el número tiene que ser
-> el que dice ser. Los costos son del **brazo Mammoth**, que es el relevante: los runs CLAM de
-> las mismas tareas cuestan alrededor de la mitad (19.3 min en CDIS reform) y mezclarlos
-> subestimaría un grid de 40 runs todos Mammoth.
-
-**Los dos baselines de esta tarea YA están corridos, y son reusables.** Los 10 runs del 4589
-(5 CLAM + 5 Mammoth 30×10) viven en
-`results/b7_mammoth_interp/carcinoma_ductal_insitu_presente_ci_reform/` sobre **los mismos
-splits** que usaría el grid. Verificado el 2-ago que **ninguna feature cambió desde
-entonces**: cero `.pt` con mtime posterior al 17-jul (el directorio quedó en 28-jun, que es
-el parche de magnificación de Sebastián, [[features-tcga-drift-reextraccion]]). Con features
-y splits idénticos, el reuso pareado es válido por construcción y **libera 10 runs** para
-configuraciones nuevas.
-
-**Consecuencia para el tamaño del grid**, a decidir en el pre-registro:
-
-| Opción | Baselines | Configs nuevas | Runs | Horas |
-|---|---|---:|---:|---:|
-| Conservadora (re-corre todo) | 2 re-corridos | 6 | 40 | ~24 |
-| Con reuso + control | Mammoth 30×10 re-corrido como control de reproducibilidad | 7 | 40 | ~24 |
-| Reuso pleno | ambos del 4589 | 8 | 40 | ~24 |
-
-La del medio es la que recomienda esta nota: re-correr **solo** el Mammoth 30×10 cuesta 5
-runs y compra la verificación de que la tanda nueva reproduce el 4589, que es justamente lo
-que haría defendible reusar el resto. Si esos 5 runs **no** reproducen, el reuso se cae y hay
-que saberlo antes de interpretar el grid, no después.
+- [**Encargo 1 — escalar la medición de slots**](q1_slots_escalado/resultados.md) (27-jul)
+  — barridas 1858 láminas-fold (1176 únicas) en 18 min de CPU: **slots efectivos
+  159.5 ± 26.3 de 300** y **expertos 29.98 de 30**, con `e50=15` y `e90=27` exactos en las
+  1858 sin excepción. El 158.7 de n=7 se sostiene y ahora es el número de la tarea; **E=30
+  no está sobredimensionado**. Método en
+  [`metodologia.md`](q1_slots_escalado/metodologia.md).
+- [**Encargo 1, corrección sobre la dispersión**](q1_slots_escalado/resultados.md) (27-jul)
+  — con n grande se **invierte** lo que decía el B7: no manda el tamaño de lámina
+  (ρ cae 0.750 → 0.141) sino levemente la tarea (eta²=0.086), y el ~88 % de la varianza es
+  entre láminas. La **cohorte casi no mueve la aguja**, lo que descarta que medir solo TCGA
+  en el B7 haya sesgado el número.
+- [**Encargo 3 — grid E×S**](grid_expertos_slots/resultados.md) (4-ago, job 4774, 40/40
+  runs) — **cerrado en H_nula**: el contraste primario (recortar S) menos (recortar E) da
+  +0.022 / −0.014 / −0.002 de AUC en los peldaños 270/210/150, o sea **el signo se invierte
+  entre peldaños** y la dirección del recorte es indistinguible. Pre-registro en
+  [`prereg.md`](grid_expertos_slots/prereg.md).
+- [**Encargo 3, secundarios**](grid_expertos_slots/resultados.md) (4-ago) — los dos apuntan
+  a que **la capacidad sobra**: el piso 30×3 (−70 % de capacidad) pierde solo
+  0.039 ± 0.062 de AUC, que cruza cero, y dentro de la rama S **no hay dosis-respuesta**.
+  El peor brazo del grid es 27×10, el recorte más chico.
+- **Acotación al «el margen está en S»** (4-ago) — la ocupación medida en el encargo 1
+  **describe el reparto del peso, no dimensiona la capacidad**. Los números 159.5/300 y
+  29.98/30 siguen vigentes; lo que no se sostiene es inferir de ellos **dónde** conviene
+  recortar. Anotado en `CLAUDE.md` Hallazgo 12 y en [[mammoth-slot-routing-weight]].
+- [**El pipeline es determinista bit a bit**](grid_expertos_slots/resultados.md) (4-ago) —
+  hallazgo transversal que salió del control del grid: misma semilla, mismos splits y
+  mismas features reproducen el checkpoint **byte a byte** en esta GPU. Valida el reuso
+  pareado por construcción y a la vez prohíbe llamar «réplica» a re-correr con la misma
+  semilla ([[pipeline-determinista-bit-a-bit]]).
+- [**Encargo 4 — papers**](reunion_31jul_redireccion.md) (31-jul) — cerrado **con una
+  decisión, no con una lectura**. Ver *Fuera de alcance* para qué quedó afuera y por qué.
+- [**La atención sí cae sobre las mitosis**](atencion_vs_patologo/resultados.md) (1-ago) —
+  AUC de ranking **0.890 ± 0.039** en checkpoints que nunca vieron la lámina, y el modelo
+  igual responde mal. Es el resultado que le sacó la motivación principal a la familia A.
+  Pre-registro en [`prereg.md`](atencion_vs_patologo/prereg.md).
+- [**Encargo nuevo de 3 papers para mitosis**](tareas_geometricas/papers_mitosis.md)
+  (2-ago) — los tres son **D** PU learning (Zhao, MELBA 2022), **C** CellViT (MedIA 2024) y
+  **B** ZoomMIL (ECCV 2022). **Se recomienda D primero y en dos pasos**, por ser el único
+  cuyo régimen de supervisión coincide con nuestros positivos parciales, con un **go/no-go
+  barato** antes de gastar GPU. Hojas de reunión en
+  [`hojas_reunion.md`](tareas_geometricas/hojas_reunion.md), mecanismo interno en
+  [`papers_explicados.md`](tareas_geometricas/papers_explicados.md).
+- [**Deck del B8**](presentacion_b8/README.md) (3 al 4-ago) — 20 láminas a dos ejes, con el
+  grid E×S como sección de cierre. Rediseño de 12 puntos ejecutado, auditoría en cero,
+  guion humanizado y leído en voz alta. Queda **una** pendiente propia: la leyenda de la
+  figura de la lámina 12.
 
 ---
 
-## 4. Papers a estudiar esta semana
+## Todavía sin especificar
 
-Para discutirlos con Sebastián en la reunión de esta semana:
+Niebla: se intuye que viene, pero todavía no se puede formular con precisión. El test para
+sacar algo de acá **no es poder responderlo, es poder enunciarlo**.
 
-1. **Hover-Net** — *Simultaneous segmentation and classification of nuclei in
-   multi-tissue histology images* (Graham et al., Medical Image Analysis 2019).
-2. **SI-MIL** — *Taming Deep MIL for Self-Interpretability in Gigapixel
-   Histopathology* (Kapse et al., CVPR 2024).
-3. *Further predictive value of lymphovascular invasion explored via supervised deep
-   learning for lymph node metastases in breast cancer*.
+- **Qué pidieron exactamente en el encargo 2.** Hay tres lecturas y la respuesta la tiene
+  Sebastián. Análisis completo en
+  [`slots_entrenados_encargo2.md`](slots_entrenados_encargo2.md). La lectura más plausible
+  quedó **parcialmente respondida** por el encargo 1; si es la correcta, falta solo la
+  parte de mapas sobre láminas privadas, que exige verificar disponibilidad de WSI.
+- **Qué forma tiene una «rama aparte de CLAM» especializada por tarea.** La dirección está
+  elegida (D, en dos pasos), pero la arquitectura concreta, dónde se engancha con el
+  pipeline actual y qué comparte con el CLAM de producción no están definidos. Es lo que
+  hay que aclarar antes de que esto pueda pre-registrarse.
+- **El sign-off del patólogo sobre los nombres de tejido.** Los nombres que usamos para
+  expertos y slots son **lectura visual nuestra, no anotación**
+  ([[mammoth-interpretabilidad-objA]]). Se arrastra desde OBJ-A y sigue sin resolver.
+- **Si el material de anotación alcanza para entrenar.** Hay una lámina, un anotador y 26
+  marcas de mitosis, con positivos parciales y dos regiones de escaneo
+  ([[anotaciones-patologo-qupath]]). Cuánto de eso es suficiente para el paso 1 de D es
+  parte del go/no-go, no algo que se pueda decidir antes.
 
-**Estado (27-jul, con autorización de Ernesto): 2 de 3 descargados en esta carpeta.**
-Ficha completa, citas BibTeX y abstract del tercero: [`papers_b8.md`](papers_b8.md).
+### Pendiente sharp (ya se puede enunciar, falta pre-registro)
 
-| Paper | Archivo | Estado |
-|---|---|---|
-| Hover-Net | `hovernet_graham2019.pdf` | ✅ arXiv:1812.06499v5. **Subió de prioridad**: es el front-end de SI-MIL |
-| SI-MIL | `simil_kapse2024.pdf` | ✅ arXiv:2312.15010v2. **LEÍDO 30-jul** → [`simil_estudio.md`](simil_estudio.md) |
-| LVI → metástasis ganglionar | (sin PDF) | ⚠ Human Pathology 131:26-37 (2023), DOI `10.1016/j.humpath.2022.11.007`. **De suscripción**, sin PMC ni preprint (verificado en Europe PMC). Requiere acceso institucional UTFSM o de Environ |
-| ILSC / Co-assistant networks (PFM + CNN) | (sin PDF) | ⚠ **Pedido nuevo de Sebastián, 29-jul**, marcado por él como opcional. Localizado 30-jul: Liu et al., **Medical Image Analysis 2026**, DOI `10.1016/j.media.2026.104202`. **De suscripción**, sin arXiv ni PMC (verificado). El **código sí es público**: `github.com/lZhuoRan/ILSC`. Ficha y abstract en [`papers_b8.md`](papers_b8.md) §4 |
-
-**Por qué encajan con lo que estamos haciendo, a confirmar leyéndolos:**
-
-- **SI-MIL** es el más directo: es interpretabilidad *self-* dentro de un MIL, o sea el
-  mismo eje del Sprint 7 pero con otra estrategia. Sirve de contraste con lo que hicimos
-  post-hoc sobre expertos y slots.
-- **Hover-Net** trabaja a nivel de **núcleos**, no de parche. Es la vía más creíble
-  para poner nombre real al tejido que hoy solo nombramos por lectura visual, que es
-  la salvedad que arrastramos desde OBJ-A y que sigue sin sign-off de patólogo
-  ([[mammoth-interpretabilidad-objA]], [[slot-unidad-de-morfologia]]).
-- El tercero toca **invasión linfovascular**, que es una de las 3 tareas del Sprint 7
-  (`invasion_linfatica_vascular`), y además apunta a metástasis ganglionar, que es el
-  objetivo clínico del proyecto.
+- **¿El Δ del 4589 en CDIS `_ci_reform` sobrevive a semillas nuevas?** Mammoth dio
+  Δbal_acc **+0.074 ± 0.033 (5/5 folds)** en la formulación nueva, con ambos recalls al
+  alza. El control del grid **no** lo replicó ni podía (misma semilla). La réplica **exige
+  semillas nuevas** y, si se plantea como búsqueda de mejora, entra por **regla 9.b** con
+  pre-registro, branch y `reviewer`. Detalle en
+  `sprints/B7_sprint7/resultados_interpretabilidad.md` §2.
 
 ---
 
----
+## Fuera de alcance
 
-## ADDENDUM 31-jul-2026 — reunión con Sebastián: el encargo 4 cierra con decisión y se abre un objetivo 5
+Ruled out de **este** esfuerzo. No gradúa: vuelve solo si se redibuja el destino, y
+entonces como esfuerzo nuevo.
 
-Registro completo: [`reunion_31jul_redireccion.md`](reunion_31jul_redireccion.md).
-
-**El encargo 4 (papers) queda cerrado con una decisión, no con una lectura.**
-
-- **SI-MIL no se implementa.** Gana interpretabilidad a costa de empeorar levemente la
-  métrica, y lo que se busca es métrica. Coincide con lo que su Tabla 2 ya mostraba en la
-  celda que nos toca (0.937 → 0.925 accuracy, 0.972 → 0.957 AUC con CLAM de base).
-- **HoVer-Net y sus features de núcleo quedan en pausa por costo.** Sebastián lo corrió él
-  mismo: 3.3 h por lámina, el mismo número que habíamos leído de sus logs. **Se conserva** su
-  propia idea de correrlo solo sobre los **20 mejores parches que CLAM selecciona**, para
-  cuando haya más GPU.
-- El tercer paper (LVI, de suscripción) y el cuarto (ILSC) no se movieron.
-
-**El encargo 3 (grid de E y S) pasa a prioridad confirmada.** Sigue sin pre-registro escrito
-y sin `reviewer`, que es lo primero que hay que producir antes de cualquier `sbatch`. Todo lo
-de la §3 de arriba sigue vigente, incluido el presupuesto: o pocas configuraciones sobre las
-3 tareas, o un grid ancho sobre una sola.
-
-**Objetivo 5, nuevo: ramas por tarea para mitosis y grado nuclear.** Salió de mirar una
-lámina con el patólogo. Argumento, medidas y las cuatro familias de respuesta en
-[`tareas_geometricas/README.md`](tareas_geometricas/README.md). Tres números que lo anclan:
-la marca de mitosis del patólogo ocupa el **1.54 %** del área de un parche; los 2 mm² del
-recuento clínico son **~141 parches contiguos**, o sea el **2.9 %** de la lámina, contra el
-promedio ponderado sobre las 4799 que hace CLAM; y en esa tarea la calibración ya capturó
-casi todo su margen (bal_acc 0.531 de un techo de 0.571), así que lo que quede tiene que
-venir de la representación. **Sin código todavía**, por regla 9.
-
-**Material nuevo disponible:** la anotación del patólogo sobre la lámina 129741, alineada y
-convertida a parches en [`anotaciones_patologo/`](anotaciones_patologo/). Ojo con dos cosas:
-el geojson **no está en coordenadas de openslide** (sin corregir, 0 de 26 marcas de mitosis
-caen sobre un parche extraído), y las marcas son **positivos parciales**, no una
-segmentación.
-
-### ADDENDUM 2-ago-2026 (noche) — encargo nuevo: 3 papers para la rama de mitosis
-
-Pedido de Ernesto al cerrar la sesión del grid: **buscar 3 papers** que permitan subir la
-métrica en tareas específicas como **mitosis**, montando una **rama aparte de CLAM** que se
-especialice en ellas, y aprovechando **la información del patólogo sobre las etiquetas**. Es
-la búsqueda bibliográfica que le faltaba al objetivo 5, y **se presenta en la reunión con
-Sebastián del lunes 3-ago**.
-
-Tres restricciones que ya están decididas y que la búsqueda **no tiene que re-derivar**:
-
-1. **Apuntar a las familias B, C y D del README, no a la A.** El experimento del 1-ago cerró
-   que la atención **sí** cae sobre las mitosis (AUC de ranking 0.890 ± 0.039 en los
-   checkpoints que nunca vieron la lámina) y que el modelo igual responde mal. Cambiar el
-   operador de agregación perdió su motivación principal; lo que queda es campo de visión (B),
-   unidad de representación (C) y detector dedicado con anotaciones de objeto (D).
-2. **La supervisión disponible son positivos parciales.** Lo que el patólogo no marcó **no es
-   negativo**, y es una lámina, un anotador. Un método que exija segmentación densa por objeto
-   no es aplicable hoy; uno que tolere supervisión parcial, por puntos o por conteo, sí.
-   Detalle en [[anotaciones-patologo-qupath]].
-3. **No se descargan papers** (workaround E). Se identifican, se justifica por qué cada uno
-   viene al caso y qué exigiría implementarlo; si alguno es de suscripción, lo consigue
-   Ernesto. Es el mismo protocolo que siguió el encargo 4.
-
-**EJECUTADO el 2-ago-2026 (noche).** Entregable:
-[`tareas_geometricas/papers_mitosis.md`](tareas_geometricas/papers_mitosis.md), con los tres
-lado a lado (supervisión y costo como ejes) y una recomendación. Los tres son **D**
-Zhao et al., PU learning con anotaciones incompletas (MELBA 2022); **C** CellViT (MedIA 2024);
-**B** ZoomMIL (ECCV 2022). Se recomienda **D primero y en dos pasos**, porque es el único cuyo
-régimen de supervisión coincide con nuestros positivos parciales y el que vuelve **entrenables**
-las 26 marcas del patólogo, con un **go/no-go barato** antes de gastar GPU (detector público
-sobre TCGA a 40× nativo, medido contra las marcas). Los cinco papers del documento se leen **sin
-paywall**; ninguno se descargó.
+- **SI-MIL no se implementa** (31-jul). Gana interpretabilidad a costa de empeorar
+  levemente la métrica, y lo que se busca es métrica. Su propia Tabla 2 lo muestra en la
+  celda que nos toca (0.937 → 0.925 accuracy, 0.972 → 0.957 AUC con CLAM de base). Estudio
+  conservado en [`simil_estudio.md`](simil_estudio.md) y
+  [`simil_explicacion_matematica.md`](simil_explicacion_matematica.md).
+- **HoVer-Net queda en pausa por costo** (31-jul). Sebastián lo corrió él mismo: **3.3 h
+  por lámina**. **Se conserva su idea** de correrlo solo sobre los 20 mejores parches que
+  CLAM selecciona, para cuando haya más GPU. Estudio en
+  [`hovernet_estudio.md`](hovernet_estudio.md), memoria [[simil-hovernet-decision-31jul]].
+- **La familia A de la rama de mitosis** (cambiar el operador de agregación) perdió su
+  motivación principal el 1-ago: la atención **sí** cae sobre las mitosis y el modelo igual
+  responde mal. Quedan B, C y D. Ver [`tareas_geometricas/README.md`](tareas_geometricas/README.md).
+- **Los dos papers de suscripción**: LVI → metástasis ganglionar (Human Pathology 131:26-37,
+  2023) e ILSC (Liu et al., MedIA 2026). Sin arXiv ni PMC, verificado. Requieren acceso
+  institucional y los consigue Ernesto. Fichas y BibTeX en [`papers_b8.md`](papers_b8.md).
+- **Recortar E o S en producción.** El grid cerró en H_nula, así que no hay base para
+  cambiar la configuración 30×10 por ninguna de las probadas.
 
 ---
 
-## 5. Qué no se afirma
+## Qué no se afirma
 
-- Que 158.7 sea el número de slots útiles de la tarea. **Es de 7 láminas.** Ese es
-  justamente el encargo 1.
-- Que los slots ya entrenados con nuestro dataset cierren el encargo 2 sin
-  preguntar. Primero se aclara qué pidieron.
-- Que el grid de E y S reabra el eje de rendimiento. Mientras se plantee como pregunta
-  de capacidad, no lo reabre; si se plantea como búsqueda de mejora, entra regla 9.b.
+- Que la **dirección** del recorte de capacidad sea indiferente en general. Se midió en una
+  tarea (CDIS `_ci_reform`), un dataset y una GPU. Lo que se afirma es que **en ese
+  terreno** resultó indistinguible.
+- Que el determinismo bit a bit valga cross-hardware. Está acotado a esta RTX A6000 y este
+  stack.
+- Que el encargo 2 esté cerrado porque los slots ya se entrenan con nuestro dataset.
+  Primero se aclara qué pidieron.
+- Que el Δ del CDIS `_ci_reform` sea real. Son 65 negativos totales, ~13 por fold, y la
+  réplica con semillas nuevas está pendiente.
+- Que los nombres de tejido de expertos y slots sean anotación. Son lectura visual nuestra.
