@@ -459,6 +459,35 @@ anotador describen, no establecen» **se repite a propósito** en las láminas 1
 es una consigna que el guion sostiene, y la 20 lo dice en voz alta («lo dije al principio
 y lo sostengo»).
 
+### La lectura en voz alta (4-ago, 23:00)
+
+La otra mitad de la tanda del guion, y la capa que faltaba. Las **19 láminas con notas**
+leídas de corrido: **20 hallazgos**, **13 aplicados** (defecto o frase que no entra en un
+respiro) y **7 abiertos** por ser decisiones de vocabulario. De 6089 a **6114 palabras**
+de prosa, +25 netas. Las láminas no se tocaron.
+
+Los dos que justifican la pasada, porque ninguna de las otras dos capas puede verlos:
+
+- **La 12 decía «las ciento sesenta y tres marcas»** veinte segundos después de decir que
+  las marcas son «sesenta y un polígonos». Son **163 parches**
+  (`atencion_vs_patologo/resultados.md:45`). Escrito uno lo completa solo; **dicho, es una
+  contradicción**.
+- **La 6 decía «se pesa cada parche igual»**, queriendo decir «igual que arriba». Al oírlo
+  se entiende «todos pesan lo mismo», que es lo contrario de la ecuación que la lámina
+  enseña. Ahora dice «por su atención igual que antes».
+
+Los otros once: la unidad de la 3 («1858 láminas **por partición**» se oye como 1858 en
+cada una, y ahora dice los dos números), cuatro concordancias y una comparación colgada
+(láminas 8, 9, 10, 13 y 16), los cuatro decimales seguidos de la 9 (que la tabla ya
+muestra, y la convención pide leer la fila por su dirección), dos frases de 55 y 48
+palabras partidas en dos (17 y 6), el rango de la 18 dicho de menor a mayor, y el
+trabalenguas de oclusivas de la 5.
+
+**Las tres capas cazan cosas disjuntas**, y conviene tenerlo presente al planificar un
+cierre de deck: el barrido automático ve reglas duras y geometría, `@humanizer-es` **cuenta**
+(racimos de ritmo, arcos rotos), y la lectura en voz alta **entiende de a una frase**.
+Detalle y las siete abiertas: `auditoria_coherencia/hallazgos.md`, duodécima pasada (L1 a L5).
+
 ## Lo que NO se hizo
 
 - Las ecuaciones **3 a 10 siguen sin explicarse** una por una. La lámina 3 lo declara con

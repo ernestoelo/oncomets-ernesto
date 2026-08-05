@@ -1051,3 +1051,143 @@ daba por pendiente. `progress/current.md` gana la sesión.
   precisiones, «0,89» junto a la cinta y «0,890» en la banda de abajo. Hay argumento para
   dejarlo, porque las cintas son ilustración (7 bloques marcados de 33, no los 163 de 4799
   reales) y la banda es el valor medido. No se tocó.
+
+---
+
+# Duodécima pasada — la lectura en voz alta del guion (4-ago-2026, martes, 6ª)
+
+> Sin jobs propios. El `4809` (`test_vista`) sigue bajo la cuenta compartida `sdonoso` con
+> `WorkDir=/media/administrador/Storage1/sdonoso/Test_D/D_abs`, fuera de este árbol y de
+> `clam_environ`: el workaround H no restringe nada. Ajenos: `4780` de `capstone`, `4800` de
+> `gvenegas`. Lo único tocado es el generador del deck y documentación.
+>
+> La 5ª sesión del martes (el guion por `@humanizer-es`, 22:30) se documentó en el README del
+> deck y en `progress/`, sin dejar pasada acá; de ahí que esta sea la duodécima y no la
+> decimotercera.
+
+La mitad que quedaba de la tanda anterior: **leer las 19 láminas con notas en voz alta, de
+corrido**. Salieron **20 hallazgos**, se aplicaron **13** (los que son defecto o no entran en un
+respiro) y **7 quedaron para Ernesto** por ser decisiones de vocabulario. El guion pasó de 6089 a
+6114 palabras de prosa, +25 netas.
+
+| id | Hallazgo | Tipo | Severidad | Acción |
+|---|---|---|---|---|
+| L1 | La lámina 12 dice «las ciento sesenta y tres marcas» tres frases después de decir que las marcas son «sesenta y un polígonos» | error | alta | Fix: son 163 **parches** marcados (`resultados.md:45`) |
+| L2 | «se pesa cada parche igual» se oye como «todos pesan lo mismo», que es lo contrario de la ecuación que la lámina explica | error | alta | Fix: «por su atención igual que antes» |
+| L3 | La lectura en voz alta es una **tercera capa** de QA, distinta del barrido automático y de `@humanizer-es`, y caza una clase propia | método | alta | ADDENDUM a [[deck-qa-puntos-ciegos-chequeo]] |
+| L4 | La lámina 9 recita cuatro decimales dígito a dígito, los cuatro empezando con «cero coma nueve», con la tabla a la vista | estilo hablado | media | Fix: leer la fila por su dirección; los valores quedan en la tabla |
+| L5 | El README del deck y `progress/current.md` no registran esta pasada | stale | media | Secciones nuevas |
+
+## L1 — La unidad viaja en la palabra, y al hablarla se pierde
+
+La lámina 12 decía, con veinte segundos de diferencia: «las marcas son **sesenta y un
+polígonos** que el patólogo dibujó» y después «**las ciento sesenta y tres marcas** caen todas en
+la segunda». Leído en la pantalla, uno completa solo; **dicho en voz alta, es una
+contradicción**. La verdad de campo es `atencion_vs_patologo/resultados.md:45`: «Los **163
+parches anotados** caen todos en la de abajo». 61 son los polígonos, 163 los parches que quedan
+debajo de alguno.
+
+El mismo defecto, en su otra forma, estaba en la lámina 3: «lo escalamos a **mil ochocientas
+cincuenta y ocho láminas por partición**». La unidad real es la lámina-partición, pero al oírla
+se entiende «1858 en cada una». Se resolvió diciendo **los dos** números, porque 1858 es el
+titular del sprint y no correspondía hacerlo desaparecer: «mil ciento setenta y seis láminas
+distintas, mil ochocientas cincuenta y ocho contando cada partición por separado»
+(`q1_slots_escalado/resultados.md:6`).
+
+**La clase**, que es lo que generaliza: cuando un número lleva su unidad pegada en una palabra
+(«láminas-fold», «marcas»), el texto escrito deja que el lector la reconstruya del contexto y
+**la voz no**. Es hermano del «26 vs 28» de la décima pasada, con la diferencia de que aquel se
+arreglaba nombrando la unidad en la lámina y este, diciéndola completa en el guion.
+
+## L2 — Una palabra que al oírse significa lo contrario
+
+La lámina 6 explica que los dos órdenes de la ecuación dan el mismo número, y los dos pesan cada
+parche por su atención. El guion decía «el camino de abajo es el de la ecuación: **se pesa cada
+parche igual**, pero el clasificador se aplica a cada uno por separado». El «igual» quería decir
+«igual que arriba»; dicho, se oye «**todos los parches pesan lo mismo**», que contradice
+exactamente lo que la lámina está enseñando. Quedó explícito: «se pesa cada parche por su
+atención igual que antes».
+
+Es el hallazgo que mejor justifica la pasada. No es un error de dato ni de ritmo: es una frase
+correcta escrita que **se vuelve falsa al pronunciarla**, y no hay cuenta ni skill que la
+detecte.
+
+## L3 — La tercera capa de QA
+
+Las tres capas que corrimos sobre este deck cazan cosas disjuntas, y conviene tenerlo escrito:
+
+| Capa | Qué caza | Qué NO ve |
+|---|---|---|
+| Barrido automático (reglas duras, tinta por renglón) | rayas, decimales, letras A/B/C/D, colisiones geométricas | cualquier cosa de sentido |
+| `@humanizer-es` | tells de vocabulario y **racimos de ritmo** a lo largo de las 19 | concordancias, unidades, ambigüedad al oír |
+| **Lectura en voz alta** | concordancias rotas, unidades que se pierden, frases que no entran en un respiro, palabras que al oírse invierten el sentido | lo que ya cubren las otras dos |
+
+Lo que las separa es que la de humanización **cuenta** (por eso encontró los racimos y el arco
+roto de la 17) y la lectura **entiende de a una frase**. Las siete que quedaron abiertas son de
+una cuarta clase, la de vocabulario sostenido, que solo se ve leyendo todo seguido pero es
+decisión de estilo, no defecto.
+
+Las otras cinco correcciones de esta pasada, por si hay que rastrearlas: «pero **puesta** así»
+con el sujeto cambiado de género (lámina 8), la comparación colgada «**como una de las copias**,
+si uno mueve la mancha» (16), «Ese número **es** bien por debajo» (13), «cuyos nombres **se los**
+pusimos» con el clítico duplicado (9), y «también **la mixta**» nombrando una tercera hipótesis
+que el guion nunca había presentado (10), que ahora se dice en media línea tomándola del
+`prereg.md` sin tocarlo.
+
+## L4 — Cuatro decimales seguidos con la tabla a la vista
+
+La lámina 9 recitaba «de cero coma nueve tres siete a cero coma nueve dos cinco, y el área bajo
+la curva de cero coma nueve siete dos a cero coma nueve cinco siete». Los cuatro empiezan igual y
+nadie los sigue de oído. **La tabla está proyectada**, así que el guion pasa a leer la fila por su
+dirección («la exactitud algo más de un punto y el área bajo la curva un punto y medio, y los
+valores exactos están en la fila»), que es además lo que pide la convención de notas para láminas
+de resultados (`convenciones_deck_b5.md` §3.b, regla 11: leer la tabla por su columna, no
+recitarla).
+
+Los otros cuatro de respiro se resolvieron partiendo la frase, sin sacar contenido: la de la
+lámina 17 (55 palabras) y la de la 6 (48) ganaron un punto seguido; la 18 cambió «entre
+doscientas setenta y noventa unidades», que se oye como tres números, por «desde noventa unidades
+totales hasta doscientas setenta»; y la 5 perdió el trabalenguas de oclusivas «un **p**untaje
+crudo **p**or **p**arche en **p**orcentajes».
+
+## L5 — README de la presentación y `progress/current.md`
+
+El README gana la sección de la lectura en voz alta, y `progress/current.md` la sesión.
+
+## Verificado sin cambios
+
+- **Los dos `prereg.md` y los dos `resultados.md`**: intactos. El `prereg.md` de atención se
+  **leyó** para nombrar la hipótesis mixta, no se tocó.
+- **Ningún número cambió de valor.** El único que cambió de forma es el de la lámina 3, que pasa
+  a decir los dos (1176 y 1858) en vez de uno mal enunciado.
+- **Las láminas no se tocaron**: títulos, remates, rótulos y punteos guía siguen como los dejó el
+  rediseño del 4-ago. El «fold por fold» del cuerpo de la 17 (`generate_b8_deck.py:2136`) queda
+  como está por eso mismo, aunque el de las notas se haya listado como abierto.
+- **Barrido de reglas duras sobre las 20 láminas, cuerpo y notas**: cero rayas, cero «palanca»,
+  cero letras A/B/C/D. El único decimal está en el **punteo guía** de la 11, que no es prosa
+  hablada y es el comportamiento esperado.
+- **Deck**: 20 láminas, auditoría del generador en cero avisos, 1172 referencias forzadas a
+  Barlow.
+- **`CLAUDE.md`, agentes y skills**: sin cambios. Leer un guion no mueve ninguna regla.
+- **El «0,89 vs 0,890»**: no se reabrió. Lo que esta pasada anota es otra cosa, la **pronunciación**
+  de los decimales, y va al handoff como decisión de Ernesto.
+
+## Lo que queda abierto y va al handoff
+
+**Las siete de vocabulario que la lectura levantó y no se tocaron**, todas decisión de Ernesto:
+
+1. **«fold» contra «partición»** conviven en la misma frase (láminas 17 y 18). En el cuerpo de la
+   17 también, y ahí no se toca por regla.
+2. **Tres sistemas para decir decimales**: dígito a dígito, decenas y centenas. **No es** el
+   «0,89 vs 0,890» de las láminas, que está cerrado.
+3. **«logit», «softmax», «sigmoide con temperatura»** sin definir, cuando el resto del guion
+   evita el término técnico (convención §3.b, regla 5).
+4. La lámina 9 **recorre la tabla 1 → 3 → 2** mientras el ojo va 1 → 2 → 3, y llama a la misma
+   fila «la destacada» y después «la del medio».
+5. **«rankearían»** (10), **«agarrar»** (20), **«pipeline»** (12).
+6. **4799 dicho entero en tres láminas seguidas** (10, 11 y 12).
+7. La lámina 13 dice «está entre el nueve por ciento más atendido»; el número es correcto
+   (`resultados.md:27`, percentil mediano 91) pero «dentro del» se oiría mejor.
+
+**Y lo de siempre**: la leyenda mezclada español/inglés de la figura de la 12, que es de
+`atencion_vs_patologo/` y no del generador.
