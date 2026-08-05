@@ -2138,8 +2138,11 @@ def build():
         ("Presencia de carcinoma ductal in situ · 862 láminas, 730 con presencia y 132 sin "
          "· 5 particiones, unos 13 casos de la clase chica por prueba.", 9, False,
          GRIS_BODY, F_BODY)])
-    barras_divergentes(s, 0.36, TOP + 0.84, 9.28, 1.80, PELDANOS, destacar=0)
-    add_textbox(s, 0.36, TOP + 2.96, 9.28, 0.26,
+    # La figura arranca 0,22" más abajo y cede 0,10" de alto: sus dos rótulos de lado se
+    # dibujan en t − 0,34 y con el `t` anterior caían encima del renglón del dataset, que es
+    # de 9 pt y ocupa el segundo renglón del bloque de arriba. El remate no se mueve.
+    barras_divergentes(s, 0.36, TOP + 1.06, 9.28, 1.70, PELDANOS, destacar=0)
+    add_textbox(s, 0.36, TOP + 3.10, 9.28, 0.26,
                 [("El peldaño resaltado es el de mayor capacidad: la diferencia es de dos "
                   "centésimas, con 3 folds de 5.", 11, True, ONCO_DARK, F_BODY,
                   PP_ALIGN.CENTER)])
