@@ -282,7 +282,9 @@ los dos experimentos se tocaron.
 
 - ~~**QA visual de nueve láminas tocadas**: 9, 10, 11, 13, 14, 15, 17, 18 y 19.~~ **HECHO el
   4-ago a las 22:00**, ver §«El QA de las nueve» abajo.
-- **El guion sin pasar por `@humanizer-es`** ni leído en voz alta.
+- ~~**El guion sin pasar por `@humanizer-es`**.~~ **HECHO el 4-ago a las 22:30**, ver
+  §«La pasada de `@humanizer-es`» abajo. **Queda la lectura EN VOZ ALTA**: se verificaron
+  los números en letras uno por uno, falta leer las 19 de corrido.
 - **Un defecto que no es del deck**: la leyenda de la figura de marcas de la lámina 12 mezcla
   español e inglés («Immune cells», «Stroma», «Nucleos» sin tilde). Sale de la figura de
   `../atencion_vs_patologo/`, así que arreglarlo es regenerar esa figura, no tocar el generador.
@@ -420,6 +422,42 @@ checkpoints se rotulan por su cohorte («privado», «privado + TCGA», «5 fold
 Los guiones de las seis láminas fusionadas de SI-MIL se **reescribieron**, no se pegaron, y
 absorbieron lo que salió de las láminas. Los ocho de la sección de atención se escribieron
 de cero para este deck.
+
+### La pasada de `@humanizer-es` (4-ago, 22:30)
+
+Loop de 4 pasos sobre las **19 láminas con notas**, con el alcance acotado a la **prosa
+hablada**: los punteos guía, los títulos, los rótulos de figura y los remates de lámina
+**no se tocaron** (son pedido explícito de Ernesto del rediseño). **16 ediciones**, de
+7112 a **7028 palabras**, un **−1,2 %** casi calcado del −1,1 % del guion del B7, que es
+la señal de que no se sobre-editó.
+
+Como anticipa la memoria de la skill, en un guion ya maduro **no había tells de
+vocabulario**: el barrido §7 salió en cero y las reglas duras ya estaban limpias. Lo que
+había era **ritmo**, y solo se ve contando a lo largo de las 19 láminas:
+
+| Racimo | Antes | Después |
+|---|---|---|
+| aperturas «Acá está» | 3 | **0** |
+| «conviene» | 4 | **1** |
+| «es la que» | 7 | **3** |
+| «es lo que» | 7 | **4** |
+| «exactamente» | 8 | **5** |
+| aperturas «Est* es el/la» | 5 | **1** |
+
+El rewrite **no introdujo ningún tell nuevo**: ninguna palabra que no estuviera antes
+aparece más de una vez. Reglas duras después de la pasada, sobre las 20 láminas, cuerpo y
+notas: cero rayas, cero «palanca», cero decimales en la prosa, cero letras A/B/C/D.
+
+**El hallazgo de contenido, que ninguna cuenta caza:** la lámina 17 abría con «Cierro con
+un encargo», y después venían **tres láminas más**. Ahora dice «Hago un paréntesis», y la
+19 abre «Vuelvo a la mitosis», que lo cierra. Aparece solo al leer las 19 de corrido, que
+es para lo que sirve extraer el guion a un archivo aparte.
+
+**Criterio de corte.** Los diez quiasmos «X, no Y» son contrastes reales («describen, no
+establecen»), no retórica, así que **no se aplanaron**. Y la salvedad «una lámina y un
+anotador describen, no establecen» **se repite a propósito** en las láminas 10, 16 y 20:
+es una consigna que el guion sostiene, y la 20 lo dice en voz alta («lo dije al principio
+y lo sostengo»).
 
 ## Lo que NO se hizo
 

@@ -2044,3 +2044,64 @@ que no se tocó, que la lámina 11 dice «0,89» junto a la cinta y «0,890» en
 Registro: `sprints/B8_sprint8/auditoria_coherencia/hallazgos.md` undécima pasada (K1 a K5),
 `presentacion_b8/README.md` §«El QA de las nueve», y las memorias
 [[deck-qa-puntos-ciegos-chequeo]] y [[deck-b8-dos-ejes-simil-mitosis]].
+
+---
+
+## Sesión del 4-ago-2026 (martes, 22:30) — el guion por `@humanizer-es`
+
+**Misión del handoff de las 22:24**, cumplida salvo la lectura en voz alta. Sesión de
+escritura, **sin GPU**. Rama `main` sincronizada con `origin` al abrir y árbol limpio.
+Ningún job propio: el `4809` figura bajo la cuenta compartida `sdonoso`, pero
+`scontrol show job 4809` confirma `WorkDir=/media/administrador/Storage1/sdonoso/Test_D/D_abs`,
+fuera de este árbol y de `clam_environ`, así que el workaround H no restringió nada. Ajenos:
+`4780` de `capstone`, `4800` de `gvenegas`.
+
+### Lo que se hizo
+
+El guion de las **19 láminas con notas** se extrajo a un archivo aparte para leerlo de
+corrido, y recién sobre eso se corrió el loop de 4 pasos de `@humanizer-es`. **16 ediciones
+quirúrgicas** en `generate_b8_deck.py`, todas dentro de los strings de `notes()`: de **7112 a
+7028 palabras**, un **−1,2 %** casi calcado del −1,1 % del guion del B7, que es la medida de
+que no se sobre-editó. El deck sigue en **20 láminas** y regenera con la auditoría en cero.
+
+**Alcance respetado**: solo la prosa hablada. Los punteos guía de 3 a 5 renglones, los
+títulos, los rótulos de figura y los remates de lámina no se tocaron, y ningún punteo
+reintrodujo etiquetas de fase. Tampoco se tocó ningún `prereg.md` ni `resultados.md`, ni se
+regeneró la figura de `atencion_vs_patologo/`.
+
+**El diagnóstico confirmó lo que la memoria de la skill anticipaba**: en un guion maduro no
+quedan tells de vocabulario (el barrido §7 dio cero, igual que rayas, «palanca» y decimales
+en la prosa). Lo que había era **ritmo**, y solo se ve contando a lo largo de las 19 láminas:
+aperturas «Acá está» 3 → 0, «conviene» 4 → 1, «es la que» 7 → 3, «es lo que» 7 → 4,
+«exactamente» 8 → 5, aperturas «Est\* es el/la» 5 → 1. El rewrite **no metió tells nuevos**:
+ninguna palabra que no estuviera antes aparece más de una vez.
+
+### El defecto que salió de leerlo de corrido
+
+La lámina 17 abría con **«Cierro con un encargo»**, y después venían **tres láminas más**
+(18, 19 y 20). No cerraba nada. Ahora dice «Hago un paréntesis», y la 19, que antes abría
+con «Y termino con los papers», abre con «Vuelvo a la mitosis», que cierra el paréntesis y
+de paso saca el tercer «cierro/termino» de tres láminas casi seguidas. **Ninguna cuenta
+automática lo caza**: aparece al leer las 19 seguidas, que es para lo que sirve sacar el
+guion a un archivo aparte antes de editarlo.
+
+### Lo que NO se cambió, a propósito
+
+- Los **diez quiasmos «X, no Y»** son contrastes reales, no retórica (§9 de la skill), así
+  que no se aplanaron.
+- La salvedad **«una lámina y un anotador describen, no establecen»** se repite en las
+  láminas 10, 16 y 20. Es una consigna sostenida a propósito, y la 20 lo dice en voz alta
+  («lo dije al principio y lo sostengo»): repetición deliberada, no fórmula de IA.
+- El **`0,89` de la lámina 11 junto al `0,890` de la 13** se re-verificó y sigue siendo la
+  decisión de estilo que la sesión anterior tomó a propósito. **No es un defecto y no
+  debería volver a viajar en un handoff.**
+
+### Queda abierto
+
+**Leer el guion en voz alta.** Se verificaron uno por uno los números escritos en letras
+(los cuatro de la lámina 9, y los de la 11, 12, 13, 15 y 16), que es donde estaba el
+precedente del «nueve coma tres siete», pero falta leer las 19 láminas corridas, que es lo
+que caza lo que leer no caza.
+
+Registro: `presentacion_b8/README.md` §«La pasada de `@humanizer-es`» y la memoria
+[[deck-b8-dos-ejes-simil-mitosis]].
