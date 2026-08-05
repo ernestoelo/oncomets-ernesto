@@ -1990,3 +1990,57 @@ guion**: con la fila repetida fuera del asset, ya no explicaba nada de lo que se
 igual que el guion sin pasar por `@humanizer-es`. Y quedó anotado un defecto que **no es del
 deck**: la leyenda de la figura de marcas mezcla español e inglés, y sale de la figura de
 `atencion_vs_patologo/`, así que arreglarlo es regenerar esa figura.
+
+---
+
+## Sesión del 4-ago-2026 (martes, 22:00) — QA visual de las nueve láminas: un defecto, y era la 17
+
+**Misión del handoff de las 20:00**, cumplida en su primera mitad: mirar rasterizadas las nueve
+láminas que el rediseño de doce puntos tocó y nadie miró (9, 10, 11, 13, 14, 15, 17, 18, 19).
+
+**Sin jobs propios.** El `4809` (`test_vis`) corre bajo la cuenta compartida `sdonoso` desde
+`Test_D/D_abs/`, fuera de este árbol y de `clam_environ`: no lee nada nuestro, así que el
+workaround H no restringió el cierre. Ajenos: `4780` de `capstone`, `4800` de `gvenegas`.
+
+### El defecto: la lámina 17 se pisaba a sí misma
+
+`barras_divergentes()` dibuja sus dos rótulos de lado («gana recortar expertos» / «gana recortar
+slots») en `t − 0,34`, o sea **por encima del `t` que recibe**. El que la llama razona con ese
+`t` y apila lo suyo hasta ahí. En el rediseño el bloque de arriba había ganado un renglón de
+dataset de 9 pt, y con la figura en `TOP + 0,84` los rótulos le cayeron encima: se leía
+«5 particiones» tachado por «gana recortar expertos».
+
+**Fix**: la figura baja a `TOP + 1,06` y **cede 0,10" de alto** para pagarlo, así que la barra de
+remate y todo lo que va debajo quedan exactamente donde estaban. Commit `e15e6e1`.
+
+**Verificado midiendo tinta por renglón** sobre el rasterizado, no solo mirando: antes una sola
+banda de 25 px (y=232..256) con el renglón y los rótulos fundidos, después dos de 15 y 16 px con
+24 px limpios entre medio, y todas las bandas por debajo de y=618 idénticas antes y después.
+
+### Dos sospechas que se cayeron al verificarlas
+
+- **La polilínea de la 18**: a 100 dpi parecía arrancar en la esquina superior derecha de la
+  primera barra. A 200 dpi arranca en el centro, y el código lo confirma
+  (`topes.append((cx, base - alto))`). Se estuvo a un paso de «arreglar» algo que estaba bien.
+- **El pie «la región anotada» de la 14**: es correcto, el asset es `mitosis_region_anotada.png`,
+  ya recortado a esa región y no el lienzo con las dos.
+
+### Lo demás
+
+Las otras ocho láminas salieron limpias, incluidas las dos que el handoff marcaba como de mayor
+riesgo por cambio de geometría (la 9 con la tabla agrandada y la 15 con dos paneles menos).
+El barrido de reglas duras sobre las **20** láminas, **cuerpo y notas**, da cero puntos
+decimales, cero rayas y cero letras A/B/C/D.
+
+El «26 vs 28» que la sesión volvió a levantar **ya estaba resuelto** en la pasada anterior: la 15
+dice «26 marcas de mitosis» justamente por eso, y los dos números son correctos.
+
+### Queda abierto
+
+Pasar el guion por `@humanizer-es` y leerlo en voz alta; la leyenda mezclada español/inglés de la
+figura de la 12, que es de `atencion_vs_patologo/` y no del generador; y una duda de estilo menor
+que no se tocó, que la lámina 11 dice «0,89» junto a la cinta y «0,890» en la banda.
+
+Registro: `sprints/B8_sprint8/auditoria_coherencia/hallazgos.md` undécima pasada (K1 a K5),
+`presentacion_b8/README.md` §«El QA de las nueve», y las memorias
+[[deck-qa-puntos-ciegos-chequeo]] y [[deck-b8-dos-ejes-simil-mitosis]].
