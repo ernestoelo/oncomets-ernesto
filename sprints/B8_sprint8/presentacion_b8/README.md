@@ -9,7 +9,12 @@
 > mapa del recorrido **no se toca** y el deck sigue siendo de dos ejes; el grid se cuenta como
 > «lo que además cerró este sprint». Tres láminas, de 17 a **20**.
 >
-> Reunión: **viernes 07/08/2026**. `FECHA_REUNION` del generador ya la tiene.
+> **Recortada y rehecha el 5-ago-2026**, a pedido de Ernesto: nueve cambios que dejan el
+> deck en **16 láminas**. Ver §«El recorte del 5-ago» al final, que es la sección vigente.
+>
+> Reunión: **jueves 06/08/2026** con Sebastián. Se adelantó un día (el viernes 7 es la de
+> Benjamín, a la que Ernesto probablemente no llegue por clases). `FECHA_REUNION` del
+> generador ya la tiene.
 
 ## Qué hay acá
 
@@ -36,29 +41,25 @@ PYTHONPATH=/media/administrador/Storage1/sdonoso/clam_testing2/.pylibs \
 > de cuando el deck era monográfico, y dejarlo al lado del nuevo solo genera confusión.
 > Ningún `.pptx` está versionado.
 
-## Estructura (20 láminas)
+## Estructura (16 láminas, vigente desde el 5-ago)
 
 | # | Lámina | Eje |
 |---|---|---|
 | 1-2 | portada y lámina de título | heredadas del template |
-| 3 | dos cosas, y una cambia el plan | mapa del recorrido |
-| 4 | SI-MIL: qué propone, y su arquitectura (Fig. 2) | SI-MIL |
-| 5 | dos descripciones del mismo parche, y la ecuación 1 | SI-MIL |
-| 6 | ecuación 2: el orden de dos operaciones | SI-MIL |
-| 7 | el puente, y la rama que sí se lee | SI-MIL |
-| 8 | las ecuaciones 3 a 10, en panorama | SI-MIL |
-| 9 | qué reportan, qué costaría, y qué preguntar | SI-MIL |
-| 10 | la observación del patólogo, convertida en pregunta medible | atención |
-| 11 | qué se mide exactamente: un ranking, no un mapa | atención |
-| 12 | los dos mapas, sobre la misma lámina | atención |
-| 13 | el resultado: la escalera de los siete grupos | atención |
-| 14 | los 28 parches de mitosis, sobre el mapa | atención |
-| 15 | el hallazgo: mira bien y responde mal | atención |
-| 16 | por qué esto no es una casualidad | atención |
-| 17 | qué mueve esto en lo que viene | atención |
-| 18 | el encargo de julio: ¿recortar expertos o slots? | grid E×S |
-| 19 | cuánto cuesta sacar capacidad, rama por rama | grid E×S |
-| 20 | el pipeline es determinista | grid E×S |
+| 3 | Objetivos del sprint | recorrido |
+| 4 | SI-MIL: qué propone | SI-MIL |
+| 5 | Las dos ramas y el puente | SI-MIL |
+| 6 | Del embudo al reporte | SI-MIL |
+| 7 | Resultados y costo de adopción | SI-MIL |
+| 8 | La pregunta medible | atención |
+| 9 | Atención y marcas del patólogo | atención |
+| 10 | El resultado, grupo por grupo | atención |
+| 11 | Los 28 parches de mitosis | atención |
+| 12 | Mira bien y responde mal | atención |
+| 13 | Los cuatro controles | atención |
+| 14 | ¿Recortar expertos o slots? | grid E×S |
+| 15 | Tres papers para la rama de mitosis | mitosis |
+| 16 | Objetivos propuestos | cierre |
 
 ## La sección de cierre del grid E×S (láminas 18 a 20)
 
@@ -514,9 +515,79 @@ y la 12), «agarrar» pasó a «tomar» en la 20, el 4799 se dice entero solo en
 —la 11 lo tiene proyectado—, la 13 dice «dentro del» en vez de «entre», y la 9 recorre la
 tabla en el orden en que se lee, con un solo apodo para la fila.
 
+## El recorte del 5-ago (de 20 a 16 láminas) — VIGENTE
+
+Ernesto pidió nueve cambios. **Los nueve están ejecutados**, la auditoría da cero avisos y
+**ningún número cambió**: no se tocó el `prereg.md` ni el `resultados.md` de ninguno de los
+dos experimentos. Todo lo que sale de una lámina se cuenta **hablando**, que es el método
+de los recortes anteriores. La numeración de esta sección es la **nueva**.
+
+| Pedido | Qué se hizo |
+|---|---|
+| **4** con menos bullets, para agrandar la figura | el bloque de tres líneas baja a una y se retira la barra de remate, que repetía esa misma frase. La figura pasa de **8,05 × 2,52 a 9,60 × 3,00** |
+| **5 + 6 + 7 en un solo diagrama, sin tablas** | una lámina: las dos ramas, el puente Top-K y el orden de las operaciones. Las dos tablas (los dos anchos, α contra β) salen enteras |
+| **8 pedagógica, con diagramas y no una tabla de ecuaciones** | tres figuras: la compuerta que apaga mediciones, la grilla de contribuciones que **es** la ecuación 9, y el entrenamiento conjunto |
+| **10 + 11 en una, sin los bullets de la 10** | los dos paneles de hipótesis bajan a **una línea**; la lámina la mandan las dos cintas de parches reordenados |
+| **12, 13 y 14 no se tocan** | quedan idénticas (son las 9, 10 y 11 de la numeración nueva) |
+| **15: la tabla no decía con qué se entrenó cada modelo** | la columna nombra el **dataset de entrenamiento con su tamaño**, y el pie explica por qué de la corrida de cinco aparecen dos filas |
+| **16: el dibujo no se entendía** | `mapa_traslaciones()`: zona de atención con forma, copias atadas por línea punteada, rótulos pegados a lo que nombran |
+| **17 + 18 en una, solo diagramas** | los tres gráficos juntos; el veredicto sube al primer renglón y las dos lecturas de forma bajan al guion |
+| **20 con el molde de objetivos de la 3** | lista numerada 19 pt + marcador «Propuesto», igual que la lámina de objetivos del sprint |
+
+### La corrección que salió al hacer la tabla de la 15
+
+El §«La procedencia» de más arriba decía que los datasets de entrenamiento eran «153
+láminas (privado), 978 (privado + TCGA) y 934». **Esos son los totales del split, no la
+parte de entrenamiento.** Contado el 5-ago sobre los `splits_*_bool.csv` reales:
+
+| Corrida | Total | Train | 129741 |
+|---|---:|---:|---|
+| privado, single-split | 153 | **120** | val |
+| privado + TCGA, single-split | 978 | **783** | val |
+| privado + TCGA, 5 folds, fold 0 | 934 | **746** | val |
+| privado + TCGA, 5 folds, fold 2 | 934 | **749** | val |
+
+La lámina usa los de **train**, que es lo que la columna dice. Y el pie responde la
+pregunta que la tabla vieja dejaba abierta: los folds 0 y 2 aparecen porque **son los dos
+únicos de los cinco donde esta lámina no quedó en entrenamiento** (en 1, 3 y 4 está en
+train). Eso ya estaba en `../atencion_vs_patologo/resultados.md` §2.d.
+
+### Los cuatro helpers nuevos
+
+| Helper | Para qué |
+|---|---|
+| `barras_esquema` | la tira de pesos antes y después de la compuerta. Alturas escritas a mano y fijas: es un **esquema del mecanismo**, no una medición |
+| `grilla_contribuciones` | la ecuación 9 dibujada. Color = signo, tamaño = magnitud, y un cero **se dibuja** chiquito y casi blanco, porque el hueco vacío rompe la grilla |
+| `mapa_traslaciones` | el nulo espacial con la lámina y la zona caliente con forma |
+| `destilacion` | la ecuación 10 en tres bloques |
+
+### Lo que el QA visual cazó y la auditoría no
+
+Auditoría en cero y **ocho defectos a la vista**, todos de la clase que ningún chequeo de
+cajas ve. Los dos que valen como lección:
+
+- **La 5**: el conector que baja la atención hasta el Top-K **cruzaba por el medio** el
+  segundo renglón del bloque de mediciones. Las dos cosas están en su caja; lo que se pisa
+  es una línea contra un texto. Se acorta el bloque a 2,48" para que la línea pase por
+  fuera.
+- **La 14**: al bajar la figura de peldaños a 1,16" de alto, el subtítulo de una fila
+  pisaba el rótulo de la siguiente, porque `barras_divergentes` los ponía a **0,26 fijos**
+  del centro. Ahora el desplazamiento se calcula desde el alto de la fila.
+
+Los otros seis: el «5 120 000» partido en dos renglones, los ceros de la grilla que dejaban
+la tabla rota, el eje «más atención / menos atención» repetido bajo las dos cintas, los dos
+rótulos del dibujo del nulo que se leían como un título de dos renglones, los objetivos
+propuestos a dos renglones con las filas tocándose, y **«fold» y «partición» conviviendo en
+la lámina 14**, que es exactamente el defecto que aparece cuando dos láminas se fusionan y
+sus vocabularios se vuelven vecinos.
+
 ## Lo que NO se hizo
 
-- Las ecuaciones **3 a 10 siguen sin explicarse** una por una. La lámina 3 lo declara con
-  su marcador de estado y el remate de esa lámina lo dice en voz alta.
+- Las ecuaciones **3 a 10 siguen sin explicarse** una por una. Se cuentan dibujadas y en
+  bloque, y el guion lo dice en voz alta.
 - **Grado nuclear no tiene lámina propia**, por lo dicho arriba.
 - No se tocó nada de GPU, ni se re-midió nada de `atencion_vs_patologo/`.
+- **La leyenda de la figura de la lámina 9** (la de marcas) sigue mezclando español e
+  inglés. Ernesto dijo que esa lámina queda como está.
+- El guion de las láminas nuevas y fusionadas **no pasó por `@humanizer-es`** ni por la
+  lectura en voz alta. Las que no se tocaron conservan las dos pasadas del 4-ago.
