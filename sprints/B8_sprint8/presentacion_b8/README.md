@@ -597,7 +597,7 @@ generador no se ven):
 |---|---|
 | **La 4 y la 5 contaban el mismo montaje dos veces** — los dos caminos y el puente, unas 110 palabras a veinte segundos de distancia. Es el arco que rompió la fusión: la 4 describe la figura del paper y la 5 volvía a empezar de cero | la 5 pasa a apoyarse en la 4 («es el mismo recorrido, redibujado con los anchos y la notación») y va directo a lo que agrega. La lámina baja de 887 a 846 palabras |
 | «dos modelos corriendo en paralelo» en el guion de la 5, en el **cuerpo** de la 6 y en el guion de la 6 | manda el cuerpo: se saca del guion de la 5 y queda en la 6, donde está escrita |
-| «una lámina y un anotador describen, no establecen» **textual** en la 8 y en la 13 (la 16 ya lo citaba reconociéndolo) | la 13 pasa a «sigue en pie lo que dije al empezar» |
+| «una lámina y un anotador describen, no establecen» **textual** en la 8 y en la 13 (la 16 ya lo citaba reconociéndolo) | **la salvedad se preserva entera**, por la decisión del 4-ago ([[humanizer-es-skill]] §5): repetida a propósito, no es fórmula de IA. Solo se le agrega a la 13 el reconocimiento que ya tenían las otras dos |
 | «la parte que hay que llevarse» y «la que hay que retener» en la 6, más el remate del cuerpo que dice lo mismo: tres veces el mismo movimiento | la primera pasa a «abajo está el reporte» |
 | La 8 anunciaba **«las dos respuestas posibles»** y después nombraba una tercera, colgada detrás del adelanto del resultado | «las respuestas posibles», y la tercera sube a su lugar, antes del adelanto |
 
@@ -631,10 +631,10 @@ paper). Ahora lo dice.
 
 ### Lo que quedó sin tocar, a propósito
 
-- **El cuerpo de la 12 escribe «folds»** y el de la 14 escribe «particiones». Es el mismo
-  choque de vocabularios, pero vive en el **cuerpo**, y el alcance de esta pasada era la
-  prosa hablada. Queda a decisión de Ernesto: es un `caption` de una línea
-  (`generate_b8_deck.py:2029`).
+- **El cuerpo de la 12 escribe «folds» y el de la 14 «particiones», y está bien así.** No es
+  un pendiente: la R5 de la decimocuarta pasada lo decidió a propósito, porque en la tabla de
+  los cuatro modelos «fold» es el **identificador del checkpoint**. La regla es no mezclarlos
+  **dentro** de una lámina, no unificarlos entre láminas. Verificado antes de tocar nada.
 - Títulos, punteos guía, rótulos de figura y remates de lámina, por el pedido del rediseño
   del 4-ago.
 
