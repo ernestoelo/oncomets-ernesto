@@ -24,6 +24,15 @@ checkpoints **primarios** (los que nunca vieron la lámina):
 | Immune cells | 23 | 0.322 ± 0.026 | — |
 | Tejido adiposo | 27 | 0.154 ± 0.106 | 0.162 ± 0.100 |
 
+> **La columna `n parches` cuenta PARCHES, no marcas del patólogo, y los dos números conviven.**
+> El patólogo dibujó **26 polígonos** de mitosis y **14** de núcleos de alto grado
+> ([[anotaciones-patologo-qupath]]); la tabla dice **28** y **13** porque cuenta parches que tocan
+> al menos un polígono de ese grupo. Verificado sobre `../anotaciones_patologo/parches_anotados_129741.csv`
+> (163 filas, columna `clases` multi-etiqueta con `|`): mitosis = 26 + 1 `Mitosis|Nucleos alto grado`
+> + 1 `Mitosis|Tumor` = 28; núcleos alto grado = 12 + ese mismo compartido = 13. Los siete grupos
+> reproducen exacto con esa regla. La descomposición del +2 (marca que cruza el borde entre dos
+> parches contra dos marcas en un mismo parche) no se calculó y no hace falta.
+
 El percentil mediano de los 28 parches de mitosis es **91** sobre 100. Y el orden completo
 no es ruido: la atención sube monótonamente desde grasa (0.15) y linfocitos (0.32), pasa por
 estroma en el azar (0.54), y llega a tumor (0.83) y mitosis (0.89). **Mitosis es el grupo
