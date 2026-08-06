@@ -1,7 +1,8 @@
 # Cuatro papers para la rama de mitosis: una hoja cada uno
 
-> Material para la reunión con Sebastián del **viernes 7-ago-2026**. La reunión prevista para el
-> lunes 3-ago no ocurrió.
+> Material para la reunión con Sebastián del **jueves 6-ago-2026** (el viernes 7 es la de
+> Benjamín). La reunión prevista para el lunes 3-ago no ocurrió, y la del viernes 7 que este
+> encabezado anotaba hasta el 6-ago se adelantó un día.
 >
 > **Qué es esto.** El resumen ejecutable de los cuatro papers, una hoja por paper, para leer en la
 > reunión sin abrir nada más. **Todo lo de acá está verificado contra los PDF**, que están bajados
