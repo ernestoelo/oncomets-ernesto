@@ -2365,3 +2365,46 @@ Sin cambios respecto del handoff anterior: las **dos preguntas de la reunión** 
 tres lecturas es el encargo 2, y cuántas láminas anotadas hay y quién las anotó), la réplica
 del dato abierto del 4589 con semillas nuevas (regla 9.b), el sign-off del patólogo, y
 `@grilling` sin estrenar.
+
+## Sesión 6-ago-2026 (tarde) — ensayo de la lámina 15, y la nota que no se entendía
+
+Sesión de **ensayo hablado** antes de la reunión con Sebastián, que era ese mismo jueves. **El
+deck no se tocó**: cero ediciones al generador, cero regeneraciones, cero figuras, y ningún
+número del sprint cambió. El guion se regeneró solo para leerlo (es derivado y gitignored).
+
+La lámina 15 se ensayó entera: 362 palabras de nota, de las cuales **46 son las cuatro líneas de
+resumen del encabezado y no se hablan**, así que el arco dicho son ~316 palabras, **2 min 25 s** a
+las 130 palabras por minuto que da el deck completo. Se desarmó en sus tres movimientos (las
+cuatro familias escritas antes de la medición, qué reordenó la medición, por qué el primer paper),
+más las repreguntas probables con su respuesta y su segundo golpe. **No se le encontró ningún
+defecto de contenido.**
+
+### Los tres hallazgos
+
+**El más importante: una nota puede pasar las tres capas de QA y no entenderse.** Ernesto leyó
+dos veces los dos párrafos finales de la nota de la lámina 9 (el confundido de las dos regiones de
+escaneo) y no los entendió. Cada frase por separado es correcta; lo que falta es el eslabón entre
+la complicación y el método. El AUC pareado está definido en la lámina **8**, y la 9 nunca vuelve
+a decir que el «parche sin marca al azar» **incluye los 2303 parches de la otra región**, que es
+exactamente lo que vuelve rival a la región. **La premisa no falta del deck: está a 4½ minutos y
+la nota no la re-invoca.** Eso hace una **cuarta capa** de QA, y es la única que el autor no puede
+correr, porque siempre tiene el método entero en la cabeza. Queda en
+[[deck-qa-puntos-ciegos-chequeo]]. La reescritura está redactada y **NO aplicada**: editar el deck
+el día de la reunión es decisión de Ernesto.
+
+**El documento que se lee en la reunión tenía la fecha vieja.** `hojas_reunion.md` encabezaba con
+«viernes 7-ago-2026» y la reunión con Sebastián fue el **jueves 6** (el viernes 7 es la de
+Benjamín). Corregido, más ADDENDUM aditivo en las dos memorias que arrastraban la fecha. Los
+registros históricos que dicen 07/08 no se tocan: eran correctos cuando se escribieron.
+
+**26 y 28 no son la misma unidad, y ahora está la regla.** La décima pasada ya había registrado
+que los dos son correctos, pero ninguno decía por qué difieren. Verificado sobre el CSV de parches
+anotados: **26 cuenta polígonos del patólogo, 28 cuenta parches que tocan al menos un polígono de
+mitosis** (26 puros + 1 compartido con núcleos de alto grado + 1 con tumor). Los siete grupos de
+la tabla reproducen exacto con esa regla. Anotado en `atencion_vs_patologo/resultados.md` §1.
+
+### Queda abierto
+
+La reescritura de la nota de la lámina 9, con la redacción lista. Y sin cambios respecto del
+handoff anterior: las dos preguntas de la reunión, la réplica del dato abierto del 4589 con
+semillas nuevas, el sign-off del patólogo y `@grilling` sin estrenar.
