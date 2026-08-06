@@ -6,6 +6,13 @@ Encargo 1 de la reunión del 24-jul-2026. Método y validación del tooling:
 Medido el 27-jul-2026 sobre **1858 láminas-fold** (1176 láminas únicas), o sea todas las
 de test de los 5 folds de las 3 tareas del job 4589, contra las **7** del Sprint 7.
 
+> **⚠ ACOTADO el 4-ago-2026 por el grid E×S (job 4774).** «El margen de recorte está en S»
+> vale como **descripción del reparto del peso**, NO como **predicción de capacidad**. Puesta
+> a prueba de frente, la dirección del recorte resultó indistinguible. **Los números de este
+> documento no cambian** — 159.5/300 y 29.98/30 siguen medidos y vigentes; lo que no se
+> sostiene es inferir de ellos **dónde** conviene recortar. Afecta al §2 y al §5.
+> Detalle: [`../grid_expertos_slots/resultados.md`](../grid_expertos_slots/resultados.md) §4.
+
 ## Respuesta corta
 
 | | n=7 (B7) | **n=1858 (B8)** |
@@ -63,6 +70,11 @@ margen de recorte de capacidad está en **S**, tal como decía el B7. Eso se sos
 con tres órdenes de magnitud más de datos y de forma transversal a las 3 tareas y a las 3
 cohortes.
 
+**Acotación del 4-ago** (ver el aviso de arriba): lo que se sostiene con n grande es el
+**reparto uniforme sobre los expertos**, o sea que E=30 no está sobredimensionado. La
+segunda mitad de la frase, «entonces el margen está en S», es una **inferencia de capacidad
+colgada de una medición de ocupación**, y el grid la puso a prueba y no la sostuvo.
+
 ## 3. La dispersión: hay que corregir lo que decía el B7
 
 El B7 concluyó que **la dispersión de slots sigue al TAMAÑO de la lámina y no a la tarea**
@@ -119,7 +131,8 @@ un número no representativo.
   láminas-fold de las 3 tareas y las 3 cohortes.
 - **E=30 no está sobredimensionado**: reparto uniforme exacto, sin excepciones.
 - **El margen de recorte de capacidad está en S**, no en E. Es el insumo directo del
-  encargo 3 (grid de E y S).
+  encargo 3 (grid de E y S). **⚠ Escrito el 27-jul, antes del grid. El grid lo puso a
+  prueba y no lo sostuvo — ver el punto correspondiente en «No», abajo.**
 
 **No:**
 
@@ -130,3 +143,9 @@ un número no representativo.
   sola.
 - Que recortar S a ~160 no cueste rendimiento. Esta medición dice cuánta capacidad se usa,
   **no** qué pasa si se saca. Eso lo tiene que medir el grid del encargo 3.
+- **(4-ago) Que convenga recortar por S y no por E.** El grid E×S midió exactamente eso y
+  cerró en **H_nula**: el contraste `(recorta S) − (recorta E)` a igual E·S dio
+  +0.022 / −0.014 / −0.002 de AUC en los peldaños 270 / 210 / 150, con el signo invertido
+  entre peldaños y sd > |media| en los tres. La **ocupación describe el reparto del peso;
+  no dimensiona la capacidad necesaria.** El 30×5, que cae justo sobre el N_eff medido, no
+  marca ningún quiebre.
