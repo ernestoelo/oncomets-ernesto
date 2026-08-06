@@ -2326,3 +2326,42 @@ Durante el cierre se verificó un falso pendiente: el cuerpo de la lámina 12 es
 el de la 14 «particiones», pero **la R5 de la decimocuarta pasada lo decidió así a propósito**
 (en esa tabla «fold» es el identificador del checkpoint). La regla es no mezclarlos *dentro*
 de una lámina, no unificarlos entre láminas.
+
+## Sesión 6-ago-2026 — estudio del deck, y el grep que el H1 no había hecho
+
+Sesión de **estudio**, no de construcción: el handoff del 5-ago la orientaba a dominar el
+material antes de la reunión con Sebastián. **El deck no se tocó** — cero ediciones al
+generador, cero regeneraciones, cero figuras — y ningún número del sprint cambió.
+
+Guion extraído con `scripts/extraer_guion_deck.py` y leído entero: **16 láminas, 6511
+palabras ≈ 50 min hablados**. Ese número es el que hay que contrastar con lo que dure la
+reunión; si hay que comprimir, las candidatas por tamaño son la lámina 5 (846 palabras) y la
+14 (697, que es el paréntesis del grid y no el mensaje del día).
+
+Los ocho números que el handoff marcaba como de mayor riesgo de repregunta se verificaron
+contra verdad de campo uno por uno y **los ocho reproducen**.
+
+### Los dos hallazgos
+
+**El grep del H1 buscó donde ya sabía que estaba.** La octava pasada (4-ago) corrigió «el
+margen de recorte está en S» en cinco lugares, pero no barrió el repo entero: quedaron sin
+acotar `q1_slots_escalado/resultados.md` (2 veces, una bajo el encabezado «Qué se puede
+afirmar ahora») y la memoria `slot-unidad-de-morfologia`, que la usa como razonamiento de
+apoyo. El primero es **el documento que originó la frase** y el que el handoff nombra como
+verdad de campo del 159.5. Los dos corregidos de forma aditiva, con la redacción canónica de
+`CLAUDE.md`; ningún número tocado. La lección de método quedó en la skill `@knowledge-audit`:
+**el documento más peligroso no es el que repite la frase, es el que la originó**, porque ahí
+está enunciada sin las salvedades que los demás le fueron agregando.
+
+**132 negativos y 65 negativos son los dos correctos.** El deck dice 132 (del dataset) y el
+B7 dice 65 (los evaluados). Contado sobre los splits reales: 862 láminas con 132 negativos,
+cinco test **disjuntos** que cubren 429 con **65** negativos, 13 por fold exacto en las cinco.
+Los otros 67 nunca se evalúan. Reconciliación anotada en `grid_expertos_slots/resultados.md`
+§7, que es donde alguien la va a buscar.
+
+### Queda abierto
+
+Sin cambios respecto del handoff anterior: las **dos preguntas de la reunión** (cuál de las
+tres lecturas es el encargo 2, y cuántas láminas anotadas hay y quién las anotó), la réplica
+del dato abierto del 4589 con semillas nuevas (regla 9.b), el sign-off del patólogo, y
+`@grilling` sin estrenar.

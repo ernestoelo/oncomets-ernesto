@@ -1541,3 +1541,86 @@ con más convicción la respuesta equivocada» (la 12) pasa a «se equivoca con 
 - Los pendientes del sprint que no son del deck siguen abiertos y van al handoff sin cambios:
   las dos preguntas de la reunión (encargo 2 y cuántas láminas anotadas hay), la réplica del
   dato abierto del 4589 con semillas nuevas, y el sign-off del patólogo.
+
+---
+
+# Decimosexta pasada — la sesión de estudio, y el alcance del grep del H1 (6-ago-2026, jueves)
+
+> Sesión de **estudio** del deck, no de construcción: el handoff del 5-ago la orientaba a
+> dominar el material antes de la reunión con Sebastián. El deck **no se tocó** y ningún
+> número del sprint cambió. Los dos hallazgos salieron de verificar contra verdad de campo
+> los números que el guion dice de memoria.
+
+| id | Hallazgo | Tipo | Severidad | Acción |
+|---|---|---|---|---|
+| P1 | **El grep del H1 (octava pasada) no cubrió el documento que ORIGINÓ la frase.** «El margen de recorte está en S» quedó sin acotar en `q1_slots_escalado/resultados.md` (2 veces, una bajo el encabezado «Qué se puede afirmar ahora») y en la memoria `slot-unidad-de-morfologia` | contradicción | **alta** | Acotación aditiva en los dos, misma redacción canónica que `CLAUDE.md` |
+| P2 | **El dataset CDIS `_ci_reform` admite dos cuentas de negativos, las dos correctas**: 132 en el dataset y 65 evaluados. Chocan si alguien las cruza en una repregunta | reconciliación | media | Nota de una línea en el `resultados.md` del grid |
+
+## P1 — Un grep que buscó donde sabía que estaba
+
+**Qué había pasado.** El H1 de la octava pasada (4-ago) corrigió la frase en cinco lugares:
+`CLAUDE.md` dos veces, la memoria `mammoth-slot-routing-weight` cuatro, y `MEMORY.md` una.
+La corrección en sí fue correcta y su criterio (aditivo, la medición se preserva textual) es
+el que se reusa acá. Lo que falló es **el alcance del `grep`**: buscó en los frentes donde ya
+sabía que la frase vivía y no barrió el repo entero.
+
+**Los dos que quedaron afuera**, verificados con `grep -rn "margen" --include="*.md"` sobre
+todo el árbol más el directorio de memorias:
+
+| Fuente | Línea | Por qué importa |
+|---|---|---|
+| `q1_slots_escalado/resultados.md` | 62 y 121 | Es **el documento que originó la frase**, y la 121 está bajo «Qué se puede afirmar ahora». El handoff lo nombra como verdad de campo del 159.5 |
+| memoria `slot-unidad-de-morfologia` | 32 | La usa como **razonamiento de apoyo** («Si la morfología vive en el slot, el experto es un agrupador»), no como dato suelto |
+
+**La lección, que es de método y sobrevive a este caso.** Cuando una afirmación propagada se
+refuta, el documento **más peligroso no es el que la repite, es el que la originó**: ahí está
+enunciada con más fuerza, sin las salvedades que los demás le fueron agregando al citarla, y
+es el que alguien va a abrir cuando quiera respaldar el número. **El barrido tiene que ser
+sobre el repo entero y el directorio de memorias, no sobre los frentes donde uno recuerda
+haberla escrito.** Anotado en la skill `@knowledge-audit`.
+
+**Qué NO se tocó**, y por qué:
+
+- `progress/current.md` (L128, L862) y `sprints/B7_sprint7/resultados_interpretabilidad.md`
+  (L222): son **registro cronológico**, valen como «qué se sabía y cuándo». El propio H1 fijó
+  ese criterio.
+- El generador del deck del B7 (L1273, L2105, L2137): presentación ya dada, histórica.
+- El ADDENDUM 24-jul de `CLAUDE.md` (L910, L921): queda sin acotar en el sitio, pero el
+  ADDENDUM 27-jul que le sigue lleva el `⚠ ACOTADO` inline. Cadena cronológica, criterio del H1.
+
+## P2 — 132 negativos y 65 negativos son los dos correctos
+
+**Dónde chocan.** La lámina 14 del deck dice «862 láminas, 730 con presencia y 132 no», que
+sale de `grid_expertos_slots/prereg.md:135`. El B7 y `CLAUDE.md` dicen «**65 negativos en
+total**, ~13 por fold» (`B7/resultados_interpretabilidad.md:58`, `guia_estudio_b7.md:115`,
+DATO ABIERTO del Hallazgo 12).
+
+**Por qué los dos son correctos**, contado sobre los splits reales
+(`data/splits_kfold/carcinoma_ductal_insitu_presente_ci_reform_100`) y el CSV de labels:
+
+| Denominador | n | Negativos |
+|---|---:|---:|
+| Dataset completo | 862 | **132** |
+| Unión de los 5 test (disjuntos) | 429 | **65** |
+| Cada test individual | 85-88 | **13** en las cinco, exacto |
+
+Los cinco test son **disjuntos** y cubren 429 de las 862, o sea la mitad del dataset. Los
+otros 67 negativos viven siempre en train o val y **nunca se evalúan**. De ahí que 13 × 5 = 65
+cierre exacto.
+
+**La frase para decirlo**, si sale en la reunión: *el dataset tiene 132 negativos; los que
+llegan a evaluarse alguna vez son 65, trece por partición, porque las particiones de prueba no
+se solapan y entre las cinco cubren la mitad del conjunto.*
+
+## Verificaciones que salieron limpias
+
+Los ocho números que el handoff marcaba como de mayor riesgo de repregunta se verificaron
+contra verdad de campo, uno por uno, y **los ocho reproducen**: 0.890 ± 0.039 y el percentil 91
+de mitosis, la banda 0.67-0.75 de las ~440 traslaciones, el 0.462-0.478 del efecto de región,
+los tres contrastes del grid, el 159.5 de 300, los tamaños de entrenamiento 120 / 783 / 746 /
+749, y el 862 = 730 + 132 contado sobre el CSV.
+
+- **El deck no se tocó.** Cero ediciones al generador, cero regeneraciones, cero figuras.
+- **Nada de GPU.** Sin `sbatch`; los dos jobs del nodo son ajenos y no leen este árbol.
+- **`prereg.md` y `resultados.md` de los dos experimentos**: intactos salvo la acotación
+  aditiva del P1, que no toca ningún número.
