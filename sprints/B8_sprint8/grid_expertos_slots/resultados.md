@@ -191,6 +191,14 @@ Política de eval B5: nunca AUC aislado. `n` de test 85-88 por fold, con **13 ne
 exactos en los cinco folds**, tal como el prereg §5 anticipó. Filas = verdad `[no, si]`,
 columnas = predicción `[no, si]`; `no` es la minoritaria.
 
+> **Las dos cuentas de negativos, que son las dos correctas** (contadas el 6-ago sobre los
+> splits y el CSV de labels). El **dataset** tiene **132** negativos de 862 láminas. Los
+> cinco test son **disjuntos** y entre todos cubren **429** láminas, o sea la mitad del
+> conjunto, con **65** negativos: 13 por fold, exacto. Los otros 67 negativos viven siempre
+> en train o val y **nunca se evalúan**. Por eso el B7 y el DATO ABIERTO del Hallazgo 12
+> dicen «65 negativos en total» mientras el prereg §5 dice 132: distinto denominador, no
+> contradicción.
+
 | brazo | f0 | f1 | f2 | f3 | f4 |
 |---|---|---|---|---|---|
 | 30×10 | [[6,7],[3,69]] | [[8,5],[5,67]] | [[6,7],[8,65]] | [[12,1],[9,63]] | [[5,8],[6,69]] |
