@@ -49,6 +49,12 @@ fixes second.**
   says, which is correct, and where it should live.
 - Use `grep -n` to locate every occurrence of a fact being propagated (e.g. a
   retired threshold) — a decision usually lives in 3-6 places.
+  **Barrer el repo ENTERO (`grep -rn --include="*.md"`) + el directorio de memorias, no
+  los frentes donde uno recuerda haberla escrito**, y buscar primero el documento que
+  **originó** la frase: ahí está enunciada con más fuerza y sin las salvedades que los
+  demás le agregaron al citarla. Caso: H1 de la octava pasada del B8 corrigió 5 lugares y
+  dejó afuera el `resultados.md` de origen y una segunda memoria
+  (`auditoria_coherencia/hallazgos.md`, decimosexta pasada).
 - For skills: confirm each has `SKILL.md` with valid `name`/`description`
   frontmatter; run `/architect`'s `quick_validate.py` if structure is in doubt.
 
