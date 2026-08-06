@@ -2283,3 +2283,43 @@ dos pasadas del 4-ago. Es el pendiente principal de cara al jueves.
 
 La leyenda mezclada español/inglés de la figura de marcas **deja de ser pendiente**: Ernesto
 dijo que esa lámina queda como está.
+
+## Sesión 5-ago-2026 (22:40) — el guion de las ocho, con las tres capas
+
+El pendiente que dejaba el handoff. Las ocho láminas nuevas o fusionadas del recorte (4, 5,
+6, 8, 12, 13, 14 y 16) pasaron por `@humanizer-es` y por la lectura en voz alta. **14
+ediciones, las 14 dentro de `notes(...)`**, verificado a máquina: de las 33 líneas
+modificadas, cero caen fuera de una llamada `notes()`, así que el cuerpo no se tocó y no hubo
+que volver a mirar las láminas. Auditoría en cero, 6532 → 6512 palabras.
+
+Detalle completo en `sprints/B8_sprint8/presentacion_b8/README.md` §«El guion de las ocho».
+Lo que vale como método:
+
+**Extraer a un archivo aparte hizo su trabajo.** El hallazgo mayor no es un tell de prosa
+sino un **arco roto por la fusión**: la lámina 4 describe la figura del paper y la 5 volvía a
+describir el mismo montaje desde cero, unas 110 palabras repetidas a veinte segundos de
+distancia. Dentro del generador eso es invisible; en el archivo corrido salta. La 5 ahora se
+apoya en la 4 y baja de 887 a 846 palabras. Otras tres repeticiones del mismo tipo (una de
+ellas textual entre la 8 y la 13).
+
+**La lectura en voz alta volvió a cazar un choque de vocabularios**, que es el defecto que
+[[deck-qa-puntos-ciegos-chequeo]] predice cuando se fusionan láminas: la 14 decía «unidades»
+y «niveles» mientras su **título** escribe «slots» y su cuerpo «peldaños». Se glosa una vez y
+se adopta lo que está escrito, que es la regla del ADDENDUM 23:20.
+
+**Un dato impreciso, que es lo que más importa.** La 14 decía que «poco más de la mitad» de
+los 300 slots «concentra casi todo». Eso mezcla dos mediciones que
+`q1_slots_escalado/resultados.md:38` separa a propósito: el número efectivo es 159.5 de 300,
+y aparte 38 slots llevan la mitad del peso y hacen falta 169 para el 90 %. El archivo avisa
+textualmente que *«`N_eff = 159.5` no significa 159 slots trabajando por partes iguales»*.
+Ahora la 14 dice lo que ya decía la lámina 3, que venía revisada. **Ningún número del sprint
+cambió.**
+
+Y un dato vago que tenía valor: el tercer término de la pérdida de SI-MIL no pesa «bastante
+alto», pesa **λ = 20** contra 1 de los otros dos (`simil_estudio.md:68`).
+
+### Queda abierto
+
+El **cuerpo** de la lámina 12 escribe «folds» y el de la 14 «particiones»: mismo choque, pero
+del lado escrito, y el alcance de esta pasada era la prosa hablada. Es un `caption` de una
+línea (`generate_b8_deck.py:2029`) y la decisión es de Ernesto.

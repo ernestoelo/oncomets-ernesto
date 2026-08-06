@@ -581,6 +581,63 @@ propuestos a dos renglones con las filas tocándose, y **«fold» y «partición
 la lámina 14**, que es exactamente el defecto que aparece cuando dos láminas se fusionan y
 sus vocabularios se vuelven vecinos.
 
+## El guion de las ocho, por `@humanizer-es` y en voz alta (5-ago, 22:40)
+
+Las ocho láminas nuevas o fusionadas del recorte (4, 5, 6, 8, 12, 13, 14 y 16) no tenían
+las dos capas de QA de prosa que sí tenían las demás. Ahora las tienen, más la tercera.
+**14 ediciones, todas dentro de `notes(...)`**: verificado a máquina que ninguna de las 33
+líneas modificadas cae fuera de una llamada `notes()`, así que el cuerpo de las láminas no
+se tocó y no hubo que volver a mirarlas. Auditoría en cero. El guion baja de 6532 a 6512
+palabras.
+
+**Lo que encontró la extracción a un archivo** (los arcos entre láminas, que dentro del
+generador no se ven):
+
+| Hallazgo | Qué se hizo |
+|---|---|
+| **La 4 y la 5 contaban el mismo montaje dos veces** — los dos caminos y el puente, unas 110 palabras a veinte segundos de distancia. Es el arco que rompió la fusión: la 4 describe la figura del paper y la 5 volvía a empezar de cero | la 5 pasa a apoyarse en la 4 («es el mismo recorrido, redibujado con los anchos y la notación») y va directo a lo que agrega. La lámina baja de 887 a 846 palabras |
+| «dos modelos corriendo en paralelo» en el guion de la 5, en el **cuerpo** de la 6 y en el guion de la 6 | manda el cuerpo: se saca del guion de la 5 y queda en la 6, donde está escrita |
+| «una lámina y un anotador describen, no establecen» **textual** en la 8 y en la 13 (la 16 ya lo citaba reconociéndolo) | la 13 pasa a «sigue en pie lo que dije al empezar» |
+| «la parte que hay que llevarse» y «la que hay que retener» en la 6, más el remate del cuerpo que dice lo mismo: tres veces el mismo movimiento | la primera pasa a «abajo está el reporte» |
+| La 8 anunciaba **«las dos respuestas posibles»** y después nombraba una tercera, colgada detrás del adelanto del resultado | «las respuestas posibles», y la tercera sube a su lugar, antes del adelanto |
+
+**Lo que encontró la lectura en voz alta** (la tercera capa, cinco hallazgos):
+
+- **La 14 decía «unidades» y «niveles» donde el cuerpo escribe «slots» y «peldaños»**, sin
+  puentearlo nunca; y «slots» está en el **título**. Es el mismo defecto que el 5-ago cazó
+  entre «fold» y «partición», que reaparece porque la lámina es una fusión. Se **glosa** una
+  vez («en el título aparecen como slots, que es lo mismo») y se adopta «peldaño», que es lo
+  que está escrito. Ver [[deck-qa-puntos-ciegos-chequeo]].
+- «un vector de quinientos doce» perdía la unidad al oírse: vuelve «números».
+- «Ese tercero pesa veinte, contra uno de cada uno de los otros dos» tenía tres «uno» en
+  una frase.
+- «trescientas» dos veces en la misma oración de la 14.
+- «responde con más convicción la respuesta equivocada» (la 12) → «se equivoca con más
+  convicción».
+
+**Una imprecisión de dato, que es el hallazgo que más importa.** La 14 decía que del reparto
+del peso entre los 300 slots «poco más de la mitad concentra casi todo». Eso mezcla dos
+mediciones distintas que `../q1_slots_escalado/resultados.md:38` separa a propósito: el
+número efectivo es **159.5 de 300**, y por otro lado **38 slots llevan la mitad del peso y
+hacen falta 169 para el 90 %**. El propio archivo advierte que *«`N_eff = 159.5` no significa
+159 slots trabajando por partes iguales»*. Ahora la 14 dice lo mismo que la lámina 3, que ya
+había pasado las dos capas: **el reparto ocupa alrededor de ciento sesenta**. Ningún número
+del sprint cambió.
+
+**Un dato que estaba vago y tenía valor.** La 6 decía que el tercer término de la pérdida
+pesa «bastante alto». Es **λ = 20**, contra 1 de cada uno de los otros dos
+(`../simil_estudio.md:68` y `../simil_explicacion_matematica.md:438`, verificados contra el
+paper). Ahora lo dice.
+
+### Lo que quedó sin tocar, a propósito
+
+- **El cuerpo de la 12 escribe «folds»** y el de la 14 escribe «particiones». Es el mismo
+  choque de vocabularios, pero vive en el **cuerpo**, y el alcance de esta pasada era la
+  prosa hablada. Queda a decisión de Ernesto: es un `caption` de una línea
+  (`generate_b8_deck.py:2029`).
+- Títulos, punteos guía, rótulos de figura y remates de lámina, por el pedido del rediseño
+  del 4-ago.
+
 ## Lo que NO se hizo
 
 - Las ecuaciones **3 a 10 siguen sin explicarse** una por una. Se cuentan dibujadas y en
@@ -589,5 +646,6 @@ sus vocabularios se vuelven vecinos.
 - No se tocó nada de GPU, ni se re-midió nada de `atencion_vs_patologo/`.
 - **La leyenda de la figura de la lámina 9** (la de marcas) sigue mezclando español e
   inglés. Ernesto dijo que esa lámina queda como está.
-- El guion de las láminas nuevas y fusionadas **no pasó por `@humanizer-es`** ni por la
-  lectura en voz alta. Las que no se tocaron conservan las dos pasadas del 4-ago.
+- ~~El guion de las láminas nuevas y fusionadas no pasó por `@humanizer-es` ni por la
+  lectura en voz alta.~~ **Hecho el 5-ago a las 22:40**, ver la sección de arriba. Las 14
+  láminas con notas tienen ahora las tres capas.
