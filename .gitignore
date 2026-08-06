@@ -54,6 +54,11 @@ sprints/**/CLAM_Sprint_*.pdf
 # guion. Precedente: 0 pptx trackeados en el repo. Snapshot histórico → `git add -f`.
 sprints/**/*.pptx
 
+# Guion extraído del deck por scripts/extraer_guion_deck.py. Derivado del .pptx, que
+# a su vez es derivado: la fuente canónica del guion son las llamadas notes(...) del
+# generador. Se regenera en un comando y si se versionara derivaría en silencio.
+sprints/**/CLAM_Sprint*_guion.md
+
 # Binarios de templates que Ernesto/Sebastián suben a un sprint (PDFs pesados de
 # los .pptx de Sebastián). NO versionar: son plantillas locales, no fuente.
 sprints/B7_sprint7/*.pdf
