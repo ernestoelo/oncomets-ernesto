@@ -1317,3 +1317,101 @@ en el orden en que se lee). La tabla es ABMIL / **CLAM destacada** / TransMIL (`
   «Nucleos» sin tilde). Sigue siendo de `atencion_vs_patologo/`, no del generador: arreglarlo es
   regenerar esa figura, y es decisión de Ernesto si vale la pena antes del viernes. **Es el único
   pendiente que le queda al deck.**
+
+---
+
+# Decimocuarta pasada — el recorte de 20 a 16 láminas (5-ago-2026, miércoles, 8ª)
+
+> Sesión de rediseño, no de auditoría: Ernesto pidió **nueve cambios** sobre el deck del 4-ago
+> y la pasada registra lo que salió al ejecutarlos. Dos hallazgos son de **dato** (uno corrige
+> una cifra publicada en el README) y tres son de **método de QA**.
+>
+> Deck resultante: **16 láminas**, auditoría del generador en cero, 1172 referencias forzadas
+> a Barlow. Ningún `prereg.md` ni `resultados.md` se tocó, y **ningún número de los dos
+> experimentos cambió de valor**.
+
+| id | Hallazgo | Tipo | Severidad | Acción |
+|---|---|---|---|---|
+| R1 | El «153 / 978 / 934 láminas de entrenamiento» del README del deck son **totales de split**, no la parte de train | error | **alta** | Cifras corregidas a 120 / 783 / 746 / 749, contadas sobre los `splits_*_bool.csv` |
+| R2 | La tabla de la lámina no decía **por qué** de la corrida de cinco aparecían dos folds | stale | media | Pie nuevo: son los dos únicos donde 129741 cae en validación |
+| R3 | Un **conector cruzando un texto**: clase de defecto que ningún chequeo de cajas ve | método | media | Registrado en [[deck-qa-puntos-ciegos-chequeo]] |
+| R4 | **Offsets de rótulo fijos** en un helper reusado con otra altura | método | media | `barras_divergentes` los calcula desde el alto de fila; registrado |
+| R5 | Fusionar dos láminas vuelve **vecinos** a dos vocabularios («fold» y «partición») | método | media | Unificado en la lámina; registrado como chequeo obligatorio del recorte |
+| R6 | `objetivos_sprint8.md` y `progress/current.md` no registran el recorte | stale | media | Secciones actualizadas |
+
+## R1 — La cifra publicada era la del split entero, no la del entrenamiento
+
+Es el hallazgo que más vale de la pasada, porque **corrige un número que ya estaba escrito**.
+El §«La procedencia» del README del deck (4-ago) decía que los datasets de entrenamiento de los
+cuatro checkpoints primarios eran «153 láminas (privado), 978 (privado + TCGA) y 934 (privado +
+TCGA, cinco particiones)».
+
+Contado el 5-ago sobre los splits reales:
+
+| Corrida | split_dir | Total | Train | Val | Test | 129741 |
+|---|---|---:|---:|---:|---:|---|
+| privado, single-split | `splits/grado_histologico_mitotic_rate_100` | 153 | **120** | 15 | 18 | val |
+| privado + TCGA, single-split | `splits/..._combined_100` | 978 | **783** | 98 | 97 | val |
+| privado + TCGA, fold 0 | `splits_5fold/..._combined_100` | 934 | **746** | 92 | 96 | val |
+| privado + TCGA, fold 2 | idem | 934 | **749** | 93 | 92 | val |
+
+153 = 120 + 15 + 18 y 978 = 783 + 98 + 97: los números publicados son la **suma de las tres
+particiones**. No invalida nada de `atencion_vs_patologo/` —su `resultados.md` nunca afirmó
+tamaños de entrenamiento, solo que la lámina no estaba en train (§2.d)— pero sí era incorrecto
+como descripción de «con qué se entrenó». La lámina ahora usa los de train, que es lo que su
+columna dice.
+
+## R2 — La pregunta que la tabla dejaba abierta
+
+Ernesto: *«no entiendo la tabla a qué modelo o checkpoint entrenando con 5 fold, fold 0 y luego
+en la siguiente fila 5 fold, fold 2»*. La respuesta estaba en `resultados.md` §2.d y no en la
+lámina: **129741 está en `val` en los folds 0 y 2, y en `train` en 1, 3 y 4**. Por eso el grupo
+primario tiene esos dos y no los cinco. Es un dato de diseño del experimento que la tabla
+mostraba como si fuera una elección arbitraria.
+
+## R3 y R4 — Dos puntos ciegos nuevos del chequeo automático
+
+Auditoría en cero y **ocho defectos a la vista**. Seis son de la familia ya conocida (texto que
+compite, número partido en dos renglones, rótulo repetido). Los otros dos son clase nueva:
+
+- **Un conector cruzando un texto** (lámina 5): la línea que baja la atención hasta el Top-K
+  pasaba por el medio del segundo renglón del bloque de mediciones. Los dos objetos están dentro
+  de su caja y dentro del lienzo; lo que colisiona es **una línea contra un texto**, y `auditar`
+  solo mide texto contra su propia caja. Hermano del «dos objetos válidos superpuestos» del
+  4-ago, con la diferencia de que acá uno de los dos **no tiene caja**.
+- **Offsets fijos en un helper reusado con otra altura** (lámina 14): `barras_divergentes` ponía
+  el rótulo y su subtítulo a **0,26 fijos** del centro de la fila. Con la figura a 1,70 de alto
+  eso sobra; al bajarla a 1,16 para la lámina fusionada, la fila queda en 0,39 y el subtítulo de
+  una pisa el rótulo de la siguiente. **La regla que queda:** un helper que posicione texto con
+  constantes absolutas es correcto solo a la altura para la que se escribió; al reusarlo con
+  otra, las constantes se derivan del alto disponible.
+
+## R5 — Fusionar láminas vuelve vecinos a dos vocabularios
+
+La decimotercera pasada ya había cazado «fold» y «partición» conviviendo **dentro** de la
+lámina 17. Al fusionar 17 y 18 el problema reaparece en la lámina nueva, ahora entre el cuerpo
+(«5 particiones») y el pie del helper («cada cuadro es un fold»). No es reincidencia: es que
+**cada fusión crea vecindades que antes no existían**, y el vocabulario es lo primero que choca.
+Queda como chequeo obligatorio de cualquier recorte futuro, al lado del de números que chocan
+entre láminas vecinas (décima pasada).
+
+Resuelto unificando a «partición» en la lámina del grid, y a «fold» en la de los cuatro modelos
+—donde es el identificador del checkpoint— sin mezclar dentro de ninguna de las dos.
+
+## Verificado sin cambios
+
+- **Los dos `prereg.md` y los dos `resultados.md`**: intactos.
+- **Las láminas 9, 10 y 11** (las viejas 12, 13 y 14): cero cambios, por pedido explícito.
+- **`CLAUDE.md`, agentes y skills**: sin cambios. Ninguna regla dura se movió.
+- **Barrido de reglas duras sobre las 16 láminas, cuerpo y notas**: cero decimales con punto,
+  cero rayas, cero «palanca», cero letras de rotulación.
+- **Las 14 láminas con notas** las tienen; ninguna quedó sin guion.
+
+## Lo que queda abierto y va al handoff
+
+- **El guion de las láminas nuevas y fusionadas** (4, 5, 6, 8, 12, 13, 14 y 16 de la numeración
+  nueva) **no pasó por `@humanizer-es`** ni por la lectura en voz alta. Las no tocadas conservan
+  las dos pasadas del 4-ago. Es el pendiente principal de cara a la reunión.
+- **La leyenda mezclada español/inglés** de la figura de marcas (hoy lámina 9). Ernesto dijo que
+  esa lámina queda como está, así que deja de ser pendiente del deck y pasa a ser una decisión
+  tomada.

@@ -2238,3 +2238,48 @@ está cerrado y presentado, el formato es hacia adelante.
 
 La leyenda de la figura de la lámina 12 sigue siendo el único pendiente del deck de cara al
 viernes 07/08. Esta sesión no lo tocó.
+
+---
+
+## Sesión 5-ago-2026 (tarde) — el deck baja de 20 a 16 láminas
+
+Ernesto pidió **nueve cambios** sobre el deck del B8 y avisó que **la reunión con Sebastián
+se adelantó al jueves 6-ago**; el viernes 7 es la de Benjamín, a la que probablemente no
+llegue por clases. `FECHA_REUNION` del generador actualizada.
+
+Los nueve están ejecutados, con la auditoría del generador en cero y **sin que cambie ningún
+número** de los dos experimentos (ni `prereg.md` ni `resultados.md` se tocaron):
+
+| Pedido | Resultado |
+|---|---|
+| 4 con menos bullets | la figura del paper pasa de **8,05 a 9,60** de ancho: la limitaba el alto de la caja, no la lámina |
+| **5 + 6 + 7 en un diagrama** | una lámina con las dos ramas, el puente Top-K y el orden de las operaciones; salen las dos tablas |
+| 8 pedagógica | las ecuaciones 3 a 10 dejan de ser tabla: la compuerta, la grilla de contribuciones que **es** la ecuación 9, y el entrenamiento conjunto |
+| **10 + 11 en una** | las hipótesis bajan a una línea y mandan las dos cintas de parches reordenados |
+| 12, 13 y 14 | intactas, por pedido explícito |
+| 15: la tabla | ver abajo |
+| 16: el dibujo | `mapa_traslaciones()`, con la zona de atención con forma y los rótulos pegados a lo que nombran |
+| **17 + 18 en una** | los tres gráficos juntos, sin los renglones de prosa |
+| 20 | molde de objetivos de la lámina 3 |
+
+**El hallazgo de dato:** al armar la tabla de la 15 apareció que el «153 / 978 / 934 láminas
+de entrenamiento» del README del deck son **los totales del split**, no la parte de train.
+Los de entrenamiento son **120 / 783 / 746 / 749**, contados sobre los `splits_*_bool.csv`.
+Y la pregunta que Ernesto hacía —por qué de la corrida de cinco aparecen dos folds— tenía
+respuesta en `atencion_vs_patologo/resultados.md` §2.d y no en la lámina: **129741 cae en
+`val` en los folds 0 y 2, y en `train` en 1, 3 y 4**. Ahora lo dice el pie.
+
+**Los hallazgos de método**, en `auditoria_coherencia/hallazgos.md` §decimocuarta pasada y en
+[[deck-qa-puntos-ciegos-chequeo]]: un **conector cruzando un texto** (los dos objetos válidos,
+y la línea no tiene caja que medir), **offsets de rótulo fijos** en un helper reusado con otra
+altura, y que **fusionar láminas vuelve vecinos a dos vocabularios** («fold» y «partición»
+volvieron a chocar apenas se juntaron las dos del grid).
+
+### Queda abierto
+
+El **guion de las láminas nuevas y fusionadas** (4, 5, 6, 8, 12, 13, 14 y 16 de la numeración
+nueva) no pasó por `@humanizer-es` ni por la lectura en voz alta; las no tocadas conservan las
+dos pasadas del 4-ago. Es el pendiente principal de cara al jueves.
+
+La leyenda mezclada español/inglés de la figura de marcas **deja de ser pendiente**: Ernesto
+dijo que esa lámina queda como está.

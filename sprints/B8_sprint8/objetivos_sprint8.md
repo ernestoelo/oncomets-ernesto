@@ -89,10 +89,11 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   barato** antes de gastar GPU. Hojas de reunión en
   [`hojas_reunion.md`](tareas_geometricas/hojas_reunion.md), mecanismo interno en
   [`papers_explicados.md`](tareas_geometricas/papers_explicados.md).
-- [**Deck del B8**](presentacion_b8/README.md) (3 al 4-ago) — 20 láminas a dos ejes, con el
-  grid E×S como sección de cierre. Rediseño de 12 puntos ejecutado, auditoría en cero,
-  guion humanizado y leído en voz alta. Queda **una** pendiente propia: la leyenda de la
-  figura de la lámina 12.
+- [**Deck del B8**](presentacion_b8/README.md) (3 al 5-ago) — **16 láminas** a dos ejes, con
+  el grid E×S como sección de cierre. Dos rediseños ejecutados (12 puntos el 4-ago, nueve
+  más el 5-ago que lo bajan de 20 a 16), auditoría en cero. Queda **una** pendiente propia:
+  el guion de las láminas nuevas y fusionadas, sin pasar por `@humanizer-es`.
+- **La reunión con Sebastián es el jueves 6-ago**, no el viernes 7 (esa es la de Benjamín).
 
 ---
 
