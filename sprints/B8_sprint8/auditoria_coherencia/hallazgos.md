@@ -1624,3 +1624,131 @@ los tres contrastes del grid, el 159.5 de 300, los tamaños de entrenamiento 120
 - **Nada de GPU.** Sin `sbatch`; los dos jobs del nodo son ajenos y no leen este árbol.
 - **`prereg.md` y `resultados.md` de los dos experimentos**: intactos salvo la acotación
   aditiva del P1, que no toca ningún número.
+
+---
+
+# Decimoséptima pasada — la sesión de ensayo, y una nota que su propio presentador no entendió (6-ago-2026, jueves, tarde)
+
+> Sesión de **ensayo hablado** de la lámina 15 antes de la reunión, no de construcción. El
+> deck **no se tocó**: cero ediciones al generador, cero regeneraciones. Los tres hallazgos
+> salieron de dos lugares: leer la lámina 15 como quien la va a decir en voz alta, y que
+> Ernesto reportara que **no entendía** la nota de la lámina 9 después de leerla dos veces.
+
+| id | Hallazgo | Tipo | Severidad | Acción |
+|---|---|---|---|---|
+| Q1 | **La nota de la lámina 9 pasó las tres capas de QA y su propio presentador no la entiende.** El argumento del confundido de región depende de una premisa que está en la lámina 8, a 4½ minutos de distancia, y la nota nunca la vuelve a invocar | error de exposición | **alta** | ADDENDUM a [[deck-qa-puntos-ciegos-chequeo]]: es una **cuarta capa** de QA. Redacción propuesta lista, **sin aplicar** (decisión de Ernesto) |
+| Q2 | **`hojas_reunion.md` encabeza con «viernes 7-ago-2026»**, y la reunión con Sebastián es **hoy jueves 6**. Es el documento que se lee EN la reunión | stale | **alta** | Corregir la cabecera; ADDENDUM aditivo en las dos memorias que arrastran la fecha vieja |
+| Q3 | **26 y 28 no son la misma unidad, y ahora está la regla de conteo.** La décima pasada ya registró que los dos son correctos, pero ninguno de los dos documentos decía **por qué** difieren | verificación | media | Nota de una línea en `atencion_vs_patologo/resultados.md`, con la descomposición sacada del CSV |
+
+## Q1 — Una nota correcta, auditada, y que no se entiende
+
+**Qué pasó.** Ernesto leyó los dos párrafos finales de la nota de la lámina 9 (el confundido de
+las dos regiones de escaneo) y dijo dos veces que no los entendía. Esa nota es de las 14 que la
+decimosexta pasada declaró con **las tres capas de QA** encima: barrido automático, `@humanizer-es`
+y lectura en voz alta.
+
+**Por qué las tres capas no podían verlo.** La tabla de las tres capas
+([[deck-qa-puntos-ciegos-chequeo]], ADDENDUM del 4-ago 23:00) dice que la lectura en voz alta
+«entiende **de a una frase**». Acá **cada frase por separado es correcta y comprensible**. Lo que
+falla es una propiedad del **argumento completo**, no de ninguna frase: le falta el eslabón que
+conecta el confundido con el método.
+
+**El eslabón, con precisión.** El número es un AUC pareado, y la lámina 8 **sí** lo define
+textualmente: *«es la probabilidad de que, si tomo un parche marcado y uno sin marca al azar, el
+marcado tenga más atención»*. Lo que la lámina 9 nunca dice es que ese *«uno sin marca al azar»*
+**incluye los 2303 parches de la otra región**, que es exactamente lo que convierte a la región en
+un rival y vuelve el confundido un problema. La nota anuncia *«si la región de abajo recibiera de
+por sí más atención, el número mediría la región»* como si esa consecuencia fuera evidente, y solo
+lo es para quien tiene la mecánica del pareo fresca.
+
+**No es que la premisa falte del deck. Es que está a 4½ minutos y la nota no la vuelve a
+invocar.** La distinción importa porque cambia el arreglo: no hay que re-enseñar el AUC, alcanza
+con una oración que lo re-enganche donde se necesita.
+
+**La regla que queda, y es una capa nueva de QA:**
+
+> Cuando una nota introduce una **complicación** sobre un método ya explicado (un confundido, una
+> excepción, un caso especial), tiene que **volver a invocar la pieza del método que hace que la
+> complicación importe**. No alcanza con que esa pieza esté definida antes.
+
+**Y el motivo por el que ninguna capa anterior la caza:** el autor **siempre** tiene el método
+entero en la cabeza, así que para el autor el eslabón está ahí aunque no esté escrito. Las tres
+capas las corre el autor. La cuarta es la única que necesita un lector que **no** tenga el
+resultado en la cabeza, y acá la corrió Ernesto sin proponérselo. Proxy practicable en solitario:
+por cada nota argumentativa, listar de qué premisas depende la conclusión y verificar que cada una
+esté **en esa nota**.
+
+**Estado: diagnosticado y NO aplicado.** La redacción propuesta existe (re-engancha el pareo en
+una oración, mismo largo), pero editar el deck el día de la reunión es decisión de Ernesto y el
+handoff vigente pedía no tocarlo. Va al handoff como pendiente con la redacción lista.
+
+## Q2 — El documento que se lee en la reunión tiene la fecha vieja
+
+**La verdad de campo**: la reunión con Sebastián es el **jueves 6-ago**; el **viernes 7 es la de
+Benjamín**. Está en `objetivos_sprint8.md:96`, en `presentacion_b8/README.md:15`, en
+[[deck-b8-dos-ejes-simil-mitosis]] (dos veces) y en la línea de índice de
+[[papers-rama-mitosis-bcd]]. El deck escribe 06/08/2026.
+
+**Lo stale**: `tareas_geometricas/hojas_reunion.md:3` («viernes 7-ago-2026»), que es **el
+documento que Ernesto tiene abierto durante la reunión**, y el cuerpo de la memoria
+[[papers-rama-mitosis-bcd]] (ADDENDUM del 3-ago, líneas 161-165), que quedó **contradicho por su
+propia línea de índice**.
+
+**Lo que NO se toca**: los registros históricos que dicen 07/08 porque eran correctos cuando se
+escribieron (`reunion_31jul_redireccion.md`, las pasadas C1 y E1 de esta misma auditoría,
+[[simil-hovernet-decision-31jul]]). La cuarta y la quinta pasada ya pelearon esta fecha dos veces;
+la lección de entonces (registrar sin borrar) sigue vigente y por eso acá se corrige **aditivo**.
+
+**Ojo con una trampa de esta corrección**: [[reunion-24jul-encargos-b8]] tiene la línea del 07/08
+marcada con *«Esta línea es la correcta; no volver a marcarla como stale»*. Era cierto el 3-ago y
+dejó de serlo. Se le agrega el puntero en vez de borrar la marca, porque la marca documenta que
+esa fecha se dudó dos veces sin motivo.
+
+## Q3 — 26 son polígonos, 28 son parches: la regla de conteo
+
+La décima pasada (punto ciego nuevo 3) ya registró que **«26 marcas» y «28 parches» son los dos
+correctos** y que se arregla nombrando la unidad, cosa que el deck ya hace (la lámina 9 dice
+«sesenta y un polígonos» y la 11 titula «Los 28 parches»). **No es un hallazgo nuevo**; se verificó
+antes de reportarlo ([[verificar-antes-de-pedir-dato]]).
+
+Lo que ningún documento decía es **por qué difieren**. Sacado de
+`anotaciones_patologo/parches_anotados_129741.csv` (163 filas, columna `clases` multi-etiqueta con
+`|`):
+
+```
+   parches con Mitosis           = 26 (solo Mitosis) + 1 (Mitosis|Nucleos alto grado) + 1 (Mitosis|Tumor) = 28
+   parches con Nucleos alto grado = 12 + 1 (el compartido con Mitosis)                                    = 13
+```
+
+Los **siete** grupos de la tabla del §1 de `atencion_vs_patologo/resultados.md` se reproducen
+exactos con esa regla (Tumor 45+2+1 = 48, Immune cells 21+2 = 23, necrosis 16+2 = 18, Stroma 10+2 =
+12, Tejido Adiposo 27). O sea: **26 cuenta polígonos que dibujó el patólogo, 28 cuenta parches que
+tocan al menos un polígono de mitosis**. Son unidades distintas y no tienen por qué coincidir.
+
+**Lo que NO se afirma**: la descomposición exacta del +2 (cuántos vienen de una marca de 36 px que
+cruza el borde entre dos parches de 256 y cuántos de dos marcas que caen en el mismo parche) **no
+se calculó**. La regla de conteo alcanza para responder la repregunta y no requiere esa
+descomposición.
+
+## Verificado sin cambios
+
+- **El deck**: cero ediciones al generador, cero regeneraciones, cero figuras. El guion se
+  regeneró para leerlo y es derivado gitignored.
+- **Ningún número del sprint se movió.** Los dos `prereg.md` y los dos `resultados.md`, intactos
+  salvo la nota de conteo de Q3, que no toca ninguna métrica.
+- **`CLAUDE.md`, agentes y skills**: sin cambios. Ninguna regla dura se movió.
+- **Nada de GPU.** Sin `sbatch`; los dos jobs del nodo (4800 `gvenegas`, 4820 `dbustama`) son
+  ajenos y no leen este árbol.
+- **La lámina 15 se ensayó y no se le encontró ningún defecto de contenido.** Sí dos notas de
+  **habla**, que van al handoff y no son ediciones: la bisagra «de encaje y no de calidad» está en
+  una subordinada y se pierde al hablar rápido, y hay **dos series de ordinales en 90 segundos**
+  («la primera/segunda/tercera/cuarta» familia contra «el primero/segundo/tercero» paper) que no
+  se corresponden entre sí. Lo segundo es consecuencia de haber sacado las letras A/B/C/D, que fue
+  una decisión correcta; se resuelve nombrando los papers por contenido al decirlos.
+
+## Lo que queda abierto y va al handoff
+
+- **Q1 sin aplicar**: la reescritura de la nota de la lámina 9, con la redacción ya propuesta.
+- Los pendientes del sprint siguen abiertos sin cambios: las dos preguntas de la reunión, la
+  réplica del dato abierto del 4589 con semillas nuevas, el sign-off del patólogo y `@grilling`
+  sin estrenar.
