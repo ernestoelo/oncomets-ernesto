@@ -2320,6 +2320,9 @@ alto», pesa **λ = 20** contra 1 de los otros dos (`simil_estudio.md:68`).
 
 ### Queda abierto
 
-El **cuerpo** de la lámina 12 escribe «folds» y el de la 14 «particiones»: mismo choque, pero
-del lado escrito, y el alcance de esta pasada era la prosa hablada. Es un `caption` de una
-línea (`generate_b8_deck.py:2029`) y la decisión es de Ernesto.
+**Del guion, nada**: las 14 láminas con notas tienen ahora las tres capas.
+
+Durante el cierre se verificó un falso pendiente: el cuerpo de la lámina 12 escribe «folds» y
+el de la 14 «particiones», pero **la R5 de la decimocuarta pasada lo decidió así a propósito**
+(en esa tabla «fold» es el identificador del checkpoint). La regla es no mezclarlos *dentro*
+de una lámina, no unificarlos entre láminas.

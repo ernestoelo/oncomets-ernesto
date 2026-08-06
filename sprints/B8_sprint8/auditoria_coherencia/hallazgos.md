@@ -1415,3 +1415,129 @@ Resuelto unificando a «partición» en la lámina del grid, y a «fold» en la 
 - **La leyenda mezclada español/inglés** de la figura de marcas (hoy lámina 9). Ernesto dijo que
   esa lámina queda como está, así que deja de ser pendiente del deck y pasa a ser una decisión
   tomada.
+
+---
+
+# Decimoquinta pasada — el guion de las ocho, con las tres capas (5-ago-2026, miércoles, 9ª)
+
+> Cierra el pendiente principal que dejó la decimocuarta pasada: las ocho láminas nuevas o
+> fusionadas del recorte (4, 5, 6, 8, 12, 13, 14 y 16) no tenían las dos capas de QA de prosa
+> que sí tenían las demás. Ahora las tienen, más la lectura en voz alta.
+>
+> **14 ediciones, las 14 dentro de `notes(...)`**, verificado a máquina: de las 33 líneas
+> modificadas, **cero** caen fuera de una llamada `notes()`, así que el cuerpo de las láminas
+> no se tocó y no correspondía volver a mirarlas. Auditoría del generador en cero, guion de
+> 6532 a 6512 palabras. Ningún `prereg.md` ni `resultados.md` se tocó y **ningún número de los
+> dos experimentos cambió de valor**.
+
+| id | Hallazgo | Tipo | Severidad | Acción |
+|---|---|---|---|---|
+| S1 | La 14 glosaba el reparto de peso entre los 300 slots como «poco más de la mitad **concentra casi todo**», que mezcla `N_eff` con la concentración | error | **alta** | Pasa a decir lo mismo que la lámina 3: «el reparto ocupa alrededor de ciento sesenta». Registrado en [[mammoth-slot-routing-weight]] |
+| S2 | El hallazgo mayor de la pasada de humanizer **no fue un tell de prosa sino un arco roto**: la 4 y la 5 contaban el mismo montaje dos veces | método | **alta** | La 5 se apoya en la 4; baja de 887 a 846 palabras. Registrado en [[humanizer-es-skill]] |
+| S3 | El choque de vocabularios de R5 reaparece en una **tercera superficie**: entre el guion y el cuerpo, con «slots» en el propio **título** | método | media | Se glosa una vez y se adopta lo escrito. Registrado en [[deck-qa-puntos-ciegos-chequeo]] |
+| S4 | El tercer término de la pérdida de SI-MIL se contaba como «un peso bastante alto», sin número, teniéndolo | stale | media | Es **λ = 20** contra 1 de los otros dos (`simil_estudio.md:68`) |
+| S5 | Tres repeticiones textuales más entre láminas, invisibles dentro del generador | método | baja | Resueltas; ver abajo |
+
+## S1 — Glosar `N_eff` como concentración mezcla dos mediciones
+
+Es el hallazgo que más vale, porque **toca cómo se cuenta un número del sprint** delante de
+Sebastián. La lámina 14 decía que, del reparto del peso entre los 300 slots, «poco más de la
+mitad concentra casi todo».
+
+Eso junta dos mediciones que `../q1_slots_escalado/resultados.md:38` separa **a propósito**:
+
+- el número efectivo es **159.5 de 300** (`exp` de la entropía), y
+- por otro lado **38 slots llevan la mitad del peso** y hacen falta **169 para el 90 %**.
+
+El propio archivo advierte, textual: *«`N_eff = 159.5` no significa 159 slots trabajando por
+partes iguales»*. La frase de la lámina tomaba el conteo de la primera medición («poco más de
+la mitad» de 300) y le pegaba el predicado de la segunda («concentra casi todo»). Dicha en voz
+alta suena a una afirmación de sesgo del reparto, que es justo lo que el número efectivo **no**
+dice.
+
+Resuelto adoptando la formulación de la **lámina 3**, que ya había pasado las dos capas el
+4-ago y dice «se ocupan alrededor de ciento sesenta unidades de las trescientas». Las dos
+láminas ahora coinciden. **Ningún número cambió**: cambió la glosa.
+
+## S2 — El hallazgo mayor de una pasada de humanizer sobre láminas fusionadas fue un ARCO
+
+La pasada se pedía para quitar tells de prosa. Lo que apareció primero, y con diferencia, fue
+otra cosa: la **lámina 4 describe la figura del paper** (los dos caminos, la caja amarilla que
+hace de puente) y la **lámina 5 volvía a describir el mismo montaje desde cero**, unas 110
+palabras a veinte segundos de distancia, incluida la bisagra contada dos veces con dos nombres
+(«la bisagra del diseño» / «el movimiento central del diseño»).
+
+No es un defecto de estilo: es el arco que rompió la fusión. La 5 nació de juntar tres láminas
+de ecuaciones, y su guion se escribió como si abriera el tema, cuando ahora entra después de la
+figura del paper. **Dentro del generador es invisible** —las dos llamadas `notes()` están a 130
+líneas de distancia— y en el archivo extraído salta a la primera lectura.
+
+La 5 ahora se apoya en la 4 («es el mismo recorrido, redibujado con los anchos y la notación»)
+y va directo a lo que agrega. Baja de 887 a 846 palabras, y sigue siendo la más larga del deck.
+
+**La regla que queda:** al humanizar láminas fusionadas, la primera pasada es de **arcos**, no
+de prosa. Una lámina fusionada hereda un guion escrito para otro lugar del recorrido.
+
+## S3 — El choque de vocabularios tiene una tercera superficie
+
+La R5 de la decimocuarta pasada registró que fusionar láminas vuelve vecinos a dos
+vocabularios, y lo vio dos veces: **dentro del cuerpo** de una lámina (13ª pasada) y entre el
+**cuerpo y el pie de un helper** (14ª). Acá aparece la tercera: entre el **guion y el cuerpo**.
+
+La lámina 14 decía, hablada, «unidades» y «niveles», mientras su cuerpo escribe «peldaños» y su
+**título** escribe «slots». El asistente lee una palabra en la pantalla y oye otra, sin que
+nadie las conecte nunca.
+
+Resuelto con la regla del ADDENDUM 23:20 del 4-ago: si la palabra está escrita en el cuerpo,
+**se glosa, no se saca**. Una sola vez, al abrir la lámina («en el título aparecen como slots,
+que es lo mismo»), y «peldaño» se adopta en el guion porque es lo que está escrito. El resto de
+la lámina puede seguir diciendo «unidades», que es lo que dicen la lámina 3 y el punteo guía.
+
+**Lo que agrega a R5:** el chequeo de vocabulario de un recorte no se cierra mirando el cuerpo.
+Son tres superficies —cuerpo, pie de helper y guion— y el título cuenta como cuerpo.
+
+## S4 y S5 — Un dato vago, y tres repeticiones
+
+- **S4:** la lámina 6 contaba el tercer término de la pérdida de SI-MIL como «con un peso
+  bastante alto». El valor estaba en el repo hace días: **λ = 20**, contra 1 de cada uno de los
+  otros dos términos (`../simil_estudio.md:68`, `../simil_explicacion_matematica.md:438`, los
+  dos verificados contra el paper). Un hedge vago donde había número.
+- **S5:** tres repeticiones textuales más, todas entre láminas y por eso invisibles dentro del
+  generador. «dos modelos corriendo en paralelo» aparecía en el guion de la 5, en el **cuerpo**
+  de la 6 y en el guion de la 6 (manda el cuerpo: se saca de la 5). Y la 6 hacía tres veces el
+  mismo movimiento de «esto es lo que hay que llevarse».
+
+**Y una que NO se tocó, por una decisión previa.** «una lámina y un anotador describen, no
+establecen» aparece **textual** en la 8 y en la 13, y citada en la 16. Parecía la cuarta
+repetición, pero [[humanizer-es-skill]] §5 la registró el 4-ago como **salvedad repetida a
+propósito**: no es fórmula de IA si el guion la reconoce como consigna sostenida, y se
+preserva junto con los quiasmos «X, no Y». Se respetó: la salvedad queda **entera y textual**
+en las tres. Lo único que cambia es que la 13 ahora la introduce reconociéndola —«sigue en pie
+lo que dije al empezar»— que es justo el criterio que la memoria pide, y que la 13 era la única
+de las tres que no cumplía.
+
+De la lectura en voz alta salieron además cuatro correcciones de las que solo se oyen: «un
+vector de quinientos doce» perdía la unidad, «contra uno de cada uno de los otros dos» tenía
+tres «uno» en una frase, «trescientas» aparecía dos veces en una oración de la 14, y «responde
+con más convicción la respuesta equivocada» (la 12) pasa a «se equivoca con más convicción».
+
+## Verificado sin cambios
+
+- **Los dos `prereg.md` y los dos `resultados.md`**: intactos. Ningún número se movió.
+- **El cuerpo de las 16 láminas**: verificado **a máquina**, no a ojo. Las 33 líneas del diff
+  caen todas dentro de una llamada `notes()`. Por eso no se re-inspeccionaron las láminas, que
+  es lo que pedía el plan del handoff.
+- **Barrido de reglas duras sobre el guion**: cero rayas «—», cero «palanca». Las 17 rayas que
+  aparecían en el archivo extraído eran de las cabeceras del propio script de extracción.
+- **`CLAUDE.md`, agentes y skills**: sin cambios. Ninguna regla dura se movió.
+- **«fold» en la lámina 12 y «partición» en la 14 NO es un defecto**: la R5 de la decimocuarta
+  pasada lo decidió así a propósito —«fold» es el identificador del checkpoint en esa tabla— y
+  la regla es no mezclarlos **dentro** de una lámina, no unificarlos entre láminas. Se verificó
+  antes de tocar nada.
+
+## Lo que queda abierto y va al handoff
+
+- **Nada del guion.** Las 14 láminas con notas tienen ahora las tres capas.
+- Los pendientes del sprint que no son del deck siguen abiertos y van al handoff sin cambios:
+  las dos preguntas de la reunión (encargo 2 y cuántas láminas anotadas hay), la réplica del
+  dato abierto del 4589 con semillas nuevas, y el sign-off del patólogo.
