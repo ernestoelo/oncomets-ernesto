@@ -1827,3 +1827,89 @@ lámina que lo explique y el guion que lo diga.
   esa lámina cambia de número, así que conviene aplicarla en la misma pasada.
 - Los pendientes de sprint sin cambios: la réplica del dato abierto del 4589 con semillas nuevas,
   el sign-off del patólogo y `@grilling` sin estrenar.
+
+---
+
+# Decimonovena pasada — el reordenamiento ejecutado, y dos líneas cruzando un texto (7-ago-2026, viernes)
+
+> Sesión de **construcción**: los seis pedidos de deck del 6-ago más los dos entregables.
+> Todo el material de contenido ya estaba escrito y verificado por la pasada anterior. **Ningún
+> número cambió**, y ni el `prereg.md` ni el `resultados.md` de los dos experimentos se tocaron.
+> El deck queda en **14 láminas**, auditoría del generador en cero.
+
+| id | Hallazgo | Tipo | Severidad | Acción |
+|---|---|---|---|---|
+| S1 | **Los dos rótulos rotados de las cintas de «La pregunta medible» se pisaban entre sí**, y era preexistente: un shape rotado 270° ocupa a lo alto lo que mide de ancho (1,60") y las dos cintas están a 0,56" | defecto de lámina | media | Rótulos horizontales en la calle izquierda, cintas corridas a `x = 1,24`. **Corregido** |
+| S2 | **La línea punteada del azar cruzaba el rótulo «0,322» de Linfocitos** en la escalera de los siete grupos | defecto de lámina | media | El valor pasa a **columna fija** al final del eje en `barras_ranking`. **Corregido** |
+| S3 | **R1 aplicado** (decimoctava pasada): la lámina decía «los 163 marcados» y mostraba 0,89 | error de contenido | alta | La línea nombra el grupo y la lámina dice que cada grupo tiene su propio estadístico. **Corregido** |
+| S4 | **Q1 aplicado** (decimoséptima pasada): la nota de los mapas no decía contra qué compite un parche marcado | omisión de guion | media | Entró la oración: compite contra todos los demás de la lámina, incluidos los 2303 de la otra región. **Corregido** |
+| S5 | **Cinco defectos de arco** que salieron de leer el guion de corrido con el orden nuevo | guion | media | Los cinco corregidos, detalle abajo |
+
+## S1 y S2 — dos líneas cruzando un texto, con la auditoría en cero
+
+Las dos son de la clase que la undécima y la decimoquinta pasada ya habían catalogado
+([[deck-qa-puntos-ciegos-chequeo]]): **los dos objetos son válidos, cada uno está dentro de su
+caja, y el cruce es invisible para cualquier chequeo de límites**. Las dos salieron del
+rasterizado con LibreOffice.
+
+**S1 agrega un mecanismo nuevo y vale registrarlo**: `_rot_label` rota 270°, y **el bbox que
+reporta el shape es el de antes de rotar**. Eso ya estaba anotado como «falso positivo en
+chequeos de límites» (ADDENDUM del 19-jul de [[deck-contenido-visual-no-bullets]]); lo que
+faltaba decir es que también produce **falsos negativos**: dos rótulos que el chequeo ve
+separados por 0,56" en realidad se solapan en 1,04". El defecto era **preexistente** y el
+reordenamiento vertical de la lámina solo lo hizo más visible.
+
+**S2 es de la familia «offsets que dejan de servir al cambiar los datos»**, prima del hallazgo
+de la decimoquinta pasada sobre `barras_divergentes`. `barras_ranking` ponía el valor a
+`xb + 0,08`, o sea pegado a la punta del bigote. Para los grupos **bajo el azar** esa punta cae
+antes de la línea punteada del 0,5, así que el rótulo aterriza justo encima de ella. No es un
+error de la lámina de hoy: es una regla de posicionamiento que solo funciona para valores
+altos, y los tres grupos bajos son datos legítimos de la tabla.
+
+## S5 — lo que solo se oye leyendo de corrido
+
+Cinco, y **cuatro de los cinco son consecuencia directa del reorden**, no de la prosa nueva:
+
+- **Dos «paso a» seguidos** en el cambio de la lámina 3 a la 4. Cada nota, leída sola, está bien.
+- «Empiezo por acá porque es **lo único que llega cerrado**» **contradecía la portada**, que
+  presenta SI-MIL como lectura terminada. La frase era correcta cuando el grid era la sección de
+  cierre y falsa cuando pasó a abrir.
+- El **26 contra 28** se oía como contradicción desde la lámina 5 y no se resolvía hasta la 7.
+  La R1 lo empeoró sin querer: al corregir «163» por «28» en la lámina 4, el 28 aparece **antes**
+  que el 26. Se resuelve con media oración de adelanto en la 5.
+- **Tres preguntas «para hoy» apiladas al final**, porque SI-MIL pasó al cierre y trae dos.
+  Las dos de SI-MIL pasan a «las dejo planteadas» y la de cierre queda como la única que bloquea.
+- «Tomar un detector de mitosis **público**» chocaba, dos párrafos después, con «uno trae pesos
+  **públicos** pero no distingue mitosis». Esa sí es de la prosa nueva.
+
+**Lo transversal**: fusionar láminas vuelve vecinos a dos vocabularios (quinta y decimoquinta
+pasada); **reordenarlas rompe las referencias cruzadas**, que es otra cosa y no la caza ninguna
+cuenta. Dos frases de la lámina 11 prometían algo «en la segunda parte» apuntando a una medición
+que, con el orden nuevo, ya ocurrió.
+
+## Verificado sin cambios
+
+- **El «0,89 vs 0,890» y el «26 vs 28» no se reabrieron.** El primero sigue siendo decisión de
+  estilo (la cinta ilustra, la banda mide) y el segundo ahora tiene su cadena dibujada en la
+  lámina 7, que es lo que la decimoctava pasada dejó preparado.
+- **Los rótulos de hipótesis siguen sin reasignarse por cuál ganó**: la primaria es la del
+  patólogo, o sea la que el resultado refutó. Al bajarlas de su renglón propio al bloque de
+  método se conservó el texto del pre-registro §2.
+- **Barrido de reglas duras sobre el `.pptx` construido**, cuerpo y notas: cero rayas, cero
+  «palanca», cero decimales con punto, cero «al revés». Había un «al revés» **preexistente** en
+  la nota del grid, corregido.
+- **La copia sin notas** deja 82 partes del paquete **byte-idénticas**, o sea que fuentes
+  embebidas, imágenes y theme no se tocaron.
+
+## Lo que queda abierto y va al handoff
+
+- **Los dos papers de `papers_11_agosto/` siguen sin leer ni fichar.**
+- **El envío a Sebastián** de ZoomMIL y el de positivos parciales: falta verificar si los PDF
+  están en el repo o hay que bajarlos (y bajar exige autorización explícita, workaround E.a).
+- **Tres decisiones de Ernesto sobre el deck**: la lámina de cierre queda muy vacía con el molde
+  exacto, las dos figuras de mitosis cedieron un 20 % de alto, y la leyenda mezclada
+  español/inglés sigue como está por decisión suya.
+- Las **dos preguntas de la reunión del 6-ago** siguen sin respuesta conocida, y de la segunda
+  dependen los dos objetivos propuestos.
+- Los pendientes de sprint sin cambios: la réplica del dato abierto del 4589 con semillas nuevas,
+  el sign-off del patólogo y `@grilling` sin estrenar.

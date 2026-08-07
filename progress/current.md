@@ -2466,3 +2466,80 @@ reforzar cuatro láminas con la estadística, reescribir el guion para el orden 
 Benjamín, regenerar y sacar la copia sin notas para Sebastián. Más: los dos papers de
 `papers_11_agosto/` sin leer, el envío a Sebastián de los dos recomendados, R1 y el Q1 de la pasada
 anterior sin aplicar, y los pendientes de sprint de siempre.
+
+---
+
+## Sesión 7-ago-2026 — el deck reordenado, y los dos entregables
+
+Sesión de construcción pura, sin GPU. Se ejecutaron **los seis pedidos** que Ernesto dejó el
+6-ago por la noche más **los dos entregables**. El deck queda en **14 láminas**, la auditoría
+del generador en cero, **ningún número cambió** y ni el `prereg.md` ni el `resultados.md` de los
+dos experimentos se tocaron.
+
+**El orden nuevo lo pidió Sebastián y no se re-decidió**: abre el grid de expertos y slots,
+sigue la medición de atención contra las marcas del patólogo, y SI-MIL queda al final. La
+audiencia es Benjamín, la semana del 11-ago.
+
+### Lo estructural
+
+`build()` **dejó de ser un bloque de mil líneas**: cada lámina es una función `lam_*(prs)` y
+`build()` es la lista de llamadas. El cuerpo de cada bloque quedó donde estaba, a cuatro
+espacios, así que la conversión no movió una sola línea de indentación. Los comentarios
+`# ---- N. Título ----` **perdieron el número**, que quedaba stale en cada reorden y obligaba a
+mantener a mano un mapeo entre «la lámina N» de los pedidos y el código.
+
+**Se fueron dos láminas** con sus constantes: «Objetivos del sprint» (`OBJETIVOS`) y «Tres
+papers para la rama de mitosis» (`PAPERS`). Nada de su contenido se perdió: el molde de la
+primera lo hereda «Objetivos propuestos», y el razonamiento de la segunda bajó al guion de esa
+misma lámina, que es donde justifica el objetivo propuesto 2.
+
+### Las cuatro láminas de la medición, con la estadística adentro
+
+Es el pedido de fondo: Ernesto dijo que le falta entender la parte estadística para defender qué
+mide cada tipo de tejido. «La pregunta medible» ahora **nombra** el estadístico (U de
+Mann-Whitney normalizada) y **hace la cuenta en pantalla** (`28 × 4771 = 133 588` pares, y en el
+89 % gana el marcado), con tres tarjetas que dicen contra qué se mide cada grupo, por qué son
+comparables y qué significa quedar bajo 0,5. La escalera **explica el bigote** y cambia sus dos
+tarjetas por **las dos incertidumbres**. Y la lámina de los 28 parches abre con la **cadena
+26 → +10 → −8 → 28** y la escala del 2 al 4 % del área del parche, que es el puente a la
+siguiente.
+
+También se aplicaron los dos pendientes heredados: **R1** (la lámina decía «los 163 marcados» y
+mostraba el 0,89 de mitosis) y **Q1** (la nota de los mapas no decía contra qué compite un
+parche marcado).
+
+### Lo que salió del QA visual, con la auditoría en cero
+
+**Dos líneas cruzando un texto**, la clase que ningún chequeo de cajas ve. Los dos rótulos
+rotados de las cintas se pisaban entre sí, y era **preexistente**: un shape rotado 270° ocupa a
+lo alto lo que mide de ancho, y el bbox que reporta es el de antes de rotar, así que el chequeo
+los veía separados cuando se solapaban en una pulgada. Y la línea punteada del azar **cruzaba el
+rótulo de Linfocitos**, porque el valor iba pegado a la punta del bigote y para los grupos bajo
+el azar esa punta cae antes de la línea del 0,5. Ahora los siete valores van en columna fija.
+
+### El guion
+
+Reescrito para el orden nuevo, pasado por `@humanizer-es` y por la lectura en voz alta. Lo que
+solo se oye: dos «paso a» seguidos en un cambio de lámina, una frase del grid que
+**contradecía la portada** al pasar de cierre a apertura, el 26 contra 28 sonando a
+contradicción durante dos láminas, y **tres preguntas «para hoy» apiladas al final** porque
+SI-MIL pasó al cierre. Lo transversal: fusionar láminas vuelve vecinos a dos vocabularios, pero
+**reordenarlas rompe las referencias cruzadas**, que es otra cosa; dos frases prometían algo
+«en la segunda parte» apuntando a una medición que ahora ya ocurrió.
+
+### La copia sin notas
+
+`sin_notas.py`, versionado al lado del generador: cirugía de zip, no python-pptx. Deja **82
+partes del paquete byte-idénticas** (fuentes embebidas, imágenes y theme intactos) y 0 láminas
+con notas. Se versionó el script y no el `.pptx`, porque Sebastián va a querer la copia de nuevo
+cada vez que el deck cambie.
+
+### Queda abierto
+
+Los **dos papers de `papers_11_agosto/`** sin leer ni fichar, y el **envío a Sebastián** de
+ZoomMIL y positivos parciales (falta ver si los PDF están en el repo). Tres decisiones de
+Ernesto sobre el deck: la lámina de cierre queda muy vacía con el molde exacto, las dos figuras
+de mitosis cedieron un 20 % de alto, y la leyenda mezclada de la figura de marcas. Las dos
+preguntas de la reunión del 6-ago siguen sin respuesta conocida. Y los pendientes de sprint de
+siempre: la réplica del 4589 con semillas nuevas, el sign-off del patólogo y `@grilling` sin
+estrenar.
