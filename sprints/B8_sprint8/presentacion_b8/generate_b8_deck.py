@@ -83,9 +83,10 @@ DST_LEGACY = os.path.join(OUT_DIR, "CLAM_Sprint8_SIMIL.pptx")   # nombre previo,
 
 TEMPLATE = os.path.join(REPO, "sprints/B7_sprint7/Modelo OncoMets Spatial V1 Deep-LLM-V.pptx")
 TPL_KEEP = (0, 1)          # portada de marca + lámina de título, nativas a 13.333
-# La reunión con Sebastián se adelantó al jueves 6 (5-ago): el viernes 7 es la de Benjamín,
-# a la que Ernesto probablemente no llegue por clases. El deck se presenta el 6.
-FECHA_REUNION = "06/08/2026"
+# La reunión con Sebastián fue el jueves 6-ago y ya ocurrió; la del viernes 7 con Benjamín
+# se cayó (Ernesto tiene clases). Esta versión del deck se presenta a Benjamín la semana del
+# 11-ago, sin día confirmado todavía: la portada lleva el mes hasta que haya fecha.
+FECHA_REUNION = "Agosto 2026"
 
 # --- figura del paper (única imagen del deck), recortada de la página 4 a 400 DPI ---
 FIG2_FULL = os.path.join(ASSETS, "simil_fig2_full.png")   # los tres paneles
@@ -119,15 +120,33 @@ PROVENANCIA = [
 
 # --- números de la medición, verificados contra auc_por_checkpoint.csv (4 ckpt primarios,
 # cabeza de la clase verdadera). El orden es el de la escalera que se dibuja en la lámina.
+#
+# La cuarta columna es el SEMIANCHO del intervalo de confianza al 95 % del AUC, calculado el
+# 6-ago con la fórmula de Hanley y McNeil sobre `con_region/auc_por_checkpoint.csv`
+# (universo `lamina`, rol `primario`): 1,96 × EE, con EE = √([A(1−A) + (n₊−1)(Q₁−A²) +
+# (n₋−1)(Q₂−A²)] / (n₊·n₋)), Q₁ = A/(2−A), Q₂ = 2A²/(1+A), n₊ = parches del grupo y
+# n₋ = 4799 − n₊. Es la precisión que da ESE tamaño de grupo, y es una incertidumbre
+# DISTINTA de la sd entre checkpoints (que mide cambiar de modelo, no cambiar de marcas).
+# Por eso el bigote de estroma (n = 12) mide el triple que el de tejido adiposo (n = 27).
 ESCALERA = [
-    ("Mitosis", 28, 0.890, True),
-    ("Núcleos de alto grado", 13, 0.828, True),
-    ("Tumor", 48, 0.826, False),
-    ("Necrosis", 18, 0.748, False),
-    ("Estroma", 12, 0.537, False),
-    ("Linfocitos", 23, 0.322, False),
-    ("Tejido adiposo", 27, 0.154, False),
+    ("Mitosis", 28, 0.890, 0.080, True),
+    ("Núcleos de alto grado", 13, 0.828, 0.138, True),
+    ("Tumor", 48, 0.826, 0.072, False),
+    ("Necrosis", 18, 0.748, 0.131, False),
+    ("Estroma", 12, 0.537, 0.167, False),
+    ("Linfocitos", 23, 0.322, 0.095, False),
+    ("Tejido adiposo", 27, 0.154, 0.050, False),
 ]
+
+# --- la cuenta que lleva de 26 marcas a 28 parches, calculada el 6-ago sobre la geometría
+# real (geojson + coords del h5, con el offset dx = 3829 ya adoptado). La regla de mapeo es
+# la de `alinear_anotaciones_qupath.py:252`: un parche cuenta si su cuadrado de 256 px se
+# solapa con la caja envolvente del polígono.
+#   26 polígonos de mitosis → 36 pares (polígono, parche) → 28 parches distintos
+#   16 polígonos caen enteros dentro de un parche · 10 se reparten entre dos  → +10
+#   21 parches tienen una sola mitosis · 6 tienen dos · 1 tiene tres          →  −8
+CUENTA_26_28 = [("26", "marcas del\npatólogo"), ("+10", "marcas sobre\nel borde"),
+                ("−8", "parches con\nmás de una"), ("28", "parches con\nmitosis")]
 
 # --- números del grid E×S, verificados contra grid_expertos_slots/resultados.md ---
 # Contraste primario del pre-registro §6: (brazo que recorta S) menos (brazo que recorta E),
@@ -694,18 +713,30 @@ def panel(slide, l, t, w, h, title, tcol, lines, border, fill=TEAL_CARD2, tsize=
 # arrastra la paleta de Office y hay que repintarlo entero, y acá el objeto es una barra por
 # fila, que es exactamente el arquetipo «dato» del template.
 def barras_ranking(slide, l, t, w, h, datos, x_eje=2.62, ancho_eje=5.40, fs=10.5):
-    """Barras horizontales de AUC con la marca del azar. `datos` = (nombre, n, auc, interes)."""
+    """Barras horizontales de AUC con la marca del azar y el bigote del IC 95 %.
+
+    `datos` = (nombre, n, auc, ic, interes), con `ic` = semiancho del intervalo. El bigote
+    es lo que convierte la escalera en una lámina honesta: sin él, siete barras del mismo
+    grosor sugieren siete números de la misma calidad, y no lo son — la precisión la fija
+    el n de cada grupo, que va de 12 a 48 parches."""
     fila = h / len(datos)
     alto_barra = min(0.26, fila * 0.62)
     x0 = l + x_eje
-    for i, (nombre, n, auc, interes) in enumerate(datos):
+    for i, (nombre, n, auc, ic, interes) in enumerate(datos):
         cy = t + i * fila + fila / 2
         add_textbox(slide, l, cy - 0.15, x_eje - 0.14, 0.30,
                     [("%s  (n = %d)" % (nombre, n), fs, interes, ONCO_DARK if interes else INK,
                       F_BODY, PP_ALIGN.RIGHT)], anchor=MSO_ANCHOR.MIDDLE)
         _rect(slide, x0, cy - alto_barra / 2, ancho_eje * auc, alto_barra,
               ONCO_DARK if interes else ONCO_PANEL)
-        add_textbox(slide, x0 + ancho_eje * auc + 0.08, cy - 0.15, 0.72, 0.30,
+        # bigote: tallo fino de auc−ic a auc+ic, con tope en los dos extremos. Va en el
+        # azul oscuro del template para que se lea tanto sobre la barra como sobre el fondo.
+        xa = x0 + ancho_eje * max(0.0, auc - ic)
+        xb = x0 + ancho_eje * min(1.0, auc + ic)
+        _rect(slide, xa, cy - 0.012, xb - xa, 0.024, ONCO_INK)
+        for xc in (xa, xb):
+            _rect(slide, xc - 0.012, cy - 0.085, 0.024, 0.170, ONCO_INK)
+        add_textbox(slide, xb + 0.08, cy - 0.15, 0.72, 0.30,
                     [(_num(auc), fs, interes, ONCO_DARK if interes else GRIS_BODY, F_BODY)],
                     anchor=MSO_ANCHOR.MIDDLE)
     # el azar, que es la única referencia que este estadístico tiene
@@ -719,6 +750,29 @@ def barras_ranking(slide, l, t, w, h, datos, x_eje=2.62, ancho_eje=5.40, fs=10.5
     add_textbox(slide, x_nulo - 0.80, t - 0.42, 1.60, 0.26,
                 [("azar = 0,5", 9.5, True, ONCO_INK, F_BODY, PP_ALIGN.CENTER)],
                 anchor=MSO_ANCHOR.MIDDLE)
+
+
+def cadena_cuenta(slide, l, t, w, items, h=0.42, fs=14, fs_pie=8):
+    """Una cuenta con el resultado ya hecho, en bloques encadenados.
+
+    Es el arquetipo que la convención pide cuando un bullet dice un número que sale de otros
+    ([[deck-contenido-visual-no-bullets]]): «26 marcas dan 28 parches» no se explica en una
+    frase subordinada, se dibuja. Los extremos son bloques de proceso (los dos números que
+    alguien puede cruzar y creer que se contradicen) y el medio son los dos ajustes."""
+    n = len(items)
+    cw = (w - 0.30 * (n - 1)) / n
+    for i, (num, pie) in enumerate(items):
+        x = l + i * (cw + 0.30)
+        extremo = i in (0, n - 1)
+        _rect(slide, x, t, cw, h, ONCO_DARK if extremo else ONCO_PANEL)
+        add_textbox(slide, x, t, cw, h,
+                    [(num, fs, True, WHITE if extremo else ONCO_INK, F_BODY, PP_ALIGN.CENTER)],
+                    anchor=MSO_ANCHOR.MIDDLE)
+        add_textbox(slide, x, t + h + 0.04, cw, 0.34,
+                    [(l_, fs_pie, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)
+                     for l_ in pie.split("\n")])
+        if i < n - 1:
+            _conn(slide, x + cw + 0.04, t + h / 2, x + cw + 0.26, t + h / 2)
 
 
 def cinta_ranking(slide, l, t, w, marcados, n=34, h=0.40, fs=9, ejes=True):
