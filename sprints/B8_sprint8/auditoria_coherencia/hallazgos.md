@@ -1752,3 +1752,78 @@ descomposición.
 - Los pendientes del sprint siguen abiertos sin cambios: las dos preguntas de la reunión, la
   réplica del dato abierto del 4589 con semillas nuevas, el sign-off del patólogo y `@grilling`
   sin estrenar.
+
+---
+
+# Decimoctava pasada — la reunión ocurrió y el deck se reordena entero (6-ago-2026, jueves, noche)
+
+> Sesión **post-reunión**. Sebastián dio feedback sobre la medición de atención, pidió un orden
+> nuevo para la presentación, y la de Benjamín del viernes 7 **se cayó** (Ernesto tiene clases):
+> el deck se presenta a Benjamín la **semana del 11-ago**, sin día confirmado. La sesión alcanzó a
+> hacer la parte de **contenido** (los dos hallazgos de abajo) y a arrancar la reestructuración del
+> generador; el reordenamiento de `build()` quedó **a medio camino** y va entero al handoff.
+
+| id | Hallazgo | Tipo | Severidad | Acción |
+|---|---|---|---|---|
+| R1 | **La lámina «La pregunta medible» dice que se mira dónde caen «los 163 marcados» y acto seguido muestra 0,89, que es el número de los 28 de mitosis.** Los 163 son los siete grupos juntos y no tienen AUC en ninguna tabla | error de contenido | **alta** | Corregir la línea: el estadístico se calcula **por grupo**, y la cinta ilustra el de mitosis. **Sin aplicar** |
+| R2 | **El +2 de 26 → 28 no es un +2 simple: son +10 y −8 que casi se cancelan.** La décima y la decimoséptima pasada dieron la regla de conteo correcta, pero el mecanismo quedó sin calcular y el neto invita a leerlo como un solo efecto | verificación | media | Calculado y registrado en `atencion_vs_patologo/resultados.md` §1.a |
+| R3 | **Los siete grupos comparten estadístico pero no precisión**, y la escalera los dibuja con barras del mismo grosor. Con n de 12 a 48, el IC 95 % va de 0,10 a 0,33 de ancho | omisión | media | §1.b nuevo en `resultados.md` con los IC de Hanley-McNeil; bigote agregado a `barras_ranking` |
+
+## R1 — «los 163 marcados» y el 0,89 no son el mismo conjunto
+
+La lámina encadena tres frases: se ordenan los 4799 parches, se mira dónde caen **los 163
+marcados**, y el resultado es **0,89**. Las tres son ciertas por separado y juntas dicen algo
+falso: los 163 son la unión de los siete grupos (tumor, grasa, linfocitos incluidos), y ese
+conjunto **no tiene AUC calculado en ningún artefacto** — mezclaría grupos que van de 0,15 a 0,89.
+El 0,89 es de los **28 de mitosis**.
+
+Es el mismo tipo de defecto que la decimoséptima pasada catalogó en Q1: cada frase pasa la
+auditoría por separado y el problema está en el eslabón. Acá encima lo agrava que el número 163
+aparece también en la lámina siguiente, en el pie de procedencia, donde **sí** corresponde.
+
+**Corrección**: la línea pasa a decir que se mira dónde cayeron los parches **del grupo**, y que la
+cinta de abajo es la de mitosis. Queda **sin aplicar** en esta sesión.
+
+## R2 — el mecanismo del 26 → 28
+
+Ver `atencion_vs_patologo/resultados.md` §1.a, que trae la tabla entera. Lo que importa acá como
+hallazgo de auditoría es que **el documento invitaba a la lectura equivocada**: decía que la
+descomposición «no se calculó y no hace falta», y el neto de +2 se lee naturalmente como «dos
+marcas cruzaron un borde». Son **diez** las que cruzan; lo que las tapa son **siete parches con más
+de una mitosis adentro**, que restan ocho. Que el neto sea +2 es una coincidencia de esta lámina.
+
+Consecuencia de método, y por eso es hallazgo y no una nota al pie: **el neto no es portable**. Si
+la medición se lleva a otras láminas (que es el objetivo propuesto 1), el neto va a ser distinto y
+mucho mayor, porque depende de la dispersión de las marcas. Lo portable es la regla de mapeo.
+
+## R3 — siete barras del mismo grosor sugieren siete números de la misma calidad
+
+La escalera de los siete grupos dibuja siete barras idénticas en forma. Con n de 12 a 48, la
+precisión no es comparable: el IC 95 % de estroma mide 0,33 de ancho y el de tejido adiposo 0,10.
+El caso que más importa es **estroma**: se venía contando como «queda justo en el azar, que es
+donde uno esperaría algo que no es informativo ni estorba», y con su IC de 0,37 a 0,70 la lámina
+**no puede distinguir** estroma evitado de estroma atendido. Eso es una ausencia de dato contada
+como si fuera un dato.
+
+`barras_ranking` ya dibuja el bigote (`ESCALERA` pasó a 5-tuplas con el semiancho); falta la
+lámina que lo explique y el guion que lo diga.
+
+## Verificado sin cambios
+
+- **La regla de conteo de la decimoséptima pasada (Q3) es correcta** y se reprodujo desde otra
+  fuente: la décima y la decimoséptima la sacaron del CSV de parches anotados; esta la recalculó
+  desde el **geojson y las coords del h5**, que es el insumo de más arriba, y da lo mismo.
+- **El generador corre limpio en el estado intermedio**: 16 láminas, auditoría en cero avisos.
+  Las ediciones aplicadas (constantes, `barras_ranking`, `cadena_cuenta`, fecha) son coherentes
+  entre sí; lo que falta es el reordenamiento, que no rompe nada por no estar.
+
+## Lo que queda abierto y va al handoff
+
+- **Todo el pedido de Ernesto sobre el deck**, que es lo grande: reordenar, eliminar dos láminas,
+  retitular una, arreglar el molde de la de cierre, reforzar cuatro con la estadística, reescribir
+  el guion, regenerar y sacar la copia sin notas.
+- **R1 sin aplicar.**
+- **Q1 de la pasada anterior sigue sin aplicar** (la nota de la lámina 9). Con el reordenamiento
+  esa lámina cambia de número, así que conviene aplicarla en la misma pasada.
+- Los pendientes de sprint sin cambios: la réplica del dato abierto del 4589 con semillas nuevas,
+  el sign-off del patólogo y `@grilling` sin estrenar.

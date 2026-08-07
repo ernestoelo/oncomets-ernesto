@@ -2408,3 +2408,61 @@ la tabla reproducen exacto con esa regla. Anotado en `atencion_vs_patologo/resul
 La reescritura de la nota de la lámina 9, con la redacción lista. Y sin cambios respecto del
 handoff anterior: las dos preguntas de la reunión, la réplica del dato abierto del 4589 con
 semillas nuevas, el sign-off del patólogo y `@grilling` sin estrenar.
+
+---
+
+## Sesión 6-ago-2026 (noche) — la reunión ya fue, y el deck se reordena entero
+
+La reunión con Sebastián **ocurrió** (jueves 6). La de Benjamín del viernes 7 **se cayó**: Ernesto
+tiene clases. El deck se presenta a Benjamín la **semana del 11-ago**, sin día confirmado, así que
+la portada pasó de `06/08/2026` a `Agosto 2026` hasta que haya fecha.
+
+**Lo que dijo Sebastián.** Que la prueba de la atención contra las marcas del patólogo «estuvo muy
+buena», y que lo importante es **dónde se está perdiendo la información** que hace que el modelo
+prediga mal. Y un orden nuevo para la presentación: **abrir con el grid de expertos y slots**,
+**transicionar a los mapas de calor contra las marcas**, y **dejar SI-MIL al final**. Pidió además
+copia del deck **sin notas del presentador** para mirar los mapas y los parches.
+
+### Los dos hallazgos de contenido
+
+**El +2 de 26 → 28 son dos efectos grandes que casi se cancelan.** La sesión anterior dejó la regla
+de conteo correcta (26 polígonos, 28 parches) pero el mecanismo sin calcular, y el neto de +2
+invita a leerlo como «dos marcas cruzaron un borde». Calculado desde el geojson y las coords del
+h5: **26 + 10 − 8 = 28**. Diez marcas caen sobre el borde entre dos parches y suman uno cada una;
+siete parches tienen más de una mitosis adentro y restan ocho (6×1 + 1×2). La causa de fondo es de
+escala: una marca de mitosis mide **36 px de lado** contra los **256 px del parche**, o sea entre
+el 2 % y el 4 % de su área. **El neto no es portable a otra lámina** — depende de la dispersión de
+las marcas. Tabla completa en `atencion_vs_patologo/resultados.md` §1.a.
+
+**Los siete grupos comparten estadístico pero no precisión, y la escalera no lo mostraba.** Con n
+de 12 a 48 parches, el IC 95 % del AUC (Hanley-McNeil) va de **0,10 de ancho en tejido adiposo a
+0,33 en estroma**. Son **dos incertidumbres distintas** y el deck solo contaba una: la `sd` mide
+cambiar de **modelo** (±0,039 en mitosis) y el IC mide que el patólogo hubiera marcado **otras**
+mitosis (±0,080). El caso que obliga a corregir el guion es **estroma**: se venía diciendo que
+«queda justo en el azar, que es donde uno esperaría», y con su IC de 0,37 a 0,70 la lámina no puede
+distinguir estroma evitado de estroma atendido — es una ausencia de dato contada como dato.
+**Mitosis aguanta** (su IC no toca 0,5). Tabla en `resultados.md` §1.b.
+
+### Un defecto de deck encontrado de paso
+
+La lámina «La pregunta medible» dice que se mira dónde caen «los **163** marcados» y muestra
+**0,89**, que es el número de los **28 de mitosis**. Los 163 son los siete grupos juntos y no
+tienen AUC calculado en ningún artefacto. Mismo patrón que el Q1 de la pasada anterior: cada frase
+pasa la auditoría por separado y el defecto está en el eslabón. **Sin corregir.**
+
+### Qué se alcanzó a tocar del generador
+
+Cuatro ediciones, todas coherentes entre sí y verificadas (`generate_b8_deck.py` corre limpio, 16
+láminas, auditoría en cero): la fecha de portada, `ESCALERA` a 5-tuplas con el semiancho del IC,
+`barras_ranking` dibujando el bigote, y dos helpers nuevos (`cadena_cuenta` para la cuenta 26→28,
+todavía sin usar). **El reordenamiento de `build()` NO se hizo.**
+
+### Queda abierto
+
+**El pedido entero de Ernesto sobre el deck**, que es lo grande y va al handoff con su detalle:
+reordenar las tres secciones, eliminar la lámina de objetivos del sprint y la de los tres papers,
+retitular «Del embudo al reporte», poner la de cierre en el molde exacto de la de objetivos,
+reforzar cuatro láminas con la estadística, reescribir el guion para el orden nuevo y para
+Benjamín, regenerar y sacar la copia sin notas para Sebastián. Más: los dos papers de
+`papers_11_agosto/` sin leer, el envío a Sebastián de los dos recomendados, R1 y el Q1 de la pasada
+anterior sin aplicar, y los pendientes de sprint de siempre.
