@@ -48,6 +48,21 @@ láminas, con la estructura cambiada en las dos puntas y el cuerpo aligerado:
     «en entrenamiento» (está en validación), que es lo que sostienen el prereg y el
     resultados. La formulación anterior, «nunca vieron esta lámina», se pasaba de eso.
 
+RECORTE del 5-ago: de 20 a 16 láminas, fusionando pares y agrandando lo que queda.
+
+REORDENAMIENTO del 6-ago, pedido por SEBASTIÁN tras ver el deck, y ejecutado el 7-ago. Queda
+en 14 láminas y la audiencia pasa a ser Benjamín, la semana del 11-ago:
+  - El orden es GRID → ATENCIÓN → SI-MIL. Invierte la decisión del 3-ago (lo cerrado antes que
+    lo vivo) y jubila el encuadre del 4-ago (el grid como cierre); las dos eran de encuadre
+    nuestro, ésta viene del supervisor y no se re-decide.
+  - Se van dos láminas: OBJETIVOS DEL SPRINT y los TRES PAPERS. El molde de la primera no se
+    pierde, lo hereda «Objetivos propuestos»; el razonamiento de la segunda baja al guion de
+    esa misma lámina, porque es la justificación del objetivo propuesto 2.
+  - Las cuatro láminas de la medición pasan a describir el ESTADÍSTICO con precisión: qué es
+    (U de Mann-Whitney normalizada), contra qué se mide cada grupo, y con cuánta precisión
+    (el IC de Hanley-McNeil, que es una incertidumbre distinta de la sd entre checkpoints).
+  - `build()` deja de ser un bloque único: una función por lámina y el orden en un solo lugar.
+
 Reglas que gobiernan el archivo:
   - Se construye SOBRE el template válido (Deep-LLM-V), nunca con Presentation() a secas:
     el template EMBEBE sus fuentes y ese es el motivo real de que un deck "no parezca el
@@ -145,8 +160,10 @@ ESCALERA = [
 #   26 polígonos de mitosis → 36 pares (polígono, parche) → 28 parches distintos
 #   16 polígonos caen enteros dentro de un parche · 10 se reparten entre dos  → +10
 #   21 parches tienen una sola mitosis · 6 tienen dos · 1 tiene tres          →  −8
-CUENTA_26_28 = [("26", "marcas del\npatólogo"), ("+10", "marcas sobre\nel borde"),
-                ("−8", "parches con\nmás de una"), ("28", "parches con\nmitosis")]
+CUENTA_26_28 = [("26", "marcas del patólogo"),
+                ("+10", "cruzan un borde y ocupan dos parches"),
+                ("−8", "siete parches tienen más de una marca"),
+                ("28", "parches con mitosis")]
 
 # --- números del grid E×S, verificados contra grid_expertos_slots/resultados.md ---
 # Contraste primario del pre-registro §6: (brazo que recorta S) menos (brazo que recorta E),
@@ -163,35 +180,17 @@ RAMA_S = [("30×10", 0.825, "300"), ("30×9", 0.792, "270"), ("30×7", 0.797, "2
 RAMA_E = [("30×10", 0.825, "300"), ("27×10", 0.770, "270"), ("21×10", 0.812, "210"),
           ("15×10", 0.804, "150")]
 
-# --- los tres papers de la rama de mitosis (../tareas_geometricas/hojas_reunion.md, hoja 0) ---
-# Se ordenan por el único criterio que descarta rápido: qué supervisión exige cada uno contra
-# la que efectivamente tenemos, que son POSITIVOS PARCIALES. Sin las letras de familia, que
-# fuera de nuestros documentos no significan nada.
-PAPERS = [
-    ("Detección con positivos parciales", "Zhao et al., MELBA 2022",
-     "Marcas parciales, las nuestras", "Montar un detector nuevo cuesta"),
-    ("Segmentación de núcleos", "Hörst et al., MedIA 2024",
-     "Ninguna nuestra: pesos públicos", "No tiene clase mitótica"),
-    ("Atención multi-escala", "Thandiackal et al., ECCV 2022",
-     "Solo la etiqueta de lámina", "En el privado no hay 40× al que acercarse"),
-]
-
-# --- objetivos del sprint, de la reunión del 24-jul más la redirección del 31-jul ---
-# En infinitivo, sin resultados, con el marcador de estado del molde de recapitulación.
-OBJETIVOS = [
-    ("1. Escalar a toda la tarea la medición de slots ocupados.", "done"),
-    ("2. Entrenar los slots del modelo con nuestro dataset.", "prog"),
-    ("3. Medir, a igual capacidad, si conviene recortar expertos o slots.", "done"),
-    ("4. Estudiar el paper de MIL auto-interpretable y decidir si se adopta.", "done"),
-    ("5. Medir si la atención cae donde el patólogo marcó las mitosis.", "done"),
-    ("6. Revisar la literatura para una rama dedicada a mitosis.", "done"),
-]
-
-# --- objetivos PROPUESTOS para el sprint siguiente, en el mismo molde que los de arriba ---
-# Pedido de Ernesto (5-ago): la lámina de cierre tiene que usar el molde de la lámina de
-# objetivos, que es el de las presentaciones anteriores, y no dos tarjetas.
-# Una línea cada uno: el molde los pone a 19 pt sobre 7,75", y a dos renglones las filas se
-# tocan entre sí.
+# --- objetivos PROPUESTOS para el sprint siguiente ---
+# Pedido de Ernesto (5-ago, reafirmado el 6): la lámina de cierre usa el MOLDE DE
+# RECAPITULACIÓN, que es el de las presentaciones anteriores, y no dos tarjetas.
+#
+# El molde venía de la lámina «Objetivos del sprint», que el reordenamiento del 6-ago
+# eliminó. Sus medidas quedan acá porque son lo único que había que conservar de ella:
+# fila de 19 pt sobre 7,75" de ancho, `row_tops = 1.10 + i * 0.68`, `row_h = 0.62`, y el
+# marcador de estado a la derecha en `x = 8.98`. Lo replica `lam_objetivos_propuestos`.
+#
+# Una línea cada uno: a 19 pt sobre 7,75" un ítem de dos renglones hace que las filas se
+# toquen entre sí.
 OBJETIVOS_PROP = [
     "1. Llevar la medición de atención a más láminas anotadas.",
     "2. Probar detección de mitosis con positivos parciales.",
@@ -736,7 +735,13 @@ def barras_ranking(slide, l, t, w, h, datos, x_eje=2.62, ancho_eje=5.40, fs=10.5
         _rect(slide, xa, cy - 0.012, xb - xa, 0.024, ONCO_INK)
         for xc in (xa, xb):
             _rect(slide, xc - 0.012, cy - 0.085, 0.024, 0.170, ONCO_INK)
-        add_textbox(slide, xb + 0.08, cy - 0.15, 0.72, 0.30,
+        # El valor va en COLUMNA FIJA al final del eje, no pegado a la punta del bigote.
+        # Pegado se rompía con los grupos bajo el azar: el rótulo de linfocitos (0,322)
+        # caía justo donde pasa la línea punteada del 0,5 y quedaba tachado. Los dos
+        # objetos eran válidos y estaban en su caja, así que ningún chequeo automático lo
+        # veía; salió del rasterizado ([[deck-qa-puntos-ciegos-chequeo]]). De paso los siete
+        # números quedan alineados, que es como se comparan.
+        add_textbox(slide, x0 + ancho_eje + 0.10, cy - 0.15, 0.80, 0.30,
                     [(_num(auc), fs, interes, ONCO_DARK if interes else GRIS_BODY, F_BODY)],
                     anchor=MSO_ANCHOR.MIDDLE)
     # el azar, que es la única referencia que este estadístico tiene
@@ -1380,439 +1385,140 @@ def retitular_portada(prs):
 # ============================================================================
 # Build
 # ============================================================================
-def build():
-    prs, keep_ids = base_from_template()
-    prs.slide_width = Inches(SW); prs.slide_height = Inches(SH)
-
-    # ---- 1. Apertura (heredada del template) ----
+# ============================================================================
+# Las láminas: una función por lámina
+# ============================================================================
+# Refactor del 7-ago. `build()` era un bloque único de mil líneas, así que cambiar
+# el orden del deck significaba mover mil líneas y confiar en que la indentación
+# sobreviviera. Ahora cada lámina es una función y `build()` es la lista de
+# llamadas: el orden se lee de un vistazo y el próximo reordenamiento es mover
+# renglones de una línea. El cuerpo de cada bloque quedó donde estaba, a cuatro
+# espacios, porque ya lo estaba dentro de `build()`.
+def lam_portada(prs):
+    """Portada de marca, heredada del template."""
     s = retitular_portada(prs)
-    notes(s, "Esta vez traigo dos cosas, y son de naturaleza distinta.\n"
+    notes(s, "Traigo tres cosas, y las puse en ese orden a propósito.\n"
              "\n"
-             "La primera es la revisión de uno de los papers que habían quedado encargados, que "
+             "Empiezo por un encargo que había quedado del sprint pasado y que ya cerró: si al "
+             "modelo con expertos le sobra capacidad por dentro, y de qué lado conviene "
+             "recortarla. Es corto, da un resultado negativo y lo dejo cerrado ahí mismo.\n"
+             "\n"
+             "Después va lo que más me importa dejar claro, que es una medición nuestra. Fuimos "
+             "a ver si el modelo mira donde el patólogo marcó las mitosis. Tiene un resultado, "
+             "y el resultado cambió hacia dónde apunta el trabajo que sigue. En esa parte me "
+             "voy a detener bastante en cómo se mide, porque el número es lo que hay que poder "
+             "defender, y quiero que quede claro qué dice y qué no dice.\n"
+             "\n"
+             "Y cierro con la revisión de uno de los papers que habían quedado encargados, que "
              "propone un modelo que se explica solo. Para conseguirlo invierte el reparto de "
              "trabajo habitual: la red profunda deja de ser la que predice y pasa a ser la que "
              "enseña dónde mirar, mientras la predicción la hace un modelo lineal sobre "
              "mediciones de núcleos que tienen nombre de patología. Es una lectura terminada, "
-             "así que la voy a contar más comprimida que la vez pasada.\n"
-             "\n"
-             "La segunda es una medición nuestra, y es lo que más me importa dejar claro hoy. "
-             "Fuimos a ver si el modelo mira donde el patólogo marcó las mitosis. Tiene un "
-             "resultado, y el resultado cambió hacia dónde apunta el trabajo que sigue.")
+             "así que la voy a contar comprimida.")
 
-    # ---- 2. Objetivos del sprint ----
-    # Antes acá iba el mapa del recorrido. Pedido de Ernesto (4-ago): la lámina de apertura
-    # tiene que fijar QUÉ nos propusimos, no cómo está armado el deck. Molde de
-    # recapitulación del B7: título 32 pt, lista numerada en infinitivo, marcador de estado.
-    # El objetivo 1 es el único que no tiene lámina propia: se cuenta en el guion, y de paso
-    # cubre uno de los tres mensajes que hay que dejar dichos hoy.
-    s = content(prs, "Objetivos del sprint", size=32)
-    row_tops = [1.10 + i * 0.68 for i in range(len(OBJETIVOS))]
-    row_h = 0.62
-    for (item, estado), rt in zip(OBJETIVOS, row_tops):
-        add_textbox(s, 0.35, rt, 7.75, row_h, [(item, 19, True, GRIS_BODY, F_BODY)],
-                    anchor=MSO_ANCHOR.MIDDLE)
-        cy = rt + row_h / 2
-        if estado == "done":
-            status_done(s, 8.98, cy)
-        else:
-            status_progress(s, 8.98, cy, texto="En curso")
-    notes(s, "Seis objetivos, cinco cerrados y uno en curso.\n"
-             "El primero se cuenta acá mismo y no tiene lámina.\n"
-             "El segundo es el que sigue abierto, y su premisa quiero aclararla hoy.\n"
-             "El quinto es el que cambió el plan, y es al que le voy a dedicar más tiempo.\n"
-             "\n"
-             "Dejo a la vista qué me propuse este sprint, porque son cosas de naturaleza "
-             "bastante distinta y así quedan ordenadas antes de entrar en materia.\n"
-             "\n"
-             "El primero lo cierro acá mismo, porque el resultado cabe en una frase y no "
-             "necesita lámina. Veníamos de medir sobre siete láminas cuántas unidades internas "
-             "usa de verdad el modelo con expertos, y había quedado el reparo de que siete "
-             "láminas no son la tarea. Lo escalamos a todas las láminas de prueba de las tres "
-             "tareas y las tres cohortes: mil ciento setenta y seis láminas distintas, mil "
-             "ochocientas cincuenta y ocho contando cada partición por separado. Y el número "
-             "aguanta: se ocupan alrededor de ciento sesenta unidades de "
-             "las trescientas, y los treinta expertos se usan los treinta, sin una sola "
-             "excepción. Lo que sí se cayó con el número grande fue la explicación que "
-             "habíamos dado de por qué ese número varía entre láminas: con siete parecía "
-             "seguir al tamaño de la lámina, y con el conjunto completo eso casi desaparece.\n"
-             "\n"
-             "El segundo es el único que sigue abierto, y está abierto porque la premisa no me "
-             "quedó clara: entrenar las unidades del modelo con nuestro conjunto de datos "
-             "admite más de una lectura, y prefiero preguntarlo antes que elegir una por mi "
-             "cuenta.\n"
-             "\n"
-             "El tercero y el cuarto son la parte de cierre de hoy y el paper que revisé. El "
-             "quinto y el sexto son la medición de atención y la búsqueda de literatura que "
-             "salió de ella, y ahí es donde está lo que quiero conversar: esa medición cambió "
-             "hacia dónde apunta el trabajo que sigue.")
 
-    # =======================================================================
-    # EJE 1 — SI-MIL, compactado a la mitad (12 láminas de contenido a 6)
-    # =======================================================================
-    # Método del recorte, el mismo del 31-jul: se fusionan pares y lo que sale de la
-    # lámina se cuenta HABLANDO. El guion de cada fusionada se reescribe, no se pega.
-
-    # ---- 3. Qué propone + la figura del paper ----
-    # Rediseño del 5-ago (pedido de Ernesto): los bullets al mínimo para que la figura del
-    # paper crezca todo lo que da. La figura es más ancha que alta (ar 3,195), así que en la
-    # caja anterior de 9,56 x 2,52 la limitaba el ALTO y se dibujaba a 8,05 x 2,52. Ahora la
-    # limita el ancho de la lámina y sale a 9,60 x 3,00, un 19 % más de lado. El bloque de
-    # tres líneas de arriba baja a una frase y la barra de remate se retira: su texto ERA esa
-    # frase, y repetirla costaba media pulgada de figura.
-    s = content(prs, "SI-MIL: qué propone")
-    add_textbox(s, 0.36, TOP, 9.28, 0.50, [
-        ("Que la explicación SEA la predicción: predecir con una combinación lineal de "
-         "mediciones de núcleos que tienen nombre de patología, y dejar la red profunda como "
-         "el maestro que enseña dónde mirar.", 13.5, True, TEAL_TITLE, F_BODY,
+def lam_grid(prs):
+    # ---- El grid E×S, en una sola lámina ----
+    # Fusión pedida por Ernesto el 5-ago: las dos láminas del grid pasan a una, con los tres
+    # diagramas y sin los renglones de prosa que los acompañaban. El veredicto sube al primer
+    # renglón, que es donde estaba la barra de remate, y las dos lecturas de forma (el escalón
+    # con meseta de una rama, la curva no monótona de la otra) bajan al guion.
+    #
+    # Las dos reglas del pre-registro siguen gobernando:
+    #   - El veredicto es H_nula y se cuenta como tal. El +0,022 del primer peldaño es
+    #     justamente lo que NO alcanza; presentarlo como hallazgo contradiría el prereg.
+    #   - CERO Δ contra CLAM por brazo. El prereg §6 lo prohibió por diseño para no disparar
+    #     ocho veces sobre el eje ya cerrado del Hallazgo 12, y encima sobre la tarea del dato
+    #     abierto. Por eso CLAM no aparece.
+    s = content(prs, "¿Recortar expertos o slots?")
+    add_textbox(s, 0.36, TOP, 9.28, 0.28, [
+        ("El signo se da vuelta entre peldaños y la desviación supera a la media en los "
+         "tres: la dirección es indistinguible.", 12, True, TEAL_TITLE, F_BODY,
          PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
-    FIG_H_S3 = 9.60 / 3.195
-    add_image_fit(s, FIG2_FULL, 0.20, TOP + 0.56, 9.60, FIG_H_S3, align="top")
-    pie_lineas(s, 0.36, TOP + 0.56 + FIG_H_S3 + 0.08, 9.28, [
-        "Taming Deep MIL for Self-Interpretability in Gigapixel Histopathology · Kapse et al., "
-        "CVPR 2024.",
-        "(a) el recorrido completo, de la lámina a las dos predicciones · (b) y (c) el detalle "
-        "de cada rama.",
-    ], size=9)
-    notes(s, "La ambición del paper: que la explicación SEA la predicción.\n"
-             "Dos caminos que salen de la misma lámina: uno mide, el otro selecciona.\n"
-             "La rama profunda no llega a producción, se descarta entera.\n"
+    add_textbox(s, 0.36, TOP + 0.30, 9.28, 0.22, [
+        ("Presencia de carcinoma ductal in situ · 862 láminas, 730 con presencia y 132 sin · "
+         "5 particiones. Abajo, AUC medio por brazo con el eje desde 0,72.",
+         9, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
+    barras_divergentes(s, 0.36, TOP + 0.88, 9.28, 1.40, PELDANOS, destacar=0)
+    for x, titulo in ((0.36, "Sacando slots, con los 30 expertos fijos"),
+                      (5.22, "Sacando expertos, con los 10 slots fijos")):
+        add_textbox(s, x, TOP + 2.62, 4.42, 0.24,
+                    [(titulo, 11.5, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER)])
+    escalera_capacidad(s, 0.36, TOP + 2.90, 4.42, 0.86, RAMA_S, lo=0.72, hi=0.845)
+    escalera_capacidad(s, 5.22, TOP + 2.90, 4.42, 0.86, RAMA_E, lo=0.72, hi=0.845)
+    notes(s, "Un encargo que quedó del sprint pasado y que este sprint cerró.\n"
+             "El modelo tiene 30 expertos y 10 unidades por experto: 300 en total.\n"
+             "A igual capacidad total, ¿conviene recortar por un lado o por el otro?\n"
+             "Arriba, la diferencia pareada; abajo, qué cuesta ir sacando capacidad.\n"
              "\n"
-             "El nombre completo del paper habla de domesticar un modelo profundo "
-             "para que se explique solo, y eso resume bien la ambición: no acompañar la "
-             "predicción con una explicación, sino conseguir que la explicación sea la "
-             "predicción.\n"
+             "Empiezo por acá porque es lo más corto y así lo dejamos atrás. No "
+             "es de mitosis ni del paper: es el encargo que había quedado sobre el modelo con "
+             "expertos.\n"
              "\n"
-             "La idea cabe en la frase de arriba, y tiene tres consecuencias. "
-             "La red profunda deja de predecir, y su único producto pasa a ser una "
-             "selección de veinte parches. La predicción se calcula sobre mediciones que un "
-             "patólogo puede leer, doscientas cuarenta y seis, cosas como la asimetría de la "
-             "solidez de los núcleos o la mezcla de tipos celulares de una región. Y la más "
-             "audaz de las tres: cuando el modelo se pone a funcionar, la rama profunda se "
-             "descarta entera, no viaja con el modelo. El que sale a producción tiene "
-             "seiscientos veinticinco mil parámetros, del mismo orden que el modelo profundo "
-             "con el que lo comparan, así que la mejora no viene del tamaño.\n"
+             "Ese modelo tiene por dentro treinta expertos y diez unidades por experto, "
+             "trescientas en total. En el título aparecen como slots, que es lo mismo. El "
+             "sprint pasado medimos cómo se reparte el peso entre esas trescientas, y quedó el "
+             "reparo de que lo habíamos medido sobre siete láminas, que no son la tarea. Lo "
+             "primero que hicimos este sprint fue escalarlo: todas las láminas de prueba de "
+             "las tres tareas y las tres cohortes, mil ciento setenta y seis láminas distintas. "
+             "Y el número aguanta. El reparto ocupa alrededor de ciento sesenta de las "
+             "trescientas, y los treinta expertos se usan los treinta, sin una sola excepción. "
+             "De ahí salió la lectura de que, si sobraba capacidad, sobraba del lado de las "
+             "unidades y no del lado de los expertos. Lo que quedó pendiente era si eso se "
+             "sostenía al ponerlo a prueba de frente.\n"
              "\n"
-             "La figura es la del paper y prefiero mostrarla tal cual. Arriba a la izquierda "
-             "está la lámina cuadriculada en parches, y de ahí salen dos caminos paralelos que "
-             "describen exactamente los mismos parches, en el mismo orden, de dos maneras "
-             "distintas. El de arriba pasa por un extractor profundo y produce, por cada "
-             "parche, un vector de números que eligió una red para sí misma; nosotros usaríamos "
-             "aquí nuestro extractor. El de abajo parte de los mapas de núcleos ya segmentados "
-             "y produce mediciones de morfología, de grafo de células y de heterogeneidad "
-             "espacial, todas con nombre legible.\n"
+             "A igual capacidad total, comparamos recortar por un lado contra recortar por el "
+             "otro sobre las mismas particiones, midiendo la diferencia en cada una. Tres "
+             "pares, uno por peldaño de capacidad. La tarea es presencia de carcinoma ductal in "
+             "situ, con ochocientas sesenta y dos láminas repartidas en cinco particiones: "
+             "setecientas treinta tienen presencia y ciento treinta y dos no. En cada prueba "
+             "quedan unos trece casos de la clase chica, y eso conviene tenerlo presente al "
+             "mirar cuánto se mueve el número entre particiones.\n"
              "\n"
-             "En el medio está la caja amarilla, que es la bisagra del diseño: toma la atención "
-             "que calculó el camino profundo, con ella elige un puñado de parches, y esa "
-             "selección se aplica sobre el otro camino. Y fíjense en el recuadro punteado de "
-             "arriba a la derecha, que dice descartado en inferencia: ese es el clasificador "
-             "del camino profundo, y no llega a producción.")
+             "La figura de arriba es esa diferencia. La barra es el promedio y la línea gris "
+             "es cuánto se mueve entre particiones. En el primer par va a favor de recortar "
+             "unidades, en el segundo se da vuelta, y en el tercero es prácticamente cero. En "
+             "los tres, lo que se mueve entre particiones es más grande que la diferencia "
+             "misma. Cuando el signo se da vuelta entre peldaños, lo que queda no es un efecto "
+             "chico: es ruido alrededor de cero. Si la dirección del recorte importara, el "
+             "signo sería el mismo en los tres. El par resaltado es el de mayor capacidad, o "
+             "sea el recorte más chico, y su respuesta es una diferencia de dos centésimas "
+             "con tres particiones de cinco, que no alcanza para afirmar una dirección.\n"
+             "\n"
+             "Abajo está la misma tanda mirada de otra manera: qué pasa a medida que le "
+             "sacamos capacidad, con cada lado por separado. A la izquierda dejamos fijos los "
+             "expertos y sacamos unidades; a la derecha, fijas las unidades y sacamos "
+             "expertos. La barra clara del extremo "
+             "izquierdo de cada gráfico es el modelo completo, que es el mismo en los dos.\n"
+             "\n"
+             "Del lado de las unidades hay un escalón y después una meseta. Baja en el primer "
+             "recorte y ahí se queda: desde noventa unidades totales hasta doscientas setenta, "
+             "el número se mueve menos de lo que se mueve un solo brazo entre particiones. Y "
+             "hay un punto donde el total cae justo sobre lo que habíamos medido de ocupación, "
+             "alrededor de ciento sesenta: ahí no se marca ningún quiebre, que es la parte que "
+             "más me interesa, porque era exactamente la predicción. Del lado de los expertos "
+             "ni siquiera baja de forma ordenada: el peor caso de toda la tanda es el recorte "
+             "más chico, y sacando más expertos el número vuelve a subir. Una curva de "
+             "capacidad no se comporta así.\n"
+             "\n"
+             "Para enmarcar los dos gráficos: la distancia entre dos particiones del mismo "
+             "brazo es de otro orden que la distancia entre el mejor y el peor brazo, cero "
+             "coma veinticinco contra cero coma cero cinco. Con esa relación un efecto de este "
+             "tamaño queda debajo del ruido, y por eso comparamos de a pares y partición por "
+             "partición en lugar de mirar promedios sueltos.\n"
+             "\n"
+             "Un detalle de método por si sale la pregunta de si esto es comparable con lo "
+             "anterior. El brazo del modelo completo lo volvimos a correr como control, y dio "
+             "idéntico a la corrida del sprint pasado, byte por byte en las cinco "
+             "particiones. Así que comparar contra una corrida anterior que comparta "
+             "particiones y semilla es válido por construcción, y en el otro sentido, repetir "
+             "algo con la misma semilla no aporta evidencia nueva.\n"
+             "\n"
+             "Con eso cierro el encargo, y paso a lo que sí movió el plan.")
 
-    # ---- 4. Las dos ramas y el puente, en un solo diagrama ----
-    # Fusión pedida por Ernesto el 5-ago: las tres láminas de ecuaciones (las dos entradas,
-    # el orden de las operaciones y el puente Top-K) pasan a UN diagrama, sin tablas. Lo que
-    # se pierde de la lámina se cuenta hablando, que es el método de los recortes anteriores.
-    # Las dos tablas que había (los dos anchos, y α contra β) salen enteras: su contenido es
-    # una frase cada una y ocupaban media lámina.
-    s = content(prs, "Las dos ramas y el puente")
-    y1, y2, BH = TOP + 0.06, TOP + 0.70, 0.52
-    # entrada
-    _proc(s, 0.36, (y1 + y2) / 2 + BH / 2 - 0.26, 1.20, BH, "N parches", size=11,
-          dim="una lámina")
-    _conn(s, 1.56, (y1 + y2) / 2 + BH / 2, 1.86, y1 + BH / 2)
-    _conn(s, 1.56, (y1 + y2) / 2 + BH / 2, 1.86, y2 + BH / 2)
-    # rama profunda
-    _proc(s, 1.86, y1, 1.64, BH, "Extractor profundo", dim="CONCH en nuestro caso", size=10)
-    _dato(s, 3.68, y1 + 0.04, 1.52, 0.44, "g_i ∈ ℝ^D   ·   D = 512", size=10)
-    _proc_claro(s, 5.38, y1, 2.04, BH, "Proyector + atención", size=10, dim="ecuación (1)")
-    _dato(s, 7.60, y1 + 0.04, 0.96, 0.44, "α_i", size=11)
-    _dim(s, 8.66, y1 + 0.13, 1.24, "un peso por parche", size=9, align=PP_ALIGN.LEFT)
-    for xa, xb in ((3.50, 3.68), (5.20, 5.38), (7.42, 7.60)):
-        _conn(s, xa, y1 + BH / 2, xb, y1 + BH / 2)
-    # rama de mediciones
-    _proc_claro(s, 1.86, y2, 1.64, BH, "PathExpert", size=10, dim="sobre el mapa de núcleos")
-    _dato(s, 3.68, y2 + 0.04, 1.52, 0.44, "f_i ∈ ℝ^d   ·   d = 246", size=10)
-    _conn(s, 3.50, y2 + BH / 2, 3.68, y2 + BH / 2)
-    # El bloque termina antes de x = 7,90: por ahí baja el conector que lleva la atención al
-    # Top-K, y con el ancho completo la línea le cruzaba el segundo renglón por el medio.
-    add_textbox(s, 5.38, y2 + 0.02, 2.48, 0.48, [
-        ("Mediciones con nombre clínico sobre el mapa de núcleos que produce el "
-         "segmentador.", 9.5, False, INK, F_BODY)])
-    # el puente: la atención del camino de arriba baja y elige los parches del de abajo
-    yb = TOP + 1.48
-    _conn(s, 8.08, y1 + 0.48, 8.08, yb - 0.16, arrow=False)
-    _conn(s, 8.08, yb - 0.16, 1.46, yb - 0.16, arrow=False)
-    _conn(s, 1.46, yb - 0.16, 1.46, yb)
-    _proc_claro(s, 0.36, yb, 2.20, BH, "Top-K sobre la atención", size=10,
-                dim="K = 20 parches   (3)")
-    _conn(s, 2.56, yb + BH / 2, 3.00, yb + BH / 2)
-    _dato(s, 3.00, yb + 0.04, 1.30, 0.44, "20 índices", size=10)
-    _conn(s, 4.30, yb + BH / 2, 4.74, yb + BH / 2)
-    _proc(s, 4.74, yb, 2.20, BH, "20 × 246 = 4920", size=11,
-          dim="las 20 filas de mediciones")
-    add_textbox(s, 7.14, yb + 0.02, 2.76, 0.48, [
-        ("En una lámina de diez mil parches, los más de cinco millones de números del "
-         "camino profundo se descartan enteros.", 9.5, False, GRIS_BODY, F_BODY)])
-    # el orden de las dos operaciones, que es la ecuación 2 y lo que nos toca a nosotros
-    yo = TOP + 2.16
-    pa = panel(s, 0.36, yo, 4.54, None, "Orden A, el de nuestro modelo", TEAL_TITLE,
-               ["Ŷ = C( Σ_i α_i · g̃_i )",
-                "Funde primero y clasifica después: queda un logit y ningún desglose por "
-                "parche."],
-               TEAL_SQ, tsize=13, bsize=10.5, markup=True)
-    pb = panel(s, 5.10, yo, 4.54, None, "Orden B, la ecuación 2", ONCO_DARK,
-               ["Ŷ = ψ( Σ_i C( α_i · g̃_i ) )",
-                "Clasifica cada parche y suma después: el mismo logit, y además N "
-                "contribuciones con signo."],
-               ONCO_DARK, fill=TEAL_CARD, tsize=13, bsize=10.5, markup=True)
-    alto_ord = max(Emu(sp.height).inches for sp in (pa, pb))
-    for sp in (pa, pb):
-        sp.height = Inches(alto_ord)
-    takeaway_bar(s, "Nuestro modelo es el orden A. Y su atención sale de una softmax, así "
-                    "que dice CUÁNTO mira cada parche, nunca hacia qué clase empuja.",
-                 t=yo + alto_ord + 0.16, size=12)
-    notes(s, "Un solo diagrama para las tres ecuaciones del principio.\n"
-             "Arriba, dos descripciones de los mismos parches: una que eligió una red y otra "
-             "que eligió la patología.\n"
-             "En el medio, el puente: la atención de arriba elige veinte parches y esos "
-             "veinte se leen abajo.\n"
-             "Abajo, el orden de dos operaciones, que es lo que nos toca a nosotros.\n"
-             "\n"
-             "Es el mismo recorrido de la figura anterior, redibujado con lo que a nosotros "
-             "nos interesa: los anchos y la notación.\n"
-             "\n"
-             "Arriba está la entrada, con los dos caminos que acabamos de ver, y lo que agrega "
-             "el dibujo son los números. Por el de arriba cada parche queda como un vector de "
-             "quinientos doce números, que es el ancho que ya usamos nosotros. Por el de abajo "
-             "queda "
-             "como doscientas cuarenta y seis mediciones con nombre: solidez, densidad, mezcla "
-             "de tipos celulares. Mismos parches y mismo orden; lo único que cambia es el "
-             "ancho y quién eligió esos números.\n"
-             "\n"
-             "Fíjense en la convención de la notación, que el paper usa sin remarcarla y que "
-             "confunde si se pasa por alto: el ancho del camino profundo va en mayúscula y el "
-             "del otro en minúscula, la misma letra. Y de paso queda ordenada la relación "
-             "entre los dos papers que habían quedado encargados: el mapa de núcleos del que "
-             "salen esas mediciones lo produce el segmentador, que es el otro. No son dos "
-             "ángulos, son la misma cadena.\n"
-             "\n"
-             "La primera ecuación es la caja clara de la derecha y tiene dos pasos. Primero un "
-             "proyector, que reescribe el vector midiéndolo contra unas varas que se aprenden; "
-             "en nuestro modelo es la primera capa lineal con su activación. Después la "
-             "atención: hay un presupuesto de importancia del cien por ciento para repartir "
-             "entre todos los parches, y el módulo convierte el puntaje crudo de cada uno en "
-             "una fracción de ese total. De ahí sale algo que vamos a necesitar en la segunda "
-             "parte: la atención de un parche depende de cuántos y cuáles sean los demás. No "
-             "es una propiedad del parche, es su tajada.\n"
-             "\n"
-             "El renglón del medio es el puente: la caja amarilla, puesta en limpio. "
-             "La atención que calculó el camino de "
-             "arriba se usa para quedarse con los veinte parches más atendidos, y esos veinte "
-             "índices son lo único que ese camino aporta. En una lámina de diez mil parches "
-             "eso significa que más de cinco millones de números se descartan enteros. Los "
-             "veinte índices se aplican sobre la otra rama, quedan veinte filas de doscientas "
-             "cuarenta y seis mediciones, y sobre esos cuatro mil novecientos veinte números "
-             "se predice. Y no es tan directo como suena: quedarse con los veinte mayores es "
-             "una operación escalonada, que no tiene derivada, así que usan una versión "
-             "perturbada que sí deja pasar el gradiente.\n"
-             "\n"
-             "Los dos cuadros de abajo son la ecuación dos, que es la que cuesta porque parece "
-             "decir algo obvio. En realidad dice algo muy específico sobre el orden de dos "
-             "operaciones. En el de la izquierda se pesa cada parche por su atención, se suman "
-             "todos y queda una única ficha promedio, y a esa ficha se le aplica el "
-             "clasificador. Es una licuadora: se echan las frutas en su proporción, se licúa, "
-             "se prueba el jugo y se dictamina. En el de la derecha se pesa cada parche por su "
-             "atención igual que antes, pero el clasificador se aplica a cada uno por "
-             "separado, y recién después se suma. Se prueba cada fruta ya medida en su "
-             "proporción, se anota su puntaje y se suma la columna.\n"
-             "\n"
-             "Escrita, la diferencia es solamente dónde cierra el paréntesis, y el número que "
-             "sale es el mismo por los dos caminos. Lo que cambia es qué queda en memoria "
-             "cuando el modelo termina. Arriba queda una ficha fundida y ningún desglose; "
-             "abajo no hay ficha fundida, pero quedan tantos puntajes como parches, con signo, "
-             "que suman exacto el resultado. Una vez licuado el jugo no hay manera de "
-             "separarlo en frutas: uno se acuerda de las proporciones, pero la proporción dice "
-             "cuánta fruta se puso, no si esa fruta era dulce o ácida.\n"
-             "\n"
-             "Fui a verificar dónde cae nuestro modelo, línea por línea, y cae en el de la "
-             "izquierda: funde y después clasifica, con dos diferencias menores, que nuestra "
-             "atención es por clase y que tenemos ramas de instancia que en esta formulación "
-             "no existen. Y el remate es el punto que más nos toca. Uno podría pensar que la "
-             "atención rescata lo que ese orden pierde, y no: sale de un reparto del cien por "
-             "ciento, así que todos sus valores son positivos, y un número positivo expresa "
-             "cuánto, nunca hacia dónde. El caso que le preocupa al paper es un parche que se "
-             "lleva más de la mitad de la atención y que al mismo tiempo es el que más empuja "
-             "en contra: el mapa de calor le pinta un rojo intenso, y quien lo mira lee que "
-             "ahí estaba la evidencia. Esto acota lo que podemos decir de nuestros mapas, y lo "
-             "vamos a necesitar en la segunda parte.")
 
-    # ---- 5. Del embudo al reporte: las ecuaciones 4 a 10, dibujadas ----
-    # Rediseño del 5-ago (pedido de Ernesto): esta lámina era una tabla de siete ecuaciones
-    # con su glosa al lado, o sea el objeto que la convención pide convertir en dibujo
-    # ([[deck-contenido-visual-no-bullets]]). Ahora son tres figuras: la compuerta que apaga
-    # mediciones, la grilla de contribuciones que ES el reporte, y el entrenamiento conjunto.
-    # Las ecuaciones no desaparecen: la 9, que es la que hay que llevarse, se escribe entera.
-    s = content(prs, "Del embudo al reporte")
-    add_textbox(s, 0.36, TOP, 5.30, 0.24,
-                [("PRIMERO: CASI TODAS LAS MEDICIONES SE APAGAN   (4) (5)", 10, True,
-                  GRIS_BODY, F_BODY)])
-    barras_esquema(s, 0.36, TOP + 0.32, 2.30, 0.58, BETA_ANTES, ONCO_PANEL)
-    _oper(s, 2.98, TOP + 0.61, sym="β", d=0.40)
-    barras_esquema(s, 3.36, TOP + 0.32, 2.30, 0.58, BETA_DESPUES, ONCO_PANEL,
-                   destacados=BETA_VIVOS)
-    caption(s, 0.36, TOP + 0.92, 2.30, "los 246 pesos, antes", size=8.5, col=GRIS_BODY)
-    caption(s, 3.36, TOP + 0.92, 2.30, "después de la compuerta", size=8.5, col=ONCO_DARK)
-    add_textbox(s, 0.36, TOP + 1.20, 5.30, 0.46, [
-        ("Cada medición tiene su propia compuerta y se calcula por separado: no reparten un "
-         "presupuesto. Por eso se pueden empujar casi todas a cero.",
-         9.5, False, INK, F_BODY)])
-    add_textbox(s, 6.10, TOP, 3.54, 0.24,
-                [("Y LAS DOS RAMAS SE ENTRENAN JUNTAS", 10, True, GRIS_BODY, F_BODY)])
-    destilacion(s, 6.10, TOP + 0.36, 3.54, 0.56)
-    add_textbox(s, 6.10, TOP + 1.24, 3.54, 0.42, [
-        ("Sin ese término serían dos modelos corriendo en paralelo.",
-         9.5, False, INK, F_BODY)])
-    add_textbox(s, 0.36, TOP + 1.76, 9.28, 0.24,
-                [("DESPUÉS: LA PREDICCIÓN QUEDA DESARMADA EN CONTRIBUCIONES QUE SE LEEN   "
-                  "(6) (7) (8)", 10, True, GRIS_BODY, F_BODY)])
-    PATRON = [[3, 0, 1, -1], [2, -2, 0, 1], [0, 1, 3, 0], [1, 0, -1, 2], [2, 1, 0, -2]]
-    grilla_contribuciones(s, 0.36, TOP + 2.40, 5.60, 1.00,
-                          ["parche 1", "parche 2", "parche 3", "…", "parche 20"],
-                          ["solidez", "densidad", "mezcla de tipos", "grafo"], PATRON)
-    caption(s, 0.36, TOP + 3.46, 5.60,
-            "teal = empuja hacia la clase   ·   gris = empuja en contra   ·   el tamaño, "
-            "cuánto", size=8.5, col=GRIS_BODY)
-    eq(s, 6.10, TOP + 2.20, 3.54, "Ŷ_f = ψ( Σ_i Σ_j w_j β_j M_(ij) + b )", num="(9)",
-       size=11, h=0.46, fill=TEAL_CARD)
-    add_textbox(s, 6.10, TOP + 2.76, 3.54, 0.70, [
-        ("Cada celda de la izquierda es un sumando de esa cuenta: un parche por una "
-         "medición. La explicación no se calcula después, ES la cuenta.",
-         10, False, INK, F_BODY)])
-    takeaway_bar(s, "Si hay que quedarse con una sola ecuación, es la 9: ES el reporte que "
-                    "ve el patólogo.", t=TOP + 3.76, size=12.5)
-    notes(s, "Las ecuaciones del final las cuento dibujadas, no una por una.\n"
-             "Arriba a la izquierda, la compuerta que deja vivas unas pocas mediciones.\n"
-             "Abajo, la predicción desarmada en contribuciones, que es el reporte.\n"
-             "Arriba a la derecha, las dos ramas entrenándose juntas.\n"
-             "\n"
-             "El resto de las ecuaciones las paso dibujadas y en bloque, porque desarmadas "
-             "una por una con el mismo detalle que las primeras todavía no las tengo, y "
-             "prefiero decirlo antes que improvisar.\n"
-             "\n"
-             "Arriba a la izquierda está el paso que más me llamó la atención. Cada una de las "
-             "doscientas cuarenta y seis mediciones recibe un peso, y ese peso pasa por una "
-             "compuerta. A la izquierda dibujé cómo llegan los pesos, todos parecidos; a la "
-             "derecha, cómo quedan después. La compuerta es una sigmoide con temperatura, y lo "
-             "que hace es empujar la enorme mayoría hacia cero y dejar unas pocas vivas. Eso "
-             "es posible porque cada compuerta se calcula por separado, no reparten un "
-             "presupuesto entre todas como sí hace la atención sobre los parches. Y no es un "
-             "tecnicismo: es exactamente lo que permite que el reporte que ve el patólogo "
-             "tenga pocos renglones en vez de doscientos cuarenta y seis.\n"
-             "\n"
-             "Abajo está el reporte. Cada fila es uno de los veinte parches "
-             "elegidos y cada columna es una de las mediciones que sobrevivieron. En cada "
-             "cruce hay un número, y ese número es la contribución de ese parche por esa "
-             "medición. El color dice hacia dónde empuja y el tamaño dice cuánto. La "
-             "predicción es, literalmente, la suma de todos esos cuadraditos.\n"
-             "\n"
-             "Esa es la ecuación de la derecha, la nueve, y es la que hay que retener. No es "
-             "una explicación que alguien calcula después de que el modelo respondió: es la "
-             "cuenta misma que hizo el modelo, escrita término a término. Por eso el reporte "
-             "puede decir esta región, por esta medición, aportó esto a favor.\n"
-             "\n"
-             "Y arriba a la derecha, la última: las dos ramas se entrenan a la vez, cada una "
-             "con su propio error, más un tercer término que empuja a la rama interpretable a "
-             "acercarse a la profunda. Ese tercero pesa veinte y los otros dos pesan uno cada "
-             "uno, así que no es un detalle de ajuste: es el que manda. Sin él serían "
-             "dos modelos corriendo en paralelo, y el puente de la lámina anterior no tendría "
-             "con qué aprender.")
-
-    # ---- 6. Resultados y costo de adopción ----
-    # Rediseño del 4-ago: la tabla es el objeto de la lámina, así que se agranda a todo el
-    # ancho y se queda sola. Los tres paneles del inventario de costos y las dos tarjetas de
-    # preguntas salieron: su contenido ya estaba entero en el guion, y acá competían con la
-    # única fila que hay que leer ([[deck-contenido-visual-no-bullets]]).
-    s = content(prs, "Resultados y costo de adopción")
-    caption(s, 0.36, TOP, 9.28,
-            "Su Tabla 2: el mismo método aplicado sobre distintos modelos de base, en "
-            "TCGA-BRCA", size=10.5, col=GRIS_BODY, bold=True)
-    simple_table(s, 0.36, TOP + 0.34, 9.28,
-                 ["Modelo de base", "Profundo  Acc / AUC", "Con SI-MIL  Acc / AUC"],
-                 [["ABMIL", "0,937 / 0,974", "0,944 / 0,968"],
-                  ["CLAM (el nuestro)", "0,937 / 0,972", "0,925 / 0,957"],
-                  ["TransMIL", "0,934 / 0,936", "0,929 / 0,933"]],
-                 col_fracs=[0.32, 0.34, 0.34], row_h=0.50, fs=13, destacar=1)
-    add_textbox(s, 0.36, TOP + 2.54, 9.28, 0.62, [
-        ("Sobre nuestro modelo de base bajan las dos: la exactitud y el área bajo la curva. "
-         "El titular de que no hay compromiso entre rendimiento e interpretabilidad se "
-         "sostiene sobre el modelo más simple.", 13, True, TEAL_TITLE, F_BODY,
-         PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
-    takeaway_bar(s, "Publican el dataset ya procesado, y la cohorte pública de mama está "
-                    "adentro: verificar el cruce es una tarde.", t=TOP + 3.34, size=13)
-    notes(s, "La tabla compara el método sobre distintos modelos de base, y uno de ellos es "
-             "el nuestro.\n"
-             "Sobre el nuestro, la fila destacada, las dos métricas bajan.\n"
-             "Tres cosas costaría traerlo: la magnificación, el cómputo, y el dato que "
-             "desarma el cómputo.\n"
-             "Dos preguntas para hoy: si el interés es entenderlo o evaluarlo, y si vale una "
-             "tarde cruzar su dataset con el nuestro.\n"
-             "\n"
-             "Los resultados. Esta tabla nos interesa más que las otras porque no compara el "
-             "método contra otros métodos, sino el método aplicado sobre distintos modelos de "
-             "base, y uno de esos modelos es el nuestro.\n"
-             "\n"
-             "Sobre el primero, que es el modelo de atención más simple, la exactitud sube un "
-             "poco al agregarle la rama interpretable. Sobre el segundo, que es el nuestro y es "
-             "la fila destacada, bajan las dos: la exactitud algo más de un punto y el área "
-             "bajo la curva un punto y medio, y los valores exactos están en la fila. Sobre el "
-             "tercero baja apenas. Lo digo sin ánimo de desacreditar "
-             "el trabajo, que me "
-             "parece muy sólido, pero el titular de que no hay compromiso entre rendimiento e "
-             "interpretabilidad se sostiene sobre el primer modelo, y la fila destacada es "
-             "justo la que nos correspondería.\n"
-             "\n"
-             "Lo que sí sostienen con firmeza es lo otro: un modelo que use únicamente las "
-             "mediciones con nombre pierde bastante, y el co-aprendizaje recupera casi todo.\n"
-             "\n"
-             "Vale la comparación con lo nuestro, que es nítida sin ser una competencia. La "
-             "interpretación de ellos aparece durante el entrenamiento y por diseño, sobre "
-             "mediciones que tienen nombre desde antes; la nuestra aparece después, sobre "
-             "modelos ya congelados, y sobre unidades internas cuyos nombres los pusimos "
-             "nosotros mirando, todavía sin visto bueno. Lo de ellos cambia el modelo, lo "
-             "nuestro no lo toca, y por eso el costo de equivocarse también es distinto: allá "
-             "empeora el modelo, acá queda mal la descripción. Hay una crítica en su "
-             "introducción que nos apunta directamente: dicen que explicar un modelo después "
-             "sufre de una desconexión entre las características con las que fue entrenado y "
-             "aquellas con las que uno lo explica.\n"
-             "\n"
-             "Si en algún momento quisiéramos probar esto acá, los tres bloques son el "
-             "inventario de costos. El primero es de escala física y es el más duro: el "
-             "segmentador está entrenado a cuarenta aumentos y solo a cuarenta, tanto que ellos "
-             "mismos filtraron sus datasets para quedarse con láminas de esa magnificación, y "
-             "nuestras cohortes están a escalas distintas entre sí. El segundo es de cómputo, y "
-             "el número asusta un poco. Pero el tercero lo desarma: ellos publican el dataset ya "
-             "procesado, mapas de núcleos y mediciones incluidos, y la cohorte pública de mama "
-             "está adentro, así que si esas láminas se cruzan con las nuestras el problema de "
-             "cómputo desaparece entero.\n"
-             "\n"
-             "De ahí salen las dos preguntas. La primera es de alcance y de ella depende todo lo "
-             "demás: si el interés es entender esta línea, eso ya está hecho; si es evaluarla "
-             "como candidata, empieza por poner a andar el segmentador sobre nuestras láminas, y "
-             "eso no cabe al lado de lo que ya está en marcha. La segunda es lo más barato que "
-             "hay sobre la mesa. Y dejo una tercera, más de fondo: cuando le mostraron los "
-             "reportes a un patólogo, algo más de un cuarto de las mediciones que el modelo "
-             "declara importantes le resultaron no relevantes. Me parece muy honesto publicarlo, "
-             "y la pregunta es si ese número es aceptable para el estándar clínico que "
-             "manejamos.")
-
-    # =======================================================================
-    # EJE 2 — La medición de atención contra las marcas del patólogo
-    # =======================================================================
-    # El resultado que reordenó el objetivo de mitosis y que decidió hacia dónde apuntó la
-    # búsqueda de papers. Nada se re-mide acá: todo sale de `atencion_vs_patologo/`, que
-    # cerró el 2-ago. Registro deliberadamente pedagógico: es la parte que hay que poder
-    # defender en voz alta ([[hallazgo-necesita-forma-presentable]]).
-
-    # ---- 7. La pregunta y el estadístico, en una sola lámina ----
+def lam_pregunta_medible(prs):
+    # ---- La pregunta y el estadístico, en una sola lámina ----
     # Fusión pedida por Ernesto el 5-ago: la lámina de la pregunta se quedaba en bullets (dos
     # paneles de hipótesis y una fila de fichas) y la del estadístico tenía el dibujo. Se
     # juntan, los dos paneles bajan a UNA línea, y lo que ocupa la lámina son las dos cintas
@@ -1825,37 +1531,80 @@ def build():
         ("«En mitosis los núcleos son finos y dispersos, y a los modelos se les escapan "
          "porque quizá esos parches no reciben atención suficiente.»",
          12, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
-    add_textbox(s, 0.36, TOP + 0.66, 9.28, 0.26, [
-        ("Dos lecturas registradas antes de medir: la del patólogo, que los marcados no "
-         "rankearían mejor que el azar, y la alternativa, que sí.",
-         10, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
-    add_textbox(s, 0.36, TOP + 0.98, 9.28, 0.28, [
-        ("Se ordenan los 4799 parches por la atención que recibieron y se mira dónde caen "
-         "los 163 marcados.", 12, True, INK, F_BODY, PP_ALIGN.CENTER)],
-        anchor=MSO_ANCHOR.MIDDLE)
+    # Corrección R1 (decimoctava pasada): la línea decía «se mira dónde caen los 163
+    # marcados» y a diez centímetros mostraba 0,89, que es el número de los 28 de mitosis.
+    # Los 163 son la unión de los siete grupos y NO tienen AUC en ningún artefacto: mezclarían
+    # números que van de 0,15 a 0,89. Ahora la línea nombra el grupo, y la segunda dice que
+    # cada grupo tiene el suyo y que el de las cintas es el de mitosis.
+    #
+    # Las dos lecturas pre-registradas bajan de su renglón propio a este bloque: son parte de
+    # cómo se llegó al número, no un ítem aparte. Rótulos del pre-registro §2, sin reasignar
+    # por cuál ganó (la primaria es la del patólogo, o sea la que el resultado refutó).
+    add_textbox(s, 0.36, TOP + 0.66, 9.28, 0.64, [
+        ("Se ordenan los 4799 parches por atención y se mira dónde cayeron los 28 que "
+         "contienen una mitosis marcada.", 12, True, INK, F_BODY, PP_ALIGN.CENTER),
+        ("El estadístico es el AUC de ranking, que es la U de Mann-Whitney normalizada. Cada "
+         "grupo de tejido tiene el suyo; el de las cintas es el de mitosis.",
+         9.5, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER),
+        ("Las dos lecturas quedaron registradas antes de medir: la del patólogo, que los "
+         "marcados no rankearían mejor que el azar, y la alternativa, que sí.",
+         9.5, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
     # El eje «más atención / menos atención» va una sola vez, debajo de las dos cintas: el
     # orden es el mismo y repetirlo bajo cada una lo vuelve ruido.
-    ct1, ct2, CH = TOP + 1.44, TOP + 2.22, 0.48
-    _rot_label(s, -0.42, ct1 + 0.14, 1.60, 0.32, "SI FUERA AZAR", col=GRIS_BODY)
-    cinta_ranking(s, 0.94, ct1, 7.30, marcados={2, 7, 11, 16, 21, 27, 31}, h=CH, ejes=False)
+    # Los rótulos de las cintas eran `_rot_label` a 270°, y se PISABAN entre sí: un rótulo
+    # rotado ocupa a lo alto lo que mide de ancho (1,60"), y las dos cintas están a 0,56" una
+    # de otra. El bbox que reporta el shape es el de antes de rotar, así que la auditoría no
+    # podía verlo ([[deck-qa-puntos-ciegos-chequeo]]) y salió del rasterizado. Ahora van
+    # horizontales en la calle de la izquierda, que para eso se corrieron las cintas.
+    ct1, ct2, CH = TOP + 1.38, TOP + 1.94, 0.42
+    for ct, txt, col in ((ct1, "SI FUERA\nAZAR", GRIS_BODY),
+                         (ct2, "LO\nOBSERVADO", ONCO_DARK)):
+        add_textbox(s, 0.36, ct, 0.80, CH,
+                    [(ln, 8, True, col, F_BODY, PP_ALIGN.RIGHT) for ln in txt.split("\n")],
+                    anchor=MSO_ANCHOR.MIDDLE)
+    cinta_ranking(s, 1.24, ct1, 7.10, marcados={2, 7, 11, 16, 21, 27, 31}, h=CH, ejes=False)
     add_textbox(s, 8.46, ct1, 1.20, CH,
                 [("0,5", 15, True, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)],
                 anchor=MSO_ANCHOR.MIDDLE)
-    _rot_label(s, -0.42, ct2 + 0.14, 1.60, 0.32, "LO OBSERVADO", col=ONCO_DARK)
-    cinta_ranking(s, 0.94, ct2, 7.30, marcados={0, 1, 2, 4, 5, 7, 9}, h=CH)
+    cinta_ranking(s, 1.24, ct2, 7.10, marcados={0, 1, 2, 4, 5, 7, 9}, h=CH)
     add_textbox(s, 8.46, ct2, 1.20, CH,
                 [("0,89", 15, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER)],
                 anchor=MSO_ANCHOR.MIDDLE)
-    takeaway_bar(s, "0,89 es la probabilidad de que un parche marcado reciba más atención "
-                    "que uno sin marca tomado al azar.", t=TOP + 3.44, size=12.5)
+    # Pedido 6 de Ernesto (6-ago): la lámina tiene que decir con precisión QUÉ es el número,
+    # porque de eso depende poder defender qué mide cada tipo de tejido. La cuenta de pares es
+    # la definición del estadístico escrita con los números de esta lámina, y sale de
+    # `atencion_vs_anotaciones.py:139`: n_neg = n_total − n_pos, o sea 4799 − 28.
+    add_textbox(s, 0.36, TOP + 3.00, 9.28, 0.32, [
+        ("28 parches con mitosis  ×  4771 con el resto de la lámina  =  133 588 pares  ·  "
+         "en el 89 % de ellos gana el marcado", 13, True, TEAL_TITLE, F_BODY,
+         PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
+    # Las tres propiedades que hay que poder decir. Van como tarjetas y no como lista: son
+    # tres respuestas a tres preguntas distintas, no tres ítems de lo mismo.
+    PROPS = [
+        ("Contra qué se mide",
+         "La lámina entera, con las marcas de los otros grupos adentro. Nunca un grupo "
+         "contra otro."),
+        ("Por qué son comparables",
+         "Solo usa el orden, no la escala de la atención. El azar es 0,5 con 12 marcados o "
+         "con 48."),
+        ("Qué dice por debajo de 0,5",
+         "Que el modelo evita ese tejido, no que lo ignore. El estadístico es simétrico."),
+    ]
+    pw = (9.28 - 0.40) / 3
+    for i, (tit, cuerpo) in enumerate(PROPS):
+        px = 0.36 + i * (pw + 0.20)
+        _grupo(s, px, TOP + 3.42, pw, 0.74, fill=TEAL_CARD2)
+        add_textbox(s, px + 0.14, TOP + 3.50, pw - 0.28, 0.22,
+                    [(tit, 10.5, True, ONCO_DARK, F_BODY)])
+        add_textbox(s, px + 0.14, TOP + 3.72, pw - 0.28, 0.40,
+                    [(cuerpo, 9, False, INK, F_BODY)])
     notes(s, "La frase del patólogo tiene una virtud: se puede medir.\n"
              "Lo que medimos no es un mapa de calor, es un número, y sale de un ranking.\n"
-             "Se ordenan los parches por atención y se pregunta dónde cayeron los marcados.\n"
+             "Se ordenan los parches por atención y se pregunta dónde cayeron los 28 de "
+             "mitosis.\n"
              "Si la atención no supiera nada daría 0,5; observamos 0,89.\n"
              "\n"
-             "Paso a la segunda parte, que es una medición nuestra.\n"
-             "\n"
-             "El origen es la frase de arriba. Cuando revisamos con el patólogo por qué los "
+             "El origen de esta parte es la frase de arriba. Cuando revisamos con el patólogo por qué los "
              "modelos fallan en tasa mitótica, dijo que en mitosis los núcleos son finos y "
              "dispersos, y que se les escapan porque quizá esos parches no reciben atención "
              "suficiente. Esa frase tiene una virtud enorme: se puede medir. No es una opinión "
@@ -1864,7 +1613,8 @@ def build():
              "\n"
              "El material es una sola lámina, la única que tenemos anotada, con cuatro mil "
              "setecientos noventa y nueve parches, de los cuales ciento sesenta y tres quedan "
-             "debajo de alguna marca, repartidas en siete grupos de tejido. Es poco y lo digo "
+             "debajo de alguna marca, repartidas en siete grupos de tejido, de los cuales el de "
+             "mitosis tiene veintiocho. Es poco y lo digo "
              "de entrada: una lámina y un anotador describen, no establecen.\n"
              "\n"
              "Antes de correr nada dejamos escritas las respuestas posibles, y quiero "
@@ -1887,21 +1637,43 @@ def build():
              "El procedimiento es el de las dos cintas. Se toman todos los parches de la "
              "lámina y se ordenan por la atención que recibieron, de más a menos. Queda una "
              "fila larguísima, y cada casilla de esas cintas es un parche. Los oscuros son los "
-             "que el patólogo marcó. Si la atención no supiera nada de mitosis, los marcados "
+             "que contienen una mitosis marcada. Si la atención no supiera nada de mitosis, los marcados "
              "estarían repartidos por toda la fila, tantos al principio como al final, y el "
              "número da cero coma cinco: esa es la cinta de arriba. Si la atención se "
              "concentrara justo ahí, se amontonarían a la izquierda y el número se acerca a "
              "uno: esa es la de abajo, y es la que observamos.\n"
              "\n"
-             "Ese número tiene una lectura directa, la de la línea de abajo: es la "
-             "probabilidad de que, si tomo un parche marcado y uno sin marca al azar, el "
-             "marcado tenga más atención. Y tiene dos propiedades que lo hacen preferible al "
-             "mapa. No depende de la escala de la atención, así que se puede comparar entre "
-             "modelos distintos y entre tejidos distintos. Y da un valor de comparación, el "
-             "cero coma cinco, que un mapa de calor no da: mirando un mapa uno no sabe decir "
-             "si el rojo está donde corresponde o si está en todas partes.")
+             "Ese número tiene un nombre y una cuenta detrás, y los dos los quiero dejar "
+             "dichos, porque es lo que hay que poder defender. El nombre es área bajo la curva "
+             "de ranking, que es la U de Mann-Whitney normalizada, el estadístico clásico para "
+             "comparar dos grupos sin suponer nada sobre la forma de sus distribuciones. La "
+             "cuenta es la de la línea de abajo. Tomo los veintiocho parches que "
+             "contienen una mitosis y los cruzo uno a uno con los cuatro mil setecientos "
+             "setenta y uno restantes: ciento treinta y tres mil quinientos ochenta y ocho "
+             "pares. En cada par miro cuál de los dos recibió más atención, y el número es la "
+             "fracción de pares que gana el marcado. Ochenta y nueve de cada cien.\n"
+             "\n"
+             "De ahí salen las tres cosas de abajo, que son las que uso para leer la lámina "
+             "que viene. La primera es contra qué se mide cada grupo. Del otro lado no está lo "
+             "que quedó sin marcar: está la lámina entera menos ese grupo, y ahí adentro "
+             "quedan los parches que el patólogo marcó como tumor, como estroma o como grasa. "
+             "Cada grupo se mide contra todo lo demás, nunca contra otro grupo. La segunda es "
+             "por qué se pueden comparar entre sí grupos de tamaños muy distintos: el número "
+             "solo usa el orden, no la escala de la atención, así que también se puede "
+             "comparar entre modelos que reparten su atención de manera distinta; y el valor "
+             "de referencia es cero coma cinco siempre, con doce parches marcados o con "
+             "cuarenta y ocho. La tercera es la que más se malinterpreta: quedar por debajo de "
+             "cero coma cinco no significa que el modelo sea indiferente a ese tejido, "
+             "significa que lo evita. El estadístico es simétrico, y un valor bajo dice que un "
+             "parche cualquiera le gana casi siempre.\n"
+             "\n"
+             "Comparado con el mapa de calor, la ventaja está justamente en tener esa "
+             "referencia: mirando un mapa uno no sabe decir si el rojo está donde corresponde "
+             "o si está en todas partes.")
 
-    # ---- 8. Atención y marcas del patólogo ----
+
+def lam_mapas(prs):
+    # ---- Atención y marcas del patólogo ----
     # Rediseño del 4-ago, y es el cambio que Ernesto pidió con más énfasis. Se proyecta SOLO
     # la región anotada, que ocupa el doble de lado: la grilla 2x2 anterior arrastraba la
     # fila de la región sin marcas, cuyo panel de anotaciones es tejido pelado y se leía como
@@ -1941,7 +1713,9 @@ def build():
              "Al pie dejé de dónde sale todo esto, porque es la pregunta natural. Es una lámina "
              "de nuestra cohorte privada, escaneada a veinte aumentos, de la que salen cuatro "
              "mil setecientos noventa y nueve parches; las marcas son sesenta y un polígonos "
-             "que el patólogo dibujó, de los cuales veintiséis son mitosis. Y su etiqueta en "
+             "que el patólogo dibujó, de los cuales veintiséis son mitosis. Veintiséis marcas "
+             "dibujadas y veintiocho parches con mitosis adentro, que no es lo mismo; en dos "
+             "láminas más cuento de dónde sale esa diferencia. Y su etiqueta en "
              "nuestros datos es tasa mitótica alta, que es coherente con esas veintiséis marcas.\n"
              "\n"
              "Una aclaración sobre lo que están viendo, porque la lámina completa tiene una "
@@ -1951,33 +1725,52 @@ def build():
              "todos en la "
              "segunda, así que es la que proyecto acá; la otra no tiene ninguna.\n"
              "\n"
-             "Eso abre un problema serio, y fuimos a cerrarlo. Si la región de abajo recibiera "
-             "de por sí más atención que la de arriba, el número no estaría midiendo las marcas, "
-             "estaría midiendo la región. Lo medimos: la región anotada contra la otra da entre "
+             "Eso abre un problema serio, y fuimos a cerrarlo. Acuérdense de cómo se arma el "
+             "número: cada parche marcado compite contra todos los demás de la lámina, y entre "
+             "esos demás está la otra región entera, que no tiene ninguna marca. Si la región "
+             "de abajo recibiera "
+             "de por sí más atención que la de arriba, los parches marcados ganarían por estar "
+             "donde están y no por tener una mitosis adentro: el número no estaría midiendo las "
+             "marcas, estaría midiendo la región. Lo medimos: la región anotada contra la otra da entre "
              "cero coma cuarenta y seis y cero coma cuarenta y ocho, o sea que recibe algo "
              "menos de "
              "atención, no más. Y después repetimos todo confinando la medición a esa sola "
              "región, con lo cual la pregunta de la región deja de existir: el efecto no baja, "
              "sube, de cero coma ochenta y nueve a cero coma noventa.")
 
-    # ---- 9. El resultado: la escalera de los siete grupos ----
+
+def lam_escalera(prs):
+    # ---- El resultado: la escalera de los siete grupos ----
     s = content(prs, "El resultado, grupo por grupo")
-    barras_ranking(s, 0.36, TOP + 0.52, 9.28, 2.62, ESCALERA)
-    _grupo(s, 0.36, TOP + 3.34, 4.54, 0.72, fill=TEAL_CARD)
-    add_textbox(s, 0.36, TOP + 3.34, 4.54, 0.72, [
-        ("Mitosis: 0,890 ± 0,039", 17, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER),
-        ("media sobre 4 modelos que NO la vieron en entrenamiento", 9.5, False, GRIS_BODY,
+    barras_ranking(s, 0.36, TOP + 0.52, 9.28, 2.30, ESCALERA)
+    # Hallazgo R3 de la decimoctava pasada: siete barras del mismo grosor sugieren siete
+    # números de la misma calidad, y el ancho del IC va de 0,10 a 0,33. El bigote ya se
+    # dibuja; lo que faltaba es el renglón que lo explique y el caso que obliga a leerlo.
+    add_textbox(s, 0.36, TOP + 2.88, 9.28, 0.44, [
+        ("El bigote es el intervalo al 95 %: cuánta precisión da el tamaño de cada grupo.",
+         11.5, True, INK, F_BODY, PP_ALIGN.CENTER),
+        ("Estroma (n = 12) lo tiene tres veces más ancho que tejido adiposo (n = 27), y con "
+         "ese ancho la lámina no puede distinguir estroma evitado de estroma atendido.",
+         9.5, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
+    # Las dos tarjetas repetían el 0,890 (que la barra ya dice) y el percentil (que está en el
+    # guion). Pedido 6: acá van las DOS INCERTIDUMBRES, que es lo que el deck contaba a
+    # medias. Son cosas distintas y la segunda es la grande ([[auc-atencion-dos-incertidumbres]]).
+    _grupo(s, 0.36, TOP + 3.40, 4.54, 0.74, fill=TEAL_CARD)
+    add_textbox(s, 0.36, TOP + 3.40, 4.54, 0.74, [
+        ("± 0,039   si cambia el modelo", 16, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER),
+        ("dispersión entre los 4 checkpoints, con las marcas fijas", 9.5, False, GRIS_BODY,
          F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
-    _grupo(s, 5.10, TOP + 3.34, 4.54, 0.72, fill=TEAL_CARD2)
-    add_textbox(s, 5.10, TOP + 3.34, 4.54, 0.72, [
-        ("Percentil mediano: 91 de 100", 17, True, TEAL_TITLE, F_BODY, PP_ALIGN.CENTER),
-        ("el parche de mitosis típico está en el 9 % más atendido", 9.5, False, GRIS_BODY,
-         F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
+    _grupo(s, 5.10, TOP + 3.40, 4.54, 0.74, fill=TEAL_CARD2)
+    add_textbox(s, 5.10, TOP + 3.40, 4.54, 0.74, [
+        ("± 0,080   si cambian las marcas", 16, True, TEAL_TITLE, F_BODY, PP_ALIGN.CENTER),
+        ("el bigote de mitosis: depende del n del grupo, y es la grande", 9.5, False,
+         GRIS_BODY, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
     notes(s, "Una barra por grupo de tejido: cuánto atiende el modelo lo que el patólogo marcó "
              "de cada cosa.\n"
              "Mitosis queda arriba de todo, y por encima incluso de tumor.\n"
              "La escalera baja hasta la grasa, que el modelo evita activamente.\n"
              "El orden no lo diseñó nadie: salió de medir, y tiene sentido clínico.\n"
+             "El bigote dice cuánta precisión da el n de cada grupo: estroma no es un dato.\n"
              "\n"
              "El resultado hay que leerlo entero, y no quedarse con el primer "
              "renglón.\n"
@@ -2002,8 +1795,7 @@ def build():
              "está bien por debajo del azar, y eso no significa que el modelo lo ignore: significa "
              "que lo evita, que un parche de grasa recibe sistemáticamente menos atención que "
              "un parche tomado al azar, que es exactamente lo que uno querría. Después los "
-             "linfocitos, también por debajo. El estroma queda justo en el azar, que es donde "
-             "uno esperaría algo que no es informativo ni estorba. Y arriba, tumor y núcleos de "
+             "linfocitos, también por debajo. Y arriba, tumor y núcleos de "
              "alto grado alrededor de cero coma ochenta y tres, con mitosis por encima de los "
              "dos.\n"
              "\n"
@@ -2011,39 +1803,98 @@ def build():
              "tumor es más de lo que esperábamos, porque tumor son regiones grandes y bien "
              "delimitadas, mucho más fáciles de acertar que veintiocho parches sueltos.\n"
              "\n"
-             "Dos advertencias sobre esta lámina. Los grupos de abajo no son un control "
+             "Ahora, los bigotes, porque sin ellos esta lámina se sobre-lee. Siete barras del "
+             "mismo grosor invitan a pensar que son siete números de la misma calidad, y no lo "
+             "son. Acá hay dos incertidumbres distintas, y mezclarlas es fácil. La primera es "
+             "la que veníamos contando, el más menos cero coma cero treinta y nueve de mitosis: "
+             "mide qué pasa si cambio de modelo, con las marcas del patólogo fijas. La segunda "
+             "es el bigote, y mide algo distinto: qué pasaría si el patólogo hubiera marcado "
+             "otras mitosis, con el modelo fijo. Esa depende del tamaño del grupo, y es la "
+             "grande: en mitosis vale más menos cero coma cero ochenta, el doble que la otra.\n"
+             "\n"
+             "El caso que obliga a mirarlos es el estroma. Con doce parches marcados su bigote "
+             "va de cero coma treinta y siete a cero coma setenta, así que la lámina no puede "
+             "distinguir estroma evitado de estroma atendido. Yo venía diciendo que el estroma "
+             "queda justo en el azar, que es donde uno esperaría algo que no informa ni "
+             "estorba, y eso era leer como dato lo que en realidad es una ausencia de dato. "
+             "Mitosis, en cambio, aguanta: su bigote no toca el cero coma cinco ni de lejos.\n"
+             "\n"
+             "Dos advertencias más sobre esta lámina. Los grupos de abajo no son un control "
              "negativo: son regiones marcadas con otro criterio, y que la grasa dé cero coma "
              "quince muestra que la atención distingue tejido, no que el método esté validado. Y "
              "los núcleos de alto grado, el segundo renglón, no aguantan el estirón: dan un "
              "número parecido, pero cuando lo sometemos a las pruebas que vienen ahora, solo uno "
-             "de cuatro modelos lo pasa. Ese no lo presento como resultado.")
+             "de cuatro modelos lo pasa. Además es el segundo bigote más ancho de los siete, "
+             "así que hay dos razones independientes para no presentarlo como resultado.")
 
-    # ---- 10. Dónde caen los 28 parches ----
+
+def lam_28_parches(prs):
+    # ---- Dónde caen los 28 parches ----
     s = content(prs, "Los 28 parches de mitosis")
     # Mismo criterio que la lámina anterior: cada caja con la relación de aspecto exacta de
     # su figura, y las dos a la MISMA altura, para que los pies queden en una sola línea.
-    FIG_H = 3.34
+    # Pedido 6 de Ernesto (6-ago): acá va la cuenta que lleva de 26 marcas a 28 parches. Va
+    # ARRIBA, pegada al título, porque el título dice 28 y la pregunta nace ahí. El costo es
+    # que las dos figuras bajan de 3,34 a 2,68 de alto (−20 %); si se prefiere el tamaño
+    # anterior, lo que hay que mover es esta banda, no las figuras.
+    #
+    # El neto de +2 es coincidencia de ESTA lámina y no se presenta como regla: son dos
+    # efectos grandes que casi se cancelan (`atencion_vs_patologo/resultados.md` §1.a).
+    cadena_cuenta(s, 0.36, TOP, 9.28, CUENTA_26_28, h=0.32, fs=13)
+    FIG_H = 2.68
     reg_w = FIG_H * (800 / 676.0)
     zoom_w = FIG_H * (453 / 552.0)
-    add_image_fit(s, FIG_MITOSIS, 0.36, TOP + 0.06, reg_w, FIG_H, align="top")
-    add_image_fit(s, FIG_ZOOM, 0.36 + reg_w + 0.15, TOP + 0.06, zoom_w, FIG_H, align="top")
-    caption(s, 0.36, TOP + 3.44, reg_w,
-            "la región anotada, con los parches de mitosis en blanco", size=9.5)
-    caption(s, 0.36 + reg_w + 0.15, TOP + 3.44, zoom_w, "el detalle del recuadro", size=9.5)
+    FIG_T = TOP + 0.74
+    add_image_fit(s, FIG_MITOSIS, 0.36, FIG_T, reg_w, FIG_H, align="top")
+    add_image_fit(s, FIG_ZOOM, 0.36 + reg_w + 0.15, FIG_T, zoom_w, FIG_H, align="top")
+    # Una línea: a dos renglones el segundo cae bajo la barra de remate y queda tachado.
+    caption(s, 0.36, FIG_T + FIG_H + 0.04, reg_w,
+            "la región anotada, con los 28 parches en blanco", size=9.5)
+    caption(s, 0.36 + reg_w + 0.15, FIG_T + FIG_H + 0.04, zoom_w, "el detalle del recuadro",
+            size=9.5)
     # El panel de dos renglones baja a UNA línea, y sin caja: un panel alrededor de una sola
     # frase es una caja alrededor de nada, y acá la lámina la manda la figura.
-    add_textbox(s, 0.36 + reg_w + zoom_w + 0.46, TOP + 1.00, 2.26, 1.40,
+    COL_L = 0.36 + reg_w + zoom_w + 0.46
+    COL_W = 9.64 - COL_L
+    add_textbox(s, COL_L, FIG_T + 0.10, COL_W, 1.10,
                 [("Los parches blancos caen sobre el rojo, no sobre el borde ni sobre el "
                   "azul.", 13.5, True, ONCO_DARK, F_BODY)], anchor=MSO_ANCHOR.MIDDLE)
-    takeaway_bar(s, "Y aun así, este modelo predice mal esta lámina.", t=TOP + 3.76,
+    # La escala, que es la causa de fondo de la cuenta de arriba Y el puente a la lámina
+    # siguiente: lo que el modelo comprime a un vector es un parche que es casi todo otra cosa.
+    add_textbox(s, COL_L, FIG_T + 1.34, COL_W, 1.20, [
+        ("Una mitosis ocupa entre el 2 % y el 4 % del parche.", 12, True, TEAL_TITLE, F_BODY),
+        ("36 px de lado contra los 256 del parche. De ahí que 10 de las 26 caigan sobre un "
+         "borde, y que lo que el modelo comprime sea un parche que es casi todo otra cosa.",
+         9.5, False, GRIS_BODY, F_BODY)])
+    takeaway_bar(s, "Y aun así, este modelo predice mal esta lámina.", t=TOP + 3.78,
                  size=13)
-    notes(s, "El mismo resultado, pero puesto donde se ve de un vistazo.\n"
+    notes(s, "Arriba, de dónde salen 28 parches si el patólogo dibujó 26 marcas.\n"
+             "El mismo resultado, pero puesto donde se ve de un vistazo.\n"
              "En blanco, los 28 parches que contienen una mitosis marcada.\n"
              "Debajo, en colores, dónde puso la atención el modelo.\n"
              "Los blancos caen sobre el rojo, y el rojo es donde el modelo mira.\n"
              "\n"
-             "La escalera anterior, puesta donde se ve de un vistazo. Es la imagen que a mí me "
-             "terminó de convencer.\n"
+             "Arriba dejé una cuenta que prefiero despejar primero, porque los dos números "
+             "conviven en todo el trabajo y parecen contradecirse. El patólogo dibujó "
+             "veintiséis marcas de mitosis, y yo vengo hablando de veintiocho parches. No es "
+             "un error de ninguno de los dos: son unidades distintas, y lo que las separa son "
+             "dos efectos grandes que casi se cancelan. Diez de las veintiséis marcas caen "
+             "sobre el borde entre dos parches, así que ocupan dos y suman uno cada una. Y "
+             "siete parches tienen más de una mitosis adentro, lo que resta ocho. Veintiséis "
+             "más diez menos ocho, veintiocho. Que el neto dé más dos es casualidad de esta "
+             "lámina y no una regla: en otra con las marcas más dispersas la diferencia sería "
+             "bastante mayor.\n"
+             "\n"
+             "La causa de fondo es de escala, y es la que quiero dejar dicha antes de pasar. "
+             "Una marca de "
+             "mitosis mide treinta y seis píxeles de lado y el parche mide doscientos cincuenta "
+             "y seis, así que una mitosis ocupa entre el dos y el cuatro por ciento del área "
+             "del parche. Con ese tamaño, que diez de veintiséis caigan sobre un borde deja de "
+             "sorprender. Y queda planteado lo otro: eso que el modelo comprime a un vector es "
+             "un parche que, en su enorme mayoría, es otra cosa.\n"
+             "\n"
+             "Ahora sí, la escalera anterior puesta donde se ve de un vistazo. Es la imagen que "
+             "a mí me terminó de convencer.\n"
              "\n"
              "Hay dos capas superpuestas. El fondo es el "
              "mapa de atención del modelo sobre esta región: el rojo es donde puso más "
@@ -2061,7 +1912,9 @@ def build():
              "Y ahora la parte incómoda. Este modelo, el que produjo este "
              "mapa, se equivoca al clasificar esta lámina.")
 
-    # ---- 11. Mira bien y responde mal ----
+
+def lam_mira_responde(prs):
+    # ---- Mira bien y responde mal ----
     # Tabla rehecha el 5-ago: Ernesto no entendía a qué modelo correspondía cada fila, ni
     # por qué de la corrida de cinco particiones aparecían dos y no cinco. La columna ahora
     # nombra el DATASET DE ENTRENAMIENTO con su tamaño (contado sobre los splits reales, ver
@@ -2120,7 +1973,9 @@ def build():
              "convierte en un puntaje. Eso mueve el trabajo a un lugar distinto del que "
              "teníamos previsto.")
 
-    # ---- 12. Los cuatro controles ----
+
+def lam_controles(prs):
+    # ---- Los cuatro controles ----
     # Rehecha entera el 4-ago: Ernesto dijo que esta lámina no se entendía. La versión
     # anterior eran cuatro paneles de texto en fila, y el primero, que es el que sostiene el
     # resultado, contaba un procedimiento espacial con palabras. Acá el nulo por traslación
@@ -2226,193 +2081,406 @@ def build():
              "mucha atención no es un error del modelo: puede ser tejido que el patólogo "
              "simplemente no marcó.")
 
-    # =======================================================================
-    # CIERRE — el grid E×S, como «lo que además cerró este sprint»
-    # =======================================================================
-    # Entra DESPUÉS de los dos ejes y no como tercer eje (decisión de Ernesto, 4-ago): el
-    # hallazgo que cambia el plan es el de atención, el deck ya venía largo y la lámina del
-    # mapa del recorrido queda intacta. La sección se marca con su propio rótulo.
-    #
-    # Dos reglas que vienen del pre-registro y gobiernan estas tres láminas:
-    #   - El veredicto es H_nula y se cuenta como tal. El +0,022 del primer peldaño es
-    #     justamente lo que NO alcanza; presentarlo como hallazgo contradiría el prereg.
-    #   - CERO Δ contra CLAM por brazo. El prereg §6 lo prohibió por diseño para no
-    #     disparar ocho veces sobre el eje ya cerrado del Hallazgo 12, y encima sobre la
-    #     tarea del dato abierto. Por eso CLAM no aparece en ninguna de las tres.
 
-    # ---- 13. El grid E×S, en una sola lámina ----
-    # Fusión pedida por Ernesto el 5-ago: las dos láminas del grid pasan a una, con los tres
-    # diagramas y sin los renglones de prosa que los acompañaban. El veredicto sube al primer
-    # renglón, que es donde estaba la barra de remate, y las dos lecturas de forma (el escalón
-    # con meseta de una rama, la curva no monótona de la otra) bajan al guion.
-    #
-    # Las dos reglas del pre-registro siguen gobernando:
-    #   - El veredicto es H_nula y se cuenta como tal. El +0,022 del primer peldaño es
-    #     justamente lo que NO alcanza; presentarlo como hallazgo contradiría el prereg.
-    #   - CERO Δ contra CLAM por brazo. El prereg §6 lo prohibió por diseño para no disparar
-    #     ocho veces sobre el eje ya cerrado del Hallazgo 12, y encima sobre la tarea del dato
-    #     abierto. Por eso CLAM no aparece.
-    s = content(prs, "¿Recortar expertos o slots?")
-    add_textbox(s, 0.36, TOP, 9.28, 0.28, [
-        ("El signo se da vuelta entre peldaños y la desviación supera a la media en los "
-         "tres: la dirección es indistinguible.", 12, True, TEAL_TITLE, F_BODY,
+def lam_simil_propone(prs):
+    # ---- Qué propone + la figura del paper ----
+    # Rediseño del 5-ago (pedido de Ernesto): los bullets al mínimo para que la figura del
+    # paper crezca todo lo que da. La figura es más ancha que alta (ar 3,195), así que en la
+    # caja anterior de 9,56 x 2,52 la limitaba el ALTO y se dibujaba a 8,05 x 2,52. Ahora la
+    # limita el ancho de la lámina y sale a 9,60 x 3,00, un 19 % más de lado. El bloque de
+    # tres líneas de arriba baja a una frase y la barra de remate se retira: su texto ERA esa
+    # frase, y repetirla costaba media pulgada de figura.
+    s = content(prs, "SI-MIL: qué propone")
+    add_textbox(s, 0.36, TOP, 9.28, 0.50, [
+        ("Que la explicación SEA la predicción: predecir con una combinación lineal de "
+         "mediciones de núcleos que tienen nombre de patología, y dejar la red profunda como "
+         "el maestro que enseña dónde mirar.", 13.5, True, TEAL_TITLE, F_BODY,
          PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
-    add_textbox(s, 0.36, TOP + 0.30, 9.28, 0.22, [
-        ("Presencia de carcinoma ductal in situ · 862 láminas, 730 con presencia y 132 sin · "
-         "5 particiones. Abajo, AUC medio por brazo con el eje desde 0,72.",
-         9, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
-    barras_divergentes(s, 0.36, TOP + 0.88, 9.28, 1.40, PELDANOS, destacar=0)
-    for x, titulo in ((0.36, "Sacando slots, con los 30 expertos fijos"),
-                      (5.22, "Sacando expertos, con los 10 slots fijos")):
-        add_textbox(s, x, TOP + 2.62, 4.42, 0.24,
-                    [(titulo, 11.5, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER)])
-    escalera_capacidad(s, 0.36, TOP + 2.90, 4.42, 0.86, RAMA_S, lo=0.72, hi=0.845)
-    escalera_capacidad(s, 5.22, TOP + 2.90, 4.42, 0.86, RAMA_E, lo=0.72, hi=0.845)
-    notes(s, "Un encargo que quedó del sprint pasado y que este sprint cerró.\n"
-             "El modelo tiene 30 expertos y 10 unidades por experto: 300 en total.\n"
-             "A igual capacidad total, ¿conviene recortar por un lado o por el otro?\n"
-             "Arriba, la diferencia pareada; abajo, qué cuesta ir sacando capacidad.\n"
+    FIG_H_S3 = 9.60 / 3.195
+    add_image_fit(s, FIG2_FULL, 0.20, TOP + 0.56, 9.60, FIG_H_S3, align="top")
+    pie_lineas(s, 0.36, TOP + 0.56 + FIG_H_S3 + 0.08, 9.28, [
+        "Taming Deep MIL for Self-Interpretability in Gigapixel Histopathology · Kapse et al., "
+        "CVPR 2024.",
+        "(a) el recorrido completo, de la lámina a las dos predicciones · (b) y (c) el detalle "
+        "de cada rama.",
+    ], size=9)
+    notes(s, "La ambición del paper: que la explicación SEA la predicción.\n"
+             "Dos caminos que salen de la misma lámina: uno mide, el otro selecciona.\n"
+             "La rama profunda no llega a producción, se descarta entera.\n"
              "\n"
-             "Hago un paréntesis con un encargo que había quedado del sprint pasado, y que "
-             "este sprint cerró. No es de mitosis ni del paper.\n"
+             "Cierro con el paper que había quedado encargado, y viene bien justo detrás de "
+             "esto, porque llega al mismo problema por otro camino. Nosotros acabamos de mirar un "
+             "modelo ya entrenado para ver dónde puso la atención; el paper propone construir "
+             "el modelo de manera que no haya que ir a mirarlo.\n"
              "\n"
-             "El modelo con expertos tiene por dentro treinta expertos y diez unidades por "
-             "experto, trescientas en total. En el título aparecen como slots, que es lo "
-             "mismo. Habíamos medido cómo se reparte el peso entre "
-             "esas trescientas, y el reparto ocupa alrededor de ciento sesenta, que es el "
-             "número que conté al principio. De ahí "
-             "salió la lectura de que, si sobraba capacidad, sobraba del lado de las unidades "
-             "y no del lado de los expertos. Lo que quedó pendiente era si eso se sostenía al "
-             "ponerlo a prueba de frente.\n"
+             "El nombre completo habla de domesticar un modelo profundo "
+             "para que se explique solo, y eso resume bien la ambición: no acompañar la "
+             "predicción con una explicación, sino conseguir que la explicación sea la "
+             "predicción.\n"
              "\n"
-             "A igual capacidad total, comparamos recortar por un lado contra recortar por el "
-             "otro sobre las mismas particiones, midiendo la diferencia en cada una. Tres "
-             "pares, uno por peldaño de capacidad. La tarea es presencia de carcinoma ductal in "
-             "situ, con ochocientas sesenta y dos láminas repartidas en cinco particiones: "
-             "setecientas treinta tienen presencia y ciento treinta y dos no. En cada prueba "
-             "quedan unos trece casos de la clase chica, y eso conviene tenerlo presente al "
-             "mirar cuánto se mueve el número entre particiones.\n"
+             "La idea cabe en la frase de arriba, y tiene tres consecuencias. "
+             "La red profunda deja de predecir, y su único producto pasa a ser una "
+             "selección de veinte parches. La predicción se calcula sobre mediciones que un "
+             "patólogo puede leer, doscientas cuarenta y seis, cosas como la asimetría de la "
+             "solidez de los núcleos o la mezcla de tipos celulares de una región. Y la más "
+             "audaz de las tres: cuando el modelo se pone a funcionar, la rama profunda se "
+             "descarta entera, no viaja con el modelo. El que sale a producción tiene "
+             "seiscientos veinticinco mil parámetros, del mismo orden que el modelo profundo "
+             "con el que lo comparan, así que la mejora no viene del tamaño.\n"
              "\n"
-             "La figura de arriba es esa diferencia. La barra es el promedio y la línea gris "
-             "es cuánto se mueve entre particiones. En el primer par va a favor de recortar "
-             "unidades, en el segundo se da vuelta, y en el tercero es prácticamente cero. En "
-             "los tres, lo que se mueve entre particiones es más grande que la diferencia "
-             "misma. Cuando el signo se da vuelta entre peldaños, lo que queda no es un efecto "
-             "chico: es ruido alrededor de cero. Si la dirección del recorte importara, el "
-             "signo sería el mismo en los tres. El par resaltado es el de mayor capacidad, o "
-             "sea el recorte más chico, y su respuesta es una diferencia de dos centésimas "
-             "con tres particiones de cinco, que no alcanza para afirmar una dirección.\n"
+             "La figura es la del paper y prefiero mostrarla tal cual. Arriba a la izquierda "
+             "está la lámina cuadriculada en parches, y de ahí salen dos caminos paralelos que "
+             "describen exactamente los mismos parches, en el mismo orden, de dos maneras "
+             "distintas. El de arriba pasa por un extractor profundo y produce, por cada "
+             "parche, un vector de números que eligió una red para sí misma; nosotros usaríamos "
+             "aquí nuestro extractor. El de abajo parte de los mapas de núcleos ya segmentados "
+             "y produce mediciones de morfología, de grafo de células y de heterogeneidad "
+             "espacial, todas con nombre legible.\n"
              "\n"
-             "Abajo está la misma tanda mirada de otra manera: qué pasa a medida que le "
-             "sacamos capacidad, con cada lado por separado. A la izquierda dejamos fijos los "
-             "expertos y sacamos unidades; a la derecha, al revés. La barra clara del extremo "
-             "izquierdo de cada gráfico es el modelo completo, que es el mismo en los dos.\n"
-             "\n"
-             "Del lado de las unidades hay un escalón y después una meseta. Baja en el primer "
-             "recorte y ahí se queda: desde noventa unidades totales hasta doscientas setenta, "
-             "el número se mueve menos de lo que se mueve un solo brazo entre particiones. Y "
-             "hay un punto donde el total cae justo sobre lo que habíamos medido de ocupación, "
-             "alrededor de ciento sesenta: ahí no se marca ningún quiebre, que es la parte que "
-             "más me interesa, porque era exactamente la predicción. Del lado de los expertos "
-             "ni siquiera baja de forma ordenada: el peor caso de toda la tanda es el recorte "
-             "más chico, y sacando más expertos el número vuelve a subir. Una curva de "
-             "capacidad no se comporta así.\n"
-             "\n"
-             "Para enmarcar los dos gráficos: la distancia entre dos particiones del mismo "
-             "brazo es de otro orden que la distancia entre el mejor y el peor brazo, cero "
-             "coma veinticinco contra cero coma cero cinco. Con esa relación un efecto de este "
-             "tamaño queda debajo del ruido, y por eso comparamos de a pares y partición por "
-             "partición en lugar de mirar promedios sueltos.\n"
-             "\n"
-             "Un detalle de método por si sale la pregunta de si esto es comparable con lo "
-             "anterior. El brazo del modelo completo lo volvimos a correr como control, y dio "
-             "idéntico a la corrida del sprint pasado, byte por byte en las cinco "
-             "particiones. Así que comparar contra una corrida anterior que comparta "
-             "particiones y semilla es válido por construcción, y en el otro sentido, repetir "
-             "algo con la misma semilla no aporta evidencia nueva.")
+             "En el medio está la caja amarilla, que es la bisagra del diseño: toma la atención "
+             "que calculó el camino profundo, con ella elige un puñado de parches, y esa "
+             "selección se aplica sobre el otro camino. Y fíjense en el recuadro punteado de "
+             "arriba a la derecha, que dice descartado en inferencia: ese es el clasificador "
+             "del camino profundo, y no llega a producción.")
 
-    # ---- 14. Los tres papers ----
-    # Hereda el lugar de la lámina de las cuatro familias, cuyo reordenamiento pasó entero al
-    # guion. SIN las letras A/B/C/D: fuera de nuestros documentos no significan nada, y lo
-    # que decide acá es una sola columna, la de qué supervisión exige cada uno.
-    s = content(prs, "Tres papers para la rama de mitosis")
+
+def lam_simil_ramas(prs):
+    # ---- Las dos ramas y el puente, en un solo diagrama ----
+    # Fusión pedida por Ernesto el 5-ago: las tres láminas de ecuaciones (las dos entradas,
+    # el orden de las operaciones y el puente Top-K) pasan a UN diagrama, sin tablas. Lo que
+    # se pierde de la lámina se cuenta hablando, que es el método de los recortes anteriores.
+    # Las dos tablas que había (los dos anchos, y α contra β) salen enteras: su contenido es
+    # una frase cada una y ocupaban media lámina.
+    s = content(prs, "Las dos ramas y el puente")
+    y1, y2, BH = TOP + 0.06, TOP + 0.70, 0.52
+    # entrada
+    _proc(s, 0.36, (y1 + y2) / 2 + BH / 2 - 0.26, 1.20, BH, "N parches", size=11,
+          dim="una lámina")
+    _conn(s, 1.56, (y1 + y2) / 2 + BH / 2, 1.86, y1 + BH / 2)
+    _conn(s, 1.56, (y1 + y2) / 2 + BH / 2, 1.86, y2 + BH / 2)
+    # rama profunda
+    _proc(s, 1.86, y1, 1.64, BH, "Extractor profundo", dim="CONCH en nuestro caso", size=10)
+    _dato(s, 3.68, y1 + 0.04, 1.52, 0.44, "g_i ∈ ℝ^D   ·   D = 512", size=10)
+    _proc_claro(s, 5.38, y1, 2.04, BH, "Proyector + atención", size=10, dim="ecuación (1)")
+    _dato(s, 7.60, y1 + 0.04, 0.96, 0.44, "α_i", size=11)
+    _dim(s, 8.66, y1 + 0.13, 1.24, "un peso por parche", size=9, align=PP_ALIGN.LEFT)
+    for xa, xb in ((3.50, 3.68), (5.20, 5.38), (7.42, 7.60)):
+        _conn(s, xa, y1 + BH / 2, xb, y1 + BH / 2)
+    # rama de mediciones
+    _proc_claro(s, 1.86, y2, 1.64, BH, "PathExpert", size=10, dim="sobre el mapa de núcleos")
+    _dato(s, 3.68, y2 + 0.04, 1.52, 0.44, "f_i ∈ ℝ^d   ·   d = 246", size=10)
+    _conn(s, 3.50, y2 + BH / 2, 3.68, y2 + BH / 2)
+    # El bloque termina antes de x = 7,90: por ahí baja el conector que lleva la atención al
+    # Top-K, y con el ancho completo la línea le cruzaba el segundo renglón por el medio.
+    add_textbox(s, 5.38, y2 + 0.02, 2.48, 0.48, [
+        ("Mediciones con nombre clínico sobre el mapa de núcleos que produce el "
+         "segmentador.", 9.5, False, INK, F_BODY)])
+    # el puente: la atención del camino de arriba baja y elige los parches del de abajo
+    yb = TOP + 1.48
+    _conn(s, 8.08, y1 + 0.48, 8.08, yb - 0.16, arrow=False)
+    _conn(s, 8.08, yb - 0.16, 1.46, yb - 0.16, arrow=False)
+    _conn(s, 1.46, yb - 0.16, 1.46, yb)
+    _proc_claro(s, 0.36, yb, 2.20, BH, "Top-K sobre la atención", size=10,
+                dim="K = 20 parches   (3)")
+    _conn(s, 2.56, yb + BH / 2, 3.00, yb + BH / 2)
+    _dato(s, 3.00, yb + 0.04, 1.30, 0.44, "20 índices", size=10)
+    _conn(s, 4.30, yb + BH / 2, 4.74, yb + BH / 2)
+    _proc(s, 4.74, yb, 2.20, BH, "20 × 246 = 4920", size=11,
+          dim="las 20 filas de mediciones")
+    add_textbox(s, 7.14, yb + 0.02, 2.76, 0.48, [
+        ("En una lámina de diez mil parches, los más de cinco millones de números del "
+         "camino profundo se descartan enteros.", 9.5, False, GRIS_BODY, F_BODY)])
+    # el orden de las dos operaciones, que es la ecuación 2 y lo que nos toca a nosotros
+    yo = TOP + 2.16
+    pa = panel(s, 0.36, yo, 4.54, None, "Orden A, el de nuestro modelo", TEAL_TITLE,
+               ["Ŷ = C( Σ_i α_i · g̃_i )",
+                "Funde primero y clasifica después: queda un logit y ningún desglose por "
+                "parche."],
+               TEAL_SQ, tsize=13, bsize=10.5, markup=True)
+    pb = panel(s, 5.10, yo, 4.54, None, "Orden B, la ecuación 2", ONCO_DARK,
+               ["Ŷ = ψ( Σ_i C( α_i · g̃_i ) )",
+                "Clasifica cada parche y suma después: el mismo logit, y además N "
+                "contribuciones con signo."],
+               ONCO_DARK, fill=TEAL_CARD, tsize=13, bsize=10.5, markup=True)
+    alto_ord = max(Emu(sp.height).inches for sp in (pa, pb))
+    for sp in (pa, pb):
+        sp.height = Inches(alto_ord)
+    takeaway_bar(s, "Nuestro modelo es el orden A. Y su atención sale de una softmax, así "
+                    "que dice CUÁNTO mira cada parche, nunca hacia qué clase empuja.",
+                 t=yo + alto_ord + 0.16, size=12)
+    notes(s, "Un solo diagrama para las tres ecuaciones del principio.\n"
+             "Arriba, dos descripciones de los mismos parches: una que eligió una red y otra "
+             "que eligió la patología.\n"
+             "En el medio, el puente: la atención de arriba elige veinte parches y esos "
+             "veinte se leen abajo.\n"
+             "Abajo, el orden de dos operaciones, que es lo que nos toca a nosotros.\n"
+             "\n"
+             "Es el mismo recorrido de la figura anterior, redibujado con lo que a nosotros "
+             "nos interesa: los anchos y la notación.\n"
+             "\n"
+             "Arriba está la entrada, con los dos caminos que acabamos de ver, y lo que agrega "
+             "el dibujo son los números. Por el de arriba cada parche queda como un vector de "
+             "quinientos doce números, que es el ancho que ya usamos nosotros. Por el de abajo "
+             "queda "
+             "como doscientas cuarenta y seis mediciones con nombre: solidez, densidad, mezcla "
+             "de tipos celulares. Mismos parches y mismo orden; lo único que cambia es el "
+             "ancho y quién eligió esos números.\n"
+             "\n"
+             "Fíjense en la convención de la notación, que el paper usa sin remarcarla y que "
+             "confunde si se pasa por alto: el ancho del camino profundo va en mayúscula y el "
+             "del otro en minúscula, la misma letra. Y de paso queda ordenada la relación "
+             "entre los dos papers que habían quedado encargados: el mapa de núcleos del que "
+             "salen esas mediciones lo produce el segmentador, que es el otro. No son dos "
+             "ángulos, son la misma cadena.\n"
+             "\n"
+             "La primera ecuación es la caja clara de la derecha y tiene dos pasos. Primero un "
+             "proyector, que reescribe el vector midiéndolo contra unas varas que se aprenden; "
+             "en nuestro modelo es la primera capa lineal con su activación. Después la "
+             "atención: hay un presupuesto de importancia del cien por ciento para repartir "
+             "entre todos los parches, y el módulo convierte el puntaje crudo de cada uno en "
+             "una fracción de ese total. De ahí sale algo que vale la pena releer con lo que "
+             "acabamos de ver: la atención de un parche depende de cuántos y cuáles sean los "
+             "demás. No es una propiedad del parche, es su tajada.\n"
+             "\n"
+             "El renglón del medio es el puente: la caja amarilla, puesta en limpio. "
+             "La atención que calculó el camino de "
+             "arriba se usa para quedarse con los veinte parches más atendidos, y esos veinte "
+             "índices son lo único que ese camino aporta. En una lámina de diez mil parches "
+             "eso significa que más de cinco millones de números se descartan enteros. Los "
+             "veinte índices se aplican sobre la otra rama, quedan veinte filas de doscientas "
+             "cuarenta y seis mediciones, y sobre esos cuatro mil novecientos veinte números "
+             "se predice. Y no es tan directo como suena: quedarse con los veinte mayores es "
+             "una operación escalonada, que no tiene derivada, así que usan una versión "
+             "perturbada que sí deja pasar el gradiente.\n"
+             "\n"
+             "Los dos cuadros de abajo son la ecuación dos, que es la que cuesta porque parece "
+             "decir algo obvio. En realidad dice algo muy específico sobre el orden de dos "
+             "operaciones. En el de la izquierda se pesa cada parche por su atención, se suman "
+             "todos y queda una única ficha promedio, y a esa ficha se le aplica el "
+             "clasificador. Es una licuadora: se echan las frutas en su proporción, se licúa, "
+             "se prueba el jugo y se dictamina. En el de la derecha se pesa cada parche por su "
+             "atención igual que antes, pero el clasificador se aplica a cada uno por "
+             "separado, y recién después se suma. Se prueba cada fruta ya medida en su "
+             "proporción, se anota su puntaje y se suma la columna.\n"
+             "\n"
+             "Escrita, la diferencia es solamente dónde cierra el paréntesis, y el número que "
+             "sale es el mismo por los dos caminos. Lo que cambia es qué queda en memoria "
+             "cuando el modelo termina. Arriba queda una ficha fundida y ningún desglose; "
+             "abajo no hay ficha fundida, pero quedan tantos puntajes como parches, con signo, "
+             "que suman exacto el resultado. Una vez licuado el jugo no hay manera de "
+             "separarlo en frutas: uno se acuerda de las proporciones, pero la proporción dice "
+             "cuánta fruta se puso, no si esa fruta era dulce o ácida.\n"
+             "\n"
+             "Fui a verificar dónde cae nuestro modelo, línea por línea, y cae en el de la "
+             "izquierda: funde y después clasifica, con dos diferencias menores, que nuestra "
+             "atención es por clase y que tenemos ramas de instancia que en esta formulación "
+             "no existen. Y el remate es el punto que más nos toca. Uno podría pensar que la "
+             "atención rescata lo que ese orden pierde, y no: sale de un reparto del cien por "
+             "ciento, así que todos sus valores son positivos, y un número positivo expresa "
+             "cuánto, nunca hacia dónde. El caso que le preocupa al paper es un parche que se "
+             "lleva más de la mitad de la atención y que al mismo tiempo es el que más empuja "
+             "en contra: el mapa de calor le pinta un rojo intenso, y quien lo mira lee que "
+             "ahí estaba la evidencia. Esto acota lo que podemos decir de los mapas que "
+             "proyecté hace un rato: que la atención caiga sobre las mitosis dice que el "
+             "modelo las mira, y no dice hacia dónde las está usando.")
+
+
+def lam_simil_reporte(prs):
+    # ---- Del embudo al reporte: las ecuaciones 4 a 10, dibujadas ----
+    # Rediseño del 5-ago (pedido de Ernesto): esta lámina era una tabla de siete ecuaciones
+    # con su glosa al lado, o sea el objeto que la convención pide convertir en dibujo
+    # ([[deck-contenido-visual-no-bullets]]). Ahora son tres figuras: la compuerta que apaga
+    # mediciones, la grilla de contribuciones que ES el reporte, y el entrenamiento conjunto.
+    # Las ecuaciones no desaparecen: la 9, que es la que hay que llevarse, se escribe entera.
+    # Retitulada el 7-ago (pedido 5 de Ernesto, que llamó «terrible» a «Del embudo al
+    # reporte»): el título nuevo dice la tesis del paper, casa con el registro de los otros
+    # («Mira bien y responde mal») y ya estaba escrito en la barra de remate de la lámina.
+    s = content(prs, "La predicción es el reporte")
+    add_textbox(s, 0.36, TOP, 5.30, 0.24,
+                [("PRIMERO: CASI TODAS LAS MEDICIONES SE APAGAN   (4) (5)", 10, True,
+                  GRIS_BODY, F_BODY)])
+    barras_esquema(s, 0.36, TOP + 0.32, 2.30, 0.58, BETA_ANTES, ONCO_PANEL)
+    _oper(s, 2.98, TOP + 0.61, sym="β", d=0.40)
+    barras_esquema(s, 3.36, TOP + 0.32, 2.30, 0.58, BETA_DESPUES, ONCO_PANEL,
+                   destacados=BETA_VIVOS)
+    caption(s, 0.36, TOP + 0.92, 2.30, "los 246 pesos, antes", size=8.5, col=GRIS_BODY)
+    caption(s, 3.36, TOP + 0.92, 2.30, "después de la compuerta", size=8.5, col=ONCO_DARK)
+    add_textbox(s, 0.36, TOP + 1.20, 5.30, 0.46, [
+        ("Cada medición tiene su propia compuerta y se calcula por separado: no reparten un "
+         "presupuesto. Por eso se pueden empujar casi todas a cero.",
+         9.5, False, INK, F_BODY)])
+    add_textbox(s, 6.10, TOP, 3.54, 0.24,
+                [("Y LAS DOS RAMAS SE ENTRENAN JUNTAS", 10, True, GRIS_BODY, F_BODY)])
+    destilacion(s, 6.10, TOP + 0.36, 3.54, 0.56)
+    add_textbox(s, 6.10, TOP + 1.24, 3.54, 0.42, [
+        ("Sin ese término serían dos modelos corriendo en paralelo.",
+         9.5, False, INK, F_BODY)])
+    add_textbox(s, 0.36, TOP + 1.76, 9.28, 0.24,
+                [("DESPUÉS: LA PREDICCIÓN QUEDA DESARMADA EN CONTRIBUCIONES QUE SE LEEN   "
+                  "(6) (7) (8)", 10, True, GRIS_BODY, F_BODY)])
+    PATRON = [[3, 0, 1, -1], [2, -2, 0, 1], [0, 1, 3, 0], [1, 0, -1, 2], [2, 1, 0, -2]]
+    grilla_contribuciones(s, 0.36, TOP + 2.40, 5.60, 1.00,
+                          ["parche 1", "parche 2", "parche 3", "…", "parche 20"],
+                          ["solidez", "densidad", "mezcla de tipos", "grafo"], PATRON)
+    caption(s, 0.36, TOP + 3.46, 5.60,
+            "teal = empuja hacia la clase   ·   gris = empuja en contra   ·   el tamaño, "
+            "cuánto", size=8.5, col=GRIS_BODY)
+    eq(s, 6.10, TOP + 2.20, 3.54, "Ŷ_f = ψ( Σ_i Σ_j w_j β_j M_(ij) + b )", num="(9)",
+       size=11, h=0.46, fill=TEAL_CARD)
+    add_textbox(s, 6.10, TOP + 2.76, 3.54, 0.70, [
+        ("Cada celda de la izquierda es un sumando de esa cuenta: un parche por una "
+         "medición. La explicación no se calcula después, ES la cuenta.",
+         10, False, INK, F_BODY)])
+    # El remate decía «ES el reporte que ve el patólogo», que es de donde salió el título
+    # nuevo. Con el título arriba diciéndolo, el remate pasa a decir QUÉ trae ese reporte:
+    # repetir la misma frase a treinta centímetros de distancia se oye como tartamudeo.
+    takeaway_bar(s, "Si hay que quedarse con una sola ecuación, es la 9: cada sumando dice "
+                    "qué región, por qué medición, y cuánto aportó.", t=TOP + 3.76, size=12.5)
+    notes(s, "Las ecuaciones del final las cuento dibujadas, no una por una.\n"
+             "Arriba a la izquierda, la compuerta que deja vivas unas pocas mediciones.\n"
+             "Abajo, la predicción desarmada en contribuciones, que es el reporte.\n"
+             "Arriba a la derecha, las dos ramas entrenándose juntas.\n"
+             "\n"
+             "El resto de las ecuaciones las paso dibujadas y en bloque, porque desarmadas "
+             "una por una con el mismo detalle que las primeras todavía no las tengo, y "
+             "prefiero decirlo antes que improvisar.\n"
+             "\n"
+             "Arriba a la izquierda está el paso que más me llamó la atención. Cada una de las "
+             "doscientas cuarenta y seis mediciones recibe un peso, y ese peso pasa por una "
+             "compuerta. A la izquierda dibujé cómo llegan los pesos, todos parecidos; a la "
+             "derecha, cómo quedan después. La compuerta es una sigmoide con temperatura, y lo "
+             "que hace es empujar la enorme mayoría hacia cero y dejar unas pocas vivas. Eso "
+             "es posible porque cada compuerta se calcula por separado, no reparten un "
+             "presupuesto entre todas como sí hace la atención sobre los parches. Y no es un "
+             "tecnicismo: es exactamente lo que permite que el reporte que ve el patólogo "
+             "tenga pocos renglones en vez de doscientos cuarenta y seis.\n"
+             "\n"
+             "Abajo está el reporte. Cada fila es uno de los veinte parches "
+             "elegidos y cada columna es una de las mediciones que sobrevivieron. En cada "
+             "cruce hay un número, y ese número es la contribución de ese parche por esa "
+             "medición. El color dice hacia dónde empuja y el tamaño dice cuánto. La "
+             "predicción es, literalmente, la suma de todos esos cuadraditos.\n"
+             "\n"
+             "Esa es la ecuación de la derecha, la nueve, y es la que hay que retener. No es "
+             "una explicación que alguien calcula después de que el modelo respondió: es la "
+             "cuenta misma que hizo el modelo, escrita término a término. Por eso el reporte "
+             "puede decir esta región, por esta medición, aportó esto a favor.\n"
+             "\n"
+             "Y arriba a la derecha, la última: las dos ramas se entrenan a la vez, cada una "
+             "con su propio error, más un tercer término que empuja a la rama interpretable a "
+             "acercarse a la profunda. Ese tercero pesa veinte y los otros dos pesan uno cada "
+             "uno, así que no es un detalle de ajuste: es el que manda. Sin él serían "
+             "dos modelos corriendo en paralelo, y el puente de la lámina anterior no tendría "
+             "con qué aprender.")
+
+
+def lam_simil_resultados(prs):
+    # ---- Resultados y costo de adopción ----
+    # Rediseño del 4-ago: la tabla es el objeto de la lámina, así que se agranda a todo el
+    # ancho y se queda sola. Los tres paneles del inventario de costos y las dos tarjetas de
+    # preguntas salieron: su contenido ya estaba entero en el guion, y acá competían con la
+    # única fila que hay que leer ([[deck-contenido-visual-no-bullets]]).
+    s = content(prs, "Resultados y costo de adopción")
     caption(s, 0.36, TOP, 9.28,
-            "Ordenados por lo único que descarta rápido: qué supervisión exige cada uno "
-            "contra la que tenemos.", size=11, col=GRIS_BODY, bold=True)
+            "Su Tabla 2: el mismo método aplicado sobre distintos modelos de base, en "
+            "TCGA-BRCA", size=10.5, col=GRIS_BODY, bold=True)
     simple_table(s, 0.36, TOP + 0.34, 9.28,
-                 ["Paper", "Cita", "Qué supervisión exige", "Qué lo frena"],
-                 [list(p) for p in PAPERS],
-                 col_fracs=[0.26, 0.20, 0.27, 0.27], row_h=0.50, fs=11.5, destacar=0)
+                 ["Modelo de base", "Profundo  Acc / AUC", "Con SI-MIL  Acc / AUC"],
+                 [["ABMIL", "0,937 / 0,974", "0,944 / 0,968"],
+                  ["CLAM (el nuestro)", "0,937 / 0,972", "0,925 / 0,957"],
+                  ["TransMIL", "0,934 / 0,936", "0,929 / 0,933"]],
+                 col_fracs=[0.32, 0.34, 0.34], row_h=0.50, fs=13, destacar=1)
     add_textbox(s, 0.36, TOP + 2.54, 9.28, 0.62, [
-        ("El primero es el único cuyo régimen de supervisión coincide con el nuestro: "
-         "marcas incompletas, donde lo que no está marcado no es un negativo.",
-         13, True, TEAL_TITLE, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
-    takeaway_bar(s, "Las hojas con cada paper por separado las dejé aparte, para que no "
-                    "haya que decidir nada hoy sobre la marcha.", t=TOP + 3.34, size=13)
-    notes(s, "Tres papers, ordenados por qué supervisión exige cada uno.\n"
-             "El primero es el único que encaja con lo que tenemos: marcas parciales.\n"
-             "El segundo tiene pesos públicos, pero no tiene clase de mitosis.\n"
-             "El tercero necesita una magnificación que en el privado no tenemos.\n"
+        ("Sobre nuestro modelo de base bajan las dos: la exactitud y el área bajo la curva. "
+         "El titular de que no hay compromiso entre rendimiento e interpretabilidad se "
+         "sostiene sobre el modelo más simple.", 13, True, TEAL_TITLE, F_BODY,
+         PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
+    takeaway_bar(s, "Publican el dataset ya procesado, y la cohorte pública de mama está "
+                    "adentro: verificar el cruce es una tarde.", t=TOP + 3.34, size=13)
+    notes(s, "La tabla compara el método sobre distintos modelos de base, y uno de ellos es "
+             "el nuestro.\n"
+             "Sobre el nuestro, la fila destacada, las dos métricas bajan.\n"
+             "Tres cosas costaría traerlo: la magnificación, el cómputo, y el dato que "
+             "desarma el cómputo.\n"
+             "Dos preguntas que dejo planteadas: si el interés es entenderlo o evaluarlo, y si "
+             "vale una tarde cruzar su dataset con el nuestro.\n"
              "\n"
-             "Vuelvo a la mitosis con los papers, que salieron de todo lo anterior. Por qué "
-             "son estos y no otros lo decidió la medición que acabo de mostrar.\n"
+             "Los resultados. Esta tabla nos interesa más que las otras porque no compara el "
+             "método contra otros métodos, sino el método aplicado sobre distintos modelos de "
+             "base, y uno de esos modelos es el nuestro.\n"
              "\n"
-             "Teníamos cuatro maneras posibles de atacar el problema de mitosis, escritas "
-             "antes de la medición. La primera era cambiar la forma en que el modelo combina "
-             "los parches. La segunda, el campo de visión, porque la mitosis se cuenta a "
-             "cuarenta aumentos y buena parte de nuestra cohorte está a veinte. La tercera, "
-             "cambiar la unidad con la que representamos el tejido, pasando del parche al "
-             "núcleo. Y la cuarta, aprovechar las marcas del patólogo como supervisión, "
-             "aunque sean parciales.\n"
+             "Sobre el primero, que es el modelo de atención más simple, la exactitud sube un "
+             "poco al agregarle la rama interpretable. Sobre el segundo, que es el nuestro y es "
+             "la fila destacada, bajan las dos: la exactitud algo más de un punto y el área "
+             "bajo la curva un punto y medio, y los valores exactos están en la fila. Sobre el "
+             "tercero baja apenas. Lo digo sin ánimo de desacreditar "
+             "el trabajo, que me "
+             "parece muy sólido, pero el titular de que no hay compromiso entre rendimiento e "
+             "interpretabilidad se sostiene sobre el primer modelo, y la fila destacada es "
+             "justo la que nos correspondería.\n"
              "\n"
-             "La medición reordenó eso. La primera pierde su motivación principal, porque su "
-             "argumento de cabecera era precisamente la frase del patólogo, y la frase quedó "
-             "refutada. Y quiero ser cuidadoso: pierde ese argumento, no todos. Le queda uno "
-             "intacto, que esta medición no evalúa, y es que contar mitosis en el criterio "
-             "clínico es buscar el máximo en un puñado de campos vecinos, no promediar toda "
-             "la lámina. Las otras tres se fortalecen o quedan abiertas, y por eso la "
-             "búsqueda apuntó ahí.\n"
+             "Lo que sí sostienen con firmeza es lo otro: un modelo que use únicamente las "
+             "mediciones con nombre pierde bastante, y el co-aprendizaje recupera casi todo.\n"
              "\n"
-             "De los tres, el primero es el que más nos sirve, y por una razón que es de "
-             "encaje y no de calidad. Nuestras anotaciones son positivos parciales: el "
-             "patólogo marcó veintiséis mitosis, pero no marcó todas, así que lo que no está "
-             "marcado no podemos tratarlo como negativo. Ese paper está construido "
-             "exactamente para ese caso, y es el único de los tres que lo está. El segundo "
-             "tiene la ventaja de traer pesos públicos, o sea que no necesita nada nuestro, "
-             "pero no distingue mitosis entre sus clases. Y el tercero pide poder acercarse a "
-             "cuarenta aumentos, que en nuestra cohorte privada no está.\n"
+             "Vale la comparación con lo nuestro, que es nítida sin ser una competencia. La "
+             "interpretación de ellos aparece durante el entrenamiento y por diseño, sobre "
+             "mediciones que tienen nombre desde antes; la nuestra aparece después, sobre "
+             "modelos ya congelados, y sobre unidades internas cuyos nombres los pusimos "
+             "nosotros mirando, todavía sin visto bueno. Lo de ellos cambia el modelo, lo "
+             "nuestro no lo toca, y por eso el costo de equivocarse también es distinto: allá "
+             "empeora el modelo, acá queda mal la descripción. Hay una crítica en su "
+             "introducción que nos apunta directamente: dicen que explicar un modelo después "
+             "sufre de una desconexión entre las características con las que fue entrenado y "
+             "aquellas con las que uno lo explica.\n"
              "\n"
-             "De cada uno preparé una hoja aparte con el detalle, así que no hace falta "
-             "decidir nada hoy sobre la marcha.")
+             "Si en algún momento quisiéramos probar esto acá, los tres bloques son el "
+             "inventario de costos. El primero es de escala física y es el más duro: el "
+             "segmentador está entrenado a cuarenta aumentos y solo a cuarenta, tanto que ellos "
+             "mismos filtraron sus datasets para quedarse con láminas de esa magnificación, y "
+             "nuestras cohortes están a escalas distintas entre sí. El segundo es de cómputo, y "
+             "el número asusta un poco. Pero el tercero lo desarma: ellos publican el dataset ya "
+             "procesado, mapas de núcleos y mediciones incluidos, y la cohorte pública de mama "
+             "está adentro, así que si esas láminas se cruzan con las nuestras el problema de "
+             "cómputo desaparece entero.\n"
+             "\n"
+             "De ahí salen dos preguntas, y las dejo planteadas para cuando volvamos sobre esta "
+             "línea. La primera es de alcance y de ella depende todo lo "
+             "demás: si el interés es entender esta línea, eso ya está hecho; si es evaluarla "
+             "como candidata, empieza por poner a andar el segmentador sobre nuestras láminas, y "
+             "eso no cabe al lado de lo que ya está en marcha. La segunda es lo más barato que "
+             "hay sobre la mesa. Y dejo una tercera, más de fondo: cuando le mostraron los "
+             "reportes a un patólogo, algo más de un cuarto de las mediciones que el modelo "
+             "declara importantes le resultaron no relevantes. Me parece muy honesto publicarlo, "
+             "y la pregunta es si ese número es aceptable para el estándar clínico que "
+             "manejamos.")
 
-    # ---- 15. Objetivos propuestos ----
+
+def lam_objetivos_propuestos(prs):
+    # ---- Objetivos propuestos ----
     # Los dos que eligió Ernesto. La réplica del resultado del sprint pasado y HoVer-Net
     # sobre los mejores parches quedan FUERA a propósito: siguen abiertos, pero no se
     # proponen como objetivo. La lámina tiene que dejar a la vista de qué depende el primero,
     # que es la pregunta concreta que hay que hacer en la reunión.
     # Rehecha el 5-ago: Ernesto marcó que no usaba el molde con el que las presentaciones
-    # anteriores cierran, que es el MISMO de la lámina de objetivos del sprint (título 32 pt,
-    # lista numerada en infinitivo, marcador de estado a la derecha). Las dos tarjetas se
-    # retiran; lo que decían pasa al guion, salvo la pregunta de la que dependen los dos, que
-    # es lo concreto que hay que preguntar hoy y se queda como panel.
+    # anteriores cierran. Puesta al molde EXACTO el 7-ago, que es su pedido 4: el molde de la
+    # lámina «Objetivos del sprint», la misma que el reordenamiento eliminó. Título 32 pt,
+    # lista numerada en infinitivo, marcador de estado a la derecha, y NADA MÁS: se retiran el
+    # panel de la pregunta y la barra de remate, y los dos bajan al guion. La geometría es la
+    # de la lámina que se fue, sin re-derivar: `row_tops = 1.10 + i * 0.68`, `row_h = 0.62`,
+    # fila de 19 pt sobre 7,75", marcador en `x = 8.98`.
     s = content(prs, "Objetivos propuestos", size=32)
-    for i, item in enumerate(OBJETIVOS_PROP):
-        rt = 1.42 + i * 0.80
-        add_textbox(s, 0.35, rt, 7.75, 0.62, [(item, 19, True, GRIS_BODY, F_BODY)],
+    row_tops = [1.10 + i * 0.68 for i in range(len(OBJETIVOS_PROP))]
+    row_h = 0.62
+    for item, rt in zip(OBJETIVOS_PROP, row_tops):
+        add_textbox(s, 0.35, rt, 7.75, row_h, [(item, 19, True, GRIS_BODY, F_BODY)],
                     anchor=MSO_ANCHOR.MIDDLE)
-        status_progress(s, 8.98, rt + 0.31, texto="Propuesto")
-    panel(s, 0.35, 3.24, 9.29, None,
-          "Los dos dependen de la misma pregunta, y es la que traigo para hoy", TEAL_TITLE,
-          ["¿Cuántas láminas anotadas hay además de esta, y quién las anotó?",
-           "Con una sola lámina, el primero no tiene materia y el segundo se queda sin con "
-           "qué evaluarse."],
-          TEAL_SQ, fill=TEAL_CARD, tsize=15, bsize=13)
-    takeaway_bar(s, "Los dos entran por el camino barato: sin GPU hasta saber si hay "
-                    "materia.", t=4.72, size=13)
+        status_progress(s, 8.98, rt + row_h / 2, texto="Propuesto")
     notes(s, "Propongo dos objetivos, y los dos empiezan sin gastar cómputo.\n"
              "El primero es llevar la medición de atención a todas las láminas anotadas que "
              "haya.\n"
              "El segundo es probar el paper de marcas parciales por su camino más barato.\n"
+             "Por qué ese paper: es el único de los tres cuya supervisión encaja con lo que "
+             "tenemos.\n"
              "Los dos dependen de una sola pregunta, que es la que quiero hacer hoy.\n"
              "\n"
              "Con todo lo anterior sobre la mesa, propongo dos cosas para lo que viene, y las "
@@ -2426,19 +2494,85 @@ def build():
              "pesado ya está hecho y lo que falta es material.\n"
              "\n"
              "La segunda es el paper de detección con marcas parciales. No propongo montarlo "
-             "entero, propongo entrar por donde es barato: tomar un detector de mitosis "
-             "público, pasarlo por nuestra lámina y ver cuánto acierta contra las veintiséis "
+             "entero, propongo entrar por donde es barato: correr un detector de mitosis ya "
+             "entrenado sobre nuestra lámina y ver cuánto acierta contra las veintiséis "
              "marcas que tenemos. Eso responde si hay señal aprovechable antes de invertir "
              "nada, y si la respuesta es que no, nos ahorramos el resto.\n"
              "\n"
+             "Quiero decir por qué ese paper y no otro, porque la búsqueda no fue a ciegas: la "
+             "orientó la medición que acabo de contar. Teníamos cuatro maneras posibles de "
+             "atacar el problema de mitosis, escritas antes de medir. La primera era cambiar la "
+             "forma en que el modelo combina los parches. La segunda, el campo de visión, "
+             "porque la mitosis se cuenta a cuarenta aumentos y buena parte de nuestra cohorte "
+             "está a veinte. La tercera, cambiar la unidad con la que representamos el tejido, "
+             "pasando del parche al núcleo. Y la cuarta, aprovechar las marcas del patólogo "
+             "como supervisión, aunque sean parciales.\n"
+             "\n"
+             "La medición reordenó eso. La primera pierde su motivación principal, porque su "
+             "argumento de cabecera era precisamente la frase del patólogo, y la frase quedó "
+             "refutada. Y quiero ser cuidadoso: pierde ese argumento, no todos. Le queda uno "
+             "intacto, que esta medición no evalúa, y es que contar mitosis en el criterio "
+             "clínico es buscar el máximo en un puñado de campos vecinos, no promediar toda la "
+             "lámina. Las otras tres se fortalecen o quedan abiertas, y por eso la búsqueda "
+             "apuntó ahí.\n"
+             "\n"
+             "Miré tres papers para esa rama, y el que propongo es el de detección con "
+             "positivos parciales, "
+             "por una razón que es de encaje y no de calidad. Nuestras anotaciones son "
+             "positivos parciales: el patólogo marcó veintiséis mitosis, pero no marcó todas, "
+             "así que lo que no está marcado no podemos tratarlo como negativo. Ese paper está "
+             "construido exactamente para ese caso, y es el único de los tres que lo está. De "
+             "los otros dos, uno trae pesos públicos de segmentación de núcleos, o sea que no "
+             "necesita nada nuestro, pero no distingue mitosis entre sus clases; y el otro pide "
+             "poder acercarse a cuarenta aumentos, que en nuestra cohorte privada no está. De "
+             "cada uno preparé una hoja aparte con el detalle, así que no hace falta decidir "
+             "nada hoy sobre la marcha.\n"
+             "\n"
              "Y las dos cuelgan de la misma pregunta, la que necesito que conversemos "
-             "hoy: cuántas láminas anotadas hay además de esta, y quién las anotó. Lo "
+             "hoy: cuántas láminas anotadas hay además de esta, y quién las anotó. Con una "
+             "sola lámina el primer objetivo no tiene materia, y el segundo se queda sin con "
+             "qué evaluarse. Lo "
              "pregunto porque el archivo de anotaciones que tengo viene firmado con unas "
              "iniciales que no sé de quién son, y eso importa por dos motivos. Uno práctico: "
              "si hay más láminas del mismo anotador, el primer objetivo arranca la semana que "
              "viene. Y otro de método: si las que aparezcan son de anotadores distintos, hay "
              "que tenerlo en cuenta al juntarlas, porque no todos marcan con el mismo "
              "criterio.")
+
+
+# ============================================================================
+# El orden del deck
+# ============================================================================
+# Orden pedido por Sebastián el 6-ago, y no se re-decide acá: abre el grid de
+# expertos y slots, sigue la medición de atención contra las marcas del patólogo,
+# y SI-MIL queda al final. Invierte la decisión del 3-ago (lo cerrado antes que lo
+# vivo) y jubila el encuadre del 4-ago (el grid como sección de cierre): las dos
+# eran de encuadre nuestro, ésta viene del supervisor.
+def build():
+    prs, keep_ids = base_from_template()
+    prs.slide_width = Inches(SW); prs.slide_height = Inches(SH)
+
+    lam_portada(prs)
+
+    # ---- el grid abre ----
+    lam_grid(prs)
+
+    # ---- la medición de atención ----
+    lam_pregunta_medible(prs)
+    lam_mapas(prs)
+    lam_escalera(prs)
+    lam_28_parches(prs)
+    lam_mira_responde(prs)
+    lam_controles(prs)
+
+    # ---- SI-MIL, al final ----
+    lam_simil_propone(prs)
+    lam_simil_ramas(prs)
+    lam_simil_reporte(prs)
+    lam_simil_resultados(prs)
+
+    # ---- cierre ----
+    lam_objetivos_propuestos(prs)
 
     # ---- cierre: reflow, auditoría, escala al tamaño del template, tipografía ----
     reflow_onco(prs, skip=keep_ids)
