@@ -649,3 +649,154 @@ paper). Ahora lo dice.
 - ~~El guion de las láminas nuevas y fusionadas no pasó por `@humanizer-es` ni por la
   lectura en voz alta.~~ **Hecho el 5-ago a las 22:40**, ver la sección de arriba. Las 14
   láminas con notas tienen ahora las tres capas.
+
+---
+
+## El reordenamiento del 7-ago (de 16 a 14 láminas) — VIGENTE
+
+Lo pidió **Sebastián** el jueves 6 después de ver el deck, y **no se re-decide**: abre el
+**grid de expertos y slots**, sigue la **medición de atención**, y **SI-MIL queda al final**.
+Invierte la decisión del 3-ago (lo cerrado antes que lo vivo) y jubila el encuadre del 4-ago
+(el grid como sección de cierre). Las dos eran de encuadre nuestro; ésta viene del supervisor.
+La presentación es a **Benjamín**, la semana del 11-ago, sin día confirmado.
+
+Los seis pedidos de Ernesto están ejecutados, más los dos entregables. **Ningún número
+cambió**, y ni el `prereg.md` ni el `resultados.md` de los dos experimentos se tocaron.
+
+### El orden nuevo, 14 láminas
+
+| # | Lámina | Sección |
+|---|---|---|
+| 1-2 | portada + título | heredadas del template |
+| 3 | ¿Recortar expertos o slots? | el grid abre |
+| 4 | La pregunta medible | la medición de atención |
+| 5 | Atención y marcas del patólogo | |
+| 6 | El resultado, grupo por grupo | |
+| 7 | Los 28 parches de mitosis | |
+| 8 | Mira bien y responde mal | |
+| 9 | Los cuatro controles | |
+| 10 | SI-MIL: qué propone | SI-MIL, al final |
+| 11 | Las dos ramas y el puente | |
+| 12 | **La predicción es el reporte** (retitulada) | |
+| 13 | Resultados y costo de adopción | |
+| 14 | Objetivos propuestos | cierre |
+
+**Se van dos láminas.** «Objetivos del sprint» y «Tres papers para la rama de mitosis», con
+sus constantes `OBJETIVOS` y `PAPERS`. Nada de su contenido se pierde: el **molde** de la
+primera lo hereda «Objetivos propuestos» (y sus medidas quedan escritas al lado de
+`OBJETIVOS_PROP`, que era lo único que había que conservar), y el **razonamiento** de la
+segunda baja al guion de esa misma lámina, porque es la justificación del objetivo
+propuesto 2. **SI-MIL conserva sus 4 láminas**: Ernesto eligió explícitamente no
+comprimirlas a 2.
+
+### `build()` dejó de ser un bloque único
+
+Cada lámina es ahora una función `lam_*(prs)` y `build()` es la lista de llamadas. El cuerpo
+de cada bloque quedó **donde estaba, a cuatro espacios**, porque ya lo estaba dentro de
+`build()`, así que la conversión no movió una sola línea de indentación. Dos consecuencias:
+el orden del deck se lee y se cambia en un lugar, y el próximo reordenamiento es mover
+renglones de una línea.
+
+**Los comentarios `# ---- N. Título ----` perdieron el número.** Quedaba stale en cada
+reorden y obligaba a mantener un mapeo entre «la lámina N» de los pedidos y el código, que
+es exactamente la fricción que el ADDENDUM del 4-ago (19:00) tuvo que documentar. Ahora el
+comentario dice solo el título.
+
+### Las cuatro láminas de la medición, con la estadística adentro
+
+Es el pedido de fondo: Ernesto dijo que le falta entender la parte estadística para poder
+defender qué mide cada tipo de tejido.
+
+- **«La pregunta medible» (4)** ahora **nombra** el estadístico (AUC de ranking = U de
+  Mann-Whitney normalizada), **hace la cuenta** de pares en pantalla
+  (`28 × 4771 = 133 588`, y en el 89 % gana el marcado), y cierra con **tres tarjetas**:
+  contra qué se mide cada grupo (la lámina entera, marcas de los otros grupos incluidas),
+  por qué son comparables (solo usa el orden; el azar es 0,5 con 12 marcados o con 48), y
+  qué dice por debajo de 0,5 (evita, no ignora). **Acá se aplicó R1**: la línea decía «se
+  mira dónde caen los 163 marcados» y mostraba 0,89, que es el número de los 28 de mitosis.
+- **«Atención y marcas» (5)** no cambió como lámina. Su **nota** sí: entró la oración que
+  faltaba del Q1 de la decimoséptima pasada (cada parche marcado compite contra todos los
+  demás de la lámina, **incluidos los 2303 de la otra región**), que es el eslabón que
+  volvía rival a la región.
+- **«El resultado, grupo por grupo» (6)** explica el bigote y cambia sus dos tarjetas, que
+  repetían el 0,890 y el percentil, por **las dos incertidumbres**: `± 0,039` si cambia el
+  modelo, `± 0,080` si cambian las marcas, que es la grande. Y **sale del guion la frase de
+  estroma** («queda justo en el azar, que es donde uno esperaría»): con n = 12 su intervalo
+  va de 0,37 a 0,70, así que es una ausencia de dato contada como dato.
+- **«Los 28 parches» (7)** abre con la **cadena `26 → +10 → −8 → 28`** pegada al título, que
+  es donde nace la pregunta, y suma la **escala** (una mitosis ocupa entre el 2 % y el 4 %
+  del parche) como puente a «mira bien y responde mal». **Costo**: las dos figuras bajan de
+  3,34 a 2,68 de alto, un 20 %. Si se prefiere el tamaño anterior, lo que hay que mover es
+  la banda de la cuenta, no las figuras.
+
+### El QA visual cazó dos cruces de línea sobre texto, con la auditoría en cero
+
+Las dos son de la clase que ningún chequeo de cajas ve, y las dos salieron del rasterizado.
+
+- **Los rótulos de las cintas de la lámina 4 se pisaban entre sí**, y era un defecto
+  **preexistente** que el reordenamiento vertical agravó. Un `_rot_label` a 270° ocupa **a lo
+  alto lo que mide de ancho** (1,60"), y las dos cintas están a 0,56" una de otra; el bbox
+  que reporta el shape es el de **antes** de rotar. Fix: rótulos horizontales en la calle de
+  la izquierda, con las cintas corridas a `x = 1,24`.
+- **La línea punteada del azar cruzaba el «0,322» de Linfocitos** en la escalera.
+  `barras_ranking` ponía el valor pegado a la punta del bigote, y para los grupos que quedan
+  bajo el azar esa punta cae **antes** de la línea del 0,5. Fix: el valor va en **columna
+  fija** al final del eje. De paso los siete números quedan alineados, que es como se
+  comparan.
+
+Además, el caption de la lámina 7 pasaba a dos renglones y el segundo quedaba **tachado por
+la barra de remate**. Se acortó a «la región anotada, con los 28 parches en blanco», que de
+paso repite el 28.
+
+### El guion, reescrito para el orden nuevo
+
+Lo que **obligaba** a tocarlo, más allá del orden:
+
+- La **portada** describía un deck de dos cosas en el orden viejo. Ahora son tres, en orden.
+- La nota del **grid** abría «Hago un paréntesis con un encargo que había quedado» y ahora
+  **abre el deck**; y se apoyaba en «el número que conté al principio» (los ~160 slots), que
+  se contaba en la lámina de objetivos que se eliminó. Quedó **autocontenida**, y de paso
+  dice el escalado a 1176 láminas, que es la respuesta al reparo que puso el propio Benjamín.
+- La primera nota de **SI-MIL** abría el deck y ahora **transiciona desde** la atención.
+- **Dos referencias cruzadas quedaron al revés con el reorden** y se corrigieron: las dos
+  frases de la lámina 11 que prometían algo «en la segunda parte» apuntaban a la medición,
+  que ahora ya ocurrió.
+- La nota de cierre absorbe la **pregunta del panel** que se retiró de la lámina y el
+  **razonamiento de los tres papers**.
+
+Pasó por `@humanizer-es` (8 ediciones: «no es casual», dos «conviene», un gerundio, un
+coloquialismo, un anuncio ceremonial) y por la **lectura en voz alta**, que cazó cosas que
+ninguna cuenta automática ve:
+
+- Dos «paso a» seguidos en el cambio de lámina 3 a 4.
+- «Empiezo por acá porque es lo único que llega cerrado» **contradecía la portada**, que
+  presenta SI-MIL como lectura terminada.
+- El **26 contra 28** se oía como contradicción desde la lámina 5 y no se resolvía hasta la
+  7. Ahora la 5 lo adelanta en media oración.
+- **Tres preguntas «para hoy» apiladas al final**, porque SI-MIL pasó al cierre. Las dos de
+  SI-MIL pasan a «las dejo planteadas»; la de la lámina 14 queda como la única que bloquea.
+- «Tomar un detector de mitosis **público**» chocaba, dos párrafos después, con «uno trae
+  pesos **públicos** pero no distingue mitosis».
+
+Barrido final de reglas duras sobre **cuerpo y notas** del `.pptx` construido: cero rayas,
+cero «palanca», cero decimales con punto, cero «al revés» (había uno, preexistente, en la
+nota del grid).
+
+### La copia sin notas para Sebastián
+
+La pidió para mirar los mapas de calor y los parches sin el guion encima.
+`sin_notas.py`, al lado del generador: **cirugía de zip, no python-pptx**
+([[pptx-quitar-notas-y-respaldo]]). Saca `ppt/notesSlides/*`, la `<Relationship>` de tipo
+notesSlide de cada `slideN.xml.rels` y su `<Override>` de `[Content_Types].xml`. Resultado:
+**14 notesSlides eliminados, 15 partes reescritas, 82 byte-idénticas** (fuentes embebidas,
+imágenes y theme intactos) y 0 láminas con notas. Se versionó el script y no el `.pptx`,
+porque Sebastián va a querer la copia de nuevo cada vez que el deck cambie.
+
+### Lo que queda para que lo decida Ernesto
+
+- **«Objetivos propuestos» queda muy vacía.** Es el molde exacto que pidió, pero con dos
+  ítems donde la lámina original tenía seis. Su guion, en cambio, es el más largo del deck.
+- El **20 % de alto** que cedieron las dos figuras de mitosis, que él había llamado
+  «geniales».
+- La **leyenda mezclada español/inglés** de la figura de marcas sigue abierta, y él ya dijo
+  que esa lámina queda como está.
