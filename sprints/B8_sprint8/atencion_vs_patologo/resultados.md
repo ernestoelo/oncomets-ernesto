@@ -30,8 +30,73 @@ checkpoints **primarios** (los que nunca vieron la lámina):
 > al menos un polígono de ese grupo. Verificado sobre `../anotaciones_patologo/parches_anotados_129741.csv`
 > (163 filas, columna `clases` multi-etiqueta con `|`): mitosis = 26 + 1 `Mitosis|Nucleos alto grado`
 > + 1 `Mitosis|Tumor` = 28; núcleos alto grado = 12 + ese mismo compartido = 13. Los siete grupos
-> reproducen exacto con esa regla. La descomposición del +2 (marca que cruza el borde entre dos
-> parches contra dos marcas en un mismo parche) no se calculó y no hace falta.
+> reproducen exacto con esa regla.
+
+### 1.a La descomposición del +2, ya calculada (6-ago)
+
+El 1-ago se dejó anotado que la descomposición «no se calculó y no hace falta». Se calculó el
+**6-ago** porque Ernesto volvió a tropezar con los dos números, y resulta que **no es un +2
+simple: son dos efectos grandes que casi se cancelan**. Sobre la geometría real (geojson +
+`coords` del h5, offset `dx = 3829` ya adoptado) y con la regla de mapeo de
+[`scripts/alinear_anotaciones_qupath.py:252`](../../../scripts/alinear_anotaciones_qupath.py#L252)
+— un parche cuenta si su cuadrado de 256 px se solapa con la **caja envolvente** del polígono:
+
+| | |
+|---|---:|
+| polígonos de mitosis | 26 |
+| pares (polígono, parche) | 36 |
+| **parches distintos** | **28** |
+| polígonos que caen enteros en un parche | 16 |
+| polígonos repartidos entre dos parches | 10 |
+| parches con una sola mitosis | 21 |
+| parches con dos | 6 |
+| parches con tres | 1 |
+
+O sea **26 + 10 − 8 = 28**: diez marcas cruzan el borde entre dos parches y suman uno cada una;
+siete parches contienen más de una marca y restan ocho en total (6×1 + 1×2). Que el neto dé +2 es
+una coincidencia aritmética de esta lámina, **no** una regla general — con marcas más dispersas el
+neto sería mucho mayor.
+
+La razón de fondo es de escala, y conviene tenerla a mano porque conecta con el §3: **una marca de
+mitosis mide 36 px de lado** (las hay de 54; a 0,465 µm/px son 17 y 25 µm) contra los **256 px del
+parche**. Una mitosis ocupa entre el **2 % y el 4 % del área del parche**, y con ese tamaño la
+probabilidad de caer sobre un borde no es despreciable: 10 de 26 lo hacen.
+
+Script de la cuenta: `scratchpad/desc_26_28.py` de la sesión del 6-ago (efímero; el cálculo se
+reproduce con el geojson, el h5 y las tres líneas de la regla de arriba).
+
+### 1.b Cuánta precisión tiene cada barra: el n manda
+
+Los siete grupos comparten estadístico y nulo, pero **no comparten precisión**: `n` va de 12 a 48
+parches. El intervalo de confianza al 95 % del AUC por la fórmula de **Hanley y McNeil** (1982),
+con n₋ = 4799 − n₊, calculado el 6-ago sobre `con_region/auc_por_checkpoint.csv` (universo
+`lamina`, rol `primario`, cabeza de la clase verdadera):
+
+| Grupo | n | AUC | ± sd entre ckpt | IC 95 % (Hanley-McNeil) | ancho del IC |
+|---|---:|---:|---:|---:|---:|
+| Mitosis | 28 | 0.890 | 0.039 | 0.811 – 0.970 | 0.16 |
+| Núcleos alto grado | 13 | 0.828 | 0.055 | 0.690 – 0.966 | 0.28 |
+| Tumor | 48 | 0.826 | 0.039 | 0.754 – 0.899 | 0.14 |
+| necrosis | 18 | 0.748 | 0.105 | 0.617 – 0.880 | 0.26 |
+| Stroma | 12 | 0.537 | 0.106 | 0.370 – 0.704 | 0.33 |
+| Immune cells | 23 | 0.322 | 0.026 | 0.228 – 0.417 | 0.19 |
+| Tejido adiposo | 27 | 0.154 | 0.106 | 0.104 – 0.205 | 0.10 |
+
+**Son dos incertidumbres distintas y no hay que mezclarlas.** La `sd` mide qué pasa si cambio de
+**modelo** (dispersión entre los 4 checkpoints primarios sobre las mismas marcas). El IC mide qué
+pasa si el patólogo hubiera marcado **otras** mitosis (muestreo de parches, con el modelo fijo). La
+segunda es la grande: en mitosis, ±0.039 contra ±0.080.
+
+Consecuencias que sí cambian cómo se lee la tabla del §1:
+
+- **Mitosis aguanta**: su IC no toca 0.5 ni de lejos, y además sobrevive al nulo espacial (§2.a).
+- **Estroma «en el azar» no es un dato, es una ausencia de dato**: con n = 12 el IC va de 0.37 a
+  0.70, así que la lámina no puede distinguir estroma evitado de estroma atendido. Decir «el
+  estroma queda justo en el azar, que es donde uno esperaría» **sobre-lee** el número.
+- **Núcleos de alto grado tiene el segundo IC más ancho** (0.28), lo que es una segunda razón,
+  independiente del p por traslación del §5, para no presentarlo como resultado.
+- **Tejido adiposo es el número más preciso de los siete** (IC 0.10) pese a no ser el de mayor n:
+  el IC se angosta cerca de los extremos, no solo con n grande.
 
 El percentil mediano de los 28 parches de mitosis es **91** sobre 100. Y el orden completo
 no es ruido: la atención sube monótonamente desde grasa (0.15) y linfocitos (0.32), pasa por
