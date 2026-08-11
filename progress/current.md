@@ -2543,3 +2543,53 @@ de mitosis cedieron un 20 % de alto, y la leyenda mezclada de la figura de marca
 preguntas de la reunión del 6-ago siguen sin respuesta conocida. Y los pendientes de sprint de
 siempre: la réplica del 4589 con semillas nuevas, el sign-off del patólogo y `@grilling` sin
 estrenar.
+
+---
+
+## Sesión 11-ago-2026 — reunión de papers mañana, y un deck planificado sin construir
+
+Sesión **de planificación, cero código**. Ernesto avisó que **mañana miércoles 12-ago hay reunión
+con Sebastián para abordar los cuatro papers de la rama de mitosis** y que no leyó ninguno. Pidió
+un archivo visual, de esta ocasión sola, con las **figuras originales de los autores** y **notas
+del presentador** que sirvan para las dos cosas: leerlas en vivo y estudiar de ahí mirando la
+figura. Tope de diez láminas. El plan quedó **aprobado y sin ejecutar**: lo construye la sesión
+siguiente.
+
+**La reunión es un frente nuevo, no la continuación del 6-ago.** Verificado antes de planificar:
+la del 6-ago con Sebastián ocurrió pero trató la medición de atención y el reordenamiento del
+deck, y de ese reordenamiento salió justamente la lámina de los papers. O sea que los cuatro
+papers **nunca se expusieron**, y el material que los cubre sigue siendo el mismo de siempre:
+`hojas_reunion.md` (una hoja por paper), `papers_explicados.md` (el mecanismo desde cero) y los
+cuatro `*_estudio.md`. Nada de eso se re-verifica ni se re-lee contra los PDF: el deck es la
+**forma presentable** de material ya verificado el 2-ago.
+
+### Lo que se decidió, con las tres preguntas que Ernesto contestó
+
+Diez láminas: portada, una de encuadre («lo que tenemos son positivos parciales»), **una por
+paper** con la figura del autor a la izquierda y tres bloques de síntesis a la derecha, el cuadro
+comparativo de los cuatro, la recomendación en dos pasos, las tres cosas que hay que decir sí o
+sí, y la pregunta que decide. El reparto **una lámina por paper** ganó contra dos por paper
+porque deja lugar al cuadro y a la recomendación, que es lo que la reunión tiene que resolver.
+Las notas van en el formato que el deck del B8 ya usa: punteo de tres a cinco renglones y después
+la prosa hablada. Y se construye con el template OncoMets, no con un archivo suelto.
+
+### El dato que salió al elegir las figuras
+
+**El paper de PU learning no tiene figura de método.** Sus cuatro figuras son todas resultados
+cualitativos de detección, porque lo que propone es una loss y no una arquitectura. Las otras tres
+sí tienen su figura de arquitectura en las primeras páginas. Consecuencia para el deck: la lámina
+de PU learning se apoya en la Fig. 1 de la pág. 14, que son detecciones sobre **MITOS-ATYPIA-14**,
+un dataset de mitosis en mama, con flechas que marcan lo que el método encuentra y los
+competidores pierden. Es representativa del resultado, no del mecanismo, y el mecanismo hay que
+contarlo en la nota.
+
+Las cuatro elegidas: PU learning Fig. 1 pág. 14, CellViT Fig. 1 pág. 2, ZoomMIL Fig. 1 pág. 2
+(la comparación de métodos, que es la más explicativa de las suyas) y MS-CLAM Fig. 1 pág. 5.
+
+### Queda abierto
+
+**Construir el deck**, que es el pendiente principal y tiene fecha de mañana. El plan completo
+está en `/home/sdonoso/.claude/plans/necesito-planificar-la-reunion-rustling-firefly.md` y el
+handoff lo arrastra entero. Sin cambios en el resto: los dos papers de `papers_11_agosto/` sin
+fichar, las dos preguntas del 6-ago sin respuesta, la réplica del 4589 con semillas nuevas, el
+sign-off del patólogo y `@grilling` sin estrenar.
