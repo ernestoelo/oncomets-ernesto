@@ -1,9 +1,11 @@
 # Deck de los cuatro papers (reunión con Sebastián, 12-ago-2026)
 
-> **Estado al 12-ago-2026 (mañana): a medias.** Están las cuatro figuras extraídas, su script
-> y el **QA visual de las cuatro cerrado** (§2), más la descripción de qué muestra cada una.
-> **El deck no existe todavía**: no hay `generate_papers_deck.py` ni `.pptx`. La sesión que
-> siga lo construye con el contenido que ya está escrito (§3) y **sin reabrir ninguna imagen**.
+> **Estado al 12-ago-2026 (mediodía): CERRADO.** Están las cuatro figuras con su QA visual
+> (§2), el generador escrito y `Papers_Mitosis.pptx` construido: **11 láminas físicas**, que
+> son las diez del plan contando la apertura heredada del template como dos (portada de marca
+> + lámina de título). Verificado: `auditar` en cero avisos, los dos chequeos propios de §4 en
+> verde, cero Arial y cero Calibri fuera de los fallbacks de script del theme, cero puntos
+> decimales, cero guiones largos, y el guion con su pasada de `@humanizer-es`.
 
 ## 1. Qué es
 
@@ -30,8 +32,14 @@ dos papers por tarea**, y ese es el encuadre del deck.
 prep_assets_papers.py   extrae y recorta las 4 figuras de los PDF  ← LISTO
 assets/                 los 4 PNG, versionados                     ← LISTO, con QA visual
 README.md               este archivo
-generate_papers_deck.py                                            ← FALTA
-Papers_Mitosis.pptx     gitignored por `sprints/**/*.pptx`          ← FALTA
+generate_papers_deck.py construye el deck sobre el template        ← LISTO
+Papers_Mitosis.pptx     gitignored por `sprints/**/*.pptx`          ← LISTO (se regenera)
+```
+
+```bash
+PYTHONPATH=/media/administrador/Storage1/sdonoso/clam_testing2/.pylibs \
+/home/sdonoso/miniconda3/envs/clam_latest/bin/python \
+  sprints/B8_sprint8/presentacion_papers_mitosis/generate_papers_deck.py
 ```
 
 ### Las figuras
@@ -111,6 +119,12 @@ Todo escrito y verificado contra los PDF. **No hace falta reabrir ningún paper.
 | 9 | Las tres cosas que hay que decir sí o sí | el paso 1 de mitosis no depende del paper de Zhao · el régimen de anotación que ellos evalúan no es el nuestro · la escala juega al revés en cada rama |
 | 10 | Las preguntas que deciden | mitosis: ¿hay más láminas anotadas y quién es «GDT»? · grado nuclear: ¿se puede conseguir puntaje por región, y hay GPU para segmentar núcleos sobre los mejores parches? |
 
+**Las diez de esta tabla son once en el archivo**, porque la apertura heredada del template son
+dos láminas (portada de marca + lámina de título) y la tabla las cuenta como una. El generador
+y `auditar` imprimen el **índice físico**, así que PU learning es la 4 en los mensajes de QA y
+la 3 acá. La función de cada lámina lleva el nombre del contenido (`lam_pu_learning`), no el
+número, justamente para que reordenar no obligue a renumerar nada.
+
 El molde de las cuatro láminas de paper es el mismo para que se lean igual: figura a la
 izquierda con la procedencia al pie (`pie_lineas`), tres bloques cortos a la derecha con la
 gramática del template, y `takeaway_bar` de remate. Es la excepción explícita a «todo
@@ -126,6 +140,30 @@ más o menos 3,0 pulgadas entre la banda teal y la barra de remate; el ancho sal
 figura queda tan grande como su forma permite y las cuatro láminas siguen leyéndose iguales.
 El pie va **pegado al borde inferior real de la imagen dibujada**, no al de la caja, si no
 queda flotando lejos en las anchas.
+
+**ADDENDUM 12-ago (al escribir el generador) — la retícula terminó siendo CONSTANTE, y hay
+una tercera trampa que ni §4 ni [[deck-qa-puntos-ciegos-chequeo]] listaban.** Lo de arriba
+describe bien el problema pero no la solución que quedó:
+
+- **Lo que es constante son las dos regiones, no la figura.** `COL_IZQ` = 4,96" para la
+  figura y su pie, `COL_DER` = 4,10" para los bloques, iguales en las cuatro láminas. La
+  figura se dibuja **centrada dentro de COL_IZQ** y ocupa lo que su forma permite. Fijar el
+  ancho de la figura y dejar que la columna de bloques flotara habría dado a PU learning una
+  columna de 5,24" y a ZoomMIL una de 4,10": los bloques se leerían distinto en cada lámina,
+  que es justo lo que el molde quiere evitar.
+- **El pie se mide PRIMERO y es el que recorta la figura.** Como su ancho ya no depende de la
+  figura, su alto se calcula antes y el alto de la figura sale de lo que sobra. Sin ese orden
+  el pie se mete **debajo de la barra de remate**: pasó de verdad en la primera corrida, en PU
+  learning, y no lo vio nadie. `auditar` no lo ve (el textbox no se sale del lienzo y su texto
+  entra en su propia caja) y el chequeo de la pila de paneles tampoco, porque mira la otra
+  columna. **Son dos chequeos, uno por columna**, y el generador imprime los dos.
+- Alturas que quedaron: PU 3,48 × 2,74" · ZoomMIL 4,96 × 1,86" · NPKC-MIL 3,65 × 2,60" ·
+  pleomorfismo 4,96 × 1,61". Las dos anchas son las que la relación de aspecto achata, tal
+  como anticipaba el párrafo de arriba.
+- **`panel` medía el wrap con el ancho de la caja y no con el del texto.** PowerPoint le mete
+  0,1" de margen a cada lado, así que el texto envuelve 0,2" antes: la versión heredada del B8
+  subestimaba el wrap en una línea. Corregido acá; el generador del B8 **sigue con la versión
+  vieja** y no se tocó.
 
 ## 4. Reglas que gobiernan el generador cuando se escriba
 
