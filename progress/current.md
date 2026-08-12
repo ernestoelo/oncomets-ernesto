@@ -2593,3 +2593,86 @@ está en `/home/sdonoso/.claude/plans/necesito-planificar-la-reunion-rustling-fi
 handoff lo arrastra entero. Sin cambios en el resto: los dos papers de `papers_11_agosto/` sin
 fichar, las dos preguntas del 6-ago sin respuesta, la réplica del 4589 con semillas nuevas, el
 sign-off del patólogo y `@grilling` sin estrenar.
+
+---
+
+## Sesión 11-ago-2026 (noche) — el cuarteto no era el que decía el plan
+
+Sesión de construcción del deck de papers, **interrumpida a propósito y cerrada a mitad de
+camino**. Arrancó ejecutando el plan aprobado unas horas antes y se dio vuelta en el segundo
+paso: **Ernesto corrigió cuáles son los cuatro papers de la reunión de mañana.**
+
+### La corrección, y lo que arrastra
+
+El plan y el handoff daban por hecho que el cuarteto era el que fichamos el 2-ago: PU learning,
+CellViT, ZoomMIL y MS-CLAM. Los cuatro reales son:
+
+| | Paper | Origen |
+|---|---|---|
+| 1 | PU learning, Zhao et al., MELBA 2022 | nuestra búsqueda del 2-ago |
+| 2 | ZoomMIL, Thandiackal et al., ECCV 2022 | nuestra búsqueda del 2-ago |
+| 3 | **NPKC-MIL**, Wang y Yuan, iScience 2024 | Sebastián, 6-ago |
+| 4 | **Pleomorfismo nuclear**, Mercan et al., npj Breast Cancer 2022 | Sebastián, 6-ago |
+
+O sea que **los dos papers de `papers_11_agosto/` no eran un pendiente lateral: son la mitad de
+la reunión**. Llevaban desde el 6-ago sin leer, y tres pasadas de auditoría los venían listando
+como pendiente menor. **CellViT y MS-CLAM salen del deck**; sus hojas quedan como fichas válidas
+y se marcó el desvío con un ADDENDUM al encabezado de `hojas_reunion.md`.
+
+La regla de la sesión anterior, «cero números nuevos, todo sale de `hojas_reunion.md`», **dejó de
+aplicar para la mitad del deck**: los dos papers nuevos no tenían ni una línea escrita, así que
+hubo que leerlos completos contra el PDF.
+
+### El encuadre que aparece al ordenar el cuarteto real
+
+El encargo del 31-jul tenía **dos** tareas, mitosis y grado nuclear, y nuestra búsqueda del 2-ago
+quedó volcada a mitosis: tres de los cuatro eran de esa rama, y grado nuclear se apoyaba en
+CellViT, que ni siquiera tiene clase mitótica ni puntaje de pleomorfismo. Los dos que trajo
+Sebastián llenan justo ese hueco y el cuarteto queda **simétrico, dos papers por tarea**. Ese es
+el encuadre del deck.
+
+Y de ahí sale el mensaje que conviene decir temprano en la reunión: **la escala física juega al
+revés en cada rama**. La mitosis se cuenta a 40× y el privado está a 20×, así que esa rama
+arrastra un reescalado con riesgo; el paper de pleomorfismo entrena y evalúa a **0,5 µm/px**, que
+es prácticamente nuestro privado (0,465). Es el único de los cuatro donde la escala no estorba.
+
+### Los dos papers, fichados (`papers_11_agosto/hojas_papers_nuevos.md`)
+
+**NPKC-MIL** (iScience 27:109826, abierto, código en `github.com/WxpHB/NPKC-MIL`). No cambia el
+agregador: le suma a la loss dos penalizaciones, una de parche y una de núcleo, esta última una
+red de grafos sobre los núcleos segmentados con HoVer-Net, con 16 features hechas a mano por
+nodo. **El detalle que lo vuelve nuestro: esa rama entrena sobre los `c = 8` parches de atención
+más alta**, o sea que es la idea que propuso el propio Sebastián (correr núcleos solo sobre los
+mejores parches de CLAM) publicada y con números. Reportan 96,25 % de accuracy contra 86,25 % de
+CLAM-SB en binario normal/canceroso sobre 476 láminas. **Y sus propias ablaciones no cierran**:
+las dos restricciones por separado suman +2,5 y +1,25, y juntas dan +12,5, sin explicación y con
+80 láminas de test. Eso hay que llevarlo dicho por nosotros.
+
+**Pleomorfismo nuclear** (npj Breast Cancer 8:120, abierto, grupo de Radboud). Ataca **nuestra
+tarea con nuestro nombre**. Dos ideas: acotar al tumor invasivo con un detector epitelial
+congelado, y puntuar el pleomorfismo como **regresión continua entre 1 y 3** en vez de clasificar
+en tres clases, con la referencia = **promedio de 10 patólogos** por región, porque forzar una
+mayoría tira el desacuerdo, que es justamente la señal de que la cosa es un continuo. Kappa 0,61
+contra la mayoría, mejor que 8 de los 10 patólogos, y el kappa medio pareado más alto del panel.
+Trabaja a 0,5 µm/px, **no exige anotar ni un núcleo**, y agrega promediando, que es lo contrario
+del máximo local de mitosis: las dos tareas del encargo piden operadores opuestos. Lo que lo
+frena: **el código no está público** y la primera etapa es in-house; lo que sí está público son
+las 118 láminas de test y el evaluador oficial.
+
+### Lo que quedó construido
+
+`prep_assets_papers.py` versionado, que es la primera vez que la receta de recortar una figura de
+paper queda en el repo (la de SI-MIL fue ad-hoc). Las cuatro páginas se verificaron buscando el
+texto del epígrafe, no de memoria, y las cajas se midieron una vez y quedaron congeladas como
+constantes. Los cuatro PNG están en `assets/`. La de PU learning se **recompone**: de la grilla
+de cuatro métodos por tres parches quedan tres columnas y dos filas, que son las que sostienen el
+argumento, y lo que sale tiene que ir dicho en el pie de la lámina.
+
+### Queda abierto
+
+**El deck entero**: no existe `generate_papers_deck.py` ni `.pptx`. El contenido de las diez
+láminas está escrito y verificado, y el diseño lámina por lámina está en el README del
+directorio nuevo. Falta también mirar dos de los cuatro PNG (`fig_zoommil.png` y
+`fig_pleomorfismo.png`), que se generaron pero nadie miró. El resto del sprint sin cambios: las
+dos preguntas del 6-ago sin respuesta, la réplica del 4589 con semillas nuevas, el sign-off del
+patólogo y `@grilling` sin estrenar.
