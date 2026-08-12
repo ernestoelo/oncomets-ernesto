@@ -1,8 +1,9 @@
 # Deck de los cuatro papers (reunión con Sebastián, 12-ago-2026)
 
-> **Estado al 11-ago-2026 (noche): a medias.** Están las cuatro figuras extraídas y su script.
+> **Estado al 12-ago-2026 (mañana): a medias.** Están las cuatro figuras extraídas, su script
+> y el **QA visual de las cuatro cerrado** (§2), más la descripción de qué muestra cada una.
 > **El deck no existe todavía**: no hay `generate_papers_deck.py` ni `.pptx`. La sesión que
-> siga lo construye con el contenido que ya está escrito (§3).
+> siga lo construye con el contenido que ya está escrito (§3) y **sin reabrir ninguna imagen**.
 
 ## 1. Qué es
 
@@ -61,11 +62,24 @@ completa, baseline y método propuesto) y **dos filas**, que son las que sostien
 argumento. Queda afuera la columna del competidor especializado (BDE) y la fila de las flechas
 azules, que es la que compara contra él. **Eso tiene que ir dicho en el pie de la lámina.**
 
-**QA visual hecho** sobre `fig_pulearning.png` y `fig_npkcmil.png` leyéndolos apenas
-generados, que es cuando se puede ([[image-api-qa-limit]]). El primer recorte de PU dejaba
-asomar una tira de la tercera fila por abajo y se corrigió (`PU_FILA` termina 8 px antes).
-**Faltan de mirar `fig_zoommil.png` y `fig_pleomorfismo.png`**: sus cajas salieron del perfil
-de tinta de la página, que es fiable, pero nadie los miró.
+**QA visual COMPLETO sobre las cuatro** ([[image-api-qa-limit]]). Las dos primeras se
+miraron el 11-ago apenas generadas; el primer recorte de PU dejaba asomar una tira de la
+tercera fila por abajo y se corrigió (`PU_FILA` termina 8 px antes). Las dos que faltaban se
+miraron el **12-ago de entrada**, antes de cualquier otra cosa, y **pasan las dos**: paneles
+completos, epígrafes enteros, y en ZoomMIL las etiquetas `10x` / `2.5x` sin cortar, en
+pleomorfismo la barra de color incluida. **Ninguna necesita re-recorte.**
+
+### Qué muestra cada figura (para escribir el pie y el guion sin reabrir la imagen)
+
+Se anota acá porque leer las cuatro imágenes cuesta contexto y el QA ya las miró: la sesión
+que escriba el generador **no necesita abrirlas de nuevo**.
+
+| PNG | Qué se ve |
+|---|---|
+| `fig_pulearning.png` | Grilla de parches de tejido, tres columnas por dos filas. Las columnas son anotación completa, baseline y método propuesto; cada parche lleva marcadas las células detectadas. Queda afuera la columna del competidor especializado (BDE) y la fila de las flechas azules |
+| `fig_zoommil.png` | Cuatro esquemas en perspectiva de la misma lámina, rotulados abajo: **(a) Pathologist**, **(b) Single-scale MIL**, **(c) Multi-scale MIL**, **(d) ZoomMIL (ours)**. Cada uno cruza dos planos etiquetados `2.5x` y `10x`; en (d) la grilla del plano `10x` está pintada como mapa de calor sobre las dos regiones tumorales |
+| `fig_npkcmil.png` | Diagrama de bloques con seis rótulos rojos: **A** extracción de features del parche por transfer learning, **B** ordenamiento de los parches por puntaje de atención (columna de parches de `low` a `high`), y las tres pérdidas en cajas punteadas rojas, **C** de lámina (attention pooling), **D** de parche (CNN) y **E** de núcleos (red convolucional de grafos). **F** es el ⊕ que las suma y da `diagnosis`. La rama de núcleos sale del extremo `high` de la columna B, que es la lectura visual del «8 parches de atención más alta» |
+| `fig_pleomorfismo.png` | Tres paneles rotulados abajo: **Input slide** (la lámina H&E entera), **Tumor output** (la misma lámina con el tumor invasivo resaltado en gris) y **Pleomorphism spectrum** (el puntaje continuo pintado sobre el tejido, con un recuadro naranja de detalle a gran aumento y la barra de color verde a rojo a la derecha). Entre panel y panel, dos redes dibujadas como grafo, azul la primera y magenta la segunda |
 
 ## 3. De dónde sale el contenido de las diez láminas
 
@@ -103,6 +117,16 @@ gramática del template, y `takeaway_bar` de remate. Es la excepción explícita
 nativo»: **la figura de un paper va como imagen**; la tabla de la 7 y el diagrama de la 2 van
 nativos.
 
+**El molde no puede fijar el ancho de la columna izquierda**, y conviene saberlo antes de
+maquetar: las cuatro figuras van de **1,27 a 3,09** de relación de aspecto (§2), así que una
+columna de ancho fijo deja a ZoomMIL y a pleomorfismo dibujadas a menos de la mitad del alto
+disponible mientras sobra blanco debajo. Lo que se fija es el **alto** de la caja de figura,
+más o menos 3,0 pulgadas entre la banda teal y la barra de remate; el ancho sale de
+`alto × ar`, topeado para que la columna de bloques no baje de unas 4,1 pulgadas. Con eso cada
+figura queda tan grande como su forma permite y las cuatro láminas siguen leyéndose iguales.
+El pie va **pegado al borde inferior real de la imagen dibujada**, no al de la caja, si no
+queda flotando lejos en las anchas.
+
 ## 4. Reglas que gobiernan el generador cuando se escriba
 
 - Se construye **SOBRE** `sprints/B7_sprint7/Modelo OncoMets Spatial V1 Deep-LLM-V.pptx`,
@@ -117,7 +141,34 @@ nativos.
   `scale_deck_to_1610` · las funciones de medición de texto (`text_w`, `wrap_lines`,
   `_alto_bloque`, `panel`).
 - Notas: punteo de tres a cinco renglones de una línea, línea en blanco, y después el guion
-  hablado en prosa corrida. Sin guiones largos, sin la palabra «palanca», números con coma
+  hablado en prosa corrida. Sin guiones largos, sin la palabra «palanca», sin la expresión
+  «al revés» (rechazada por coloquial, [[deck-estilo-sin-rayas-ni-palanca]]), números con coma
   decimal en las láminas y en letras en el guion.
+
+**De dónde se copian los helpers, por rango de líneas** (relevado el 12-ago sobre
+`generate_b8_deck.py`, 2594 líneas). Extraerlos con `sed -n '<rango>p'` en vez de leer el
+archivo: son seis bloques contiguos y cubren la lista de arriba entera.
+
+| Rango | Qué trae |
+|---|---|
+| `215-276` | paleta Deep-LLM-V, fuentes, geometría de trabajo y la cabecera OncoMets |
+| `281-628` | `_blank` · `base_from_template` · `new_slide` · `_add_runs` · `_set_runs` · `add_textbox` · `notes` · `_rect` · `header_oncomets` · `content` · `add_image_fit` · `add_card` · `caption` · `takeaway_bar` · los cinco arquetipos de diagrama · `eq` · `simple_table` |
+| `633-704` | medición de texto real (`_face`, `text_w`, `wrap_lines`, `_alto_bloque`) y `panel` |
+| `808-812` | `_num` |
+| `919-930` | `pie_lineas` |
+| `1161-1362` | `CONTENT_TOP_NEW` / `SAFE_BOTTOM` · `_scale_block` · `reflow_onco` · `forzar_barlow` · `scale_deck_to_1610` · `auditar` · `_set_solo_run` · `retitular_portada` |
+
+**Dos cosas que hay que tocar al copiarlos:**
+
+- `retitular_portada` trae hardcodeado «OncoMets · Sprint 8»: acá el título es otro, así que
+  toma el texto por parámetro.
+- **`auditar` NO ve dos defectos que este deck puede tener**, y son distintos de los que ya
+  lista [[deck-qa-puntos-ciegos-chequeo]]: (a) una tabla nativa cuyo texto no entra, porque
+  `row_h` de `simple_table` es un mínimo y PowerPoint crece la fila por su cuenta; y (b) una
+  pila de `panel(h=None)` que se pasa hacia abajo y se mete debajo de la `takeaway_bar`, que
+  no es «fuera del lienzo» y por eso no dispara aviso. Como acá las cuatro láminas de paper
+  son tres paneles apilados de alto automático, el generador tiene que **imprimir el borde
+  inferior del último panel de cada lámina** y compararlo contra el alto de la barra de
+  remate.
 - `python-pptx` **no** está en `clam_latest`: va por
   `PYTHONPATH=/media/administrador/Storage1/sdonoso/clam_testing2/.pylibs` (1.0.2).
