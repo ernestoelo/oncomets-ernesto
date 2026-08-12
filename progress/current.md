@@ -2676,3 +2676,49 @@ directorio nuevo. Falta también mirar dos de los cuatro PNG (`fig_zoommil.png` 
 `fig_pleomorfismo.png`), que se generaron pero nadie miró. El resto del sprint sin cambios: las
 dos preguntas del 6-ago sin respuesta, la réplica del 4589 con semillas nuevas, el sign-off del
 patólogo y `@grilling` sin estrenar.
+
+---
+
+## 12-ago-2026 (mañana) — el QA de las figuras cerrado, y el mapa para escribir el generador
+
+Sesión corta, con la reunión encima. La misión era construir el deck de las diez láminas y
+**no se llegó a escribirlo**: el contexto se consumió en la lectura previa (el handoff, el
+README del directorio, las dos hojas de contenido, el relevamiento del generador del B8 y las
+imágenes). Lo que sí quedó cerrado es lo que **tenía** que hacerse temprano y lo que ahorra esa
+misma lectura la próxima vez.
+
+### QA visual de las cuatro figuras: cerrado
+
+`fig_zoommil.png` y `fig_pleomorfismo.png` eran las dos que nadie había mirado, y se miraron
+**de entrada**, que es cuando se puede ([[image-api-qa-limit]]). **Pasan las dos** y ninguna
+necesita re-recorte: paneles completos y epígrafes enteros, con las etiquetas `10x` / `2.5x` de
+ZoomMIL sin cortar y la barra de color del pleomorfismo incluida. Con eso, las cuatro figuras
+del deck están verificadas.
+
+De paso quedó escrito en el README **qué muestra cada una de las cuatro**, panel por panel y con
+sus rótulos. No es adorno: leer las cuatro imágenes cuesta contexto, y los pies de lámina y el
+guion se escriben describiendo la figura. La sesión que siga **no tiene que abrir ninguna**.
+
+### El mapa para copiar los helpers
+
+El README §4 pedía copiar del generador del B8 «solo los helpers que este deck usa». Ese archivo
+tiene 2594 líneas y encontrarlos leyendo se lleva medio contexto. Quedaron relevados **por rango
+de líneas**: son **seis bloques contiguos** que cubren la lista entera, extraíbles con `sed`.
+
+Y salieron dos cosas que hay que tocar al copiarlos. `retitular_portada` trae el título del
+sprint hardcodeado. Y sobre todo: **`auditar` no ve dos defectos que este deck sí puede tener**,
+distintos de los que ya lista [[deck-qa-puntos-ciegos-chequeo]]. Una tabla nativa cuyo texto no
+entra se le escapa, porque el `row_h` de `simple_table` es un mínimo y PowerPoint crece la fila
+solo. Y una pila de paneles de alto automático que se pasa hacia abajo y se mete debajo de la
+barra de remate tampoco dispara aviso, porque no está «fuera del lienzo». Como el molde de las
+cuatro láminas de paper es exactamente eso, tres paneles apilados de alto automático, el
+generador tiene que imprimir el borde inferior del último panel de cada lámina y compararlo
+contra la barra.
+
+### Queda abierto
+
+**El deck entero, igual que ayer**: no existe `generate_papers_deck.py` ni `.pptx`. Lo que
+cambió es que ahora está todo lo previo hecho, así que la sesión que siga puede escribir el
+generador de entrada, sin abrir imágenes y sin releer el generador del B8. El resto del sprint
+sin cambios: las dos preguntas del 6-ago sin respuesta, la réplica del 4589 con semillas nuevas,
+el sign-off del patólogo y `@grilling` sin estrenar.
