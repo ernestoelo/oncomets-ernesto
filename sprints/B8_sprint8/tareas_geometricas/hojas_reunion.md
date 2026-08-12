@@ -1,5 +1,15 @@
 # Cuatro papers para la rama de mitosis: una hoja cada uno
 
+> **ADDENDUM 11-ago-2026 (noche) — el cuarteto de la reunión del 12-ago NO es el de este
+> documento.** Ernesto lo corrigió en sesión: los cuatro papers que se abordan el miércoles
+> 12-ago son **PU learning** (hoja 1) y **ZoomMIL** (hoja 3) de acá, más los **dos que trajo
+> Sebastián el 6-ago** y que viven en [`../papers_11_agosto/`](../papers_11_agosto/): NPKC-MIL
+> (Wang y Yuan, iScience 2024) y el de pleomorfismo nuclear (Mercan et al., npj Breast Cancer
+> 2022). **CellViT (hoja 2) y MS-CLAM (hoja 4) quedan fuera de esa reunión**; sus hojas siguen
+> siendo fichas válidas y no se tocan. Las dos hojas nuevas, con el encuadre del cuarteto real
+> y por qué queda simétrico (dos papers por tarea, mitosis y grado nuclear), están en
+> [`../papers_11_agosto/hojas_papers_nuevos.md`](../papers_11_agosto/hojas_papers_nuevos.md).
+>
 > Material para la reunión con Sebastián del **jueves 6-ago-2026** (el viernes 7 es la de
 > Benjamín). La reunión prevista para el lunes 3-ago no ocurrió, y la del viernes 7 que este
 > encabezado anotaba hasta el 6-ago se adelantó un día.
