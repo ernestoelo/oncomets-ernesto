@@ -2790,3 +2790,56 @@ Qué se hace con el deck, que es decisión de Ernesto y no trabajo pendiente. **
 reunión del 12-ago**: esta sesión no lo registra. El resto del sprint sin cambios: las dos
 preguntas del 6-ago sin respuesta, la réplica del 4589 con semillas nuevas, el sign-off del
 patólogo y `@grilling` sin estrenar.
+
+---
+
+## 13-ago-2026 (tarde) — Lo que salió de la reunión del 12-ago, y el plan para ejecutarlo
+
+Sesión de **planificación, sin ejecución**: Ernesto pidió separar el planificar del ejecutar
+para que una sesión limpia corra lo planificado. El plan completo está en
+[`.handoffs/handoff_B8_20260813_1330.md`](../.handoffs/handoff_B8_20260813_1330.md).
+
+**Queda contestado el pendiente que abría el handoff anterior.** De la reunión del 12-ago
+salieron dos encargos:
+
+1. **Un paper para el viernes 14-ago.** La tarea es pleomorfismo nuclear, mitosis o grado
+   nuclear, y el encuadre es el pipeline que diseñó Sebastián inspirado en NPKC-MIL: donde los
+   autores usan HoVer-Net para encontrar lo relevante, **nosotros usamos CLAM y su mapa de
+   calor**, y sobre los parches de mayor atención corre un **segundo modelo especialista**. El
+   paper que se busca es el de esa segunda etapa, y el criterio de Ernesto es que sea
+   integrable y que suba métricas.
+2. **El «CSV duplicado» de la lámina 129741.** Sebastián explicó que las dos láminas que
+   aparecen al evaluar no son dos láminas sino un error de un `.csv` donde se repetía dos veces
+   lo mismo, dijo que hay más WSI con el mismo defecto y que por ahora basta registrarlo.
+   **Ernesto pidió verificarlo antes de registrarlo**, porque no entendió la explicación.
+
+### Lo que sí se verificó en esta sesión, contra disco
+
+**La lectura literal de la frase de Sebastián no se sostiene.** No hay ningún `.csv` nuestro
+con la lámina dos veces: cero `slide_id` duplicados en los 13 `dataset_*_label.csv` de
+`csv_privado/`, y lo mismo en `csv/`, `csv_tcga/`, `csv_histai/`, `csv_balance/` y
+`csv_balance_ci/`. Tampoco en los cuatro `dataset_validation.csv`, que son los que
+`run_create_patches.slurm` pasa como `--process_list` y por lo tanto los que gobiernan qué se
+parchea (561, 3350, 864 y 1925 filas, cero duplicados en las cuatro).
+
+Lo que él describe, si existe, está aguas arriba de nuestros CSV. La lectura que mejor calza es
+que **el `.bif` contenga dos escaneos de la misma lámina**, con la duplicación en el worklist de
+digitalización del laboratorio, que no tenemos.
+
+**Y ahí el B8 tiene un punto débil que conviene apretar antes de descartar nada.** El test que
+concluyó que las dos regiones son tejido distinto comparó parches «gemelos» geométricos y dio
+coseno 0.708 contra 0.503 de azar, pero **las dos regiones difieren en 1280 px de ancho**, cinco
+parches de 256, así que un emparejamiento ingenuo pudo estar desalineado. El test bueno barre un
+desplazamiento 2D y mira la distribución, no la media; y hay uno más barato y más concluyente
+todavía, que es comparar las dos miniaturas con openslide.
+
+**El resultado principal sobrevive pase lo que pase**, y conviene decirlo para no sobredimensionar
+el asunto: la corrida definitiva `con_region/` está confinada a la región anotada (N = 2496,
+AUC 0.903) y **no toca la otra región**. Lo que quedaría contaminado es el universo `lamina`, el
+del 0.890. El guion de la lámina 5 del deck tampoco queda falso: dice que hay dos regiones y que
+las marcas caen todas en una, y las dos cosas siguen siendo ciertas.
+
+### Queda abierto
+
+Los dos encargos, para la sesión de ejecución. Y una pregunta para Sebastián que la verificación
+no puede contestar sola: **cuál es el `.csv` del que hablaba**.
