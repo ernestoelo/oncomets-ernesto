@@ -2722,3 +2722,71 @@ cambió es que ahora está todo lo previo hecho, así que la sesión que siga pu
 generador de entrada, sin abrir imágenes y sin releer el generador del B8. El resto del sprint
 sin cambios: las dos preguntas del 6-ago sin respuesta, la réplica del 4589 con semillas nuevas,
 el sign-off del patólogo y `@grilling` sin estrenar.
+
+---
+
+## 12-ago-2026 (mediodía) — el deck de los cuatro papers, construido y sin estrenar
+
+Se escribió `sprints/B8_sprint8/presentacion_papers_mitosis/generate_papers_deck.py` y quedó
+producido `Papers_Mitosis.pptx`: **once láminas físicas**, que son las diez del plan contando la
+apertura heredada del template como dos (portada de marca más lámina de título). Construido
+SOBRE el `.pptx` de Deep-LLM-V, con `forzar_barlow` y `auditar` en cero avisos. El `.pptx` está
+gitignored por `sprints/**/*.pptx`: **se regenera corriendo el script**, no está en el repo.
+
+**Y quedó sin estrenar.** La reunión del miércoles 12-ago con Sebastián **ocurrió, pero sin el
+deck**. O sea que el entregable está terminado y verificado y todavía no tiene audiencia. Qué
+hacer con él es una decisión abierta, no un pendiente técnico: no le falta trabajo.
+
+### El molde de las cuatro láminas de paper: la retícula quedó CONSTANTE
+
+El README anticipaba que el ancho de la columna izquierda no se puede fijar, porque las cuatro
+figuras van de 1,27 a 3,09 de relación de aspecto. La solución que quedó es la inversa de lo que
+sugería esa frase: **lo constante son las dos regiones**, 4,96" para la figura con su pie y
+4,10" para los bloques, iguales en las cuatro láminas; la figura se dibuja centrada dentro de su
+región y ocupa lo que su forma permite. Fijar el ancho de la *figura* habría dejado a PU
+learning con una columna de texto de 5,24" y a ZoomMIL con una de 4,10", que es exactamente la
+diferencia de lectura que el molde existe para evitar.
+
+Alturas resultantes: PU 3,48 × 2,74" · ZoomMIL 4,96 × 1,86" · NPKC-MIL 3,65 × 2,60" ·
+pleomorfismo 4,96 × 1,61". Las dos anchas son las que la relación de aspecto achata, tal como
+estaba previsto.
+
+### La trampa que ningún chequeo listaba: el PIE
+
+El README §4 y [[deck-qa-puntos-ciegos-chequeo]] avisaban de la pila de paneles metiéndose
+debajo de la barra de remate, y el generador la chequea. **Ese chequeo mira una sola columna.**
+En una lámina a dos columnas la otra también crece sola, y ahí se coló el defecto de verdad: el
+**pie de la figura** se metió debajo de la barra en PU learning, con `auditar` en cero y el
+chequeo de paneles en verde. Lo cazó mirar la lámina rasterizada.
+
+Van **dos chequeos, uno por columna**, y el fix no es solo el aviso: con la región izquierda de
+ancho constante, el alto del pie **no depende de la figura**, así que se mide primero y el alto
+de la figura sale de lo que sobra. Con el ancho de la figura variable el cálculo era circular.
+
+De paso apareció un bug de medición heredado: `panel` calculaba el wrap contra el ancho de la
+**caja**, pero PowerPoint mete 0,1" de margen por lado, así que el texto envuelve 0,2" antes y
+subestimaba una línea. Corregido acá; **`generate_b8_deck.py` conserva la versión vieja** y no
+se tocó, porque su deck ya está cerrado y verificado a ojo.
+
+### La tabla, y el guion
+
+El cuadro comparativo de la lámina 8 se dimensionó con `alto_tabla` para **llenar** la zona: a
+9 pt medía 1,64" y dejaba pulgada y media de blanco hasta el remate. Quedó a 11,5 pt, ocupando
+2,97". Cuando la prosa compite con una tabla, gana la tabla.
+
+El guion pasó por `@humanizer-es`. El riesgo que el handoff había anticipado era real: **tres de
+las cuatro láminas de paper abrían con «Este paper»**, y la quinta con «Este cuadro». Ahora cada
+una entra por lo que el paper hace. También se sacaron cuatro anuncios que no decían nada
+(«Empiezo por explicar», «Planteo la situación») y la misma transición hacia «lo que lo frena»
+repetida tres veces.
+
+Verificado sobre el archivo: cero Arial y cero Calibri fuera de los fallbacks de script del
+theme, solo Barlow embebida en el PDF rasterizado, cero puntos decimales, cero guiones largos,
+cero «palanca» y cero «al revés», y el punteo de cada nota entre tres y cinco renglones.
+
+### Queda abierto
+
+Qué se hace con el deck, que es decisión de Ernesto y no trabajo pendiente. **Y qué salió de la
+reunión del 12-ago**: esta sesión no lo registra. El resto del sprint sin cambios: las dos
+preguntas del 6-ago sin respuesta, la réplica del 4589 con semillas nuevas, el sign-off del
+patólogo y `@grilling` sin estrenar.
