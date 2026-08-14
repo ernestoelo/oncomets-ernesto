@@ -3032,3 +3032,44 @@ cero) y **conseguir un control positivo empírico** corriendo el test sobre una 
 otras 138 láminas multi-región: si alguna da 0.9, esa es la referencia contra la cual leer el
 0.38, y de paso se sabe cuáles están afectadas de verdad. Sigue pendiente la pregunta a Sebastián
 sobre **cuál es el `.csv`**. Detalle en el handoff.
+
+---
+
+## 14-ago-2026 (tarde) — la segunda tanda de candidatos, y uno que ataca los tres bloqueos
+
+Encargo de Ernesto una hora antes de la reunión con Sebastián: candidatos de **segunda etapa**
+para el pipeline que él diseñó, donde CLAM elige los parches de mayor atención y un modelo
+especialista los procesa para mitosis, pleomorfismo o grado nuclear. La condición nueva respecto
+del encargo A del 13-ago es que el modelo tenga **trasfondo arquitectónico para rastrear y
+mapear** la tarea, no solo puntuar el parche.
+
+Entregable: `sprints/B8_sprint8/papers_14_agosto/hoja_especialistas.md` (Hoja 8).
+
+### Lo que ordena la búsqueda
+
+Jaroensri, el ganador del encargo A, es un **puntuador**: entra un parche, sale un número. Lo
+pedido hoy es un **mapeador**: polígono y clase de cada núcleo dentro del parche. Solo el segundo
+puede localizar núcleos dispersos y compararlos contra su vecindario, que son literalmente las
+dos frases del patólogo que originaron el objetivo 5.
+
+### El candidato
+
+**HoVer-NeXt** (Baumann et al., MIDL 2024, PMLR 250:61-86) toca tres cosas que teníamos anotadas
+como bloqueos separados:
+
+| Bloqueo nuestro | Lo que trae |
+|---|---|
+| CellViT y HoVer-Net no cuentan mitosis | **clase de mitosis propia** (extendieron Lizard) |
+| el privado está a 20× y la rama pide 40× | **1,8 s/mm² a 0,5 mpp**, nativo, sin ampliar |
+| la rama de núcleos quedó en pausa por costo | **17× más rápido** que HoVer-Net, pesos públicos |
+
+Detrás quedan **CellViT++** (cabezas nuevas con poquísimos ejemplos, que es la vía por la que las
+26 marcas dejarían de servir solo para validar) y **MIDOG 2025** (RF-DETR y el ganador DINOv3-H+
+con LoRA, los dos con pesos).
+
+### Lo que NO se afirma
+
+Nada de la Hoja 8 está verificado **contra el PDF**: es una hora de búsqueda web. El riesgo
+principal está identificado y es concreto: la clase mitótica de HoVer-NeXt está entrenada sobre
+**colon**, y el modelo que sí cubre mama (PanNuke) no tiene esa clase. Ernesto subió el artículo
+a `sprints/B8_sprint8/hover_next.pdf` para que una sesión limpia lo estudie.

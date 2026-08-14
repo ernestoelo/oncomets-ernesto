@@ -103,6 +103,16 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   **excluye el 20×**, que es toda nuestra cohorte privada, así que **tubular es la única rama que
   el privado alimenta sin ampliar**; y el **ahorro del top-k se cae** justo en esa rama, porque su
   campo de 1 mm cubre ~70 parches nuestros.
+- [**Segunda tanda de candidatos, los que mapean el objeto**](papers_14_agosto/hoja_especialistas.md)
+  (14-ago, Hoja 8) — pedida por Ernesto una hora antes de la reunión. Separa **puntuador** de
+  parche (devuelve un número: Jaroensri, Mercan) de **mapeador** por objeto (devuelve polígono y
+  clase de cada núcleo), que es el único que puede localizar núcleos dispersos y compararlos
+  contra su vecindario. Gana **HoVer-NeXt** (MIDL 2024): **clase de mitosis**, **pesos
+  públicos**, **0,5 µm/px nativo** y **17× más rápido que HoVer-Net**, o sea que ataca a la vez
+  el agujero de la clase mitótica, el del 20× y el del costo que dejó la rama en pausa. Detrás
+  quedan **CellViT++** y el ecosistema **MIDOG 2025**. ⚠ **Verificado por búsqueda web, no por
+  PDF**; el artículo está en `hover_next.pdf`, sin leer. Riesgo principal: su clase mitótica es
+  de **colon**.
 
 ---
 
