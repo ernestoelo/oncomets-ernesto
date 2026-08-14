@@ -14,9 +14,16 @@
 > ## ⚠ Estado: el ALCANCE está medido, el VEREDICTO no
 >
 > La pregunta «¿cuántas WSI más?» **está contestada con nombres** (§3). La pregunta «¿son las
-> dos regiones la misma lámina escaneada dos veces?» **NO está cerrada**: dos de los tres tests
-> apuntan a que sí y el tercero no pudo correrse bien (§2.d). **No se registra ningún veredicto
-> hasta que ese test funcione.** Lo que sigue abierto está en §5.
+> dos regiones la misma lámina escaneada dos veces?» **NO está cerrada**. **No se registra
+> ningún veredicto hasta que el test decisivo cierre.** Lo que sigue abierto está en §5.
+>
+> **Actualización 14-ago-2026.** El test de level 0 estaba roto y **quedó arreglado**: no era el
+> bug de signo que se había diagnosticado sino un problema de resolución, y ahora mide
+> correspondencia celular real (NCC 0.3820 contra 0.0493 del control, 8/8 ventanas, §2.d). Con
+> eso **la lectura 2 gana terreno**, pero el número cae **entre** las dos hipótesis que quedan
+> vivas y el barrido de rotación sigue saturado, así que el veredicto sigue sin registrarse.
+> Además se **corrigió un argumento equivocado de §2.c**: la disposición de los seis fragmentos
+> NO distingue un re-escaneo de dos secciones seriadas.
 
 ---
 
@@ -141,32 +148,93 @@ a esa precisión no es algo que pase montando dos veces.
 **Esto es evidencia fuerte de que la lectura 2 es correcta**: un mismo vidrio digitalizado dos
 veces dentro del mismo `.bif`.
 
-### 2.d Test de píxeles a level 0: NO CORRIÓ BIEN, y por eso no hay veredicto
+> **CORRECCIÓN 14-ago-2026: el párrafo de arriba tiene un argumento equivocado y hay que
+> descontarlo.** Decía que reproducir la posición de seis fragmentos sueltos «no es algo que pase
+> montando dos veces». Es falso: los fragmentos **no se montan uno por uno**. Van embebidos
+> juntos en el mismo bloque de parafina, el corte sale del bloque como una cinta única con todos
+> los fragmentos **en su posición relativa**, y esa cinta se monta entera. Dos secciones seriadas
+> del mismo bloque **conservan la disposición de los fragmentos por construcción**, así que la
+> inspección visual de §2.c **no distingue** las dos hipótesis. Lo que sigue en pie de §2.c es la
+> medida (NCC 0.9569 registrada contra −0.1590 espejada), pero **como evidencia de que las dos
+> regiones son el mismo bloque, no de que sean el mismo vidrio**. El peso de la decisión queda
+> entero sobre §2.d.
 
-El test que **decide** es el de arriba llevado al nivel de célula: si es el mismo vidrio, el
-mismo punto físico muestra **las mismas células**; si son dos secciones seriadas del mismo
-bloque, muestra tejido parecido con células distintas. Es lo único que separa las dos hipótesis
-que sobreviven a §2.c.
+### 2.d Test de píxeles a level 0: ARREGLADO el 14-ago, y ahora SÍ mide
 
-**No funciona todavía.** Sobre un recorte de 1024×1024 en level 0 centrado en la ventana con
-más tejido, la NCC da **−0.0045**, y el control corrido 64 px da **0.0090**. Los dos son cero:
-eso no es «tejido distinto», es que **los dos recortes no están mirando el mismo sitio**. El
-residuo de registro dentro del recorte salió dx = −233, dy = 357, que es más de lo que la
-traslación gruesa (dy = −640 en level 0) debería dejar sin corregir.
+El test que **decide** es el de §2.c llevado al nivel de célula: si es el mismo vidrio, el mismo
+punto físico muestra **las mismas células**; si son dos secciones seriadas del mismo bloque,
+muestra tejido parecido con células distintas. Es lo único que separa las dos hipótesis que
+sobreviven a §2.c.
 
-Diagnóstico de por dónde va el error, para que la sesión que lo retome no empiece de cero:
+#### Por qué la primera versión daba cero, que no era el bug que se creía
 
-1. El mapeo de coordenadas región 0 → región 1 mezcla el origen de la región (`y1 = 49920`) con
-   el desplazamiento medido (`DY`), y el signo de `DY` no está verificado contra un caso
-   conocido.
-2. La traslación gruesa se mide sobre miniaturas **recortadas al mínimo común** (`w = min(w0,w1)`,
-   `h = min(h0,h1)`), así que está en coordenadas de ese recorte, no del lienzo.
-3. El paso `contenido` había encontrado el óptimo en dx = −256, dy = 50432, o sea **dy = +512
-   respecto del origen nominal**; el paso `registro` mide **dy = −640**. Los dos no pueden ser
-   ciertos a la vez y esa contradicción es la pista más corta.
+El 13-ago se dejó anotado que el error estaba en el mapeo de coordenadas (que mezclaba el origen
+de la región con el desplazamiento medido) y que la contradicción entre `dy = +512` del paso
+`contenido` y `dy = −640` del paso `registro` era la pista más corta. **Las dos cosas resultaron
+falsas**, verificadas contra el archivo:
+
+- La 129741 tiene `region[0].x = 0` y `region[1].x = 0`, así que el término del origen que
+  faltaba en el mapeo **vale cero en esta lámina**. Era un bug latente de generalidad (habría
+  mordido en una lámina con orígenes distintos), no la causa. Queda arreglado igual.
+- No había contradicción: derivando el signo de la búsqueda gruesa se obtiene
+  `dy_contenido = (y1 − y0) − DY`, o sea `DY = 49920 − 50432 = −512` contra los −640 medidos.
+  **Difieren 128 px**, que es lo que suman la cuantización de la grilla del h5 (±128) y la de la
+  miniatura (±64). Los dos números eran compatibles.
+
+**La causa real es de resolución, no de signo.** La posición en la región 1 se derivaba de un
+**único offset global medido a level 6**, donde 1 px de miniatura son **64 px de level 0, o sea
+unas cinco células**. Aun con el mapeo perfecto, la cuantización deja hasta ±32 px de error, y
+cualquier rotación entre los dos escaneos agrega mucho más. Un NCC a level 0 necesita precisión
+de pocos píxeles: **el test daba cero por construcción, midiera lo que midiera**.
+
+#### El arreglo: la posición no se deriva, se busca
+
+`registro` quedó reescrito en dos etapas, con la maquinaria verificada aparte
+(`tests/test_registro_geometria.py`):
+
+| Etapa | Qué hace |
+|---|---|
+| Silueta | NCC de las dos regiones a level 6. Es la medida de §2.c y **la domina el contorno**, no las células |
+| A | Ocho ventanas de 1024 px **repartidas en una grilla 4×4** sobre la región (repartirlas importa: por densidad a secas, los empates al 100 % las amontonan todas en un fragmento). Cada una se **localiza** dentro de ±2048 px a level 2 |
+| B | A level 0, plantilla de 512 px alrededor de lo que encontró A, con búsqueda residual ±48 px y barrido de rotación |
+
+El **control de sitio equivocado** es la misma plantilla buscada en el destino localizado de
+**otra** ventana, y corre con **los mismos grados de libertad** que la señal (misma búsqueda de
+traslación y mismo barrido de rotación). Sin esa simetría la comparación quedaría amañada a
+favor de la señal.
+
+#### Lo que mide
+
+| Medida | Señal | Control de sitio equivocado |
+|---|---|---|
+| NCC a level 0, medio | **0.3820** | 0.0493 |
+| mediana | 0.4083 | 0.0465 |
+| rango | 0.2488 .. 0.4521 | máximo 0.0671 |
+| Ventanas por encima del máximo del control | **8 / 8** | |
+| Separación | **29.5 sd** del control | |
+
+**Hay correspondencia a escala celular, y no es marginal.** Las ocho ventanas, repartidas sobre
+11.8 mm de vidrio, superan el máximo del control. El control de maquinaria (una plantilla
+buscada contra sí misma) da NCC 1.0000 en (0,0), así que el camino de código está bien.
+
+#### Lo que todavía NO cierra, y por eso sigue sin haber veredicto
+
+1. **El barrido de rotación sigue pegando en el borde.** Con ±1.5° las ocho ventanas eligieron
+   −1.50°; con ±4.0° eligen entre −2.0° y −4.0°, y una toma el extremo. El 0.3820 es una **cota
+   inferior**, no el valor.
+2. **El θ óptimo varía entre ventanas** (−2.0 a −4.0). Un cuerpo rígido daría el mismo ángulo en
+   todas. O hay deformación local, o los picos de la etapa A (NCC 0.11 a 0.30) son demasiado
+   ruidosos para fijar el ángulo.
+3. **El ajuste rígido del campo da residuo RMS 103 µm** (máximo 154 µm) con rotación −2.354° y
+   escala 1.0117. Eso es mucho para dos imágenes del mismo vidrio, que deberían llevarse una a
+   otra con residuo de pocos píxeles.
+4. **0.38 cae entre las dos hipótesis.** Un re-escaneo bien registrado debería dar 0.8 a 0.9.
+   Dos secciones seriadas cortadas a 3 a 5 µm **comparten núcleos** (un núcleo de 8 µm aparece en
+   dos cortes consecutivos), así que también producen correspondencia celular parcial. **El valor
+   medido no separa todavía las dos.**
 
 **Hasta que esto cierre, la afirmación del B8 («las dos regiones son tejido distinto, no un
-duplicado») NO se toca**, y tampoco se afirma lo contrario. Ver §5.
+duplicado») NO se toca**, y tampoco se afirma lo contrario. El paso siguiente está en §5.1.
 
 ---
 
@@ -227,8 +295,23 @@ Conviene decirlo para no exagerar el impacto:
 
 ## 5. Lo que queda abierto
 
-1. **Arreglar el test de level 0** (§2.d) y con eso cerrar el veredicto. Es el bloqueo real. La
-   contradicción entre `dy = +512` (features) y `dy = −640` (píxeles) es por donde entrar.
+1. **Cerrar el veredicto con el test de level 0, que ya funciona** (§2.d). Ya no es «arreglarlo»:
+   mide, y mide señal fuerte. Lo que falta es **empujar el registro hasta que el NCC deje de
+   subir** y ver dónde se estabiliza, porque ahí está la respuesta:
+   - **Iterar el ajuste**: usar la rotación del ajuste rígido como **centro** del barrido de la
+     etapa B en vez de centrarlo en cero, re-medir el campo con la predicción mejorada, y
+     repetir. Hoy el barrido arranca en cero y se le acaba el rango.
+   - **Ampliar `--rot-max`** hasta que ninguna ventana elija el extremo (con ±4.0° una todavía
+     lo toma).
+   - El criterio de lectura ya está fijado: **si el NCC trepa a 0.8 o 0.9, es el mismo vidrio**
+     (la lectura 2 de Sebastián); **si se estanca cerca de 0.4 con residuo elástico de ~100 µm,
+     son dos secciones seriadas** del mismo bloque montadas en el mismo vidrio, y entonces la
+     afirmación original del B8 queda confirmada y la de Sebastián no calza.
+   - **Falta un control positivo de verdad**: nada en este dataset se sabe que sea un re-escaneo
+     genuino, así que el «0.8 a 0.9 esperable» es teoría, no una medida. La forma de conseguirlo
+     es **correr el test sobre una muestra de las otras 138 láminas multi-región** (§5.6): si
+     alguna da 0.9, esa es la referencia empírica y además ya se sabe cuáles están afectadas de
+     verdad. Ese barrido es CPU pura, ~1 a 2 min por lámina, y conviene lanzarlo desatado.
 2. **Si la lectura 2 se confirma**: ADDENDUM fechado en
    [`../../atencion_vs_patologo/resultados.md`](../../atencion_vs_patologo/resultados.md) §2.b y
    en [`../hallazgos.md`](../hallazgos.md) §2, **sin reescribir el original**, diciendo qué se
@@ -250,10 +333,16 @@ Conviene decirlo para no exagerar el impacto:
 
 ## 6. Lo que este documento no afirma
 
-- **Que las dos regiones de la 129741 sean la misma lámina escaneada dos veces.** Es lo que
-  sugieren §2.c y la inspección visual, pero el test que lo decidiría no corrió (§2.d).
+- **Que las dos regiones de la 129741 sean la misma lámina escaneada dos veces.** El test
+  decisivo ya corre y da señal celular fuerte (§2.d), pero su valor (0.38) cae **entre** lo que
+  daría un re-escaneo y lo que daría un par de secciones seriadas, y el registro todavía no
+  convergió.
 - **Que no lo sean.** El test de features (§2.b) no distingue, y quedó demostrado por qué: su
   control interno da el mismo número que la señal.
+- **Que 0.8 a 0.9 sea el número que daría un re-escaneo real.** Es lo esperable en teoría, pero
+  **no hay ningún re-escaneo conocido en este dataset contra el cual anclarlo** (§5.1).
+- **Que la disposición de los seis fragmentos pruebe nada** sobre re-escaneo contra secciones
+  seriadas. Ese argumento de §2.c está corregido y retirado.
 - **Que las 139 láminas con varias regiones tengan todas el mismo problema.** Lo medido es que
   su `.bif` declara más de una región de escaneo. Qué hay en cada una, no se miró: solo se
   abrió la 129741.
