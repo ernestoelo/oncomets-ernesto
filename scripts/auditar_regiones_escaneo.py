@@ -14,6 +14,10 @@ Tres subcomandos, independientes entre sí:
   contenido  ¿son el mismo tejido las dos regiones de una lámina? Barrido 2D de
              traslación sobre las features CONCH del h5, sin abrir la WSI.
   miniaturas vuelca las dos regiones a PNG para comparar píxeles a ojo.
+  registro   el test decisivo: ¿son los MISMOS PÍXELES? Registro grueso a baja
+             resolución + búsqueda LOCAL de cada ventana a level 0, con control
+             de sitio equivocado. Ver el docstring de registro() para el
+             criterio y para por qué la primera versión no podía funcionar.
 
 Lee `clam_environ/` y `wsi/` (read-only), escribe SOLO bajo este repo.
 Python: /home/sdonoso/miniconda3/envs/clam_latest/bin/python (workaround B).
@@ -403,28 +407,198 @@ def _ncc(a: np.ndarray, b: np.ndarray) -> float:
     return float(a @ b / d) if d > 0 else 0.0
 
 
-def _fase(a: np.ndarray, b: np.ndarray):
-    """Correlación de fase: devuelve el (dy, dx) que lleva `b` sobre `a`."""
-    A, B = np.fft.fft2(a - a.mean()), np.fft.fft2(b - b.mean())
-    R = A * np.conj(B)
-    R /= np.abs(R) + 1e-12
-    r = np.fft.ifft2(R).real
-    dy, dx = np.unravel_index(np.argmax(r), r.shape)
-    if dy > a.shape[0] // 2:
-        dy -= a.shape[0]
-    if dx > a.shape[1] // 2:
-        dx -= a.shape[1]
-    return int(dy), int(dx), float(r.max() / (r.std() + 1e-12))
+def _mapa_ncc(img: np.ndarray, tpl: np.ndarray):
+    """NCC de `tpl` deslizada sobre `img`, en modo 'valid'.
+
+    Numerador por FFT y denominador por imagen integral (el mismo algoritmo que
+    `match_template` de skimage, que no está en este env). Devuelve un mapa de
+    forma (H-h+1, W-w+1) donde cada celda es el coseno centrado entre la
+    plantilla y la ventana de `img` que arranca ahí.
+    """
+    from scipy.signal import fftconvolve
+    img = img.astype(np.float64)
+    tpl = tpl.astype(np.float64)
+    h, w = tpl.shape
+    n = h * w
+    t0 = tpl - tpl.mean()
+    den_t = float(np.sqrt((t0 ** 2).sum()))
+    if den_t <= 0:
+        return None
+    num = fftconvolve(img, t0[::-1, ::-1], mode="valid")
+    ii = np.cumsum(np.cumsum(np.pad(img, ((1, 0), (1, 0))), 0), 1)
+    ii2 = np.cumsum(np.cumsum(np.pad(img * img, ((1, 0), (1, 0))), 0), 1)
+
+    def ventana(I):
+        return I[h:, w:] - I[:-h, w:] - I[h:, :-w] + I[:-h, :-w]
+
+    s1, s2 = ventana(ii), ventana(ii2)
+    var = s2 - s1 * s1 / n
+    var[var < 1e-9] = np.inf
+    return num / (np.sqrt(var) * den_t)
+
+
+def _pico(mapa: np.ndarray, radio: int = 24):
+    """Máximo del mapa de NCC + a cuántas sd está del resto.
+
+    `radio` excluye el entorno del pico al medir el fondo, para que la propia
+    campana del pico no infle la sd.
+    """
+    iy, ix = np.unravel_index(np.argmax(mapa), mapa.shape)
+    pico = float(mapa[iy, ix])
+    fuera = mapa.copy()
+    y0, y1 = max(0, iy - radio), min(mapa.shape[0], iy + radio + 1)
+    x0, x1 = max(0, ix - radio), min(mapa.shape[1], ix + radio + 1)
+    fuera[y0:y1, x0:x1] = np.nan
+    mu, sd = np.nanmean(fuera), np.nanstd(fuera)
+    segundo = float(np.nanmax(fuera)) if np.isfinite(fuera).any() else float("nan")
+    return {
+        "ncc": pico, "iy": int(iy), "ix": int(ix),
+        "fondo_medio": float(mu), "fondo_sd": float(sd),
+        "sd_sobre_fondo": float((pico - mu) / (sd + 1e-12)),
+        "segundo_pico": segundo,
+    }
+
+
+def _buscar_local(sl, tpl_xy, dest_xy, L0: int, M0: int, lvl: int, ds: float):
+    """Busca la ventana `L0`×`L0` de level 0 que arranca en `tpl_xy` dentro de
+    un entorno de ±`M0` px alrededor de `dest_xy`, trabajando en el nivel `lvl`.
+
+    Devuelve el pico del mapa de NCC y el desplazamiento residual (en px de
+    level 0) entre donde se predijo la ventana y donde realmente está. Este es
+    el arreglo de fondo del test: la posición NO se deriva de un offset global
+    (que a level 6 tiene ±32 px de cuantización, o sea media docena de células),
+    se BUSCA.
+    """
+    lt = int(round(L0 / ds))
+    lb = int(round((L0 + 2 * M0) / ds))
+    tpl = np.asarray(sl.read_region(tuple(tpl_xy), lvl, (lt, lt)).convert("L"),
+                     dtype=np.float64)
+    org = (int(dest_xy[0] - M0), int(dest_xy[1] - M0))
+    img = np.asarray(sl.read_region(org, lvl, (lb, lb)).convert("L"),
+                     dtype=np.float64)
+    if tpl.std() < 1.0 or img.std() < 1.0:
+        return None
+    mapa = _mapa_ncc(img, tpl)
+    if mapa is None:
+        return None
+    r = _pico(mapa)
+    # el centro del mapa (offset residual cero) está en (M0/ds, M0/ds)
+    c = int(round(M0 / ds))
+    r["dx_level0"] = int(round((r["ix"] - c) * ds))
+    r["dy_level0"] = int(round((r["iy"] - c) * ds))
+    r["ncc_en_prediccion"] = float(mapa[c, c])
+    return r
+
+
+def _ajuste_rigido(u: np.ndarray, v: np.ndarray, con_escala: bool = True):
+    """Ajusta v = esc·R(θ)·u + t por mínimos cuadrados (Procrustes 2D).
+
+    `u` y `v` son (N,2) en (x,y). Devuelve θ en grados, la escala, la
+    traslación y el residuo por punto. El residuo es lo que más pesa: si un
+    ÚNICO cuerpo rígido explica el campo de desplazamiento de fragmentos de
+    tejido separados, es porque los fragmentos no se movieron entre una imagen
+    y la otra.
+    """
+    cu, cv = u.mean(0), v.mean(0)
+    U, V = u - cu, v - cv
+    num = float((U[:, 0] * V[:, 1] - U[:, 1] * V[:, 0]).sum())
+    den = float((U * V).sum())
+    th = np.arctan2(num, den)
+    c, s = np.cos(th), np.sin(th)
+    R = np.array([[c, -s], [s, c]])
+    esc = float(np.sqrt((num ** 2 + den ** 2)) / (U ** 2).sum()) if con_escala else 1.0
+    t = cv - esc * (R @ cu)
+    pred = (esc * (R @ u.T)).T + t
+    res = v - pred
+    return {
+        "theta_grados": float(np.degrees(th)), "escala": esc,
+        "traslacion": [float(t[0]), float(t[1])],
+        "residuo_px": [[float(a), float(b)] for a, b in res],
+        "rms_px": float(np.sqrt((res ** 2).sum(1).mean())),
+        "max_px": float(np.sqrt((res ** 2).sum(1)).max()),
+    }
+
+
+def _alinear_array(I: np.ndarray, lado: int, theta_grados: float, esc: float):
+    """Rota y escala el array `I` al marco de la región 0 y devuelve el recorte
+    central de `lado`×`lado`.
+
+    Convención verificada end-to-end contra una transformación sintética
+    conocida (ver `tests/test_registro_geometria.py`): con el ajuste
+    v = esc·R(θ)·u + t, el muestreo de la entrada para el píxel de salida `o`
+    es esc·R_rc·(o − centro) + S/2, con R_rc la matriz en orden (fila, columna).
+    """
+    from scipy.ndimage import affine_transform
+    th = np.radians(theta_grados)
+    c, s = np.cos(th), np.sin(th)
+    M = esc * np.array([[c, s], [-s, c]])
+    S = I.shape[0]
+    off = np.array([S / 2.0, S / 2.0]) - M @ np.array([lado / 2.0, lado / 2.0])
+    return affine_transform(I, M, offset=off, output_shape=(lado, lado), order=1)
+
+
+def _recorte_alineado(sl, centro_xy, lado: int, theta_grados: float, esc: float):
+    """`_alinear_array` leyendo de la WSI alrededor de `centro_xy`, a level 0."""
+    S = int(esc * lado * 1.45) + 8
+    org = (int(centro_xy[0] - S // 2), int(centro_xy[1] - S // 2))
+    I = np.asarray(sl.read_region(org, 0, (S, S)).convert("L"), dtype=np.float64)
+    return _alinear_array(I, lado, theta_grados, esc)
+
+
+def _mejor_con_rotacion(sl, tpl, centro_xy, Lo, thetas):
+    """Busca `tpl` alrededor de `centro_xy` probando varias rotaciones.
+
+    Lee UNA vez y rota en memoria. Devuelve el mejor pico sobre todo el barrido,
+    para que la señal y el control tengan exactamente los mismos grados de
+    libertad: si al control se le niega el barrido de rotación, la comparación
+    queda amañada a favor de la señal.
+    """
+    S = int(Lo * 1.45) + 8
+    org = (int(centro_xy[0] - S // 2), int(centro_xy[1] - S // 2))
+    I = np.asarray(sl.read_region(org, 0, (S, S)).convert("L"), dtype=np.float64)
+    if I.std() < 1.0 or tpl.std() < 1.0:
+        return None
+    mejor = None
+    for th in thetas:
+        m = _mapa_ncc(_alinear_array(I, Lo, th, 1.0), tpl)
+        if m is None:
+            continue
+        r = _pico(m)
+        if mejor is None or r["ncc"] > mejor["ncc"]:
+            r["theta"] = float(th)
+            mejor = r
+    return mejor
 
 
 def registro(args):
     """El test decisivo: ¿son los MISMOS PÍXELES, o sea las mismas células?
 
     Un re-escaneo de la misma lámina muestra las mismas células en la misma
-    posición; dos secciones seriadas del mismo bloque muestran el mismo tejido
-    con células DISTINTAS. Las features CONCH no separan los dos casos porque
-    son suaves sobre el tejido (el coseno con el vecino de al lado ya da 0.90),
-    así que hay que ir al píxel.
+    posición; dos secciones seriadas del mismo bloque muestran el mismo tejido,
+    con la misma disposición de fragmentos, pero con células DISTINTAS. Las
+    features CONCH no separan los dos casos porque son suaves sobre el tejido
+    (el coseno con el parche de al lado ya da 0.90), así que hay que ir al píxel.
+
+    POR QUÉ LA PRIMERA VERSIÓN NO PODÍA FUNCIONAR (13-ago). Derivaba la posición
+    en la región 1 de un ÚNICO offset global medido a level 6, donde 1 px de
+    miniatura son 64 px de level 0, o sea unas cinco células. Aun con el mapeo
+    perfecto, la cuantización deja hasta ±32 px de error, y cualquier rotación
+    o deformación entre los dos escaneos agrega mucho más. Un NCC a level 0
+    necesita precisión de pocos píxeles: daba cero por construcción, midiera lo
+    que midiera. Acá la posición NO se deriva, se BUSCA, ventana por ventana y
+    en dos etapas.
+
+    CRITERIO, fijado antes de correr:
+      - MISMA LÁMINA escaneada dos veces: la etapa A localiza cada ventana con
+        un pico alto y ÚNICO, los desplazamientos son consistentes entre
+        ventanas (un cuerpo rígido los explica con residuo de pocos píxeles), y
+        el NCC a level 0 queda muy por encima del control de sitio equivocado.
+      - SECCIONES SERIADAS del mismo bloque: la silueta registra bien (mismo
+        bloque, misma disposición de fragmentos), pero el campo de
+        desplazamiento NO es rígido (deformación elástica del montaje, decenas
+        o cientos de µm) y a level 0 el NCC cae al nivel del control.
+      - El control de sitio equivocado corre con los MISMOS grados de libertad
+        que la señal (misma búsqueda de traslación y mismo barrido de rotación).
     """
     import openslide
     from PIL import Image
@@ -442,18 +616,16 @@ def registro(args):
         print(f"[stop] {sid} tiene {len(regs)} regiones, no 2")
         return
     (x0, y0, w0, h0), (x1, y1, w1, h1) = regs
+    mpp = float(p.get("openslide.mpp-x", 0) or 0)
 
-    # --- 1. registro grueso por correlación de fase, a baja resolución ---
+    # --- 1. la silueta: ¿se parecen las dos regiones a escala de arquitectura? ---
     lvl = sl.get_best_level_for_downsample(args.downsample)
     ds = sl.level_downsamples[lvl]
-    w = min(w0, w1); h = min(h0, h1)
-    gw, gh = int(w / ds), int(h / ds)
+    gw, gh = int(min(w0, w1) / ds), int(min(h0, h1) / ds)
     g0 = np.asarray(sl.read_region((x0, y0), lvl, (gw, gh)).convert("L"), dtype=np.float64)
     g1 = np.asarray(sl.read_region((x1, y1), lvl, (gw, gh)).convert("L"), dtype=np.float64)
-    print(f"[grueso] level {lvl} (downsample {ds:.0f}), miniatura {gw}x{gh}")
+    print(f"[silueta] level {lvl} (downsample {ds:.0f}), miniatura {gw}x{gh}")
     ncc0 = _ncc(g0, g1)
-    # búsqueda exhaustiva de la traslación entera: a 540x480 cuesta nada y es
-    # más robusta que la correlación de fase, que acá encontraba un pico falso
     R = args.rango_grueso
     mejor = (-2.0, 0, 0)
     for oy in range(-R, R + 1):
@@ -464,78 +636,175 @@ def registro(args):
             if v > mejor[0]:
                 mejor = (v, ox, oy)
     ncc_reg, ox, oy = mejor
-    print(f"[grueso] mejor traslación: dx={ox} dy={oy} px de miniatura, o sea "
-          f"dx={int(ox*ds)} dy={int(oy*ds)} px de level 0")
-    print(f"[grueso] NCC sin registrar: {ncc0:.4f}   registrada: {ncc_reg:.4f}")
-
-    # control: la misma comparación contra la región 1 puesta del revés. Es el
-    # «mismo tejido, mala alineación» y acota cuánto NCC regala la silueta sola.
     a = g0[max(0, oy):gh + min(0, oy), max(0, ox):gw + min(0, ox)]
     b = g1[max(0, -oy):gh + min(0, -oy), max(0, -ox):gw + min(0, -ox)]
     ncc_esp = _ncc(a, b[:, ::-1])
-    print(f"[control] NCC contra la región 1 espejada: {ncc_esp:.4f}")
+    print(f"[silueta] NCC sin registrar {ncc0:.4f}, registrada {ncc_reg:.4f} "
+          f"(dx={int(ox*ds)} dy={int(oy*ds)} px de level 0)")
+    print(f"[silueta] control contra la región 1 espejada: {ncc_esp:.4f}")
+    print(f"[silueta] OJO: esta medida la domina el CONTORNO del tejido, no las "
+          f"células. Dos secciones seriadas del mismo bloque también la pasan.")
 
-    DX, DY = int(ox * ds), int(oy * ds)
-
-    # --- 2. al píxel, en level 0, sobre un recorte con tejido DE VERDAD ---
-    # se elige la ventana de la miniatura con más tejido, no la mediana de las
-    # coordenadas del tejido (que cae en el hueco entre fragmentos)
-    L = args.recorte
-    lado = max(1, int(L / ds))
-    # el borde negro del lienzo (fuera de la región) NO es tejido: la banda de
-    # abajo lo excluye. Sin esto la ventana «más densa» cae en el relleno.
+    # --- 2. ventanas de tejido REPARTIDAS por toda la región ---
+    # repartirlas importa: si se toman las más densas a secas, los empates al
+    # 100 % las amontonan todas en un fragmento y el campo de desplazamiento
+    # queda medido en un solo punto del vidrio.
+    LA, MA = args.plantilla_a, args.margen_a
+    lado = max(1, int(LA / ds))
     tej = ((g0 > args.umbral_fondo) & (g0 < args.umbral_tejido)).astype(np.float64)
     integral = np.cumsum(np.cumsum(tej, 0), 1)
+
     def dens(y, x):
         y2, x2 = y + lado, x + lado
         return (integral[y2, x2] - integral[y, x2] - integral[y2, x] + integral[y, x])
-    mejor_d, cy, cx = -1.0, 0, 0
-    for y in range(0, gh - lado - 1, max(1, lado // 2)):
-        for x in range(0, gw - lado - 1, max(1, lado // 2)):
-            d = dens(y, x)
-            if d > mejor_d:
-                mejor_d, cy, cx = d, y, x
-    print(f"\n[fino] ventana más densa en tejido: ({cx},{cy}) de la miniatura, "
-          f"{mejor_d/(lado*lado):.0%} tejido")
-    ax = x0 + int(cx * ds)
-    ay = y0 + int(cy * ds)
-    print(f"\n[fino] recorte de {L}x{L} en level 0, centro de masa del tejido "
-          f"-> región 0 en ({ax},{ay})")
-    c0 = sl.read_region((ax, ay), 0, (L, L)).convert("RGB")
-    # la región 1 arranca en y1; el mismo punto físico está en (ax - DX, ay - y0 + y1 - DY)
-    bx, by = ax - DX, ay - y0 + y1 - DY
-    print(f"[fino] mismo punto físico en la región 1 -> ({bx},{by})")
-    c1 = sl.read_region((bx, by), 0, (L, L)).convert("RGB")
 
-    a = np.asarray(c0.convert("L"), dtype=np.float64)
-    b = np.asarray(c1.convert("L"), dtype=np.float64)
-    dy2, dx2, pico2 = _fase(a, b)
-    print(f"[fino] residuo de registro dentro del recorte: dx={dx2} dy={dy2} px "
-          f"(pico {pico2:.1f} sd)")
-    b2 = np.roll(np.roll(b, dy2, 0), dx2, 1)
-    mm = slice(abs(dy2) + 8, L - abs(dy2) - 8), slice(abs(dx2) + 8, L - abs(dx2) - 8)
-    ncc_fino = _ncc(a[mm], b2[mm])
-    print(f"[fino] NCC al píxel, level 0, tras registrar: {ncc_fino:.4f}")
-    # control en el mismo recorte: contra un desplazamiento de media célula
-    ctrl = _ncc(a[mm], np.roll(b2, args.control_shift, 1)[mm])
-    print(f"[fino] control, el mismo recorte corrido {args.control_shift} px: {ctrl:.4f}")
+    G = int(np.ceil(np.sqrt(args.ventanas * 2)))
+    ventanas = []
+    for gy in range(G):
+        for gx in range(G):
+            y_a, y_b = gy * gh // G, min((gy + 1) * gh // G, gh - lado - 1)
+            x_a, x_b = gx * gw // G, min((gx + 1) * gw // G, gw - lado - 1)
+            mej = None
+            for y in range(y_a, y_b, max(1, lado // 2)):
+                for x in range(x_a, x_b, max(1, lado // 2)):
+                    d = dens(y, x) / (lado * lado)
+                    if mej is None or d > mej[0]:
+                        mej = (d, y, x)
+            if mej and mej[0] >= args.min_tejido:
+                ventanas.append(mej)
+    ventanas.sort(reverse=True)
+    ventanas = ventanas[:args.ventanas]
 
-    par = Image.new("RGB", (L * 2 + 16, L), "white")
-    par.paste(c0, (0, 0)); par.paste(c1, (L + 16, 0))
+    # --- 3. etapa A: localizar cada ventana con margen ANCHO, a escala media ---
+    lva = args.nivel_a
+    dsa = sl.level_downsamples[lva]
+    print(f"\n[etapa A] {len(ventanas)} ventanas de {LA} px ({LA*mpp:.0f} µm) "
+          f"repartidas en grilla {G}x{G}; búsqueda ±{MA} px ({MA*mpp:.0f} µm) "
+          f"a level {lva}")
+    print(f"{'vent':>4} {'x0':>7} {'y0':>7} {'NCC':>8} {'dx':>7} {'dy':>7} "
+          f"{'sd':>6} {'2do':>7}")
+    filas = []
+    for n, (d, cy, cx) in enumerate(ventanas):
+        ax, ay = x0 + int(cx * ds), y0 + int(cy * ds)
+        bx, by = x1 + (ax - x0), y1 + (ay - y0)
+        if not (x1 + MA <= bx <= x1 + w1 - LA - MA and y1 + MA <= by <= y1 + h1 - LA - MA):
+            continue
+        r = _buscar_local(sl, (ax, ay), (bx, by), LA, MA, lva, dsa)
+        if r is None:
+            continue
+        r["en_borde"] = bool(max(abs(r["dx_level0"]), abs(r["dy_level0"])) >= MA - dsa)
+        filas.append({"n": n, "tejido": float(d), "region0": [ax, ay],
+                      "prediccion": [bx, by], "etapa_a": r})
+        print(f"{n:>4} {ax:>7} {ay:>7} {r['ncc']:>8.4f} {r['dx_level0']:>7} "
+              f"{r['dy_level0']:>7} {r['sd_sobre_fondo']:>6.1f} {r['segundo_pico']:>7.4f}")
+    if len(filas) < 3:
+        print(f"[stop] solo {len(filas)} ventanas utilizables")
+        sl.close()
+        return
+
+    # ¿un cuerpo rígido explica el campo? Es el discriminante de forma: dos
+    # imágenes del MISMO vidrio se llevan una a otra con rotación + traslación;
+    # dos secciones montadas por separado, no.
+    buenas = [f_ for f_ in filas if not f_["etapa_a"]["en_borde"]]
+    fit = None
+    if len(buenas) >= 3:
+        u = np.array([[f_["region0"][0] - x0 + LA / 2, f_["region0"][1] - y0 + LA / 2]
+                      for f_ in buenas])
+        v = np.array([[f_["prediccion"][0] + f_["etapa_a"]["dx_level0"] - x1 + LA / 2,
+                       f_["prediccion"][1] + f_["etapa_a"]["dy_level0"] - y1 + LA / 2]
+                      for f_ in buenas])
+        fit = _ajuste_rigido(u, v)
+        span = float(np.hypot(*(u.max(0) - u.min(0))))
+        fit["span_px"] = span
+        print(f"\n[rígido] ajuste con {len(buenas)} ventanas sobre "
+              f"{span*mpp/1000:.1f} mm de vidrio: rotación {fit['theta_grados']:+.3f}°, "
+              f"escala {fit['escala']:.5f}")
+        print(f"[rígido] residuo: RMS {fit['rms_px']:.0f} px = {fit['rms_px']*mpp:.0f} µm, "
+              f"máximo {fit['max_px']*mpp:.0f} µm")
+
+    # --- 4. etapa B: level 0, el test decisivo, con control de igual libertad ---
+    LB, MB = args.plantilla_b, args.margen_b
+    Lo = LB + 2 * MB
+    thetas = np.arange(-args.rot_max, args.rot_max + 1e-9, args.rot_paso)
+    print(f"\n[etapa B] level 0, plantilla {LB} px ({LB*mpp:.0f} µm), residual "
+          f"±{MB} px, rotación ±{args.rot_max}° en pasos de {args.rot_paso}°")
+    print(f"{'vent':>4} {'NCC':>8} {'ctrl':>8} {'θ':>6} {'dx':>5} {'dy':>5} "
+          f"{'sd':>6} {'2do':>7}")
+    for i_, f_ in enumerate(filas):
+        ax, ay = f_["region0"]
+        cx0 = ax + (LA - LB) // 2
+        cy0 = ay + (LA - LB) // 2
+        tpl = np.asarray(sl.read_region((cx0, cy0), 0, (LB, LB)).convert("L"),
+                         dtype=np.float64)
+        ra = f_["etapa_a"]
+        vc = (f_["prediccion"][0] + ra["dx_level0"] + (LA - LB) // 2 + LB / 2,
+              f_["prediccion"][1] + ra["dy_level0"] + (LA - LB) // 2 + LB / 2)
+        r = _mejor_con_rotacion(sl, tpl, vc, Lo, thetas)
+        # control de SITIO EQUIVOCADO: la misma plantilla, misma maquinaria y
+        # mismo barrido, en el destino localizado de OTRA ventana
+        o = filas[(i_ + 1) % len(filas)]
+        vco = (o["prediccion"][0] + o["etapa_a"]["dx_level0"] + (LA - LB) // 2 + LB / 2,
+               o["prediccion"][1] + o["etapa_a"]["dy_level0"] + (LA - LB) // 2 + LB / 2)
+        c = _mejor_con_rotacion(sl, tpl, vco, Lo, thetas)
+        f_["etapa_b"] = r
+        f_["control"] = c
+        f_["centro_region1"] = [float(vc[0]), float(vc[1])]
+        if r:
+            print(f"{f_['n']:>4} {r['ncc']:>8.4f} "
+                  f"{(c['ncc'] if c else float('nan')):>8.4f} {r['theta']:>+6.2f} "
+                  f"{r['ix']-MB:>5} {r['iy']-MB:>5} {r['sd_sobre_fondo']:>6.1f} "
+                  f"{r['segundo_pico']:>7.4f}")
+
+    n0 = np.array([f_["etapa_b"]["ncc"] for f_ in filas if f_.get("etapa_b")])
+    nc = np.array([f_["control"]["ncc"] for f_ in filas if f_.get("control")])
+    print(f"\n[resumen] NCC a level 0, señal  : medio {n0.mean():.4f}, mediana "
+          f"{np.median(n0):.4f}, rango {n0.min():.4f}..{n0.max():.4f}")
+    print(f"[resumen] NCC a level 0, control: medio {nc.mean():.4f}, mediana "
+          f"{np.median(nc):.4f}, máximo {nc.max():.4f}")
+    sep = (n0.mean() - nc.mean()) / (nc.std() + 1e-12)
+    print(f"[resumen] separación señal-control: {sep:.1f} sd del control; "
+          f"ventanas con señal > máximo del control: "
+          f"{int((n0 > nc.max()).sum())}/{len(n0)}")
+
+    # --- 5. la mejor ventana, lado a lado, para mirarla ---
+    mejor_f = max((f_ for f_ in filas if f_.get("etapa_b")),
+                  key=lambda f_: f_["etapa_b"]["ncc"])
+    ax, ay = mejor_f["region0"]
+    cx0, cy0 = ax + (LA - LB) // 2, ay + (LA - LB) // 2
+    rb = mejor_f["etapa_b"]
+    c0 = sl.read_region((cx0, cy0), 0, (LB, LB)).convert("RGB")
+    ali = _recorte_alineado(sl, mejor_f["centro_region1"], Lo, rb["theta"], 1.0)
+    rec = ali[rb["iy"]:rb["iy"] + LB, rb["ix"]:rb["ix"] + LB]
+    c1 = Image.fromarray(rec.astype(np.uint8)).convert("RGB")
+    par = Image.new("RGB", (LB * 2 + 16, LB), "white")
+    par.paste(c0.convert("L").convert("RGB"), (0, 0))
+    par.paste(c1, (LB + 16, 0))
     out = OUT_DIR / f"{sid}_registro_level0.png"
     par.save(out)
-    print(f"\n[out] {out}  (izq = región 0, der = región 1, mismo punto físico)")
+    print(f"\n[out] {out}  (izq = región 0 en ({cx0},{cy0}), der = lo mejor que "
+          f"se encontró en la región 1, NCC {rb['ncc']:.4f})")
 
     res = {
-        "slide_id": sid, "regiones": regs,
-        "grueso": {"level": lvl, "downsample": ds, "dx_level0": DX, "dy_level0": DY,
-                   "ncc_sin_registrar": ncc0, "ncc_registrada": ncc_reg,
-                   "ncc_control_espejo": ncc_esp},
-        "fino": {"recorte": L, "origen_region0": [ax, ay], "origen_region1": [bx, by],
-                 "residuo_dx": dx2, "residuo_dy": dy2, "pico_sd": pico2,
-                 "ncc": ncc_fino, "ncc_control_corrido": ctrl},
+        "slide_id": sid, "regiones": regs, "mpp": mpp,
+        "silueta": {"level": lvl, "downsample": ds, "ncc_sin_registrar": ncc0,
+                    "ncc_registrada": ncc_reg, "ncc_control_espejo": ncc_esp,
+                    "dx_level0": int(ox * ds), "dy_level0": int(oy * ds)},
+        "etapa_a": {"nivel": lva, "plantilla": LA, "margen": MA,
+                    "n_ventanas": len(filas)},
+        "ajuste_rigido": fit,
+        "etapa_b": {
+            "plantilla": LB, "margen": MB,
+            "rotaciones": [float(t) for t in thetas],
+            "ncc_medio": float(n0.mean()), "ncc_mediana": float(np.median(n0)),
+            "ncc_min": float(n0.min()), "ncc_max": float(n0.max()),
+            "control_medio": float(nc.mean()), "control_max": float(nc.max()),
+            "separacion_sd": float(sep),
+            "ventanas_sobre_control": int((n0 > nc.max()).sum()),
+        },
+        "ventanas": filas,
     }
     (OUT_DIR / f"registro_{sid}.json").write_text(json.dumps(res, indent=2))
+    print(f"[out] {OUT_DIR / f'registro_{sid}.json'}")
     sl.close()
 
 
@@ -563,11 +832,24 @@ def main():
     r = sub.add_parser("registro", help="¿son los mismos píxeles? (el test decisivo)")
     r.add_argument("--slide", default="129741")
     r.add_argument("--downsample", type=float, default=64.0)
-    r.add_argument("--recorte", type=int, default=1024, help="lado del recorte en level 0")
+    r.add_argument("--ventanas", type=int, default=8)
+    r.add_argument("--min-tejido", type=float, default=0.5,
+                   help="fracción mínima de tejido para aceptar una ventana")
+    # etapa A: localizar cada ventana con margen ancho, a escala media
+    r.add_argument("--nivel-a", type=int, default=2)
+    r.add_argument("--plantilla-a", type=int, default=1024,
+                   help="lado de la plantilla de la etapa A, px de level 0")
+    r.add_argument("--margen-a", type=int, default=2048,
+                   help="radio de búsqueda de la etapa A, px de level 0")
+    # etapa B: el test decisivo, a level 0
+    r.add_argument("--plantilla-b", type=int, default=512)
+    r.add_argument("--margen-b", type=int, default=48)
+    r.add_argument("--rot-max", type=float, default=1.5,
+                   help="barrido de rotación de la etapa B, en grados")
+    r.add_argument("--rot-paso", type=float, default=0.5)
     r.add_argument("--umbral-tejido", type=float, default=210.0)
     r.add_argument("--umbral-fondo", type=float, default=40.0)
-    r.add_argument("--rango-grueso", type=int, default=12)
-    r.add_argument("--control-shift", type=int, default=64)
+    r.add_argument("--rango-grueso", type=int, default=24)
     r.set_defaults(func=registro)
 
     args = ap.parse_args()
