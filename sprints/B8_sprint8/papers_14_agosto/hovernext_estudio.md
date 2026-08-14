@@ -15,6 +15,12 @@
 > (Hoja 8), escrita el mismo día **con búsqueda web y sin el PDF**. Este documento es el que
 > cierra esa brecha.
 >
+> **Cómo funciona el modelo por dentro** (el BCB-map, los dos decodificadores, el watershed, las TTA,
+> el stitcher) está en [`hovernext_mecanismo.md`](hovernext_mecanismo.md), escrito el 14-ago a la
+> noche. Este documento verifica los **números**; ese otro explica el **mecanismo** y contesta con
+> cuentas dos cosas que acá se dan por sentadas: **de dónde sale realmente el 17×** (el BCB compra
+> ~1,5×, no 17×) y **si el pipeline acepta parches sueltos** (espera una WSI).
+>
 > **Las tablas del paper vienen destrozadas en el volcado** (columnas intercaladas, Figura 2 sobre
 > todo). Los números de acá se leyeron cruzando el volcado con el texto corrido que los comenta;
 > donde el volcado no permite decidir, se dice.
