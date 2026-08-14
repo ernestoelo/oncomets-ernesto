@@ -518,6 +518,27 @@ se midió. Detalle: [[pipeline-determinista-bit-a-bit]].
 paired vs <job baseline> reusando `<path/al/split_dir>`` antes del
 sbatch. El reviewer lo verifica como parte del checklist.
 
+### P2. Un top-k de parches se dimensiona por PERCENTIL, no por AUC
+
+**Cuándo aplica**: cualquier prueba o pipeline que restrinja a los `k` parches de mayor
+atención (la forma de la segunda etapa que propuso Sebastián el 12-ago).
+
+**Regla operativa**: antes de fijar `k`, **calcular el percentil de atención del objeto que se
+quiere recuperar** y derivar `k` de ahí; y **declarar el denominador alcanzable** junto al `k`
+(«el top-k contiene N de M positivos, así que el máximo recuperable es N»). Si N es chico, la
+prueba no distingue nada y hay que rediseñarla, no correrla.
+
+**Por qué**: un AUC alto **no** implica que el top-k capture los positivos. El AUC resume
+**todos** los umbrales; un top-k es **UN** umbral, y de los extremos. Caso de referencia
+(14-ago-2026): con AUC de atención **0.890**, el top-20 de los 4799 parches de la 129741
+contiene **3 de los 28** parches con mitosis (mediana de 12 checkpoints, rango 0 a 5), porque el
+percentil mediano de esos parches es ~96 (puesto ~190) y el top-20 es el percentil 99.58. Para
+la mitad de las marcas hacen falta 189 parches; para todas, 1392.
+
+**Corolario de costo**: restringir para **ahorrar cómputo** y restringir para **controlar falsos
+positivos** son motivos distintos y **no fijan el mismo `k`**. Cuando el cómputo deja de ser
+caro, solo sobrevive el segundo. Detalle: [[topk-percentil-no-auc]].
+
 ## Reglas operativas no negociables
 
 1. **NO `sbatch` / `srun` / GPU** en sesiones de recon o exploración. Cero
