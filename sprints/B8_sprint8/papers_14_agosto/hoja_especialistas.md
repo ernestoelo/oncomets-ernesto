@@ -3,11 +3,14 @@
 > Escrita el **14-ago-2026**, una hora antes de la reunión, a pedido de Ernesto. Continúa la
 > numeración de [`hoja_jaroensri.md`](hoja_jaroensri.md) (Hoja 7).
 >
-> ⚠ **Estado de verificación: búsqueda web, NO PDF.** Ninguno de los cuatro candidatos de acá se
-> abrió como artículo completo. Los números salen de resúmenes, páginas de proyecto y repos.
-> Vale la misma advertencia que [`busqueda.md`](busqueda.md) §8 aplicó a sus candidatos 5.2 a
-> 5.4: del elegido citamos texto, de estos citamos lo que dice su ficha. **No presentarlos como
-> verificados.**
+> ⚠ **Estado de verificación, actualizado el 14-ago (tarde).** El **§1, HoVer-NeXt, YA ESTÁ
+> VERIFICADO contra el PDF**: se leyó entero y el estudio está en
+> [`hovernext_estudio.md`](hovernext_estudio.md). Sus seis afirmaciones se sostienen como hechos,
+> pero **dos decían algo distinto de lo que esta hoja hacía creer** y quedaron corregidas abajo
+> (el F1 0,84 y la balanced accuracy 0,758). **Los §2, §3 y §4 siguen siendo búsqueda web**:
+> CellViT++, MIDOG 2025 y los descartados no se abrieron como artículo completo. Para esos vale
+> la advertencia de [`busqueda.md`](busqueda.md) §8: citamos lo que dice su ficha, **no
+> presentarlos como verificados**.
 >
 > **Qué NO es.** No es un pre-registro y no propone implementar nada. Regla 9.
 
@@ -52,21 +55,41 @@ habíamos anotado como bloqueos nuestros:**
    3,2 s/mm² a 0,25. Todo el resto de la rama de mitosis pide 0,25 y nos obliga a ampliar 1,86×.
    Es el único candidato aparecido hasta hoy donde la escala física del privado **no es un
    problema a resolver antes de empezar**.
-3. **Es 17× más rápido que HoVer-Net y 5× más rápido que CellViT.** Eso ataca de frente el motivo
-   por el que Sebastián puso la rama de núcleos en pausa, que fue **el costo** y no el método
-   ([[simil-hovernet-decision-31jul]]: 3 h 36 por lámina, 881 en cola). Combinado con el recorte a
-   los 20 parches de mayor atención, que ya calculamos en ~240×, el costo deja de ser el
-   argumento que decide.
+3. **Es 17× más rápido que HoVer-Net y 5× más rápido que CellViT** (verificado: 17,2× y 5,6×,
+   medidos con el modelo chico sobre PanNuke a 0,25 mpp en una A40, no en la configuración de
+   mitosis). Eso ataca de frente el motivo por el que Sebastián puso la rama de núcleos en pausa,
+   que fue **el costo** y no el método ([[simil-hovernet-decision-31jul]]: 3 h 36 por lámina, 881
+   en cola). **Con nuestros números la premisa no queda atacada, queda demolida:** la 129741 tiene
+   68 mm² de tejido, que a 1,78 s/mm² son **dos minutos por lámina**. Las 881 de la cola darían
+   **~30 h** contra los ~132 días de HoVer-Net. A ese precio **el recorte a los parches de mayor
+   atención deja de ser necesario para ahorrar tiempo**, y sigue haciendo falta solo para controlar
+   falsos positivos. (El «~240×» que citaba esta hoja salía de 4799/20 y **se cae** con el §6.)
 
-**Números que publica:** F1 binario de detección **0,84**, balanced accuracy media **0,758** sobre
-sus clases, y **47,7 mPQ** en PanNuke, +3 % sobre HoVer-Net. Pesos disponibles en dos sabores,
-Lizard-Mitosis (el que trae la clase mitótica) y PanNuke.
+**Números que publica, ya verificados y con la atribución corregida** (detalle en
+[`hovernext_estudio.md`](hovernext_estudio.md) §2):
 
-**Lo que hay que decir sin que lo pregunten, porque es el punto débil:** el modelo con clase
-mitótica está entrenado sobre **Lizard, que es colon**, y nosotros somos mama. El que sí es
-pan-cáncer y cubre mama es el de PanNuke, y **ese no tiene clase mitótica**. O sea que la
-combinación que queremos, mitosis y mama, **no viene resuelta de fábrica**, y ese es el primer
-riesgo a medir. Tampoco verificamos contra el PDF si validan fuera de colon.
+- **F1 0,84 = detección BINARIA**, o sea «¿acá hay un núcleo?», sin decir de qué tipo. Cuando hay
+  que decir el tipo, el F1 medio por clase es **0,606**.
+- **Balanced accuracy 0,758 = promedio sobre seis clases entre las que NO está la mitosis**
+  (neutrófilo, epitelio, linfocito, plasmática, eosinófilo, conectivo).
+- **La mitosis sola, que es el número que decide, está en el apéndice: F1 0,55 a 0,62 según cómo
+  se agregue, con recall 0,72 y precisión 0,55.** O sea que sobre-cuenta casi al doble. El mejor
+  en mitosis es el modelo **más chico** (HNTiny), que es además el más rápido.
+- **47,7 mPQ en PanNuke**: cierto, y el +3 % es relativo (0,477 contra 0,463). Pero **CellViT
+  queda arriba con 0,498**, y en la clase **neoplásica** HoVer-NeXt queda **por debajo de
+  HoVer-Net**. Además los propios autores dicen que el mPQ es la métrica que hay que evitar.
+
+**El punto débil, ahora con el PDF delante y peor de lo que decía esta hoja:** las ventajas
+**no viven en el mismo juego de pesos**. Lizard-Mitosis tiene la clase mitótica y corre a 0,5 mpp,
+pero es **todo colon**; PanNuke cubre mama pero **no tiene mitosis y corre a 0,25 mpp**. Elegir el
+brazo de mama cuesta la clase mitótica **y también** la escala nativa. La combinación que queremos
+no viene de fábrica, y ese sigue siendo el primer riesgo a medir.
+
+**Lo que sí mejoró al verificar:** el paper **sí valida fuera de colon**, y en mama le va bien.
+Su tabla por tejido (Supp. C.5) pone a **mama 6ª de 19 con mPQ 0,495, por encima del promedio
+0,477 y muy por encima de colon, que sale 17º con 0,428**. El riesgo «es un paper de colon, en
+mama va a andar mal» queda desactivado para segmentar y tipificar núcleos. **Lo que nunca se midió
+fuera de colon es la clase mitótica**, y eso queda entero.
 
 ## 2. El candidato que resuelve la supervisión: CellViT++ (2025)
 
@@ -122,7 +145,7 @@ gane.**
 
 | Candidato | 1 · parche | 2 · supervisión | 3 · ganancia | 4 · µm/px | 5 · abierto | Mapea el objeto |
 |---|---|---|---|---|---|---|
-| **HoVer-NeXt** | sí, y devuelve objetos | **pesos públicos**, cero anotación nuestra | F1 0,84 · +3 % mPQ sobre HoVer-Net · 17× más rápido | **0,5 declarado y nativo** | código GPL-3.0 + pesos | **sí** |
+| **HoVer-NeXt** *(verificado)* | sí, y devuelve objetos | **pesos públicos**, cero anotación nuestra | **F1 mitosis 0,55-0,62** (el 0,84 es detección binaria) · 17× más rápido, **2 min/lámina** | **0,5 nativo** en el brazo mitosis; **0,25** en el brazo mama | código GPL-3.0 + pesos | **sí** |
 | **CellViT++** | sí, y devuelve objetos | **cabeza nueva con pocos ejemplos** | zero-shot + clasificación con pocos datos, 7 datasets | hereda el problema de CellViT a 0,5 | código + PyPI | **sí** |
 | **MIDOG 2025** (RF-DETR / DINOv3-LoRA) | sí | **pesos públicos** | F1 0,789 detección · 1º puesto atípicas | 0,23 a 0,26 | sí | **sí**, solo mitosis |
 | Jaroensri (Hoja 7) | sí | pesos **no** | supera al patólogo en 3 de 3 componentes | 0,25, y **excluye el 20×** | artículo sí, pesos no | no, puntúa |
@@ -156,11 +179,26 @@ puntúa.
 2. **HoVer-NeXt es la propuesta nueva**, y entra por la puerta que Sebastián mismo cerró: es la
    rama de núcleos **sin el costo** que la puso en pausa, con clase de mitosis, con pesos
    públicos, y a la escala de nuestro privado sin ampliar nada.
-3. **La prueba barata es la de siempre, y no necesita GPU ni anotación nueva:** correr el modelo
-   con pesos públicos sobre los ~20 parches de mayor atención de la lámina 129741 y ver cuántas
-   de las **26 mitosis marcadas** recupera. Es el patrón «Etapa 0 antes de Etapa 1» que ya ahorró
-   entre 18 y 24 horas en PathPT. Si no las recupera, la rama se cierra en un día y no en un
-   sprint.
+3. **La prueba barata, CORREGIDA el 14-ago tarde.** La versión original de esta hoja decía «correr
+   el modelo sobre los ~20 parches de mayor atención de la 129741 y ver cuántas de las 26 mitosis
+   recupera». **Esa prueba no puede dar un resultado interpretable, y se ve sin correr nada:** el
+   top-20 de los 4799 parches **contiene 3 de los 28 parches con mitosis** (mediana sobre los 12
+   checkpoints; el peor da 0 y el mejor 5). Para capturar la mitad de las marcas hacen falta **189
+   parches**, y para las 28, **1392**. El máximo recuperable de la prueba original era 3, no 26.
+   *(No contradice el AUC 0,890: el percentil mediano de un parche con mitosis es ~96, o sea el
+   puesto ~190 de 4799, y el top-20 es el percentil 99,58, un punto de operación mucho más
+   exigente que el que el AUC resume.)*
+
+   **La versión que sí decide es más simple y encima más barata**, porque el §1.3 la volvió
+   gratis: **correr sobre la lámina entera**, que son dos minutos, y medir **recall sobre las 26
+   marcas**. La pregunta que decide el candidato es si un detector entrenado en **colon** ve las
+   mitosis que el patólogo marcó en **mama**. **Sin calcular precisión contra el geojson**: las
+   anotaciones son positivos **parciales**, así que una detección fuera de las marcas es de
+   estatus desconocido y no un error. La atención entra como **variable**, no como filtro: ver si
+   las detecciones se concentran donde el modelo mira, que es el argumento de MIDOG (+208 % de
+   falsos positivos fuera de los puntos calientes) medido en nuestra lámina. Sigue siendo el
+   patrón «Etapa 0 antes de Etapa 1» que ahorró entre 18 y 24 horas en PathPT: si no recupera, la
+   rama se cierra en un día y no en un sprint.
 4. **La pregunta abierta para Sebastián** sigue siendo la misma del 12-ago: si hay **más láminas
    anotadas** y quién es GDT. Con una lámina se valida un go/no-go; para entrenar cualquier cosa,
    no alcanza.
@@ -169,9 +207,14 @@ puntúa.
 
 - **Que ninguno de estos suba una métrica nuestra.** No hay nada medido en nuestros datos, y el
   historial son cuatro ejes cerrados sin mejora (Hallazgos 11 a 14).
-- **Ningún número de acá está verificado contra el PDF.** Ver el aviso de arriba.
-- **Que HoVer-NeXt funcione en mama.** Su clase mitótica es de colon. Es el primer riesgo, no un
-  detalle.
+- **Los números de HoVer-NeXt (§1) SÍ están verificados** contra el PDF desde el 14-ago tarde.
+  **Los de CellViT++ y MIDOG (§2 y §3) NO.** Ver el aviso de arriba.
+- **Que HoVer-NeXt detecte mitosis en mama.** Su clase mitótica se entrenó y se validó **solo en
+  colon**: verificado, no hay un solo número de mitosis fuera de CRC. Es el primer riesgo, no un
+  detalle. *(Distinto es segmentar y tipificar núcleos en mama, donde su modelo de PanNuke sí
+  tiene número propio y bueno.)*
+- **Que la rama de núcleos esté reabierta.** Sigue pausada desde el 31-jul. El costo verificado
+  ataca la premisa que la pausó, pero reabrir es **regla 9.b** y exige pre-registro.
 - **Que la búsqueda sea exhaustiva.** Es una hora de trabajo. Quedaron sin mirar NuLite
   (arXiv `2408.01797`) y LSP-DETR (arXiv `2601.03163`), los dos de la familia rápida de núcleos.
 
