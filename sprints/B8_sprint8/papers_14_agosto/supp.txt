@@ -1,0 +1,480 @@
+Supplementary Information
+
+
+Deep learning models for histologic grading of breast cancer and association with
+disease prognosis
+
+Authors
+Ronnachai Jaroensri1, Ellery Wulczyn1, Narayan Hegde1, Trissia Brown2, Isabelle Flament-
+Auvigne2, Fraser Tan1, Yuannan Cai1, Kunal Nagpal3, Emad A. Rakha4, David J. Dabbs5, Niels
+Olson6, James H. Wren7, Elaine E. Thompson7, Erik Seetao7, Carrie Robinson8, Melissa Miao9,
+Fabien Beckers9, Greg S. Corrado1, Lily H. Peng1, Craig H. Mermel1, Yun Liu1, David F.
+Steiner1,†,*, Po-Hsuan Cameron Chen1,†,*
+
+1
+  Google Health, Palo Alto, CA, USA
+2
+  Work done at Google Health via Vituity, Emeryville, CA, USA
+3
+  Work done at Google Health, current affiliation Tempus Labs Inc, Chicago, Illinois, United
+States of America
+4
+  Department of Pathology, School of Medicine, University of Nottingham, Nottingham, UK
+5
+  John A. Burns University of Hawaii Cancer Center, Honolulu, HI, USA, and Department of
+Pathology, Magee-Womens Hospital of UPMC, Pittsburgh, PA, USA
+6
+  Defense Innovation Unit, Mountain View, CA, USA and Uniformed Services University,
+Bethesda, MD, USA
+7
+  Henry M. Jackson Foundation, Bethesda, MD, USA
+8
+  Laboratory Department, Naval Medical Center San Diego, San Diego, CA, USA
+9
+  Verily Life Sciences, South San Francisco, CA, USA
+
+
+†
+    Equal contribution
+*
+    Corresponding authors
+Supplementary Tables
+
+Supplementary Table 1. Additional metrics for performance of component grading
+models (associated with Table 2-3)
+
+
+Component models             Metric                      Result [95% CI]
+
+Mitotic Count                Precision                   0.76 [0.74, 0.78]
+(patch-level)
+                             Recall                      0.50 [0.47, 0.52]
+
+Nuclear Pleomorphism         Linear-weighted Kappa       0.42 [0.38, 0.46]
+(patch-level)
+                             Unweighted Kappa            0.40 [0.35, 0.43]
+
+                             Accuracy                    0.67 [0.64, 0.69]
+
+                             Balanced Accuracy           0.50 [0.48, 0.52]
+
+Tubule Formation             Linear-weighted Kappa       0.61 [0.55, 0.67]
+(patch-level)
+                             Unweighted Kappa            0.54 [0.47, 0.59]
+
+                             Accuracy                    0.93 [0.91, 0.94]
+
+                             Balanced Accuracy           0.67 [0.61, 0.72]
+
+Mitotic Count                Linear-weighted Kappa       0.73 [0.69, 0.77]
+(slide-level)
+                             Unweighted Kappa            0.63 [0.58, 0.67]
+
+Nuclear Pleomorphism         Linear-weighted Kappa       0.40 [0.35, 0.45]
+(slide-level)
+                             Unweighted Kappa            0.36 [0.30, 0.41]
+
+Tubule Formation             Linear-weighted Kappa       0.69 [0.62, 0.75]
+(slide-level)
+                             Unweighted Kappa            0.64 [0.57, 0.71]
+Supplementary Table 2A: Slide-level benchmarks for grading agreement in breast
+cancer.
+                                                                 Histologic Feature
+ Source                         Kappa metric weighting
+                                                         MC            NP             TF
+
+
+ Inter-pathologist agreement
+
+
+ Rakha et al., 20172            Unweighted               0.34         0.36            0.49
+
+ Robbins et al., 19953          Unweighted               0.69         0.46            0.52
+
+ Frierson et al., 19954         Unweighted               0.52         0.40            0.64
+
+ Mercan et al., 20205           Quadratic                 N/A       0.35-0.49         N/A
+
+ Ginter et al., 20216           Fleiss                   0.28         N/A             0.50
+
+ Current Study (inter-
+                                Quadratic                0.56         0.36            0.55
+ pathologist average)
+
+ Current Study (DLS-
+                                Quadratic                0.64         0.39            0.69
+ pathologist average)
+
+ Current Study (DLS-majority
+                                Quadratic                0.81         0.48            0.75
+ vote path)
+
+
+ Algorithm-reference standard agreement
+
+
+ Veta et al., 2019 (Original
+                                Fleiss                   0.567        N/A             N/A
+ TUPAC 16 publication)7
+
+ Mercan et al., 20205           Quadratic                N/A        0.43-0.56         N/A
+Supplementary Table 2B: Comparison of selected studies that perform survival
+analysis.
+
+ Source          Summary
+
+ Wang et al.8    Weakly supervised learning for whole slide images to classify Nottingham grade
+                 1 and 3. Specific focus on prognostic stratification of Nottingham grade 2 cases.
+                 Area under the curve analysis for Grade 1 vs. Grade 3 classification. Kaplan-
+                 Meir and hazard ratio analysis on Grade 2 cases an external test set
+
+ Lu et al. 1     Prognostic evaluation of computationally extracted morphologic nuclear features
+                 using a tissue microarray (TMA) cohort of 276 ER+ lymph node negative cases
+
+ Rakha et al.9   Human pathologist grading on a cohort of approximately 2000 cases from the
+                 University of Nottingham is shown to be strongly associated with breast cancer-
+                 specific survival and disease-free survival by Kaplan-Meir analysis and log-rank
+                 tests
+
+ Present work    AI-based grading algorithm involving the three Nottingham grading system
+                 components. C-index analysis (c-index=0.58) for progression-free interval with
+                 non-inferiority testing to pathologist-based grading using the TCGA-BRCA
+                 cohort as an external validation set.
+Supplementary Table 3: Tune set prognostic performance for direct risk prediction using
+histologic scoring provided by DLS and pathologists
+
+ Scoring method                         C-index (All cases; n=348)
+
+
+
+                                        DLS                  Pathologist
+
+ Summed Score Continuous
+                                  0.62 [0.54, 0.69]             N/A
+ [3.00 - 9.00]
+
+ Summed Score Discrete
+                                  0.62 [0.54, 0.69]       0.59 [0.51, 0.66]
+ [3,4,5,6,7,8,9]
+
+ Combined Histologic Grade
+                                  0.61 [0.54, 0.68]       0.57 [0.50, 0.63]
+ [1,2,3]
+
+
+These tuning set data were used to select configuration for planned primary analysis
+Supplementary Table 4: C-index for histologic score using alternate configurations of
+DLS and pathologist scoring (direct risk prediction without incorporating clinical
+variables)
+
+Supplementary Table 4A: All Cases
+
+                                                                                                  C-index (ER+/HER2-;
+                                  C-index (All cases; n=829)      C-index (ER+ only; n=593)
+                                                                                                         n=479)
+  Histologic grade                         [95% CI]                        [95% CI]
+                                                                                                        [95% CI]
+       score          Values
+   configuration
+                                      DLS         Pathologist        DLS         Pathologist       DLS         Pathologist
+
+
+  Summed Score       Integer in       0.59            0.58            0.61           0.58           0.62           0.57
+    Discrete            [3,9]     [0.53, 0.64]    [0.51, 0.63]*   [0.55, 0.68]   [0.50, 0.65]   [0.55, 0.70]   [0.47, 0.66]
+
+     Combined                         0.60            0.58            0.62           0.58           0.63           0.57
+                       [1,2,3]
+  Histologic Grade                [0.55, 0.65]    [0.51, 0.63]    [0.56, 0.69]   [0.50, 0.65]   [0.56, 0.70]   [0.48, 0.66]
+
+
+
+                       Float
+  Summed Score                        0.58                            0.58                          0.57
+                     Number in                        N/A                            N/A                           N/A
+   Continuous                     [0.52, 0.64]*                   [0.51, 0.66]                  [0.48, 0.65]
+                       [3,9]
+
+
+
+
+                        0.333
+  Summed Score                                        0.61                           0.62                          0.63
+                     increments       N/A                             N/A                           N/A
+    Average                                       [0.55, 0.66]                   [0.54, 0.69]                  [0.55, 0.71]
+                         [3,9]
+
+
+  Majority-voted     Integer in                       0.61                           0.63                          0.63
+                                      N/A                             N/A                           N/A
+  Summed Score          [3,9]                     [0.54, 0.66]                   [0.55, 0.70]                  [0.55, 0.72]
+
+
+
+   Majority-voted                                     0.60                           0.63                          0.62
+                       [1,2,3]        N/A                             N/A                           N/A
+  Histologic Grade                                [0.53, 0.65]                   [0.56, 0.70]                  [0.54, 0.74]
+Supplementary Table 4B: Only cases with available pathology report scoring
+                                                                                                 C-index (cases with
+                                     C-index (cases with           C-index (cases with
+                                                                                                   path report and
+                                      path report only;            path report and ER+
+                                                                                                  ER+/HER2- only;
+  Histologic grade                         n=550)                      only; n=426)
+                                                                                                       n=342)
+       score            Values            [95% CI]                       [95% CI]
+                                                                                                      [95% CI]
+   configuration
+
+                                       DLS         Pathologist       DLS         Pathologist       DLS         Pathologist
+
+   Summed Score        Integer in       0.60         0.57         0.63         0.56         0.64         0.56
+     Discrete             [3,9]     [0.53, 0.67] [0.49, 0.65] [0.54, 0.72] [0.46, 0.68] [0.54, 0.75] [0.42, 0.71]
+
+ Combined Histologic                    0.61         0.57         0.63         0.56         0.64         0.56
+                         [1,2,3]
+       Grade                        [0.54, 0.67] [0.49, 0.64] [0.55, 0.73] [0.46, 0.66] [0.54, 0.74] [0.43, 0.69]
+
+                         Float
+   Summed Score                         0.58                          0.57                          0.57
+                       Number in                      N/A                           N/A                           N/A
+    Continuous                      [0.50, 0.66]                  [0.47, 0.68]                  [0.44, 0.69]
+                         [3,9]
+
+                          0.333
+   Summed Score                                        0.61                          0.61                          0.62
+                       increments      N/A                            NA                            NA
+     Average                                       [0.53, 0.68]                  [0.51, 0.71]                  [0.50, 0.74]
+                           [3,9]
+
+   Majority-voted      Integer in                      0.61                          0.61                          0.62
+                                       N/A                           N/A                           N/A
+   Summed Score           [3,9]                    [0.53, 0.69]                  [0.51, 0.71]                  [0.50, 0.74]
+
+   Majority-voted                                      0.60                          0.62                          0.61
+                         [1,2,3]       N/A                           N/A                           N/A
+  Histologic Grade                                 [0.52, 0.67]                  [0.52, 0.71]                  [0.49, 0.73]
+
+  Pathology Report     Integer in                      0.62                          0.62                          0.62
+                                       N/A                           N/A                           N/A
+   Summed Score           [3,9]                    [0.54, 0.70]                  [0.50, 0.73]                  [0.49, 0.74]
+
+  Pathology Report                                     0.60                          0.60                          0.62
+                         [1,2,3]       N/A                           N/A                           N/A
+  Histologic Grade                                 [0.52, 0.68]                  [0.49, 0.71]                  [0.50, 0.74]
+To avoid comparing performance on different cases when evaluating original pathology report
+data, these data represent only the subset of cases for which original pathology reports were
+available (n=550 for all cases, and n=426 for ER+ only,)
+Supplementary Table 5. Prognostic performance for using individual components of
+histologic grade
+                                                                             c-index (ER+/HER2-;
+                        c-index (full dataset; n=829) c-index (ER+; n=593)          n=479)
+
+                                                  DLS
+
+Continuous MC                 0.59 [0.53, 0.65]         0.60 [0.52, 0.69]      0.60 [0.49, 0.70]
+
+Continuous NP                 0.55 [0.48, 0.61]         0.54 [0.46, 0.62]      0.51 [0.43, 0.60]
+
+Continuous TF                 0.49 [0.43, 0.55]         0.48 [0.40, 0.55]      0.48 [0.41, 0.56]
+
+Discrete MC                   0.58 [0.53, 0.64]         0.60 [0.53, 0.68]      0.62 [0.53, 0.70]
+
+Discrete NP                   0.52 [0.47, 0.57]         0.51 [0.46, 0.58]      0.51 [0.45, 0.57]
+
+Discrete TF                   0.54 [0.50, 0.57]         0.54 [0.49, 0.59]      0.54 [0.48, 0.60]
+
+                                              Pathologist
+
+Single Pathologist MC         0.54 [0.48, 0.59]         0.52 [0.44, 0.60]      0.52 [0.43, 0.62]
+
+Single Pathologist NP         0.56 [0.51, 0.61]         0.57 [0.49, 0.64]      0.54 [0.46, 0.62]
+
+Single Pathologist TF         0.55 [0.51, 0.58]         0.56 [0.51, 0.60]      0.56 [0.50, 0.62]
+
+Majority voted MC             0.58 [0.52, 0.63]         0.59 [0.52, 0.67]      0.61 [0.52, 0.69]
+
+Majority voted NP             0.57 [0.52, 0.63]         0.59 [0.52, 0.66]      0.57 [0.50, 0.65]
+
+Majority voted TF             0.55 [0.52, 0.58]         0.55 [0.50, 0.59]      0.56 [0.50, 0.61]
+
+Average MC                    0.58 [0.52, 0.64]         0.60 [0.52, 0.68]      0.62 [0.53, 0.70]
+
+Average NP                    0.58 [0.52, 0.64]         0.57 [0.48, 0.65]      0.56 [0.46, 0.65]
+
+Average TF                    0.56 [0.52, 0.61]         0.57 [0.50, 0.63]      0.57 [0.50, 0.64]
+
+Historical MC                 0.65 [0.57, 0.71]         0.65 [0.54, 0.74]      0.67 [0.56, 0.78]
+
+Historical NP                 0.55 [0.47, 0.61]         0.54 [0.44, 0.64]      0.52 [0.41, 0.62]
+
+Historical TF                 0.52 [0.46, 0.57]         0.51 [0.43, 0.58]      0.50 [0.41, 0.60]
+MC: Mitotic Count; NP: Nuclear Pleomorphism; TF: Tubule Formation
+Supplementary Table 6: Prognostic performance using combination of histologic
+components and baseline clinical and individual component features.
+
+                                                                          p-value (Likelihood Ratio
+                                                                         Test) for adding features to
+             Model features                          c-index                       baseline
+
+Baseline Features Only                           0.74 [0.67, 0.81]              N/A (reference)
+
+  Mitotic Count Score
+
+Baseline + AI-NGS MC                             0.75 [0.69, 0.81]                   0.041
+
+Baseline + Single Pathologist MC                 0.74 [0.68, 0.81]                   0.551
+
+Baseline + Majority Pathologist MC               0.75 [0.68, 0.81]                   0.246
+
+ Nuclear Pleomorphism Score
+
+Baseline + AI-NGS NP                             0.74 [0.68, 0.81]                   0.687
+
+Baseline + Single Pathologist NP                 0.75 [0.69, 0.81]                   0.125
+
+Baseline + Majority Pathologist NP               0.75 [0.69, 0.81]                   0.018
+
+ Tubule Formation Score
+
+Baseline + AI-NGS TF                             0.75 [0.69, 0.81]                   0.053
+
+Baseline + Single Pathologist TF                 0.75 [0.68, 0.81]                   0.015
+
+ Baseline + Majority Pathologist TF              0.75 [0.69, 0.81]                      0.070
+Cox models were fit and evaluated directly on the test set and p-values are for likelihood ratio test of
+baseline versus baseline plus grading scores. Baseline features include age (continuous), TNM
+(categorical), and ER status (binary). Number of cases represents all cases with baseline characteristics
+available (n=762 cases; 82 events). Confidence intervals computed via bootstrap with 1000 iterations.
+Supplementary Table 7: Annotation Summary
+
+
+                                Train/Tune                 Test
+
+Mitotic Count   Mitoses         3,641                      9,678
+                Annotated
+
+                Area reviewed   1,979 mm2                  2,193 mm2
+
+Nuclear         Grade 1         207k patches/ 53 mm2       323k patches/ 83 mm2
+Pleomorphism
+                Grade 2         3.91M patches/ 1,001 mm2   4.37M patches/ 1,119 mm2
+
+                Grade 3         2.30M patches/ 589 mm2     3.44M patches/ 881 mm2
+
+Tubule          Grade 1         380k patches/ 97 mm2       226k patches/ 58 mm2
+Formation
+                Grade 2         1.04M patches/ 265 mm2     719k patches/ 184 mm2
+
+                Grade 3         4.94M patches/ 1,264 mm2   6.97M patches/ 1,785 mm2
+Supplementary Table 8: Hyperparameters used for model training.
+       Hyperparameters              Invasive         Mitotic Count             Nuclear        Tubule
+                                   Carcinoma                                Pleomorphism     Formation
+
+Network         Architecture     BiT-L (ResNet 50x1)
+configuration
+                Loss function    softmax cross-entropy
+
+Model Inputs    Magnification    10x                40x                 40x                10x
+
+                Patch size       1024               128                 1024               1024
+
+                Stain            Stain normalization applied using reference color statistics from a
+                normalization    fixed slide.
+
+Data            Orientation      Left/right mirroring and all 4 rotations
+augmentation
+                Brightness       tf.image.random_brightness with max_delta=0.25
+
+                Saturation       tf.image.random_saturation with lower=0.75 and upper=1.25
+
+                Hue              tf.image.random_hue with max_delta=0.04
+
+                Contrast         tf.image.random_contrast with lower=0.25 and upper=1.75
+
+
+Training        Batch size       32                 32                  8                  32
+
+                Training steps   1M with early stopping
+
+
+Optimizer       Optimizer        RMSProp
+configuration
+                Decay            0.97               0.95                0.95               0.97
+
+                Epsilon          0.001              0.001               0.001              0.001
+
+
+                Momentum         0.7                0.9                 0.7                0.7
+
+Learning rate   Initial Rates    3e-5               1e-5                3e-6               3e-4
+
+                Exp. decay       0.97               0.95                0.9                0.95
+
+                Decay steps      2,000              20,000              2,000              10,000
+Supplementary Figures
+
+Supplementary Figure 1
+
+
+
+
+Supplementary Figure 1: STARD Diagram for test dataset (TCGA-BRCA). Diagram depicts
+TCGA-BRCA test sets used for prognostic analysis (Progression Free Interval Analysis Test
+Set) and evaluation of performance for individual grading algorithms (Nottingham Score Test
+Set).
+Supplementary Figure 2
+
+
+A
+
+
+
+
+B
+
+
+
+
+Supplementary Figure 2: Patch-level classification of nuclear pleomorphism and tubule
+formation across whole slide images. Patch-level predictions for nuclear pleomorphism (A)
+and tubule formation (B) across whole slide images are shown. These are randomly sampled
+slides for which the slide-level score matched the majority vote pathologist slide-level score.
+Only regions of invasive carcinoma as identified by the invasive carcinoma model are shown.
+Green represents individual patches classified (argmax) with score of 1, yellow with score of 2,
+and red with score of 3. Patch size is 256 μm x 256 μm for nuclear pleomorphism model and 1
+mm x 1 mm for tubule formation model.
+Supplementary Figure 3
+
+
+
+
+Supplementary Figure 3: Region-level DLS and inter-pathologist agreement. DLS-
+pathologist agreement (A) and interpathologist agreement (B) for specific regions of tumor. In
+panel A the deep learning system (DLS) output (columns) is compared to the Pathologist
+majority vote (rows). In panel B, the pathologist scores themselves contribute to the majority
+vote and thus a direct comparison to panel A cannot be made. As such, we calculate the
+confusion matrices between each individual pathologist (rows), and the rest of pathologists that
+grade the same regions (columns). Then we take the average of these confusion matrices
+across all pathologists to arrive at the data shown. This was done to summarize the average
+agreement between each pathologist and the rest of the cohort.
+Supplementary Figure 4
+
+
+
+
+Supplementary Figure 4: Slide-level DLS and inter-pathologist agreement. DLS-pathologist
+agreement (A) and interpathologist agreement (B) for individual whole slide images. In panel B,
+we first calculate the confusion matrices between each individual pathologist (rows), and the
+rest of pathologists that grade the same regions (columns). Then we take the average of these
+confusion matrices across all pathologists to arrive at the data shown. This was done to
+summarize the average agreement between each pathologist and the rest of the cohort.
+Supplementary Figure 5
+
+
+
+
+Supplementary Figure 5: Patch level DLS and pathologist agreement for the tune set.
+Model agreement with the majority vote score for individual regions are shown for nuclear
+pleomorphism and tubule formation, respectively. Values represent a portion of cases for each
+reference score with the corresponding model score.
+

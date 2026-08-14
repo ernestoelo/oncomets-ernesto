@@ -1,0 +1,726 @@
+                                                                                                                                                              www.nature.com/npjbcancer
+
+
+
+
+                  ARTICLE                  OPEN
+
+                  Deep learning models for histologic grading of breast cancer
+                  and association with disease prognosis
+                  Ronnachai Jaroensri1, Ellery Wulczyn1, Narayan Hegde1, Trissia Brown2, Isabelle Flament-Auvigne2, Fraser Tan1, Yuannan Cai1,
+                  Kunal Nagpal3, Emad A. Rakha4, David J. Dabbs5,6, Niels Olson 7,8, James H. Wren9, Elaine E. Thompson 9, Erik Seetao9,
+                  Carrie Robinson10, Melissa Miao11, Fabien Beckers11, Greg S. Corrado1, Lily H. Peng1, Craig H. Mermel1, Yun Liu 1,
+                  David F. Steiner 1,12 ✉ and Po-Hsuan Cameron Chen1,12 ✉
+
+
+                      Histologic grading of breast cancer involves review and scoring of three well-established morphologic features: mitotic count,
+                      nuclear pleomorphism, and tubule formation. Taken together, these features form the basis of the Nottingham Grading System
+                      which is used to inform breast cancer characterization and prognosis. In this study, we develop deep learning models to perform
+                      histologic scoring of all three components using digitized hematoxylin and eosin-stained slides containing invasive breast
+                      carcinoma. We ﬁrst evaluate model performance using pathologist-based reference standards for each component. To complement
+                      this typical approach to evaluation, we further evaluate the deep learning models via prognostic analyses. The individual
+                      component models perform at or above published benchmarks for algorithm-based grading approaches, achieving high
+                      concordance rates with pathologist grading. Further, prognostic performance using deep learning-based grading is on par with
+1234567890():,;
+
+
+
+
+                      that of pathologists performing review of matched slides. By providing scores for each component feature, the deep-learning based
+                      approach also provides the potential to identify the grading components contributing most to prognostic value. This may enable
+                      optimized prognostic models, opportunities to improve access to consistent grading, and approaches to better understand the
+                      links between histologic features and clinical outcomes in breast cancer.
+                      npj Breast Cancer (2022)8:113 ; https://doi.org/10.1038/s41523-022-00478-y
+
+
+
+
+                  INTRODUCTION                                                                              pleomorphism13,14, recognizing tumor subtypes15,16, detecting
+                  Breast cancer is the most common cancer in women and one of                               metastases in lymph nodes17,18, identifying biomarker status19–23,
+                  the leading causes of cancer death worldwide1. The heteroge-                              and predicting prognosis24–26. While such prior works address
+                  neous nature of breast cancer makes its initial characterization a                        automated breast cancer grading, they have not speciﬁcally
+                  critical step in treatment planning and decision making. One                              combined models for all three components of the Nottingham
+                  aspect of breast cancer characterization that remains central to its                      grading system and only a small number of used prognostic
+                  prognostic classiﬁcation is the Nottingham combined histologic                            evaluation to complement the validation approach. Additional
+                  grade (Elston-Ellis modiﬁcation of Scarff-Bloom-Richardson grad-                          differences to consider across works include the machine learning
+                  ing system)2,3. First described and validated over 30 years ago4,                         approach and the image and specimen type, such as direct
+                  the Nottingham Grading System (NGS) consists of three compo-                              microscope image capture15, tissue microarray14, or whole slide
+                  nents: mitotic count (MC), nuclear pleomorphism (NP), and tubule                          images. Understanding the performance and application of such
+                  formation (TF), and is an important component of existing                                 tools in the context of actual pathological review and workﬂows
+                  prognostic tools including the AJCC prognostic stage grouping5,                           remains a critical next step for translation to clinical utility.
+                  PREDICT online prognostic classiﬁcation tool6, and the Notting-                              Uniquely, this work represents the development and combina-
+                  ham Prognostic Index7. However, while the combined histologic                             tion of deep learning models for all three components of the NGS,
+                  grade has been repeatedly shown to be associated with clinical                            with evaluation against reference grades provided by expert
+                  outcomes, the task’s inherent subjectivity can also result in inter-                      review of multiple pathologists. To further complement evaluation
+                  pathologist variability that limits the generalizability of its                           against pathologist grading and to explore the use of these
+                  prognostic utility2,8. In addition, up to half of breast cancer cases                     automated tumor grading models, we analyze the prognostic
+                  are classiﬁed in routine practice as “grade 2”, an intermediate risk                      value of the AI-based tumor grades. Prognostic evaluation utilizes
+                  group with limited clinical value due to inclusion of some low and                        an external test set consisting of cases from the The Cancer
+                  high-grade tumors3.                                                                       Genome Atlas breast invasive carcinoma (TCGA BRCA) study. This
+                     The application of computer vision and artiﬁcial intelligence (AI)                     analysis demonstrates prognostic value on par with that of tumor
+                  to histopathology has seen tremendous growth in recent years                              grading provided by pathologists, providing additional validation
+                  and offers the potential to augment pathologist expertise and                             of the AI-based Nottingham grading system (AI-NGS) and
+                  increase consistency and efﬁciency. Work relevant to breast cancer                        providing a potential approach to improve breast cancer
+                  includes AI systems for counting mitoses9–12, scoring nuclear                             classiﬁcation and prognostication. By enabling grading that is
+
+                  1
+                   Google Health, Palo Alto, CA, USA. 2Work done at Google Health via Vituity, Emeryville, CA, USA. 3Work done at Google Health, current afﬁliation Tempus Labs Inc, Chicago, IL,
+                  USA. 4Department of Pathology, School of Medicine, University of Nottingham, Nottingham, UK. 5John A. Burns University of Hawaii Cancer Center, Honolulu, HI, USA.
+                  6
+                   Department of Pathology, Magee-Womens Hospital of UPMC, Pittsburgh, PA, USA. 7Defense Innovation Unit, Mountain View, CA, USA. 8Uniformed Services University, Bethesda,
+                  MD, USA. 9Henry M. Jackson Foundation, Bethesda, MD, USA. 10Laboratory Department, Naval Medical Center San Diego, San Diego, CA, USA. 11Verily Life Sciences, South San
+                  Francisco, CA, USA. 12These authors contributed equally: David F. Steiner, Po-Hsuan Cameron Chen. ✉email: davesteiner@google.com; cameronchen@google.com
+
+
+                  Published in partnership with the Breast Cancer Research Foundation
+                                                                           R. Jaroensri et al.
+                  2
+                      both more objective (less inter-pathologist variability) and more
+                                                                                                  Table 1. Dataset characteristics for development and evaluation of
+                      ﬁne grained (via availability of continuous scores for each
+                                                                                                  grading and outcome prediction models.
+                      component), the AI-NGS can combine strengths of AI with existing
+                      knowledge about the prognostic value of well-established                   A
+                      morphological features14.
+                                                                                                 Data Usage                  Train         Tune                  Test
+
+                      RESULTS                                                                    DLS Stage 1 (patch-level)
+                      Cohort characteristics                                                     Data source                 TTH           TTH                   TCGA
+                      All available whole-slide images (WSIs) from three data sources            No. of cases                405           142                   662
+                      were reviewed by qualiﬁed pathologists for slide-level inclusion           No. of H&E slides           520           148                   685
+                      criteria and quality assurance (see Methods). This resulted in 657         DLS Stage 2 (slide-level)
+                      cases (1502 slides) from a tertiary teaching hospital (TTH), 98 cases      Data source                 TTH           TTH     MLAB          TCGA
+                      (98 slides) from a medical laboratory (MLAB), and 829 cases
+                                                                                                 No. of cases                261           212     98            662
+                      (878 slides) from TCGA. TTH and MLAB were used for model
+                      development, while TCGA was used for evaluation only. The                  No. of H&E slides           551           431     98            685
+                      datasets and corresponding clinical characteristics are summar-            Case-level ER*              144/33        92/38   89/7          468/147
+                      ized in Table 1. For the test set, 829 TCGA cases (878 slides) were        (pos / neg)
+                      used for prognostic evaluation and 662 TCGA cases (685 slides)             Slide-level MC score        368/47/81 214/59/     78/10/7  193/120/
+                      with available reference annotations were used for evaluation of           (1/2/3)                               106                  145
+                      histologic grading (case inclusion and exclusion are summarized            Slide-level NP score        58/294/   19/180/     21/57/16 31/235/
+                      in Supplementary Fig. 1).                                                  (1/2/3)                     146       189                  237
+                                                                                                 Slide-level TF score        55/87/357 37/47/      13/18/64 9/93/369
+                      Performance of deep learning systems for component                         (1/2/3)                               303
+1234567890():,;
+
+
+
+
+                      features
+                      We developed individual deep learning systems (DLS) for each               B
+                      component of the Nottingham grading system (MC, NP, TF). The               Data usage                           Tune                Test
+                      scores generated by the DLS for each feature are continuous,
+                      and can then be discretized to produce integer scores (1,2,3) for          Prognostic Models (Cox Regression)
+                      comparison to pathologist grading. We evaluated the perfor-                Data source                          TTH                 TCGA
+                      mance of each DLS on the held-out test set of WSIs from TCGA
+                                                                                                 No. of cases                         354                 829
+                      using majority vote reference annotations provided by three
+                      pathologists (approach summarized in the schematic in Fig. 1).             No. of H&E slides                    829                 878
+                      The individual component models were evaluated at both the                 Age (min, max, median,               25/97/58/57.8/      26/90/58/58.4/
+                      “patch-level” and the “slide-level” (see Methods). Patch-level             mean, std)                           13.2                13.0
+                      performance results are summarized in Table 2 with example                 Follow-up min/max/median/            398/5830/2692/      0/8556/788/
+                      classiﬁcations from the individual models shown in Fig. 2. For             mean/std (days)                      2816/1412           1200/1115
+                      the mitosis detection model (evaluated as a detection task), the           No. of events (PFI)                  60                  93
+                      mitotic ﬁgure F1 score was 0.60 (95% CI: 0.58, 0.62). For the              No. of censored events at 5-year 246                     166
+                      patch-level classiﬁcation models, the quadratic Kappa was 0.45
+                                                                                                 Tumor size
+                      (95% CI: 0.41, 0.50) for NP and 0.70 (95% CI: 0.63, 0.75) for TF.
+                      Examples of patch-level predictions across entire WSIs are                     T1                               199                 221
+                      provided in Supplementary Fig. 2. For evaluation at the slide-                 T2                               112                 476
+                      level, using the majority score provided by pathologists as the                T3                               22                  107
+                      reference grade, quadratic-weighted kappa was 0.81 (95% CI:                    T4                               5                   23
+                      0.78, 0.84) for MC, 0.48 (95% CI: 0.43, 0.53) for NP, and 0.75 (95%        Lymph node
+                      CI: 0.67, 0.81) for TF (Table 2). Additional metrics to enable
+                      comparison to other studies (including unweighted kappa and                    N0                               203                 404
+                      precision and recall for MC) are available in Supplementary                    N1                               65                  261
+                      Table 1 and benchmark comparisons for slide-level grading by                   N2+                              31                  148
+                      both pathologists and computational approaches are provided                Metastasis
+                      in Supplementary Table 2.                                                      M0 (negative)                    1                   808
+                         One challenge in the performance evaluation of deep learning
+                      models for histologic grading is that pathologist-provided grading             M1 (positive)                    NA                  13
+                      itself can be subject to high inter-rater variability27. Given the         Hormone receptor status
+                      availability of three pathologist reviews for each slide in our study          ER* (pos / neg)                  275/73              593/177
+                      (see Annotations section of Methods), we grouped slides by the             Nottingham Grading System
+                      combination of pathologist scores for each slide and evaluated                 MC score (1/2/3)                 213/42/94           247/147/172
+                      the DLS output for the resulting groups (Fig. 3). This analysis
+                                                                                                     NP score (1/2/3)                 16/206/127          38/299/286
+                      demonstrates that the continuous nature of the DLS output can
+                      reﬂect the distribution of pathologist agreement, whereby the                  TF score (1/2/3)                 34/61/354           14/127/444
+                      output of the deep learning models produces “intermediate
+                      scores” for cases lacking unanimous pathologist agreement. For             Fig. 3, as fewer pathologists indicated a score of “1” and more
+                      example, a case with a majority vote score of “1” for nuclear              pathologists indicated a score of “2” or “3”, the DLS-estimated
+                      pleomorphism may have unanimous agreement across all three                 probability for a score of “1” (in green) decreased, and the
+                      pathologists, or may have one pathologist giving a higher score,
+                                                                                                 estimated probability for a score of “3” (in red) increased.
+                      and the models were found to reﬂect these differences. As seen in
+
+                      npj Breast Cancer (2022) 113                                                   Published in partnership with the Breast Cancer Research Foundation
+                                                                          R. Jaroensri et al.
+                                                                                                                                                   3
+
+
+
+
+Fig. 1 Overview of annotation, deep learning system (DLS) development, and prognostic evaluation. A Annotation Overview: Pathologists
+provided annotations at a region-level and slide-level for all components of the histologic grade, including identiﬁcation of individual mitotic
+ﬁgures. B DLS overview: convolutional neural network models were developed for invasive carcinoma (INVCAR) as well as all three
+components of the histologic grading system. These patch-level models were used as input to stage 2 models to provide a component score
+at the slide level for each feature. C Prognostic evaluation: Component grade scores provided by the DLS or pathologists were used to ﬁt Cox
+models for evaluation and comparison of prognostic value.
+
+
+
+Published in partnership with the Breast Cancer Research Foundation                                              npj Breast Cancer (2022) 113
+                                                        R. Jaroensri et al.
+4
+     Table 2.   Component model performance.
+
+                                    Nottingham Components                          Metric                                           Result [95% CI]
+
+    Patch-level                     Mitotic Count                                  F1-Score                                         0.60 [0.58, 0.62]
+                                    Nuclear Pleomorphism                           Quadratic-weighted Kappa                         0.45 [0.41, 0.50]
+                                    Tubule Formation                               Quadratic-weighted Kappa                         0.70 [0.63, 0.75]
+    Slide-level                     Mitotic Count                                  Quadratic-weighted Kappa                         0.81 [0.78, 0.84]
+                                    Nuclear Pleomorphism                           Quadratic-weighted Kappa                         0.48 [0.43, 0.53]
+                                    Tubule Formation                               Quadratic-weighted Kappa                         0.75 [0.67, 0.81]
+
+
+       Next, to further evaluate DLS performance in the context of            a c-index of 0.58 (95% CI: 0.53, 0.64). The pathologist’s mitotic
+    known inter-rater variability we calculated both inter-pathologist        count score gave a c-index of 0.54 (95% CI: 0.48, 0.59).
+    and DLS-pathologist agreement. The average kappa (quadratic-                 We also evaluated the prognostic value of AI-NGS in the context
+    weighted) for inter-pathologist agreement was 0.56, 0.36, 0.55 for        of established baseline variables (ER status, tumor size, nodal
+    MC, NP, and TF respectively, versus 0.64, 0.38, 0.68 for DLS-             involvement, and age). Overall, adding AI-NGS provided improved
+    Pathologist agreement (Fig. 4). The kappa for inter-pathologist           prognostic value over the baseline variables alone (p = 0.036;
+    agreement for each individual pathologist (one vs. rest) as well for      likelihood ratio test of full model versus baseline model; Table 4).
+    DLS-pathologist agreement are summarized in Fig. 4, demonstrat-           To better understand the potential contribution of each compo-
+    ing that on average the DLS provides consistent, pathologist-level        nent feature, we performed a similar analysis using the score for
+    agreement on grading of all three component features. The full            each feature independently. Analysis for each component feature
+    confusion matrices for inter-pathologist agreement and for DLS            individually suggested improved prognostic value speciﬁcally for
+    agreement with the majority vote scores (patch-level and slide-           the AI-based mitotic count score (p = 0.041; likelihood ratio test)
+    level) are available in Supplementary Figs. 3 and 4.                      but not the other features (Supplementary Table 6). Additionally,
+                                                                              in univariable hazard ratio (HR) analysis, the MC score provided
+    Prognostic value of AI-NGS                                                the only AI-NGS feature with a p value less than 0.05 (HR = 1.30,
+    We further analyzed the association of both AI-NGS and                    p = 0.015; univariable HR analysis) (Table 5). In multivariable
+    pathologist-provided grades with clinical outcomes, using the             analysis adjusting for ER status, tumor size (T-category), nodal
+    external test dataset (TCGA-BRCA) and progression free interval           involvement, and age this corresponded to a HR of 1.29
+    (PFI) as the prognostic endpoint28. We conducted non-inferiority          (p = 0.061; multivariable HR analysis) (Table 5).
+    analysis comparing AI-NGS to histologic grading provided by
+    pathologists. Based on tune set results, the planned, primary             Mitotic count and Ki-67 expression
+    comparison for this analysis used the sum of the continuous               Given the potential association between MC, Ki-67, and prognosis,
+    component scores generated by AI-NGS (AI-NGS continuous sum;              and the increasing interest of the clinical community in the use of
+    ﬂoat value 3–9) compared to the summed discrete score provided
+                                                                              Ki-67 in breast cancer30,31, we also evaluated the correlation
+    by pathologist review (pathologist discrete sum; integer value
+                                                                              between MC score and Ki-67 (MKI67) gene expression in our study
+    3–9); see PFI Analysis section of the Methods for additional details
+                                                                              (Fig. 5). The MC score provided by the DLS demonstrated
+    of continuous versus discrete scoring). The prognostic perfor-
+                                                                              correlation with MKI67 expression with a correlation coefﬁcient
+    mance of the two approaches were similar with a c-index of 0.58
+                                                                              of 0.47 (95% CI: 0.41, 0.52) across the 827 TCGA cases with
+    (95% CI: 0.52, 0.64) using the AI-NGS continuous sum and 0.58
+    (95% CI: 0.51, 0.63) using the pathologist discrete sum (Table 3;         available gene expression data. For pathologist-provided MC
+    delta = 0.004, lower bound of one-sided 95% CI: −0.036). This is          scores over the same cases, the correlation coefﬁcient was 0.37
+    consistent with non-inferiority of AI-NGS relative to pathologist         (95% CI: 0.32, 0.43). This indicates an increased correlation with Ki-
+    grading (see Statistical Analysis section of Methods for additional       67 for the DLS-provided MC score as compared to MC provided by
+    details).                                                                 pathologist review (p = 0.002 in exploratory analysis; permutation
+       While the continuous scores of the AI-NGS were utilized for            test).
+    primary analysis based on superior performance of this approach
+    on the tune set (Supplementary Table 3) as well as prior work in
+                                                                              DISCUSSION
+    prostate cancer29, additional approaches were also evaluated,
+    including use of discrete summed scores (values 3–9) and the              In this study we developed deep learning models for all three
+    combined histologic grade (grade 1–3 based on the summed                  components of the Nottingham histologic grading system, to
+    score4). For pathologist grading, majority vote and originally            perform both patch-level and slide-level prediction of these
+    reported diagnostic grading were also evaluated. Performance for          histologic features. A key feature of this work is that we use
+    these various scoring conﬁgurations summarized in Supplemen-              survival analyses to further evaluate our AI-NGS models using the
+    tary Table 4. The c-index for AI-NGS approaches were similar, 0.58        more objective endpoint represented by clinical outcome. The
+    (95% CI: 0.52, 0.64) for the AI-NGS continuous sum, 0.59 (95% CI:         performance for each component model exceeds most published
+    0.53, 0.64) for the AI-NGS discrete sum, and 0.60 (95% CI: 0.55,          benchmarks, and the model’s prediction of clinical outcome is
+    0.65) for the combined histologic grade. The pathologist-based            shown to be on-par to that of pathologist-based grading.
+    approaches were also similar, ranging from 0.58 (95% CI: 0.51,            Simultaneous development of all three models enables a
+    0.63) for pathologist combined histologic grades (1–3) to 0.61            consistent, end-to-end DLS for Nottingham histologic grading
+    (95% CI: 0.54, 0.66) for the majority vote summed score (3–9). The        that can also provide transparency into the underlying component
+    association of each individual grading component with prognosis           features. While prior work has shown promising results for
+    was also evaluated independently (Supplementary Table 5). The             individual features9,11–13 or direct prediction of ﬁnal combined
+    highest prognostic value for deep learning-based grading of a             histologic grade26, this work is unique in combining multiple
+    single feature on the test set was achieved for mitotic count, with       patch-level component models for the Nottingham grading
+
+    npj Breast Cancer (2022) 113                                                 Published in partnership with the Breast Cancer Research Foundation
+                                                                          R. Jaroensri et al.
+                                                                                                                                                   5
+
+
+
+
+Fig. 2 Visualization of patch-level DLS predictions. A Pathologist annotations for mitoses corresponding to a single high-power ﬁeld of
+500 μm × 500 μm (left) and the corresponding heatmap overlay provided by the MC model (right). Red regions of the overlay indicate high
+likelihood of a mitotic ﬁgure according to the model. B Patches corresponding to regions for which pathologists and the model both
+identiﬁed mitotic ﬁgures (concordant), regions classiﬁed as mitotic ﬁgures by the model but not identiﬁed by at least 2 of 3 reviewing
+pathologists (false positive), or regions identiﬁed by at least 2 of 3 reviewing pathologists as containing a mitotic ﬁgure but not classiﬁed as
+such by the model. Discordant identiﬁcation of mitotic ﬁgures by the model did not appear to be due to image or staining quality, but rather,
+appeared to largely reﬂect morphologic details for which pathologist identiﬁcation of mitotic ﬁgures was also variable. Patches are 32 μm x
+32 μm with scale bar of 10 μm shown in the top row. C Individual patches classiﬁed as grade 1, 2, 3 for nuclear pleomorphism. (40×
+magniﬁcation; 256 μm × 256 μm; 100 μm scale bar for reference). D Individual patches classiﬁed as grade 1, 2, or 3 for tubule formation (10×
+magniﬁcation; 1 mm × 1 mm; 400 μm scale bar for reference). MC mitotic count, NP nuclear pleomorphism, TF tubule formation.
+
+system. This also enables analysis of prognostic models that can          individual component features, MC demonstrated the strongest,
+take advantage of the scores for individual features.                     independent association with PFI in our analysis, a ﬁnding
+   One important challenge to accurate and useful histologic              consistent with prior studies32,33. Building on this, the ﬁnding
+grading is the inherent subjectivity and associated inter-                that mitotic count estimation by the DLS correlates with Ki-67
+pathologist variability. As such, an automated DLS for histologic         gene expression has implications for ongoing research regarding
+grading can provide internal consistency and reliability for grading      integration of Ki-67 in prognostic models in breast cancer34,35.
+any given tumor. Such models thus have the potential to be                Also, the stronger correlation of Ki-67 with DLS mitotic count than
+iteratively tuned and updated with expert pathologist oversight to        with pathologist mitotic count suggests that for discordant mitotic
+correct error modes and stay consistent with evolving guidelines.         ﬁgure classiﬁcations between DLS and pathologist (such as those
+Additionally, this study found that DLS-pathologist agreement             in Fig. 2B) the DLS might in fact be providing more accurate
+generally avoids the high discordance that is sometimes observed          representation of the biological ground truth (i.e., cell prolifera-
+between individual pathologists while overall trends for agree-           tion) than the pathologist-provided reference annotations. Addi-
+ment across the three features were consistent with prior reports         tional studies using immunohistochemistry-based ground truth
+(Supplementary Table 2). Consistent, automated tools for histolo-         for training and evaluation36, as well as future comparisons
+gic grading may help reduce discordant interpretations and                between automated mitotic count and automated Ki-67 immu-
+mitigate the resulting complications that impact clinical care and        nohistochemistry quantitation may provide useful insights into
+research studies evaluating interventions, other diagnostics, and         these approaches. Overall, AI-NGS can be applied in future studies
+the grading systems themselves.                                           to large, multi-institutional datasets, minimizing complications of
+   The continuous, consistent, and precise component scores               inter-pathologist variability and without requiring additional
+provided by this approach also enable exploration of the                  pathologist case review. This may in turn help reﬁne existing
+individual components contributing most to the prognostic value.          regression models such as the Nottingham Prognostic Index37 or
+In our analysis, the AI-NGS provided signiﬁcantly increased               Magee equations38, by enabling further optimization of weights
+prognostic value relative to the baseline variables alone. Of the         and providing consistent, precise, and automated scoring at scale.
+
+Published in partnership with the Breast Cancer Research Foundation                                              npj Breast Cancer (2022) 113
+                                                           R. Jaroensri et al.
+6
+
+
+
+
+    Fig. 3 Assessing slide-level classiﬁcation of nuclear pleomorphism and tubule formation. The three pathologist scores provided for nuclear
+    pleomorphism (A) and Tubule Formation (B) for each slide are represented by the pie charts. Bar plots represent the model output for each
+    possible component score with the mean output plotted for the cases matched to those represented by the corresponding pie chart. Green
+    corresponds to component score of 1, yellow to component score of 2, and red to component score of 3. Error bars are 95% CI. DLS Deep
+    Learning System.
+
+       Interestingly, in our test set, the summed continuous DLS score           improved prognostic evaluation and further demonstrate the
+    (ﬂoating point values in [3,9]) was not more prognostic than using           method’s clinical signiﬁcance. Larger, diverse datasets may also
+    a discrete, less granular, combined histologic grade (grade 1, 2, or         enable model development that directly predicts the progression-
+    3). This is despite the continuous score being slightly superior on          free survival from the tissue images, without using histologic grade
+    the smaller TTH “tune” data split, and is in contrast to our related         as an intermediate prediction to estimate clinical outcomes. Such
+    work in prostate cancer where continuous, DLS-based Gleason                  “weakly supervised” approaches could allow identiﬁcation of new
+    scoring was superior to discrete grade group categories for                  associations between survival and morphological features, poten-
+    outcome prediction29. This may be due in part to the relatively              tially leading to iterative reﬁnement of existing grading systems.
+    large conﬁdence intervals associated with the small rate of events           Lastly, given the subjective nature of the pathologist grading used
+    as well as domain shifts between development and test sets due               as the reference standard for model evaluation, adjudication
+    to inter-institutional differences or variability in slide processing        sessions to achieve consensus scoring and mitotic ﬁgure identiﬁca-
+    and quality, especially given the diversity of tissue source sites in        tion may improve the quality of labels for training and evaluation,
+    TCGA. Additionally, most TCGA cases only contributed a single                and this hypothesis could be tested in future work.
+    slide, which may not always be most representative of the tumor                 This study demonstrates the potential for deep learning
+    and associated histologic features.                                          approaches to provide comprehensive grading in breast cancer that
+       Limitations of this study include the following: While the training       is on par with pathologist review. The consistent and precise nature
+    slides used in this study represent two institutions and the test set        of these models allows for potentially improved integration into
+    comprises multiple sites contributing to TCGA, further evaluation of         prognostic models as well as enabling opportunities to efﬁciently
+    generalizability to diverse cohorts and across individual tumor
+                                                                                 evaluate correlations between morphological and molecular features.
+    subtypes is warranted. Additionally, although TCGA has useful
+                                                                                 Future work that combines AI-based grading of established histologic
+    attributes as a test set for this study (eg, diversity of pre-analytical
+                                                                                 features with additional machine-learned features to generate
+    variables and tissue sites), the follow-up time is limited with a
+                                                                                 improved prognostic models remains a compelling next step.
+    median of ~2 years. As much of the evidence for the prognostic
+    signiﬁcance of histological grading is in the setting of longer follow-
+    up time to provide more complete recurrence event information2,              METHODS
+    the relatively shorter follow-up time available for TCGA data may
+                                                                                 Data
+    result in less precise estimates of prognostic value both for
+    pathologists and AI-based grading). This is likely to have a                 This retrospective study utilized de-identiﬁed data from three
+    predominant impact on analysis of ER + HER2− cases, for which                sources: a TTH, a MLAB, and TCGA. Histopathology, clinical data,
+    progression events often happen later yet for which grading is               and Ki-67 expression data for TCGA were accessed via https://
+    expected to provide the best risk stratiﬁcation. As such, the limited        portal.gdc.cancer.gov. WSIs from TTH include original, archived
+    follow-up time may partially explain the relatively modest C-indices         hematoxylin and eosin (H&E)-stained slides and freshly cut and
+    observed when considering the grading in isolation for this cohort.          stained sections from archival blocks. WSIs from MLAB represent
+    An additional limitation is that we were not able to control for             freshly cut and H&E stained sections from archival blocks. All WSIs
+    possible confounding due to treatment differences, as this                   used in this study were scanned at 0.25 μm/pixel (40×). The small
+    information was not available for most cases. Future work utilizing          number of TCGA images in the BRCA study scanned at 0.50 μm/
+    datasets with longer clinical follow-up, treatment data, and larger          pixel (20×) were excluded in order to ensure availability of 40x for
+    cohorts that enable analysis of individual tumor subtypes may allow          DLS-based MC and NP grading.
+
+    npj Breast Cancer (2022) 113                                                    Published in partnership with the Breast Cancer Research Foundation
+                                                                            R. Jaroensri et al.
+                                                                                                                                                   7
+
+
+
+
+Fig. 4 Inter-pathologist and DLS-pathologist concordance for slide-level component scoring. Analyses for mitotic count (A), nuclear
+pleomorphism (B), and tubule formation (C) are shown in the individual panels. Each blue bar represents the agreement (quadratic-weighted
+kappa) between a single pathologist and the other available pathologist scores on the same cases. The yellow bar represents the agreement
+of the DLS-provided component score with all available pathologist’ scores on the matched set of cases. Error bars represent 95% conﬁdence
+intervals computed via bootstrap. Average values in legend represent quadratic-weighted kappa or the average of all blue bars and yellow
+bars, respectively. DLS deep learning system, Paths pathologists.
+
+                                                                            Whole slide image inclusion criteria
+ Table 3.  Prognostic performance of direct risk prediction using
+ histologic scoring provided by DLS and pathologists.                       All available WSIs were reviewed by pathologists for slide-level
+                                                                            inclusion criteria and quality assurance. Only slides containing H&E
+Scoring method                      C-index (All cases; n = 829)            stained primary invasive breast carcinoma from formalin-ﬁxed
+                                                                            parafﬁn-embedded resection specimens were included in this
+                                    DLS                Pathologist
+                                                                            study. Examples of excluded images include lymph node speci-
+Combined Histologic Grade [1,2,3] 0.60 [0.55, 0.65]    0.58 [0.51, 0.63]    mens, needle core biopsies, frozen tissue, immunohistochemistry
+                                                                            slides, and slides containing carcinoma in-situ only.
+Summed Score Discrete               0.59* [0.53, 0.64] 0.58* [0.51, 0.63]
+[3,4,5,6,7,8,9]                                                                This resulted in 1502 slides (657 cases) from TTH, 98 slides (98
+                                                                            cases) from MLAB, and 878 slides (829 cases) from TCGA. The
+Summed Score Continuous             0.58* [0.52, 0.64] N/A
+[3.00–9.00]
+                                                                            slides from TTH were used for training and tuning of the models,
+                                                                            slides from MLAB were used for tuning only, and TCGA slides
+ DLS deep learning system.                                                  represent a held-out external test set used only for evaluation of
+ *Planned non-inferiority test comparing these conﬁgurations: DLS           all models. For evaluating the individual DLS for each component
+ Summed Score Continous and Pathologist Summed Score Discrete.              feature, slides without a pathologist majority were excluded to
+                                                                            ensure reliability of the reference for this performance evaluation,
+                                                                            resulting in 685 slides / 662 cases. See Table 1 and Supplementary
+                                                                            Fig. 1 for details regarding dataset usage and characteristics.
+   All primary invasive breast carcinoma cases with available slides
+or blocks were reviewed for inclusion. For TTH this includes all            Annotations
+available cases from 2005 to 2016, for MLAB this includes cases
+                                                                            Pathologist annotations were performed for segmentation of
+from 2002 to 2011, and for TCGA data comprises the TCGA-BRCA
+                                                                            invasive carcinoma as well as for all three components of the
+study with cases from 1988 to 2013. The study was approved by
+                                                                            Nottingham histologic grading system (MC, NP, and TF). Annota-
+the Advarra institutional review board (Columbia, Maryland) and             tions for the grading components were collected as slide-level
+deemed exempt from informed consent as all data were                        labels as well as region-level labels for speciﬁc regions of tumor
+retrospective and de-identiﬁed.                                             (three 1 mm × 1 mm regions per slide selected by pathologists to
+
+Published in partnership with the Breast Cancer Research Foundation                                               npj Breast Cancer (2022) 113
+                                                                R. Jaroensri et al.
+8
+     Table 4.   Prognostic performance using summation of histologic components in combination with baseline clinical and pathologic features.
+
+    Model features                                          c-index                                p-value (likelihood ratio test) for adding features to baseline
+
+    Baseline Features Only                                  0.74 [0.67, 0.81]                      N/A (reference)
+    Baseline + AI-NGS                                       0.76 [0.69, 0.81]                      0.036
+    Baseline + Single Pathologist                           0.75 [0.69, 0.81]                      0.064
+    Baseline + Majority Pathologist                         0.76 [0.70, 0.82]                      0.023
+     Cox models were ﬁtted and evaluated directly on the test set and p-values are for likelihood ratio test of baseline versus baseline plus grading scores. Baseline
+     features include age (continuous), TNM (categorical), and ER status (binary). Number of cases represents all cases with baseline characteristics available
+     (n = 762 cases; 82 events). Majority pathologist refers to the majority voted scores of three pathologists. Conﬁdence intervals computed via bootstrap with
+     1000 iterations.
+
+
+    capture representative tumor). For both slide-level and region-                        The invasive carcinoma model was trained using pathologist
+    level annotation tasks, 3 board-certiﬁed pathologists from a cohort                 annotations to distinguish between 3 classes: non-tumor, carcinoma
+    of 10 pathologists were randomly assigned per slide, thus                           in situ, and invasive carcinoma. The resulting model was evaluated
+    resulting in triplicate annotations per region of interest and per                  on the tune set, achieving an AUC for invasive carcinoma vs. the
+    slide. More detail as follows.                                                      other 2 classes (carcinoma in situ or non-tumor) of 0.95.
+                                                                                           To segment invasive carcinoma versus the rest of tissue when
+    Invasive carcinoma segmentation. All regions considered to                          applying DLS for histologic grading, we applied the argmax
+    represent invasive carcinoma were annotated, with guidance to                       function to each patch (1024 by 1024 pixels) in the output
+    provide coarse annotations capturing regions of at least 70%                        likelihood map over the entire slides (with argmax referring to the
+    tumor purity (to account for non-tumor cells present in a given                     class with the highest prediction score for each patch). Then, the
+    region). Regions considered to be carcinoma in-situ were also                       patches for which the model estimated invasive carcinoma as the
+    annotated and used to train the invasive carcinoma model. Slides                    most likely class are selected as the invasive carcinoma
+    determined on initial review to contain only carcinoma in situ,                     segmentation for other downstream computing tasks (for e.g.,
+    microinvasive tumor, lymphovascular invasion were excluded                          slide-level MC, NP, and TF scores prediction).
+    prior to invasive carcinoma annotation.                                                For providing slide-level component scores, each model is used
+                                                                                        as part of a DLS that consists of two stages. The ﬁrst stage (“patch-
+                                                                                        level”) tiles the invasive carcinoma mask regions of the WSI into
+    Mitotic ﬁgures. For each slide, the initial annotating pathologist                  individual patches for input into a convolutional neural network,
+    selected three separate 1 × 1 mm2 regions with enriched mitotic                     providing as output a continuous likelihood score (0–1) that each
+    count if present. Within each selected region, pathologists were                    patch belongs to a given class. For mitotic ﬁgure detection, this
+    asked to exhaustively annotate all mitotic ﬁgures. Each selected                    score corresponds to the likelihood of the patch corresponding to
+    region was annotated by three pathologists, and only mitoses
+                                                                                        a mitotic ﬁgure. For NP and TF, model output is a likelihood score
+    with agreement between at least two pathologists were used as
+                                                                                        for each of the three possible grade scores of 1–3. All stage 1
+    “positive” events for training and evaluation.
+                                                                                        models were trained using the data summarized in Table 1 and
+                                                                                        Supplementary Table 7 and utilizing ResNet50x1 pre-trained on a
+    Nuclear pleomorphism and tubule formation. For nuclear pleo-                        large natural image set (“JFT”)39. Stain normalization and color
+    morphism and tubule formation grading, we utilized the region                       perturbation18 were applied and the models were trained until
+    boxes already selected during the mitotic ﬁgure annotation.                         convergence. Hyperparameter conﬁgurations including patch size
+    Pathologists were asked to provide a component grade score for                      and magniﬁcation were selected independently for each compo-
+    each selected region according to the Nottingham grading scale                      nent model using a combination of Vizier40 and sample grid
+    as though each region were independently representative of the                      search. Hyperparameters and optimal conﬁgurations for each
+    whole tumor (acknowledging that such grading in clinical practice                   stage 1 model are summarized in Supplementary Table 8.
+    involves more holistic interpretation of tumor regions). Again,                        The second stage of each DLS assigns a slide-level feature score
+    each region was annotated by three pathologists, and the ﬁnal                       (1–3) for each feature (MC, NP, and TF). This is done by using the
+    label for each region was based on the majority vote score.                         stage 1 model output to train a lightweight classiﬁer for slide-level
+                                                                                        classiﬁcation. For MC, the stage 1 output is used to calculate
+    Slide-level grading. Pathologists were asked to assess the whole                    “mitotic density” values over the invasive carcinoma region, and
+    slide on each component of the Nottingham grading scale, providing                  the mitotic density values corresponding to the 5th, 25th, 50th,
+    a 1–3 score for each component for each slide. Each slide was                       75th, and 95th-percentiles for each slide are used as the input
+    reviewed by three pathologists, and the majority vote was used to                   features for the stage 2 model. Details regarding the conversion of
+    determine the slide-level label for training and evaluation. Addition-              patch-level stage 1 output to mitotic ﬁgure detection and mitotic
+    ally, as a separate source of grading, available pathology reports were             density are provided in the following section. For NP and TF, the
+    reviewed and component grade scores from the original reports                       stage 2 input feature set is the mean patch-level output (mean
+    were recorded (referred to as “historic pathologist scores”).                       softmax value) for each possible score (1, 2, or 3) across the
+                                                                                        invasive carcinoma region. Based on tune set results, logistic
+                                                                                        regression was selected for the stage 2 classiﬁer for MC. For NP
+    Deep learning system development
+                                                                                        and TF, performance of different stage 2 approaches were
+    We developed 4 separate deep learning models: one to segment                        comparable, including logistic regression, ridge regression, and
+    invasive carcinoma within a WSI, and three “grading models” to                      random forest. Ridge regression was selected, due to its simplicity
+    predict the slide-level component score for each of the three                       and the ease of generating continuous component scores with
+    tumor features comprising the Nottingham combined histologic                        this approach. All classiﬁers are regularized with their regulariza-
+    grade: MC, NP, and TF. The invasive carcinoma model was used to                     tion strengths chosen via a ﬁvefold cross-validation on the training
+    provide tumor masks for the Nottingham grading model.                               set. For NP, additional experiments with a hand-engineered
+
+    npj Breast Cancer (2022) 113                                                            Published in partnership with the Breast Cancer Research Foundation
+                                                                               R. Jaroensri et al.
+                                                                                                                                                         9
+ Table 5.   Cox regression on the test set using pathologist grading or AI-NGS scores and baseline variables.
+
+                  Univariable analysis                                                 Multivariable analysis
+ Feature          Pathologist                       AI-NGS                             Pathologist                        AI-NGS
+                  HR                     p          HR                     p           HR                       p         HR                    p
+
+Age               1.01 [0.99, 1.02]      0.378      1.01 [0.99, 1.02]      0.213       1.01 [0.99, 1.03]        0.230     1.01 [0.99, 1.03]     0.213
+ER status
+   Negative       1.0 (ref)              N/A        1.0 (ref )             N/A         1.0 (ref )               N/A       1.0 (ref )            N/A
+   Positive       0.59 [0.39, 0.91]      0.017      0.60 [0.39, 0.92]      0.018       0.54 [0.33, 0.86]        0.010     0.55 [0.33, 0.89]     0.016
+Metastasis present
+   Negative       1.0 (ref)              N/A        1.0 (ref )             N/A         1.0 (ref )               N/A       1.0 (ref )            N/A
+   Positive       14.03 [7.36, 26.76]    <0.001     14.09 [7.39, 26.88]    <0.001      11.54 [5.58, 23.87]      <0.001    10.31 [4.85, 21.93]   <0.001
+Nodal status
+  N0              1.0 (ref)              N/A        1.0 (ref )             N/A         1.0 (ref )               N/A       1.0 (ref )            N/A
+   N1+            2.09 [1.41, 3.09]      <0.001     2.10 [1.42, 3.11]      <0.001      1.65 [1.05, 2.57]        0.029     1.70 [1.09, 2.66]     0.020
+Tumor Size
+   T1             1.0 (ref)              N/A        1.0 (ref )             N/A         1.0 (ref )               N/A       1.0 (ref )            N/A
+   T2             0.89 [0.61, 1.30]      0.559      0.90 [0.62, 1.30]      0.566       0.99 [0.60, 1.64]        0.981     0.96 [0.58, 1.60]     0.880
+   T3+            2.38 [1.56, 3.64]      <0.001     2.39 [1.56, 3.65]      <0.001      2.28 [1.30, 4.02]        0.004     2.36 [1.33, 4.18]     0.003
+MC                1.27 [1.02, 1.56]      0.028      1.30 [1.05, 1.61]      0.015       1.01 [0.78, 1.29]        0.959     1.29 [0.99, 1.69]     0.061
+NP                1.16 [0.86, 1.58]      0.336      0.97 [0.69, 1.37]      0.879       1.26 [0.87, 1.83]        0.226     0.91 [0.60, 1.37]     0.649
+TF                1.60 [1.03, 2.50]      0.038      1.35 [0.89, 2.04]      0.157       1.79 [1.04, 3.07]        0.034     1.50 [0.92, 2.45]     0.102
+ For individual component scores (MC, NP, and TF), the discrete component scores were used (values are 1, 2, or 3 for each component).
+
+
+nuclear segmentation-based approach were also conducted13,14.                  pathologists; see Annotations section of Methods above and
+This approach did not improve performance in our experiments,                  Supplementary Methods). For MC, the patch-level reference
+potentially due to the wide variability in staining and cellular               standard corresponds to cell-sized regions identiﬁed by at least
+appearance in high-grade cases.                                                two of three pathologists as a mitotic ﬁgure. All other cell-sized
+                                                                               regions not meeting these criteria were considered negative for
+Mitotic ﬁgure detection and counting from patch-level stage-1                  the purposes of MC evaluation. For NP and TF, the majority vote
+output. For the MC model, the output (likelihood score of                      annotation for each region of interest was assigned to all
+mitotic ﬁgure) across all patches was considered as a heatmap                  patches within that region and used as the reference standard
+that is used for downstream analysis. We thresholded this output               (consistent with the approach for stage 1 training labels). The
+probability to achieve a positive detection map. The detection                 maximum probability in the model output probability map is
+threshold was set to 0.915 based on the tuning set. Because the                selected to obtain the ﬁnal per-patch prediction. For slide-level
+mitosis annotations were provided by pathologists using                        evaluation, the majority vote for each slide-level component
+16 μm × 16 μm bounding boxes (about the size of one cell), we                  score was used.
+expected the detection of the model to be about the same size.                   For patch-level evaluation, F1 score was calculated for mitosis
+To get the list of location of detection, we applied morphological
+                                                                               detection and quadratic-weighted kappa was calculated for NP
+erosion with a square structuring element of size 16 μm × 16 μm.
+                                                                               and TF. For slide-level evaluation, quadratic-weighted kappa was
+This operation on two overlapping 16 µm × 16 µm regions will
+result in two disconnected points, allowing us to distinguish two              used for all components, including inter-pathologist agreement.
+nearby mitoses. We then performed connected-component                          Use of quadratic-weighted kappa was based on informative
+analysis on the eroded map, and took the centroid of each                      penalization of increased distance from the reference standard.
+connected component as the location of mitoses. This list of                   Because the weighting scheme used in the literature is variable,
+mitoses locations allowed counting of mitotic ﬁgures and the use               additional kappa weighting schemes were also assessed and
+of a sliding window approach to calculate the mitotic density.                 reported in Supplemental Table 1.
+Mitotic density was calculated for all tiles across the entire
+invasive carcinoma mask (1.8 × 1.8 mm tiles with 50% over-                     Progression-free interval analysis
+lapping stride). For evaluation, a predicted mitotic ﬁgure was
+                                                                               To further evaluate the histologic grading models, we also analyzed
+considered a true positive event if there was a reference
+                                                                               the prognostic value of DLS-based grading for predicting
+standard mitotic ﬁgure within 16 µm.
+                                                                               progression-free interval (PFI). PFI was chosen as a clinically
+                                                                               meaningful endpoint suitable for TCGA-BRCA speciﬁcally as
+Deep learning system evaluation                                                described previously28. Of note, 18 cases with PFI events in this
+We evaluated DLS performance for histologic grading at both                    data correspond to “new primary tumors”, predominantly of non-
+the patch level and the slide-level using the TCGA test set and                breast origin according to TCGA annotations. As such, and because
+the annotations described above. Patch-level evaluation corre-                 disease-speciﬁc progression events following a new primary tumor
+sponds to the stage 1 model output and utilizes the annotated                  could not be reliably identiﬁed from the available data, these cases
+regions of interest as the reference standard (three                           were censored at the disease-free interval time in our analysis,
+1 mm × 1 mm regions per slide each annotated by three                          resulting in the 829 cases and 93 events summarized in Table 1.
+
+Published in partnership with the Breast Cancer Research Foundation                                                      npj Breast Cancer (2022) 113
+                                                          R. Jaroensri et al.
+10
+
+
+
+
+     Fig. 5 Correlation of mitotic count and Ki-67 expression. Correlation of mitotic count and Ki-67 gene expression is shown for the mitotic
+     count provided by the DLS (A) and by pathologist review (B). Values in brackets below plots represent 95% conﬁdence interval for correlation.
+     Box plot box edges and center line indicate quartiles (25th, 50th, and 75th percentile) of Ki-67 gene expression (TPM values via TCGA) for each
+     MC score, with outliers (deﬁned as values beyond 1.5 times the interquartile range) plotted as black circles. The correlation values for DLS MC
+     scoring with Ki-67 (0.47) and pathologist MC scoring with Ki-67 (0.37) were signiﬁcantly different (p = 0.002; permutation test) based on a
+     permutation test with n = 1000 samples. DLS deep learning system, MC Mitotic Count.
+
+        In planned analysis, we evaluated the prognostic value of the           analysis of mitotic count and Ki-67, permutation testing between
+     DLS and pathologist-provided scores both in isolation and in the           DLS and Pathologists MC score was performed with 1,000 samples.
+     context of available clinicopathologic features. As a pre-speciﬁed         C-indices were computed using the lifelines.utils.concordance_in-
+     non-inferiority test (based on development set results), we                dex function in the Python Lifelines package (v0.26.0) and
+     compared the prognostic value of the sum of continuous DLS-                additional analyses were performed using Python (v3.7.10),
+     based component scores versus the sum of discrete component                Numpy (v1.19.5), and scikit-learn (v0.24.1) libraries.
+     scores provided by pathologists for the same images. Here,
+     continuous scores refer to the model output corresponding to any
+     fractional value between 1 and 3 for each component and discrete           DATA AVAILABILITY
+     scores refer to the traditional integer scores of 1, 2, or 3. Combined     TCGA data utilized in this study is publicly available via the Genomic Data Commons
+     histologic grade based on the summed scores (3–5: grade 1; 6–7;            Data Portal (gdc.cancer.gov). The tertiary hospital data was used under a Defense
+     grade 2; 8–9 grade 3) was also evaluated in additional analyses. To        Health Agency data sharing agreement. Requests regarding data can be directed to
+                                                                                the Defense Health Agency Privacy Ofﬁce at DHA.PrivacyOfﬁceMail@mail.mil. The
+     conduct analyses adjusting for available baseline clinicopathologic
+                                                                                medical laboratory dataset is not publicly available at this time due to data privacy
+     variables (TNM, ER status, age) and calculate hazard ratios, we ﬁt         considerations
+     multivariable Cox regression models on the test set (TCGA-BRCA)
+     using either the DLS-based component scores or the pathologist-
+     provided component scores. To evaluate for improved prognostic             CODE AVAILABILITY
+     value when adding AI-NGS information to the baseline variables,            The deep learning framework (TensorFlow v1.14) used in this study is available at https://
+     we performed likelihood-ratio tests for cox models ﬁt on baseline          github.com/tensorﬂow/tensorﬂow/tree/r1.14. The convolutional neural network
+     clinicopathologic variables alone versus models ﬁt on baseline             ResNet50x1 is available at https://github.com/google-research/big_transfer/blob/
+     variables combined with grading scores. The corresponding                  master/bit_tf2/models.py and instructions for downloading pretrained models can be
+     c-index for the risk scores provided by these models on the test           found at https://github.com/google-research/big_transfer. The stage 2 models were
+     were also calculated (as reported in Table 4).                             implemented with scikit-learn (v0.24.0), available at https://github.com/scikit-learn/scikit-
+        In order to evaluate multivariable models for prognosis, we use         learn/tree/0.24.X. Details and code for stage 2 featurization and utlization is available at
+                                                                                https://github.com/Google-Health/google-health/tree/master/breast_survival_prediction.
+     leave-one-out cross-validation on the TCGA test set, ﬁtting a Cox
+                                                                                The ﬁnal, trained models have not yet undergone regulatory review and cannot be made
+     model per fold and calculating the mean C-index across folds.              available at this time. Interested researchers can contact P.-H.C.C. for questions on its
+     Because the absolute value of the risk score depends on many               status and access.
+     ﬁtted parameters such as base hazard, which can vary, the risk
+     scores may not be directly comparable across folds. To remedy
+                                                                                Received: 7 February 2022; Accepted: 1 September 2022;
+     this problem, the output risk score is normalized to a percentile
+     with regard to the training data.
+
+     Statistical analysis
+     Conﬁdence intervals were generated via bootstrap resampling                REFERENCES
+     with 1000 samples. For patch-level and region-level evaluation of           1. Sung, H. et al. Global Cancer Statistics 2020: GLOBOCAN estimates of incidence
+     DLS, we performed bootstrap resampling over slides and for                     and mortality worldwide for 36 cancers in 185 countries. CA Cancer J. Clin. 71,
+     progression-free interval analysis, we performed bootstrap resam-              209–249 (2021).
+                                                                                 2. Rakha, E. A. et al. Prognostic signiﬁcance of Nottingham histologic grade in
+     pling over cases. All statistical tests are two-sided with the
+                                                                                    invasive breast carcinoma. J. Clin. Oncol. 26, 3153–3158 (2008).
+     exception of the non-inferiority test, which is one-sided (with a           3. Rakha, E. A. et al. Breast cancer prognostic classiﬁcation in the molecular era: the
+     pre-speciﬁed non-inferiority margin of 0.075 and alpha of 0.05).               role of histological grade. Breast Cancer Res. 12, 207–218 (2010).
+     The margin was selected based on projected conﬁdence intervals              4. Elston, C. W. & Ellis, I. O. Pathological prognostic factors in breast cancer. I. The
+     and power calculations using the tune dataset. No adjustment for               value of histological grade in breast cancer: experience from a large study with
+     multiple comparisons was implemented. For Ki-67 correlation                    long-term follow-up. Histopathology 19, 403–410 (1991).
+
+
+     npj Breast Cancer (2022) 113                                                   Published in partnership with the Breast Cancer Research Foundation
+                                                                                                 R. Jaroensri et al.
+                                                                                                                                                                                                 11
+ 5. Amin, M. B. et al. The Eighth Edition AJCC Cancer Staging Manual: continuing to              36. Tellez, D. et al. Whole-slide mitosis detection in H&E breast histology using PHH3
+    build a bridge from a population-based to a more ‘personalized’ approach to                      as a reference to train distilled stain-invariant convolutional networks. IEEE Trans.
+    cancer staging. CA Cancer J. Clin. 67, 93–99 (2017).                                             Med. Imaging https://doi.org/10.1109/TMI.2018.2820199 (2018).
+ 6. Wishart, G. C. et al. PREDICT: a new UK prognostic model that predicts survival              37. Green, A. R. et al. Nottingham prognostic index plus (NPI+) predicts risk of distant
+    following surgery for invasive breast cancer. Breast Cancer Res. 12, R1 (2010).                  metastases in primary breast cancer. Breast Cancer Res. Treat. 157, 65–75 (2016).
+ 7. Galea, M. H., Blamey, R. W., Elston, C. E. & Ellis, I. O. The Nottingham Prognostic          38. Klein, M. E. et al. Prediction of the Oncotype DX recurrence score: use of
+    Index in primary breast cancer. Breast Cancer Res. Treat. 22, 207–219 (1992).                    pathology-generated equations derived by linear regression analysis. Mod.
+ 8. Ginter, P. S. et al. Histologic grading of breast carcinoma: a multi-institution study of        Pathol. 26, 658–664 (2013).
+    interobserver variation using virtual microscopy. Mod. Pathol. 34, 701–709 (2021).           39. Kolesnikov, A. et al. Big Transfer (BiT): general visual representation learning. in
+ 9. Mahmood, T., Arsalan, M., Owais, M., Lee, M. B. & Park, K. R. Artiﬁcial intelligence-            Computer Vision—ECCV 2020 491–507 (Springer International Publishing, 2020).
+    based mitosis detection in breast cancer histopathology images using faster                  40. Golovin, D. et al. Google Vizier: a service for black-box optimization. in Proc. 23rd
+    R-CNN and Deep CNNs. J. Clin. Med. Res. 9, 749–773 (2020).                                       ACM SIGKDD International Conference on Knowledge Discovery and Data Mining
+10. Balkenhol, M. C. A. et al. Deep learning assisted mitotic counting for breast                    1487–1495 (Association for Computing Machinery, 2017).
+    cancer. Lab. Investig. 99, 1596–1606 (2019).
+11. Cai, D., Sun, X., Zhou, N., Han, X. & Yao, J. Efﬁcient mitosis detection in breast
+    cancer histology images by RCNN. In Proc. IEEE 16th International Symposium on               ACKNOWLEDGEMENTS
+    Biomedical Imaging (ISBI 2019) 919–922 (2019).                                               This work was funded by Google LLC and Verily Life Sciences. The authors would like
+12. Veta, M. et al. Predicting breast tumor proliferation from whole-slide images: the           to acknowledge the Google Health pathology and software infrastructure labeling
+    TUPAC16 challenge. Med. Image Anal. 54, 111–121 (2019).
+                                                                                                 teams, and in particular Krishna Gadepalli, Liron Yatziv, Matthew Symonds, Aleksey
+13. Mercan, C. et al. Automated scoring of nuclear pleomorphism spectrum with
+                                                                                                 Boyko, Harry Wang, Angela Lin, Melissa Moran, and Allen Chai for software
+    pathologist-level performance in breast cancer. arXiv [eess.IV] (2020).
+                                                                                                 infrastructure support and data collection. We also appreciate the input of Akinori
+14. Lu, C. et al. Nuclear shape and orientation features from H&E images predict
+                                                                                                 Mitani and Dale Webster for their feedback on the manuscript. We also thank the
+    survival in early-stage estrogen receptor-positive breast cancers. Lab. Investig. 98,
+                                                                                                 pathologists who reviewed and annotated cases in this study. N.O. and C.R. are
+    1438–1448 (2018).
+                                                                                                 military service members or federal/contracted employees of the United States
+15. Li, L. et al. Multi-task deep learning for ﬁne-grained classiﬁcation and grading in breast
+                                                                                                 government. This work was prepared as part of their ofﬁcial duties. Title 17, United
+    cancer histopathological images. Multimed. Tools Appl. 79, 14509–14528 (2020).
+16. Motlagh, M. H. et al. Breast cancer histopathological image classiﬁcation: a deep            States Code, §105, provides that “copyright protection under this title is not available
+    learning approach. https://doi.org/10.1101/242818.                                           for any work of the US Government”. Title 17, United States Code, §101 deﬁnes a US
+17. Bejnordi, B. E. et al. Diagnostic assessment of deep learning algorithms for                 Government work as a work prepared by a military service member or employee of
+    detection of lymph node metastases in women with breast cancer. JAMA 318,                    the US Government as part of that person’s ofﬁcial duties. J.H.W. is a member of the
+    2199–2210 (2017).                                                                            Henry M. Jackson Foundation for the Advancement of Military Medicine, Inc.,
+18. Liu, Y. et al. Artiﬁcial intelligence-based breast cancer nodal metastasis detection:        Bethesda, MD. The contents of this publication are the sole responsibility of the
+    insights into the black box for pathologists. Arch. Pathol. Lab. Med. 143, 859–868           author(s) and do not necessarily reﬂect the views, opinions, or policies of the
+    (2019).                                                                                      Department of Defense (DoD) or The Henry M. Jackson Foundation for the
+19. Couture, H. D. et al. Image analysis with deep learning to predict breast cancer grade,      Advancement of Military Medicine, Inc. Mention of trade names, commercial
+    ER status, histologic subtype, and intrinsic subtype. NPJ Breast Cancer 4, 30 (2018).        products, or organizations does not imply endorsement by the U.S. Government.
+20. Gamble, P. et al. Determining breast cancer biomarker status and associated
+    morphological features using deep learning. Commun. Med. 1, 1–12 (2021).
+21. Bychkov, D. et al. Deep learning identiﬁes morphological features in breast                  AUTHOR CONTRIBUTIONS
+    cancer predictive of cancer ERBB2 status and trastuzumab treatment efﬁcacy. Sci.             R.J. performed the majority of the machine learning development and validation,
+    Rep. 11, 1–10 (2021).                                                                        with additional machine learning contributions and analysis input from Y.L., E.W.,
+22. Naik, N. et al. Deep learning-enabled breast cancer hormonal receptor status                 N.H., Y.C., K.N., P.-H.C.C., and D.F.S. Y.C. implemented the software infrastructure to
+    determination from base-level H&E stains. Nat. Commun. 11, 5727 (2020).                      help support machine learning development. F.T., I.F.-A., T.B., N.O., J.W., E.E.T., and E.S.
+23. Ektefaie, Y. et al. Integrative multiomics-histopathology analysis for breast cancer         collected and helped oversee quality assurance for the data. I.F.-A., T.B., D.J.D., E.A.R.,
+    classiﬁcation. NPJ Breast Cancer 7, 147 (2021).
+                                                                                                 N.O., J.H.W., E.E.T., and C.R. provided pathology and research input and analysis
+24. Elsharawy, K. A., Gerds, T. A., Rakha, E. A. & Dalton, L. W. Artiﬁcial intelligence
+                                                                                                 review. G.S.C., L.H.P., F.B., M.M., C.H.M., D.F.S., and P.-H.C.C. obtained funding for data
+    grading of breast cancer: a promising method to reﬁne prognostic classiﬁcation
+                                                                                                 collection and analysis, supervised the study, and provided strategic guidance. R.J.,
+    for management precision. Histopathology 79, 187–199 (2021).
+                                                                                                 Y.L., D.F.S., and P.-H.C.C. prepared the manuscript with input from all authors.
+25. Ibrahim, A. et al. Artiﬁcial intelligence in digital breast pathology: techniques and
+    applications. Breast 49, 267–273 (2020).
+26. Wang, Y. et al. Improved breast cancer histological grading using deep learning.
+    Ann. Oncol. 33, 89–98 (2022).
+                                                                                                 COMPETING INTERESTS
+27. Chen, P.-H. C., Mermel, C. H. & Liu, Y. Evaluation of artiﬁcial intelligence on a            This study was funded by Google LLC and Verily Life Sciences. R.J., E.W., N.H., F.T., Y.C.,
+    reference standard based on subjective interpretation. Lancet Digital Health                 K.N., G.S.C., L.H.P., Y.L., C.H.M., D.F.S., and P.-H.C.C. declare no competing ﬁnancial
+    https://doi.org/10.1016/S2589-7500(21)00216-8 (2021).                                        interests but the following competing non-ﬁnancial interests: employees of Google
+28. Liu, J. et al. An integrated TCGA pan-cancer clinical data resource to drive high-           LLC and own Alphabet stock. I.F.-A. and T.B. declare no competing ﬁnancial interests
+    quality survival outcome analytics. Cell 173, 400–416.e11 (2018).                            but the following competing non-ﬁnancial interests: consultants of Google LLC. F.B.
+29. Wulczyn, E. et al. Predicting prostate cancer speciﬁc-mortality with artiﬁcial               and M.M. declare no competing ﬁnancial interests but the following competing non-
+    intelligence-based Gleason grading. Commun. Med. 1, 1–8 (2021).                              ﬁnancial interests: employees of Verily. D.J.D., E.A.R., N.O., J.H.W., E.E.T., E.S., and C.R.
+30. de Azambuja, E. et al. Ki-67 as prognostic marker in early breast cancer: a meta-            declare no competing ﬁnancial or non-ﬁnancial Interests.
+    analysis of published studies involving 12,155 patients. Br. J. Cancer 96,
+    1504–1513 (2007).
+31. Yamamoto, S. et al. Clinical relevance of Ki67 gene expression analysis using                ADDITIONAL INFORMATION
+    formalin-ﬁxed parafﬁn-embedded breast cancer specimens. Breast Cancer 20,                    Supplementary information The online version contains supplementary material
+    262–270 (2013).                                                                              available at https://doi.org/10.1038/s41523-022-00478-y.
+32. van Diest, P. J., van der Wall, E. & Baak, J. P. A. Prognostic value of proliferation in
+    invasive breast cancer: a review. J. Clin. Pathol. 57, 675–681 (2004).                       Correspondence and requests for materials should be addressed to David F. Steiner
+33. Baak, J. P. A. et al. Prospective multicenter validation of the independent prog-            or Po-Hsuan Cameron Chen.
+    nostic value of the mitotic activity index in lymph node-negative breast cancer
+    patients younger than 55 years. J. Clin. Oncol. 23, 5993–6001 (2005).                        Reprints and permission information is available at http://www.nature.com/
+34. Inwald, E. C. et al. Ki-67 is a prognostic parameter in breast cancer patients:              reprints
+    results of a large population-based cohort of a cancer registry. Breast Cancer Res.
+    Treat. 139, 539–552 (2013).                                                                  Publisher’s note Springer Nature remains neutral with regard to jurisdictional claims
+35. Andre, F., Arnedos, M., Goubar, A., Ghouadni, A. & Delaloge, S. Ki67–no evidence for
+                                                                                                 in published maps and institutional afﬁliations.
+    its use in node-positive breast cancer. Nat. Rev. Clin. Oncol. 12, 296–301 (2015).
+
+
+
+Published in partnership with the Breast Cancer Research Foundation                                                                                 npj Breast Cancer (2022) 113
+                                                                           R. Jaroensri et al.
+12
+                        Open Access This article is licensed under a Creative Commons
+                        Attribution 4.0 International License, which permits use, sharing,
+     adaptation, distribution and reproduction in any medium or format, as long as you give
+     appropriate credit to the original author(s) and the source, provide a link to the Creative
+     Commons license, and indicate if changes were made. The images or other third party
+     material in this article are included in the article’s Creative Commons license, unless
+     indicated otherwise in a credit line to the material. If material is not included in the
+     article’s Creative Commons license and your intended use is not permitted by statutory
+     regulation or exceeds the permitted use, you will need to obtain permission directly
+     from the copyright holder. To view a copy of this license, visit http://
+     creativecommons.org/licenses/by/4.0/.
+
+
+     © The Author(s) 2022
+
+
+
+
+     npj Breast Cancer (2022) 113                                                                  Published in partnership with the Breast Cancer Research Foundation
+
