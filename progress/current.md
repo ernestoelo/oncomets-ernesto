@@ -3073,3 +3073,88 @@ Nada de la Hoja 8 está verificado **contra el PDF**: es una hora de búsqueda w
 principal está identificado y es concreto: la clase mitótica de HoVer-NeXt está entrenada sobre
 **colon**, y el modelo que sí cubre mama (PanNuke) no tiene esa clase. Ernesto subió el artículo
 a `sprints/B8_sprint8/hover_next.pdf` para que una sesión limpia lo estudie.
+
+---
+
+## 14-ago-2026 (tarde/noche) — HoVer-NeXt leído: el candidato aguanta, y su prueba no
+
+Misión del handoff `handoff_B8_20260814_1400.md`: estudiar el PDF de HoVer-NeXt (MIDL 2024, 26
+pág.) y verificar las seis afirmaciones que la Hoja 8 había escrito **con búsqueda web**. Leído
+entero, cuerpo y los dos apéndices, vía el volcado `hover_next.txt`. Sin GPU, sin descargas.
+
+Entregable: `sprints/B8_sprint8/papers_14_agosto/hovernext_estudio.md`. Hoja 8 corregida en el
+mismo turno.
+
+### El veredicto: las seis se sostienen, dos decían otra cosa
+
+**Ninguna afirmación resultó falsa.** Pero las dos que se leen como «qué tan bueno es esto»
+estaban mal atribuidas:
+
+- **El F1 0,84 es de detección BINARIA** («¿acá hay un núcleo?», sin decir de qué tipo). El F1
+  medio **por clase** es **0,606**, y **la mitosis sola, que es la que decide, da 0,55 a 0,62**
+  (Supp. C.3, que el resumen no muestra), con **precisión 0,545** y recall 0,720. Sobre-cuenta
+  casi al doble.
+- **La balanced accuracy 0,758 promedia seis clases entre las que NO está la mitosis.**
+
+Dos apuntes que la búsqueda web no daba: **no es el estado del arte en PanNuke** (CellViT 0,498
+contra 0,477) y en la clase **neoplásica** queda **por debajo de HoVer-Net**; y **los propios
+autores dicen que el mPQ es la métrica que hay que evitar** (§2.5), así que citar el 47,7 como
+titular es apoyarse en lo que el paper desaconseja.
+
+### Las tres preguntas abiertas, contestadas
+
+- **¿Validan fuera de colon?** Sí, y **mejor de lo temido**: la tabla por tejido pone a **mama 6ª
+  de 19** (mPQ 0,495), por encima del promedio y muy por encima de **colon, que sale 17ª**. Pero
+  **la clase mitótica nunca se midió fuera de CRC**, y ese riesgo queda entero.
+- **¿Qué predice cada juego de pesos?** Son dos vocabularios distintos, y **las ventajas no se
+  suman**: Lizard-Mitosis tiene mitosis y 0,5 µm/px pero es todo colon; PanNuke cubre mama pero sin
+  mitosis y a 0,25. **Elegir el brazo de mama cuesta la clase mitótica Y la escala.**
+- **¿Y a 0,465?** No hay estudio de sensibilidad, pero **su propia MitEval viene de láminas a 0,12
+  y 0,25 re-muestreadas a 0,5**: al lado de eso, nuestro 1,075× no merece discusión.
+
+### El costo: no queda atacado, queda demolido
+
+La 129741 tiene 68,0 mm² de tejido (4799 parches de 256 px a 0,465). A 1,78 s/mm² son **~2 minutos
+por lámina**, contra las **3 h 36** que midió Sebastián con HoVer-Net. Las 881 de la cola: **~30 h**
+contra ~132 días. **A ese precio el recorte por atención deja de hacer falta para ahorrar tiempo**,
+y sobrevive solo como control de falsos positivos.
+
+### El hallazgo de la sesión: al go/no-go del top-20 no le da el denominador
+
+La Hoja 8 proponía correr los pesos sobre «los ~20 parches de mayor atención» y contar cuántas de
+las 26 mitosis recupera. **Esa prueba no podía dar un resultado interpretable, y se ve sin correr
+nada.** Cruzando `atencion_vs_patologo/percentiles_por_parche.csv` contra los 28 parches con
+marcas, sobre los 12 checkpoints:
+
+| Parches de mayor atención | Mediana | Rango |
+|---|---:|---|
+| lo que captura el **top-20** | **3 de 28** | 0 a 5 |
+| para la mitad (14 de 28) | **189** | 120 a 585 |
+| para el 80 % (23 de 28) | **508** | 426 a 1147 |
+| para las 28 | **1392** | 822 a 2609 |
+
+**No contradice el AUC 0,890.** El percentil mediano de un parche con mitosis es ~96, o sea el
+puesto ~190 de 4799; el top-20 es el percentil **99,58**, un punto de operación mucho más exigente
+que el que el AUC resume. **El AUC resume todos los umbrales; un top-k es UN umbral, de los
+extremos.** También se cae el «ahorro ~240×» (era 4799/20): con top-189 es 25×.
+
+Versión corregida, que es **más barata** que la original: correr la lámina entera (2 min), medir
+**recall sobre las 26**, **sin** calcular precisión contra el geojson (los positivos son
+**parciales**, así que una detección fuera de las marcas no es un error), y usar la atención como
+**variable, no como filtro**. Con HNTiny y TTA, que es el mejor en mitosis en las dos agregaciones.
+
+### Dos cosas laterales que valen
+
+- **La receta de etiquetas de mitosis sin patólogo** (§2.4, A.6, A.7): re-tinte pHH3, registro y
+  umbral sobre el canal DAB deconvuelto sobre 48 ROI de 11 WSI, más auto-entrenamiento ST++ para
+  el resto de las clases. Es una vía publicada para el cuello exacto que tenemos.
+- **Su procedimiento de registro sirve para el hilo trabado de las regiones de escaneo**: ancla
+  manual **primero** sobre un núcleo visible en las dos imágenes, después SimpleElastix rígido y no
+  rígido sobre **gris submuestreado a 0,5 mpp**, y recién ahí aplicar a resolución completa.
+
+### Lo que NO se hizo
+
+No se bajaron pesos ni se clonó el repo (no autorizado). **No se declara reabierta la rama de
+núcleos**: sigue pausada desde el 31-jul y reabrirla es regla 9.b. El go/no-go corregido **es una
+propuesta, no una tarea ejecutada**. Y **no sabemos qué salió de la reunión del 14-ago**: todo esto
+asume que el encargo sigue vigente.

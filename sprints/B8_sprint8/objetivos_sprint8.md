@@ -110,9 +110,28 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   contra su vecindario. Gana **HoVer-NeXt** (MIDL 2024): **clase de mitosis**, **pesos
   públicos**, **0,5 µm/px nativo** y **17× más rápido que HoVer-Net**, o sea que ataca a la vez
   el agujero de la clase mitótica, el del 20× y el del costo que dejó la rama en pausa. Detrás
-  quedan **CellViT++** y el ecosistema **MIDOG 2025**. ⚠ **Verificado por búsqueda web, no por
-  PDF**; el artículo está en `hover_next.pdf`, sin leer. Riesgo principal: su clase mitótica es
+  quedan **CellViT++** y el ecosistema **MIDOG 2025**. Riesgo principal: su clase mitótica es
   de **colon**.
+- [**HoVer-NeXt, verificado contra el PDF**](papers_14_agosto/hovernext_estudio.md) (14-ago,
+  tarde) — leído entero. **Las seis afirmaciones de la Hoja 8 se sostienen como hechos**, con tres
+  correcciones que cambian la lectura: **(1)** el **F1 0,84 es detección binaria** («¿hay un
+  núcleo?»), el F1 medio por clase es 0,606 y **la mitosis sola da 0,55-0,62** con precisión 0,545,
+  o sea que **sobre-cuenta casi al doble**; la balanced accuracy 0,758 promedia seis clases **sin**
+  mitosis. **(2)** Las ventajas **no viven en el mismo juego de pesos**: Lizard-Mitosis trae la
+  mitosis y el 0,5 µm/px pero es **todo colon**, PanNuke cubre mama pero **sin mitosis y a 0,25**.
+  A favor: **sí validan fuera de colon** y mama sale **6ª de 19** (mPQ 0,495), por encima de colon
+  (17ª); y la escala es gratis, porque su propia MitEval viene re-muestreada a 0,5 desde 0,12 y
+  0,25. **(3)** El costo no queda atacado sino **demolido**: la 129741 son **~2 min**, las 881 de
+  la cola **~30 h** contra ~132 días de HoVer-Net. **Lo que nunca se midió es la clase mitótica
+  fuera de colon**, y ese es el único riesgo que queda entero.
+- **El go/no-go del top-20 no tenía denominador, y se corrigió** (14-ago, tarde) — el top-20 de los
+  4799 parches de la 129741 **contiene 3 de los 28 parches con mitosis** (mediana de 12
+  checkpoints; rango 0 a 5): el máximo recuperable de la prueba propuesta era 3, no 26. Para la
+  mitad de las marcas hacen falta **189** parches y para las 28, **1392**. **No contradice el AUC
+  0,890**: el percentil mediano de un parche con mitosis es ~96 y el top-20 es el 99,58. La versión
+  que decide es **correr la lámina entera** (dos minutos) y medir **recall sobre las 26**, sin
+  calcular precisión contra un geojson de positivos **parciales**. También se cae el «ahorro
+  ~240×». Lección transportable en [[topk-percentil-no-auc]].
 
 ---
 
