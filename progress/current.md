@@ -2913,3 +2913,60 @@ que puso Ernesto. Tres tests, resultado partido:
 
 Los tres documentos de A (vencen mañana), el bug del test de level 0 de B, y la pregunta a
 Sebastián sobre cuál es el `.csv` del que hablaba. Detalle en el handoff.
+
+---
+
+## 13-ago-2026 (noche, sesión corta) — Encargo A ENTREGADO: los tres documentos del paper
+
+> Sesión de **redacción pura**: la investigación ya estaba cerrada por la sesión anterior y todos
+> los números verificados vivían en `papers_14_agosto/notas_extraccion_jaroensri.md`. No hizo
+> falta releer el PDF, que es exactamente para lo que ese archivo se había escrito.
+
+### Lo entregado
+
+Los tres documentos que vencían el **viernes 14-ago**, en `sprints/B8_sprint8/papers_14_agosto/`:
+
+| Archivo | Qué es |
+|---|---|
+| `busqueda.md` | El rubric de cinco criterios **puntuado sobre los cuatro candidatos**, las fichas de cada uno con DOI, y por qué pierden los otros tres. Es lo que hace auditable la elección |
+| `jaroensri_estudio.md` | El estudio a fondo, con los números del texto del PDF y del Supplementary |
+| `hoja_jaroensri.md` | **Hoja 7**, la que se lee en la reunión sin abrir nada más, con su sección «No se afirma» |
+
+Ganador: **Jaroensri et al., npj Breast Cancer 8:113 (2022)**, DOI `10.1038/s41523-022-00478-y`.
+
+### Lo que salió al escribir, y no estaba en las notas de extracción
+
+Tres cosas, las tres de leer el PDF con la pregunta de integración puesta encima:
+
+1. **El ahorro del top-k depende de la razón entre el campo del especialista y el parche del
+   selector**, y eso reordena las ramas. Nuestro parche mide 119 µm. Mitosis pide 32 µm y entra 14
+   veces, o sea **280 inferencias por lámina** con los 20 parches de atención. Pleomorfismo pide
+   256 µm, más grande que nuestro parche: **20 inferencias**. Tubular pide 1 mm, y **una sola
+   ventana ya cubre unos 70 parches nuestros**, o sea que el top-k **casi no ahorra nada**.
+   Cruzado con la escala sale incómodo: **la rama donde nuestro privado alcanza (tubular) es justo
+   donde el recorte por atención no sirve**, y donde sí sirve (mitosis) hay que ampliar 1,86×.
+2. **Su máscara y nuestra atención no son el mismo objeto.** La suya es **semántica**: un
+   clasificador de parche de 3 clases (no tumor / in situ / invasivo), AUC 0,95 contra anotación
+   de patólogo, y la máscara sale por argmax sobre parches de 1024. La nuestra es un **ranking de
+   saliencia** entrenado solo con etiqueta de lámina. La sustitución **no es neutra y está sin
+   medir**; lo único a favor medido es que el ranking cae sobre las mitosis marcadas en una
+   lámina (AUC 0,890).
+3. **Observación, no resultado:** en la Supplementary Tabla 5, los puntajes de mitosis tomados del
+   **informe de patología original** dan c-index **0,65**, por encima del modelo continuo (0,59) y
+   del voto de mayoría de tres patólogos (0,58). Nos toca porque **nuestras etiquetas salen del
+   informe CAP**. La salvedad que impide usarlo fuerte: esas filas parecen computadas sobre el
+   subconjunto con informe disponible (n = 550) y no sobre las 829, y el paper no las plantea como
+   comparación cabeza a cabeza. Queda registrado como observación.
+
+También quedó documentada la mecánica reusable de su etapa 2: para mitosis usa **cinco percentiles
+de la densidad mitótica** (5, 25, 50, 75, 95), **no el máximo**, y la cadena de detección es umbral
+0,915 → erosión con elemento de 16 µm → componentes conexas → centroide, con la densidad medida en
+**baldosas de 1,8 × 1,8 mm al 50 % de solape**, que es el punto caliente de Nottingham con otro
+nombre.
+
+### Queda abierto
+
+**El encargo B**, entero desde donde lo dejó la sesión anterior: el bug de mapeo de coordenadas
+del test de píxeles a level 0, que es lo único que separa del veredicto sobre si las dos regiones
+de la 129741 son la misma lámina. Y la pregunta a Sebastián sobre **cuál es el `.csv`** del que
+hablaba. Detalle en el handoff.

@@ -94,6 +94,15 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   más el 5-ago que lo bajan de 20 a 16), auditoría en cero. Queda **una** pendiente propia:
   el guion de las láminas nuevas y fusionadas, sin pasar por `@humanizer-es`.
 - **La reunión con Sebastián es el jueves 6-ago**, no el viernes 7 (esa es la de Benjamín).
+- [**Paper de segunda etapa para la reunión del 14-ago**](papers_14_agosto/hoja_jaroensri.md)
+  (13-ago) — gana **Jaroensri et al., npj Breast Cancer 8:113 (2022)** (`10.1038/s41523-022-00478-y`):
+  es la forma del pipeline de Sebastián publicada, con modelos de **parche** para los tres
+  componentes de Nottingham y una etapa 2 de scikit-learn. Rubric puntuado sobre cuatro candidatos
+  en [`busqueda.md`](papers_14_agosto/busqueda.md), estudio en
+  [`jaroensri_estudio.md`](papers_14_agosto/jaroensri_estudio.md). Dos cosas que cambian el plan:
+  **excluye el 20×**, que es toda nuestra cohorte privada, así que **tubular es la única rama que
+  el privado alimenta sin ampliar**; y el **ahorro del top-k se cae** justo en esa rama, porque su
+  campo de 1 mm cubre ~70 parches nuestros.
 
 ---
 
