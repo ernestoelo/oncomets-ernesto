@@ -2970,3 +2970,65 @@ nombre.
 del test de píxeles a level 0, que es lo único que separa del veredicto sobre si las dos regiones
 de la 129741 son la misma lámina. Y la pregunta a Sebastián sobre **cuál es el `.csv`** del que
 hablaba. Detalle en el handoff.
+
+---
+
+## Sesión 14-ago-2026: el test de píxeles a level 0, arreglado
+
+El encargo B estaba bloqueado por un test que daba cero. **Ya no da cero**, y de paso el
+diagnóstico que se había dejado escrito resultó equivocado en las dos pistas que ofrecía.
+
+### El bug no era el que estaba anotado
+
+Se había apuntado a un término faltante en el mapeo de coordenadas y a una contradicción entre
+`dy = +512` (features) y `dy = −640` (píxeles). Verificado contra el archivo, ninguna de las dos:
+
+- La 129741 tiene `region[0].x = region[1].x = 0`, así que el término que faltaba **vale cero
+  acá**. Era un bug latente de generalidad, no la causa. Arreglado igual.
+- No había contradicción: derivando el signo de la búsqueda gruesa sale `DY = −512` contra los
+  −640 medidos, y esos **128 px son la cuantización** de la grilla del h5 (±128) más la de la
+  miniatura (±64). Los dos números eran compatibles.
+
+La causa real es de **resolución**: la posición en la región 1 se derivaba de un único offset
+global medido a **level 6**, donde 1 px de miniatura son **64 px de level 0, unas cinco células**.
+El test daba cero **por construcción**, midiera lo que midiera. Lección reusable: un registro a
+level N no sirve para decidir a level 0 si su cuantización queda por encima de la escala del
+objeto que se quiere comparar.
+
+### El arreglo y lo que mide
+
+`registro` quedó reescrito en dos etapas: la posición **no se deriva, se busca**. Ocho ventanas
+repartidas en grilla 4×4 sobre la región se localizan primero dentro de ±2048 px a level 2, y
+después se refinan a level 0 con barrido de rotación. El control de sitio equivocado corre con
+**los mismos grados de libertad** que la señal.
+
+| | Señal | Control de sitio equivocado |
+|---|---|---|
+| NCC a level 0, medio | **0.3820** | 0.0493 |
+| rango | 0.2488 .. 0.4521 | máximo 0.0671 |
+| ventanas sobre el máximo del control | **8 / 8** | |
+
+Hay correspondencia celular real, a 29.5 sd del control. Maquinaria verificada aparte en
+`tests/test_registro_geometria.py`, incluido el signo de la rotación (invertido da 0.31 en vez
+de 0.98, así que sin ese test la conclusión podía salir al revés).
+
+### Por qué igual NO hay veredicto
+
+El barrido de rotación **sigue pegando en el borde** (0.38 es cota inferior), el θ óptimo varía
+entre ventanas cuando un cuerpo rígido daría uno solo, el ajuste rígido deja residuo **RMS
+103 µm**, y sobre todo **0.38 cae entre las dos hipótesis**: un re-escaneo bien registrado daría
+0.8 a 0.9, pero dos secciones seriadas cortadas a 3 a 5 µm **comparten núcleos** y también dan
+correspondencia parcial.
+
+También se **corrigió un argumento equivocado**: que la disposición de los seis fragmentos
+probara algo. No prueba nada, porque los fragmentos van embebidos juntos en el bloque y el corte
+sale como una cinta única que conserva la disposición. Dos secciones seriadas la conservan **por
+construcción**.
+
+### Queda abierto
+
+Cerrar el veredicto iterando el ajuste (usar la rotación ajustada como centro del barrido, no
+cero) y **conseguir un control positivo empírico** corriendo el test sobre una muestra de las
+otras 138 láminas multi-región: si alguna da 0.9, esa es la referencia contra la cual leer el
+0.38, y de paso se sabe cuáles están afectadas de verdad. Sigue pendiente la pregunta a Sebastián
+sobre **cuál es el `.csv`**. Detalle en el handoff.
