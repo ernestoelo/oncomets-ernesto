@@ -2843,3 +2843,73 @@ las marcas caen todas en una, y las dos cosas siguen siendo ciertas.
 
 Los dos encargos, para la sesión de ejecución. Y una pregunta para Sebastián que la verificación
 no puede contestar sola: **cuál es el `.csv` del que hablaba**.
+
+---
+
+## 13-ago-2026 (tarde/noche) — Ejecución del handoff: el paper leído y el barrido de regiones corrido
+
+> Sesión de **ejecución** del plan de la entrada anterior. Cerrada a pedido de Ernesto para que
+> una sesión limpia siga. **Ninguno de los dos encargos está terminado**, y los dos quedaron
+> mucho más cerca: lo que falta de A es redacción, y lo que falta de B es un bug.
+
+### Encargo A (vence el viernes 14-ago): investigación cerrada, documentos sin escribir
+
+Se aplicó el rubric de cinco criterios del handoff sobre cuatro candidatos y **gana Jaroensri
+et al., npj Breast Cancer 8:113 (2022)**, DOI `10.1038/s41523-022-00478-y`. PDF y Supplementary
+**bajados** a `sprints/B8_sprint8/papers_14_agosto/` y **leídos enteros**.
+
+**Por qué gana:** es la forma del pipeline de Sebastián, publicada. Una máscara elige dónde
+mirar, tres modelos de **parche** puntúan los tres componentes de Nottingham (que son nuestras
+tres etiquetas CAP), y una etapa 2 liviana de scikit-learn agrega a puntaje de lámina. Nuestro
+cambio sería reemplazar su máscara de carcinoma invasivo por la atención de CLAM. Y cumple el
+criterio de Ernesto de «aumentar métricas» en la forma más fuerte que hay: **supera el acuerdo
+entre patólogos en los tres componentes** (kappa modelo-patólogo 0,64 / 0,39 / 0,69 contra
+inter-patólogo 0,56 / 0,36 / 0,55), con TCGA como test set, que es cohorte nuestra.
+
+**Los dos hallazgos que valen más allá del paper, y ninguno estaba dicho en el sprint:**
+
+1. **Excluye explícitamente las láminas a 20×**, para garantizar 40× en mitosis y pleomorfismo.
+   Nuestra cohorte privada está **entera** a 0,465 µm/px (verificado esta sesión sobre las 490,
+   sin una excepción). Sus campos son 32 µm a 0,25 para mitosis, 256 µm a 0,25 para
+   pleomorfismo y **1 mm a 1,0 µm/px para formación tubular**, así que **tubular es el único de
+   los tres que nuestro privado alimenta sin ampliar**. Eso **corrige el encuadre** que traíamos
+   desde el 11-ago, donde pleomorfismo era la rama «a favor» por Mercan a 0,5 µm/px.
+2. **Probaron features de núcleo hechas a mano para pleomorfismo y no mejoraron.** Es evidencia
+   en contra de la rama de NPKC-MIL, de un grupo con más datos.
+
+Y un dato de MIDOG 2025 (arXiv `2606.07368`) que vale solo y no depende de quién gane el rubric:
+fuera de los puntos calientes curados la tasa de falsos positivos de los detectores de mitosis
+**se triplica** (aumento del 208 %), sobre 365 casos y 12 tipos tumorales. O sea que restringir
+el detector a los parches de mayor atención **es la forma correcta del problema**, medido por un
+challenge, y es el mejor argumento externo que tenemos para el diseño de dos etapas.
+
+**Lo que falta son los tres documentos.** Para que no haya que releer el PDF, todos los números
+verificados quedaron en `papers_14_agosto/notas_extraccion_jaroensri.md`, incluida la cuenta de
+cuántos parches por lámina cuesta cada rama y la tabla del rubric puntuada.
+
+### Encargo B: el alcance medido, el veredicto NO
+
+**Lo que pidió Sebastián cuantificar está cuantificado.** Barrido de las 589 carpetas de `wsi/`
+leyendo `openslide.region[N].*`: de las **490** con `.bif` sin sufijo de tinción, **139 declaran
+más de una región de escaneo** (130 con dos, 8 con tres, 1 con cuatro), o sea el **28,4 %**.
+Lista con nombres en `regiones_escaneo/laminas_multiregion.csv`. Tenía razón en que hay más, y
+son bastantes más de lo que uno esperaría.
+
+**El veredicto sobre la 129741 no se registra, porque no está establecido**, que es la condición
+que puso Ernesto. Tres tests, resultado partido:
+
+- **Features con el desfase corregido:** el óptimo del barrido 2D no está en el nominal sino en
+  dx=−256, dy=50432, y sube el coseno de 0,708 a **0,811** contra 0,502 al azar. Pero **el test
+  no decide**, y su propio control lo demuestra: el mejor coseno contra la otra banda da 0,9013
+  y contra la **propia** banda da 0,9009. Las features CONCH son tan suaves sobre el tejido que
+  el parche de al lado ya se parece 0,90.
+- **Píxeles a escala gruesa: NCC 0,9569 registrada contra −0,159 del control espejado**, y a ojo
+  los seis fragmentos tienen el mismo contorno y la misma disposición. Evidencia fuerte de que
+  es la misma lámina escaneada dos veces.
+- **Píxeles a level 0: no corrió bien.** NCC ≈ 0 y el control también ≈ 0, o sea que los dos
+  recortes no miran el mismo sitio. Es un bug de mapeo de coordenadas, no un resultado.
+
+### Queda abierto
+
+Los tres documentos de A (vencen mañana), el bug del test de level 0 de B, y la pregunta a
+Sebastián sobre cuál es el `.csv` del que hablaba. Detalle en el handoff.
