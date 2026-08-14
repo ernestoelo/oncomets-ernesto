@@ -1,0 +1,42 @@
+{
+  "slide_id": "129741",
+  "regiones": [
+    [
+      0,
+      0,
+      35840,
+      30720
+    ],
+    [
+      0,
+      49920,
+      34560,
+      30720
+    ]
+  ],
+  "grueso": {
+    "level": 6,
+    "downsample": 64.0,
+    "dx_level0": 0,
+    "dy_level0": -640,
+    "ncc_sin_registrar": 0.9507898688029179,
+    "ncc_registrada": 0.9569279869554712,
+    "ncc_control_espejo": -0.15901937355977186
+  },
+  "fino": {
+    "recorte": 1024,
+    "origen_region0": [
+      13824,
+      3584
+    ],
+    "origen_region1": [
+      13824,
+      54144
+    ],
+    "residuo_dx": -233,
+    "residuo_dy": 357,
+    "pico_sd": 4.846256186989774,
+    "ncc": -0.004466037560874989,
+    "ncc_control_corrido": 0.009037378412143618
+  }
+}

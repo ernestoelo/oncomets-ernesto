@@ -1,0 +1,17 @@
+{
+  "fecha": "2026-08-13T20:15:19-04:00",
+  "encargo": "B de la reunion 12-ago-2026: verificar la explicacion de Sebastian sobre las dos laminas de la 129741",
+  "script": "scripts/auditar_regiones_escaneo.py",
+  "python": "/home/sdonoso/miniconda3/envs/clam_latest/bin/python",
+  "versiones": {
+    "openslide": "1.4.2",
+    "numpy": "2.2.6",
+    "h5py": "3.14.0"
+  },
+  "entradas_readonly": [
+    "/media/administrador/Storage1/sdonoso/wsi/",
+    "clam_environ/environ/features/h5_files/"
+  ],
+  "commit": "2b84e9117a49e16afdbac75151e2ba4e65c3caf0",
+  "estado": "VEREDICTO NO ESTABLECIDO: el test fino a level 0 (NCC=0) no esta resuelto"
+}
