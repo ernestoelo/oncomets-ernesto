@@ -132,6 +132,21 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   que decide es **correr la lámina entera** (dos minutos) y medir **recall sobre las 26**, sin
   calcular precisión contra un geojson de positivos **parciales**. También se cae el «ahorro
   ~240×». Lección transportable en [[topk-percentil-no-auc]].
+- [**HoVer-NeXt por dentro, el mecanismo**](papers_14_agosto/hovernext_mecanismo.md) (14-ago,
+  noche) — cómo funciona cada pieza, escrito como delta contra
+  [`hovernet_estudio.md`](hovernet_estudio.md). Lo que corrige de la lectura natural del candidato:
+  **(1)** el **BCB-map no es donde vive el 17×**. Cruzando nuestra medición de HoVer-Net (job 4714)
+  con el paper, el post-proceso era **~35 % del costo** (1 h 15 de 3 h 36), así que borrarlo entero
+  compra **~1,5×**; el resto sale de ingeniería de inferencia (encoder Tiny, media precisión, salida
+  cuantizada a un byte, Zarr/LZ4, escritura en otro proceso, pre-stitching) y de **sacar el convex
+  hull, que se pagó en distancia de Hausdorff**. **(2)** El BCB **no separa mejor que los mapas HV**:
+  en PanNuke el bPQ da 0,656 contra 0,659 de HoVer-Net. Separa **igual y más barato**, que es la
+  tesis real del paper. **(3)** El pipeline **espera una WSI**: su foreground sale del thumbnail de
+  OpenSlide y el stitcher existe para pegar ROI, así que darle parches sueltos es tocar código, no
+  configurarlo, y además paga un **borde perimetral** que el solape de la lámina evita. **(4)** La
+  ablación de C.2 dice **«hace falta una de las dos y cuál importa poco»**, no «muestrear es mejor»:
+  la fila ganadora en mAcc es justamente la **ponderación sola**, que descartaron. Quedan **cuatro
+  preguntas que solo cierra el código** (§14 del doc).
 
 ---
 

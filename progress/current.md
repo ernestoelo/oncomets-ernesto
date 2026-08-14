@@ -3158,3 +3158,63 @@ No se bajaron pesos ni se clonó el repo (no autorizado). **No se declara reabie
 núcleos**: sigue pausada desde el 31-jul y reabrirla es regla 9.b. El go/no-go corregido **es una
 propuesta, no una tarea ejecutada**. Y **no sabemos qué salió de la reunión del 14-ago**: todo esto
 asume que el encargo sigue vigente.
+
+## 14-ago-2026 (noche) — HoVer-NeXt por dentro: el 17× no está donde parecía
+
+Misión del handoff `handoff_B8_20260814_2030.md`: entender el **mecanismo** de HoVer-NeXt y
+explicarlo pedagógicamente. Nada de re-verificar números. Sin GPU, sin descargas.
+
+Entregable: `sprints/B8_sprint8/papers_14_agosto/hovernext_mecanismo.md` (452 líneas), escrito como
+**delta contra `hovernet_estudio.md`**, que ya estaba en el repo. Reusa su mini ejemplo de 10
+píxeles con una fila más, para que los dos documentos hablen el mismo idioma. Figuras 1 y 5 leídas
+del PDF **al principio de la sesión** ([[image-api-qa-limit]]) y descritas en el mismo pase.
+
+### El BCB-map, y lo que la Fig. 5 regala
+
+El BCB (**B**oundary, **C**enter, **B**ackground) le da al watershed sus dos ingredientes ya
+hechos: las semillas son los píxeles `centro`, las barreras son los `borde`. HoVer-Net tenía que
+fabricárselos con la cadena Sobel → máximo → marcadores → paisaje de energía, cada paso una pasada
+a resolución completa con dos umbrales libres. La **Fig. 5 lo muestra literal**: su panel *Model
+BCB Output* es rojo de fondo, verde en los núcleos y una franja azul de borde (el código de color
+es lectura visual, el epígrafe no lo escribe).
+
+### Los tres hallazgos de mecanismo
+
+1. **El BCB NO es donde vive el 17×.** Cruzando nuestra medición del job 4714 con el paper: el
+   post-proceso de HoVer-Net era **1 h 15 de 3 h 36 = ~35 %**, así que borrarlo entero compra
+   **~1,5×**. El resto sale de ingeniería (HNTiny, media precisión, salida cuantizada a un byte,
+   Zarr/LZ4, escritura en otro proceso, pre-stitching) y de **quitar el convex hull, que se pagó**:
+   la distancia de Hausdorff **empeora** contra su propia entrada al CoNiC (neutrófilos 1,966 →
+   2,250 en HNLarge), y el paper lo admite en la Discusión.
+2. **El BCB tampoco separa mejor.** En PanNuke el **bPQ**<sub>Tiss</sub> da **0,656 (HNTiny) contra
+   0,659 (HoVer-Net)**. Separa **igual y más barato**, que es la tesis real de un paper de
+   ingeniería de inferencia. El paper ni lo presenta como mejora de calidad: justifica el BCB
+   citando resultados en **otras modalidades** (Caicedo 2018). Y hay una tensión que vale nombrar:
+   HoVer-Net existía **para no** predecir el contorno como clase, y HoVer-NeXt vuelve a hacerlo.
+3. **El pipeline espera una WSI** (la 2ª pregunta del handoff). Su foreground sale del **thumbnail
+   de OpenSlide** y el stitcher existe para pegar ROI: con parches sueltos, los dos primeros pasos
+   de la Fig. 1A quedan sin uso. Es **fricción de plomería, no de costo**, y además paga un costo
+   de **borde** (el paper evalúa Lizard sobre recortes centrales de 248 de 256 «to avoid having to
+   detect nuclei with their center outside of the tile»); un parche aislado tiene ese problema en
+   todo el perímetro. Refuerza por mecanismo lo que §7 del estudio decía por costo: **correr la
+   lámina entera es el modo para el que la herramienta está construida**.
+
+### Una observación nueva, chica
+
+**La ablación C.2 dice menos de lo que §2.2 le hace decir.** El texto justifica quedarse solo con
+muestreo («data sampling is already sufficient»), pero en la tabla **la fila ganadora en mAcc y bF1
+es la de ponderación sola** (0,766 / 0,846), que es la que descartaron. Las tres configuraciones
+que conservan alguna de las dos están dentro de 0,007. Lo único claro es que **sacar las dos duele**
+(mF1 0,571 contra ~0,606). Los propios autores lo dicen así en la Discusión («no clear best
+configuration»). No cambia ningún veredicto: es nota de mecanismo, no de números.
+
+### Lo que queda abierto
+
+Cuatro preguntas que **solo cierra el código**, que no está autorizado a clonar: si los mapas HV
+entran al post-proceso o no (§2.1 dice «auxiliar», §2.3 usa solo el BCB, pero la Fig. 1B los dibuja
+juntos apuntando a *Instance map*); de qué lado va el **λ = 0,02** que pesa las dos ramas (un factor
+50 en cuál domina el gradiente); si las vistas de TTA se **sortean o se enumeran** (la tabla C.1
+lista probabilidades también en test); y si la entrada por tiles sueltos está expuesta.
+
+**Sigue sin respuesta qué salió de la reunión con Sebastián del 14-ago.** Se preguntó al cerrar las
+dos sesiones anteriores. Todo el encuadre asume que el encargo sigue vigente.
