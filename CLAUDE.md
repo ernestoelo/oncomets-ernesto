@@ -53,6 +53,7 @@ Acceso: **VPN oficial Environ + SSH**. Stack registrado el 19 may 2026
 │   └── environ/         ← DATOS del proyecto (features .pt, CSVs, splits). READ-ONLY.
 ├── clam_testing/        ← workspace COMPARTIDO y activo (owner sdonoso; Sebastián/sgaete y otros corren ahí). Read-only por defecto; escribir solo si Sebastián lo pide (regla 3.a).
 ├── hover_net/           ← HoVer-Net de sgaete (29-jul-2026), CON TRABAJO VIVO. Ajeno → READ-ONLY, misma lógica que clam_testing/. [[hovernet-ya-corriendo-sgaete]]
+├── anotaciones/         ← 12 geojson del PATÓLOGO (`<slide>.bif - GDT.geojson`) + pipeline atención/overlays de sgaete. Ajeno → READ-ONLY. [[anotaciones-patologo-qupath]]
 └── clam_testing2/       ← MI workspace (todo lo mío vive acá; ver "Workspace containment")
     ├── oncomets-ernesto/        ← este repo
     ├── CLAM_official_reference/ ← CLAM oficial Mahmood Lab (REFERENCE ONLY — not in PYTHONPATH)
@@ -62,6 +63,19 @@ Acceso: **VPN oficial Environ + SSH**. Stack registrado el 19 may 2026
     ├── ZoomMIL_reference/       ← ZoomMIL, Thandiackal ECCV 2022               │ MISMA regla:
     └── MSCLAM_reference/        ← MS-CLAM, Tourniaire MedIA 2023               ┘ REFERENCE ONLY
 ```
+
+> **`anotaciones/` (READ-ONLY, descubierto el 17-ago-2026).** Es el material de patólogo del
+> proyecto y **ninguna sesión anterior lo había mirado**: `grep` sobre el repo entero daba cero.
+> Contiene **12** láminas anotadas (`103762 106552 109609 110616 124729 124806 126504 128194
+> 129741 144317 164001 B25-158899`), las 12 con features `.h5` y WSI, y **las 12 con marcas de
+> `Mitosis`** — 94 en total contra las 26 de la 129741 sola. Su vocabulario de clases es más ancho
+> que el de la 129741 (`AreaTubular`, `AreaSolida`, `CDIS_solido`, `CDIS_papilar`, `Comedonecrosis`,
+> `Permeaciones vasculares`, `NucleosBajoGrado`, `Nucleos mod grado`, `Mucinoso`,
+> `microcalcificaciones`). **Sebastián habló de 30 láminas: faltan 18, y por qué es pregunta
+> abierta para él.** Además `sgaete` tiene ahí un pipeline **propio** de atención-vs-anotaciones
+> (`atencion/` sobre 8 tareas, `overlays/`, jobs 4838/4839) que **mide lo mismo** que nuestro
+> `sprints/B8_sprint8/atencion_vs_patologo/` ⇒ **riesgo de trabajo duplicado: coordinar antes de
+> barrer las 12.**
 
 - **Codebase compartido (READ-ONLY)**: `/media/administrador/Storage1/sdonoso/clam_environ/`
 - **Datos compartidos (READ-ONLY)**: `/media/administrador/Storage1/sdonoso/clam_environ/environ/`
@@ -148,6 +162,12 @@ aplicar el fix correspondiente sin investigar de nuevo.
   sin pedirle que suba archivos a mano. Precedente: los 5 papers de mitosis y sus
   repos, autorizados el 2-ago ([[papers-rama-mitosis-bcd]]). Una autorización es
   **para esa lista**, no para el tema.
+  - **Segundo precedente, 17-ago-2026**: Ernesto autorizó clonar
+    `github.com/digitalpathologybern/hover_next_inference` y bajar **los dos** juegos de pesos
+    (Lizard-Mitosis y PanNuke), destino `clam_testing2/hover_next_reference/`, REFERENCE ONLY y
+    fuera del `PYTHONPATH` como los 4 del 2-ago. **Supersede** el «no hay autorización» que
+    arrastraban `hovernext_estudio.md` §11 y los handoffs previos.
+    Sigue valiendo que la autorización es para **esa lista** y no para el tema.
 - **E.b — Gotcha del cache del harness**: un `WebFetch` sobre la URL de un PDF
   deja una copia en `~/.claude/projects/<hash>/<sesión>/tool-results/*.pdf`,
   **fuera del containment**. Si la regla vigente es no descargar, borrarla en el
