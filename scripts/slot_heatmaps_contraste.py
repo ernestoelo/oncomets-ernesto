@@ -16,12 +16,23 @@ POR QUE POR SLOT Y NO POR EXPERTO ([[slot-unidad-de-morfologia]], [[heatmap-aten
 
 CPU, post-hoc, read-only. NO toca modelo ni training (regla 9 no aplica).
 
-Uso:
+Uso (B7, defaults — reproduce la corrida original):
   CUDA_VISIBLE_DEVICES="" /home/sdonoso/miniconda3/envs/clam_latest/bin/python \
       scripts/slot_heatmaps_contraste.py
+
+Uso (cualquier otra lamina, p.ej. la 129741 del patologo — B8):
+  ... scripts/slot_heatmaps_contraste.py \
+      --selection sprints/B8_sprint8/hovernext_129741/interp_slides_129741.json \
+      --expertos-dir results/b8_hovernext_129741/interp/expertos \
+      --out sprints/B8_sprint8/hovernext_129741/slot_heatmaps --label 129741
+
+PARAMETRIZADO el 17-ago-2026 (B8): antes tenia las 3 laminas TCGA del B7 hardcodeadas en
+`REPR`/`TASK_LABEL` y la ruta de `slot_usage.csv` clavada a la convencion
+`<interp_root>/<task>/<slide>/expertos`. Los defaults preservan el comportamiento B7.
 """
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -44,21 +55,48 @@ from scripts.mammoth_interpretability import (  # noqa: E402
 )
 from scripts.clam_vs_mammoth_attention import infer_patch_size_level0  # noqa: E402
 
-INTERP = REPO / "results/b7_mammoth_interp/interpretabilidad"
-OUT = REPO / "sprints/B7_sprint7/slot_softmax/heatmaps"
-TOPK = 4  # slots a mostrar
-
-# lamina representativa por tarea (task_key -> slide_id que empieza asi)
-REPR = {
+# Defaults del B7 (se conservan para reproducir la corrida original sin argumentos).
+# La lamina representativa por tarea solo aplica si --slide no se pasa Y la tarea esta aca.
+REPR_B7 = {
     "tipo_histologico_3clases_ci": "TCGA-AC-A8OS",
     "carcinoma_ductal_insitu_presente_ci_reform": "TCGA-D8-A1XB",
     "invasion_linfatica_vascular_ci_reform": "TCGA-D8-A1X5",
 }
-TASK_LABEL = {
+TASK_LABEL_B7 = {
     "tipo_histologico_3clases_ci": "tipo_histologico",
     "carcinoma_ductal_insitu_presente_ci_reform": "cdis",
     "invasion_linfatica_vascular_ci_reform": "lvi",
 }
+
+
+def parse_args():
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap.add_argument("--selection", default=str(REPO / "sprints/B7_sprint7/interp_slides.json"),
+                    help="JSON de seleccion (mismo schema que interp_slides.json)")
+    ap.add_argument("--out", default=str(REPO / "sprints/B7_sprint7/slot_softmax/heatmaps"),
+                    help="directorio de salida")
+    ap.add_argument("--interp-root", default=str(REPO / "results/b7_mammoth_interp/interpretabilidad"),
+                    help="raiz de la convencion <task>/<slide_short>/expertos/slot_usage.csv")
+    ap.add_argument("--expertos-dir", default=None,
+                    help="ruta EXPLICITA al dir que contiene slot_usage.csv; "
+                         "puentea la convencion de --interp-root (util fuera del layout B7)")
+    ap.add_argument("--slide", default=None,
+                    help="prefijo del slide_id a dibujar; default = el del B7 para esa tarea, "
+                         "o la primera lamina de la tarea si no esta en la tabla B7")
+    ap.add_argument("--label", default=None,
+                    help="etiqueta corta para los nombres de archivo; default = la del B7 o el task_key")
+    ap.add_argument("--only-task", default=None, help="procesar solo esta tarea del JSON")
+    ap.add_argument("--topk", type=int, default=4, help="slots a dibujar (default 4)")
+    return ap.parse_args()
+
+
+def rel(p: Path):
+    """Path relativo al repo si esta adentro; absoluto si no (el --out puede caer afuera
+    o venir relativo, y `relative_to` revienta en los dos casos)."""
+    try:
+        return p.resolve().relative_to(REPO)
+    except ValueError:
+        return p
 
 
 def slot_combine_spatial(mammoth, feats, device="cpu"):
@@ -119,16 +157,35 @@ def footprint(thumb, coords, col, scale, ps0, q=0.85):
 
 
 def main():
+    args = parse_args()
+    OUT = Path(args.out)
+    TOPK = args.topk
     OUT.mkdir(parents=True, exist_ok=True)
-    sel = json.loads((REPO / "sprints/B7_sprint7/interp_slides.json").read_text())
+    sel = json.loads(Path(args.selection).read_text())
 
-    for task_key, short in REPR.items():
-        label = TASK_LABEL[task_key]
-        cfg = sel[task_key]
-        sl = [s for s in cfg["slides"] if s["slide_id"].startswith(short)][0]
-        slide_dir = INTERP / task_key / sl["slide_id"].split(".")[0]
+    for task_key, cfg in sel.items():
+        if args.only_task and task_key != args.only_task:
+            continue
+        # que lamina: --slide manda; si no, la representativa del B7; si no, la primera.
+        pref = args.slide or REPR_B7.get(task_key)
+        cands = [s for s in cfg["slides"] if s["slide_id"].startswith(pref)] if pref else cfg["slides"]
+        if not cands:
+            print(f"[{task_key}] sin lamina que empiece con '{pref}' — se saltea")
+            continue
+        sl = cands[0]
+        short = sl["slide_id"].split(".")[0]
+        label = args.label or TASK_LABEL_B7.get(task_key, task_key)
         # el slot_usage.csv de ESTA lamina fija el ranking (no el promedio de tarea)
-        su = pd.read_csv(slide_dir / "expertos" / "slot_usage.csv")
+        exp_dir = (Path(args.expertos_dir) if args.expertos_dir
+                   else Path(args.interp_root) / task_key / short / "expertos")
+        su = pd.read_csv(exp_dir / "slot_usage.csv")
+
+        # nombre para mostrar: el prefijo pedido si lo hay (asi el B7 conserva sus titulos
+        # cortos "TCGA-AC-A8OS"), si no el slide_id corto.
+        disp = pref or short
+        # E*S sale del propio slot_usage.csv, no clavado en 300: un checkpoint del grid E×S
+        # (fase 6) tiene otro total y los rotulos mentirian.
+        NSLOTS = len(su)
 
         # tabla mini de ESTA lamina (calza 1:1 con los heatmaps): top-12 + fila resto
         TOPN = 12
@@ -140,11 +197,11 @@ def main():
             "peso_pct": (w[:TOPN] * 100).round(3),
             "masa_acum_pct": (np.cumsum(w[:TOPN]) * 100).round(1),
         })
-        mini.loc[len(mini)] = [f"{TOPN + 1}–300", f"otros {300 - TOPN} slots",
+        mini.loc[len(mini)] = [f"{TOPN + 1}–{NSLOTS}", f"otros {NSLOTS - TOPN} slots",
                                round(w[TOPN:].sum() * 100, 2), 100.0]
         mini.to_csv(OUT / f"slot_mini_{label}.csv", index=False)
 
-        print(f"\n[{label}] {short}  (clase real: {sl['label']})")
+        print(f"\n[{label}] {disp}  (clase real: {sl['label']})")
         mammoth, _ = build_mammoth(cfg["ckpt_mammoth"], keep_slots=False, device="cpu")
         feats, coords = load_feats_and_coords(sl["h5"])
         comb = slot_combine_spatial(mammoth, feats)          # (N, E*S)
@@ -190,25 +247,25 @@ def main():
             fig, axes = plt.subplots(1, TOPK + 1,
                                      figsize=((TOPK + 1) * 4.4, 4.4 * th / tw + 0.7))
             axes[0].imshow(thumb); axes[0].set_axis_off()
-            axes[0].set_title(short if sufijo else f"{short}\n{sl['label']}",
+            axes[0].set_title(disp if sufijo else f"{disp}\n{sl['label']}",
                               fontsize=26 if sufijo else 11)
 
             for ax, img, r in zip(axes[1:], paneles, top.itertuples()):
                 ax.imshow(img); ax.set_axis_off()
                 ax.set_title(f"e{int(r.expert)}·s{int(r.slot)}   "
                              f"{100 * r.mean_combine_weight:.1f}%\n"
-                             f"(#{int(r.rank) + 1} de 300)", fontsize=fs)
+                             f"(#{int(r.rank) + 1} de {NSLOTS})", fontsize=fs)
 
             if con_titulo:
                 # suptitle ANTES del tight_layout CON rect: sin el rect, tight_layout ignora
                 # el suptitle y este se monta sobre los titulos de panel (cazado en el QA).
                 fig.suptitle(f"Donde se concentra cada slot (top 15% de parches)  ·  {label}"
-                             f"  ·  combine, softmax sobre 300 slots", fontsize=12, y=0.995)
+                             f"  ·  combine, softmax sobre {NSLOTS} slots", fontsize=12, y=0.995)
             plt.tight_layout(rect=[0, 0, 1, 0.93] if con_titulo else None)
             out_png = OUT / f"slot_heatmaps_{label}{sufijo}.png"
             plt.savefig(out_png, bbox_inches="tight", dpi=120)
             plt.close()
-            print(f"   -> {out_png.relative_to(REPO)}")
+            print(f"   -> {rel(out_png)}")
 
 
 if __name__ == "__main__":
