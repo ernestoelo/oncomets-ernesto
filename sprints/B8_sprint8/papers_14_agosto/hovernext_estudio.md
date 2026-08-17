@@ -373,6 +373,31 @@ de una rama pausada, bajo **regla 9.b**.
 4. **¿Se prefiere el brazo mama (PanNuke, sin mitosis, a 0,25) o el brazo mitosis (Lizard-Mitosis,
    colon, a 0,5)?** Son excluyentes y la decisión es de dominio, no técnica.
 
+### ADDENDUM 17-ago-2026 — tres de las cuatro quedaron contestadas
+
+La reunión del 14-ago ocurrió y Ernesto resolvió lo que dependía de él. **Las respuestas, en el
+mismo orden:**
+
+1. **Sí, autorizado.** Clonar `hover_next_inference` y bajar **los dos** juegos de pesos, destino
+   `clam_testing2/hover_next_reference/`, REFERENCE ONLY y fuera del `PYTHONPATH` como los cuatro
+   repos del 2-ago. Queda registrado como segundo precedente en el workaround E.a de `CLAUDE.md`.
+2. **Sí, hay más: son doce**, no una. Viven en `/media/administrador/Storage1/sdonoso/anotaciones/`
+   (de `sgaete`, READ-ONLY), las doce con features y WSI y **las doce con marcas de mitosis** — 94
+   en total contra las 26 de la 129741. **Quién es «GDT» sigue sin respuesta.** Y aparece una
+   discrepancia nueva: **Sebastián habló de 30**, así que faltan 18 y hay que preguntarle por ellas.
+   Detalle en [[anotaciones-patologo-qupath]].
+3. **Sin novedad**: la pregunta por el material para re-teñir con pHH3 sigue abierta, y sigue sin
+   depender de que HoVer-NeXt nos sirva.
+4. **No son excluyentes en la práctica: se corren los dos.** A ~2 min por lámina el costo dejó de
+   ser el criterio que forzaba elegir. Responden preguntas distintas — Lizard-Mitosis se contrasta
+   contra las 26 marcas de mitosis, PanNuke contra las regiones de Tumor. **Lo que sí hay que
+   declarar** es que el brazo PanNuke corre sobre **píxeles interpolados**: pide 0,25 µm/px y la
+   lámina tiene 0,465, o sea una ampliación de 1,86× de resolución que no existe en el archivo.
+
+**Lo que este ADDENDUM no cambia**: ningún número del estudio, ni el §4 (las dos ventajas siguen
+viviendo en modelos distintos), ni el §8 (el top-20 sigue sin denominador). Diseño de la semana en
+`hovernext_129741/plan_semana_17ago.md` + [[hovernext-encargo-17ago-diseno]].
+
 ---
 
 Relacionadas: [[hovernext-especialista-segunda-etapa]], [[jaroensri-2022-nottingham-tres-componentes]],
