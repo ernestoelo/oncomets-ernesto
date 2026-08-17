@@ -13,10 +13,12 @@
 # submission. Los brazos restringidos NO se corren aca: salen de enmascarar esta salida
 # post-hoc (fase 3). Ver plan_semana_17ago.md y auditoria_codigo.md.
 #
-# Se lanza una vez por juego de pesos:
+# Se lanza una vez por juego de pesos. OJO: `--export` de SLURM separa variables por COMA,
+# asi que el ensemble de PanNuke (que main.py:76 espera como lista con comas) NO puede
+# viajar con comas. Se pasa con '+' y este script lo traduce (ver CP mas abajo).
 #   sbatch --export=ALL,CP=lizard_convnextv2_tiny,TAG=lizard_mitosis  scripts/run_hovernext_129741.slurm
-#   sbatch --export=ALL,CP=pannuke_convnextv2_tiny_1,pannuke_convnextv2_tiny_2,pannuke_convnextv2_tiny_3,TAG=pannuke ...
-#     ^ ojo: las comas de CP rompen --export; para PanNuke usar la variante de abajo.
+#   sbatch --export=ALL,CP=pannuke_convnextv2_tiny_1+pannuke_convnextv2_tiny_2+pannuke_convnextv2_tiny_3,TAG=pannuke \
+#          scripts/run_hovernext_129741.slurm
 #
 # --chdir va al repo de HoVer-NeXt porque main.py resuelve los pesos como
 # dirname(__file__)/<cp> (main.py:74-77). TODA la salida va por --output_root ABSOLUTO a
@@ -37,6 +39,11 @@ export LD_LIBRARY_PATH=$ENVP/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 WSI=/media/administrador/Storage1/sdonoso/wsi/129741/129741.bif
 
 CP=${CP:-lizard_convnextv2_tiny}
+# `--export` de SLURM parte por comas, asi que un CP multi-checkpoint llega partido en
+# variables basura. Se pasa con '+' y se traduce a la coma que espera main.py:76
+# (`--cp` es una lista que promedia como ensemble; asi reporta PanNuke el paper).
+# Idempotente: un CP de un solo checkpoint pasa intacto.
+CP=${CP//+/,}
 TAG=${TAG:-lizard_mitosis}
 METRIC=${METRIC:-f1}
 TTA=${TTA:-4}
