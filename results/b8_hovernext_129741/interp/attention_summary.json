@@ -1,0 +1,28 @@
+[
+  {
+    "slide_id": "129741",
+    "task": "carcinoma_ductal_insitu_presente_ci_reform",
+    "fold": 4,
+    "cohort": "privado",
+    "clase_real": "si",
+    "n_patches": 4799,
+    "level0_mag": 20.0,
+    "mpp_x": 0.465,
+    "patch_size_level0": 256.0,
+    "patch_size_level0_por_magnif": 512.0,
+    "campo_fisico_parche_um": 119.04,
+    "clam": {
+      "pred": 0,
+      "prob": 0.6249426007270813,
+      "entropia_atencion": 0.8634840376072802
+    },
+    "mammoth": {
+      "pred": 0,
+      "prob": 0.7981946468353271,
+      "entropia_atencion": 0.8816494635974268
+    },
+    "spearman_atencion": 0.45589767272968584,
+    "jaccard_top5pct": 0.22762148337595908,
+    "jaccard_top1pct": 0.10344827586206896
+  }
+]

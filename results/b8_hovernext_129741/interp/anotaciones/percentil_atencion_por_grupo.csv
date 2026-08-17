@@ -1,0 +1,15 @@
+slide,brazo,grupo,n_parches,percentil_medio,percentil_mediano,percentil_medio_resto,interes
+129741,CLAM,Mitosis,28,0.8723,0.9353,0.4958,True
+129741,CLAM,Nucleos alto grado,13,0.8412,0.9691,0.4982,True
+129741,CLAM,necrosis,18,0.7486,0.8248,0.4982,False
+129741,CLAM,Tumor,48,0.7124,0.7872,0.4958,False
+129741,CLAM,Immune cells,23,0.5911,0.6305,0.4992,False
+129741,CLAM,Tejido Adiposo,27,0.5721,0.5908,0.4992,False
+129741,CLAM,Stroma,12,0.4065,0.3559,0.5005,False
+129741,Mammoth,Mitosis,28,0.914,0.9497,0.4953,True
+129741,Mammoth,Nucleos alto grado,13,0.8376,0.879,0.4982,True
+129741,Mammoth,Tumor,48,0.834,0.8501,0.4935,False
+129741,Mammoth,necrosis,18,0.8258,0.8667,0.4976,False
+129741,Mammoth,Stroma,12,0.6026,0.6226,0.4995,False
+129741,Mammoth,Immune cells,23,0.4409,0.4345,0.5005,False
+129741,Mammoth,Tejido Adiposo,27,0.0656,0.0673,0.5048,False

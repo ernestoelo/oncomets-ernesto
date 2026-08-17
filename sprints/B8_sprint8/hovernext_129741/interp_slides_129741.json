@@ -1,0 +1,23 @@
+{
+  "carcinoma_ductal_insitu_presente_ci_reform": {
+    "fold": 4,
+    "classes": [
+      "no",
+      "si"
+    ],
+    "ckpt_clam": "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/b7_mammoth_interp/carcinoma_ductal_insitu_presente_ci_reform/clam_carcinoma_ductal_insitu_presente_ci_reform_f4_20260717_1812_s1/s_4_checkpoint.pt",
+    "ckpt_mammoth": "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/b7_mammoth_interp/carcinoma_ductal_insitu_presente_ci_reform/clam_mammoth_carcinoma_ductal_insitu_presente_ci_reform_f4_20260717_1812_s1/s_4_checkpoint.pt",
+    "slides": [
+      {
+        "slide_id": "129741",
+        "cohort": "privado",
+        "y_true": 1,
+        "label": "si",
+        "h5": "/media/administrador/Storage1/sdonoso/clam_environ/environ/features/h5_files/129741.h5",
+        "wsi": "/media/administrador/Storage1/sdonoso/wsi/129741/129741.bif",
+        "mpp_confiable": true,
+        "nota": "Lamina del patologo. Cae en TEST del fold 4 (no vista). DOS regiones de escaneo: region[1].y=49920, 2303 parches arriba y 2496 abajo; las 163 anotaciones caen todas ABAJO."
+      }
+    ]
+  }
+}

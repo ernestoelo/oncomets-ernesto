@@ -131,3 +131,11 @@ sprints/B4_sprint4/objetivo_6_mammoth/eduardo_snapshot/*.tar.gz
 # Paquete de envio de heatmaps (derivado; el original versionado esta en results/)
 sprints/B7_sprint7/envio_heatmaps/*.png
 sprints/B7_sprint7/envio_heatmaps/*.zip
+
+# Interpretabilidad B8 sobre la 129741: los 30 heatmaps por experto (85 MB) y los 240
+# recortes top-k (34 MB) son REGENERABLES en ~11 min de CPU desde el checkpoint + el h5
+# (scripts/mammoth_interpretability.py, determinista). Lo que se versiona es su resumen
+# visual, que es lo que se presenta: heatmap_montage.png y topk_contact_sheet.png, mas
+# todos los CSV/JSON.
+results/b8_hovernext_129741/interp/expertos/heatmaps/
+results/b8_hovernext_129741/interp/expertos/topk_patches/

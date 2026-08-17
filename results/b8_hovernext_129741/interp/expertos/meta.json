@@ -1,0 +1,165 @@
+{
+  "ckpt": "results/b7_mammoth_interp/carcinoma_ductal_insitu_presente_ci_reform/clam_mammoth_carcinoma_ductal_insitu_presente_ci_reform_f4_20260717_1812_s1/s_4_checkpoint.pt",
+  "h5": "/media/administrador/Storage1/sdonoso/clam_environ/environ/features/h5_files/129741.h5",
+  "wsi": "/media/administrador/Storage1/sdonoso/wsi/129741/129741.bif",
+  "label": "y_true=si(1) y_pred=no(0) fold4",
+  "keep_slots": false,
+  "lora_rank": 8,
+  "config": {
+    "input_dim": 512,
+    "dim": 512,
+    "num_experts": 30,
+    "num_slots": 10,
+    "num_heads": 16,
+    "slot_dim": 256,
+    "auto_rank": true,
+    "share_lora_weights": true,
+    "dropout": 0.0,
+    "slot_dropout": 0.0
+  },
+  "n_patches": 4799,
+  "dispatch_shape": [
+    1,
+    4799,
+    30,
+    16,
+    10
+  ],
+  "level0_mag": 20.0,
+  "patch_size_level0": 256.0,
+  "patch_size_level0_origen": "override CLI",
+  "expert_order_by_usage": [
+    26,
+    1,
+    5,
+    2,
+    15,
+    18,
+    11,
+    19,
+    10,
+    6,
+    24,
+    3,
+    16,
+    21,
+    27,
+    0,
+    13,
+    25,
+    20,
+    17,
+    4,
+    12,
+    28,
+    23,
+    9,
+    22,
+    14,
+    8,
+    7,
+    29
+  ],
+  "top_slots_by_routing": [
+    [
+      15,
+      7,
+      0.030901841819286346
+    ],
+    [
+      25,
+      0,
+      0.028920922428369522
+    ],
+    [
+      28,
+      4,
+      0.024377694353461266
+    ],
+    [
+      11,
+      8,
+      0.01722719334065914
+    ],
+    [
+      29,
+      0,
+      0.015954118221998215
+    ],
+    [
+      15,
+      8,
+      0.01561863161623478
+    ],
+    [
+      0,
+      7,
+      0.015105202794075012
+    ],
+    [
+      24,
+      2,
+      0.014133037999272346
+    ],
+    [
+      17,
+      3,
+      0.012785646133124828
+    ],
+    [
+      29,
+      3,
+      0.01248889695852995
+    ],
+    [
+      12,
+      7,
+      0.01231873407959938
+    ],
+    [
+      12,
+      5,
+      0.011762440204620361
+    ],
+    [
+      5,
+      7,
+      0.011662272736430168
+    ],
+    [
+      5,
+      2,
+      0.011425409466028214
+    ],
+    [
+      2,
+      9,
+      0.010809531435370445
+    ],
+    [
+      21,
+      0,
+      0.010257971473038197
+    ],
+    [
+      15,
+      5,
+      0.009592484682798386
+    ],
+    [
+      9,
+      2,
+      0.009255941957235336
+    ],
+    [
+      28,
+      1,
+      0.009081472642719746
+    ],
+    [
+      9,
+      3,
+      0.009050494991242886
+    ]
+  ]
+}
