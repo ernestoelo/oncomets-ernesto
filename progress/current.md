@@ -3371,3 +3371,62 @@ se hubiera enterado**. Nuevo **workaround K** + [[openslide-parchado-bif-env-nue
 en verde para los dos juegos de pesos**, y **no se lanzaron**: el plan manda parar antes de
 cualquier `sbatch`, y se le preguntó a Ernesto sin respuesta antes del cierre. Quedan enteras las
 **fases 2, 3, 4, 5 y 6**. La cola estaba con 4 jobs pendientes de 4 usuarios distintos.
+
+---
+
+## 17-ago-2026 (tarde/noche, 2ª sesión) — se apretó el botón de la fase 2, y arrancó el barrido de registro
+
+Sesión corta y de ejecución: las dos decisiones que el handoff dejaba abiertas se tomaron y se
+lanzaron las dos cosas que estaban esperando.
+
+### Fase 2 lanzada — job 4998, y es la PRIMERA GPU de este eje
+
+Ernesto respondió la pregunta de §10 del handoff: **Lizard, TTA = 4**.
+
+```
+sbatch --export=ALL,CP=lizard_convnextv2_tiny,TAG=lizard_mitosis,TTA=4 \
+       scripts/run_hovernext_129741.slurm
+```
+
+**Job 4998, encolado** (`PD (Priority)`) detrás de dos de `nschiaff`; con `sgaete`, `capstone` y
+`gvenegas` corriendo y la GPU en 43,7/49 GB. Entró **al final de la cola**, sin monopolizar.
+`METRIC=f1` (obligatorio con Lizard), `BATCH=32`, `--keep_raw`, salida a
+`results/b8_hovernext_129741/hovernext/lizard_mitosis/`. **Disco antes: 2,5 TB libres de 15 T**
+(el plan pide el delta que dejan los zarr crudos). **Al cierre seguía encolado: no hay ningún
+número de HoVer-NeXt todavía.**
+
+### Barrido de registro multi-región — corriendo desatado
+
+El pendiente más viejo del hilo de regiones de escaneo. Driver nuevo
+`scripts/barrido_registro_multiregion.sh`: invoca `auditar_regiones_escaneo.py registro` lámina
+por lámina, **reanudable por el JSON final** y **desatado con `setsid` (ppid = 1 verificado)**,
+así que sobrevive al cierre de la sesión (workaround J). **No toca el script auditado** — lo
+llama por CLI y muda su salida a `barrido_138/`, con lo que el resultado de la 129741 sigue
+siendo reproducible byte a byte.
+
+**129 láminas en lista** (las 130 de 2 regiones menos la 129741). Las **9 de 3 y 4 regiones
+quedan fuera por construcción del test**, que compara un par.
+
+**Lo medido con 3 láminas, y las dos lecciones están en el ADDENDUM §7 de
+`regiones_escaneo/resultados.md`:**
+
+1. **El test rechaza láminas por sus parámetros, no por la geometría.** 2 de 3 se pararon por
+   falta de ventanas utilizables — incluida la **119414, con silueta 0.9993 y CERO ventanas**.
+   La razón de áreas mediana de las 130 es 0,952, así que no es tamaño de región: son
+   `--min-tejido 0.5` y la exclusión de bordes con `--margen-a 2048`, calibradas sobre una
+   lámina rica en tejido. **El rendimiento del barrido se lee como «cuántas pudo medir».**
+2. **La 129741 no es representativa.** La 120063 corrió entera y da **3,3 sd** de separación
+   (4/8 ventanas) contra las **29,5 sd** (8/8) de la 129741, con **7 % de escala** y **732 µm**
+   de residuo en el ajuste rígido. Es el perfil que el criterio pre-fijado asocia a **secciones
+   seriadas** — **pero no es veredicto**: su segundo pico está pegado al primero, o sea que la
+   etapa A no localiza, y eso es indistinguible de «el tejido es distinto».
+
+Se subió el barrido de rotación a **±8°** (default 1,5; la corrida del 14-ago usó 4,0 y saturó).
+La 120063 **igual satura, pero en los dos extremos a la vez**, que ya no se lee como rango corto.
+
+### Lo que NO se hizo
+
+- **Cero resultado de HoVer-NeXt**: el job quedó encolado. Fases 2.b, 2.c, 3, 4, 5 y 6 enteras.
+- **El barrido no terminó**: 3 de 129 al cierre. Sigue corriendo desatado.
+- **No se tocaron los parámetros de selección de ventanas** pese al hallazgo 1. El barrido corre
+  con los defaults, a propósito: primero saber cuántas rechaza, después decidir si se relaja.
