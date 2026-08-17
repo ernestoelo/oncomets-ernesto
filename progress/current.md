@@ -3298,3 +3298,76 @@ esfuerzo nuevo**. La pausa del 31-jul se apoyaba en el costo (demolido: ~2 min c
 el top-20 (que no tiene denominador, patrón P2).
 
 **Nada se ejecutó.** Los cuatro encargos siguen enteros por delante.
+
+## 17-ago-2026 (tarde/noche) — se EJECUTÓ: fases 0 y 1 cerradas, la GPU quedó sin tocar
+
+Primera sesión ejecutora del plan de la semana
+([`plan_semana_17ago.md`](../sprints/B8_sprint8/hovernext_129741/plan_semana_17ago.md)). Se
+cerraron las **dos fases que no necesitan GPU**, y se paró en el punto donde el plan manda parar:
+antes del primer `sbatch`.
+
+### Fase 1 — interpretabilidad sobre la 129741 (encargo 2). CERRADA
+
+Par **CLAM/Mammoth del job 4589, fold 4 de `carcinoma_ductal_insitu_presente_ci_reform`**, la
+única configuración del proyecto con esta lámina **no vista en entrenamiento**. Es la **primera
+vez que la interpretabilidad corre sobre una lámina privada** — el B7 fueron 7 TCGA. Todo CPU
+post-hoc, cero GPU. Salidas en `results/b8_hovernext_129741/interp/`.
+
+**El resultado, que son dos cosas y hay que leerlas juntas:**
+
+- **La atención cae donde marcó el patólogo, en los dos brazos.** Percentil medio dentro de la
+  región anotada: **Mitosis es el grupo más alto de los siete** (CLAM **0,872**, Mammoth
+  **0,914**, contra ~0,50 del resto). Reproduce el orden del 1-ago **con checkpoints de otra
+  tarea**, así que no era propiedad de los de tasa mitótica.
+- **Y los dos igual se equivocan en la lámina**: predicen `no` (CLAM p=0,625, Mammoth p=0,798)
+  contra `y_true = si`. Misma firma que el 1-ago, ahora en CDIS.
+- **Mammoth ordena mejor el tejido y clasifica peor**: hunde el **tejido adiposo a 0,066**
+  mientras CLAM lo deja en **0,572**, y sube Tumor (0,834 vs 0,712). No reabre el Hallazgo 12:
+  es interpretabilidad, no métrica.
+- Spearman entre las dos atenciones **0,456** y Jaccard top-5 % **0,228** ⇒ **no son el mismo
+  mapa**, con lo cual el contraste de brazos de la fase 3 tiene sentido de correrse.
+- 30 heatmaps por experto + montage + contact sheet; heatmaps y tablas por **slot** con
+  **N_eff = 192,0 de 300**.
+- **Sanidad**: las **163/163** marcas casan exactamente con parches del h5 y **todas** caen en la
+  región de escaneo de abajo (2303 arriba / 2496 abajo = 4799), que son los números ya
+  documentados.
+
+**Tooling**: se parametrizaron `slot_heatmaps_contraste.py` y `build_slot_softmax_tables.py`
+(tenían clavadas las 3 láminas TCGA del B7 y su layout). **Los 4 CSV del B7 se reproducen byte a
+byte**, así que la parametrización no fue regresiva. Nuevo: `overlay_anotaciones_atencion.py`.
+
+### Fase 0 — HoVer-NeXt instalado y auditado. CERRADA
+
+Repo clonado (HEAD `29134a3`), **4 × 128 MB de pesos** con sha256 (`lizard_convnextv2_tiny` +
+los 3 folds de PanNuke, que es como el paper arma su ensemble), env propio bajo containment con
+los **17 imports reales** del camino de inferencia. `auditoria_codigo.md` contesta las 6
+preguntas. **Tres hallazgos cambian el plan:**
+
+1. **`--keep_raw` es obligatorio**: `main.py:121-126` borra el BCB-map y el raw class al
+   terminar, que son el insumo de la fase 2.b.
+2. **El «~2 min por lámina» no aplica a esta lámina**: no expone `thumbnail`, así que el filtro
+   de fondo **nunca corre** y se teselaría el lienzo entero — **51.192 tiles** (Lizard) y
+   **206.382** (PanNuke) ⇒ **el `.slurm` pide horas, no minutos**. La decisión de correr entera
+   y enmascarar post-hoc **no cambia**; cambia el presupuesto.
+3. **Los mapas HV se descartan en inferencia** ⇒ la figura de la 2.b tiene **tres** paneles, no
+   cuatro. No se fabrica el que falta.
+
+Además: el **TTA se sortea y no hay `--seed`** (la corrida **no es reproducible**, al revés que
+nuestro pipeline); con los pesos de Lizard **`--metric f1` es la única opción usable**; y **los
+tiles sueltos sí están expuestos**, lo que **corrige una de las cuatro razones** de la decisión
+de diseño (la decisión se sostiene con las otras tres).
+
+### Lo que cazó el preflight, y es la mejor defensa del workaround G que dio el sprint
+
+**El env nuevo no podía abrir la lámina**: `Bad direction attribute "LEFT"`. Los `.bif` privados
+traen `direction=LEFT` y el OpenSlide oficial solo entiende `RIGHT` y `UP`. **No es versión** —
+bajar a 4.0.0 stock tampoco anda: hace falta la build **parchada** que ya estaba resuelta en
+`clam_environ/openslide_solution.md` y que `clam_latest` usa desde enero **sin que ninguna sesión
+se hubiera enterado**. Nuevo **workaround K** + [[openslide-parchado-bif-env-nuevo]].
+
+### Lo que NO se hizo
+
+**Cero GPU.** El `.slurm` (`scripts/run_hovernext_129741.slurm`) y su preflight están **listos y
+en verde para los dos juegos de pesos**, y **no se lanzaron**: el plan manda parar antes de
+cualquier `sbatch`, y se le preguntó a Ernesto sin respuesta antes del cierre. Quedan enteras las
+**fases 2, 3, 4, 5 y 6**. La cola estaba con 4 jobs pendientes de 4 usuarios distintos.

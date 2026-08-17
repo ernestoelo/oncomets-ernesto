@@ -171,6 +171,23 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   costo, y así los tres brazos quedan **pareados por construcción**. Y **PQ / bPQ / mPQ no son
   computables** contra este geojson (no es segmentación exhaustiva ni son contornos nucleares);
   sobreviven el **recall de detección** y los **descriptores de regularidad**.
+  > **Acotado el 17-ago (tarde) por la auditoría de código**: la razón «hay que tocar código para
+  > parches sueltos» **es falsa** (`.npy` y `.png` están expuestos por `--input`) y la de costo
+  > **se debilitó** (esta lámina no filtra fondo ⇒ 51k tiles, ~21 min, no ~2). **La decisión no
+  > cambia**: se sostiene en el borde perimetral y en el pareo por construcción.
+- **Fases 0 y 1 EJECUTADAS y cerradas** (17-ago) — HoVer-NeXt instalado y auditado
+  ([`hovernext_129741/auditoria_codigo.md`](hovernext_129741/auditoria_codigo.md)), e
+  interpretabilidad CLAM/Mammoth sobre la 129741 con el par del fold 4
+  (`results/b8_hovernext_129741/interp/`). **La atención cae sobre las marcas del patólogo en los
+  dos brazos** (mitosis es el grupo de percentil más alto: CLAM 0,872 / Mammoth 0,914 contra
+  ~0,50) **y los dos igual clasifican mal la lámina** — la misma firma del 1-ago, ahora en otra
+  tarea. Mammoth hunde la grasa a 0,066 donde CLAM la deja en 0,572.
+- **Tres cosas de la auditoría que gobiernan la fase 2** (17-ago) — `--keep_raw` es
+  **obligatorio** (si no, se borra el insumo de la 2.b); el **presupuesto pasa de minutos a
+  horas** (sin `thumbnail` no hay filtro de fondo: 51k tiles Lizard / 206k PanNuke); y los
+  **mapas HV se descartan en inferencia**, así que la figura de la 2.b lleva **tres** paneles y
+  se dice por qué falta el cuarto. Además el TTA **se sortea sin semilla** ⇒ la corrida **no es
+  reproducible**, y con Lizard **`--metric f1` es la única opción**.
 
 ---
 
