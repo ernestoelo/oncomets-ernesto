@@ -345,5 +345,98 @@ Conviene decirlo para no exagerar el impacto:
   seriadas. Ese argumento de §2.c está corregido y retirado.
 - **Que las 139 láminas con varias regiones tengan todas el mismo problema.** Lo medido es que
   su `.bif` declara más de una región de escaneo. Qué hay en cada una, no se miró: solo se
-  abrió la 129741.
+  abrió la 129741. *(Sigue vigente como advertencia. El «solo se abrió la 129741» quedó
+  superado el 17-ago: el barrido de §7 abrió tres más, y la primera que corrió entera **no**
+  reproduce su firma.)*
 - **Nada sobre el `.csv` de Sebastián**, porque no sabemos cuál es.
+
+---
+
+## 7. ADDENDUM 17-ago-2026 (tarde): el barrido arrancó, y la 129741 no es representativa
+
+Se lanzó el barrido del test de registro sobre las **129 láminas restantes de 2 regiones**
+(`scripts/barrido_registro_multiregion.sh`, CPU, desatado con `setsid`, reanudable por el JSON
+final). Salida en `barrido_138/`. Con **tres** láminas medidas ya aparecen dos cosas que el
+documento de arriba no podía saber, porque **solo se había abierto la 129741**.
+
+### 7.a El test rechaza muchas láminas, y no por la geometría de las regiones
+
+De las tres primeras, **dos se pararon solas** antes de llegar al test decisivo:
+
+| Lámina | Silueta (NCC registrada) | Resultado |
+|---|---:|---|
+| 118925 | 0.4792 | `[stop] solo 2 ventanas utilizables` |
+| 119414 | **0.9993** | `[stop] solo 0 ventanas utilizables` |
+| 120063 | 0.9847 | corrió completo (§7.b) |
+
+El caso de la **119414 es el que enseña**: su silueta registra a **0.9993** contra un control
+espejado de −0.32, o sea que a escala de arquitectura las dos regiones son casi idénticas — y
+aun así la etapa A no consiguió **ni una** ventana utilizable. **No es un problema de tamaño de
+las regiones**: se midió la geometría de las 130 y la razón de áreas mediana es **0.952**, con
+solo **2** láminas de ventana de solape degenerada.
+
+La causa está en los parámetros de selección de ventanas, que se fijaron sobre una lámina rica
+en tejido:
+
+- `--min-tejido 0.5` exige que la mitad de la ventana sea tejido;
+- la exclusión de bordes de `auditar_regiones_escaneo.py:690` pide que el destino previsto entre
+  entero con `--margen-a 2048` de holgura, que en una región chica descarta casi todo el marco;
+- y el piso de **≥3 ventanas** (`:700`) está en el código, no en la CLI.
+
+**Consecuencia operativa**: el rendimiento del barrido hay que leerlo como «cuántas láminas el
+test **pudo** medir», no como «cuántas son duplicados». Las palancas para recuperar láminas
+rechazadas son todas de CLI (`--min-tejido`, `--margen-a`, `--plantilla-a`) salvo el piso de 3.
+**Nadie las tocó todavía**: el barrido corre con los valores por defecto y `--rot-max 8.0`.
+
+### 7.b La 120063 corrió entera y NO reproduce la firma de la 129741
+
+| Medida | 129741 | 120063 |
+|---|---:|---:|
+| NCC señal, medio | **0.3820** | **0.1432** |
+| NCC control, medio | 0.0493 | 0.0494 |
+| Separación señal-control | **29.5 sd** | **3.3 sd** |
+| Ventanas sobre el máximo del control | **8 / 8** | **4 / 8** |
+| Ajuste rígido: escala | 1.0117 | **1.0723** |
+| Ajuste rígido: residuo RMS | 103 µm | **732 µm** |
+| θ de la etapa B | −2.0 a −4.0 (agrupado) | **−8.0 a +8.0 (disperso)** |
+
+Los dos perfiles son **cualitativamente distintos**. En la 129741 el campo de desplazamiento lo
+explica un cuerpo casi rígido y las ocho ventanas coinciden; en la 120063 el ajuste pide un **7 %
+de escala**, deja **732 µm** de residuo y los ángulos se reparten por todo el rango barrido,
+incluidos los dos extremos. Eso es lo que el criterio pre-fijado
+(`auditar_regiones_escaneo.py:591-601`) describe como el caso de **secciones seriadas**, no de
+re-escaneo.
+
+**Con una salvedad que impide llamarlo veredicto**: en la 120063 el segundo pico está pegado al
+primero (ventana 4: NCC 0.3494 contra segundo pico 0.3345), o sea que la localización de la
+etapa A es **ambigua**. Un etapa-A que no localiza produce una etapa B sin sentido, y eso es
+indistinguible, con lo que hay hoy en la salida, de «el tejido de verdad es distinto».
+
+### 7.c Sobre la saturación de la rotación
+
+El barrido corre con **`--rot-max 8.0`** (el default del script es 1.5 y la corrida del 14-ago
+usó 4.0 y saturó). La 120063 **igual satura**, pero en **los dos extremos a la vez** (+8.0 y
+−8.0 en distintas ventanas). Eso ya no se lee como «el rango es corto»: se lee como que **no hay
+una rotación consistente que encontrar** en esa lámina. Para la 129741, en cambio, el pendiente
+de §2.d.1 sigue **abierto tal cual** — no se re-midió y su 0.3820 sigue siendo cota inferior.
+
+### 7.c-bis Trampa al leer la tabla: la «separación en sd» no es comparable entre láminas
+
+La **120361** cerró con **36.5 sd**, más que las 29.5 de la 129741 — y **no significa que esté
+mejor registrada**. Su NCC medio es **0.1379**, un tercio del de la 129741. El número es alto
+porque el denominador es la **sd del control**, que ahí vale 0.0181 y está estimada sobre
+**3 ventanas** (el piso del test). Con n = 3 esa sd es ruido, y dividir por ella infla la
+separación sin límite.
+
+**Regla para leer el barrido**: comparar el **NCC medio de la señal** y las **ventanas sobre el
+máximo del control**, y usar la separación en sd solo junto al **número de ventanas**. Una
+lámina con 3 ventanas y una con 8 no son el mismo experimento.
+
+### 7.d Qué NO afirma este addendum
+
+- **Que la 120063 sean secciones seriadas.** Su perfil es el que el criterio asocia a ese caso,
+  pero la ambigüedad de la etapa A (§7.b) admite la lectura alternativa de que el test falló en
+  localizar. No es separable con lo que la salida guarda hoy.
+- **Que las láminas rechazadas no tengan señal.** No se midieron: el test se paró antes.
+- **Que 3 láminas digan algo de las 129.** Es el arranque del barrido, no su resultado.
+- **Nada nuevo sobre la 129741.** No se volvió a medir.
