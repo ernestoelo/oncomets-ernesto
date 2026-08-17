@@ -26,6 +26,10 @@
 Las dos que mueven el plan son la **5** (un flag que, olvidado, borra el insumo de la 2.b) y la
 **6** (el presupuesto de GPU estaba mal por un orden de magnitud).
 
+Y hay un séptimo hallazgo que **no era una de las preguntas** y casi cuesta una corrida entera:
+el env nuevo **no puede abrir la lámina** sin el openslide parchado del proyecto (§9). Lo cazó
+el preflight en segundos.
+
 ---
 
 ## 1. Los mapas HV se descartan en inferencia
@@ -326,6 +330,53 @@ torchvision 0.16.1 cu118 como pide el README. Se instalaron **los imports reales
 inferencia (17 paquetes derivados de `grep` sobre `main.py` + `src/*.py`), no el `requirements.txt`
 entero: ese trae `staintools`, `spams-bin`, `itk`, `jupyterlab`, `mahotas` desde git y
 `libpysal`, que este camino **nunca importa**. Se invoca por binario absoluto (workaround B).
+
+---
+
+## 9. El env nuevo NO podía abrir la lámina: hace falta el openslide PARCHADO
+
+Lo cazó el **preflight**, en segundos, antes de pedir GPU. Es el mejor argumento a favor del
+workaround G que dio este sprint.
+
+**Síntoma**: con el env recién creado,
+
+```
+OpenSlideError('Bad direction attribute "LEFT"')
+```
+
+**Causa**: los `.bif` Ventana de la cohorte privada traen `direction="LEFT"` en su XML, y el
+OpenSlide **oficial** (hasta 4.0.0 inclusive) solo entiende `RIGHT` y `UP`. **No es un problema
+de versión**: bajar de libopenslide 4.0.1 a 4.0.0 **no lo arregla** (se probó). Lo que hace falta
+es el **parche al código fuente**.
+
+**Ya estaba resuelto en el proyecto y el repo no lo tenía a mano**:
+`clam_environ/openslide_solution.md` documenta el parche (agregar `DIRECTION_LEFT` a
+`src/openslide-vendor-ventana.c` y compilar). `clam_latest` corre esa build parchada — por eso
+todas nuestras sesiones abren las láminas privadas sin enterarse de que hay un parche debajo:
+
+| env | openslide-python | libopenslide | ¿abre la 129741? |
+|---|---|---|---|
+| `clam_latest` | 1.4.2 | 4.0.0 **parchada** (1,2 MB) | **sí** |
+| `hovernext` recién creado | 1.3.1 | 4.0.1 de conda-forge | no |
+| `hovernext` con `openslide=4.0.0` de conda | 1.3.1 | 4.0.0 stock (287 KB) | **no** |
+| `hovernext` final | 1.3.1 | 4.0.0 **parchada** | **sí** |
+
+**Fix aplicado**: se copió la biblioteca parchada al env nuevo, guardando la de conda al lado por
+si hay que volver:
+
+```bash
+ENVP=/media/administrador/Storage1/sdonoso/clam_testing2/envs/hovernext
+cp -n $ENVP/lib/libopenslide.so.1.0.0 $ENVP/lib/libopenslide.so.1.0.0.conda_stock
+cp /home/sdonoso/miniconda3/envs/clam_latest/lib/libopenslide.so.1.0.0 $ENVP/lib/
+```
+
+`ldd` resuelve todas sus dependencias dentro del env nuevo, así que no arrastra nada de
+`clam_latest` en tiempo de ejecución.
+
+> **Regla que se lleva para adelante: cualquier env nuevo que tenga que leer un `.bif` privado
+> necesita la libopenslide parchada.** El tamaño delata cuál es: **1,2 MB la parchada, 287 KB la
+> stock**. Y hay que exportar `LD_LIBRARY_PATH=$ENVP/lib`, porque al invocar por binario absoluto
+> (workaround B) `openslide-python` no encuentra la `.so` sola.
 
 ---
 
