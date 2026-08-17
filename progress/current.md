@@ -3430,3 +3430,78 @@ La 120063 **igual satura, pero en los dos extremos a la vez**, que ya no se lee 
 - **El barrido no terminó**: 3 de 129 al cierre. Sigue corriendo desatado.
 - **No se tocaron los parámetros de selección de ventanas** pese al hallazgo 1. El barrido corre
   con los defaults, a propósito: primero saber cuántas rechaza, después decidir si se relaja.
+
+---
+
+## 17-ago-2026 (tarde, 3ª sesión) — la GPU está bloqueada por la cola, y la fase 3 se acotó sin ella
+
+Sesión de diagnóstico y de trabajo lateral: **no había nada que cosechar** (los dos procesos del
+handoff seguían en vuelo), pero mirar por qué destapó un bloqueo que ninguna sesión había visto.
+
+### El 4998 no espera su turno: está bloqueado por cómo está declarada la cola
+
+`squeue` decía `PD (Priority)` y eso parecía una espera normal. `scontrol` dice otra cosa:
+
+- El nodo tiene **un solo token de GPU** (`Gres=gpu:1`) y lo tiene **4996** (`gvenegas`, un
+  `VLLM::EngineCore` con 38 GB de VRAM) declarado a **365 días**.
+- Delante nuestro hay **4993 y 4997** (`nschiaffino`), los dos pidiendo GPU y los dos
+  **`TimeLimit = UNLIMITED`**.
+- Memoria: **208 de 230 GB asignados**, 17 GB libres; nosotros pedimos 96 GB.
+
+**Consecuencia que importa: achicar nuestro job NO nos adelanta.** El backfill necesita saber
+cuándo terminan los de más prioridad para colar uno chico, y con `UNLIMITED` delante esa ventana
+no se puede calcular. Por eso la estimación de SLURM es `StartTime = 2027-08-17`, que es lo que
+devuelve cuando **no puede planificar** — no es una predicción de un año de espera.
+
+Ernesto decidió **coordinar y dejarlo encolado**. Queda
+`sprints/B8_sprint8/hovernext_129741/coordinacion_gpu.md` con el snapshot, quién tiene qué, y el
+pedido concreto: no que nadie cancele, sino **que 4993/4997 declaren un `--time` real** (con eso
+el backfill vuelve a funcionar para todos) y saber si el vLLM de 4996 es una validación de horas
+o un servicio permanente. Con la contraoferta de bajar nuestro propio `--mem` de 96 G si la fila
+no avanza.
+
+### El techo del filtro de atención — la mitad de la fase 3 no necesitaba la GPU
+
+El hallazgo de la sesión. **Un parche que no entra en la máscara top-K no lo recupera nadie**, por
+bueno que sea el detector ⇒ la atención sola ya **acota por arriba** el recall de los brazos 2 y 3:
+
+```
+recall_fase3(K)  ≤  min( techo_atencion(K) , detección_de_HoVer-NeXt )
+```
+
+Es el **patrón P2** aplicado *antes* de gastar GPU en vez de después. Medido sobre la región
+anotada (2496 parches, 35,37 mm²), con el par CLAM/Mammoth del fold 4 del 4589:
+
+- **El techo NO condena la fase 3.** A **4,25 mm² (12 % de la región)** ya son **19/28** en CLAM y
+  **22/28** en Mammoth, con enriquecimiento **5,7× y 6,5×** sobre el azar. La pregunta de Sebastián
+  (proponer un área chica que igual contenga las mitosis) **tiene margen**; falta medir cuánto se
+  come la detección.
+- **Mammoth ordena mejor**: llega a **28/28 en K = 750** y CLAM no llega hasta barrer todo. Es
+  ≥ CLAM en **9 de los 11 K**, con **K = 50 la única inversión clara** (6 vs 4). **No reabre el
+  Hallazgo 12** — es orden de parches, no métrica de lámina, y los dos siguen fallando la lámina.
+- **El top-20 vuelve a dar 2-3 de 28**, ahora con checkpoints **de otra tarea** ⇒ corrobora
+  [[topk-percentil-no-auc]] de forma independiente.
+- **Chequeo de sanidad de la fase 3 ya aprobado a nivel de techo**: en K = 2496 los dos brazos dan
+  **idéntico** (28/28), que es justo lo que el plan exige verificar.
+
+Entregables: `scripts/techo_atencion_topk.py`, `sprints/B8_sprint8/hovernext_129741/techo_atencion.md`,
+`results/b8_hovernext_129741/techo_atencion/`.
+
+### Dos pendientes del handoff cerrados
+
+1. **El brazo PanNuke ya se puede lanzar.** El choque era que `--export` de SLURM separa por comas
+   y `--cp` de HoVer-NeXt *espera* comas para promediar el ensemble de 3 folds. Ahora se pasa con
+   `+` y el `.slurm` traduce. Es **idempotente**, así que el 4998 encolado no se ve afectado.
+   Preflight sobre los 3 folds: **OK**.
+2. **La atención por parche ya queda persistida.** La fase 1 solo había guardado los PNG, y la
+   fase 3 la necesita. Se agregó `--dump-attention` a `clam_vs_mammoth_attention.py` como cambio
+   **aditivo**: los 4 artefactos previos se regeneran con **md5 idéntico**.
+
+### Lo que NO se hizo
+
+- **Sigue sin haber un solo número de HoVer-NeXt.** El 4998 nunca arrancó. Fases 2.a, 2.b, 2.c
+  enteras, y de la 3 solo está el techo (falta el brazo 1, que es el que exige GPU).
+- **El barrido no terminó**: al cierre **11 ok / 3 stop / 115 pendientes**, ETA ~3,7 h. Sigue vivo
+  y desatado (`ppid = 1`). Tasa de rechazo hasta acá **21 %**, más benigna de lo que se temía.
+- **`barrido_138/` sigue sin commitear**, a propósito, por lo mismo del handoff anterior.
+- No se re-midió el veredicto de la 129741 ni se tocaron los parámetros del test de registro.
