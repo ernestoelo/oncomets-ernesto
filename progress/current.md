@@ -3159,6 +3159,9 @@ núcleos**: sigue pausada desde el 31-jul y reabrirla es regla 9.b. El go/no-go 
 propuesta, no una tarea ejecutada**. Y **no sabemos qué salió de la reunión del 14-ago**: todo esto
 asume que el encargo sigue vigente.
 
+> **SUPERSEDED el 17-ago** en cuanto a la reunión: ocurrió y HoVer-NeXt se presentó. Ver la entrada
+> del 17-ago al final de este archivo.
+
 ## 14-ago-2026 (noche) — HoVer-NeXt por dentro: el 17× no está donde parecía
 
 Misión del handoff `handoff_B8_20260814_2030.md`: entender el **mecanismo** de HoVer-NeXt y
@@ -3218,3 +3221,33 @@ lista probabilidades también en test); y si la entrada por tiles sueltos está 
 
 **Sigue sin respuesta qué salió de la reunión con Sebastián del 14-ago.** Se preguntó al cerrar las
 dos sesiones anteriores. Todo el encuadre asume que el encargo sigue vigente.
+
+> **SUPERSEDED el 17-ago**: la reunión ocurrió y HoVer-NeXt se presentó. Ver la entrada de abajo.
+
+## 17-ago-2026 — la reunión del viernes ocurrió, y HoVer-NeXt se presentó
+
+Cierre de la sesión del mecanismo. Lo dijo Ernesto al pedir el cierre, y **cancela el pendiente
+efímero que venía arrastrándose tres sesiones** («no sabemos qué salió de la reunión del 14-ago»):
+
+- **La reunión del viernes 14-ago se hizo, y Ernesto presentó HoVer-NeXt.** O sea que el estudio
+  factual y la corrección de la Hoja 8 tuvieron audiencia; el trabajo de las dos sesiones del 14-ago
+  llegó a destino.
+- **Sebastián encargó tareas para esta semana**, después de la reunión.
+- **Las conclusiones de la reunión y el contenido de esas tareas NO están en este archivo ni en
+  ningún doc del repo.** Ernesto se las pasa directamente a la sesión siguiente. **Nada de lo
+  escrito antes del 17-ago debe leerse como si las conociera.**
+
+**Qué implica para el encuadre previo.** Todo el material de HoVer-NeXt (la Hoja 8, el estudio
+factual, el doc de mecanismo, el go/no-go corregido) se produjo **asumiendo** que el encargo de
+segunda etapa seguía vigente. La reunión ya se pronunció, así que **esa suposición dejó de ser
+necesaria y también dejó de ser válida como respaldo**: la dirección la fijan las tareas de
+Sebastián, no nuestros documentos. Si las tareas apuntan a otro lado, gana la reunión y el material
+de HoVer-NeXt queda como referencia, no como plan.
+
+**Lo que NO se sabe y no se debe suponer**: si las tareas tienen algo que ver con HoVer-NeXt; qué
+artefacto exacto se usó para presentarlo (el deck `Papers_Mitosis.pptx` sigue registrado como
+terminado y sin audiencia, y **no hay evidencia de que fuera ese**); ni si se autorizó bajar pesos o
+clonar el repo. Todo eso lo define lo que Ernesto informe.
+
+**Próxima sesión**: arranca en **modo plan**, y su trabajo es estudiar la forma correcta de elaborar
+las tareas de la semana, con las tareas en mano.
