@@ -147,6 +147,30 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   ablación de C.2 dice **«hace falta una de las dos y cuál importa poco»**, no «muestrear es mejor»:
   la fila ganadora en mAcc es justamente la **ponderación sola**, que descartaron. Quedan **cuatro
   preguntas que solo cierra el código** (§14 del doc).
+- [**La reunión del 14-ago redibujó el destino**](hovernext_129741/plan_semana_17ago.md) (17-ago)
+  — Sebastián dejó **cuatro encargos** y un argumento que reordena el criterio de éxito del
+  sprint: **quiere HoVer-NeXt aunque no suba ninguna métrica**, porque busca detección e
+  interpretabilidad que **le proponga zonas al patólogo** y le acelere el etiquetado, y porque a
+  17× de su predecesor es viable sobre la cohorte. **Se evalúa con las métricas del paper, no con
+  AUC.** Los encargos: los tres brazos de mapa de calor sobre la 129741, los mapas de atención /
+  expertos / slots de CLAM+Mammoth sobre esa lámina, abrir la cadena interna de HoVer-NeXt
+  (HV → BCB → raw class → class-map) y, al final, más relaciones E×S.
+  Memoria [[hovernext-encargo-17ago-diseno]].
+- **Reconocimiento del 17-ago** — tres hallazgos que cambian el mapa y no costaron GPU:
+  **(1)** hay **12 láminas anotadas por el patólogo**, no una, en `sdonoso/anotaciones/` (de
+  `sgaete`, READ-ONLY), las 12 con features y WSI y **las 12 con mitosis** — 94 marcas contra 26;
+  Sebastián habló de 30, **faltan 18**. **(2)** La 129741 cae en **test del fold 4** de
+  `carcinoma_ductal_insitu_presente_ci_reform`, o sea que **ya existe** el par CLAM/Mammoth del
+  job 4589 sobre esta lámina **no vista** — el encargo 2 sale **sin GPU**. **(3)** `sgaete` tiene
+  un pipeline **propio** de atención-vs-anotaciones sobre 8 tareas ⇒ **coordinar antes de barrer
+  las 12**. Detalle en [`auditoria_coherencia/hallazgos.md`](auditoria_coherencia/hallazgos.md)
+  (vigésima pasada).
+- **Diseño de los tres brazos** (17-ago) — HoVer-NeXt se corre **una vez sobre la lámina entera**
+  y los brazos restringidos se construyen **enmascarando post-hoc**, no recortando parches: el
+  pipeline espera una WSI, un parche suelto paga borde perimetral, a ~2 min no hay motivo de
+  costo, y así los tres brazos quedan **pareados por construcción**. Y **PQ / bPQ / mPQ no son
+  computables** contra este geojson (no es segmentación exhaustiva ni son contornos nucleares);
+  sobreviven el **recall de detección** y los **descriptores de regularidad**.
 
 ---
 
@@ -167,10 +191,11 @@ sacar algo de acá **no es poder responderlo, es poder enunciarlo**.
 - **El sign-off del patólogo sobre los nombres de tejido.** Los nombres que usamos para
   expertos y slots son **lectura visual nuestra, no anotación**
   ([[mammoth-interpretabilidad-objA]]). Se arrastra desde OBJ-A y sigue sin resolver.
-- **Si el material de anotación alcanza para entrenar.** Hay una lámina, un anotador y 26
-  marcas de mitosis, con positivos parciales y dos regiones de escaneo
-  ([[anotaciones-patologo-qupath]]). Cuánto de eso es suficiente para el paso 1 de D es
-  parte del go/no-go, no algo que se pueda decidir antes.
+- **Si el material de anotación alcanza para entrenar.** Hay **doce láminas**, un anotador y
+  **94 marcas de mitosis** (corregido el 17-ago: eran «una lámina y 26 marcas» hasta que el
+  reconocimiento encontró `sdonoso/anotaciones/`), con positivos parciales y varias con más de
+  una región de escaneo ([[anotaciones-patologo-qupath]]). Cuánto de eso es suficiente para el
+  paso 1 de D sigue siendo parte del go/no-go, pero **cambió de orden de magnitud**.
 
 ### Pendiente sharp (ya se puede enunciar, falta pre-registro)
 
@@ -193,10 +218,17 @@ entonces como esfuerzo nuevo.
   celda que nos toca (0.937 → 0.925 accuracy, 0.972 → 0.957 AUC con CLAM de base). Estudio
   conservado en [`simil_estudio.md`](simil_estudio.md) y
   [`simil_explicacion_matematica.md`](simil_explicacion_matematica.md).
-- **HoVer-Net queda en pausa por costo** (31-jul). Sebastián lo corrió él mismo: **3.3 h
-  por lámina**. **Se conserva su idea** de correrlo solo sobre los 20 mejores parches que
-  CLAM selecciona, para cuando haya más GPU. Estudio en
-  [`hovernet_estudio.md`](hovernet_estudio.md), memoria [[simil-hovernet-decision-31jul]].
+- ~~**HoVer-Net queda en pausa por costo** (31-jul)~~ → **VUELVE al alcance el 14-ago, como
+  esfuerzo nuevo y con otro modelo.** Se deja tachado y no borrado porque la cadena importa.
+  La pausa se apoyaba en dos premisas y **las dos cayeron**: el **costo** (3,3 h por lámina
+  medidas por Sebastián, contra **~2 min** de HoVer-NeXt) y el **top-20** como diseño (no le
+  da el denominador — patrón **P2**, [[topk-percentil-no-auc]]). Y sobre todo **la reunión del
+  14-ago redibujó el destino**, que es la única condición bajo la cual esta sección deja
+  volver algo. **No es regla 9.b encubierta: es el supervisor cambiando el objetivo.** Estudio
+  viejo en [`hovernet_estudio.md`](hovernet_estudio.md), memoria
+  [[simil-hovernet-decision-31jul]]; encargo y diseño nuevos en
+  [`hovernext_129741/plan_semana_17ago.md`](hovernext_129741/plan_semana_17ago.md) +
+  [[hovernext-encargo-17ago-diseno]].
 - **La familia A de la rama de mitosis** (cambiar el operador de agregación) perdió su
   motivación principal el 1-ago: la atención **sí** cae sobre las mitosis y el modelo igual
   responde mal. Quedan B, C y D. Ver [`tareas_geometricas/README.md`](tareas_geometricas/README.md).
@@ -220,3 +252,9 @@ entonces como esfuerzo nuevo.
 - Que el Δ del CDIS `_ci_reform` sea real. Son 65 negativos totales, ~13 por fold, y la
   réplica con semillas nuevas está pendiente.
 - Que los nombres de tejido de expertos y slots sean anotación. Son lectura visual nuestra.
+- Que HoVer-NeXt mejore nada nuestro. **Al 17-ago no se corrió una sola vez sobre nuestros
+  datos**; el encargo es medirlo, no un resultado.
+- Que las 18 láminas que faltan para las 30 de Sebastián no existan. Lo que se afirma es que
+  **en el servidor hay 12**; dónde están las otras es pregunta para él.
+- Que el brazo PanNuke vea detalle a 0,25 µm/px. La lámina tiene **0,465**: corre sobre píxeles
+  interpolados.
