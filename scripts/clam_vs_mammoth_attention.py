@@ -176,6 +176,11 @@ def main():
     ap.add_argument("--out-root", default=str(REPO / "results/b7_mammoth_interp/interpretabilidad"))
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--only-task", default=None)
+    ap.add_argument("--dump-attention", action="store_true",
+                    help="persiste la atencion POR PARCHE a atencion_por_parche.npz. "
+                         "La fase 3 del plan del 17-ago la necesita para construir las "
+                         "mascaras top-K, y la fase 1 solo habia guardado los PNG. "
+                         "Es aditivo: sin el flag la salida no cambia en nada.")
     args = ap.parse_args()
 
     sel = json.loads(Path(args.selection).read_text())
@@ -251,6 +256,24 @@ def main():
                 jaccard_top1pct=topk_jaccard(a_c, a_m, 0.01),
             )
             (od / "attention_stats.json").write_text(json.dumps(st, indent=2))
+
+            if args.dump_attention:
+                # Insumo de la fase 3: las mascaras top-K salen de ordenar ESTAS
+                # atenciones. Se guardan las normalizadas (softmax sobre N) de la rama
+                # de la clase verdadera, que son las que se comparan entre brazos, y
+                # ademas las matrices completas por si otra rama hace falta.
+                np.savez_compressed(
+                    od / "atencion_por_parche.npz",
+                    coords_level0=coords.astype(np.float64),
+                    patch_size_level0=np.float64(ps0),
+                    clase_rama=np.int64(ci),
+                    atencion_clam=a_c, atencion_mammoth=a_m,
+                    atencion_clam_todas=A_c, atencion_mammoth_todas=A_m,
+                    atencion_clam_presoftmax=Araw_c,
+                    atencion_mammoth_presoftmax=Araw_m,
+                )
+                print(f"      atencion por parche -> {od / 'atencion_por_parche.npz'}")
+
             summary.append(st)
             print(f"      Spearman(atencion)={st['spearman_atencion']:.3f}  "
                   f"Jaccard top-5%={st['jaccard_top5pct']:.3f}  "
