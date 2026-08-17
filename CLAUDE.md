@@ -257,6 +257,27 @@ aplicar el fix correspondiente sin investigar de nuevo.
   relanzar (exit 144 del harness, hijos huérfanos, `pgrep` que se auto-matchea)
   en la memoria. Detalle: [[proceso-cpu-largo-desatado-setsid]].
 
+### K. Un env conda NUEVO no puede abrir los `.bif` privados
+
+- **Síntoma**: `openslide.OpenSlideError: Bad direction attribute "LEFT"` al abrir
+  cualquier `.bif` de la cohorte privada desde un entorno recién creado. Las
+  sesiones nunca lo ven porque `clam_latest` ya está arreglado.
+- **Causa**: los `.bif` Ventana traen `direction="LEFT"` en su XML y el OpenSlide
+  **oficial** (hasta 4.0.0 inclusive) solo entiende `RIGHT` y `UP`. **No es un
+  problema de versión**: instalar `openslide=4.0.0` de conda-forge **tampoco
+  funciona** (verificado 17-ago). Hace falta la build **parchada** que documenta
+  `clam_environ/openslide_solution.md` (agrega `DIRECTION_LEFT` a
+  `src/openslide-vendor-ventana.c` y compila).
+- **Fix**: copiar la biblioteca parchada de `clam_latest` al env nuevo —
+  ```bash
+  cp /home/sdonoso/miniconda3/envs/clam_latest/lib/libopenslide.so.1.0.0 $ENVP/lib/
+  export LD_LIBRARY_PATH=$ENVP/lib          # al invocar por binario absoluto (workaround B)
+  ```
+  **El tamaño delata cuál es**: **1,2 MB la parchada**, 287 KB la stock. `ldd`
+  resuelve sus deps dentro del env nuevo, así que no arrastra nada de
+  `clam_latest` en runtime. Cazado por el preflight de la fase 2 del B8, en
+  segundos y antes de pedir GPU. Memoria [[openslide-parchado-bif-env-nuevo]].
+
 ### Reglas de commit y push para Claude Code
 
 - **Commits locales**: SÍ — granulares, mensajes conventional commits.
