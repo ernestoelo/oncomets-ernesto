@@ -278,6 +278,35 @@ aplicar el fix correspondiente sin investigar de nuevo.
   `clam_latest` en runtime. Cazado por el preflight de la fase 2 del B8, en
   segundos y antes de pedir GPU. Memoria [[openslide-parchado-bif-env-nuevo]].
 
+### L. Un job `PD (Priority)` puede NO estar esperando su turno
+
+- **Síntoma**: `squeue` muestra el job propio en `PD (Priority)`, que se lee como
+  «hay gente delante, ya me toca», y pasan horas o días sin que arranque.
+- **Causa**: `squeue` no muestra por qué. `scontrol show job <id>` sí. Dos cosas
+  bloquean de verdad en este cluster:
+  1. **La GPU es UN token** (`Gres=gpu:1`): quien la toma la tiene hasta terminar.
+     No se comparte por SLURM (los jobs que "comparten GPU" son los que **no**
+     piden el GRES y usan CUDA por su cuenta — ver la nota de cortesía de arriba).
+  2. **Un job con `TimeLimit=UNLIMITED` delante mata el backfill.** Para colar un
+     job chico antes que uno grande, SLURM necesita saber **cuándo termina** el
+     grande. Con `UNLIMITED` esa ventana no existe.
+- **Fix / qué hacer**: `scontrol show job <id>` y mirar `StartTime`, más el
+  `TimeLimit` y el `TresPerNode` **de los que están delante**. Un
+  `StartTime` a un año **no es una predicción**: es lo que devuelve cuando no
+  puede planificar.
+  **Corolario contraintuitivo: si el bloqueo es este, achicar el propio job
+  (`--mem`, `--cpus`) NO lo adelanta.** Solo ayuda *después* de que el token se
+  libere. Lo que destraba es coordinación (que los de delante declaren un
+  `--time` real), no ingeniería. Caso de referencia: job 4998 del B8,
+  `sprints/B8_sprint8/hovernext_129741/coordinacion_gpu.md`.
+  Memoria [[slurm-cola-backfill-timelimit]].
+- **L.a — `--export` es hostil a los valores con coma.** `sbatch
+  --export=ALL,VAR=valor` separa **variables** por coma, así que cualquier valor
+  que a su vez **espere** comas (ej. `--cp a,b,c` de HoVer-NeXt, que promedia un
+  ensemble) llega partido en variables basura, y sin error claro. Pasarlo con
+  otro separador (`+`) y traducirlo dentro del `.slurm` (`VAR=${VAR//+/,}`), que
+  además es idempotente para el caso de un solo valor.
+
 ### Reglas de commit y push para Claude Code
 
 - **Commits locales**: SÍ — granulares, mensajes conventional commits.
@@ -575,6 +604,25 @@ prueba no distingue nada y hay que rediseñarla, no correrla.
 contiene **3 de los 28** parches con mitosis (mediana de 12 checkpoints, rango 0 a 5), porque el
 percentil mediano de esos parches es ~96 (puesto ~190) y el top-20 es el percentil 99.58. Para
 la mitad de las marcas hacen falta 189 parches; para todas, 1392.
+
+**P2.a — El techo de una prueba restringida se mide SIN correr la etapa cara** (17-ago-2026).
+Cuando la prueba encadena **un filtro barato** (un top-k por atención) con **una etapa cara** (un
+detector, una corrida de GPU), el filtro **solo** ya acota el resultado por arriba: un candidato
+que no entra en la máscara no lo recupera nadie, por bueno que sea el detector.
+
+```
+resultado(k)  ≤  min( techo_del_filtro(k) ,  poder_de_la_etapa_cara )
+```
+
+y **el primer factor no depende de la etapa cara**. Entonces se calcula **antes** — es la forma
+operativa de «declarar el denominador alcanzable» cuando el denominador depende de dos etapas.
+Un techo bajo **condena** la prueba y ahorra la corrida entera; uno alto **no promete nada**, solo
+deja la pregunta viva. **No confundir el techo con el resultado**: es una cota, y decirlo en cada
+figura y caption es parte del patrón.
+
+De yapa suele regalar el **chequeo de sanidad** del barrido: en el `k` que cubre todo, los brazos
+tienen que coincidir. Caso de referencia: `sprints/B8_sprint8/hovernext_129741/techo_atencion.md`
+(la fase 3 acotada con la GPU bloqueada) + memoria [[techo-filtro-antes-de-correr]].
 
 **Corolario de costo**: restringir para **ahorrar cómputo** y restringir para **controlar falsos
 positivos** son motivos distintos y **no fijan el mismo `k`**. Cuando el cómputo deja de ser

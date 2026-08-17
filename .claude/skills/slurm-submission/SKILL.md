@@ -202,6 +202,13 @@ sacct -j <jobid> --format=JobID,State,Elapsed,MaxRSS   # post-mortem
 scancel <jobid>                   # cancelar MIS jobs (no los de otros)
 ```
 
+> **Si un job propio queda en `PD (Priority)` más de lo esperable, `squeue` no alcanza:**
+> `scontrol show job <id>` y mirar `StartTime` + el `TimeLimit`/`TresPerNode` de los que
+> están delante. Con un `TimeLimit=UNLIMITED` delante no hay backfill posible y **achicar
+> el propio job NO lo adelanta**. Workaround **L** del CLAUDE.md +
+> [[slurm-cola-backfill-timelimit]]. (Y **L.a**: `--export` separa por comas, así que un
+> valor que a su vez las use se pasa con `+` y se traduce dentro del `.slurm`.)
+
 ## Prohibiciones explícitas
 
 - ❌ `python main.py` (o cualquier python en GPU) fuera de un `.slurm`.

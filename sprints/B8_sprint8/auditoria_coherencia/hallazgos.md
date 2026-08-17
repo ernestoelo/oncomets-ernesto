@@ -2040,3 +2040,87 @@ justo el eje donde se ve el trueque que el paper hizo.
 - Pendientes de sprint sin cambios: la réplica del 4589 con semillas nuevas, el sign-off del
   patólogo, `@grilling` sin estrenar, los dos papers de `papers_11_agosto/` sin fichar y las dos
   preguntas de la reunión del 6-ago.
+
+---
+
+# Vigésima primera pasada — el job que no esperaba turno, y la prueba que se acotó sin correrla (17-ago-2026, tarde)
+
+Sesión que arrancó para **cosechar** dos procesos y no pudo cosechar ninguno: los dos seguían en
+vuelo. Mirar *por qué* el primero no arrancaba destapó un hallazgo operativo que ninguna sesión
+había visto, y la espera forzó un segundo hallazgo que resultó más valioso que la cosecha.
+
+| id | hallazgo | severidad | acción |
+|---|---|---|---|
+| **U1** | Un `PD (Priority)` puede **no** ser una espera normal: con `TimeLimit=UNLIMITED` delante, el backfill no puede planificar y **achicar el job no adelanta nada** | **alta** — cambia qué se hace ante un job encolado | **workaround L** en CLAUDE.md + memoria |
+| **U2** | La mitad de una prueba restringida se puede **acotar por arriba sin correr la etapa cara** | **alta** — es método, no dato | **sub-cláusula P2.a** + memoria |
+| **U3** | `--export` de SLURM separa por comas y choca con cualquier arg que **espere** comas | media | dentro del workaround L |
+
+## U1 — `squeue` decía «Priority» y `scontrol` decía otra cosa
+
+`squeue` mostraba `4998 PD (Priority)`, que se lee como «hay gente delante, ya te toca».
+`scontrol show job` mostró `StartTime = 2027-08-17`, o sea **un año**. La causa no es la carga:
+
+- el nodo tiene **un solo token de GPU** (`Gres=gpu:1`), y lo tenía un job declarado a **365 días**;
+- delante nuestro había **dos jobs `TimeLimit = UNLIMITED`**, los dos pidiendo ese mismo token.
+
+**Lo que importa y no era obvio:** para colar un job chico antes que uno grande, el backfill
+necesita **saber cuándo terminan** los de más prioridad. Con `UNLIMITED` delante esa ventana no se
+puede calcular, así que **no hay backfill posible** y bajar `--mem`/`--cpus` **no nos adelanta**.
+Eso invierte la reacción instintiva ante un job encolado, que es achicarlo.
+
+El `StartTime` de un año **no es una predicción**: es lo que SLURM devuelve cuando no puede
+planificar. Confundirlo con una espera real sería igual de equivocado que confundirlo con una
+espera corta.
+
+Queda `hovernext_129741/coordinacion_gpu.md` con el snapshot y el pedido, y la decisión de Ernesto
+fue **coordinar y dejarlo encolado** — porque el resto de las opciones eran técnicas y ninguna
+saltaba la cola.
+
+## U2 — la fase 3 se acotó por arriba sin correr HoVer-NeXt
+
+El razonamiento, que es reusable y no tiene nada de específico de esta prueba: **un candidato que
+no entra en la máscara no lo recupera nadie**, por bueno que sea el detector. Entonces el filtro
+**solo** ya acota por arriba el resultado del pipeline restringido:
+
+```
+recall(K)  ≤  min( techo_del_filtro(K) ,  poder_del_detector )
+```
+
+y el primer factor **no depende de la etapa cara**. Medido: el techo **no condena** la fase 3
+(a 12 % de la región anotada ya son 19/28 en CLAM y 22/28 en Mammoth, 5,7× y 6,5× sobre el azar),
+y de paso el **chequeo de sanidad que el plan exige** para la fase 3 quedó aprobado a nivel de
+techo (en K = 2496 los dos brazos dan idéntico).
+
+Es la continuación natural de **P2**: si P2 dice «declará el denominador alcanzable antes de correr
+la prueba», U2 dice **cómo medirlo cuando el denominador depende de dos etapas y solo una es cara**.
+Por eso va como sub-cláusula P2.a y no como patrón nuevo.
+
+Corrobora además [[topk-percentil-no-auc]] de forma **independiente**: el top-20 vuelve a dar 2-3
+de 28 con un par de checkpoints de **otra tarea** que los 12 que dieron el número original.
+
+## U3 — dos convenciones de coma que se pisan
+
+`sbatch --export=ALL,VAR=valor` separa variables **por coma**; `--cp` de HoVer-NeXt espera una
+**lista separada por comas** para promediar el ensemble de PanNuke. Pasar el ensemble por `--export`
+lo parte en variables basura y el brazo queda mudo, sin error claro. Se pasa con `+` y el `.slurm`
+traduce; es idempotente para un checkpoint solo.
+
+Es un caso particular de algo más general y por eso vale registrarlo: **`--export` es hostil a
+cualquier valor con comas**, no solo a este.
+
+## Verificado sin cambios
+
+- **La fase 1 se reprodujo byte a byte.** Agregar `--dump-attention` a
+  `clam_vs_mammoth_attention.py` no movió ninguno de sus 4 artefactos (md5 idéntico en los 3 PNG y
+  el JSON) — el cambio es aditivo de verdad, no «aditivo de palabra».
+- **El Hallazgo 12 no se movió.** Que Mammoth ordene mejor los parches es interpretabilidad, no
+  métrica de lámina, y los dos brazos siguen clasificando mal esta lámina.
+- **No se re-midió** el AUC 0,890 ni los percentiles, como viene mandando el plan.
+
+## Lo que queda abierto y va al handoff
+
+- **Todo HoVer-NeXt**: el 4998 nunca arrancó, así que fases 2.a/2.b/2.c enteras y de la 3 solo el
+  techo (falta el brazo 1, el único que exige GPU).
+- **El barrido sin terminar** y la decisión sobre los parámetros del test de registro.
+- Los pendientes de sprint de siempre, sin tocar: réplica del 4589 con semillas nuevas, las 18
+  láminas, el sign-off del patólogo, `@grilling` sin estrenar.
