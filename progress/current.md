@@ -3251,3 +3251,50 @@ clonar el repo. Todo eso lo define lo que Ernesto informe.
 
 **Próxima sesión**: arranca en **modo plan**, y su trabajo es estudiar la forma correcta de elaborar
 las tareas de la semana, con las tareas en mano.
+
+## 17-ago-2026 (tarde) — los cuatro encargos de la reunión, traducidos a plan
+
+Sesión de **planificación pura**: cero GPU, cero experimentos, ningún número movido. Ernesto trajo
+las tareas que Sebastián dejó el viernes y esta sesión hizo el reconocimiento y escribió el plan.
+**Ejecuta una sesión limpia** — plan en
+[`sprints/B8_sprint8/hovernext_129741/plan_semana_17ago.md`](../sprints/B8_sprint8/hovernext_129741/plan_semana_17ago.md).
+
+**El encuadre que fijó Sebastián**, y que cambia el criterio de éxito: **quiere HoVer-NeXt aunque
+no suba ninguna métrica.** Lo que busca es detección e interpretabilidad que le **proponga zonas al
+patólogo** y le acelere el etiquetado — que es el cuello real del proyecto — y que a 17× de su
+predecesor sea viable sobre la cohorte. **Se evalúa con las métricas del paper, no con AUC.** Los
+cuatro encargos: los tres brazos de mapa de calor sobre la 129741 (HoVer-NeXt solo · CLAM → HN ·
+CLAM+Mammoth → HN), los mapas de atención/expertos/slots de CLAM+Mammoth sobre esa misma lámina,
+abrir la cadena interna de HoVer-NeXt (HV → BCB → raw class → class-map, idea de Ernesto) y, al
+final de todo, más relaciones E×S.
+
+**Tres hallazgos del reconocimiento, ninguno costó GPU:**
+
+- **Hay 12 láminas anotadas por el patólogo, no una.** Viven en
+  `/media/administrador/Storage1/sdonoso/anotaciones/` (de `sgaete`, **READ-ONLY**), un directorio
+  que **ningún documento del repo mencionaba**. Las 12 tienen features y WSI, y **las 12 traen
+  marcas de mitosis**: 94 contra las 26 de la 129741. **Sebastián habló de 30: faltan 18**, y por
+  qué es pregunta para él. «Quién es GDT» sigue sin respuesta.
+- **El encargo de los mapas de Mammoth sale sin GPU.** La 129741 cae en **test del fold 4** de
+  `carcinoma_ductal_insitu_presente_ci_reform`, así que el par CLAM/Mammoth del job 4589 **ya
+  existe** sobre esta lámina no vista. En tasa mitótica ese par no existe (la lámina está en train
+  en los 5 folds) y construirlo costaría splits nuevos y días de GPU.
+- **`sgaete` tiene un pipeline propio** de atención-vs-anotaciones sobre 8 tareas y las 12 láminas,
+  que mide lo mismo que nuestro `atencion_vs_patologo/`. **Riesgo de trabajo duplicado**: se
+  coordina antes de barrer las 12, no después.
+
+**Dos decisiones de diseño que la sesión ejecutora no debe reinventar**: HoVer-NeXt se corre **una
+vez sobre la lámina entera** y los brazos restringidos se hacen **enmascarando post-hoc** (el
+pipeline espera una WSI, un parche suelto paga borde perimetral, a ~2 min no hay motivo de costo, y
+así los tres brazos quedan pareados por construcción); y **PQ / bPQ / mPQ no son computables** contra
+este geojson, porque no es una segmentación exhaustiva y las marcas de mitosis no son contornos
+nucleares. Sobreviven el recall de detección y los descriptores de regularidad.
+
+**Autorizaciones y encuadre de reglas.** Ernesto autorizó **clonar `hover_next_inference` y bajar
+los dos juegos de pesos** (segundo precedente del workaround E.a). Y la vuelta de la rama de núcleos
+al alcance **no es regla 9.b encubierta**: la reunión **redibujó el destino**, que es la única
+condición bajo la cual el mapa del sprint deja volver algo de «Fuera de alcance», y vuelve **como
+esfuerzo nuevo**. La pausa del 31-jul se apoyaba en el costo (demolido: ~2 min contra 3 h 36) y en
+el top-20 (que no tiene denominador, patrón P2).
+
+**Nada se ejecutó.** Los cuatro encargos siguen enteros por delante.

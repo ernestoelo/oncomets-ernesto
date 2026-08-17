@@ -1913,3 +1913,130 @@ que, con el orden nuevo, ya ocurrió.
   dependen los dos objetivos propuestos.
 - Los pendientes de sprint sin cambios: la réplica del dato abierto del 4589 con semillas nuevas,
   el sign-off del patólogo y `@grilling` sin estrenar.
+
+---
+
+# Vigésima pasada — el reconocimiento del encargo nuevo, y un directorio que el repo no conocía (17-ago-2026, lunes)
+
+> Sesión de **planificación**: la reunión del 14-ago ya ocurrió, Sebastián dejó cuatro encargos y
+> esta sesión los tradujo a un plan. **Ningún experimento corrió y ningún número se movió.** Lo que
+> cambió es el mapa: el reconocimiento del servidor encontró material que ninguno de los documentos
+> del sprint sabía que existía, y contestó una pregunta que llevaba abierta desde el 31-jul en ocho
+> lugares distintos.
+
+| id | Hallazgo | Tipo | Severidad | Acción |
+|---|---|---|---|---|
+| T1 | **El directorio `/media/administrador/Storage1/sdonoso/anotaciones/` no aparece en ningún documento del repo**, y contiene **12** geojson del patólogo más un pipeline de atención-vs-anotaciones de `sgaete` sobre 8 tareas | omisión | alta | Entra a la tabla de paths de `CLAUDE.md` como **READ-ONLY**; memoria actualizada |
+| T2 | **«¿Hay más láminas anotadas?» está contestada** y seguía abierta en 8 documentos | stale | alta | ADDENDUM fechado en la memoria canónica y en `hovernext_estudio.md` §11. Los sprint docs históricos **no** se reescriben |
+| T3 | **Sebastián dijo 30 láminas; en el servidor hay 12** | discrepancia | alta | Se registra como discrepancia, **no** como error de Sebastián. Faltan 18 → pregunta para él |
+| T4 | La memoria `anotaciones-patologo-qupath` explica cómo elegir checkpoint **solo para tasa mitótica**, y omite el único mapeo que da par CLAM/Mammoth con la lámina no vista | omisión | alta | Punto nuevo en la memoria |
+| T5 | Los documentos dicen que **no hay autorización** para bajar HoVer-NeXt; Ernesto la dio hoy | stale | media | ADDENDUM + memoria + tabla de paths |
+| T6 | `objetivos_sprint8.md` dice «hay **una** lámina, un anotador y 26 marcas», y dio de baja HoVer-Net **por costo** conservando la idea del top-20 | stale ×2 | alta | Las dos premisas cayeron. Se actualiza el mapa del sprint |
+| T7 | **PQ / bPQ / mPQ no son computables** contra el geojson del patólogo, y son justo las métricas que el encargo pide «como las del paper» | riesgo de fabricación | alta | Guardrail explícito en el plan y en memoria nueva |
+
+## T1 — un directorio con doce láminas que nadie había mirado
+
+`grep -rn "sdonoso/anotaciones"` sobre el repo entero devuelve **cero**. El material vivía a un
+nivel del árbol que ninguna sesión había recorrido, y lo que hay dentro es sustancial:
+
+- **12 archivos `<slide>.bif - GDT.geojson`**, no uno. Las 12 tienen features `.h5` y WSI
+  disponibles, y **las 12 traen marcas de `Mitosis`**: 94 en total contra las 26 de la 129741.
+  La 126504 aporta 20 y la 128194 diecisiete, o sea que hay dos láminas del mismo orden que la
+  única que veníamos usando.
+- Un vocabulario de clases **más ancho** que el de la 129741: aparecen `AreaTubular`, `AreaSolida`,
+  `CDIS_solido`, `CDIS_papilar`, `Comedonecrosis`, `Permeaciones vasculares`, `NucleosBajoGrado`,
+  `Nucleos mod grado`, `Mucinoso`, `microcalcificaciones`. La 129741 usa un subconjunto.
+- **Un pipeline propio de `sgaete`**: `atencion/` con 8 tareas y `resumen_atencion.csv` de 109
+  filas, `overlays/` con `resumen_anotaciones.csv` de 363, más `atencion_vs_anotaciones.py` y su
+  `.slurm` (jobs 4838/4839, 7-ago). **Mide lo mismo que nuestro `atencion_vs_patologo/`**, con otro
+  código y sobre las 12 láminas.
+
+Lo tercero es lo que más importa operativamente y va al handoff: **hay riesgo real de trabajo
+duplicado con Sebastián/sgaete**, y la fase 5 del plan (extender a las 11 restantes) es exactamente
+el terreno donde chocaría. Se coordina antes de correr, no después. El directorio es de `sgaete` →
+**READ-ONLY**, misma lógica que `hover_net/` y `clam_testing/`.
+
+## T2 y T3 — la pregunta contestada, y la que se abre en su lugar
+
+«¿Hay más láminas anotadas, y quién es GDT?» aparece viva en `reunion_31jul_redireccion.md`,
+`hovernet_estudio.md` (×2), `papers_b8.md`, `hovernext_estudio.md` §11, `tareas_geometricas/`
+(×2), `hojas_reunion.md` y `anotaciones_patologo/hallazgos.md`. **La primera mitad quedó
+contestada hoy: sí, hay doce.** La segunda **sigue abierta** — el nombre detrás de «GDT» no se
+resolvió y no lo resuelve mirar archivos.
+
+Criterio aplicado: se corrige la **memoria canónica** y el documento que la lleva como pendiente
+vivo (`hovernext_estudio.md` §11). Los demás son **registro histórico de lo que se sabía ese día**
+y no se reescriben; quien los lea llega a la memoria por el `[[wikilink]]`.
+
+**T3 no se resuelve mirando el disco.** Sebastián dijo 30 y hay 12. Las lecturas posibles son que
+las otras 18 no estén subidas, que vivan en otra cuenta, o que 30 sea el total anotado y 12 el
+total compartido. **Ninguna se puede elegir desde acá**, así que se registra la discrepancia y se
+pregunta. Lo que **no** se hace es asumir que Sebastián se equivocó.
+
+## T4 — el checkpoint que sí sirve estaba a un grep de distancia
+
+La memoria dice, en su punto 6, que para medir atención sobre estas marcas hay que elegir bien el
+checkpoint, y desarrolla el caso de **tasa mitótica**: la 129741 cae en `val` en los splits de
+Sebastián y en `train` **en los cinco folds** del k-fold nuestro. Correcto y sigue vigente.
+
+Lo que faltaba: en `data/splits_kfold/carcinoma_ductal_insitu_presente_ci_reform_100` la 129741
+cae en **test del fold 4** y en **val del fold 2**. Eso importa porque es el **único** caso del
+proyecto donde existe un **par CLAM/Mammoth entrenado paired** (job 4589) sobre una lámina que el
+modelo **no vio** — y por lo tanto el único camino para el encargo 2 sin gastar GPU. En tasa
+mitótica ese par no existe y no puede construirse sin splits nuevos.
+
+## T6 — dos premisas del mapa del sprint que la semana pasada dio vuelta
+
+**La primera es de tamaño.** «Todavía sin especificar» dice: *«Hay una lámina, un anotador y 26
+marcas de mitosis»*. Son **doce, 94 marcas**, y el anotador sigue siendo uno. La pregunta que ese
+párrafo dejaba en niebla — si el material alcanza para entrenar — no queda contestada, pero **sí
+cambia de orden de magnitud**, que es justo lo que la sección pide para graduar algo a sharp.
+
+**La segunda es de encuadre, y es la que hay que tratar con cuidado.** «Fuera de alcance» dice que
+HoVer-Net queda en pausa **por costo**, conservando la idea de correrlo sobre los 20 mejores
+parches de CLAM. Las dos mitades cayeron por motivos distintos:
+
+- **El costo** dejó de ser argumento: ~2 min por lámina contra 3 h 36 medidas.
+- **El top-20** dejó de ser el diseño: no le da el denominador (patrón **P2**,
+  [[topk-percentil-no-auc]]). Con AUC de atención 0,890 contiene 3 de 28 parches con mitosis.
+
+Y sobre todo: **la reunión del 14-ago redibujó el destino**, que es literalmente la única condición
+bajo la cual el formato del mapa permite que algo vuelva de «Fuera de alcance», y vuelve **como
+esfuerzo nuevo**. No es una reapertura por inercia ni un caso de regla 9.b encubierto: es el
+supervisor cambiando el objetivo. Se documenta así, con esa cadena, para que ninguna sesión futura
+lo lea como que nos saltamos la regla.
+
+## T7 — la métrica que el encargo pide y el dato no soporta
+
+Sebastián pidió evaluar «con las métricas del paper», y el paper reporta PQ, bPQ y mPQ. **Contra
+este geojson no se pueden calcular**, y conviene dejarlo escrito antes de que alguien los produzca:
+
+- PQ = DQ × SQ. **SQ es IoU medio sobre pares emparejados**, y exige contornos nucleares. Las
+  marcas de mitosis son **cuadrados de ~36 px**, no contornos.
+- **DQ es F1**, y su mitad de precisión no es honesta acá: los positivos son **parciales**, así que
+  toda mitosis real no marcada cuenta como falso positivo del modelo.
+
+Lo que **sí** sobrevive de esa familia es el **recall de detección** y los **descriptores de
+regularidad** por instancia. Y la regularidad no es un premio de consuelo: HoVer-NeXt sacó el
+convex hull para ganar velocidad y **lo pagó en distancia de Hausdorff**, así que la solidez es
+justo el eje donde se ve el trueque que el paper hizo.
+
+## Verificado sin cambios
+
+- **Los números del `atencion_vs_patologo/` no se tocaron**: el AUC 0,890 de mitosis, los siete
+  grupos, los dos nulos y la disociación del §3 siguen como estaban. Esta sesión los **leyó** para
+  dimensionar el barrido de K, y no re-midió nada.
+- **El mecanismo y el estudio de HoVer-NeXt no se re-auditaron**, como pedía el handoff.
+- **El determinismo bit a bit** sigue siendo el argumento por el que la fase 6 exige semillas
+  nuevas para cualquier réplica.
+- La lámina 129741 verificada de nuevo contra openslide: 39669 × 80640, 0,465 µm/px, 4799 parches,
+  **dos regiones de escaneo** y las 163 anotaciones todas en la de abajo.
+
+## Lo que queda abierto y va al handoff
+
+- **Las 18 láminas que faltan** para las 30 que mencionó Sebastián, y **quién es «GDT»**.
+- **Coordinar con Sebastián/sgaete** antes de la fase 5, por el pipeline paralelo de `anotaciones/`.
+- Los cuatro encargos, sin ejecutar: nada se corrió esta sesión.
+- Pendientes de sprint sin cambios: la réplica del 4589 con semillas nuevas, el sign-off del
+  patólogo, `@grilling` sin estrenar, los dos papers de `papers_11_agosto/` sin fichar y las dos
+  preguntas de la reunión del 6-ago.
