@@ -3736,3 +3736,43 @@ distintos dejaría dos cohortes incomparables.
   el JSON final. Log en `logs/barrido_rotacion_desatado.log`. **No pisa `barrido_138`.**
 - Lección de plomería registrada como **patrón P3** de `CLAUDE.md` +
   [[control-positivo-calibra-el-criterio]].
+
+---
+
+## 18-ago-2026 (7ª sesión) — el instrumento del recuento, listo y probado
+
+**La misión (cosechar el re-barrido) estaba bloqueada:** al abrir la sesión el barrido llevaba
+**20 min de 6,5 h** (8 láminas de 130, 296 s/lámina). Y el **5008 sigue `PD`**: delante van el
+`yolo_train` de sgaete (termina 19-ago 19:33) **y** el 5000 de gvenegas con `TimeLimit =
+UNLIMITED`, así que su `StartTime` sigue siendo **cota inferior** (workaround L.b) — sin cambios.
+
+En vez de esperar, se dejó **listo y ejercitado** todo el camino de la cosecha, que es donde la
+sesión anterior perdió una corrida entera por un `UnboundLocalError` en código no probado.
+
+### Lo que se hizo
+
+- **`cosechar_barrido_registro.py` blindado.** Escribía **siempre** en `barrido_resumen.csv`, así
+  que cosechar `barrido_rot` habría **pisado la verdad de campo** del barrido sin rotación — que es
+  justo la referencia de la comparación pareada. Ahora el destino se deriva del directorio y ese
+  archivo está protegido **incluso contra un destino explícito** (`--force` para pisarlo). *(El
+  guard se agregó porque en la prueba lo pisé yo: se restauró desde git y se verificó idéntico.)*
+  **Regresión: sobre `barrido_138` reproduce `barrido_resumen.csv` celda a celda.**
+- **El bloque de la 129741** usaba su JSON externo, que en un barrido que **sí** la incluye queda
+  stale; ahora prefiere la medición de adentro, excluye a la lámina de su propio percentil y
+  reporta el delta contra la medición previa.
+- **`scripts/comparar_barridos_rotacion.py` nuevo** — es el recuento de §8.b: matriz de transición
+  de la puerta, **cómo clasifican las recuperadas** (lo que §10.c dejó abierto), delta contra el
+  33/54, sensibilidad a los cortes, y el diagnóstico de **si la etapa B es el próximo cuello**.
+  Probado end-to-end sobre el parcial, y sobre un caso sintético con la 129741 adentro.
+- **Dos trampas del recuento, documentadas en `regiones_escaneo/resultados.md` §11**: el control
+  negativo que manda la razón a 1e8 (§11.a) y la etapa B que puede **fabricar «seriadas»** con las
+  recuperadas (§11.b). Las dos con guard en el script.
+- **§8 corregido**: decía **19** `stop` copiando el contador del driver; en disco hay **21** (2
+  heredadas de una corrida previa, contadas como `saltadas`). Cobertura real **108 + 21 = 129**,
+  completa — el «2 pendientes» del log no eran pendientes. **Las 108 medidas no se mueven.**
+
+### Lo que NO se hizo
+
+- **El recuento de §8.b sigue sin rehacerse**: el re-barrido no terminó. Los números del parcial
+  **no se leen** (8 láminas, las primeras alfabéticamente).
+- **Cero números de HoVer-NeXt**, sin cambios respecto de ayer.
