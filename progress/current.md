@@ -3599,3 +3599,59 @@ preflight tiene que grepear por el directorio del repo, no por nombres de script
 - **La fase 2 no se relanzó desde esta sesión**: el job **5008** ya estaba encolado al entrar.
 - **El probe no terminó**: 3 de 16, sin control positivo. Sigue corriendo desatado.
 - **No se re-midió la 129741** ni se tocó el conteo de §8.b.
+
+## 17-ago-2026 (noche, 6ª sesión) — la fase 2 se relanzó, y el probe quedó a un paso de poder leerse
+
+Sesión corta y de dos frentes. **Ninguno de los dos cerró**, y los dos quedaron en un estado
+limpio para retomar.
+
+### El job 5008: la fase 2 está encolada, y el bloqueo es el mismo de siempre
+
+Ernesto **autorizó el `sbatch`** sabiendo que quedaba detrás de la cola. Se mandó **solo
+Lizard-Mitosis** (el juego de pesos que trae la clase de mitosis, o sea el que alimenta 2.b, 2.c
+y la fase 3); PanNuke se manda después, para no ocupar dos lugares con gente esperando.
+
+El diagnóstico de la cola, hecho antes de mandar y que conviene repetir la próxima vez:
+
+- **`5001`** (`sgaete`, `yolo_train`) tiene la GPU y declara **`TimeLimit` real de 2 días** ⇒
+  SLURM sí puede planificar detrás suyo. Termina el **19-ago 19:33**.
+- **`5000`** (`gvenegas`) está `PD (Resources)` con **`TimeLimit = UNLIMITED`**, y va **delante**
+  nuestro. Es otra vez el **workaround L**: en cuanto arranque, no hay ventana de backfill que
+  calcular para nosotros.
+- `scontrol` nos da `StartTime = 19-ago 19:33`, **igual que a 5000**. Eso es la primera
+  disponibilidad del recurso, **no** una predicción que descuente lo que 5000 vaya a durar.
+
+Apareció además **`5011`** (`extra`, de `Test_D/D_abs_cambiado/`) bajo la **cuenta compartida
+`sdonoso`**: trabajo ajeno, encolado después del nuestro, **no nos bloquea**. Recordatorio de que
+`squeue -u $USER` mezcla operadores distintos en este server.
+
+### El probe de rotación: sigue vivo y NO se leyó
+
+Al cierre iba por **11 de 16**: el grupo A entero (8), tres del B, y **cero del control C**. Su
+propio pre-registro prohíbe leerlo sin el control, así que **no se leyó**, y esta entrada tampoco
+adelanta veredicto. Queda `scripts/cosechar_probe_rotacion.py`, que **se niega a imprimir el
+grupo A si el C no valida**.
+
+Lo que sí se pudo cerrar sin tocar el probe son **dos corroboraciones independientes**, que están
+en el nuevo **§9.d** de `regiones_escaneo/resultados.md`:
+
+1. **El argmax de la etapa A en las no medibles es indistinguible de ruido**: la dispersión del
+   desplazamiento entre ventanas de la misma lámina es **1462 px** contra los **1672 px** que
+   daría un argmax uniforme sobre el cuadrado de ±2048. En las medibles es **564 px**. Confirma
+   §9.a por otra vía: no es señal débil, es que no hay señal.
+2. **La etapa B queda clavada en el borde de su barrido de ±8° tres veces más seguido** en las no
+   medibles (22 % de ventanas contra 7 %), con sd de θ intra-lámina 5,08° contra 2,42°.
+   **Sugerente y no decisivo**: en una lámina no medible la etapa B busca donde la etapa A eligió
+   mal, así que su θ también es ruido.
+
+Se documentaron además dos cosas que la cosecha necesita saber: el probe elige θ por **máximo
+NCC** y no por máximo margen (por eso una lámina puede **bajar** su fracción al rotar, y no es un
+bug), y el corte de «θ consistente» (sd ≤ 4°) es **posterior a ver los datos**, así que se reporta
+como tal y con sensibilidad, no como pre-registrado.
+
+### Lo que NO se hizo
+
+- **El probe no terminó** y **no se leyó**. Falta 1 de B y **los 4 del control C**.
+- **Cero números de HoVer-NeXt**: el 5008 nunca arrancó. Fases 2.a a 6 enteras.
+- **No se recontó §8.b**: depende del veredicto del probe.
+- No se re-midió la 129741 ni se tocó nada del hilo de las multi-región.
