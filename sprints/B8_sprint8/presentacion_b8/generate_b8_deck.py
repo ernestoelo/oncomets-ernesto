@@ -83,7 +83,7 @@ from lxml import etree
 from pptx import Presentation
 from pptx.util import Inches, Pt, Emu
 from pptx.dml.color import RGBColor
-from pptx.enum.shapes import MSO_SHAPE, MSO_CONNECTOR
+from pptx.enum.shapes import MSO_SHAPE, MSO_CONNECTOR, MSO_SHAPE_TYPE
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.oxml.ns import qn
 from PIL import Image
@@ -475,10 +475,22 @@ def status_progress(slide, cx, cy, w=1.5, h=0.44, texto="Pendiente"):
               anchor=MSO_ANCHOR.MIDDLE)
 
 
+# Las dos piezas de la barra de remate de cada lámina, para que `auditar` pueda ver si
+# algún objeto la cruza. Los cuatro cruces del 18-ago pasaron la auditoría porque cada
+# objeto estaba DENTRO de su caja: el defecto no es de una caja, es de dos que se tocan.
+#
+# Se guardan los SHAPES y no la altura: `reflow_onco` corre después y reancla (y a veces
+# comprime) el cuerpo entero, así que el 4,85 de acá no es donde la barra termina. Leer la
+# posición real al auditar es lo único que sobrevive a esa pasada.
+_TAKEAWAY = {}
+
+
 def takeaway_bar(slide, text, t=4.85, col=TEAL_TITLE, size=14):
-    _rect(slide, 0.35, t, SW - 0.7, 0.02, TEAL_SQ)
-    add_textbox(slide, 0.35, t + 0.08, SW - 0.7, 0.62,
-                [(text, size, True, col, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
+    linea = _rect(slide, 0.35, t, SW - 0.7, 0.02, TEAL_SQ)
+    tb = add_textbox(slide, 0.35, t + 0.08, SW - 0.7, 0.62,
+                     [(text, size, True, col, F_BODY, PP_ALIGN.CENTER)],
+                     anchor=MSO_ANCHOR.MIDDLE)
+    _TAKEAWAY[id(slide._element)] = (linea, tb)
 
 
 # ============================================================================
@@ -1303,9 +1315,24 @@ def scale_deck_to_1610(prs, k=13.333 / 10.0, skip=()):
     prs.slide_height = Inches(7.5)
 
 
+def _borde_inferior(problemas, idx, sh, t, h, b_ef, bar_t, propias):
+    """Marca el shape que CRUZA la barra de remate.
+
+    Las dos piezas de la barra se excluyen por identidad y no por posición: `reflow_onco`
+    le sube el texto por encima de su propia línea, así que por posición la barra se
+    marcaría a sí misma en casi toda lámina. Y terminar JUSTO sobre la línea no es
+    cruzarla, por eso el margen va hacia abajo."""
+    if bar_t is None or id(sh._element) in propias:
+        return
+    if t < bar_t - 0.01 and b_ef > bar_t + 0.02:
+        problemas.append("s%02d  cruza la barra de remate: %s baja hasta %.2f\" "
+                         "(la barra va en %.2f)" % (idx, sh.shape_type, b_ef, bar_t))
+
+
 def auditar(prs, skip=()):
     """Chequeo de defectos que el ojo ve y un chequeo ingenuo no: texto que no entra en su
-    caja, shapes fuera del lienzo y cuerpos por debajo del mínimo del template (7 pt).
+    caja, shapes fuera del lienzo, cuerpos por debajo del mínimo del template (7 pt) y
+    objetos que cruzan la barra de remate.
 
     Se corre ANTES de escalar, o sea en el espacio de 10 x 5.625. No reemplaza mirar las
     láminas ([[deck-qa-puntos-ciegos-chequeo]]), pero caza la clase de defecto que más
@@ -1314,6 +1341,12 @@ def auditar(prs, skip=()):
     for idx, slide in enumerate(prs.slides, start=1):
         if id(slide._element) in skip:
             continue
+        par = _TAKEAWAY.get(id(slide._element))
+        bar_t, propias = None, ()
+        if par is not None:
+            linea, tb = par
+            bar_t = Emu(linea.top).inches
+            propias = (id(linea._element), id(tb._element))
         for sh in slide.shapes:
             try:
                 l, t = Emu(sh.left).inches, Emu(sh.top).inches
@@ -1326,6 +1359,7 @@ def auditar(prs, skip=()):
                     problemas.append("s%02d  fuera del lienzo: %s (%.2f, %.2f, %.2f x %.2f)"
                                      % (idx, sh.shape_type, l, t, w, h))
             if not sh.has_text_frame:
+                _borde_inferior(problemas, idx, sh, t, h, t + h, bar_t, propias)
                 continue
             alto, chico = 0.0, None
             for p in sh.text_frame.paragraphs:
@@ -1339,6 +1373,18 @@ def auditar(prs, skip=()):
                     if not any(r._r.get_or_add_rPr().get("baseline") for r in p.runs):
                         chico = sz
                 alto += wrap_lines(txt, max(w - 0.14, 0.2), sz, bold) * sz * 1.22 / 72.0
+            # Una caja de texto no se ve: lo que se ve es el texto adentro. Medir la caja
+            # marcaba captions de una línea sobre una caja de 0,4" que no cruzan nada, y un
+            # chequeo que grita de más se termina ignorando, que es justo el modo de falla
+            # que este chequeo vino a tapar. Un panel pintado sí se ve entero.
+            b_ef = t + h
+            if sh.shape_type == MSO_SHAPE_TYPE.TEXT_BOX and alto < h:
+                anc = sh.text_frame.vertical_anchor
+                if anc == MSO_ANCHOR.MIDDLE:
+                    b_ef = t + (h + alto) / 2
+                elif anc != MSO_ANCHOR.BOTTOM:
+                    b_ef = t + alto
+            _borde_inferior(problemas, idx, sh, t, h, b_ef, bar_t, propias)
             if alto > h + 0.06:
                 problemas.append("s%02d  texto que no entra: sobra %.2f\" en «%s…»"
                                  % (idx, alto - h, sh.text_frame.text[:44].replace("\n", " ")))
@@ -2625,27 +2671,49 @@ def eje_angulos(slide, l, t, w, hi=12.0, bandas=(), marcas=(), fs=9.5, h=0.30):
     hasta ocho grados y hacían falta siete coma ocho de mediana») hay que reconstruirlo
     mentalmente; dibujado no hay nada que reconstruir.
 
-    `bandas` = (hasta_grados, rótulo, color); `marcas` = (grados, rótulo, destacada)."""
+    `bandas` = (hasta_grados, rótulo, color), en orden creciente de `hasta`;
+    `marcas` = (grados, rótulo, destacada).
+
+    Dos cosas que salieron del rasterizado del 18-ago y que la auditoría no ve, porque cada
+    objeto estaba dentro de su caja ([[deck-qa-puntos-ciegos-chequeo]]):
+
+    - **Las bandas se pintan de la más ancha a la más angosta.** Todas arrancan en cero, así
+      que pintarlas en el orden en que se declaran deja a la última tapando a las anteriores,
+      y la banda chica, que es la que carga el hallazgo, no se ve.
+    - **Los rótulos no van al lado de cada banda, van a una leyenda debajo del eje.** Al lado
+      se pisaban entre sí. Las marcas se escalonan en dos alturas por el mismo motivo, con la
+      destacada más alta y sola en su fila."""
     def px(g):
         return l + w * g / hi
+
+    def grados(g):
+        return ("%g" % g).replace(".", ",") + "°"
+
     base = t + 1.20
-    for i, (hasta, rot, col) in enumerate(bandas):
+    for i, (hasta, _rot, col) in reversed(list(enumerate(bandas))):
         alto = h * (0.55 if i == 0 else 1.0)
         _rect(slide, l, base - alto, px(hasta) - l, alto, col)
-        add_textbox(slide, px(hasta) + 0.10, base - alto - 0.02, 2.60, 0.28,
-                    [(rot, fs, True, ONCO_INK, F_BODY)], anchor=MSO_ANCHOR.BOTTOM)
     _conn(slide, l, base, l + w, base, arrow=False)
     for g in range(0, int(hi) + 1, 2):
         _rect(slide, px(g) - 0.006, base, 0.012, 0.07, ONCO_INK)
         add_textbox(slide, px(g) - 0.30, base + 0.10, 0.60, 0.24,
-                    [("%d°" % g, fs - 0.5, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
+                    [(grados(g), fs - 0.5, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
     for g, rot, dest in marcas:
         col = ONCO_DARK if dest else ONCO_CONN
-        _rect(slide, px(g) - 0.022, base - 1.02, 0.044, 1.02, col)
-        add_textbox(slide, px(g) - 1.30, base - 1.36, 2.60, 0.30,
+        alto = 0.96 if dest else 0.66
+        _rect(slide, px(g) - 0.022, base - alto, 0.044, alto, col)
+        add_textbox(slide, px(g) - 1.10, base - alto - 0.32, 2.20, 0.30,
                     [(rot, fs + (1.5 if dest else 0.0), dest, col, F_BODY, PP_ALIGN.CENTER)],
                     anchor=MSO_ANCHOR.BOTTOM)
-    return base + 0.42
+    ly = base + 0.38
+    x = l
+    for hasta, rot, col in bandas:
+        _rect(slide, x, ly + 0.05, 0.20, 0.14, col)
+        tw = 0.30 + 0.062 * len(rot)
+        add_textbox(slide, x + 0.26, ly - 0.02, tw, 0.28,
+                    [(rot, fs, False, GRIS_BODY, F_BODY)], anchor=MSO_ANCHOR.MIDDLE)
+        x += 0.26 + tw + 0.22
+    return ly + 0.34
 
 
 def curva_techo(slide, l, t, w, h, series, ks, fs=9.5, ymax=28.0):
@@ -2667,7 +2735,9 @@ def curva_techo(slide, l, t, w, h, series, ks, fs=9.5, ymax=28.0):
         add_textbox(slide, l - 0.56, y - 0.13, 0.46, 0.26,
                     [("%d" % g, fs - 0.5, False, GRIS_BODY, F_BODY, PP_ALIGN.RIGHT)],
                     anchor=MSO_ANCHOR.MIDDLE)
-    for nombre, vals, col, grueso in series:
+    for serie in series:
+        nombre, vals, col, grueso = serie[:4]
+        marca = serie[4] if len(serie) > 4 else ("cuad" if grueso else None)
         pts = [pt(i, v) for i, v in enumerate(vals)]
         for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
             ln = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, Inches(x0), Inches(y0),
@@ -2677,8 +2747,17 @@ def curva_techo(slide, l, t, w, h, series, ks, fs=9.5, ymax=28.0):
             if not grueso:
                 lnpr = ln.line._get_or_add_ln()
                 lnpr.append(lnpr.makeelement(qn('a:prstDash'), {'val': 'dash'}))
-        if grueso:
-            for x0, y0 in pts:
+        # El color solo no alcanzaba: las dos series de atención venían en dos teales que
+        # difieren en tres unidades por canal y en el rasterizado son el mismo. Se separan
+        # por color Y por forma del marcador, que es lo que sobrevive a un proyector malo.
+        for x0, y0 in pts:
+            if marca == "circ":
+                sp = slide.shapes.add_shape(MSO_SHAPE.OVAL, Inches(x0 - 0.043),
+                                            Inches(y0 - 0.043), Inches(0.086), Inches(0.086))
+                sp.fill.solid(); sp.fill.fore_color.rgb = col
+                sp.line.color.rgb = WHITE; sp.line.width = Pt(0.75)
+                sp.shadow.inherit = False
+            elif marca == "cuad":
                 _rect(slide, x0 - 0.035, y0 - 0.035, 0.07, 0.07, col)
     return t + h + 0.30
 
@@ -2706,7 +2785,7 @@ def lam_desde_6ago(prs):
     panel(s, xs[2], TOP + 0.30, cw, 2.12, "Método", ONCO_DARK, [
         "Tres patrones nuevos, escritos y ya en uso.",
         "Los tres dicen lo mismo: el instrumento se mete en la conclusión.",
-        "Dos de ellos ahorraron una corrida entera."], ONCO_CONN)
+        "Uno de ellos ahorró una corrida entera."], ONCO_CONN)
     status_done(s, xs[0] + cw / 2, TOP + 2.70)
     status_progress(s, xs[1] + cw / 2, TOP + 2.70, w=1.90, texto="Falta la GPU")
     status_done(s, xs[2] + cw / 2, TOP + 2.70)
@@ -2749,7 +2828,7 @@ def lam_regiones_metodo(prs):
     xl, wl = 0.35, 4.42
     y = TOP + 0.30
     _proc(s, xl, y, wl, 0.62,
-          "Se eligen ventanas de tejido en la región 0 y se buscan en la región 1",
+          "Etapa A · se eligen ventanas de tejido en la región 0 y se buscan en la región 1",
           dim="a 1 de cada 4 píxeles · plantilla de 1024")
     _conn(s, xl + wl / 2, y + 0.62, xl + wl / 2, y + 0.96)
     _oper(s, xl + wl / 2, y + 1.13, sym="?")
@@ -2758,18 +2837,18 @@ def lam_regiones_metodo(prs):
                 anchor=MSO_ANCHOR.MIDDLE)
     _conn(s, xl + wl / 2, y + 1.30, xl + wl / 2, y + 1.62)
     _proc(s, xl, y + 1.62, wl, 0.62,
-          "Cada ventana que pasó se vuelve a buscar a resolución completa",
+          "Etapa B · cada ventana que pasó se vuelve a buscar a resolución completa",
           dim="plantilla de 512 · correspondencia celular")
     _conn(s, xl + wl / 2, y + 2.24, xl + wl / 2, y + 2.56)
     _proc_claro(s, xl, y + 2.56, wl, 0.56,
                 "Y contra ventanas de control, que son tejido que no corresponde")
     xr, wr = 5.10, 4.55
     hr = wr / 2.0312
-    s.shapes.add_picture(REGISTRO, Inches(xr), Inches(TOP + 0.44), Inches(wr), Inches(hr))
-    caption(s, xr, TOP + 0.48 + hr, wr,
+    s.shapes.add_picture(REGISTRO, Inches(xr), Inches(TOP + 0.30), Inches(wr), Inches(hr))
+    caption(s, xr, TOP + 0.34 + hr, wr,
             "la misma célula, en las dos regiones", size=9.5)
-    _grupo(s, xr, TOP + 0.92 + hr, wr, 0.72, fill=TEAL_CARD)
-    add_textbox(s, xr, TOP + 0.92 + hr, wr, 0.72, [
+    _grupo(s, xr, TOP + 0.64 + hr, wr, 0.62, fill=TEAL_CARD)
+    add_textbox(s, xr, TOP + 0.64 + hr, wr, 0.62, [
         ("0,382   contra   0,049 del control", 15, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER),
         ("8 de 8 ventanas, en la lámina del patólogo", 9.5, False, GRIS_BODY, F_BODY,
          PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
@@ -2779,17 +2858,17 @@ def lam_regiones_metodo(prs):
 def lam_regiones_mitad(prs):
     # ---- El primer resultado, que es el que nadie esperaba ----
     s = content(prs, "El primer resultado: la mitad no es medible")
-    cadena_cuenta(s, 0.35, TOP + 0.26, 9.28, [
+    cadena_cuenta(s, 0.35, TOP + 0.20, 9.28, [
         ("490", "láminas privadas\ncon imagen"),
         ("139", "con más de una\nregión de escaneo"),
         ("129", "barridas"),
         ("108", "midieron")], h=0.46, fs=17)
-    caption(s, 0.35, TOP + 1.32, 9.28,
+    caption(s, 0.35, TOP + 1.20, 9.28,
             "las 21 restantes las rechazó el propio test antes de medir, un 16 %", size=9.5)
-    barra_reparto(s, 1.60, TOP + 1.86, 6.80, 0.62, [
+    barra_reparto(s, 1.60, TOP + 1.56, 6.80, 0.62, [
         ("la etapa A localiza", 54, ONCO_DARK, True),
         ("la etapa A no localiza", 54, ONCO_PANEL, False)], fs_num=18)
-    panel(s, 1.60, TOP + 2.86, 6.80, 0.90, "No medible no es tejido distinto", ONCO_DARK, [
+    panel(s, 1.60, TOP + 2.58, 6.80, 0.90, "No medible no es tejido distinto", ONCO_DARK, [
         "Una etapa A que no localiza deja a la etapa B midiendo ruido, y eso es "
         "indistinguible de que el tejido sea de verdad otro."], ONCO_CONN, tsize=13, bsize=11)
     takeaway_bar(s, "La mitad de las láminas medidas no es interpretable, y eso es el resultado")
@@ -2801,7 +2880,7 @@ def lam_regiones_perfil(prs):
     # posteriores a ver los datos, así que el número y su fragilidad son un solo objeto.
     s = content(prs, "Entre las medibles, 33 de 54")
     xl, wl = 0.35, 4.60
-    simple_table(s, xl, TOP + 0.34, wl, ["Perfil", "Láminas", ""],
+    simple_table(s, xl, TOP + 0.34, wl, ["Perfil", "Láminas", "de 108"],
                  PERFILES, [0.58, 0.21, 0.21], row_h=0.36, fs=10.5, destacar=1)
     panel(s, xl, TOP + 2.28, wl, 1.02, "Las 33, en mediana", ONCO_DARK, [
         "Señal 5,2 veces el control · escala 0,9996 · residuo 62 µm.",
@@ -2826,13 +2905,13 @@ def lam_regiones_perfil(prs):
 def lam_regiones_rotacion(prs):
     # ---- Por qué el número quedó provisional ----
     s = content(prs, "Faltaba buscar giro, y estaba fuera de rango por diseño")
-    eje_angulos(s, 0.90, TOP + 0.10, 5.20, hi=12.0, bandas=[
-        (1.5, "lo que la etapa B barre por defecto", ONCO_DATA),
-        (8.0, "hasta donde puede llegar", ONCO_PANEL)], marcas=[
+    eje_angulos(s, 0.90, TOP + 0.24, 5.20, hi=12.0, bandas=[
+        (1.5, "la etapa B barre 1,5° por defecto", ONCO_DATA),
+        (8.0, "y puede llegar a 8°", ONCO_PANEL)], marcas=[
         (3.8, "control: 3,8°", False),
         (7.8, "recuperadas: 7,8°", True),
         (10.5, "la mayor: 10,5°", False)])
-    simple_table(s, 0.35, TOP + 2.10, 5.75,
+    simple_table(s, 0.35, TOP + 2.14, 5.75,
                  ["Grupo", "n", "Ventanas que localizan", "Pasan a medible"],
                  PROBE, [0.30, 0.09, 0.35, 0.26], row_h=0.34, fs=10.5, destacar=1)
     xr, wr = 6.42, 3.20
@@ -2911,28 +2990,28 @@ def lam_hovernext_estado(prs):
 def lam_techo(prs):
     # ---- El techo, que es la mitad de la prueba y no necesitaba la GPU ----
     s = content(prs, "El techo de la prueba, medido sin gastar GPU")
-    eq(s, 1.30, TOP + 0.16, 7.38,
+    eq(s, 1.30, TOP + 0.06, 7.38,
        "lo que la prueba puede recuperar  ≤  mín ( lo que la máscara deja pasar ,  lo que el "
-       "detector detecta )", size=12.5, h=0.48)
-    curva_techo(s, 1.05, TOP + 0.86, 7.30, 2.06, [
-        ("Atención de Mammoth", TECHO_MAMM, ONCO_DARK, True),
-        ("Atención de CLAM", TECHO_CLAM, ONCO_CONN, True),
-        ("Azar", TECHO_AZAR, ONCO_DATA, False)], TECHO_KS)
-    add_textbox(s, 0.20, TOP + 0.86, 0.80, 2.06,
+       "detector detecta )", size=12.5, h=0.44)
+    curva_techo(s, 1.05, TOP + 0.66, 7.30, 1.90, [
+        ("Atención de Mammoth", TECHO_MAMM, ONCO_DARK, True, "cuad"),
+        ("Atención de CLAM", TECHO_CLAM, ONCO_INK, True, "circ"),
+        ("Azar", TECHO_AZAR, ONCO_DATA, False, None)], TECHO_KS)
+    add_textbox(s, 0.20, TOP + 0.66, 0.80, 1.90,
                 [("marcas\nde 28", 9.5, True, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)],
                 anchor=MSO_ANCHOR.MIDDLE)
     for i, (k, rot) in enumerate(TECHO_KS):
         if not rot:
             continue
         x = 1.05 + i * (7.30 / (len(TECHO_KS) - 1))
-        add_textbox(s, x - 0.70, TOP + 2.96, 1.40, 0.24,
+        add_textbox(s, x - 0.70, TOP + 2.60, 1.40, 0.24,
                     [(rot, 9, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
-    add_textbox(s, 8.55, TOP + 0.86, 1.20, 2.06, [
+    add_textbox(s, 8.55, TOP + 0.66, 1.20, 1.90, [
         ("Mammoth", 10, True, ONCO_DARK, F_BODY),
-        ("CLAM", 10, True, ONCO_CONN, F_BODY),
+        ("CLAM", 10, True, ONCO_INK, F_BODY),
         ("azar", 10, False, GRIS_BODY, F_BODY)], anchor=MSO_ANCHOR.MIDDLE)
-    _grupo(s, 1.05, TOP + 3.28, 7.30, 0.56, fill=TEAL_CARD)
-    add_textbox(s, 1.05, TOP + 3.28, 7.30, 0.56,
+    _grupo(s, 1.05, TOP + 2.92, 7.30, 0.56, fill=TEAL_CARD)
+    add_textbox(s, 1.05, TOP + 2.92, 7.30, 0.56,
                 [("Con el 12 % de la región ya entran 19 y 22 de las 28 marcas, seis veces "
                   "más de lo que daría tomar esa misma área al azar", 12, True, ONCO_DARK,
                   F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
@@ -2961,7 +3040,7 @@ def lam_gpu(prs):
              "Si queda levantado, el nodo no tiene GPU para nadie más."),
             ("Lo nuestro", "Dos o tres horas, con tope declarado, y entró último a propósito. "
              "No necesita prioridad, necesita que la fila avance.")]):
-        panel(s, xr, TOP + 0.34 + i * 1.16, wr, 1.02, t_, ONCO_DARK, [txt], ONCO_CONN,
+        panel(s, xr, TOP + 0.28 + i * 1.12, wr, 0.98, t_, ONCO_DARK, [txt], ONCO_CONN,
               tsize=12.5, bsize=10)
     takeaway_bar(s, "No pedimos que nadie cancele nada, pedimos que la fila se pueda planificar")
 
@@ -3003,8 +3082,8 @@ def lam_que_sigue(prs):
             "de los tres brazos sobre la lámina anotada.",
             "Antes de extender a las doce láminas anotadas, coordinar: hay otro trabajo del "
             "equipo midiendo atención contra las mismas marcas."]):
-        add_card(s, 0.35, TOP + 0.26 + i * 0.84, 9.28, 0.68, i + 1, txt, size=12.5)
-    panel(s, 0.35, TOP + 2.86, 9.28, 0.86, "Y dos preguntas para vos", ONCO_DARK, [
+        add_card(s, 0.35, TOP + 0.16 + i * 0.80, 9.28, 0.66, i + 1, txt, size=12.5)
+    panel(s, 0.35, TOP + 2.54, 9.28, 0.90, "Y dos preguntas para vos", ONCO_DARK, [
         "De las treinta láminas anotadas que mencionaste, en el servidor hay doce. Faltan "
         "dieciocho, y no sabemos si existen o si están en otro lado.",
         "Las anotaciones vienen firmadas con tres iniciales que no sabemos de quién son."],
