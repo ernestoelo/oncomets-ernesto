@@ -101,7 +101,7 @@ TPL_KEEP = (0, 1)          # portada de marca + lámina de título, nativas a 13
 # La reunión con Sebastián fue el jueves 6-ago y ya ocurrió; la del viernes 7 con Benjamín
 # se cayó (Ernesto tiene clases). Esta versión del deck se presenta a Benjamín la semana del
 # 11-ago, sin día confirmado todavía: la portada lleva el mes hasta que haya fecha.
-FECHA_REUNION = "Agosto 2026"
+FECHA_REUNION = "19 de agosto de 2026"
 
 # --- figura del paper (única imagen del deck), recortada de la página 4 a 400 DPI ---
 FIG2_FULL = os.path.join(ASSETS, "simil_fig2_full.png")   # los tres paneles
@@ -119,6 +119,15 @@ FIG_MAPAS = os.path.join(ASSETS, "atencion_dos_regiones.png")      # grilla 2x2 
 FIG_MAPAS_ANOTADA = os.path.join(ASSETS, "atencion_region_anotada.png")
 FIG_MITOSIS = os.path.join(ASSETS, "mitosis_region_anotada.png")   # con el recuadro de foco
 FIG_ZOOM = os.path.join(ASSETS, "mitosis_zoom.png")                # el detalle del recuadro
+
+# --- figuras de la sección de regiones de escaneo (producción NUESTRA) ---
+# Preparadas por prep_assets_regiones.py. Las dos regiones vienen recortadas en la misma
+# cantidad de columnas, así que la correspondencia entre ellas se conserva; el registro a
+# resolución completa se saca de git y no del árbol, porque el re-barrido en curso movió el
+# archivo del árbol a su propio subdirectorio.
+REG0 = os.path.join(ASSETS, "region0_129741.png")            # ar 1.0437
+REG1 = os.path.join(ASSETS, "region1_129741.png")            # ar 1.0021
+REGISTRO = os.path.join(ASSETS, "registro_level0_129741.png")  # ar 2.0312
 
 # --- procedencia de la lámina anotada, para la lámina de los mapas ---
 # Sebastián preguntó de dónde salió la lámina y con qué checkpoints se midió. Las tres líneas
@@ -2543,6 +2552,467 @@ def lam_objetivos_propuestos(prs):
 # ============================================================================
 # El orden del deck
 # ============================================================================
+# Datos de la sección del 19-ago
+# ============================================================================
+# Todo lo de acá sale de sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/resultados.md
+# (§3, §8, §10, §11) y de sprints/B8_sprint8/hovernext_129741/ (techo_atencion.md,
+# coordinacion_gpu.md, plan_semana_17ago.md). Se escriben a mano acá para que la lámina no
+# dependa de leer los CSV en tiempo de build, y cada bloque dice de qué sección viene.
+
+# §3: el barrido de las 589 carpetas de wsi/
+REGIONES_ALCANCE = [("Con 1 sola región", "351"), ("Con 2 regiones", "130"),
+                    ("Con 3 regiones", "8"), ("Con 4 regiones", "1")]
+
+# §8.b: el reparto de las 108 medidas con los tres ejes del criterio
+PERFILES = [("La etapa A no localiza", "54", "50 %"),
+            ("Perfil de re-escaneo", "33", "31 %"),
+            ("Ambiguo", "20", "19 %"),
+            ("Perfil de secciones seriadas", "1", "1 %")]
+
+# §8.b: la sensibilidad, que hace falta porque los cortes son posteriores a ver los datos
+SENSIBILIDAD = [("Laxo", "37", "16", "1"), ("Base", "33", "20", "1"),
+                ("Estricto", "21", "32", "1")]
+
+# §10.b: el probe de rotación, leído en el orden que manda su pre-registro
+PROBE = [("Control positivo", "4", "0,76 → 0,83", "ya lo eran"),
+         ("Silueta ≥ 0,95", "8", "0,12 → 0,48", "4 de 8"),
+         ("Silueta < 0,95", "4", "0,29 → 0,45", "2 de 4")]
+
+# techo_atencion.md: los 11 K del plan, con rótulo solo en los que la lámina nombra
+TECHO_KS = [("20", ""), ("50", ""), ("100", "1,4 mm²"), ("189", ""), ("300", "4,3 mm²"),
+            ("500", ""), ("750", "10,6 mm²"), ("1000", ""), ("1392", ""), ("2000", ""),
+            ("2496", "la región")]
+TECHO_CLAM = [2, 6, 12, 15, 19, 23, 25, 26, 27, 27, 28]
+TECHO_MAMM = [3, 4, 13, 18, 22, 23, 28, 28, 28, 28, 28]
+TECHO_AZAR = [0.22, 0.56, 1.12, 2.12, 3.37, 5.61, 8.41, 11.22, 15.62, 22.44, 28.0]
+
+# coordinacion_gpu.md: el estado de la cola, sin nombres de usuario ni números de trabajo
+COLA = [("Servidor de inferencia", "corriendo", "365 días", "tiene la GPU"),
+        ("Trabajo de otro grupo", "en espera", "sin límite", "delante nuestro"),
+        ("Trabajo de otro grupo", "en espera", "sin límite", "delante nuestro"),
+        ("El nuestro", "en espera", "12 horas", "tercero en la fila")]
+
+
+# ============================================================================
+# Figuras nativas de la sección del 19-ago
+# ============================================================================
+def barra_reparto(slide, l, t, w, h, tramos, fs=10.5, fs_num=15):
+    """Un total repartido en tramos contiguos, cada uno proporcional a su cuenta.
+
+    Un reparto es una proporción, y una proporción se dibuja ([[deck-contenido-visual-no-bullets]]).
+    Se usa solo donde los tramos son anchos: con un tramo de 1 sobre 108 el rótulo no cabría
+    debajo, y para ese caso la tabla cuenta mejor. `tramos` = (rótulo, n, color, texto_blanco)."""
+    total = sum(n for _, n, _, _ in tramos)
+    x = l
+    for rot, n, col, blanco in tramos:
+        aw = w * n / total
+        _rect(slide, x, t, aw, h, col)
+        add_textbox(slide, x, t, aw, h,
+                    [(str(n), fs_num, True, WHITE if blanco else ONCO_INK, F_BODY,
+                      PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
+        add_textbox(slide, x, t + h + 0.06, aw, 0.30,
+                    [(rot, fs, True, ONCO_DARK if blanco else GRIS_BODY, F_BODY,
+                      PP_ALIGN.CENTER)])
+        x += aw
+    return t + h + 0.42
+
+
+def eje_angulos(slide, l, t, w, hi=12.0, bandas=(), marcas=(), fs=9.5, h=0.30):
+    """El ángulo de giro sobre su recorrido, con lo que el método barría y lo que hacía falta.
+
+    Es el hallazgo entero en una figura: dos bandas de diseño y tres marcas medidas, y se ve
+    de un vistazo que las marcas caen fuera de la banda chica. Dicho en texto («barríamos
+    hasta ocho grados y hacían falta siete coma ocho de mediana») hay que reconstruirlo
+    mentalmente; dibujado no hay nada que reconstruir.
+
+    `bandas` = (hasta_grados, rótulo, color); `marcas` = (grados, rótulo, destacada)."""
+    def px(g):
+        return l + w * g / hi
+    base = t + 1.20
+    for i, (hasta, rot, col) in enumerate(bandas):
+        alto = h * (0.55 if i == 0 else 1.0)
+        _rect(slide, l, base - alto, px(hasta) - l, alto, col)
+        add_textbox(slide, px(hasta) + 0.10, base - alto - 0.02, 2.60, 0.28,
+                    [(rot, fs, True, ONCO_INK, F_BODY)], anchor=MSO_ANCHOR.BOTTOM)
+    _conn(slide, l, base, l + w, base, arrow=False)
+    for g in range(0, int(hi) + 1, 2):
+        _rect(slide, px(g) - 0.006, base, 0.012, 0.07, ONCO_INK)
+        add_textbox(slide, px(g) - 0.30, base + 0.10, 0.60, 0.24,
+                    [("%d°" % g, fs - 0.5, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
+    for g, rot, dest in marcas:
+        col = ONCO_DARK if dest else ONCO_CONN
+        _rect(slide, px(g) - 0.022, base - 1.02, 0.044, 1.02, col)
+        add_textbox(slide, px(g) - 1.30, base - 1.36, 2.60, 0.30,
+                    [(rot, fs + (1.5 if dest else 0.0), dest, col, F_BODY, PP_ALIGN.CENTER)],
+                    anchor=MSO_ANCHOR.BOTTOM)
+    return base + 0.42
+
+
+def curva_techo(slide, l, t, w, h, series, ks, fs=9.5, ymax=28.0):
+    """Recall alcanzable contra el tamaño de la máscara, con las tres curvas superpuestas.
+
+    El objeto es una curva, así que va como curva y no como tabla: lo que hay que ver es que
+    las dos de atención despegan del azar temprano y se vuelven a juntar al final, que es
+    justo donde el chequeo de sanidad exige que coincidan. El eje horizontal va por índice y
+    no por K: los K están espaciados de forma casi logarítmica y a escala lineal los seis
+    primeros se apilarían contra el margen izquierdo."""
+    n = len(ks)
+    paso = w / (n - 1)
+
+    def pt(i, v):
+        return l + i * paso, t + h - h * v / ymax
+    _conn(slide, l, t + h, l + w, t + h, arrow=False)
+    for g in (0, 7, 14, 21, 28):
+        y = t + h - h * g / ymax
+        add_textbox(slide, l - 0.56, y - 0.13, 0.46, 0.26,
+                    [("%d" % g, fs - 0.5, False, GRIS_BODY, F_BODY, PP_ALIGN.RIGHT)],
+                    anchor=MSO_ANCHOR.MIDDLE)
+    for nombre, vals, col, grueso in series:
+        pts = [pt(i, v) for i, v in enumerate(vals)]
+        for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+            ln = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, Inches(x0), Inches(y0),
+                                            Inches(x1), Inches(y1))
+            ln.line.color.rgb = col; ln.line.width = Pt(2.25 if grueso else 1.25)
+            ln.shadow.inherit = False
+            if not grueso:
+                lnpr = ln.line._get_or_add_ln()
+                lnpr.append(lnpr.makeelement(qn('a:prstDash'), {'val': 'dash'}))
+        if grueso:
+            for x0, y0 in pts:
+                _rect(slide, x0 - 0.035, y0 - 0.035, 0.07, 0.07, col)
+    return t + h + 0.30
+
+
+# ============================================================================
+# Láminas del 19-ago
+# ============================================================================
+# Ernesto eligió EXTENDER el deck del 6-ago en vez de hacer uno nuevo, y que el material
+# entre en orden CRONOLÓGICO, después de «Objetivos propuestos». Con eso el deck queda
+# como el recorrido completo del sprint y la reunión de mañana ocurre en su última parte.
+# El bloque del 6-ago no se toca: ni una lámina, ni un número, ni una nota.
+def lam_desde_6ago(prs):
+    # ---- El mapa del bloque nuevo ----
+    s = content(prs, "Lo que se hizo desde el 6 de agosto")
+    cw, gap = 3.0, 0.30
+    xs = [0.35 + i * (cw + gap) for i in range(3)]
+    panel(s, xs[0], TOP + 0.30, cw, 2.12, "Regiones de escaneo", ONCO_DARK, [
+        "139 de 490 láminas privadas tienen más de una región de escaneo.",
+        "129 barridas, 108 medidas.",
+        "Hay veredicto, y es provisional a propósito."], ONCO_CONN)
+    panel(s, xs[1], TOP + 0.30, cw, 2.12, "HoVer-NeXt", ONCO_DARK, [
+        "Instalado y auditado, con tres correcciones al plan.",
+        "La interpretabilidad corrió sobre la lámina del patólogo.",
+        "Cero números de segmentación."], ONCO_CONN)
+    panel(s, xs[2], TOP + 0.30, cw, 2.12, "Método", ONCO_DARK, [
+        "Tres patrones nuevos, escritos y ya en uso.",
+        "Los tres dicen lo mismo: el instrumento se mete en la conclusión.",
+        "Dos de ellos ahorraron una corrida entera."], ONCO_CONN)
+    status_done(s, xs[0] + cw / 2, TOP + 2.70)
+    status_progress(s, xs[1] + cw / 2, TOP + 2.70, w=1.90, texto="Falta la GPU")
+    status_done(s, xs[2] + cw / 2, TOP + 2.70)
+    takeaway_bar(s, "Dos hilos con resultado, y uno detenido por la cola de la GPU")
+
+
+def lam_regiones_pregunta(prs):
+    # ---- Las dos regiones, y cuántas láminas alcanza ----
+    # Las dos imágenes van al MISMO alto a propósito: las dos regiones están al mismo
+    # downsample, así que a igual alto quedan a igual escala y la comparación que la lámina
+    # propone es legítima. Dibujarlas a igual ANCHO las pondría a escalas distintas.
+    s = content(prs, "Dos regiones de escaneo dentro del mismo archivo")
+    hi = 2.16
+    w0, w1 = hi * 1.0437, hi * 1.0021
+    x0 = 0.38
+    x1 = x0 + w0 + 0.14
+    s.shapes.add_picture(REG0, Inches(x0), Inches(TOP + 0.40), Inches(w0), Inches(hi))
+    s.shapes.add_picture(REG1, Inches(x1), Inches(TOP + 0.40), Inches(w1), Inches(hi))
+    caption(s, x0, TOP + 0.14, w0, "región 0", size=10.5, col=ONCO_DARK, bold=True)
+    caption(s, x1, TOP + 0.14, w1, "región 1", size=10.5, col=ONCO_DARK, bold=True)
+    caption(s, x0, TOP + 2.62, w0 + 0.14 + w1,
+            "la 129741: los seis fragmentos, en las dos", size=9.5)
+    xt = x1 + w1 + 0.40
+    wt = 9.62 - xt
+    simple_table(s, xt, TOP + 0.32, wt, ["Láminas privadas con imagen", "490"],
+                 REGIONES_ALCANCE, [0.66, 0.34], row_h=0.34, fs=10.5, destacar=1)
+    _grupo(s, xt, TOP + 2.14, wt, 0.76, fill=TEAL_CARD)
+    add_textbox(s, xt, TOP + 2.14, wt, 0.76, [
+        ("139 de 490   =   28,4 %", 17, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER),
+        ("tienen más de una región de escaneo", 10, False, GRIS_BODY, F_BODY,
+         PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
+    pie_lineas(s, xt, TOP + 3.02, wt, [
+        "Del mismo barrido: las 490 están a 0,465 µm/px y 20 aumentos, sin una excepción."])
+    takeaway_bar(s, "Casi tres de cada diez láminas privadas, y el archivo lo declara solo")
+
+
+def lam_regiones_metodo(prs):
+    # ---- El instrumento: dos etapas y una puerta ----
+    s = content(prs, "Cómo se mide si son la misma lámina")
+    xl, wl = 0.35, 4.42
+    y = TOP + 0.30
+    _proc(s, xl, y, wl, 0.62,
+          "Se eligen ventanas de tejido en la región 0 y se buscan en la región 1",
+          dim="a 1 de cada 4 píxeles · plantilla de 1024")
+    _conn(s, xl + wl / 2, y + 0.62, xl + wl / 2, y + 0.96)
+    _oper(s, xl + wl / 2, y + 1.13, sym="?")
+    add_textbox(s, xl + wl / 2 + 0.26, y + 0.94, wl / 2 - 0.26, 0.40,
+                [("puerta: el pico tiene que ser alto y único", 10, True, ONCO_DARK, F_BODY)],
+                anchor=MSO_ANCHOR.MIDDLE)
+    _conn(s, xl + wl / 2, y + 1.30, xl + wl / 2, y + 1.62)
+    _proc(s, xl, y + 1.62, wl, 0.62,
+          "Cada ventana que pasó se vuelve a buscar a resolución completa",
+          dim="plantilla de 512 · correspondencia celular")
+    _conn(s, xl + wl / 2, y + 2.24, xl + wl / 2, y + 2.56)
+    _proc_claro(s, xl, y + 2.56, wl, 0.56,
+                "Y contra ventanas de control, que son tejido que no corresponde")
+    xr, wr = 5.10, 4.55
+    hr = wr / 2.0312
+    s.shapes.add_picture(REGISTRO, Inches(xr), Inches(TOP + 0.44), Inches(wr), Inches(hr))
+    caption(s, xr, TOP + 0.48 + hr, wr,
+            "la misma célula, en las dos regiones", size=9.5)
+    _grupo(s, xr, TOP + 0.92 + hr, wr, 0.72, fill=TEAL_CARD)
+    add_textbox(s, xr, TOP + 0.92 + hr, wr, 0.72, [
+        ("0,382   contra   0,049 del control", 15, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER),
+        ("8 de 8 ventanas, en la lámina del patólogo", 9.5, False, GRIS_BODY, F_BODY,
+         PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
+    takeaway_bar(s, "Tres ejes deciden: pico único, cuerpo rígido y señal muy sobre el control")
+
+
+def lam_regiones_mitad(prs):
+    # ---- El primer resultado, que es el que nadie esperaba ----
+    s = content(prs, "El primer resultado: la mitad no es medible")
+    cadena_cuenta(s, 0.35, TOP + 0.26, 9.28, [
+        ("490", "láminas privadas\ncon imagen"),
+        ("139", "con más de una\nregión de escaneo"),
+        ("129", "barridas"),
+        ("108", "midieron")], h=0.46, fs=17)
+    caption(s, 0.35, TOP + 1.32, 9.28,
+            "las 21 restantes las rechazó el propio test antes de medir, un 16 %", size=9.5)
+    barra_reparto(s, 1.60, TOP + 1.86, 6.80, 0.62, [
+        ("la etapa A localiza", 54, ONCO_DARK, True),
+        ("la etapa A no localiza", 54, ONCO_PANEL, False)], fs_num=18)
+    panel(s, 1.60, TOP + 2.86, 6.80, 0.90, "No medible no es tejido distinto", ONCO_DARK, [
+        "Una etapa A que no localiza deja a la etapa B midiendo ruido, y eso es "
+        "indistinguible de que el tejido sea de verdad otro."], ONCO_CONN, tsize=13, bsize=11)
+    takeaway_bar(s, "La mitad de las láminas medidas no es interpretable, y eso es el resultado")
+
+
+def lam_regiones_perfil(prs):
+    # ---- El reparto, con su sensibilidad al lado ----
+    # La sensibilidad va en la MISMA lámina que el reparto y no en el guion: los cortes son
+    # posteriores a ver los datos, así que el número y su fragilidad son un solo objeto.
+    s = content(prs, "Entre las medibles, 33 de 54")
+    xl, wl = 0.35, 4.60
+    simple_table(s, xl, TOP + 0.34, wl, ["Perfil", "Láminas", ""],
+                 PERFILES, [0.58, 0.21, 0.21], row_h=0.36, fs=10.5, destacar=1)
+    panel(s, xl, TOP + 2.28, wl, 1.02, "Las 33, en mediana", ONCO_DARK, [
+        "Señal 5,2 veces el control · escala 0,9996 · residuo 62 µm.",
+        "Un cuerpo rígido explica el desplazamiento entero."], ONCO_CONN, tsize=13, bsize=10.5)
+    xr, wr = 5.28, 4.34
+    caption(s, xr, TOP + 0.02, wr, "Y qué pasa si se mueve el corte", size=11,
+            col=ONCO_DARK, bold=True, align=PP_ALIGN.LEFT)
+    simple_table(s, xr, TOP + 0.34, wr,
+                 ["Corte", "Re-escaneo", "Ambiguo", "Seriadas"],
+                 SENSIBILIDAD, [0.28, 0.26, 0.23, 0.23], row_h=0.36, fs=10.5, destacar=1)
+    pie_lineas(s, xr, TOP + 1.86, wr, [
+        "Lo que se mueve es el reparto entre re-escaneo y ambiguo. Las secciones seriadas "
+        "se quedan en 1 con los tres cortes, y esa única lámina pide un 13 % de escala, que "
+        "se parece más a un ajuste malo que a un hallazgo."], size=9.5)
+    _grupo(s, xr, TOP + 2.86, wr, 0.44, fill=ONCO_DATA)
+    add_textbox(s, xr, TOP + 2.86, wr, 0.44,
+                [("PROVISIONAL: la lámina que sigue explica por qué", 11.5, True, BLACK,
+                  F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
+    takeaway_bar(s, "El denominador honesto es 33 de 54 medibles, nunca 33 de 490")
+
+
+def lam_regiones_rotacion(prs):
+    # ---- Por qué el número quedó provisional ----
+    s = content(prs, "Faltaba buscar giro, y estaba fuera de rango por diseño")
+    eje_angulos(s, 0.90, TOP + 0.10, 5.20, hi=12.0, bandas=[
+        (1.5, "lo que la etapa B barre por defecto", ONCO_DATA),
+        (8.0, "hasta donde puede llegar", ONCO_PANEL)], marcas=[
+        (3.8, "control: 3,8°", False),
+        (7.8, "recuperadas: 7,8°", True),
+        (10.5, "la mayor: 10,5°", False)])
+    simple_table(s, 0.35, TOP + 2.10, 5.75,
+                 ["Grupo", "n", "Ventanas que localizan", "Pasan a medible"],
+                 PROBE, [0.30, 0.09, 0.35, 0.26], row_h=0.34, fs=10.5, destacar=1)
+    xr, wr = 6.42, 3.20
+    _grupo(s, xr, TOP + 0.34, wr, 0.86, fill=TEAL_CARD)
+    add_textbox(s, xr, TOP + 0.34, wr, 0.86, [
+        ("6 de 12", 24, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER),
+        ("no medibles se recuperan al buscar giro", 10, False, GRIS_BODY, F_BODY,
+         PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
+    panel(s, xr, TOP + 1.34, wr, 1.02, "El pool sube", ONCO_DARK, [
+        "De 54 medibles a unas 81, con un rango de 65 a 97."], ONCO_CONN,
+          tsize=12.5, bsize=10.5)
+    panel(s, xr, TOP + 2.48, wr, 1.02, "Y el 33 es un piso", ONCO_DARK, [
+        "El perfil de las recuperadas lo da una etapa que sobre ellas no corrió."],
+          ONCO_CONN, tsize=12.5, bsize=10.5)
+    takeaway_bar(s, "El giro que hacía falta era mayor que el que el método buscaba")
+
+
+def lam_regiones_rebarrido(prs):
+    # ---- El recuento que viene, y las dos trampas que ya tiene puestas ----
+    s = content(prs, "El recuento se está rehaciendo, y trae dos trampas")
+    _grupo(s, 0.35, TOP + 0.24, 9.28, 0.60, fill=TEAL_CARD)
+    add_textbox(s, 0.35, TOP + 0.24, 9.28, 0.60,
+                [("130 láminas corriendo desde hoy al mediodía, con giro en la primera etapa. "
+                  "Termina esta noche.", 13, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER)],
+                anchor=MSO_ANCHOR.MIDDLE)
+    pw = 4.54
+    panel(s, 0.35, TOP + 1.06, pw, 2.10, "Una razón que se dispara a cien millones",
+          ONCO_DARK, [
+          "La fuerza de la señal se mide dividiendo por el control. Cuando el control sale "
+          "negativo, el divisor queda clavado en un valor mínimo de guarda y el cociente se "
+          "va a cien millones.",
+          "Ese número supera cualquier corte, así que la lámina entraría a re-escaneo por el "
+          "signo del divisor y no por su señal.",
+          "Pasa en 1 de las 108 del barrido anterior. Ahora se listan aparte."],
+          ONCO_CONN, tsize=13, bsize=10.5)
+    panel(s, 5.09, TOP + 1.06, pw, 2.10, "Secciones seriadas que fabrica el método",
+          ONCO_DARK, [
+          "Una lámina cae en seriadas cuando la señal es débil y el ajuste no es rígido.",
+          "Las recuperadas son, por construcción, las más giradas, y la segunda etapa barre "
+          "poco giro y no busca cambio de tamaño.",
+          "Van a fallar los dos criterios a la vez, y no por lo que muestra el tejido."],
+          ONCO_CONN, tsize=13, bsize=10.5)
+    takeaway_bar(s, "Más seriadas entre las recuperadas no sería evidencia de seriadas")
+
+
+def lam_hovernext_estado(prs):
+    # ---- Dónde está HoVer-NeXt, y por qué no hay ni un número de segmentación ----
+    s = content(prs, "HoVer-NeXt: instalado, auditado y sin números todavía")
+    cw, gap = 3.0, 0.30
+    xs = [0.35 + i * (cw + gap) for i in range(3)]
+    panel(s, xs[0], TOP + 0.30, cw, 1.94, "Instalación y auditoría", ONCO_DARK, [
+        "Repositorio, los cuatro juegos de pesos con su huella, y un entorno propio.",
+        "Seis preguntas de auditoría, contestadas contra el código."], ONCO_CONN,
+          tsize=13, bsize=10.5)
+    panel(s, xs[1], TOP + 0.30, cw, 1.94, "Atención sobre la lámina anotada", ONCO_DARK, [
+        "Primera vez que la interpretabilidad corre sobre una lámina privada.",
+        "Mitosis es el grupo más atendido de los siete: 0,872 y 0,914.",
+        "Y los dos modelos igual clasifican mal la lámina."], ONCO_CONN,
+          tsize=13, bsize=10.5)
+    panel(s, xs[2], TOP + 0.30, cw, 1.94, "La corrida", ONCO_DARK, [
+        "El trabajo está escrito, verificado y encolado.",
+        "No corrió: no hubo GPU disponible en toda la semana."], ONCO_CONN,
+          tsize=13, bsize=10.5)
+    status_done(s, xs[0] + cw / 2, TOP + 2.52)
+    status_done(s, xs[1] + cw / 2, TOP + 2.52)
+    status_progress(s, xs[2] + cw / 2, TOP + 2.52, w=1.70, texto="En cola")
+    pie_lineas(s, 0.35, TOP + 2.86, 9.28, [
+        "Tres hallazgos de la auditoría cambiaron el plan: hay que pedir explícitamente que "
+        "guarde sus mapas internos, porque los borra al terminar; el costo de dos minutos por "
+        "lámina no aplica a esta lámina, que no expone miniatura y obliga a recorrer el lienzo "
+        "entero; y los mapas de distancia se descartan en inferencia, así que la figura de la "
+        "cadena interna tiene tres paneles y no cuatro."], size=9.5)
+    takeaway_bar(s, "Todo lo que no necesitaba GPU está cerrado")
+
+
+def lam_techo(prs):
+    # ---- El techo, que es la mitad de la prueba y no necesitaba la GPU ----
+    s = content(prs, "El techo de la prueba, medido sin gastar GPU")
+    eq(s, 1.30, TOP + 0.16, 7.38,
+       "lo que la prueba puede recuperar  ≤  mín ( lo que la máscara deja pasar ,  lo que el "
+       "detector detecta )", size=12.5, h=0.48)
+    curva_techo(s, 1.05, TOP + 0.86, 7.30, 2.06, [
+        ("Atención de Mammoth", TECHO_MAMM, ONCO_DARK, True),
+        ("Atención de CLAM", TECHO_CLAM, ONCO_CONN, True),
+        ("Azar", TECHO_AZAR, ONCO_DATA, False)], TECHO_KS)
+    add_textbox(s, 0.20, TOP + 0.86, 0.80, 2.06,
+                [("marcas\nde 28", 9.5, True, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)],
+                anchor=MSO_ANCHOR.MIDDLE)
+    for i, (k, rot) in enumerate(TECHO_KS):
+        if not rot:
+            continue
+        x = 1.05 + i * (7.30 / (len(TECHO_KS) - 1))
+        add_textbox(s, x - 0.70, TOP + 2.96, 1.40, 0.24,
+                    [(rot, 9, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
+    add_textbox(s, 8.55, TOP + 0.86, 1.20, 2.06, [
+        ("Mammoth", 10, True, ONCO_DARK, F_BODY),
+        ("CLAM", 10, True, ONCO_CONN, F_BODY),
+        ("azar", 10, False, GRIS_BODY, F_BODY)], anchor=MSO_ANCHOR.MIDDLE)
+    _grupo(s, 1.05, TOP + 3.28, 7.30, 0.56, fill=TEAL_CARD)
+    add_textbox(s, 1.05, TOP + 3.28, 7.30, 0.56,
+                [("Con el 12 % de la región ya entran 19 y 22 de las 28 marcas, seis veces "
+                  "más de lo que daría tomar esa misma área al azar", 12, True, ONCO_DARK,
+                  F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
+    takeaway_bar(s, "El techo no condena la prueba: falta medir cuánto se come la detección")
+
+
+def lam_gpu(prs):
+    # ---- El pedido de coordinación, que es un pedido y no una excusa ----
+    s = content(prs, "La GPU: un pedido de coordinación")
+    simple_table(s, 0.35, TOP + 0.34, 5.30,
+                 ["El nodo tiene un solo turno de GPU", "Estado", "Declarado"],
+                 [(a, b, c) for a, b, c, _ in COLA], [0.50, 0.24, 0.26],
+                 row_h=0.36, fs=10.5, destacar=3)
+    pie_lineas(s, 0.35, TOP + 2.10, 5.30, [
+        "Para colar un trabajo chico antes que uno grande, el planificador necesita saber "
+        "cuándo termina el grande. Con dos trabajos sin límite declarado adelante, esa cuenta "
+        "no existe y no hay forma de adelantar a nadie.",
+        "",
+        "Achicar nuestro pedido de memoria no nos adelanta: solo importa después de que el "
+        "turno se libere."], size=9.5)
+    xr, wr = 6.00, 3.62
+    for i, (t_, txt) in enumerate([
+            ("Lo más barato", "Que los dos trabajos sin límite declaren un tiempo real. "
+             "Destraba la fila para todos, no solo para nosotros."),
+            ("Lo que falta saber", "Cuánto va a durar de verdad el servidor de inferencia. "
+             "Si queda levantado, el nodo no tiene GPU para nadie más."),
+            ("Lo nuestro", "Dos o tres horas, con tope declarado, y entró último a propósito. "
+             "No necesita prioridad, necesita que la fila avance.")]):
+        panel(s, xr, TOP + 0.34 + i * 1.16, wr, 1.02, t_, ONCO_DARK, [txt], ONCO_CONN,
+              tsize=12.5, bsize=10)
+    takeaway_bar(s, "No pedimos que nadie cancele nada, pedimos que la fila se pueda planificar")
+
+
+def lam_patrones(prs):
+    # ---- Los tres patrones, que es cómo se está trabajando ----
+    s = content(prs, "Tres patrones nuevos en dos semanas")
+    cw, gap = 3.0, 0.30
+    xs = [0.35 + i * (cw + gap) for i in range(3)]
+    panel(s, xs[0], TOP + 0.30, cw, 2.30, "El umbral", ONCO_DARK, [
+        "Un recorte de los k parches más atendidos se dimensiona por el percentil de lo que "
+        "se quiere recuperar, no por el AUC.",
+        "Con un AUC de 0,890, los veinte parches más atendidos contienen tres de veintiocho "
+        "mitosis."], ONCO_CONN, tsize=13.5, bsize=10.5)
+    panel(s, xs[1], TOP + 0.30, cw, 2.30, "El corte", ONCO_DARK, [
+        "Un control positivo no solo dice si el instrumento mide: fija el corte, y se le "
+        "aplica antes que al grupo de estudio.",
+        "El corte que teníamos escrito rechazaba a tres de las cuatro láminas que sí "
+        "localizan."], ONCO_CONN, tsize=13.5, bsize=10.5)
+    panel(s, xs[2], TOP + 0.30, cw, 2.30, "La categoría", ONCO_DARK, [
+        "Una categoría definida por dos fallos a la vez puede fabricarla el propio "
+        "instrumento cuando llega a su límite.",
+        "Crece sola al ampliar la población medida, y el aumento se lee como hallazgo."],
+          ONCO_CONN, tsize=13.5, bsize=10.5)
+    _grupo(s, 0.35, TOP + 2.78, 9.28, 0.62, fill=TEAL_CARD)
+    add_textbox(s, 0.35, TOP + 2.78, 9.28, 0.62,
+                [("Uno de ellos ahorró la corrida entera de una prueba, midiendo su techo "
+                  "antes de pedir la GPU", 12.5, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER)],
+                anchor=MSO_ANCHOR.MIDDLE)
+    takeaway_bar(s, "Frente a un resultado que sorprende, el primer sospechoso es la herramienta")
+
+
+def lam_que_sigue(prs):
+    # ---- El cierre: lo que sigue y lo que bloquea ----
+    s = content(prs, "Qué sigue")
+    for i, txt in enumerate([
+            "Esta noche cierra el recuento con giro, y con él el número de re-escaneos.",
+            "Cuando se libere el turno de GPU: la corrida de segmentación y la comparación "
+            "de los tres brazos sobre la lámina anotada.",
+            "Antes de extender a las doce láminas anotadas, coordinar: hay otro trabajo del "
+            "equipo midiendo atención contra las mismas marcas."]):
+        add_card(s, 0.35, TOP + 0.26 + i * 0.84, 9.28, 0.68, i + 1, txt, size=12.5)
+    panel(s, 0.35, TOP + 2.86, 9.28, 0.86, "Y dos preguntas para vos", ONCO_DARK, [
+        "De las treinta láminas anotadas que mencionaste, en el servidor hay doce. Faltan "
+        "dieciocho, y no sabemos si existen o si están en otro lado.",
+        "Las anotaciones vienen firmadas con tres iniciales que no sabemos de quién son."],
+          ONCO_CONN, tsize=13, bsize=10.5)
+    takeaway_bar(s, "El recuento se cierra solo; la segmentación depende de que la fila avance")
+
+
+# ============================================================================
 # Orden pedido por Sebastián el 6-ago, y no se re-decide acá: abre el grid de
 # expertos y slots, sigue la medición de atención contra las marcas del patólogo,
 # y SI-MIL queda al final. Invierte la decisión del 3-ago (lo cerrado antes que lo
@@ -2571,8 +3041,22 @@ def build():
     lam_simil_reporte(prs)
     lam_simil_resultados(prs)
 
-    # ---- cierre ----
+    # ---- cierre del bloque del 6-ago ----
     lam_objetivos_propuestos(prs)
+
+    # ---- lo hecho desde el 6-ago, en orden cronológico (elección de Ernesto, 18-ago) ----
+    lam_desde_6ago(prs)
+    lam_regiones_pregunta(prs)
+    lam_regiones_metodo(prs)
+    lam_regiones_mitad(prs)
+    lam_regiones_perfil(prs)
+    lam_regiones_rotacion(prs)
+    lam_regiones_rebarrido(prs)
+    lam_hovernext_estado(prs)
+    lam_techo(prs)
+    lam_gpu(prs)
+    lam_patrones(prs)
+    lam_que_sigue(prs)
 
     # ---- cierre: reflow, auditoría, escala al tamaño del template, tipografía ----
     reflow_onco(prs, skip=keep_ids)
