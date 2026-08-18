@@ -1,0 +1,12 @@
+{
+  "corte_sd_sobre_fondo": 5.3817,
+  "n_ventanas": 732,
+  "n_laminas": 108,
+  "ventanas_no_localizan": 388,
+  "modo_ambiguo": 7,
+  "modo_sin_senal": 381,
+  "laminas_no_medibles": 54,
+  "laminas_modo": {
+    "sin_senal": 54
+  }
+}
