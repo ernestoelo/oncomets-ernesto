@@ -1,0 +1,29 @@
+[silueta] level 6 (downsample 64), miniatura 500x460
+[silueta] NCC sin registrar 0.9721, registrada 0.9835 (dx=0 dy=-1536 px de level 0)
+[silueta] control contra la región 1 espejada: -0.5019
+[silueta] OJO: esta medida la domina el CONTORNO del tejido, no las células. Dos secciones seriadas del mismo bloque también la pasan.
+
+[etapa A] 8 ventanas de 1024 px (476 µm) repartidas en grilla 4x4; búsqueda ±2048 px (952 µm) a level 2
+vent      x0      y0      NCC      dx      dy     sd     2do
+   0   24000   23104   0.3263    -208    2048    3.4  0.2415
+   1   21632   19840   0.2483    -268    2048    8.3  0.1251
+   2   24000   20864   0.4066    -244    2048   17.4  0.1830
+   3   16512    8384   0.1323    -428    2048    6.3  0.0777
+   4   23680   22080   0.4133    -220    2048   10.8  0.2227
+   7   15680    8896   0.2610    -420    2048    5.6  0.1537
+
+[etapa B] level 0, plantilla 512 px (238 µm), residual ±48 px, rotación ±8.0° en pasos de 0.5°
+vent      NCC     ctrl      θ    dx    dy     sd     2do
+   0   0.2737   0.0258  +0.00     2    -4   16.0  0.0774
+   1   0.3584   0.0282  -0.50     2    30    4.4  0.2587
+   2   0.4459   0.0640  +0.00     3     4    4.4  0.3422
+   3   0.1276   0.0539  -3.00   -18     1    5.9  0.0896
+   4   0.4286   0.0171  -0.50    -1     6    8.2  0.2516
+   7   0.2405   0.0525  -1.50    -6    18    5.7  0.1707
+
+[resumen] NCC a level 0, señal  : medio 0.3124, mediana 0.3160, rango 0.1276..0.4459
+[resumen] NCC a level 0, control: medio 0.0403, mediana 0.0403, máximo 0.0640
+[resumen] separación señal-control: 15.8 sd del control; ventanas con señal > máximo del control: 6/6
+
+[out] /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/148709_registro_level0.png  (izq = región 0 en (24256,21120), der = lo mejor que se encontró en la región 1, NCC 0.4459)
+[out] /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/registro_148709.json

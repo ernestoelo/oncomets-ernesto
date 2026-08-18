@@ -1,0 +1,30 @@
+[silueta] level 6 (downsample 64), miniatura 420x460
+[silueta] NCC sin registrar 0.9744, registrada 0.9833 (dx=0 dy=-1536 px de level 0)
+[silueta] control contra la región 1 espejada: -0.8652
+[silueta] OJO: esta medida la domina el CONTORNO del tejido, no las células. Dos secciones seriadas del mismo bloque también la pasan.
+
+[etapa A] 7 ventanas de 1024 px (476 µm) repartidas en grilla 4x4; búsqueda ±2048 px (952 µm) a level 2
+vent      x0      y0      NCC      dx      dy     sd     2do
+   0   20160   17792   0.1180    -384     868    3.2  0.1142
+   1   17024   16768   0.3785    -912    1932    3.6  0.3763
+   3   20672    7872   0.0866    -484      72    3.7  0.0838
+   5   20096    7872   0.1606    -368     -64    3.2  0.1521
+   6   20096    7168   0.2832    -124     140    3.2  0.2714
+
+[rígido] ajuste con 5 ventanas sobre 5.2 mm de vidrio: rotación -0.333°, escala 1.13564
+[rígido] residuo: RMS 419 px = 195 µm, máximo 291 µm
+
+[etapa B] level 0, plantilla 512 px (238 µm), residual ±48 px, rotación ±8.0° en pasos de 0.5°
+vent      NCC     ctrl      θ    dx    dy     sd     2do
+   0   0.0741   0.0602  -6.00    37   -22    4.9  0.0560
+   1   0.0704   0.0345  +4.00   -10     3    3.7  0.0570
+   3   0.0847   0.1033  +3.50   -18    48    2.8  0.0709
+   5   0.3120  -0.0953  +0.00    -4    -5    3.0  0.2922
+   6   0.2345   0.0521  +2.50   -48    19    2.2  0.2156
+
+[resumen] NCC a level 0, señal  : medio 0.1552, mediana 0.0847, rango 0.0704..0.3120
+[resumen] NCC a level 0, control: medio 0.0310, mediana 0.0521, máximo 0.1033
+[resumen] separación señal-control: 1.9 sd del control; ventanas con señal > máximo del control: 2/5
+
+[out] /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/147774_registro_level0.png  (izq = región 0 en (20352,8128), der = lo mejor que se encontró en la región 1, NCC 0.3120)
+[out] /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/registro_147774.json

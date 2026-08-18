@@ -440,3 +440,88 @@ lámina con 3 ventanas y una con 8 no son el mismo experimento.
 - **Que las láminas rechazadas no tengan señal.** No se midieron: el test se paró antes.
 - **Que 3 láminas digan algo de las 129.** Es el arranque del barrido, no su resultado.
 - **Nada nuevo sobre la 129741.** No se volvió a medir.
+
+---
+
+## 8. ADDENDUM 17-ago-2026 (noche): el barrido terminó, y el veredicto se puede empezar a dar
+
+El barrido cerró a las **20:10**, tras **198 min** de pared. Salida en `barrido_138/`, agregada por
+[scripts/cosechar_barrido_registro.py](scripts/cosechar_barrido_registro.py) a
+`barrido_resumen.csv`.
+
+| | |
+|---|---:|
+| Láminas con JSON | **108** |
+| Rechazadas por el test (`stop`) | **19** |
+| Fallidas | **0** |
+
+La tasa de rechazo final es **15 %**, no el 35 % que se veía a media corrida. El aviso de no
+anticiparla estaba bien puesto.
+
+### 8.a La mitad de las láminas medidas NO son interpretables, y eso es el primer resultado
+
+Aplicando el **eje 1 del criterio pre-fijado** (`auditar_regiones_escaneo.py:591-601`), que pide
+que la etapa A localice cada ventana con un pico **alto y único**, se cuenta por lámina en cuántas
+ventanas el pico supera al segundo por al menos un 10 %:
+
+| | láminas | |
+|---|---:|---|
+| La etapa A localiza (mayoría de ventanas con pico único) | **54** | 50 % |
+| La etapa A **no** localiza | **54** | 50 % |
+
+Las 54 de abajo **no son «secciones seriadas»**: son **no medibles**. Una etapa A que no localiza
+produce una etapa B que mide ruido, y eso es indistinguible de que el tejido sea de verdad
+distinto. Es la lección de la 120063 de §7.b, ahora cuantificada sobre 108 láminas.
+
+### 8.b Entre las medibles, el perfil dominante es el de re-escaneo
+
+Con los tres ejes juntos (pico único, cuerpo rígido, NCC muy sobre el control):
+
+| Perfil | láminas | |
+|---|---:|---|
+| etapa A no localiza | 54 | 50 % |
+| **perfil de re-escaneo** | **33** | 31 % |
+| ambiguo | 20 | 19 % |
+| **perfil de secciones seriadas** | **1** | 1 % |
+
+Las 33 del perfil de re-escaneo tienen razón señal/control mediana **5,20**, escala mediana
+**0,9996** y residuo rígido mediano **62 µm**: un cuerpo rígido explica el campo de
+desplazamiento, que es exactamente lo que el criterio pre-fijado describe como la misma lámina
+escaneada dos veces.
+
+**Los cortes numéricos son posteriores a ver los datos** (el criterio pre-fijado es cualitativo:
+«escala ~1», «residuo de pocos píxeles»). Por eso se reporta la sensibilidad:
+
+| corte | re-escaneo | seriadas | ambiguo |
+|---|---:|---:|---:|
+| laxo (razón ≥2,5, banda 0,03, ≥60 %) | 37 | **1** | 16 |
+| base (razón ≥3, banda 0,02, ≥75 %) | 33 | **1** | 20 |
+| estricto (razón ≥4, banda 0,015, ≥87,5 %) | 21 | **1** | 32 |
+
+Lo que se mueve con el corte es el reparto entre re-escaneo y ambiguo. **Las secciones seriadas
+se quedan en 1 con los tres cortes**, y esa única lámina (`150986-3`) pide un **13 % de escala**
+(0,8718), que se parece más a un ajuste malo que a un hallazgo.
+
+### 8.c Se corrigen dos lecturas del ADDENDUM anterior
+
+1. **La 120063 no es evidencia de secciones seriadas.** Falla la puerta del eje 1 con **1 de 8**
+   ventanas de pico único. La salvedad que §7.b dejó anotada («su etapa A no localiza bien, así
+   que no es veredicto») queda confirmada y cerrada: la lámina es **no medible**, y no hay que
+   seguir citándola como el contraejemplo de la 129741.
+2. **La 129741 sí es representativa, entre las medibles.** Contra las 54 que pasan la puerta cae
+   en el **percentil 91** de NCC de señal, **89** de razón señal/control y **57** de residuo
+   rígido. O sea es un buen ejemplar del perfil mayoritario, no una rareza. (Su NCC de 0,3820
+   sigue siendo **cota inferior**: su barrido de rotación satura y **no se re-midió**.)
+   Esto **relaja**, sin borrarlo, el «la 129741 no es representativa» que venía del handoff: era
+   cierto con 3 láminas medidas, y con 108 ya no se sostiene en esta dimensión.
+
+### 8.d Qué no se afirma
+
+- **No se afirma que 139 de 490 láminas privadas sean re-escaneos.** Se midieron 108, la mitad no
+  es interpretable, y de la otra mitad 33 muestran el perfil. El denominador honesto es
+  **33 de 54 medibles**, no 33 de 490.
+- **El 50 % no medible no está explicado.** Puede ser parámetros de selección de ventanas (§7.a,
+  decisión todavía pendiente) o puede ser tejido de verdad distinto. **Este barrido no los
+  separa.**
+- **No se re-midió la 129741**, así que su número sigue siendo cota inferior.
+- **No se midió el efecto sobre los datasets de entrenamiento.** Sigue abierto.

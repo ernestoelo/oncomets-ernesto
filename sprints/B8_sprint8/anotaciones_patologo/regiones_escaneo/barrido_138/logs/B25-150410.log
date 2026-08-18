@@ -1,0 +1,30 @@
+[silueta] level 6 (downsample 64), miniatura 440x440
+[silueta] NCC sin registrar 0.9852, registrada 0.9852 (dx=0 dy=0 px de level 0)
+[silueta] control contra la región 1 espejada: -0.6732
+[silueta] OJO: esta medida la domina el CONTORNO del tejido, no las células. Dos secciones seriadas del mismo bloque también la pasan.
+
+[etapa A] 6 ventanas de 1024 px (476 µm) repartidas en grilla 4x4; búsqueda ±2048 px (952 µm) a level 2
+vent      x0      y0      NCC      dx      dy     sd     2do
+   0   25216   21120   0.1207     516   -1696    3.4  0.1175
+   1   20736   17152   0.2992    1392     436    4.8  0.2503
+   2   24704   16128   0.3612    1420     560    5.2  0.2782
+   3   24192   10112   0.4086    1704     396    5.8  0.2480
+   4   20736    3072   0.2427    1328     208    3.2  0.2423
+
+[rígido] ajuste con 5 ventanas sobre 8.6 mm de vidrio: rotación +0.903°, escala 0.93278
+[rígido] residuo: RMS 817 px = 380 µm, máximo 603 µm
+
+[etapa B] level 0, plantilla 512 px (238 µm), residual ±48 px, rotación ±8.0° en pasos de 0.5°
+vent      NCC     ctrl      θ    dx    dy     sd     2do
+   0   0.0645   0.0481  +0.50   -14    46    4.8  0.0478
+   1   0.3014   0.0007  +8.00    30    19    4.9  0.2202
+   2   0.2981   0.0010  +2.50    13    -6   14.7  0.1185
+   3   0.3496   0.0027  +2.00     4     7    4.2  0.2513
+   4   0.1091   0.0474  +3.00   -48    11    2.7  0.0998
+
+[resumen] NCC a level 0, señal  : medio 0.2245, mediana 0.2981, rango 0.0645..0.3496
+[resumen] NCC a level 0, control: medio 0.0200, mediana 0.0027, máximo 0.0481
+[resumen] separación señal-control: 9.0 sd del control; ventanas con señal > máximo del control: 5/5
+
+[out] /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/B25-150410_registro_level0.png  (izq = región 0 en (24448,10368), der = lo mejor que se encontró en la región 1, NCC 0.3496)
+[out] /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/registro_B25-150410.json

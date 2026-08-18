@@ -139,3 +139,7 @@ sprints/B7_sprint7/envio_heatmaps/*.zip
 # todos los CSV/JSON.
 results/b8_hovernext_129741/interp/expertos/heatmaps/
 results/b8_hovernext_129741/interp/expertos/topk_patches/
+
+# Barrido de registro multi-region: los JSON son la verdad de campo y pesan poco;
+# los PNG (~108 x 400 KB) se regeneran desde el JSON con el mismo script.
+sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/barrido_138/*.png
