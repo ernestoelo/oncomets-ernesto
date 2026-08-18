@@ -502,8 +502,10 @@ def _buscar_local(sl, tpl_xy, dest_xy, L0: int, M0: int, lvl: int, ds: float,
         r["theta"] = 0.0
         r["theta_en_borde"] = False
     else:
+        # devuelve (pico, mapa): el MAPA del θ ganador hace falta más abajo para
+        # `ncc_en_prediccion`, que se lee en el centro (offset residual cero).
         def _mejor(thetas):
-            best = None
+            best, best_map = None, None
             for th in thetas:
                 I = img if th == 0.0 else _alinear_array(img, img.shape[0], th, 1.0)
                 m = _mapa_ncc(I, tpl)
@@ -512,18 +514,18 @@ def _buscar_local(sl, tpl_xy, dest_xy, L0: int, M0: int, lvl: int, ds: float,
                 q = _pico(m)
                 q["theta"] = float(th)
                 if best is None or q["ncc"] > best["ncc"]:
-                    best = q
-            return best
+                    best, best_map = q, m
+            return best, best_map
         grueso = np.round(np.arange(-rot_max, rot_max + 1e-9, paso_grueso), 3)
-        r = _mejor(grueso)
+        r, mapa = _mejor(grueso)
         if r is None:
             return None
         # refinamiento: paso fino alrededor del ganador del grueso
         lo, hi = r["theta"] - paso_grueso, r["theta"] + paso_grueso
         fino = np.round(np.arange(lo, hi + 1e-9, paso_fino), 3)
-        rf = _mejor([t for t in fino if abs(t) <= rot_max])
+        rf, mf = _mejor([t for t in fino if abs(t) <= rot_max])
         if rf is not None and rf["ncc"] > r["ncc"]:
-            r = rf
+            r, mapa = rf, mf
         r["theta_en_borde"] = bool(abs(abs(r["theta"]) - rot_max) < 1e-6)
     # el centro del mapa (offset residual cero) está en (M0/ds, M0/ds)
     c = int(round(M0 / ds))
