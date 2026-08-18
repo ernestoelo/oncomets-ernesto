@@ -3776,3 +3776,73 @@ sesión anterior perdió una corrida entera por un `UnboundLocalError` en códig
 - **El recuento de §8.b sigue sin rehacerse**: el re-barrido no terminó. Los números del parcial
   **no se leen** (8 láminas, las primeras alfabéticamente).
 - **Cero números de HoVer-NeXt**, sin cambios respecto de ayer.
+
+---
+
+## 18-ago-2026 (8ª sesión) — el deck del 6-ago se extendió con doce láminas
+
+Sesión de **construcción de entregable**, no de análisis: la reunión con Sebastián es mañana
+19-ago y el re-barrido no cierra a tiempo. **Ningún número se movió** y **ningún resultado se
+leyó del parcial**.
+
+### La decisión que abría la sesión, tomada por Ernesto
+
+El handoff dejaba una sola pregunta de verdad abierta: **extender el deck del 6-ago o hacer uno
+nuevo**. Ernesto eligió **extender**, con el material nuevo **al final y en orden cronológico**,
+y con **tres hilos de cuatro**: regiones de escaneo, HoVer-NeXt y metodología. **Los papers de
+mitosis quedan afuera** (el `Papers_Mitosis.pptx` sigue sin estrenar). El bloque del 6-ago **no se
+tocó**: ni una lámina, ni un número, ni una nota.
+
+### Las doce láminas nuevas, 15 a 26
+
+| # | Lámina | Hilo |
+|---|---|---|
+| 15 | Lo que se hizo desde el 6 de agosto | mapa del bloque |
+| 16 | Dos regiones de escaneo dentro del mismo archivo | regiones |
+| 17 | Cómo se mide si son la misma lámina | |
+| 18 | El primer resultado: la mitad no es medible | |
+| 19 | Entre las medibles, 33 de 54 | |
+| 20 | Faltaba buscar giro, y estaba fuera de rango por diseño | |
+| 21 | El recuento se está rehaciendo, y trae dos trampas | |
+| 22 | HoVer-NeXt: instalado, auditado y sin números todavía | HoVer-NeXt |
+| 23 | El techo de la prueba, medido sin gastar GPU | |
+| 24 | La GPU: un pedido de coordinación | |
+| 25 | Tres patrones nuevos en dos semanas | método |
+| 26 | Qué sigue | cierre |
+
+**Todo el contenido sale de documentos ya escritos** (`regiones_escaneo/resultados.md` §3, §8,
+§10, §11; `techo_atencion.md`; `coordinacion_gpu.md`; `plan_semana_17ago.md`) y las constantes
+están al lado de las láminas con la sección de la que vienen. **Se respetaron las tres
+prohibiciones del handoff**: el 33 va siempre sobre 54 medibles y nunca sobre 490, no aparece un
+solo número de HoVer-NeXt, y ninguna lámina afirma que las recuperadas sean re-escaneos.
+
+### Tres helpers nativos nuevos
+
+`barra_reparto` (un total repartido en tramos proporcionales), `eje_angulos` (el giro sobre su
+recorrido, con lo que el método barría y lo que hacía falta) y `curva_techo` (recall alcanzable
+contra el tamaño de la máscara, tres curvas superpuestas). Los tres con la gramática del
+template, **ningún gráfico como PNG**.
+
+### Assets: dos imágenes que son fotografía de resultado, no diagrama
+
+`prep_assets_regiones.py` recorta las dos regiones de la 129741 (banda negra de 59 px, **la misma
+en las dos**, así que la correspondencia se conserva) y saca de **git** la figura de registro a
+resolución completa, porque el re-barrido en curso movió la del árbol a su subdirectorio. **Las
+dos regiones se dibujan al mismo ALTO y no al mismo ancho**: están al mismo downsample, así que a
+igual alto quedan a igual escala y la comparación que la lámina propone es legítima.
+
+### Lo que la 129741 dio al re-medirse, y por qué NO se leyó
+
+El driver ya la procesó (15:17) y su JSON está en `barrido_rot/`. **No se miró como resultado**:
+§11.c dice que los números del parcial no se leen, y la 129741 está en ese parcial. De paso queda
+explicado un ruido de `git status` que parecía anomalía: los dos archivos que figuran como
+borrados **los movió el propio driver** a `barrido_rot/` (`barrido_registro_multiregion.sh:104`).
+No hay pérdida y no hay que restaurarlos.
+
+### Lo que NO se hizo
+
+- **Las doce láminas nuevas no tienen guion.** Cero `notes()`. Es el pendiente más grande.
+- **Cuatro colisiones de la barra de remate** y dos defectos de figura, todos cazados por el
+  rasterizado y **ninguno por la auditoría automática**, que dio «sin avisos» en las 26.
+- **El re-barrido sigue corriendo** y **§8.b sigue sin recontar**.
+- Cero GPU, cero `sbatch`, cero cambios a los dos scripts que el driver relee.

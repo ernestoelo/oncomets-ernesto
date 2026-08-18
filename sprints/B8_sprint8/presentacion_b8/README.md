@@ -800,3 +800,97 @@ porque Sebastián va a querer la copia de nuevo cada vez que el deck cambie.
   «geniales».
 - La **leyenda mezclada español/inglés** de la figura de marcas sigue abierta, y él ya dijo
   que esa lámina queda como está.
+
+---
+
+## La extensión del 18-ago (de 14 a 26 láminas) — VIGENTE
+
+Reunión con **Sebastián, miércoles 19-ago**. `FECHA_REUNION` del generador ya la tiene.
+
+**La decisión la tomó Ernesto y no se re-decide**: se **extiende** el deck del 6-ago en vez de
+hacer uno nuevo, el material entra **al final y en orden cronológico** (después de «Objetivos
+propuestos»), y entran **tres hilos**: regiones de escaneo, HoVer-NeXt y metodología. **Los
+papers de mitosis quedan afuera.** El bloque del 6-ago queda **intacto**: ni una lámina, ni un
+número, ni una nota.
+
+### Las doce nuevas
+
+| # | Lámina | Qué lleva |
+|---|---|---|
+| 15 | Lo que se hizo desde el 6 de agosto | tres paneles + estado; el mapa del bloque |
+| 16 | Dos regiones de escaneo dentro del mismo archivo | las dos regiones de la 129741 + el reparto 490 |
+| 17 | Cómo se mide si son la misma lámina | el instrumento en dos etapas + el registro a resolución completa |
+| 18 | El primer resultado: la mitad no es medible | la cadena 490 → 108 + el reparto 54/54 |
+| 19 | Entre las medibles, 33 de 54 | el reparto y su sensibilidad, en la misma lámina |
+| 20 | Faltaba buscar giro | el eje de ángulos + la tabla del probe |
+| 21 | El recuento se está rehaciendo | las dos trampas de §11 |
+| 22 | HoVer-NeXt: instalado, auditado y sin números | fases, con estado |
+| 23 | El techo de la prueba, medido sin gastar GPU | la desigualdad + la curva de las tres series |
+| 24 | La GPU: un pedido de coordinación | la cola + los tres pedidos |
+| 25 | Tres patrones nuevos en dos semanas | P2, P3 y P4 |
+| 26 | Qué sigue | los tres pasos + las dos preguntas |
+
+### De dónde sale cada número
+
+Las constantes viven arriba de las láminas, cada bloque con la sección de la que viene:
+`regiones_escaneo/resultados.md` §3 (alcance), §8.b (perfiles y sensibilidad), §10.b (el probe);
+`hovernext_129741/techo_atencion.md` (los once K); `coordinacion_gpu.md` (la cola, **sin nombres
+de usuario ni números de trabajo**). **Nada se lee de un CSV en tiempo de build** y **nada sale
+del parcial del re-barrido**.
+
+### Las tres prohibiciones del handoff, respetadas
+
+El **33 va siempre sobre 54 medibles** y la lámina 19 lo dice en su barra de remate; **no aparece
+un solo número de HoVer-NeXt**; y ninguna lámina afirma que las recuperadas sean re-escaneos ni
+que vayan a caer en seriadas (la 21 presenta eso como mecanismo del método, que es lo que §11.b
+sostiene).
+
+### Tres helpers nativos nuevos
+
+- **`barra_reparto`** — un total repartido en tramos contiguos proporcionales. Se usa solo donde
+  los tramos son anchos: con un tramo de 1 sobre 108 el rótulo no cabe y la tabla cuenta mejor.
+- **`eje_angulos`** — el giro sobre su recorrido, con las dos bandas de diseño y las marcas
+  medidas. Es el hallazgo entero en una figura: se ve de un vistazo que las marcas caen fuera de
+  la banda chica.
+- **`curva_techo`** — recall alcanzable contra el tamaño de la máscara. El eje horizontal va por
+  índice y no por K, porque los K están espaciados casi de forma logarítmica y a escala lineal los
+  seis primeros se apilarían contra el margen.
+
+### Los assets, y el motivo de cada decisión
+
+`prep_assets_regiones.py`, al lado del generador:
+
+- **Las dos regiones se recortan la MISMA cantidad de columnas** (59 px de banda negra, idéntica
+  en las dos), así que la correspondencia entre ellas se conserva.
+- **Se dibujan al mismo ALTO, no al mismo ancho.** Las dos están al mismo downsample; a igual alto
+  quedan a igual escala y la comparación que la lámina propone es legítima. A igual ancho estarían
+  a escalas distintas y la lámina mentiría.
+- **La figura de registro se saca de `git show HEAD:`**, no del árbol: el re-barrido en curso movió
+  la del árbol a su propio subdirectorio, y la que vale para el deck es la del 14-ago, que es la
+  que el documento cita.
+- **Los tres pasan por `sin_icc()`.** Los PNG del pipeline traen un perfil de color enorme y el
+  Pillow que usa python-pptx lo rechaza al insertar la imagen: el build muere con «Decompressed
+  data too large», sin decir de qué archivo. Se descarta el perfil al reescribir.
+
+### Lo que el rasterizado cazó y la auditoría no, y sigue SIN ARREGLAR
+
+La auditoría automática dio **«sin avisos» en las 26 láminas**. El rasterizado encontró seis cosas:
+
+1. **La barra de remate cruza el último objeto en cuatro láminas**: la 17 (la tarjeta del 0,382),
+   la 18 (el panel «No medible no es tejido distinto»), la 23 (la tarjeta del 12 %) y la 26 (el
+   panel de las dos preguntas). Todas por lo mismo: el objeto termina **por debajo de 4,85**, que
+   es donde `takeaway_bar` dibuja su línea. Los dos objetos están dentro de su caja, así que
+   ningún chequeo de límites lo ve.
+2. **La 20: los dos rótulos de banda del eje de ángulos se pisan** entre sí y el segundo tapa al
+   primero. Hay que sacarlos a una leyenda de dos filas debajo del eje.
+3. **La 23: las curvas de CLAM y Mammoth son del mismo color** (`ONCO_DARK` y `ONCO_CONN` difieren
+   en tres unidades por canal) y no se distinguen.
+4. La 15 dice «Dos de ellos ahorraron una corrida entera» y **fue uno solo**.
+5. La 19 no dice el **denominador** de su columna de porcentaje, que son las 108.
+6. La 17 **no rotula «etapa A» y «etapa B»**, y la 18 los nombra como si estuvieran definidos.
+
+### El guion, sin escribir
+
+**Las doce láminas nuevas no tienen `notes()`.** Es lo más grande que queda, y falta además la
+pasada de `@humanizer-es` y la lectura en voz alta, que es la capa que caza lo que ninguna cuenta
+automática ve.
