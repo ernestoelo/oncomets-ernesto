@@ -23,6 +23,14 @@
 #
 # Variables (todas opcionales):
 #   ROT_MAX   barrido de rotacion de la etapa B, en grados (default 8.0)
+#   ROT_A_MAX barrido de rotacion de la ETAPA A, en grados (default 0 = apagado,
+#             comportamiento original). Ver el docstring de _buscar_local: medido
+#             el 17-ago, el |theta| necesario tuvo mediana 7.8 grados y 6 de 12
+#             laminas "no medibles" pasan a medibles al barrerlo.
+#   OUT_DIR   subdirectorio de salida (default barrido_138). Una corrida con
+#             ROT_A_MAX distinto NO debe pisar barrido_138, que es la verdad de
+#             campo versionada del barrido sin rotacion.
+#   SALTAR_129741  1 = excluir la 129741 (default 1, como el barrido original)
 #   LIMITE    procesar solo las primeras N pendientes (default 0 = todas)
 
 set -uo pipefail   # SIN -e: una lamina que falla no puede matar el barrido
@@ -32,17 +40,19 @@ PY=/home/sdonoso/miniconda3/envs/clam_latest/bin/python
 SCRIPT=$REPO/scripts/auditar_regiones_escaneo.py
 BASE=$REPO/sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo
 CSV=$BASE/laminas_multiregion.csv
-OUT=$BASE/barrido_138
+OUT=$BASE/${OUT_DIR:-barrido_138}
 LOGS=$OUT/logs
 
 ROT_MAX=${ROT_MAX:-8.0}
+ROT_A_MAX=${ROT_A_MAX:-0.0}
+SALTAR_129741=${SALTAR_129741:-1}
 LIMITE=${LIMITE:-0}
 
 mkdir -p "$OUT" "$LOGS"
 
 echo "================================================================"
 echo "barrido de registro multi-region  |  $(date)"
-echo "  ROT_MAX=$ROT_MAX  LIMITE=$LIMITE"
+echo "  ROT_MAX=$ROT_MAX  ROT_A_MAX=$ROT_A_MAX  LIMITE=$LIMITE"
 echo "  salida: $OUT"
 echo "  pid=$$  ppid=$PPID  (ppid debe ser 1 si se lanzo con setsid)"
 echo "================================================================"
@@ -51,10 +61,11 @@ echo "================================================================"
 # El subcomando `registro` aborta con "[stop] tiene N regiones, no 2"
 # (auditar_regiones_escaneo.py:615-617). Las de 3 y 4 regiones quedan fuera por
 # construccion del test, no por descarte nuestro: el test compara UN par.
-SLIDES=$("$PY" - "$CSV" <<'EOF'
+SLIDES=$("$PY" - "$CSV" "$SALTAR_129741" <<'EOF'
 import csv, sys
+saltar = sys.argv[2] == "1"
 for r in csv.DictReader(open(sys.argv[1])):
-    if r["n_regiones"] == "2" and r["slide_id"] != "129741":
+    if r["n_regiones"] == "2" and not (saltar and r["slide_id"] == "129741"):
         print(r["slide_id"])
 EOF
 )
@@ -85,6 +96,7 @@ for SID in $SLIDES; do
     TS=$(date +%s)
     echo "[$(date +%H:%M:%S)] $SID  ..."
     "$PY" "$SCRIPT" registro --slide "$SID" --rot-max "$ROT_MAX" \
+        --rot-a-max "$ROT_A_MAX" \
         > "$LOGS/$SID.log" 2>&1
     RC=$?
     DT=$(( $(date +%s) - TS ))

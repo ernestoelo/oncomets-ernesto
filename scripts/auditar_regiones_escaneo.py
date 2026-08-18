@@ -459,7 +459,9 @@ def _pico(mapa: np.ndarray, radio: int = 24):
     }
 
 
-def _buscar_local(sl, tpl_xy, dest_xy, L0: int, M0: int, lvl: int, ds: float):
+def _buscar_local(sl, tpl_xy, dest_xy, L0: int, M0: int, lvl: int, ds: float,
+                  rot_max: float = 0.0, paso_grueso: float = 2.0,
+                  paso_fino: float = 0.5):
     """Busca la ventana `L0`×`L0` de level 0 que arranca en `tpl_xy` dentro de
     un entorno de ±`M0` px alrededor de `dest_xy`, trabajando en el nivel `lvl`.
 
@@ -468,6 +470,20 @@ def _buscar_local(sl, tpl_xy, dest_xy, L0: int, M0: int, lvl: int, ds: float):
     el arreglo de fondo del test: la posición NO se deriva de un offset global
     (que a level 6 tiene ±32 px de cuantización, o sea media docena de células),
     se BUSCA.
+
+    ROTACIÓN (`rot_max > 0`, opt-in; el default 0.0 deja el comportamiento
+    original byte a byte). Medido el 17-ago sobre 16 láminas
+    (`probe_rotacion_etapaA.py`, §10 de regiones_escaneo/resultados.md): esta
+    búsqueda era SOLO de traslación, y con las dos regiones giradas entre sí un
+    template de 1024 px pierde correlación aunque las células sean las mismas.
+    El |θ| que hacía falta tenía mediana 7.8°, o sea quedaba fuera del rango por
+    diseño. 6 de 12 láminas «no medibles» pasan a medibles al barrerlo, y el NCC
+    sube TAMBIÉN en las que ya localizaban (0.277 -> 0.400).
+
+    Barrido grueso-a-fino para no pagar 41 evaluaciones: `paso_grueso` sobre
+    ±`rot_max`, después `paso_fino` en ±`paso_grueso` alrededor del ganador.
+    `theta` y `theta_en_borde` quedan en el resultado: un θ clavado en el borde
+    significa que el rango se quedó corto y la MAGNITUD no se puede leer.
     """
     lt = int(round(L0 / ds))
     lb = int(round((L0 + 2 * M0) / ds))
@@ -478,10 +494,37 @@ def _buscar_local(sl, tpl_xy, dest_xy, L0: int, M0: int, lvl: int, ds: float):
                      dtype=np.float64)
     if tpl.std() < 1.0 or img.std() < 1.0:
         return None
-    mapa = _mapa_ncc(img, tpl)
-    if mapa is None:
-        return None
-    r = _pico(mapa)
+    if rot_max <= 0:
+        mapa = _mapa_ncc(img, tpl)
+        if mapa is None:
+            return None
+        r = _pico(mapa)
+        r["theta"] = 0.0
+        r["theta_en_borde"] = False
+    else:
+        def _mejor(thetas):
+            best = None
+            for th in thetas:
+                I = img if th == 0.0 else _alinear_array(img, img.shape[0], th, 1.0)
+                m = _mapa_ncc(I, tpl)
+                if m is None:
+                    continue
+                q = _pico(m)
+                q["theta"] = float(th)
+                if best is None or q["ncc"] > best["ncc"]:
+                    best = q
+            return best
+        grueso = np.round(np.arange(-rot_max, rot_max + 1e-9, paso_grueso), 3)
+        r = _mejor(grueso)
+        if r is None:
+            return None
+        # refinamiento: paso fino alrededor del ganador del grueso
+        lo, hi = r["theta"] - paso_grueso, r["theta"] + paso_grueso
+        fino = np.round(np.arange(lo, hi + 1e-9, paso_fino), 3)
+        rf = _mejor([t for t in fino if abs(t) <= rot_max])
+        if rf is not None and rf["ncc"] > r["ncc"]:
+            r = rf
+        r["theta_en_borde"] = bool(abs(abs(r["theta"]) - rot_max) < 1e-6)
     # el centro del mapa (offset residual cero) está en (M0/ds, M0/ds)
     c = int(round(M0 / ds))
     r["dx_level0"] = int(round((r["ix"] - c) * ds))
@@ -689,7 +732,10 @@ def registro(args):
         bx, by = x1 + (ax - x0), y1 + (ay - y0)
         if not (x1 + MA <= bx <= x1 + w1 - LA - MA and y1 + MA <= by <= y1 + h1 - LA - MA):
             continue
-        r = _buscar_local(sl, (ax, ay), (bx, by), LA, MA, lva, dsa)
+        r = _buscar_local(sl, (ax, ay), (bx, by), LA, MA, lva, dsa,
+                          rot_max=args.rot_a_max,
+                          paso_grueso=args.rot_a_paso_grueso,
+                          paso_fino=args.rot_a_paso_fino)
         if r is None:
             continue
         r["en_borde"] = bool(max(abs(r["dx_level0"]), abs(r["dy_level0"])) >= MA - dsa)
@@ -844,6 +890,13 @@ def main():
     # etapa B: el test decisivo, a level 0
     r.add_argument("--plantilla-b", type=int, default=512)
     r.add_argument("--margen-b", type=int, default=48)
+    r.add_argument("--rot-a-max", type=float, default=0.0,
+                   help="barrido de rotacion en la ETAPA A, en grados. 0 = apagado "
+                        "(comportamiento original). Ver el docstring de _buscar_local: "
+                        "el |theta| necesario tuvo mediana 7.8 grados, asi que 20 es el "
+                        "rango que cubre lo medido")
+    r.add_argument("--rot-a-paso-grueso", type=float, default=2.0)
+    r.add_argument("--rot-a-paso-fino", type=float, default=0.5)
     r.add_argument("--rot-max", type=float, default=1.5,
                    help="barrido de rotación de la etapa B, en grados")
     r.add_argument("--rot-paso", type=float, default=0.5)
