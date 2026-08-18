@@ -3846,3 +3846,47 @@ No hay pérdida y no hay que restaurarlos.
   rasterizado y **ninguno por la auditoría automática**, que dio «sin avisos» en las 26.
 - **El re-barrido sigue corriendo** y **§8.b sigue sin recontar**.
 - Cero GPU, cero `sbatch`, cero cambios a los dos scripts que el driver relee.
+
+---
+
+## 18-ago-2026 (9ª sesión) — los siete defectos del deck, y el chequeo que faltaba
+
+Sesión corta y de una sola cosa: **arreglar los defectos visuales del bloque nuevo del deck**.
+El guion de las doce láminas **sigue sin escribirse**, que es el pendiente grande.
+
+### Los seis defectos, arreglados, y un séptimo que apareció
+
+Los seis que la sesión anterior había dejado listados en el README están arreglados
+(`presentacion_b8/README.md` §«Los siete defectos»): las cuatro colisiones de la barra de remate
+(17, 18, 23, 26), los rótulos pisados del eje de ángulos (20), las dos curvas del mismo color
+(23), el «dos de ellos» que fue uno (15), el denominador ausente (19) y las etapas sin rotular
+(17). El deck sigue en **26 láminas** y construye con la auditoría en cero.
+
+**El séptimo lo encontró el chequeo nuevo, no el ojo**: en la lámina 24 el tercer panel de la
+columna derecha también cruza la barra. Había pasado el QA visual completo de la sesión anterior.
+Cruza porque `panel()` **crece** para que entre su texto, así que el número no está escrito en
+ninguna constante del generador.
+
+### El chequeo de la barra de remate, que el ADDENDUM de la mañana pedía
+
+`auditar` ahora marca cualquier shape que cruce la barra. Construirlo tuvo tres trampas, y las
+tres dan un chequeo que parece andar: la `t` con la que se dibuja **no es** donde la barra queda
+(`reflow_onco` reancla después, y el `4,85` termina en `4,82` o `4,49`), la barra **se marca a sí
+misma** si se la excluye por posición en vez de por identidad, y **una caja de texto no se ve, se
+ve el texto** (medir la caja marcaba captions de una línea en láminas del 6-ago que estaban
+perfectas). Detalle en [[deck-qa-puntos-ciegos-chequeo]], ADDENDUM del 18-ago noche.
+
+De paso, un defecto que **ningún chequeo de cajas puede ver**: en `eje_angulos` las dos bandas
+nacen en cero y se pintaban en el orden declarado, así que la ancha cubría entera a la chica, que
+es la que carga el hallazgo. Se pintan de la más grande a la más chica.
+
+### Lo que NO se hizo
+
+- **El guion de las doce láminas nuevas: sigue en cero.** Sin `@humanizer-es` y sin lectura en
+  voz alta.
+- **Las ocho láminas tocadas no se volvieron a mirar.** La auditoría da cero, que es exactamente
+  lo que daba con los seis defectos adentro. El rasterizado quedó sin correr.
+- **La copia sin notas**, sin regenerar.
+- **El re-barrido sigue corriendo** (80 ok / 19 stop / 31 pendientes a las 19:15, ETA ~21:00) y
+  **§8.b sigue sin recontar**.
+- Cero GPU, cero `sbatch`, cero cambios a los dos scripts que el driver relee.

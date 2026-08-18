@@ -872,22 +872,52 @@ sostiene).
   Pillow que usa python-pptx lo rechaza al insertar la imagen: el build muere con «Decompressed
   data too large», sin decir de qué archivo. Se descarta el perfil al reescribir.
 
-### Lo que el rasterizado cazó y la auditoría no, y sigue SIN ARREGLAR
+### Los siete defectos, ARREGLADOS el 18-ago (noche)
 
-La auditoría automática dio **«sin avisos» en las 26 láminas**. El rasterizado encontró seis cosas:
+El rasterizado había listado **seis**, con la auditoría automática en «sin avisos» sobre las 26.
+Están los seis arreglados, y el chequeo nuevo del punto 1 encontró **un séptimo** que la pasada
+visual no había visto.
 
-1. **La barra de remate cruza el último objeto en cuatro láminas**: la 17 (la tarjeta del 0,382),
-   la 18 (el panel «No medible no es tejido distinto»), la 23 (la tarjeta del 12 %) y la 26 (el
-   panel de las dos preguntas). Todas por lo mismo: el objeto termina **por debajo de 4,85**, que
-   es donde `takeaway_bar` dibuja su línea. Los dos objetos están dentro de su caja, así que
-   ningún chequeo de límites lo ve.
-2. **La 20: los dos rótulos de banda del eje de ángulos se pisan** entre sí y el segundo tapa al
-   primero. Hay que sacarlos a una leyenda de dos filas debajo del eje.
-3. **La 23: las curvas de CLAM y Mammoth son del mismo color** (`ONCO_DARK` y `ONCO_CONN` difieren
-   en tres unidades por canal) y no se distinguen.
-4. La 15 dice «Dos de ellos ahorraron una corrida entera» y **fue uno solo**.
-5. La 19 no dice el **denominador** de su columna de porcentaje, que son las 108.
-6. La 17 **no rotula «etapa A» y «etapa B»**, y la 18 los nombra como si estuvieran definidos.
+| # | Lámina | Qué era | Cómo quedó |
+|---|---|---|---|
+| 1 | 17, 18, 23, 26 | el último objeto cruza la barra de remate (termina bajo `4,85`) | el bloque sube; ver la nota de abajo |
+| 2 | 20 | los dos rótulos de banda del eje de ángulos se pisan | a una leyenda debajo del eje, y las marcas escalonadas en dos alturas |
+| 3 | 23 | CLAM y Mammoth salen del mismo color | CLAM pasa a `ONCO_INK`, y cada serie lleva su marcador (cuadrado / círculo) |
+| 4 | 15 | «Dos de ellos ahorraron una corrida entera», y fue uno | «Uno de ellos ahorró una corrida entera», que es lo que dice la 25 |
+| 5 | 19 | la columna de porcentaje no decía su denominador | el encabezado dice **«de 108»** |
+| 6 | 17 | no rotulaba «etapa A» / «etapa B», que la 18 usa como definidos | los dos bloques de proceso abren con **«Etapa A ·»** y **«Etapa B ·»** |
+| **7** | **24** | **el tercer panel de la derecha cruza la barra** | los tres paneles suben; lo cazó el chequeo nuevo, no el ojo |
+
+**El séptimo importa más de lo que parece**: la lámina 24 había pasado el QA visual completo de
+la sesión anterior. Su panel cruza porque `panel()` **crece** para que entre su texto, así que el
+defecto no está escrito en ninguna constante del generador y mirar la lámina es la única forma de
+verlo, salvo que se lo mida. Se lo midió.
+
+### El chequeo de la barra de remate, que antes no existía
+
+`auditar` ahora marca cualquier shape que cruce la barra (`_TAKEAWAY`, `_borde_inferior`). Las
+26 láminas dan cero. Construirlo tuvo tres trampas, y las tres dan un chequeo que **parece**
+andar (detalle en [[deck-qa-puntos-ciegos-chequeo]], ADDENDUM del 18-ago noche):
+
+- **La `t` con la que se dibuja la barra no es donde la barra queda**: `reflow_onco` corre
+  después y reancla o comprime el cuerpo, así que el `4,85` termina en `4,82` o en `4,49`. Se
+  guardan los **shapes** y se lee su posición al auditar.
+- **La barra se marcaba a sí misma**: el reflow le sube el rótulo por encima de su propia línea,
+  así que se excluye **por identidad**, no por geometría.
+- **Una caja de texto no se ve, se ve el texto**: medir la caja marcaba captions de una línea
+  dentro de la caja de `0,4"` de `caption()`, en láminas del 6-ago que rasterizaron perfectas. Un
+  chequeo que grita de más se termina ignorando. Caja de texto ⇒ se mide el texto con su anclaje;
+  panel pintado ⇒ se mide la caja.
+
+**Y un defecto que ningún chequeo de cajas puede ver**, arreglado de paso: en `eje_angulos` las
+dos bandas nacen las dos en cero y se pintaban en el orden declarado, así que la más ancha cubría
+entera a la chica, **que es la que carga el hallazgo**. Se pintan de la más grande a la más chica.
+
+### Lo que NO se verificó
+
+**Las láminas tocadas no se volvieron a mirar.** La auditoría da cero y eso es exactamente lo que
+daba con los seis defectos adentro: no alcanza. Quedan por rasterizar y mirar una por una las
+**15, 17, 18, 19, 20, 23, 24 y 26**, que son las ocho que cambiaron de geometría o de texto.
 
 ### El guion, sin escribir
 
