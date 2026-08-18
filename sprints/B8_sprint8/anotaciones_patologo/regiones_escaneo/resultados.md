@@ -522,6 +522,88 @@ se quedan en 1 con los tres cortes**, y esa única lámina (`150986-3`) pide un 
   **33 de 54 medibles**, no 33 de 490.
 - **El 50 % no medible no está explicado.** Puede ser parámetros de selección de ventanas (§7.a,
   decisión todavía pendiente) o puede ser tejido de verdad distinto. **Este barrido no los
-  separa.**
+  separa.** *(Actualizado en §9: los parámetros quedaron DESCARTADOS por evidencia — el fallo es
+  «sin señal» en 381 de 388 ventanas. Queda viva una tercera causa que este ADDENDUM no había
+  considerado: que la etapa A no busque rotación.)*
 - **No se re-midió la 129741**, así que su número sigue siendo cota inferior.
 - **No se midió el efecto sobre los datasets de entrenamiento.** Sigue abierto.
+
+---
+
+## 9. ADDENDUM 17-ago-2026 (noche, 2ª parte): por qué la mitad no es medible
+
+§8.d dejó declarado que **el 50 % no medible no está explicado**, con dos candidatos: los
+parámetros de selección de ventanas o que el tejido sea de verdad distinto. Se atacó con dos
+piezas. **La primera está cerrada; la segunda quedó corriendo.**
+
+### 9.a El fallo es SIN SEÑAL, no ambigüedad ⇒ NO son los parámetros
+
+`scripts/diagnostico_no_medibles.py` recupera el detalle **por ventana** que el CSV agregado
+había perdido, y separa dos modos que son físicamente opuestos:
+
+- **ambiguo**: hay pico, pero hay más de uno (el tejido se parece a sí mismo en varios sitios).
+  El registro existe y la ventana no lo distingue ⇒ **lo arreglarían los parámetros**.
+- **sin señal**: no hay pico. El mapa de NCC es plano contra su propio fondo ⇒ **los parámetros
+  no lo arreglan**.
+
+El estadístico que los separa ya estaba en cada JSON: `sd_sobre_fondo`, la altura del pico medida
+en desviaciones del fondo del mapa. Es independiente del NCC absoluto, que depende del contraste
+del tejido y no es comparable entre láminas.
+
+| | |
+|---|---:|
+| Láminas agregadas | 108 |
+| Ventanas totales | 732 |
+| Ventanas que no localizan | 388 |
+| **modo ambiguo** | **7** |
+| **modo sin señal** | **381 (98 %)** |
+| Láminas no medibles | 54 |
+| Láminas clasificadas «sin señal» | **54 de 54** |
+
+**Las 54 sin excepción caen en el modo sin señal.** Y no correlaciona con la densidad de tejido
+ni con el número de ventanas utilizables.
+
+**Consecuencia, que cierra un pendiente abierto desde §7.a**: relajar `--min-tejido` o
+`--margen-a` **no** iba a recuperar esas láminas. La decisión que §7.a y el handoff dejaban
+pendiente («¿re-corremos el subconjunto rechazado con parámetros relajados?») **queda contestada
+que no**, y por evidencia, no por criterio.
+
+### 9.b Queda una hipótesis de MÉTODO, y es la que estaba corriendo al cierre
+
+`_buscar_local` (`auditar_regiones_escaneo.py:462`) busca **solo traslación**: la rotación entra
+recién en la etapa B. Si las dos regiones están giradas entre sí, un template de 1024 px pierde
+correlación aunque las células sean las mismas, y el mapa queda plano — que es **exactamente** el
+«sin señal» observado. Sería una limitación **nuestra**, no un hecho del tejido.
+
+`scripts/probe_rotacion_etapaA.py` la prueba barriendo θ dentro de la etapa A, sobre una muestra
+de 16 láminas en tres grupos: **A** = no medible con silueta ≥ 0.95, **B** = no medible con
+silueta < 0.95, **C** = medible (**control positivo**). Pre-registro escrito antes de correr:
+
+- **rotación** ⇒ la fracción que localiza sube marcadamente **y** el θ ganador es **consistente
+  entre ventanas** de la misma lámina (un vidrio gira entero);
+- **tejido distinto** ⇒ barrer θ no recupera nada;
+- **θ disperso entre ventanas = ruido, NO rotación**;
+- **si el grupo C no reproduce su localización a θ = 0, el probe está roto y no se lee nada más.**
+
+**Al cierre iba por 3 de 16, todas del grupo A, y NINGUNA del grupo C.** Las dos con números
+leídos:
+
+| Lámina | localiza θ=0 | localiza con rotación | NCC | θ* mediano (sd) |
+|---|---:|---:|---|---:|
+| 128696 | 0.25 | **1.00** | 0.130 → 0.275 | **+7.0° (0.9)** |
+| 135924 | 0.12 | **0.88** | 0.156 → 0.278 | −10.5° (**3.7**) |
+
+**La señal es fuerte y el resultado NO se puede leer todavía**, y las dos cosas son ciertas a la
+vez. Fuerte: en las dos, barrer θ recupera casi todas las ventanas y **duplica** el NCC. No
+legible: la 128696 tiene θ consistente (sd 0.9, la firma de rotación) pero la 135924 lo tiene
+**disperso** (sd 3.7), que su propio pre-registro llama **ruido**; y sobre todo **el control
+positivo no ha corrido**, y el pre-registro dice que sin él no se lee nada.
+
+### 9.c Qué NO se afirma
+
+- **Que las 54 no medibles se expliquen por rotación.** El probe iba por 3 de 16 y sin control.
+- **Que no se expliquen.** Los dos casos leídos recuperan casi todas las ventanas al barrer θ.
+- **Que el «33 de 54 medibles» de §8.b cambie.** Si la rotación resulta ser la causa, el
+  denominador de medibles crece y **hay que recontar**; si no, §8.b queda como está. **Hoy no se
+  sabe cuál de las dos.**
+- **Nada nuevo sobre la 129741.** No se re-midió.

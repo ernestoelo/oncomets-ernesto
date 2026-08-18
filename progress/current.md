@@ -3546,3 +3546,56 @@ Sobrevive el nulo por traslación (p 0,012 y 0,0008); **Tumor no lo sobrevive** 
 Los dos brazos **clasifican mal la lámina** y aun así ordenan las mitosis en el percentil 93-95.
 
 **Commits**: `17168d1`, `f9d065b`, `71990a2` en `main`.
+
+## 17-ago-2026 (noche, 5ª sesión) — se explicó la mitad no medible, y quedó un probe a medio correr
+
+Sesión corta. El pendiente que §8.d dejaba abierto («el 50 % no medible no está explicado») se
+atacó con dos piezas: **una cerró, la otra quedó corriendo**.
+
+### 1. El fallo NO son los parámetros, y eso cierra una decisión pendiente
+
+`scripts/diagnostico_no_medibles.py` recupera el detalle **por ventana** que el CSV agregado había
+perdido y separa dos modos opuestos: **ambiguo** (hay pico pero hay varios ⇒ lo arreglarían los
+parámetros) y **sin señal** (no hay pico ⇒ no lo arreglan). El estadístico ya estaba en cada JSON:
+`sd_sobre_fondo`, independiente del NCC absoluto.
+
+**De 388 ventanas que no localizan, 381 (98 %) no tienen pico** y solo 7 son ambiguas. **Las 54
+láminas no medibles caen las 54 en modo sin señal**, sin correlación con densidad de tejido ni con
+el número de ventanas.
+
+⇒ **Relajar `--min-tejido` o `--margen-a` no las recupera.** La decisión que §7.a y los dos
+handoffs anteriores arrastraban como pendiente («¿re-corremos las rechazadas con parámetros
+relajados?») **queda contestada que no, por evidencia**.
+
+### 2. Queda una causa de MÉTODO nuestro, y el probe se cortó antes de poder leerlo
+
+`_buscar_local` (`auditar_regiones_escaneo.py:462`) busca **solo traslación**; la rotación entra
+recién en la etapa B. Dos regiones giradas entre sí dan mapa plano aunque las células sean las
+mismas: sería limitación nuestra, no un hecho del tejido.
+
+`scripts/probe_rotacion_etapaA.py` barre θ dentro de la etapa A sobre 16 láminas en 3 grupos
+(A = no medible con silueta ≥0.95, B = no medible con silueta <0.95, **C = control positivo**),
+con pre-registro escrito antes de correr.
+
+**Al cierre iba por 3 de 16, todas del grupo A y ninguna del C.** Las dos leídas recuperan casi
+todas sus ventanas al barrer θ y **duplican** el NCC (128696: 0.25 → 1.00, θ\* +7.0° con sd 0.9;
+135924: 0.12 → 0.88, θ\* −10.5° con sd **3.7**).
+
+**La señal es fuerte y aun así no se lee**, por dos razones que están en su propio pre-registro:
+**sin el grupo C el probe no está validado**, y un θ disperso entre ventanas (la 135924) cuenta
+como **ruido**, no como rotación. **Si la rotación resulta ser la causa, el «33 de 54 medibles»
+de §8.b hay que recontarlo.** Detalle en `regiones_escaneo/resultados.md` §9.
+
+### Gotcha operativo de esta sesión
+
+**El probe de la sesión anterior seguía vivo al retomar** ([[proceso-viejo-vivo-tras-interrumpir]])
+y el `grep` de preflight no lo cubría (buscaba `barrido_registro|auditar_regiones`, no
+`probe_rotacion`). Se relanzó uno nuevo y hubo **dos procesos escribiendo el mismo JSON** durante
+~6 s. Se mató el nuevo, que no había alcanzado a escribir; el viejo siguió sano. **Lección: el
+preflight tiene que grepear por el directorio del repo, no por nombres de script sueltos.**
+
+### Lo que NO se hizo
+
+- **La fase 2 no se relanzó desde esta sesión**: el job **5008** ya estaba encolado al entrar.
+- **El probe no terminó**: 3 de 16, sin control positivo. Sigue corriendo desatado.
+- **No se re-midió la 129741** ni se tocó el conteo de §8.b.
