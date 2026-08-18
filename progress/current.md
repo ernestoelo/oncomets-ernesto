@@ -3505,3 +3505,44 @@ Entregables: `scripts/techo_atencion_topk.py`, `sprints/B8_sprint8/hovernext_129
   y desatado (`ppid = 1`). Tasa de rechazo hasta acá **21 %**, más benigna de lo que se temía.
 - **`barrido_138/` sigue sin commitear**, a propósito, por lo mismo del handoff anterior.
 - No se re-midió el veredicto de la 129741 ni se tocaron los parámetros del test de registro.
+
+## 17-ago-2026 (noche, 4ª sesión) — se cosecharon los dos procesos: uno falló rápido, el otro cerró
+
+**Estado de entrada**: el 4998 llevaba 41 min en `PD (Priority)` y el barrido de registro iba por
+la lámina 14 de 129. Los dos se resolvieron durante la sesión.
+
+**1. El 4998 corrió, y falló en 29 s por plomería.** Arrancó a las 18:00 (o sea la cola se destrabó
+sola, sin que hiciera falta el pedido de coordinación) y murió con
+`NotImplementedError: Only *.svs, *.tif, *.czi, and *.mrxs files supported`. HoVer-NeXt valida la
+**extensión del nombre** (`data_utils.py:234-242`) antes de abrir nada, y todo lo que viene después
+pasa por OpenSlide, que detecta el formato **leyendo el archivo**. El gate es cosmético para un
+`.bif`, que es TIFF por dentro.
+
+- **Fix sin tocar el repo de referencia**: symlink `.tif` en `clam_testing2/wsi_shim/`. Verificado
+  que OpenSlide sigue eligiendo el driver `ventana` con dims, mpp, niveles y `associated` idénticos:
+  **no** cae a `generic-tiff`, que era el modo de falla que perdería el mpp.
+- **El preflight ahora chequea la extensión** (probado en las dos direcciones). Queda como
+  **workaround M** de `CLAUDE.md`.
+- **La fase 2 está lista para relanzarse**, pero **no se lanzó**: el handoff manda parar antes de
+  cualquier `sbatch` nuevo, y además `5000` (gvenegas) está `PD (Resources)`.
+- Dato del plan, ya registrado: la lámina **no expone `thumbnail`** ⇒ no se filtra fondo y se tesela
+  el lienzo entero. Decenas de minutos, no los ~2 min del paper.
+
+**2. El barrido terminó**: 198 min, **108 con JSON, 19 rechazadas, 0 fallos** (rechazo final 15 %,
+no el 35 % que se veía a media corrida). Agregado con `scripts/cosechar_barrido_registro.py`.
+
+- **La mitad no es interpretable**: en **54 de 108** la etapa A no localiza (pico no único). Esas
+  **no son «seriadas», son no medibles**.
+- Entre las 54 medibles: **33 perfil de re-escaneo** (razón señal/control 5,20, escala 0,9996,
+  residuo rígido 62 µm), 20 ambiguo, **1 seriada**, y el 1 aguanta los tres cortes de sensibilidad.
+- **Se corrigen dos lecturas**: la **120063 no es evidencia de seriadas** (falla la puerta con 1 de
+  8 ventanas), y la **129741 sí es representativa** entre las medibles (percentil 91 / 89 / 57).
+- Denominador honesto: **33 de 54 medibles**, nunca de 490.
+
+**3. Fase 1 paso 6 cerrada** (estaba marcada opcional): AUC de ranking del par CLAM/Mammoth del
+fold 4, `scripts/auc_atencion_fold4.py`. Mitosis **0,876 (CLAM) y 0,918 (Mammoth)**, con el 0,890 de
+Sebastián entre los dos y llegando desde **otra tarea**, lo que lo corrobora de forma independiente.
+Sobrevive el nulo por traslación (p 0,012 y 0,0008); **Tumor no lo sobrevive** pese a su AUC alto.
+Los dos brazos **clasifican mal la lámina** y aun así ordenan las mitosis en el percentil 93-95.
+
+**Commits**: `17168d1`, `f9d065b`, `71990a2` en `main`.

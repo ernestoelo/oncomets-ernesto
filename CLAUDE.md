@@ -307,6 +307,28 @@ aplicar el fix correspondiente sin investigar de nuevo.
   otro separador (`+`) y traducirlo dentro del `.slurm` (`VAR=${VAR//+/,}`), que
   además es idempotente para el caso de un solo valor.
 
+### M. Una herramienta ajena puede rechazar el `.bif` por EXTENSIÓN
+
+- **Síntoma**: un job que esperó horas en cola arranca y muere en segundos con
+  `NotImplementedError: Only *.svs, *.tif, *.czi, and *.mrxs files supported`
+  (HoVer-NeXt, `src/data_utils.py:241`). El preflight había dado OK.
+- **Causa**: la herramienta valida la **extensión del nombre** contra una whitelist,
+  y recién después abre la lámina con OpenSlide, que **detecta el formato leyendo el
+  archivo**. El `.bif` Ventana es TIFF por dentro, así que el gate es cosmético.
+  Que OpenSlide abra la lámina **no alcanza**: hay una segunda puerta, y corre primero.
+- **Fix**: symlink con la extensión aceptada, **bajo containment**, sin tocar el repo
+  ajeno (que es REFERENCE ONLY):
+  ```bash
+  ln -sfn /media/.../wsi/<id>/<id>.bif /media/.../clam_testing2/wsi_shim/<id>.tif
+  ```
+  **Verificar que no degrade**, que es el riesgo real: OpenSlide tiene que seguir
+  eligiendo el driver `ventana` con el mismo `mpp` y las mismas dims. Si cae a
+  `generic-tiff` se pierde la magnificación y todo lo aguas abajo queda mal.
+- **Regla que se desprende**: un preflight que valida «lo abre mi stack» no cubre «lo
+  acepta la herramienta que voy a correr». Chequear la puerta **de la herramienta**.
+  Ya está en `scripts/preflight_hovernext.py`. Memoria
+  [[hovernext-bif-extension-whitelist]].
+
 ### Reglas de commit y push para Claude Code
 
 - **Commits locales**: SÍ — granulares, mensajes conventional commits.
