@@ -3890,3 +3890,54 @@ es la que carga el hallazgo. Se pintan de la más grande a la más chica.
 - **El re-barrido sigue corriendo** (80 ok / 19 stop / 31 pendientes a las 19:15, ETA ~21:00) y
   **§8.b sigue sin recontar**.
 - Cero GPU, cero `sbatch`, cero cambios a los dos scripts que el driver relee.
+
+---
+
+## 18-ago-2026 (10ª sesión) — sesión de PLAN: el guion de las doce, especificado y sin escribir
+
+Sesión **en modo plan, sin ejecutar nada del deck**. Ernesto pidió explícitamente que el plan lo
+levante una **sesión limpia**, porque el paso que abre necesita el presupuesto de lecturas de
+imagen entero ([[image-api-qa-limit]]). El plan quedó en
+`~/.claude/plans/handoffs-handoff-b8-20260818-1920-md-hazy-dijkstra.md`.
+
+### Las dos decisiones que tomó Ernesto sobre el plan
+
+- **QA visual: medir primero, mirar después.** Rasterizar con `FONTCONFIG_FILE` puesto, correr la
+  medición de tinta por renglón sobre las ocho láminas tocadas **sin gastar lecturas de imagen**,
+  y recién entonces mirarlas. El rasterizado, que él había rechazado en la sesión anterior, queda
+  autorizado en ese orden.
+- **La portada NO se toca.** La regla «ni una nota del bloque del 6-ago» queda entera; la costura
+  la resuelve **la nota de la lámina 15**, que hace el pivote.
+
+### Dos precisiones de contenido que salieron al leer las fuentes
+
+Las dos son de la lámina 22, que es nueva y por lo tanto se puede tocar:
+
+1. **`0,872` y `0,914` no son AUC, son el percentil medio de atención.** Lo dice explícito
+   `hovernext_129741/auc_ranking_fold4.md:88` («no es el AUC, aunque los valores queden cerca»);
+   los AUC de mitosis de ese par son **0,876** y **0,918**. La lámina proyecta los dos números
+   **sin nombrarlos**, al lado de una sección que habla de ranking de atención: se les agrega
+   «percentil medio», y el guion no los llama AUC.
+2. **«los cuatro juegos de pesos» es correcto pero se lee raro.** En disco hay
+   `lizard_convnextv2_tiny` más `pannuke_convnextv2_tiny_{1,2,3}`: **un modelo con clase de
+   mitosis y tres del otro, que se promedian**. El guion lo dice así.
+
+### La fila de la GPU rotó entera desde el snapshot del 17-ago
+
+Verificado a las 19:44 y anotado como ADDENDUM en `hovernext_129741/coordinacion_gpu.md`. Importa
+porque la lámina 24 pide una coordinación concreta y **los destinatarios cambiaron**: el servidor
+de inferencia declarado a 365 días ya no tiene la GPU, la tiene ahora un entrenamiento con
+**tope declarado**, y aparecieron **tres trabajos más pidiendo GPU desde la cuenta compartida**
+que no son nuestros. Nuestro 5008 sigue `PD (Priority)` y **no va a correr antes de la reunión**.
+
+### Lo que NO se hizo
+
+- **El guion de las doce láminas nuevas: sigue en cero.** Es el pendiente grande y está
+  especificado lámina por lámina en el plan.
+- **Las ocho láminas tocadas, sin rasterizar y sin mirar.**
+- **La copia sin notas**, sin regenerar.
+- **El re-barrido sigue corriendo** (86 ok / 18 stop / 26 pendientes a las 19:31, ETA ~20:55) y
+  **§8.b sigue sin recontar**. Queda abierta la decisión de si se actualizan las láminas 19, 21 y
+  26 en caso de que el recuento cierre antes de la reunión.
+- Cero GPU, cero `sbatch`, cero cambios a los dos scripts que el driver relee, cero ediciones al
+  generador del deck.
