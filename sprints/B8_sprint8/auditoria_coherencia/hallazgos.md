@@ -2124,3 +2124,108 @@ cualquier valor con comas**, no solo a este.
 - **El barrido sin terminar** y la decisión sobre los parámetros del test de registro.
 - Los pendientes de sprint de siempre, sin tocar: réplica del 4589 con semillas nuevas, las 18
   láminas, el sign-off del patólogo, `@grilling` sin estrenar.
+
+---
+
+# Vigésima segunda pasada — el instrumento que destruye su propia referencia (18-ago-2026)
+
+Pasada de cierre de la 7ª sesión del B8. La sesión no produjo resultados (el re-barrido con
+rotación seguía corriendo, ~6 % al cerrar): produjo **el instrumento del recuento de §8.b**, y
+ejercitarlo sobre el parcial destapó tres cosas que no estaban en ningún frente.
+
+| id | hallazgo | tipo | severidad | acción |
+|---|---|---|---|---|
+| **V1** | El cosechador escribía a un nombre FIJO y pisaba la verdad de campo del barrido anterior | error de diseño | **alta** | fix en código + memoria nueva |
+| **V2** | `control_medio ≤ 0` manda la razón señal/control a 1e8 y falsearía el perfil | gotcha nuevo | **alta** | guard en el script + memoria nueva |
+| **V3** | El criterio de «seriadas» puede ser **fabricado** por una etapa B que no da abasto | patrón nuevo | **alta** | patrón P4 en `CLAUDE.md` + memoria |
+| **V4** | «19 rechazadas» es incorrecto en 2 frentes; son **21**, cobertura 129 | error | media | corregido en los 3 lugares |
+| **V5** | La memoria y su línea de índice citan §8 sin la marca de PROVISIONAL | stale | media | ADDENDUM 4ª parte + índice |
+
+## V1 — un agregador que escribe a un nombre fijo destruye su propia referencia
+
+`scripts/cosechar_barrido_registro.py` tomaba el directorio de entrada por argumento pero escribía
+**siempre** en `D.parent / "barrido_resumen.csv"`. Como los dos barridos son hermanos dentro de
+`regiones_escaneo/`, cosechar `barrido_rot/` habría sobrescrito el resumen de `barrido_138/`, que
+es **la verdad de campo de §8 y la referencia de la comparación pareada**.
+
+El handoff ya lo había marcado como riesgo («verificar antes de correrlo, NO sobrescribir»), es
+decir estaba delegado en que el operador se acordara. **No alcanzó: en la prueba de esta sesión lo
+sobrescribí igual**, pasándole a mano la ruta que estaba tratando de proteger. Se restauró desde
+git (`git checkout --`) y se verificó idéntico contra una copia de regresión, sin pérdida.
+
+**Canónico**: el destino se deriva del nombre del directorio (`barrido_resumen_<dir>.csv`) y
+`barrido_resumen.csv` está protegido **incluso contra un destino explícito** (`--force` para
+pisarlo). Regresión verificada: sobre `barrido_138` reproduce el CSV congelado celda a celda.
+→ memoria nueva `agregador-nombre-fijo-pisa-referencia`.
+
+## V2 — un control negativo manda la razón a 1e8 y falsea el perfil
+
+`razon_senal_control = ncc_medio / max(control_medio, 1e-9)`. Con `control_medio` **negativo** el
+`max` clava el denominador en `1e-9` y la razón se va a **1e8**.
+
+- En `barrido_138` le pasa a **1 de 108** (`130981-2`, control −0,0297, razón 1,8e8).
+- **Hoy es inocuo** y por eso ningún número de §8 cambia: no pasa la puerta del eje 1, así que
+  nunca entró al reparto, y §8.b reporta medianas, robustas a un outlier.
+- **La trampa es prospectiva**: si la rotación recupera una lámina así, su razón supera *cualquier*
+  corte y el clasificador la manda a «perfil de re-escaneo» por el **signo del denominador**. El
+  parcial del re-barrido ya trae otra en esa condición (`120361`, control −0,0227).
+
+**Canónico**: `resultados.md` §11.a + guard en `comparar_barridos_rotacion.py` (las lista aparte,
+las excluye de los estadísticos de razón, avisa si alguna pasa la puerta).
+→ memoria nueva `razon-denominador-degenerado`.
+
+## V3 — un criterio residual puede fabricar su propia categoría
+
+«Perfil de secciones seriadas» se define por `razón < 2,0` **y** ajuste no rígido
+(`|escala − 1| > 0,02`). Las láminas que la rotación recupera son, por construcción, **las que más
+girada tienen la segunda región** (§10.b: |θ*| mediano 7,8°), y **la etapa B barre solo ±8° y no
+busca escala**. Una lámina cuya etapa A recién ahora localiza pero cuya etapa B no puede ajustar el
+residuo tendrá **las dos** propiedades a la vez ⇒ cae en «seriadas» **por incapacidad del
+instrumento, no por hallazgo**.
+
+No es conjetura sobre los datos: es lectura del criterio. Las dos condiciones que definen la
+categoría son exactamente las dos que produce el instrumento cuando no da abasto. El único caso
+disponible la ilustra (la 128696 cruza la puerta y aterriza en «seriadas» con escala 1,0492 y razón
+1,77) pero **es n=1 y no se lee como evidencia**; el mecanismo se sostiene solo.
+
+Es hermano de P2 (un top-k se dimensiona por percentil, no por AUC) y P3 (el control positivo
+calibra el criterio): los tres son formas de que **el instrumento se cuele en la conclusión**.
+**Canónico**: patrón **P4** en `CLAUDE.md` + `resultados.md` §11.b.
+→ memoria nueva `categoria-residual-fabricada-por-el-instrumento`.
+
+## V4 — «19 rechazadas» era el contador del driver, no el disco
+
+`resultados.md` §8 y `progress/current.md:3531` declaraban **19** láminas rechazadas. En disco hay
+**21** `.stop`, todas del 17-ago entre 16:48 y 19:55. El 19 sale del contador del driver, que cerró
+en «108 ok / 19 stop / 0 fallo / **2 pendientes**»: las 2 láminas restantes ya tenían `.stop` de una
+corrida previa, el driver las contó como `saltadas: 3` y por eso nunca incrementaron el contador.
+
+**Ninguna quedó sin correr**: 108 + 21 = **129**, exactamente la lista del driver. **Las 108
+medidas y todo lo que cuelga de ellas no se mueven**; cambia el denominador de cobertura, la tasa
+de rechazo (15 % → **16 %**) y el «2 pendientes», que no eran pendientes.
+
+Corregido en `resultados.md` §8 (con nota fechada), `progress/current.md` y la memoria.
+
+## V5 — la memoria citaba §8 sin la marca de provisional en su cabecera
+
+El ADDENDUM 3ª parte de `regiones-escaneo-bif-cohorte-privada` **sí** dice que el 33/54 quedó
+provisional, pero el ADDENDUM 2ª parte (más arriba, el que un lector encuentra primero) lo presenta
+como veredicto, y la **línea del índice** en `MEMORY.md` lo repetía sin salvedad. Con la reunión de
+mañana esto es material: es la cifra que se citaría de memoria.
+
+Fix aditivo: ADDENDUM 4ª parte con el estado real + línea de índice actualizada. **No se reescribe**
+ningún ADDENDUM anterior (integridad de pre-registración).
+
+## Verificado sin cambios
+
+- `CLAUDE.md` workarounds A-M: ninguno contradicho por esta sesión.
+- Patrones P1-P3: vigentes; P4 se agrega, no los toca.
+- Agentes (`trainer`, `reviewer`) y skills: sin contacto con lo de esta sesión.
+- El resto de `resultados.md` (§1-§10): sin cambios salvo la nota de §8.
+
+## Lo que queda abierto y va al handoff
+
+- **El recuento de §8.b sin rehacer**: el re-barrido termina ~21:45 del 18-ago.
+- **Si la etapa B es el próximo cuello** (V3): se contesta al cosechar, no antes.
+- **El veredicto de la 129741** sigue abierto; la lámina está en el barrido en curso.
+- **HoVer-NeXt sin un solo número**: el 5008 sigue `PD` detrás de un `UNLIMITED`.

@@ -3528,7 +3528,7 @@ pasa por OpenSlide, que detecta el formato **leyendo el archivo**. El gate es co
 - Dato del plan, ya registrado: la lámina **no expone `thumbnail`** ⇒ no se filtra fondo y se tesela
   el lienzo entero. Decenas de minutos, no los ~2 min del paper.
 
-**2. El barrido terminó**: 198 min, **108 con JSON, 19 rechazadas, 0 fallos** (rechazo final 15 %,
+**2. El barrido terminó**: 198 min, **108 con JSON, 21 rechazadas, 0 fallos** (rechazo final 16 %,
 no el 35 % que se veía a media corrida). Agregado con `scripts/cosechar_barrido_registro.py`.
 
 - **La mitad no es interpretable**: en **54 de 108** la etapa A no localiza (pico no único). Esas

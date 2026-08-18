@@ -689,6 +689,36 @@ reparto secundario es estable en todo el rango donde el control pasa entero. Det
 escribe en el pre-registro, antes, no después. El mismo probe lo llevaba escrito y por eso la
 sesión que lo vio a medio correr no lo leyó.
 
+### P4. Una categoría residual puede ser FABRICADA por el instrumento que la mide
+
+**Cuándo aplica**: cualquier clasificación con una categoría definida por la **conjunción de dos
+fallos** («señal débil **y** ajuste malo», «no converge **y** no separa»), especialmente si es la
+categoría que representa el hallazgo interesante.
+
+**Regla operativa**: antes de contar esa categoría, preguntarse **si el propio instrumento produce
+las dos condiciones a la vez cuando no da abasto**. Si la respuesta es sí, la categoría no se puede
+leer sobre las unidades donde el instrumento está al límite: hay que **separarlas** y reportar el
+reparto de ese subgrupo **contra** el de las unidades donde el instrumento sí trabaja cómodo, más la
+descomposición de **cuál** de los dos criterios falló en cada caso.
+
+**Por qué**: una categoría residual (el `else` de la cascada, o la definida por dos negaciones) hereda
+todo lo que el instrumento no supo medir. Cuando además se amplía la población medida — se arregla
+una etapa previa y entran unidades **más difíciles por construcción** — esa categoría crece **sin que
+haya pasado nada en los datos**. El aumento se lee como hallazgo y es un artefacto.
+
+**Caso de referencia** (18-ago-2026, re-barrido de regiones de escaneo): «perfil de secciones
+seriadas» se define por `razón < 2,0` **y** ajuste no rígido. Las láminas que la rotación recupera
+son por construcción **las más giradas** (|θ*| mediano 7,8°) y la etapa B **barre solo ±8° y no busca
+escala** ⇒ tendrán las dos propiedades a la vez y caerán en «seriadas» por incapacidad del
+instrumento. **Es lectura del criterio, no conjetura sobre los datos**: las dos condiciones que
+definen la categoría son las dos que produce una etapa B que no da abasto. Detalle:
+`sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/resultados.md` §11.b +
+[[categoria-residual-fabricada-por-el-instrumento]].
+
+**Corolario que emparenta P2, P3 y P4**: los tres son formas de que **el instrumento se cuele en la
+conclusión** — el umbral en P2, el corte en P3, la categoría en P4. Frente a un resultado que
+sorprende, el primer sospechoso es la herramienta, no el mundo.
+
 ## Reglas operativas no negociables
 
 1. **NO `sbatch` / `srun` / GPU** en sesiones de recon o exploración. Cero
