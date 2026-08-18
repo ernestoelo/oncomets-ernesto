@@ -726,6 +726,31 @@ sostiene entera: **no hay señal que encontrar**.
 ángulo que sube el pico puede subir también el segundo, así que el margen baja. Ninguna del
 control cruza hacia abajo.
 
+### 10.b.bis Sensibilidad del corte de θ, que §9.d pidió y acá se cumple
+
+§9.d advirtió que cualquier corte concreto de «θ consistente» es **posterior a ver los datos** y
+exigió acompañarlo con su sensibilidad. (También registraba que el cosechador usaba `sd ≤ 4°`
+sobre **todas** las ventanas; eso cambió: ahora se mide solo sobre las que localizan y el corte se
+calibra contra el control, por el motivo de §10.a.)
+
+| corte de sd | «recuperada por rotación» | «recuperada, θ no consistente» | control que pasa |
+|---:|---:|---:|---:|
+| ≤ 1.0° | 1 | 5 | 2/4 |
+| ≤ 1.5° | 1 | 5 | 3/4 |
+| **≤ 2.2° (calibrado)** | **3** | **3** | **4/4** |
+| ≤ 3.0° | 3 | 3 | 4/4 |
+| ≤ 4.0° | 3 | 3 | 4/4 |
+| ≤ 6.0° | 4 | 2 | 4/4 |
+
+Dos cosas que el barrido del corte deja claras:
+
+1. **El «6 de 12» no depende del corte.** Cruzar el umbral de medibilidad es una cuestión de
+   `frac_localiza`, no de θ; el corte solo reparte esas 6 en dos categorías. El resultado
+   principal es insensible.
+2. **El reparto 3/3 es estable en todo el rango donde el control pasa entero** (2.2° a 4.0°), y
+   los datos tienen un **hueco natural** ahí: las sd de las 6 que cruzan son 0.87, 1.60, 2.05 —
+   luego un salto de 2.5× — 5.03, 9.12, 11.46. El corte no cae en el filo de nada.
+
 ### 10.c Consecuencia: el «33 de 54 medibles» de §8.b queda PROVISIONAL
 
 Esto es lo que el pre-registro anticipó como «trabajo, no un ajuste de redacción».
