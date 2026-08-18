@@ -36,7 +36,18 @@ PY=$ENVP/bin/python
 # workaround B). Verificado 17-ago: sin esto, `import openslide` tira
 # OSError: libopenslide.so.0: cannot open shared object file.
 export LD_LIBRARY_PATH=$ENVP/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
-WSI=/media/administrador/Storage1/sdonoso/wsi/129741/129741.bif
+# HoVer-NeXt rechaza el .bif por EXTENSION: data_utils.py:234-242 tiene una whitelist
+# (.svs/.tif/.czi/.mrxs) y todo lo que viene despues pasa por openslide.open_slide, que
+# detecta el formato LEYENDO el archivo, no por el nombre. El job 4998 murio en 29 s por
+# esto (NotImplementedError). Fix sin tocar el repo de referencia (es REFERENCE ONLY):
+# un symlink con nombre .tif bajo containment. Verificado 17-ago: openslide elige igual
+# el driver `ventana`, con dims 39669x80640, mpp 0.465, 10 niveles y associated=['macro']
+# identicos, o sea NO cae a generic-tiff (que es el modo de falla que perderia el mpp).
+WSI_REAL=/media/administrador/Storage1/sdonoso/wsi/129741/129741.bif
+SHIM=/media/administrador/Storage1/sdonoso/clam_testing2/wsi_shim
+mkdir -p "$SHIM"
+ln -sfn "$WSI_REAL" "$SHIM/129741.tif"
+WSI="$SHIM/129741.tif"
 
 CP=${CP:-lizard_convnextv2_tiny}
 # `--export` de SLURM parte por comas, asi que un CP multi-checkpoint llega partido en

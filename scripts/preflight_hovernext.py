@@ -43,10 +43,19 @@ def main():
     print("PREFLIGHT HoVer-NeXt")
     print("=" * 70)
 
-    # --- 1. la lamina existe y openslide la abre ---
+    # --- 1. la lamina existe, TIENE UNA EXTENSION QUE HoVer-NeXt ACEPTA, y openslide la abre ---
     if not os.path.exists(a.input):
         fallos.append(f"la WSI no existe: {a.input}")
     else:
+        # data_utils.py:234-242 es una whitelist de extension, y es lo PRIMERO que corre
+        # en WholeSlideDataset. El job 4998 la choco a los 29 s con un .bif. Que openslide
+        # abra la lamina NO alcanza: hay que pasar tambien esta puerta.
+        ext = os.path.splitext(a.input)[1].lower()
+        aceptadas = (".svs", ".tif", ".czi", ".mrxs")
+        chk(ext in aceptadas,
+            f"HoVer-NeXt rechaza la extension '{ext}' (data_utils.py:234-242, acepta "
+            f"{', '.join(aceptadas)}). Usar el symlink .tif del shim; openslide detecta "
+            f"el formato leyendo el archivo, no por el nombre.")
         try:
             import openslide
             sl = openslide.OpenSlide(a.input)
