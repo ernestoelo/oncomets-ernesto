@@ -1,0 +1,17 @@
+slide_id,n_ventanas,frac_localiza_theta0,frac_localiza_rot,ncc_medio_theta0,ncc_medio_rot,theta_best_mediano,theta_best_sd,frac_theta_en_borde,grupo,seg,sd_theta_loc,veredicto
+128696,4,0.25,1.0,0.1296,0.2745,7.0,0.87,0.0,A,78.7,0.87,recuperada por rotación
+135924,8,0.125,0.875,0.156,0.2776,-10.5,3.74,0.125,A,153.6,2.05,recuperada por rotación
+130981-2,4,0.0,0.25,0.1504,0.1839,1.0,12.82,0.25,A,75.8,,no recuperada
+145819,6,0.333,0.833,0.1969,0.3248,8.5,1.46,0.0,A,115.3,1.6,recuperada por rotación
+160814,6,0.167,0.167,0.1674,0.2123,2.5,13.45,0.333,A,113.0,,no recuperada
+B25-158771,8,0.125,0.5,0.1553,0.1994,9.0,12.25,0.25,A,150.7,11.46,"recuperada, θ no consistente"
+B25-159565,8,0.0,0.25,0.1172,0.151,-16.5,16.71,0.5,A,153.4,11.5,no recuperada
+145917,7,0.0,0.0,0.1296,0.187,-6.0,15.67,0.571,A,134.0,,indeterminada (θ clavado)
+142430,8,0.375,0.125,0.3176,0.4809,-1.5,8.25,0.0,B,153.5,,no recuperada
+152303,8,0.25,0.5,0.1674,0.2806,-4.5,11.18,0.0,B,150.8,9.12,"recuperada, θ no consistente"
+B25-150012,8,0.375,0.875,0.3479,0.4502,-6.0,5.45,0.0,B,154.3,5.03,"recuperada, θ no consistente"
+149618-2,7,0.143,0.286,0.1572,0.2005,-2.0,16.15,0.429,B,135.0,15.5,no recuperada
+148781,6,1.0,1.0,0.3964,0.5897,4.0,0.47,0.0,C,116.2,0.47,recuperada por rotación
+B25-151026,7,0.857,0.857,0.2537,0.4169,-3.0,7.57,0.0,C,135.4,2.19,recuperada por rotación
+B25-150006,8,0.625,0.75,0.3238,0.3648,-3.5,5.9,0.125,C,154.0,1.11,recuperada por rotación
+136248,7,0.571,0.714,0.134,0.2276,4.0,6.68,0.0,C,134.5,0.75,recuperada por rotación

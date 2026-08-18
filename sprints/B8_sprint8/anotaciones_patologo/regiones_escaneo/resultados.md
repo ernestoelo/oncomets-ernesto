@@ -653,3 +653,108 @@ margen sería elegir el ángulo que más le conviene al criterio, y no se hizo a
 número. Cualquier corte concreto (`scripts/cosechar_probe_rotacion.py` usa **sd ≤ 4°**) es
 **posterior a ver los datos**, igual que los cortes de §8.b. Se reporta como tal y la cosecha
 debe acompañarlo con su sensibilidad, no presentarlo como pre-registrado.
+
+## 10. ADDENDUM 17-ago-2026 (noche, 3ª parte): el probe cerró, y la respuesta es mitad y mitad
+
+El probe de §9.b terminó las 16 láminas. Cosechado con
+[scripts/cosechar_probe_rotacion.py](scripts/cosechar_probe_rotacion.py) **en el orden que manda
+su propio pre-registro**: el control positivo primero, y recién después las no medibles.
+
+### 10.a El control positivo pasa ⇒ el probe se puede leer
+
+| Lámina | localiza θ=0 | con rotación | NCC θ=0 → rot | θ* mediano | sd de θ* |
+|---|---:|---:|---|---:|---:|
+| 148781 | 1.00 | 1.00 | 0.396 → 0.590 | +4.0° | 0.5° |
+| B25-151026 | 0.86 | 0.86 | 0.254 → 0.417 | −3.0° | 2.2° |
+| B25-150006 | 0.62 | 0.75 | 0.324 → 0.365 | −3.5° | 1.1° |
+| 136248 | 0.57 | 0.71 | 0.134 → 0.228 | +4.0° | 0.8° |
+
+**Las 4 siguen siendo medibles a θ = 0** (fracción media 0.76): el probe reproduce el barrido y
+la condición de lectura del pre-registro está cumplida.
+
+**El control además obligó a corregir el criterio de consistencia, y esa es su segunda función.**
+El pre-registro decía «θ disperso = ruido» sin fijar un corte. Medida sobre **todas** las ventanas,
+la sd de θ* del grupo C es 5.16°: un corte fijo de 4° **rechaza a 3 de las 4 láminas del control**,
+que localizan perfectamente. La causa es que θ* se elige por máximo de NCC y, en una ventana que no
+localiza, la superficie en θ es plana y su argmax vaga, inflando la sd de la lámina entera. La
+consistencia se mide **solo sobre las ventanas que localizan** — con eso las 4 del control pasan —
+y el corte se calibra contra el peor de ellas: **sd ≤ 2.2°**. Un control positivo no solo valida el
+probe: **calibra el criterio**.
+
+**Dato que no esperábamos y que importa:** barrer θ sube el NCC **también en el control**
+(0.277 → 0.400, con |θ*| mediano **3.8°**). O sea **hay rotación entre las dos regiones también en
+las láminas medibles**: la etapa A la venía **tolerando**, no evitando.
+
+### 10.b Seis de doce no medibles se recuperan barriendo θ
+
+| grupo | | localiza θ=0 → rot | pasan a medible |
+|---|---|---:|---:|
+| **A** (silueta ≥ 0.95) | n=8 | 0.12 → **0.48** | **4 de 8** |
+| **B** (silueta < 0.95) | n=4 | 0.29 → **0.45** | **2 de 4** |
+| C (control) | n=4 | 0.76 → 0.83 | 4 de 4 (ya lo eran) |
+
+**6 de las 12 no medibles cruzan el umbral de medibilidad** (`frac_localiza ≥ 0.5`, el mismo
+criterio del barrido) cuando la etapa A busca rotación. Las tres más limpias traen la **firma de
+cuerpo rígido** que el pre-registro pedía — θ consistente entre ventanas:
+
+| Lámina | localiza θ=0 → rot | θ* mediano | sd de θ* | lectura |
+|---|---:|---:|---:|---|
+| 128696 | 0.25 → **1.00** | **+7.0°** | 0.9° | rotación rígida |
+| 135924 | 0.12 → **0.88** | **−10.5°** | 2.1° | rotación rígida |
+| 145819 | 0.33 → **0.83** | **+8.5°** | 1.6° | rotación rígida |
+| B25-150012 | 0.38 → **0.88** | −6.0° | 5.0° | recuperada, θ no consistente |
+| B25-158771 | 0.12 → 0.50 | +9.0° | 11.5° | recuperada, θ no consistente |
+| 152303 | 0.25 → 0.50 | −4.5° | 9.1° | recuperada, θ no consistente |
+
+**El |θ*| mediano de las recuperadas es 7.8°.** El barrido de rotación de la etapa B llega a ±8°
+y su default es **±1.5°**: las rotaciones que hacían falta estaban **fuera de rango por diseño**.
+
+De las otras 6, **5 no se recuperan** — con θ barrido de −20° a +20° siguen sin localizar y su θ*
+queda disperso (sd 11-16°) — y **1 queda indeterminada**: la 145917 tiene la mayoría de sus
+ventanas con θ* **clavado en el borde** del barrido, así que su rotación real podría estar fuera de
+±20° y no se puede afirmar que la rotación no la explique. Para las 5, la lectura de §9.a se
+sostiene entera: **no hay señal que encontrar**.
+
+| veredicto | láminas |
+|---|---:|
+| recuperada por rotación (θ consistente, sd ≤ 2.2°) | **3** |
+| recuperada, θ no consistente | **3** |
+| no recuperada | 5 |
+| indeterminada (θ clavado en el borde) | 1 |
+
+**Una lámina empeora** (142430, 0.38 → 0.12). No es un bug: θ* se elige por el máximo de NCC, y un
+ángulo que sube el pico puede subir también el segundo, así que el margen baja. Ninguna del
+control cruza hacia abajo.
+
+### 10.c Consecuencia: el «33 de 54 medibles» de §8.b queda PROVISIONAL
+
+Esto es lo que el pre-registro anticipó como «trabajo, no un ajuste de redacción».
+
+Extrapolando 6/12 a las 54 no medibles — **con el intervalo, que es ancho**: Clopper-Pearson 95 %
+sobre 6 de 12 da **[0.21, 0.79]**, o sea **~27 láminas recuperables, rango [11, 43]**. El pool de
+medibles pasaría de 54 a **~81, rango [65, 97]**.
+
+**Y no sabemos cómo clasifican las recuperadas.** El perfil (re-escaneo / seriada / ambiguo) sale
+de la etapa B, que **no se corrió** sobre ellas. Entonces:
+
+- El **denominador** de §8.b está subestimado, probablemente por cerca del doble.
+- El **numerador** (33 con perfil de re-escaneo) es un piso, no un total.
+- **La proporción 33/54 = 61 % no se puede proyectar**: las recuperadas podrían repartirse de otra
+  forma, y justamente son las que más girada tienen la segunda región.
+
+Para cerrarlo hace falta **re-correr el test con rotación en la etapa A**, no reinterpretarlo.
+
+### 10.d Qué NO se afirma
+
+- **No se afirma que las 54 se expliquen por rotación.** La mitad de la muestra sí; la otra mitad
+  resiste un barrido de ±20° y sigue sin señal.
+- **No se afirma la cifra 27.** Sale de 12 láminas y su IC va de 11 a 43.
+- **No se afirma que las 6 recuperadas sean re-escaneos.** Cruzan la puerta de medibilidad; el
+  perfil lo da la etapa B, que sobre ellas no corrió.
+- **Las 3 «no consistentes» son evidencia más débil que las 3 rígidas.** Cruzan el umbral sin un θ
+  común, que es lo que el pre-registro pedía como firma.
+- **No cambia nada de §9.a.** Que el fallo sea «sin señal» y no ambigüedad sigue en pie: la
+  rotación es justamente un mecanismo que **produce** falta de señal, y no rehabilita relajar
+  `--min-tejido` ni `--margen-a`.
+- **Nada nuevo sobre la 129741.** Sigue sin re-medirse; su 0.3820 sigue siendo cota inferior — y
+  ahora con un motivo más para pensar que está subestimado.

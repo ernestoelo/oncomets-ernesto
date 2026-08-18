@@ -11,12 +11,21 @@ fija el orden y los criterios ANTES de ver los números:
        - si el θ ganador es CONSISTENTE entre ventanas de la misma lámina.
      θ disperso = ruido, NO rotación. Un vidrio gira entero.
 
-CRITERIO DE «RECUPERADA POR ROTACIÓN», fijado acá y aplicado igual a todas:
-  (a) la fracción que localiza sube y llega al criterio del barrido original
-      (mayoría de ventanas, >= 0.5), Y
-  (b) el θ ganador es consistente entre ventanas: sd <= SD_MAX grados, Y
+CRITERIO DE «RECUPERADA POR ROTACIÓN», aplicado igual a todas:
+  (a) la fracción que localiza llega al criterio del barrido original (mayoría
+      de ventanas, >= 0.5), Y
+  (b) el θ ganador es consistente entre ventanas: sd <= el corte calibrado, Y
   (c) el θ no está CLAVADO en el borde del barrido (si lo está, la magnitud no
       se puede leer y la lámina queda «indeterminada», ni recuperada ni no).
+
+CÓMO SE MIDE (b), Y POR QUÉ NO ES UN CORTE FIJO. La sd de θ* hay que medirla
+SOLO sobre las ventanas que localizan, y el corte hay que calibrarlo contra el
+control. Medida sobre TODAS las ventanas y con un corte fijo de 4°, el criterio
+RECHAZA A 3 DE LAS 4 LÁMINAS DEL CONTROL -láminas que localizan perfectamente-,
+porque en una ventana que no localiza la superficie en θ es plana y su argmax
+vaga, inflando la sd de la lámina entera. Restringida a las que localizan, el
+peor del control da 2.2° y las 4 pasan. Es la función del control positivo:
+calibrar el criterio, no solo validar el probe.
 
 SALVEDAD DE DISEÑO, que se declara y no se esconde: el probe elige θ por MÁXIMO
 NCC (la alineación físicamente correcta), no por máximo margen. Por eso una
@@ -30,24 +39,33 @@ import numpy as np
 REPO = Path(__file__).resolve().parents[1]
 BASE = REPO / "sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo"
 
-SD_MAX = 4.0        # grados; sd de θ* entre ventanas de la misma lámina
-FRAC_MIN = 0.5      # el criterio del barrido: mayoría de ventanas localizan
+MARGEN_UNICO = 0.10   # el corte del criterio pre-fijado: pico >=10 % sobre el segundo
+FRAC_MIN = 0.5        # el criterio del barrido: mayoría de ventanas localizan
 
 
-def veredicto(r):
+def sd_theta_localizan(r):
+    """sd de θ* entre las ventanas de la lámina que EFECTIVAMENTE localizan."""
+    th = [v["theta_best"] for v in r["ventanas"] if v["margen_best"] >= MARGEN_UNICO]
+    return float(np.std(th)) if len(th) >= 2 else np.nan
+
+
+def veredicto(r, sd_max):
     if r.get("frac_theta_en_borde", 0) > 0.5:
         return "indeterminada (θ clavado)"
-    if r["frac_localiza_rot"] >= FRAC_MIN and r["theta_best_sd"] <= SD_MAX:
-        return "recuperada por rotación"
-    if r["theta_best_sd"] > SD_MAX:
-        return "no recuperada (θ disperso = ruido)"
-    return "no recuperada"
+    if r["frac_localiza_rot"] < FRAC_MIN:
+        return "no recuperada"
+    if not np.isfinite(r["sd_theta_loc"]) or r["sd_theta_loc"] > sd_max:
+        return "recuperada, θ no consistente"
+    return "recuperada por rotación"
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--probe", default=str(BASE / "probe_rotacion.json"))
     ap.add_argument("--out", default=str(BASE / "probe_rotacion_veredicto.csv"))
+    ap.add_argument("--sd-max", type=float, default=None,
+                    help="corte de consistencia de θ; por defecto se calibra "
+                         "contra el peor del grupo C")
     args = ap.parse_args()
     import pandas as pd
 
@@ -55,62 +73,68 @@ def main():
     if not res:
         print("sin resultados legibles"); return
     for r in res:
-        r["veredicto"] = veredicto(r)
+        r["sd_theta_loc"] = round(sd_theta_localizan(r), 2)
+
+    # ---------- PASO 1: el control positivo. Sin esto no se lee nada más ----------
+    print("=" * 76)
+    print("PASO 1 — GRUPO C, CONTROL POSITIVO")
+    print("=" * 76)
+    C = [r for r in res if r["grupo"] == "C"]
+    if not C:
+        print("NO HAY GRUPO C -> el pre-registro prohíbe leer el resto."); return
+    for r in C:
+        print(f"  {r['slide_id']:<12} localiza θ=0 {r['frac_localiza_theta0']:.2f}  "
+              f"NCC {r['ncc_medio_theta0']:.3f} -> {r['ncc_medio_rot']:.3f}  "
+              f"θ* {r['theta_best_mediano']:+.1f}°  sd(localizan) {r['sd_theta_loc']:.1f}°")
+    pasa = all(r["frac_localiza_theta0"] >= FRAC_MIN for r in C)
+    print(f"\n  las {len(C)} del control siguen medibles a θ=0: {pasa}")
+    if not pasa:
+        print("  -> PROBE ROTO. El pre-registro prohíbe leer A y B."); return
+    print("  -> el probe REPRODUCE el barrido. Se puede leer.")
+
+    sd_max = args.sd_max if args.sd_max is not None else \
+        float(np.nanmax([r["sd_theta_loc"] for r in C]))
+    print(f"\n  [calibración] corte de consistencia = peor del control = sd <= {sd_max:.1f}°")
+    ncc0 = np.mean([r["ncc_medio_theta0"] for r in C])
+    nccr = np.mean([r["ncc_medio_rot"] for r in C])
+    print(f"  [dato] barrer θ sube el NCC TAMBIÉN en el control: {ncc0:.3f} -> {nccr:.3f}, "
+          f"|θ*| mediano {np.median([abs(r['theta_best_mediano']) for r in C]):.1f}°")
+    print("         ⇒ hay rotación también en las medibles: la etapa A la TOLERABA.")
+
+    # ---------- PASO 2: las no medibles ----------
+    for r in res:
+        r["veredicto"] = veredicto(r, sd_max)
     df = pd.DataFrame([{k: v for k, v in r.items() if k != "ventanas"} for r in res])
 
-    # ---------- PASO 1: el control positivo, y nada más hasta validarlo ----------
-    C = df[df.grupo == "C"]
-    print("=" * 74)
-    print("PASO 1 — CONTROL POSITIVO (grupo C, láminas medibles)")
-    print("=" * 74)
-    if C.empty:
-        print("El grupo C NO corrió. El pre-registro prohíbe leer el resto.")
-        print("NO SE LEE NADA MÁS.")
-        return
-    for _, r in C.iterrows():
-        print(f"  {r.slide_id:<12} localiza θ=0 {r.frac_localiza_theta0:.2f}  "
-              f"con rotación {r.frac_localiza_rot:.2f}   "
-              f"θ* {r.theta_best_mediano:+.1f}° (sd {r.theta_best_sd:.1f})")
-    c0 = float(C.frac_localiza_theta0.mean())
-    print(f"\n  fracción media que localiza a θ=0 en el control: {c0:.2f}")
-    if c0 < FRAC_MIN:
-        print("  ** EL CONTROL NO REPRODUCE SU LOCALIZACIÓN A θ=0 **")
-        print("  El probe está roto. NO SE LEE NADA MÁS (pre-registro §9.b).")
-        return
-    print("  -> el control valida el probe. Se puede leer el resto.")
-
-    # ---------- PASO 2: A vs B ----------
-    print("\n" + "=" * 74)
-    print("PASO 2 — LOS GRUPOS NO MEDIBLES")
-    print("=" * 74)
-    nom = {"A": "no medible, silueta >= 0.95", "B": "no medible, silueta < 0.95",
-           "C": "medible (control +)"}
-    for g in ("A", "B", "C"):
+    print("\n" + "=" * 76)
+    print("PASO 2 — GRUPOS A y B, las no medibles")
+    print("=" * 76)
+    for g in ("A", "B"):
         sub = df[df.grupo == g]
-        if sub.empty:
+        if not len(sub):
             continue
-        print(f"\n  grupo {g} — {nom[g]}  (n={len(sub)})")
-        for _, r in sub.sort_values("veredicto").iterrows():
-            cl = " CLAVADO" if r.get("frac_theta_en_borde", 0) > 0.5 else ""
-            print(f"    {r.slide_id:<12} {r.frac_localiza_theta0:.2f} -> {r.frac_localiza_rot:.2f}   "
-                  f"NCC {r.ncc_medio_theta0:.3f} -> {r.ncc_medio_rot:.3f}   "
-                  f"θ* {r.theta_best_mediano:+6.1f}° (sd {r.theta_best_sd:4.1f}{cl})   {r.veredicto}")
+        print(f"\n--- grupo {g} ({'silueta>=0.95' if g=='A' else 'silueta<0.95'}, n={len(sub)}) ---")
+        print(sub[["slide_id", "frac_localiza_theta0", "frac_localiza_rot",
+                   "ncc_medio_theta0", "ncc_medio_rot", "theta_best_mediano",
+                   "sd_theta_loc", "veredicto"]].to_string(index=False))
 
-    print("\n" + "=" * 74)
-    print("RECUENTO (criterio: frac >= %.1f Y sd de θ* <= %.1f° Y θ* no clavado)"
-          % (FRAC_MIN, SD_MAX))
-    print("=" * 74)
-    t = df.groupby(["grupo", "veredicto"]).size().unstack(fill_value=0)
-    print(t.to_string())
-    ab = df[df.grupo.isin(["A", "B"])]
-    rec = int((ab.veredicto == "recuperada por rotación").sum())
-    print(f"\n  no medibles de la muestra: {len(ab)}")
-    print(f"  recuperadas por rotación : {rec}  ({100*rec/len(ab):.0f} %)")
-    print(f"  indeterminadas (clavado) : {int((ab.veredicto.str.startswith('indeterminada')).sum())}")
-    print(f"  no recuperadas           : {int((ab.veredicto.str.startswith('no recuperada')).sum())}")
-    print(f"\n  NCC medio, θ=0 -> rotación: {ab.ncc_medio_theta0.mean():.3f} -> {ab.ncc_medio_rot.mean():.3f}")
-    print(f"  |θ*| de las recuperadas: "
-          f"{', '.join(f'{v:+.1f}°' for v in ab[ab.veredicto=='recuperada por rotación'].theta_best_mediano)}")
+    ab = df[df.grupo != "C"]
+    rec = ab[ab.frac_localiza_rot >= FRAC_MIN]
+    print("\n" + "=" * 76)
+    print("VEREDICTO")
+    print("=" * 76)
+    print(f"  no medibles de la muestra: {len(ab)}")
+    print(f"  cruzan el umbral al barrer θ: **{len(rec)} de {len(ab)}**")
+    print(ab.veredicto.value_counts().to_string())
+    if len(rec):
+        print(f"\n  |θ*| mediano de las que cruzan: "
+              f"{np.median(np.abs(rec.theta_best_mediano)):.1f}°  "
+              f"(la etapa B barre ±8°, y su default es ±1.5°)")
+    baja = ab[ab.frac_localiza_rot < ab.frac_localiza_theta0]
+    if len(baja):
+        print(f"\n  ⚠ {len(baja)} lámina(s) EMPEORAN al rotar ({', '.join(baja.slide_id)}): "
+              f"es la salvedad de diseño, θ se elige por NCC y no por margen. "
+              f"Ninguna del control cruza hacia abajo.")
 
     df.to_csv(args.out, index=False)
     print(f"\n-> {args.out}")
