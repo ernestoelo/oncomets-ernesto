@@ -24,6 +24,19 @@ import numpy as np, pandas as pd
 D = Path(sys.argv[1] if len(sys.argv) > 1 else
          "sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/barrido_138")
 
+# El destino se DERIVA del nombre del directorio de entrada. Antes era siempre
+# `barrido_resumen.csv`, asi que cosechar un barrido nuevo PISABA la verdad de campo del
+# barrido sin rotacion (`barrido_138` -> `barrido_resumen.csv`, citado en resultados.md §8).
+# Ese archivo queda congelado; cada corrida escribe el suyo.
+OUT = Path(sys.argv[2]) if len(sys.argv) > 2 else D.parent / f"barrido_resumen_{D.name}.csv"
+# `barrido_resumen.csv` es la verdad de campo del barrido SIN rotacion (resultados.md §8) y la
+# referencia de la comparacion pareada. Se protege SIEMPRE, tambien contra un destino explicito:
+# pasarlo a mano es justo el error facil de cometer. Para pisarlo hace falta --force.
+if OUT.name == "barrido_resumen.csv" and "--force" not in sys.argv:
+    sys.exit(f"[abort] {OUT} es la verdad de campo congelada del barrido sin rotacion.\n"
+             f"        Destino sugerido: {D.parent / f'barrido_resumen_{D.name}.csv'}\n"
+             f"        Si de verdad queres pisarlo, agrega --force.")
+
 filas = []
 for f in sorted(glob.glob(str(D / "registro_*.json"))):
     d = json.load(open(f))
@@ -64,7 +77,7 @@ df = pd.DataFrame(filas)
 # La puerta del eje 1: la mayoria de las ventanas tiene que haber localizado limpio.
 df["etapaA_ok"] = df.vent_pico_unico >= np.ceil(df.n_ventanas / 2)
 df = df.sort_values(["etapaA_ok", "ncc_medio"], ascending=[False, False])
-df.to_csv(D.parent / "barrido_resumen.csv", index=False)
+df.to_csv(OUT, index=False)
 
 n = len(df); ok = df[df.etapaA_ok]; no = df[~df.etapaA_ok]
 print("=" * 74)
@@ -90,7 +103,7 @@ if len(ok):
     print(ok.head(12)[["slide_id","silueta_ncc","ncc_medio","control_medio",
                        "razon_senal_control","frac_sobre_control","escala","rms_um",
                        "satura_ambos"]].to_string(index=False))
-print(f"\n[out] {D.parent / 'barrido_resumen.csv'}")
+print(f"\n[out] {OUT}")
 
 # ---------------------------------------------------------------------------
 # Operacionalizacion de los tres ejes. ATENCION: los cortes numericos se eligen
@@ -125,9 +138,29 @@ for kr, bd, kf in [(2.5,0.03,0.60), (3.0,0.02,0.75), (4.0,0.015,0.875)]:
           f"seriadas {c.get('perfil de secciones seriadas',0):3d} | "
           f"ambiguo {c.get('ambiguo',0):3d}")
 
-# La 129741, para situarla contra el resto (su JSON vive fuera del barrido).
+# La 129741, para situarla contra el resto. En `barrido_138` su JSON vive FUERA del barrido
+# (se la habia saltado); en un barrido que si la incluye, ese JSON externo esta STALE y
+# compararlo contra el pool nuevo mezclaria dos mediciones distintas. Se prefiere la de adentro.
 ref = D.parent / "registro_129741.json"
-if ref.exists():
+dentro = "129741" in set(df.slide_id)
+if dentro:
+    fila = df[df.slide_id == "129741"].iloc[0]
+    # percentil contra las OTRAS que pasan la puerta, para no compararla consigo misma
+    otras = ok[ok.slide_id != "129741"]
+    print("\n" + "=" * 74)
+    print(f"DONDE CAE LA 129741 (medida DENTRO de {D.name}; el JSON externo se ignora)")
+    print("=" * 74)
+    print(f"  pasa la puerta del eje 1: {bool(fila.etapaA_ok)}   perfil: {fila.perfil}")
+    print(f"  NCC senal {fila.ncc_medio:.4f} -> percentil "
+          f"{100*(otras.ncc_medio < fila.ncc_medio).mean():.0f} de las {len(otras)} restantes")
+    print(f"  razon senal/control {fila.razon_senal_control:.2f} -> percentil "
+          f"{100*(otras.razon_senal_control < fila.razon_senal_control).mean():.0f}")
+    print(f"  escala {fila.escala}, residuo {fila.rms_um} um, theta_sd {fila.theta_sd}, "
+          f"satura_ambos {bool(fila.satura_ambos)}")
+    if ref.exists():
+        prev = json.load(open(ref))["etapa_b"]["ncc_medio"]
+        print(f"  [delta] medicion previa sin rotacion: {prev:.4f} -> ahora {fila.ncc_medio:.4f}")
+elif ref.exists():
     d = json.load(open(ref)); eb = d["etapa_b"]; ar = d["ajuste_rigido"]
     r = eb["ncc_medio"] / max(eb["control_medio"], 1e-9)
     print("\n" + "=" * 74)
@@ -139,4 +172,4 @@ if ref.exists():
     print(f"  escala {ar['escala']:.4f}, residuo {ar['rms_px']*d['mpp']:.0f} um "
           f"-> percentil de residuo {100*(ok.rms_um > ar['rms_px']*d['mpp']).mean():.0f} (mas bajo es mejor)")
 
-df.to_csv(D.parent / "barrido_resumen.csv", index=False)
+df.to_csv(OUT, index=False)
