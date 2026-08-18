@@ -90,3 +90,47 @@ terminen dos de los tres jobs corriendo para que quepamos.
   cuenta sobre la forma de los arrays, no una medición. La corrida real es la que lo diría.
 - El `StartTime = 2027` **no es una predicción de SLURM**, es lo que devuelve cuando no puede
   calcular. No significa que vayamos a esperar un año.
+
+---
+
+## ADDENDUM 18-ago-2026 (19:44): la fila rotó entera, y el pedido cambia de destinatario
+
+Snapshot nuevo de `squeue` / `scontrol` / `nvidia-smi`. **Ninguno de los cinco trabajos del
+snapshot del 17-ago sigue en la fila**, así que el documento de arriba describe una foto que ya
+no existe. Los números de la lámina 24 del deck **no cambian** (son ese snapshot y la lámina lo
+presenta como tal), pero **a quién hay que pedirle qué, sí**.
+
+```
+  JOBID   NAME           USER          ST   TIME        TIME_LIMIT
+   5001   yolo_train     sgaete        R    1-00:10     2-00:00:00   ← tiene la GPU
+   5000   llm_validate   gvenegas      PD   0:00        UNLIMITED    (Resources)
+   5008   eg_hn129741    sdonoso       PD   0:00        12:00:00     ← el nuestro
+   5011   extra          sdonoso*      PD   0:00        1-00:00:00   ← NO es nuestro
+   5013   juez           sdonoso*      PD   0:00        1-00:00:00   ← NO es nuestro
+   5015   grafica        sdonoso*      PD   0:00        1-00:00:00   ← NO es nuestro
+   5018   CTXALL         nschiaffino   PD   0:00        UNLIMITED
+```
+
+GPU: **48 541 / 49 140 MiB** usados (dos procesos: 43,3 GB del entrenamiento y 5,1 GB del
+`uvicorn` de `root` que ya estaba). `StartTime` del 5008: **Unknown**.
+
+**Qué cambió, y por qué importa:**
+
+1. **El que tiene la GPU ahora declara un tope real** (2 días, y lleva 1). El bloqueo de fondo del
+   17-ago era un servidor de inferencia a 365 días; eso ya no está.
+2. **Pero delante nuestro quedó un `UNLIMITED`** (`5000`, del mismo usuario que aquel servidor,
+   y con `Reason=Resources`, o sea que es el primero por el token). Aplica el **workaround L.b**:
+   con un `UNLIMITED` adelante, el backfill sigue sin poder calcular y nuestro `StartTime` es
+   `Unknown`. **El pedido de la lámina 24 sigue valiendo palabra por palabra**; lo que cambia es
+   que hoy apunta a `5000` y `5018`, no a los dos del 17-ago.
+3. **Aparecieron tres trabajos con `gres:gpu:1` desde la cuenta compartida que NO son nuestros**
+   (`5011`, `5013`, `5015`; `WorkDir = /media/.../sdonoso/Test_D/D_abs_cambiado`). Verificado con
+   `scontrol show job` uno por uno, que es lo único que los distingue: `squeue -u $USER` los
+   mezcla con los propios. Es competencia nueva por el mismo token, y **desde adentro de la
+   cuenta**, que es un caso que este documento no contemplaba.
+
+**Consecuencia operativa:** el 5008 **no corre antes de la reunión**, así que la lámina 22 sigue
+sin un solo número de segmentación y el pedido de coordinación se hace igual. Lo que conviene
+llevar a la reunión, además del pedido escrito, es que **el bloqueo ya no es un solo servidor
+eterno sino una fila que rota**, y que la cuenta compartida está empezando a competir consigo
+misma.
