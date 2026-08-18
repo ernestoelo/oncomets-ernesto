@@ -452,11 +452,20 @@ El barrido cerró a las **20:10**, tras **198 min** de pared. Salida en `barrido
 | | |
 |---|---:|
 | Láminas con JSON | **108** |
-| Rechazadas por el test (`stop`) | **19** |
+| Rechazadas por el test (`stop`) | **21** |
 | Fallidas | **0** |
+| **Total cubierto** | **129** |
 
-La tasa de rechazo final es **15 %**, no el 35 % que se veía a media corrida. El aviso de no
+La tasa de rechazo final es **16 %**, no el 35 % que se veía a media corrida. El aviso de no
 anticiparla estaba bien puesto.
+
+> **Corregido el 18-ago.** Esta tabla decía **19** rechazadas y no daba el total. El 19 salía del
+> contador del driver, que cerró en «108 ok / 19 stop / 0 fallo / **2 pendientes**»; en disco hay
+> **21** `.stop`, todos del 17-ago entre las 16:48 y las 19:55. La diferencia son las 2 láminas que
+> el driver contó como `saltadas: 3` (ya tenían `.stop` de una corrida previa) y por eso nunca
+> incrementaron su contador. **Ninguna quedó sin correr**: 108 + 21 = **129**, que es exactamente
+> la lista del driver. El número de láminas medidas (108) y todo lo que cuelga de él no se mueve;
+> lo que cambia es el denominador de cobertura y el «2 pendientes», que no eran pendientes.
 
 ### 8.a La mitad de las láminas medidas NO son interpretables, y eso es el primer resultado
 
@@ -783,3 +792,67 @@ Para cerrarlo hace falta **re-correr el test con rotación en la etapa A**, no r
   `--min-tejido` ni `--margen-a`.
 - **Nada nuevo sobre la 129741.** Sigue sin re-medirse; su 0.3820 sigue siendo cota inferior — y
   ahora con un motivo más para pensar que está subestimado.
+
+---
+
+## 11. ADDENDUM 18-ago-2026: el re-barrido corre, y dos trampas del recuento que viene
+
+El re-barrido con rotación en la etapa A (`barrido_rot/`, 130 láminas = las 129 del `barrido_138`
+más la 129741) arrancó a las **14:47** y a las 15:07 llevaba 8 láminas. A **296 s/lámina** medidos
+su ETA es de **~6,5 h**, así que el recuento de §8.b **no se puede cerrar hoy**. Esta sección no
+trae resultados: deja preparado el instrumento y **documenta dos trampas que hay que tener en la
+mano al cosechar**, encontradas ejercitando el camino sobre el parcial.
+
+### 11.a Un control negativo hace que la razón señal/control explote a 1e8
+
+`razon_senal_control = ncc_medio / max(control_medio, 1e-9)`. Cuando el NCC medio de las ventanas
+de **control** sale **negativo** —las ventanas de control anti-correlacionan— el `max` clava el
+denominador en `1e-9` y la razón se va a **1e8**.
+
+En `barrido_138` le pasa a **1 lámina de 108** (`130981-2`, control −0,0297, razón 1,8e8). **Hoy es
+inocuo**: no pasa la puerta del eje 1, así que nunca entró al reparto de §8.b, y las medianas que
+§8.b reporta son robustas a un outlier. Por eso los números de §8 **no cambian**.
+
+**La trampa es prospectiva.** Si la rotación recupera una lámina así, su razón de 1e8 **supera
+cualquier corte** (`razón ≥ 2,5 / 3 / 4`) y el clasificador la manda a **«perfil de re-escaneo»**
+por el **signo del denominador**, no por señal. Sería un falso positivo del perfil dominante,
+justo en el recuento que se está rehaciendo. El parcial del re-barrido ya trae una lámina en esa
+condición (`120361`, control −0,0227), todavía sin pasar la puerta.
+
+`comparar_barridos_rotacion.py` las lista aparte, las excluye de los estadísticos de razón y
+**avisa fuerte** si alguna pasa la puerta. **Regla al cosechar: una lámina con `control_medio ≤ 0`
+no se cuenta como re-escaneo sin mirarla a mano.**
+
+### 11.b La etapa B puede fabricar «secciones seriadas» con las láminas recuperadas
+
+El clasificador manda a **«perfil de secciones seriadas»** cuando `razón < 2,0` **y** el ajuste no
+es rígido (`|escala − 1| > 0,02`). Ahora bien: las recuperadas son, por construcción, **las que más
+girada tienen la segunda región** (§10.b: |θ*| mediano **7,8°**), y la **etapa B barre solo ±8° y
+no busca escala**. Una lámina cuya etapa A recién ahora localiza, pero cuya etapa B no puede
+ajustar el residuo, va a tener **las dos** propiedades a la vez ⇒ **cae en «seriadas» por
+incapacidad del instrumento, no por hallazgo**.
+
+Esto no es una conjetura sobre los datos, es una lectura del criterio: las dos condiciones que
+definen «seriadas» son exactamente las dos que produce una etapa B que no da abasto. El único caso
+disponible la ilustra —la **128696**, que el probe recuperó con θ = **+7,0°** y sd 0,9°, cruza la
+puerta en el re-barrido y aterriza en **«seriadas»** con **escala 1,0492** (4,9 %, muy fuera de la
+banda) y razón **1,77**— pero **es n=1 y no se lee como evidencia**; el mecanismo se sostiene solo.
+
+**Consecuencia para el recuento:** un aumento del conteo de «seriadas» concentrado en las
+recuperadas **no es evidencia de secciones seriadas**. Hay que separarlo, y por eso el script
+reporta el reparto de las recuperadas **contra** el de las que ya eran medibles, y descompone cada
+no-re-escaneo en «falló la escala» / «falló la fuerza de señal» / «fallaron las dos». Si domina
+«falló la escala», **el próximo cuello es la etapa B** y no hay veredicto nuevo que dar sobre
+seriadas. Era el aviso que el handoff dejó anotado; queda con mecanismo escrito y con el
+instrumento que lo mide.
+
+### 11.c Qué NO se afirma acá
+
+- **No hay recuento nuevo.** El re-barrido no terminó; los números del parcial (8 láminas, las
+  primeras alfabéticamente) **no se leen**, y menos aún la «tasa de recuperación» que el script
+  imprime sobre ellas.
+- **No se afirma que las recuperadas vayan a caer en «seriadas».** §11.b describe un mecanismo y
+  cómo detectarlo, con un solo caso.
+- **§8.b sigue provisional** exactamente como lo dejó §10.c. Nada de esta sección lo destraba.
+- **No se tocó** `barrido_resumen.csv`: se verificó que el cosechador lo reproduce celda a celda y
+  quedó protegido contra sobrescritura.
