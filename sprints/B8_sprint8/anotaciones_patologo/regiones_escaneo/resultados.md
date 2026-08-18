@@ -607,3 +607,49 @@ positivo no ha corrido**, y el pre-registro dice que sin él no se lee nada.
   denominador de medibles crece y **hay que recontar**; si no, §8.b queda como está. **Hoy no se
   sabe cuál de las dos.**
 - **Nada nuevo sobre la 129741.** No se re-midió.
+
+### 9.d Dos corroboraciones que NO dependen del probe (y por eso sí se pueden leer)
+
+El probe todavía no se puede leer (le falta el control positivo, §9.b). Pero la hipótesis de
+§9.b — que el «sin señal» de §9.a sea culpa de que la etapa A no busque rotación — tiene dos
+consecuencias medibles **sobre datos que ya estaban en disco**, sin correr nada nuevo. Las dos
+apuntan en la misma dirección, y ninguna de las dos es decisiva por sí sola.
+
+**1. El argmax de la etapa A en las no medibles es indistinguible de ruido.** Si en una lámina
+hubiera señal débil pero real, las ventanas se pondrían de acuerdo en un desplazamiento común
+(el vidrio se mueve entero). Si no hay señal, cada ventana pone su máximo donde le toca y la
+dispersión tiende a la de un argmax uniforme sobre el cuadrado de búsqueda de ±2048 px, que es
+**1672 px**:
+
+| | sd del desplazamiento entre ventanas de la misma lámina |
+|---|---:|
+| láminas medibles (n=54) | **564 px** (p25 271, p75 1000) |
+| láminas NO medibles (n=54) | **1462 px** (p25 1239, p75 1761) |
+| argmax de puro ruido (referencia teórica) | 1672 px |
+
+Las no medibles están a un 13 % del valor de ruido puro. Es una confirmación **independiente**
+de §9.a: no es que la señal sea débil, es que no hay. Lo mismo dice el residuo del ajuste rígido
+(mediana 597 µm contra 235 µm en las medibles).
+
+**2. La etapa B, que sí barre rotación, queda clavada en el borde de su barrido más seguido en
+las no medibles.** El barrido corrió con ±8°:
+
+| | ventanas con θ clavado en ±8° | \|θ\| mediano | sd de θ intra-lámina |
+|---|---:|---:|---:|
+| medibles | 7 % | 1,88° | 2,42° |
+| NO medibles | **22 %** | 2,62° | **5,08°** |
+
+**Esto es sugerente, NO decisivo, y la razón importa**: en una lámina no medible la etapa B
+busca en el sitio que la etapa A eligió mal, así que su θ también es ruido. El dato es compatible
+con «hay rotación grande sin resolver» y también con «no hay nada que alinear». **No usarlo como
+evidencia de rotación por sí solo.**
+
+**Salvedad de diseño del probe, para quien lo coseche.** El probe elige θ por **máximo NCC** (la
+alineación físicamente correcta), no por máximo margen. Por eso una lámina puede **bajar** su
+fracción que localiza al rotar: en su mejor alineación el pico resulta menos único. Elegir θ por
+margen sería elegir el ángulo que más le conviene al criterio, y no se hizo a propósito.
+
+**Y una advertencia sobre el corte de «θ consistente».** El pre-registro dice «sd chica», sin
+número. Cualquier corte concreto (`scripts/cosechar_probe_rotacion.py` usa **sd ≤ 4°**) es
+**posterior a ver los datos**, igual que los cortes de §8.b. Se reporta como tal y la cosecha
+debe acompañarlo con su sensibilidad, no presentarlo como pre-registrado.
