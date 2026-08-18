@@ -3655,3 +3655,67 @@ como tal y con sensibilidad, no como pre-registrado.
 - **Cero números de HoVer-NeXt**: el 5008 nunca arrancó. Fases 2.a a 6 enteras.
 - **No se recontó §8.b**: depende del veredicto del probe.
 - No se re-midió la 129741 ni se tocó nada del hilo de las multi-región.
+
+## 17-ago-2026 (noche, 6ª sesión) — el probe cerró: la mitad de las no medibles era ROTACIÓN nuestra
+
+Sesión de cosecha. Entró con el probe corriendo (8 de 16) y el 5008 encolado; sale con el probe
+leído, el veredicto escrito y §8.b marcado como provisional.
+
+### El control positivo pasó, así que el probe se pudo leer
+
+Se respetó el orden del pre-registro: **primero el grupo C**. Las 4 láminas medibles siguen
+localizando a θ = 0 (fracción media 0,76) ⇒ el probe reproduce el barrido y la condición de
+lectura está cumplida.
+
+**El control resultó hacer un segundo trabajo que no estaba previsto: calibrar el criterio.** El
+cosechador venía con `sd ≤ 4°` medido sobre **todas** las ventanas, y con ese corte **3 de las 4
+láminas del control quedan rechazadas** — láminas que localizan perfectamente. La causa: θ* se
+elige por máximo de NCC y, en una ventana que no localiza, la superficie en θ es plana y su argmax
+vaga, inflando la sd de la lámina entera. Medida **solo sobre las ventanas que localizan**, las 4
+del control pasan y el peor da 2,2°, que es el corte adoptado.
+
+### Seis de doce se recuperan, y la mitad de esas con firma de cuerpo rígido
+
+| veredicto | láminas |
+|---|---:|
+| recuperada por rotación (θ consistente, sd ≤ 2,2°) | **3** |
+| recuperada, θ no consistente | **3** |
+| no recuperada | 5 |
+| indeterminada (θ clavado en el borde del ±20°) | 1 |
+
+El **|θ*| mediano de las que cruzan es 7,8°**: las rotaciones que hacían falta estaban **fuera de
+rango por diseño** (la etapa B barre ±8° y su default es ±1,5°). Las tres limpias son 128696
+(0,25 → 1,00 con θ* +7,0°, sd 0,9), 135924 (0,12 → 0,88, −10,5°, sd 2,1) y 145819 (0,33 → 0,83,
++8,5°, sd 1,6).
+
+**Sensibilidad, que §9.d exigía**: el **6 de 12 no depende del corte** (cruzar el umbral es
+cuestión de `frac_localiza`, no de θ), y el reparto 3/3 es estable en todo el rango donde el
+control pasa entero (2,2° a 4,0°), con un hueco natural de 2,5× en los datos.
+
+**Dato inesperado**: barrer θ sube el NCC **también en el control** (0,277 → 0,400, |θ*| mediano
+3,8°) ⇒ hay rotación entre las dos regiones **también en las medibles**; la etapa A la venía
+**tolerando**, no evitando.
+
+### Consecuencia real: §8.b queda provisional, y eso es trabajo
+
+Extrapolar 6/12 a las 54 da **~27 láminas recuperables, IC95 [11, 43]** (Clopper-Pearson): el pool
+de medibles pasaría de 54 a **~81 [65, 97]**. Y **no se sabe cómo clasifican las recuperadas**,
+porque el perfil sale de la etapa B y sobre ellas no corrió. Entonces el denominador de §8.b está
+subestimado, el numerador (33) es un piso, y **la proporción 61 % no se puede proyectar**.
+Cerrarlo exige **re-correr el test con rotación en la etapa A**, no reinterpretarlo.
+
+Entregables: `scripts/cosechar_probe_rotacion.py` (fusiona el cosechador de `e05bb1a` con la
+calibración contra el control), `regiones_escaneo/probe_rotacion_veredicto.csv`, y §10 completo de
+`regiones_escaneo/resultados.md`.
+
+### Lo que NO se hizo
+
+- **Cero números de HoVer-NeXt.** El **5008 sigue `PD (Priority)`** con `StartTime = 19-ago 19:33`,
+  que es cuando termina el `yolo_train` de sgaete — pero delante va el **5000 de gvenegas con
+  `TimeLimit = UNLIMITED`**, así que ese StartTime es **cota inferior** (workaround L.b). Fases
+  2.a a 6 enteras.
+- **No se re-corrió el barrido con rotación**: es la consecuencia de §10.c y es una decisión de
+  alcance, no un ajuste.
+- No se re-midió la 129741 ni se tocó el hilo de las multi-región sobre training.
+- Nota del árbol compartido: los jobs **5011/5013/5015 NO son nuestros** pese a figurar como
+  `sdonoso` (`WorkDir = Test_D/D_abs_cambiado`). Solo el 5008 lo es.
