@@ -658,6 +658,37 @@ tienen que coincidir. Caso de referencia: `sprints/B8_sprint8/hovernext_129741/t
 positivos** son motivos distintos y **no fijan el mismo `k`**. Cuando el cómputo deja de ser
 caro, solo sobrevive el segundo. Detalle: [[topk-percentil-no-auc]].
 
+### P3. Un control positivo CALIBRA el criterio, no solo valida el instrumento
+
+**Cuándo aplica**: cualquier prueba con un criterio de decisión cuyo **corte numérico es
+posterior a ver los datos** (una sd, un umbral de consistencia, un margen), y que incluya un
+grupo de control positivo — casos donde ya se sabe que el instrumento funciona.
+
+**Regla operativa**: **antes** de aplicar el corte al grupo de estudio, aplicárselo al **control
+positivo**. Si el control no lo pasa, el corte está mal, no el grupo de estudio. Y el corte se
+fija en **el peor del control**, no a ojo. Reportar además la **sensibilidad** del corte y decir
+qué conclusiones se mueven con él y cuáles no.
+
+**Por qué**: la función obvia del control positivo es validar el instrumento («¿mide?»). Tiene una
+segunda, que se pasa por alto: **acotar cuánto vale el estadístico cuando la respuesta es SÍ**. Sin
+eso, cualquier corte elegido mirando el grupo de estudio confunde «no cumple mi corte» con «no hay
+efecto».
+
+**Caso de referencia** (17-ago-2026, probe de rotación del B8): el criterio pre-registrado era «θ
+consistente entre ventanas = rotación; θ disperso = ruido», sin número. El corte que se había
+escrito, `sd ≤ 4°` sobre **todas** las ventanas, **rechazaba 3 de las 4 láminas del control** — que
+localizaban perfectamente. Causa: θ se elige por máximo de NCC y, en una ventana que no localiza, la
+superficie es plana y su argmax vaga, inflando la sd de la lámina entera. Medida **solo sobre las
+unidades que sí responden**, las 4 del control pasan y el peor da 2,2°, que es el corte adoptado.
+La sensibilidad mostró además que el resultado principal (6 de 12) **no depende del corte** y que el
+reparto secundario es estable en todo el rango donde el control pasa entero. Detalle:
+`sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/resultados.md` §10.a-10.b.bis +
+[[control-positivo-calibra-el-criterio]].
+
+**Corolario**: si el control positivo **no** corrió, el resultado **no se lee** — y esa condición se
+escribe en el pre-registro, antes, no después. El mismo probe lo llevaba escrito y por eso la
+sesión que lo vio a medio correr no lo leyó.
+
 ## Reglas operativas no negociables
 
 1. **NO `sbatch` / `srun` / GPU** en sesiones de recon o exploración. Cero

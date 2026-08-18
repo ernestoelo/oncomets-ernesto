@@ -3719,3 +3719,20 @@ calibración contra el control), `regiones_escaneo/probe_rotacion_veredicto.csv`
 - No se re-midió la 129741 ni se tocó el hilo de las multi-región sobre training.
 - Nota del árbol compartido: los jobs **5011/5013/5015 NO son nuestros** pese a figurar como
   `sdonoso` (`WorkDir = Test_D/D_abs_cambiado`). Solo el 5008 lo es.
+
+**Cierre de la 6ª sesión — la rotación quedó implementada y el re-barrido corriendo.**
+Ernesto autorizó re-correr **las 108** (no solo las 54) con rotación en la etapa A: el control
+mostró que las medibles también tienen rotación sin corregir, así que medirlas con dos métodos
+distintos dejaría dos cohortes incomparables.
+
+- `--rot-a-max` es **opt-in, default 0.0 = apagado**. **Regresión verificada**: con el flag
+  apagado la 148781 re-corrida reproduce su JSON de `barrido_138` **idéntico** (silueta, etapa_a,
+  ajuste rígido y etapa_b), salvo las dos claves nuevas neutras ⇒ `barrido_138` sigue siendo
+  reproducible byte a byte.
+- Barrido **grueso-a-fino** (2° sobre ±20°, después 0,5° alrededor del ganador) para no pagar 41
+  evaluaciones por ventana.
+- **Corriendo desatado**: `OUT_DIR=barrido_rot ROT_A_MAX=20.0 SALTAR_129741=0`, **130 láminas**
+  (esta vez **incluye la 129741**, cuyo barrido de rotación saturaba), `ppid = 1`, reanudable por
+  el JSON final. Log en `logs/barrido_rotacion_desatado.log`. **No pisa `barrido_138`.**
+- Lección de plomería registrada como **patrón P3** de `CLAUDE.md` +
+  [[control-positivo-calibra-el-criterio]].
