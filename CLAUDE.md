@@ -300,6 +300,14 @@ aplicar el fix correspondiente sin investigar de nuevo.
   `--time` real), no ingeniería. Caso de referencia: job 4998 del B8,
   `sprints/B8_sprint8/hovernext_129741/coordinacion_gpu.md`.
   Memoria [[slurm-cola-backfill-timelimit]].
+- **L.b — un `StartTime` CONCRETO tampoco es una predicción.** Si el que tiene la GPU
+  declara `--time` real, SLURM sí planifica y devuelve una hora creíble — pero es la
+  **primera disponibilidad del recurso**, sin descontar lo que dure un `UNLIMITED` que
+  vaya delante. Modo de falla opuesto al de arriba y por eso más peligroso: el
+  `StartTime` de un año hace desconfiar, el concreto tranquiliza. **Mirar el `TimeLimit`
+  de cada job que va delante**; con un `UNLIMITED` ahí, el `StartTime` propio es **cota
+  inferior**. Y `squeue -u $USER` **mezcla operadores** (cuenta `sdonoso` compartida):
+  antes de dar por propio un job, `scontrol show job <id>` y mirar `WorkDir`.
 - **L.a — `--export` es hostil a los valores con coma.** `sbatch
   --export=ALL,VAR=valor` separa **variables** por coma, así que cualquier valor
   que a su vez **espere** comas (ej. `--cp a,b,c` de HoVer-NeXt, que promedia un
