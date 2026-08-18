@@ -924,3 +924,34 @@ daba con los seis defectos adentro: no alcanza. Quedan por rasterizar y mirar un
 **Las doce láminas nuevas no tienen `notes()`.** Es lo más grande que queda, y falta además la
 pasada de `@humanizer-es` y la lectura en voz alta, que es la capa que caza lo que ninguna cuenta
 automática ve.
+
+### El plan del guion, escrito el 18-ago (noche) y sin ejecutar
+
+Sesión de plan, **sin tocar el generador**. El plan completo vive en
+`~/.claude/plans/handoffs-handoff-b8-20260818-1920-md-hazy-dijkstra.md` y lo ejecuta una **sesión
+limpia**, por decisión de Ernesto: el paso que abre es el rasterizado y necesita el presupuesto de
+lecturas de imagen entero ([[image-api-qa-limit]]).
+
+**Las dos decisiones de Ernesto:**
+
+- **Medir primero, mirar después.** Rasterizar con `FONTCONFIG_FILE` puesto, correr la medición de
+  tinta por renglón sobre las ocho láminas tocadas **sin gastar lecturas de imagen**, y recién
+  entonces mirarlas una por una. El rasterizado queda autorizado en ese orden.
+- **La portada no se toca.** Su nota abre con «Traigo tres cosas» y ahora hay un cuarto bloque
+  detrás; la regla «ni una nota del bloque del 6-ago» queda entera y **la costura la resuelve la
+  nota de la lámina 15**, que hace el pivote explícito.
+
+**Las dos precisiones de contenido**, las dos de la lámina 22, que es nueva y se puede tocar:
+
+| Qué | Por qué | Cómo queda |
+|---|---|---|
+| «0,872 y 0,914» proyectados sin nombrar la medida | **son el percentil medio de atención, no el AUC** (`../hovernext_129741/auc_ranking_fold4.md:88` lo dice explícito; los AUC de ese par son 0,876 y 0,918). Al lado de una sección que habla de ranking de atención, se leen como AUC | la lámina dice «percentil medio», y el guion no los llama AUC |
+| «los cuatro juegos de pesos» | es correcto (en disco hay `lizard_convnextv2_tiny` y `pannuke_convnextv2_tiny_{1,2,3}`) pero se lee raro contra el plan, que habla de **dos** | el guion lo dice como es: un modelo con clase de mitosis y tres del otro, que se promedian |
+
+**El reparto del guion por lámina** está en el plan, con la sección de la que sale cada nota. La
+que más trabajo pide es la **20**: el hallazgo del giro no se entiende sin contar que el control
+positivo se leyó primero y que además **calibró el corte**.
+
+**Y una costura que ningún chequeo automático puede ver**, anotada acá porque es de la clase que
+reaparece: al **extender** un deck, la nota de la portada sigue anunciando el número de bloques
+**viejo**. Es lo primero que se oye y no está escrito en ninguna lámina.
