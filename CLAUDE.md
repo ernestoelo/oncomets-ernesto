@@ -675,6 +675,19 @@ en **marcas** (26). Coinciden en algunas celdas por casualidad. **Declarar la un
 o alguien va a leer una como continuación de la otra. Detalle:
 `sprints/B8_sprint8/hovernext_129741/cruce_marcas.md`.
 
+**P2.a.ter — si la etapa cara se puede pagar entera, CORRERLA SIN EL FILTRO** (19-ago-2026).
+P2.a dice cómo medir el techo del filtro sin correr lo caro. Ésta es la decisión **anterior**, y
+gobierna a las otras dos: cuando el presupuesto alcanza, se corre la etapa cara **sobre todo** y el
+filtro se aplica **post-hoc, sobre la salida**. Con eso quedan medibles **todos** los `k` de una
+sola corrida, y **el brazo sin filtro sale gratis** — que es contra el que se lee cualquier
+resultado restringido. Filtrar **antes** ahorra cómputo una vez y **destruye la comparación para
+siempre**. Caso de referencia: HoVer-NeXt sobre la 129741 corrió la lámina entera (18 min), y por
+eso la escalera existe sin correr nada nuevo: **68,0 mm² → 13 de 26 · 35,4 mm² → 13 de 26 ·
+4,3 mm² → 11 de 26**, o sea que **el recorte no compra marcas, compra área** (factor 16 por dos
+marcas). Eso convierte el corolario de costo de abajo en un número: la pregunta «cuánta superficie
+ponerle delante al patólogo» **no es** la pregunta «cuántas mitosis encontramos».
+[[techo-filtro-antes-de-correr]].
+
 **Corolario de costo**: restringir para **ahorrar cómputo** y restringir para **controlar falsos
 positivos** son motivos distintos y **no fijan el mismo `k`**. Cuando el cómputo deja de ser
 caro, solo sobrevive el segundo. Detalle: [[topk-percentil-no-auc]].

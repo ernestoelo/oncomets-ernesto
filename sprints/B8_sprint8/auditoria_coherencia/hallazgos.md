@@ -2318,3 +2318,118 @@ fechada arriba de la tabla, sin tocar la tabla (es el registro del estado del 18
 - **Coordinar con `sgaete`** antes de barrer las once láminas anotadas restantes.
 - Los dos papers de `papers_11_agosto/` sin fichar, las dos preguntas del 6-ago, la réplica del
   4589 con semillas nuevas, el sign-off del patólogo y `@grilling` sin estrenar.
+
+---
+
+# Vigesimocuarta pasada — 19-ago-2026 (cierre de la sesión 15)
+
+> Disparador: el recorte del deck de 27 a 16 láminas y la lámina de control que Ernesto pidió
+> después. Tres hallazgos durables, uno de ellos un patrón operativo nuevo.
+
+| id | hallazgo | severidad | acción |
+|---|---|---|---|
+| X1 | El brazo de control salió **gratis** porque la etapa cara se corrió **sin filtro** | durable | P2.a.ter en `CLAUDE.md` + ADDENDUM en [[techo-filtro-antes-de-correr]] |
+| X2 | Una figura que ilustra un número publicado tiene que **reusar el código** del número | durable | ADDENDUM en [[hallazgo-necesita-forma-presentable]] |
+| X3 | Una orden de recorte admitía **dos lecturas** y una borraba lo que la otra pedía conservar | durable | memoria nueva `orden-destructiva-dos-lecturas` |
+| X4 | La memoria del deck dice «14 láminas» y va por 16, con dos recortes sin registrar | stale | ADDENDUM compacto + descripción |
+
+## X1 — el brazo de control salió gratis, y no por suerte
+
+**Qué pasó.** Ernesto pidió, después del recorte, «una lámina donde se use puramente HoVer-NeXt
+para la misma WSI, sin CLAM». Se pudo **sin correr nada**: la corrida del 19-ago fue sobre la
+**lámina entera** y el recorte por atención se aplicó **post-hoc, sobre la salida**.
+
+**Por qué es durable y no anécdota.** P2.a dice cómo medir el techo del filtro sin correr la etapa
+cara. Esto es la decisión **anterior**, la que hace posible todo lo demás: cuando la etapa cara se
+puede pagar entera, **correrla sin filtro** deja medibles *todos* los tamaños de filtro a la vez y
+regala el brazo sin filtro, que es contra el que se lee cualquier resultado restringido. Filtrar
+**antes** de correr ahorra cómputo una vez y destruye la comparación para siempre.
+
+En este caso la decisión estaba tomada por otro motivo (el paper corre sobre WSI, no sobre parches
+sueltos, [[hovernext-especialista-segunda-etapa]] ADDENDUM del 14-ago noche), así que el regalo fue
+lateral. **Eso es justamente lo que hay que convertir en regla**, para que la próxima vez sea
+deliberado.
+
+**Lo que la escalera mostró, y no se sabía:**
+
+| Qué se revisa | Parches | Área | Det. | Marcas |
+|---|---|---|---|---|
+| La lámina entera, sin recorte | 4799 | 68,0 mm² | 177 | 13 de 26 |
+| Solo la región anotada | 2496 | 35,4 mm² | 82 | 13 de 26 |
+| El 12 % más atendido por CLAM | 300 | 4,3 mm² | 48 | 11 de 26 |
+
+**El recorte no compra marcas, compra área**: factor 16 en superficie por dos marcas. Es la
+respuesta a «cuánta superficie ponerle delante al patólogo», que es una pregunta **distinta** de
+«cuántas mitosis encontramos» — y cierra el corolario de costo de P2 con un número, no con un
+argumento. Las dos primeras filas coinciden **por construcción** (las 26 marcas caen todas en la
+región anotada) y se verificó en vez de asumirse: el emparejamiento con las 82 detecciones de esa
+región sola da los mismos 13.
+
+**Fix**: sub-cláusula **P2.a.ter** en `CLAUDE.md` (compacta, con puntero) + ADDENDUM en la memoria.
+
+## X2 — la figura que ilustra un número tiene que reusar el código del número
+
+**Qué pasó.** `prep_assets_hovernext.py` no re-implementa el emparejamiento: importa y reusa el
+mismo húngaro, la misma tolerancia de 30 µm, el mismo offset del geojson y el mismo corte de región
+que `scripts/cruce_hovernext_marcas.py`, que es el que produjo el 13 de 26 publicado.
+
+**Por qué importa.** Una figura de lámina y el número de un `resultados.md` se escriben con semanas
+de distancia y por caminos distintos. Si la figura re-implementa la lógica, puede **contradecir al
+número sin que nadie lo note**, y en una lámina la figura es lo que la audiencia recuerda. Reusando
+el código, la contradicción **no es representable**.
+
+Salió de acá, además, un dato que no existía: en el 12 % recortado caen **48 de las 82**
+detecciones de la región. Es una cuenta de **detecciones**, no de marcas, y la lámina lo dice al
+lado de la tabla que cuenta marcas — la trampa de unidad que P2.a.bis ya había cazado una vez.
+
+**Fix**: ADDENDUM en [[hallazgo-necesita-forma-presentable]], que es la memoria de «un resultado no
+está entregado hasta tener lámina»: esto dice **cómo** hacerla sin que mienta.
+
+## X3 — la orden admitía dos lecturas, y una borraba lo que la otra pedía conservar
+
+**Qué pasó.** `correcciones.txt` ordena eliminar una lista de láminas. Sobre dos de ellas dice otra
+cosa: que esperaba los mapas «**junto con los datos de si identifica las mitosis**». Ese dato **es**
+una de esas dos láminas. Leer el renglón como «borrar las dos» habría eliminado el único resultado
+cuantitativo que la misma frase pide conservar.
+
+**Lo que lo distingue de [[surface-premise-discrepancies]]:** ahí la premisa del prompt choca con lo
+que dice el repo. Acá **la instrucción choca consigo misma**, y el repo no tiene nada que aportar.
+No se resuelve con evidencia, se resuelve preguntando.
+
+**La regla**: antes de una acción **destructiva** ordenada por el usuario, releer la orden buscando
+si alguna parte pide **conservar** algo que otra parte borra. Si aparece, **parar y preguntar antes
+de borrar** — después de borrar, la pregunta ya cuesta rehacer trabajo. Y presentar la pregunta con
+las opciones concretas y lo que cada una se lleva puesto, no como objeción.
+
+**Fix**: memoria nueva `orden-destructiva-dos-lecturas` (`type: feedback`).
+
+## X4 — la memoria del deck quedó dos recortes atrás
+
+`deck-b8-dos-ejes-simil-mitosis` describe **14 láminas** y su último ADDENDUM es del 7-ago. Faltan
+la extensión del 18-ago (a 26-27) y el recorte del 19-ago (a 16). La descripción es lo que decide
+la recuperación, así que un conteo stale ahí se paga en cada sesión nueva.
+
+**Fix**: ADDENDUM **compacto** (el detalle vive en `presentacion_b8/README.md`, que es canónico
+para el deck) + descripción actualizada.
+
+## Verificado sin cambios
+
+- **Los conteos «27 láminas»** de las pasadas anteriores quedan: viven en secciones **fechadas**
+  que describen el deck de ese día. El vigente (16) está en la sección nueva del README, en
+  `progress/current.md` y en el docstring del generador.
+- **`CLAUDE.md`**: workarounds A-M sin contradecir; la sesión no tocó servidor ni SLURM.
+- **Agentes** (`trainer`, `reviewer`): sin contacto — no se tocó modelo ni entrenamiento.
+- **Skills**: `@humanizer-es` **no se corrió**, y la prosa nueva se midió antes de decidirlo (cero
+  rayas, cero «palanca», cero «al revés» sobre el `.pptx`, no sobre el fuente).
+- **Las dos prohibiciones explícitas** de `correcciones.txt` verificadas sobre el `.pptx` extraído:
+  cero menciones de la cola de cómputo y cero fechas de lo que se hizo. Las tres coincidencias del
+  `grep` eran falsos positivos («la fila» de una tabla) y la fecha de portada, que es otra cosa.
+
+## Lo que queda abierto y va al handoff
+
+- **Estudiar las notas del presentador del deck recortado**, que es la misión de la próxima sesión.
+- **La fecha de portada** (`FECHA_REUNION = "19 de agosto de 2026"`) con la reunión sin ocurrir.
+- **Los tres PNG de regiones** siguen en `assets/` sin que el deck los use.
+- **El brazo de ensemble de HoVer-NeXt**, sin lanzar. Decisión de Ernesto, sostenida cuatro veces.
+- Coordinar con `sgaete`, los dos papers de `papers_11_agosto/` sin fichar, las dos preguntas del
+  6-ago, la réplica del 4589 con semillas nuevas, el sign-off del patólogo, `@grilling` sin estrenar.
