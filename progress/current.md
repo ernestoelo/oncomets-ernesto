@@ -4106,3 +4106,59 @@ Sesión de análisis y cierre, con la reunión todavía por delante. **Cero GPU.
 - **El brazo de ensemble**, sin lanzar (decisión de Ernesto sostenida dos veces en esta sesión).
 - Sin cambios en: los dos papers de `papers_11_agosto/` sin fichar, las dos preguntas del 6-ago,
   la réplica del 4589 con semillas nuevas, el sign-off del patólogo y `@grilling` sin estrenar.
+
+---
+
+## Sesión 14 (19-ago-2026, tarde) — el cruce entró al deck, y cayeron seis frases
+
+Sesión de deck. **Cero GPU.** La reunión con Sebastián seguía sin ocurrir al arrancar, así que se
+ejecutó el plan aprobado en la sesión 13 sin replanificar.
+
+### 1. La lámina nueva: el segundo factor del techo
+
+Deck de **26 a 27 láminas**. La nueva va **después de la 23** (el techo), así que 24→25, 25→26,
+26→27. Las dos referencias por posición del deck (láminas 5 y 19) apuntan **antes** del punto de
+inserción y se verificaron intactas.
+
+Todo sale de `sprints/B8_sprint8/hovernext_129741/cruce_marcas.md`, transcrito a dos constantes
+del generador. Tres objetos: el titular **13 de 26 = 50,0 %** con el emparejamiento uno a uno al
+lado (sin eso la primera pregunta de la sala es por qué no son 18), **la meseta** como tira de
+celdas con helper nuevo `meseta_tolerancia` (una meseta dibujada como curva es una recta que no
+llama la atención de nadie; como tira, el mensaje es el mismo número repetido seis veces), y **la
+tabla conjunta con la columna «ambas»**, recortada a cuatro filas por espacio.
+
+Las tres salvedades de `cruce_marcas.md` §5 que más fácil se pierden van en el **cuerpo** y no
+solo en el guion: la **unidad** (26 marcas contra los 28 parches de la lámina anterior, que no se
+encadenan), que la **cota `mín( )` es floja**, y que el número de la región entera es el chequeo
+de sanidad. **Cero precisión en todo el deck**, y es deliberado.
+
+El remate no es el número sino el hallazgo: **el cuello se movió**. Desde el 7,6 % de la región
+el que manda es la detección, no el recorte.
+
+### 2. Seis frases stale, no cuatro
+
+El handoff listaba cuatro (guion de la 22 ×2, guion de la 23, guion de la 27). Barriendo el
+generador aparecieron **dos más, de cuerpo**, las dos en la lámina 15, que es el mapa del bloque:
+«177 mitosis, **sin cruzar**» y «Uno de ellos **ahorró** una corrida entera». La segunda es la
+misma afirmación que la sesión 13 corrigió en la lámina 26 y que allí había quedado en pasado.
+La lámina 27 se rehízo entera (tres tarjetas, remate y guion): listaba como pendiente lo que la
+24 acaba de mostrar.
+
+**No se tocó** el cuerpo de la 22 («nada cruzado todavía», «cruzarlas es lo que sigue»): en ese
+punto del recorrido son verdad, y ahora además **arman** la lámina nueva.
+
+### 3. Verificación
+
+`AUDITORÍA: sin avisos` en las 27; copia sin notas regenerada. **AST contra el diff**: de 178
+líneas nuevas, 87 caen dentro de un `notes()` y las 91 restantes son cuerpo o código, todas
+justificadas. Estilo medido sobre el `.pptx`: cero rayas, cero «palanca». Guion nuevo de **762
+palabras**, sd 10,2 sobre media 19,1, cero dígitos en la prosa; medido con `grep` **antes** de
+invocar `@humanizer-es`, que por eso no se corrió (habría sobre-editado prosa limpia).
+Rasterizadas y miradas la 15, la 24 y la 27.
+
+### Lo que NO se hizo
+
+- **El brazo de ensemble**, sin lanzar. Sigue siendo decisión de Ernesto.
+- Sin cambios en: los dos papers de `papers_11_agosto/` sin fichar, las dos preguntas del 6-ago,
+  la réplica del 4589 con semillas nuevas, el sign-off del patólogo, `@grilling` sin estrenar, y
+  **coordinar con `sgaete`** antes de barrer las doce láminas anotadas.

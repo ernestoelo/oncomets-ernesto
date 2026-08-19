@@ -22,7 +22,7 @@
 |---|---|
 | `generate_b8_deck.py` | genera el deck end-to-end; se corre y reproduce el `.pptx` |
 | `prep_assets_atencion.py` | recorta las figuras de `atencion_vs_patologo/` para proyectar |
-| `CLAM_Sprint8.pptx` | el deck, **20 láminas**, 13.333 × 7.5 |
+| `CLAM_Sprint8.pptx` | el deck, **27 láminas**, 13.333 × 7.5 |
 | `assets/simil_fig2_{full,a,b,c}.png` | Fig. 2 del paper, recortada de la pág. 4 a 400 DPI |
 | `assets/atencion_dos_regiones.png` | los 4 paneles (atención \| marcas) × (región 1 \| región 2) |
 | `assets/mitosis_region_anotada.png` | la región anotada, con el recuadro del detalle |
@@ -1041,3 +1041,79 @@ que el control positivo se leyó primero y que además **calibró el corte**.
 - **El brazo de ensemble de HoVer-NeXt**: sin lanzar, por decisión de Ernesto (el foco era el
   deck). La cola está vacía y es un solo envío.
 - **El cruce de las 177 contra las 26 marcas**: sin hacer. Es el segundo factor del techo.
+
+## La sesión del 19-ago (tarde): entra el cruce, y con él caen seis frases — VIGENTE
+
+Única misión, aprobada por Ernesto al cierre de la sesión anterior y ejecutada tal cual: **meter
+el cruce al deck**. La reunión con Sebastián **seguía sin ocurrir** al arrancar, así que no hubo
+feedback que replanificara nada.
+
+**De 26 a 27 láminas.** La nueva va **después de la 23** (el techo), así que **24 → 25, 25 → 26,
+26 → 27**. Las dos referencias por posición del deck se verificaron y ninguna se rompe: la de la
+lámina 5 («en dos láminas más» → 7) y la de la 19 («retomo en dos láminas más» → 21) apuntan
+**antes** del punto de inserción.
+
+### La lámina 24 nueva: el segundo factor del techo
+
+Todo sale de `../hovernext_129741/cruce_marcas.md`. Se transcribió a `CRUCE_TOL` (§2) y
+`CRUCE_CONJUNTA` (§3); nada se re-mide en tiempo de build.
+
+Tres objetos, y cada uno está por una razón:
+
+- **El titular**, `13 de las 26 marcas = 50,0 %`, con el **emparejamiento uno a uno** al lado y no
+  en el guion. Sin eso la primera pregunta de la sala es por qué no son 18, que es lo que da
+  contar por distancia mínima reusando la misma detección.
+- **La meseta** (`meseta_tolerancia`, helper nuevo), que es lo que hace **robusto** al 13. Como
+  curva, un tramo plano de seis puntos es una recta que no llama la atención de nadie; como tira
+  de celdas, el mensaje es el mismo número repetido seis veces. Las dos celdas de fuera de la
+  meseta van en **gris y a la vista**, para que se vea de dónde sale el número que sube en vez de
+  esconderlo.
+- **La tabla conjunta** con la columna **«ambas»**, que es la intersección contada y no la cota.
+  Se recortó a **cuatro filas** (4,0 % / 7,6 % / 12,0 % / la región entera) por espacio: la de
+  20,0 % no agrega una lectura, y la de la región entera es el chequeo de sanidad y no se toca.
+
+Las tres salvedades de `cruce_marcas.md` §5 que más fácil se pierden van en el **cuerpo** y no
+solo en el guion: la **unidad** (marcas 26, contra los parches con marca 28 de la lámina 23, que
+**no se encadenan**), que la **cota `mín( )` es floja** (promete 13 donde la intersección real es
+11) y que el número de la región entera es el **chequeo de sanidad**. **No hay precisión en
+ninguna parte del deck**, y es deliberado.
+
+El remate es el hallazgo y no el número: **el cuello se movió**. Hasta esta lámina la discusión
+era el tamaño del recorte por atención; desde el 7,6 % de la región el que manda es la detección.
+
+### Las seis frases stale, corregidas
+
+Cuatro las traía listadas el handoff; **dos aparecieron al barrer el generador** y son del mismo
+defecto, así que se corrigieron en el mismo pase.
+
+| Lámina | Dónde | Qué decía | Por qué era falsa |
+|---|---|---|---|
+| 15 | cuerpo, panel HoVer-NeXt | «177 mitosis, sin cruzar» | el mapa del bloque, y el bloque ya incluye el cruce |
+| 15 | cuerpo, panel Método | «Uno de ellos **ahorró** una corrida entera» | el techo dio alto y la corrida se hizo. La 26 ya lo decía en condicional desde la mañana; acá había quedado en pasado |
+| 22 | guion, punteo | «sin cruzar contra las marcas» | anunciaba pendiente lo que se cuenta dos láminas después |
+| 22 | guion, prosa | «No lo cruzamos todavía… y cuando lo crucemos» | idem |
+| 23 | guion, cierre | «Eso es lo primero que sigue» | ahora es «lo que viene en la lámina siguiente» |
+| 27 | cuerpo, tarjeta 1 + remate + guion | «Cruzar las 177 contra las 26 marcas» como paso pendiente | listaba como futuro lo que la 24 acaba de mostrar |
+
+La lámina 27 quedó con **tres tarjetas nuevas**: el brazo de ensemble (ahora con el molde del
+cruce armado, así que el Δ sale sin trabajo extra), la coordinación antes de extender a las doce,
+y una **dirección** que sale del cruce: para subir el 13 de 26 hay que mover la detección, porque
+agrandar el recorte ya no compra nada.
+
+Lo que **no** se tocó: el cuerpo de la lámina 22 («nada cruzado todavía») y su remate («cruzarlas
+es lo que sigue»). En ese punto del recorrido son verdad, y ahora además **arman** la lámina 24.
+
+### Verificación
+
+- **`AUDITORÍA: sin avisos`** en las 27, y la copia sin notas regenerada (27 láminas, 0 con notas).
+- **AST contra el diff**: de 178 líneas nuevas, **87 caen dentro de un `notes()`** y las 91
+  restantes son cuerpo o código, todas justificables una por una (los dos bloques de datos, el
+  helper, la lámina entera, las tres tarjetas de la 27 y la línea de `build()`).
+- **Estilo, medido sobre el `.pptx` y no sobre el fuente**: cero rayas, cero «palanca», cero «al
+  revés» en las 27 láminas y sus notas.
+- **Guion nuevo (762 palabras)**: 37 oraciones, media 19,1 y **sd 10,2** (la variedad humana que
+  `@humanizer-es` pide), cero vocabulario del cluster de IA, cero colas de gerundio y **cero
+  dígitos en la prosa**. Medido con `grep` **antes** de invocar la skill, que es lo que evitó una
+  pasada que habría sobre-editado prosa limpia ([[deck-qa-puntos-ciegos-chequeo]]).
+- **Rasterizadas y miradas**: la 15, la 24 y la 27. El titular de la 24 salió en dos renglones
+  pegado al borde del panel y se acortó el subtítulo hasta que entra en uno.

@@ -2632,6 +2632,18 @@ TECHO_CLAM = [2, 6, 12, 15, 19, 23, 25, 26, 27, 27, 28]
 TECHO_MAMM = [3, 4, 13, 18, 22, 23, 28, 28, 28, 28, 28]
 TECHO_AZAR = [0.22, 0.56, 1.12, 2.12, 3.37, 5.61, 8.41, 11.22, 15.62, 22.44, 28.0]
 
+# cruce_marcas.md §2: el barrido de tolerancia del emparejamiento, en µm. Los seis
+# primeros son la meseta; los dos grises están tan lejos que ya no dicen «mismo objeto».
+CRUCE_TOL = [("7,5", 13, True), ("15", 13, True), ("22,5", 13, True), ("30", 13, True),
+             ("50", 13, True), ("75", 13, True), ("100", 14, False), ("150", 17, False)]
+
+# cruce_marcas.md §3: los dos factores del techo y su intersección. La unidad son MARCAS
+# (26), NO los parches con marca (28) de la lámina del techo: las dos tablas no se encadenan.
+CRUCE_CONJUNTA = [["4,0 % de la región", "12", "13", "8", "12"],
+                  ["7,6 %", "15", "13", "10", "13"],
+                  ["12,0 %", "19", "13", "11", "13"],
+                  ["la región entera", "26", "13", "13", "13"]]
+
 # coordinacion_gpu.md: el estado de la cola, sin nombres de usuario ni números de trabajo
 COLA = [("Servidor de inferencia", "corriendo", "365 días", "tiene la GPU"),
         ("Trabajo de otro grupo", "en espera", "sin límite", "delante nuestro"),
@@ -2762,6 +2774,27 @@ def curva_techo(slide, l, t, w, h, series, ks, fs=9.5, ymax=28.0):
     return t + h + 0.30
 
 
+def meseta_tolerancia(slide, l, t, w, celdas, h=0.44, fs=15, fs_rot=9):
+    """El recuento contra la tolerancia del emparejamiento, como tira de celdas.
+
+    El objeto es una MESETA, y una meseta dibujada como curva es un tramo recto que no le
+    llama la atención a nadie. Como tira, lo que se ve es el mismo número repetido seis
+    veces, que es exactamente el mensaje: el corte no decide nada. Las celdas de fuera de la
+    meseta van en gris y se dejan a la vista a propósito, para que se vea de dónde sale el
+    número que sube. `celdas` = (rótulo, n, dentro_de_la_meseta)."""
+    n = len(celdas)
+    cw = w / n
+    for i, (rot, v, dentro) in enumerate(celdas):
+        x = l + i * cw
+        _rect(slide, x + 0.025, t, cw - 0.05, h, ONCO_DARK if dentro else ONCO_DATA)
+        add_textbox(slide, x, t, cw, h,
+                    [(str(v), fs, True, WHITE if dentro else BLACK, F_BODY, PP_ALIGN.CENTER)],
+                    anchor=MSO_ANCHOR.MIDDLE)
+        add_textbox(slide, x, t + h + 0.03, cw, 0.24,
+                    [(rot, fs_rot, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
+    return t + h + 0.27
+
+
 # ============================================================================
 # Láminas del 19-ago
 # ============================================================================
@@ -2781,11 +2814,11 @@ def lam_desde_6ago(prs):
     panel(s, xs[1], TOP + 0.30, cw, 2.12, "HoVer-NeXt", ONCO_DARK, [
         "Instalado y auditado, con tres correcciones al plan.",
         "La interpretabilidad corrió sobre la lámina del patólogo.",
-        "Y la segmentación corrió: 177 mitosis, sin cruzar."], ONCO_CONN)
+        "Y la segmentación corrió: 177 mitosis, 13 de las 26 marcas."], ONCO_CONN)
     panel(s, xs[2], TOP + 0.30, cw, 2.12, "Método", ONCO_DARK, [
         "Tres patrones nuevos, escritos y ya en uso.",
         "Los tres dicen lo mismo: el instrumento se mete en la conclusión.",
-        "Uno de ellos ahorró una corrida entera."], ONCO_CONN)
+        "Uno de ellos mide el techo de una prueba antes de pedir la GPU."], ONCO_CONN)
     status_done(s, xs[0] + cw / 2, TOP + 2.70)
     status_done(s, xs[1] + cw / 2, TOP + 2.70)
     status_done(s, xs[2] + cw / 2, TOP + 2.70)
@@ -3252,7 +3285,7 @@ def lam_hovernext_estado(prs):
              "La auditoría cambió tres cosas del plan antes de correr.\n"
              "La atención sobre la lámina anotada: mitosis es el grupo más atendido de los siete.\n"
              "Corrió de madrugada: 18 minutos, 177 mitosis en la lámina entera.\n"
-             "Es salida cruda, sin cruzar contra las marcas.\n"
+             "Es salida cruda: el cruce contra las marcas lo cuento enseguida.\n"
              "\n"
              "Éste es el segundo hilo. La idea de fondo viene de la reunión anterior: si el "
              "modelo mira donde hay mitosis pero igual falla, quizás lo que falta no es "
@@ -3293,12 +3326,12 @@ def lam_hovernext_estado(prs):
              "material equivalente. Encontró ciento setenta y siete mitosis en la lámina "
              "entera, además de las otras seis clases de célula.\n"
              "\n"
-             "Ese número hay que leerlo con cuidado, y prefiero frenarlo yo. Es salida cruda. "
-             "No lo cruzamos todavía contra las veintiséis marcas del patólogo, así que no es "
-             "ni acierto ni error: no hay precisión ni exhaustividad calculadas. Y cuando lo "
-             "crucemos va a haber que tener presente que las marcas son positivos parciales, o "
-             "sea que fuera de ellas puede haber mitosis reales sin marcar, y eso empuja "
-             "cualquier medida de precisión hacia abajo por construcción.")
+             "Ese número hay que leerlo con cuidado, y prefiero frenarlo yo. Así solo es salida "
+             "cruda: sin cruzarlo contra las marcas del patólogo no es ni acierto ni error, y "
+             "no hay precisión ni exhaustividad. El cruce lo cuento enseguida, y ahí va a "
+             "importar que las marcas son positivos parciales, o sea que fuera de ellas puede "
+             "haber mitosis reales sin marcar, y eso empuja cualquier medida de precisión hacia "
+             "abajo por construcción.")
 
 
 def lam_techo(prs):
@@ -3375,8 +3408,125 @@ def lam_techo(prs):
              "puede haber más. Así que esto mide cuánto recuperamos de lo anotado, que no es lo "
              "mismo que cuánto hay.\n"
              "\n"
-             "Con la corrida de anoche ya tenemos con qué medir el segundo factor, que era el "
-             "que faltaba. Eso es lo primero que sigue.")
+             "Con la corrida ya se pudo medir el segundo factor, que era el que faltaba, y es "
+             "justamente lo que viene en la lámina siguiente.")
+
+
+def lam_cruce(prs):
+    # ---- El segundo factor del techo: las detecciones contra las marcas ----
+    # La lámina no puede afirmar más que cruce_marcas.md §5, así que las tres salvedades que
+    # más fácil se pierden van en el CUERPO y no solo en el guion: que la unidad son marcas
+    # (26) y no los parches (28) de la lámina anterior, que la cota del mínimo es floja, y
+    # que el número de la región entera es el chequeo de sanidad y no un resultado nuevo.
+    # No hay precisión en ninguna parte, y es deliberado: las marcas son positivos parciales.
+    s = content(prs, "El cruce: el detector recupera 13 de las 26 marcas")
+    _grupo(s, 0.35, TOP + 0.06, 9.28, 0.76, fill=TEAL_CARD)
+    add_textbox(s, 0.35, TOP + 0.06, 9.28, 0.76, [
+        ("13 de las 26 marcas de mitosis   =   50,0 %", 17, True, ONCO_DARK, F_BODY,
+         PP_ALIGN.CENTER),
+        ("Emparejamiento uno a uno: una detección no puede acreditar dos marcas. Por "
+         "distancia mínima llegaba a 18, con las mismas 13 detecciones.",
+         10, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
+
+    # ---- izquierda: la meseta, que es lo que hace robusto al 13 ----
+    xl, wl = 0.35, 4.30
+    add_textbox(s, xl, TOP + 0.94, wl, 0.26,
+                [("El corte no decide nada", 12.5, True, ONCO_DARK, F_BODY)])
+    meseta_tolerancia(s, xl, TOP + 1.26, wl, CRUCE_TOL)
+    add_textbox(s, xl, TOP + 2.00, wl, 0.24,
+                [("tolerancia del emparejamiento, en µm", 8.5, False, GRIS_BODY, F_BODY,
+                  PP_ALIGN.CENTER)])
+    pie_lineas(s, xl, TOP + 2.32, wl, [
+        "Plano entre 7,5 y 75 µm, un rango de 10 veces. Se adopta 30 µm y la elección es "
+        "indiferente.",
+        "Las distancias son bimodales: o acierta encima, o no hay nada cerca. Las 13 que "
+        "fallan tienen su detección más próxima a 115 µm de mediana, así que no fallan por "
+        "poco: es ausencia, no tolerancia.",
+        "Las dos celdas grises quedan a más de 100 µm, unos seis núcleos: ahí el "
+        "emparejamiento ya no dice que sea el mismo objeto."], size=8.5)
+
+    # ---- derecha: los dos factores juntos, y la intersección contada ----
+    xr, wr = 4.93, 4.70
+    add_textbox(s, xr, TOP + 0.94, wr, 0.26,
+                [("Los dos factores, y su intersección", 12.5, True, ONCO_DARK, F_BODY)])
+    simple_table(s, xr, TOP + 1.22, wr,
+                 ["Máscara", "En la máscara", "Detectadas", "Ambas", "Cota mín( )"],
+                 CRUCE_CONJUNTA, col_fracs=[0.30, 0.19, 0.17, 0.16, 0.18],
+                 row_h=0.32, fs=10, destacar=2)
+    pie_lineas(s, xr, TOP + 2.88, wr, [
+        "Unidad: marcas (26). La lámina anterior contaba parches con marca (28): las dos "
+        "tablas no se encadenan.",
+        "La cota mín( ) es floja: donde promete 13, la intersección real es 11.",
+        "Con la región entera los dos brazos dan 13: chequeo de sanidad aprobado."],
+        size=8.5)
+    takeaway_bar(s, "El cuello se movió: desde el 7,6 % de la región, el que manda es el "
+                    "detector")
+    notes(s, "El detector recupera 13 de las 26 marcas del patólogo: 50 %.\n"
+             "El emparejamiento es uno a uno, y el corte de tolerancia no decide nada.\n"
+             "Desde el 7,6 % de la región el que manda es el detector, no la máscara.\n"
+             "La cota es floja: donde promete 13, la intersección real es 11.\n"
+             "\n"
+             "Ésta es la otra mitad de la lámina anterior. Ahí medimos lo que la máscara deja "
+             "pasar y dije que el segundo límite no lo podíamos medir todavía. Con la corrida "
+             "ya se pudo, y esto es lo que dio.\n"
+             "\n"
+             "El número es trece de veintiséis, o sea la mitad. El emparejamiento es uno a "
+             "uno, y eso importa más de lo que parece: una detección no puede acreditar dos "
+             "marcas. Si uno cuenta de la manera fácil, preguntándole a cada marca cuál es la "
+             "detección que tiene más cerca, el número sube hasta dieciocho, pero son siempre "
+             "las mismas trece detecciones contadas varias veces. Preferí el conteo honesto.\n"
+             "\n"
+             "A la izquierda está lo que pasa cuando uno mueve la tolerancia, que es la "
+             "distancia dentro de la cual aceptamos que una detección y una marca son el "
+             "mismo objeto. La respuesta es que el corte no decide nada: seis valores "
+             "seguidos dan el mismo número, y entre el primero y el último hay un factor de "
+             "diez. Eso pasa porque las distancias son de dos tipos y no de uno. O la "
+             "detección cae encima de la marca, a un par de micras, o no hay nada cerca. Las "
+             "que fallan tienen su detección más próxima a más de cien micras, que es como "
+             "decir que no está. No fallan por poco, y no es un problema de centrado ni de "
+             "umbral: es ausencia. Las dos celdas grises son tolerancias tan anchas que ya no "
+             "dicen que sea el mismo objeto, y las dejo a la vista justamente para que se vea "
+             "de dónde sale el número que sube.\n"
+             "\n"
+             "La tabla de la derecha junta los dos límites. Cada fila es un tamaño de "
+             "máscara, desde una porción chica de la región hasta la región entera. Una "
+             "columna dice cuántas marcas entran en la máscara, la siguiente cuántas detecta "
+             "la herramienta, y la que importa es la de al lado, que cuenta las que cumplen "
+             "las dos cosas a la vez.\n"
+             "\n"
+             "Y ahí está lo que cambió. Hasta hace poco la discusión de esta parte era cuán "
+             "grande convenía hacer el recorte por atención. La tabla dice que a partir de "
+             "menos de una décima parte de la región el recorte deja de ser el problema: por "
+             "generoso que uno lo haga, el techo se queda en trece. El que manda pasó a ser "
+             "la detección. Si queremos subir ese número, lo que hay que mover es el "
+             "detector, no el tamaño de la máscara.\n"
+             "\n"
+             "Dos cosas más sobre cómo se lee la tabla. La primera es que la cota del mínimo "
+             "es floja, y conviene decirlo: en la fila resaltada promete trece y la "
+             "intersección real es once. Sirve para condenar una prueba antes de correrla, no "
+             "para presupuestar lo que va a dar. La segunda es el chequeo de sanidad: con la "
+             "región entera los dos criterios dan exactamente el mismo número, que es lo que "
+             "tiene que pasar si el cruce está bien hecho. Si ahí no coincidieran, habría un "
+             "error en el código.\n"
+             "\n"
+             "Y lo que este número no dice, que es la parte que quiero dejar clara. La mitad "
+             "no es la exhaustividad de la herramienta en mitosis. El denominador son las "
+             "marcas del patólogo, no las mitosis que hay en la lámina. Tampoco hay precisión "
+             "calculada, y no la vamos a calcular: en la región anotada la herramienta "
+             "encontró bastante más de lo que está marcado, y eso de más no son errores, "
+             "porque el patólogo marca donde la evidencia es más clara y no pretende marcarlo "
+             "todo. Cualquier precisión que saquemos de acá sale sesgada hacia abajo por "
+             "construcción y no mide al detector.\n"
+             "\n"
+             "Una última precisión de unidad, porque las dos tablas se parecen y no se "
+             "encadenan. Ésta cuenta marcas del patólogo. La anterior contaba parches que "
+             "contienen una marca, y son unos pocos más, porque una marca puede caer sobre "
+             "dos parches vecinos. Algunas casillas coinciden de casualidad, así que no hay "
+             "que leer una tabla como continuación de la otra.\n"
+             "\n"
+             "Con esto el patrón de la lámina anterior queda cerrado con los dos factores "
+             "medidos, y el brazo que todavía no corrimos ya tiene contra qué compararse: el "
+             "mismo cruce sobre su salida da la diferencia.")
 
 
 def lam_gpu(prs):
@@ -3518,43 +3668,45 @@ def lam_que_sigue(prs):
     # ---- El cierre: lo que sigue y lo que bloquea ----
     s = content(prs, "Qué sigue")
     for i, txt in enumerate([
-            "Cruzar las 177 mitosis contra las 26 marcas del patólogo, que es el segundo "
-            "factor del techo y el único que faltaba medir.",
-            "Lanzar el brazo de ensemble, que ahora es un solo envío con la fila vacía, y "
-            "recién entonces comparar los dos brazos sobre la lámina anotada.",
+            "Lanzar el brazo de ensemble, que es un solo envío con la fila vacía, y correrle "
+            "el mismo cruce para tener la diferencia entre los dos brazos.",
             "Antes de extender a las doce láminas anotadas, coordinar: hay otro trabajo del "
-            "equipo midiendo atención contra las mismas marcas."]):
+            "equipo midiendo atención contra las mismas marcas.",
+            "Para subir el 13 de 26 hay que mover la detección: agrandar el recorte por "
+            "atención ya no compra nada."]):
         add_card(s, 0.35, TOP + 0.16 + i * 0.80, 9.28, 0.66, i + 1, txt, size=12.5)
     panel(s, 0.35, TOP + 2.54, 9.28, 0.90, "Y dos preguntas para vos", ONCO_DARK, [
         "De las treinta láminas anotadas que mencionaste, en el servidor hay doce. Faltan "
         "dieciocho, y no sabemos si existen o si están en otro lado.",
         "Las anotaciones vienen firmadas con tres iniciales que no sabemos de quién son."],
           ONCO_CONN, tsize=13, bsize=10.5)
-    takeaway_bar(s, "El recuento cerró y la segmentación corrió; falta cruzarlas y comparar")
+    takeaway_bar(s, "El recuento cerró, la segmentación corrió y el cruce dio 13 de 26: falta comparar brazos")
     notes(s, "Tres pasos, y los tres son cortos.\n"
-             "Cruzar las 177 contra las 26 marcas es el segundo factor del techo.\n"
              "El brazo que falta es un solo envío, con la fila vacía.\n"
-             "Y antes de extender, coordinar: hay otro trabajo del equipo midiendo lo mismo.\n"
+             "Antes de extender, coordinar: hay otro trabajo del equipo midiendo lo mismo.\n"
+             "Y para subir el 13 de 26 hay que mover la detección, no el recorte.\n"
              "\n"
              "Cierro con lo que sigue, y son tres cosas cortas.\n"
              "\n"
-             "La primera es cruzar las detecciones de anoche contra las marcas del patólogo. "
-             "Ése es exactamente el segundo factor del techo, el que hasta ayer no podíamos "
-             "medir porque no había con qué. Ahora hay, y es trabajo de análisis, sin turno de "
-             "cómputo de por medio.\n"
-             "\n"
-             "La segunda es lanzar el brazo que falta. La herramienta trae varios juegos de "
+             "La primera es lanzar el brazo que falta. La herramienta trae varios juegos de "
              "pesos: corrimos el que tiene clase de mitosis, y queda el otro, que promedia tres "
              "modelos y sirve de contraste. Con la fila vacía es un solo envío y menos de media "
-             "hora. Recién con los dos se pueden comparar.\n"
+             "hora. El cruce que acabo de mostrar ya deja el molde armado, así que sobre su "
+             "salida sale la diferencia entre los dos brazos sin trabajo extra.\n"
              "\n"
-             "La tercera es la que quería conversar. Cuando armé el bloque anterior creía que "
+             "La segunda es la que quería conversar. Cuando armé el bloque anterior creía que "
              "teníamos una sola lámina anotada; buscando en el servidor aparecieron doce, y "
              "eso cambia el tamaño de lo que se puede hacer. Antes de extender la medición a "
              "esas doce, conviene coordinar, porque hay otro trabajo del "
              "equipo que está midiendo atención contra las mismas marcas. Sería una pena "
              "duplicar el esfuerzo, y peor todavía llegar a dos números distintos sobre lo "
              "mismo sin saber por qué.\n"
+             "\n"
+             "La tercera no es una tarea sino una dirección, y sale del cruce. Mientras el "
+             "límite lo ponía el recorte por atención, tenía sentido discutir cuánto "
+             "agrandarlo. Ahora el límite lo pone el detector, así que agrandar el recorte no "
+             "compra nada y el esfuerzo tiene que ir a la detección. Lo digo acá porque cambia "
+             "qué vale la pena probar después.\n"
              "\n"
              "Y quedan dos preguntas para vos, que no son retóricas. Mencionaste treinta "
              "láminas anotadas y en el servidor encontramos doce. Faltan dieciocho y no sabemos "
@@ -3606,6 +3758,7 @@ def build():
     lam_regiones_rebarrido(prs)
     lam_hovernext_estado(prs)
     lam_techo(prs)
+    lam_cruce(prs)
     lam_gpu(prs)
     lam_patrones(prs)
     lam_que_sigue(prs)
