@@ -2332,6 +2332,7 @@ fechada arriba de la tabla, sin tocar la tabla (es el registro del estado del 18
 | X2 | Una figura que ilustra un número publicado tiene que **reusar el código** del número | durable | ADDENDUM en [[hallazgo-necesita-forma-presentable]] |
 | X3 | Una orden de recorte admitía **dos lecturas** y una borraba lo que la otra pedía conservar | durable | memoria nueva `orden-destructiva-dos-lecturas` |
 | X4 | La memoria del deck dice «14 láminas» y va por 16, con dos recortes sin registrar | stale | ADDENDUM compacto + descripción |
+| X5 | **10 wikilinks rotos** en las memorias, de dos familias, preexistentes | error | alinear el campo `name:` / los enlaces |
 
 ## X1 — el brazo de control salió gratis, y no por suerte
 
@@ -2411,6 +2412,24 @@ la recuperación, así que un conteo stale ahí se paga en cada sesión nueva.
 
 **Fix**: ADDENDUM **compacto** (el detalle vive en `presentacion_b8/README.md`, que es canónico
 para el deck) + descripción actualizada.
+
+## X5 — diez wikilinks rotos, y el chequeo que los encontró
+
+Al validar los enlaces de lo tocado apareció que **los wikilinks resuelven por el campo `name:`
+del frontmatter, no por el nombre de archivo**, y en dos memorias los dos difieren:
+
+| archivo | `name:` | cómo la enlazan | veredicto |
+|---|---|---|---|
+| `mammoth-interpretabilidad-objA.md` | `...-obja` | `[[...-objA]]` en **8** memorias | manda `objA`: es el archivo y la línea de índice |
+| `humanizer-es-skill.md` | `humanizer-es` | `[[humanizer-es-skill]]` en **2** | manda `humanizer-es`: 4 memorias + 2 docs del repo |
+
+Fix asimétrico a propósito, siempre hacia la forma que ya domina: en el primero se corrigió **el
+campo `name:`** (una edición arregla ocho enlaces); en el segundo, **los dos enlaces**. Cero
+wikilinks rotos después, verificado sobre las memorias enteras y no solo sobre las tocadas.
+
+**Lo transportable**: el chequeo ingenuo compara contra los **nombres de archivo** y da falsos
+positivos y falsos negativos a la vez. Hay que leer el `name:` de cada archivo. Y conviene correrlo
+**sobre todas** las memorias, no sobre las que uno tocó: las dos familias llevaban meses rotas.
 
 ## Verificado sin cambios
 
