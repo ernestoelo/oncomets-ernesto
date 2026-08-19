@@ -654,6 +654,27 @@ De yapa suele regalar el **chequeo de sanidad** del barrido: en el `k` que cubre
 tienen que coincidir. Caso de referencia: `sprints/B8_sprint8/hovernext_129741/techo_atencion.md`
 (la fase 3 acotada con la GPU bloqueada) + memoria [[techo-filtro-antes-de-correr]].
 
+**P2.a.bis — cuando el segundo factor SE mide, `min()` no alcanza: contar la INTERSECCIÓN**
+(19-ago-2026, el cruce que cerró el caso de referencia de arriba). Medidos los dos factores sobre
+la 129741, aparecen tres cosas que la cota sola no da:
+
+- **Cuál factor manda puede cambiar con `k`, y hay que decir desde dónde.** Acá el techo del filtro
+  mandaba hasta `k`=189 (7,6 % de la región) y de ahí en adelante manda la **detección** (13 de 26).
+  O sea que **un techo alto puede además significar que el filtro ya dejó de ser el problema**, y
+  eso solo se sabe midiendo el otro factor. Antes de medirlo, toda la discusión era sobre el tamaño
+  del recorte; después, el recorte dejó de importar.
+- **La cota `min()` es floja: sirve para condenar, no para presupuestar.** En el 12 % de la región
+  `min()` prometía 13 y la intersección real fue **11**. Contar la intersección cuesta lo mismo una
+  vez que están los dos factores.
+- **Testear si los dos factores son independientes.** Si lo son (acá sin evidencia de asociación,
+  p = 0,200 y 0,383), la intersección queda cerca del producto y lejos de `min()`. Si estuvieran
+  asociados, `min()` sería peor cota todavía.
+
+Y una trampa de unidad al juntar las dos etapas: el techo se midió en **parches** (28) y el cruce
+en **marcas** (26). Coinciden en algunas celdas por casualidad. **Declarar la unidad en cada tabla**
+o alguien va a leer una como continuación de la otra. Detalle:
+`sprints/B8_sprint8/hovernext_129741/cruce_marcas.md`.
+
 **Corolario de costo**: restringir para **ahorrar cómputo** y restringir para **controlar falsos
 positivos** son motivos distintos y **no fijan el mismo `k`**. Cuando el cómputo deja de ser
 caro, solo sobrevive el segundo. Detalle: [[topk-percentil-no-auc]].

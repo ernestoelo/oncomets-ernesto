@@ -52,6 +52,12 @@ intersección, que es más informativo que la cota:
 | 1392 | 55,8 % | 26/26 | 13/26 | 13/26 | 13 |
 | 2496 | 100 % | 26/26 | 13/26 | 13/26 | 13 |
 
+> **La unidad cambió, y las dos tablas NO se cruzan.** `techo_atencion.md` cuenta **parches
+> con marca (28)**; ésta cuenta **marcas (26)**, porque una detección se empareja con una marca
+> y no con un parche. Son 28 parches para 26 marcas porque una marca puede caer sobre dos. Que
+> algunas celdas coincidan (19 en K=300 en las dos) es **casualidad**: no leer una tabla como
+> continuación de la otra.
+
 Mammoth ordena mejor y llena la máscara antes (26/26 en K=750 contra 1392 de CLAM, coherente
 con `techo_atencion.md` §2), pero **en la intersección los dos convergen**: 11/26 en el 12 % de
 la región, 13/26 desde K=750.

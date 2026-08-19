@@ -4059,3 +4059,50 @@ Las siete clases de `pred_*.tsv` en disco reproducen **exactamente** la tabla de
 - Sin cambios en: los dos papers de `papers_11_agosto/` sin fichar, las dos preguntas del 6-ago
   sin respuesta, la réplica del 4589 con semillas nuevas, el sign-off del patólogo y `@grilling`
   sin estrenar.
+
+## Sesión 13 (19-ago-2026) — el guion cerró su QA, y el cruce dio 13 de 26
+
+Sesión de análisis y cierre, con la reunión todavía por delante. **Cero GPU.**
+
+### 1. El QA del guion: la capa de estilo pasó, la de lectura de corrido rindió
+
+- **`@humanizer-es`: PASA sin una sola edición.** Medido con `grep` antes de reescribir: cero
+  vocabulario del cluster de IA, cero colas de gerundio, cero paralelismos formulaicos, cero
+  relleno, cero rayas, cero «palanca». Largo de oración con **sd 9,0 sobre media 18,9** (rango 3
+  a 55), que es variedad humana. La skill pide explícitamente no sobre-editar prosa limpia.
+- **La lectura de corrido: cuatro hallazgos**, ninguno visible para las otras capas. El más grave
+  es de cuerpo, no de guion: el remate de la lámina 25 decía que un patrón **«ahorró la corrida
+  entera»**, y no la ahorró (el techo dio alto y la corrida se hizo igual). La nota de la 23 lo
+  decía bien y en condicional ⇒ el defecto era un **desacuerdo entre cuerpo y guion sobre el mismo
+  hecho**. Los otros tres: una referencia por conteo de láminas que apuntaba cuatro atrás, un dato
+  que aparecía como dado porque su presentación vive en el bloque congelado, y una colisión de
+  «doce láminas» entre la 20 y la 26.
+- **Cinco ediciones**, verificadas a máquina: 11 de las 13 líneas modificadas caen en `notes()` y
+  las 2 restantes son el remate del cuerpo, que es el cambio intencional. Notas 15-26: **5.081
+  palabras (+0,85 %)**. Deck reconstruido, copia sin notas regenerada, lámina 25 rasterizada y
+  mirada.
+
+### 2. El cruce: HoVer-NeXt recupera 13 de las 26 marcas
+
+`sprints/B8_sprint8/hovernext_129741/cruce_marcas.md` · `scripts/cruce_hovernext_marcas.py`.
+
+- **13/26 = 50,0 %**, con emparejamiento **uno a uno** (húngaro). Contar por distancia mínima daba
+  14 y hasta 18, siempre con **13 detecciones distintas**: el exceso era la misma detección reusada.
+- **El corte no decide nada: plano entre 7,5 y 75 µm**, un rango de 10×.
+- Distancias **bimodales** (p25 = 2,0 µm, p75 = 114,6 µm): o acierta encima o no hay nada cerca.
+  Las 13 que falla tienen su detección más cercana a **115 µm de mediana**.
+- **P2.a cerrada.** Desde **K=189 (7,6 % de la región)** el factor que manda es la **detección**,
+  no la máscara. En el 12 % la intersección real es **11 de 26** contra los 13 que promete `min()`.
+  Chequeo de sanidad aprobado: con la región entera los dos brazos dan 13/26 exacto.
+- Sin evidencia de que lo detectado sea lo más atendido (p = 0,200 y 0,383, n = 13 contra 13).
+- **No se calcula precisión**: las 69 detecciones restantes de la región anotada **no son falsos
+  positivos** (marcas parciales). El 50 % tampoco es «el recall de HoVer-NeXt».
+
+### Lo que NO se hizo
+
+- **La lámina nueva del deck con el cruce, y la corrección de las láminas 22, 23 y 26**, que hoy
+  anuncian el cruce como pendiente. **Ernesto lo aprobó y quedó sin ejecutar** por cierre de
+  sesión. Es lo primero de la próxima.
+- **El brazo de ensemble**, sin lanzar (decisión de Ernesto sostenida dos veces en esta sesión).
+- Sin cambios en: los dos papers de `papers_11_agosto/` sin fichar, las dos preguntas del 6-ago,
+  la réplica del 4589 con semillas nuevas, el sign-off del patólogo y `@grilling` sin estrenar.
