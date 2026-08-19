@@ -38,6 +38,38 @@ O acierta encima (mediana de 2 µm en el cuartil bajo) o no hay nada cerca. **La
 no son «por poco»**: su detección más cercana está a **115 µm de mediana** (mínimo 23 µm). No
 es un problema de tolerancia ni de centrado, es ausencia.
 
+## 2.b Por qué falla la mitad: el detector está fuera de su dominio
+
+§2 cierra en «es ausencia» y ahí se detenía. La explicación no hay que buscarla en el cruce,
+está en el paper y la teníamos fichada desde el 14-ago (`papers_14_agosto/hovernext_estudio.md`).
+Se escribe acá porque es la primera pregunta que hace cualquiera que vea el 13 de 26.
+
+1. **La clase de mitosis se entrenó y se validó SOLO en colon, y esta lámina es de mama.**
+   Textual del estudio §3.a: «los tres conjuntos que la tocan son CRC sin excepción: Lizard es
+   colon, el dataset de mitosis son 48 ROI de 11 WSI de colon, y MitEval son 13 ROI de nueve WSI
+   de resección de colon. **Cero mitosis medidas en mama.**» Ojo con la versión ingenua del
+   argumento, que el mismo §3.a desactiva: para **segmentar y tipificar núcleos** en mama el
+   modelo tiene número propio y bueno (mama sale 6ª de 19 tejidos, por encima del promedio). Lo
+   que no tiene validación fuera de colon es **la clase mitótica**, que es justo la que usamos.
+2. **Ni en su propio terreno es exhaustiva.** Supp. C.3 da para HNTiny, que es exactamente el
+   checkpoint que corrimos (`lizard_convnextv2_tiny`), **recall 0,720** en mitosis sobre colon.
+   Se le escapan ~28 de cada 100 en casa. Un 50 % fuera de su tejido deja de ser anómalo.
+3. **Segundo eje de dominio, el escáner.** La razón de existir del desafío MIDOG es que los
+   detectores de mitosis se caen al cambiar de escáner (`tareas_geometricas/midog_notas.md` §3.a).
+   Nuestro `.bif` es Ventana. No está medido acá, pero es el segundo sospechoso y no se puede
+   separar del primero con una lámina.
+4. **La dirección del sesgo empeora la lectura, no la mejora.** El patólogo marca solo donde la
+   evidencia es más clara ([[anotaciones-patologo-qupath]] trampa 2) ⇒ las 26 deberían ser **las
+   fáciles**. Perder la mitad de las fáciles es peor que perder la mitad de una muestra
+   representativa.
+
+**Lo que NO está medido, y es lo barato que sigue:** si los núcleos fallados **fueron segmentados
+y clasificados como otra cosa** (epitelio, conectivo) o si **no fueron segmentados**. Son dos
+fallas distintas con arreglos distintos de costo muy distinto, y el cruce actual solo miró la
+clase `mitosis`. Es contestable **sin GPU y sin volver a correr**: sobreviven
+`129741_raw_256_inst.zip` (9,7 GB) y `129741_raw_256_cls.zip` (`corrida_5008.md` §2, gracias a
+`--keep_raw`). **Ésta, y no el ensemble, es la continuación natural.**
+
 ## 3. Los dos factores juntos
 
 `recall_fase3(K) ≤ min( techo_atencion(K) , detección )`, y además el conteo **real** de la
@@ -106,8 +138,16 @@ lo que predice la independencia (19/26 × 13/26 ≈ 9,5) y no cerca de la cota.
 
 ## 6. Qué habilita
 
-- El **brazo de ensemble** ahora tiene contra qué compararse: el mismo cruce sobre su salida da
-  el Δ, y ése era el punto de correrlo.
+- ~~El **brazo de ensemble** ahora tiene contra qué compararse: el mismo cruce sobre su salida da
+  el Δ, y ése era el punto de correrlo.~~ **CORREGIDO el 19-ago (tarde): es falso, y hay que
+  decirlo antes de que alguien gaste GPU en eso.** El brazo de ensemble son los tres folds de
+  **PanNuke**, y PanNuke **no tiene clase de mitosis** (`out_channels_cls` 6 = 5 clases + fondo,
+  contra 8 = 7 + fondo de Lizard-Mitosis; `auditoria_codigo.md` §«Diferencias entre los dos
+  juegos»). Sobre su salida **este cruce no es computable**: no produce el objeto que se
+  empareja con las marcas. El ensemble sirve para el inventario de tipos de núcleo y para
+  calidad de segmentación, **no** para mover el 13 de 26, y PQ/bPQ/mPQ siguen sin ser
+  computables contra el geojson ([[hovernext-encargo-17ago-diseno]]). **Correr el ensemble no
+  contesta la pregunta de mitosis.**
 - La **fase 3 restringida** queda dimensionada: en el 12 % de la región el máximo alcanzable son
   **11 de 26**, y el cuello es el detector. Si el objetivo es subir ese número, lo que hay que
   mover es la detección, no el tamaño de la máscara.

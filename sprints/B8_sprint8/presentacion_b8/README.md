@@ -1249,3 +1249,73 @@ estaban huérfanas **antes** del recorte se dejaron como estaban, que no son de 
   «HoVer-NeXt y la clase de mitosis» y «Resultados: recortar y detectar». El mensaje largo vive en
   la barra de remate, que es su lugar.
 - El deck bajó de 12,3 a **17,1 MB**, y no a los 21 que daba antes de acotar los assets.
+
+## La sesión del 19-ago (noche): las notas de la 15 y la 16, reescritas para presentarse solas — VIGENTE
+
+**Cambio de alcance decidido por Ernesto a mitad de sesión.** La sesión entró con el encargo de
+leer el guion de las 16 de corrido y decidir el recorte de tiempo; ese trabajo se hizo y su
+resultado queda abajo como registro, pero **no se ejecutó**, porque Ernesto redefinió la reunión:
+**hoy solo se presentan la 15 y la 16**, y el reloj deja de importar. El pedido pasó a ser
+pedagógico y explícito: que cada una quede muy bien explicada, y que las notas digan **qué
+hicimos**, **qué genera HoVer-NeXt**, **qué representan las marcas que genera** y **por qué no
+rescató las 26 mitosis del patólogo**.
+
+### La consecuencia de diseño que gobierna la reescritura
+
+Presentadas solas, las dos láminas **pierden todo el andamiaje** que les daban las anteriores: la
+1 a la 8 establecían qué es la atención de CLAM, de dónde salen las 26 marcas y que son positivos
+parciales; la 14 presentaba la herramienta. Nada de eso va a estar en la sala. Las notas nuevas
+**cargan ese contexto ellas mismas**, sin suponer ninguna lámina previa. Ése es el motivo del
+crecimiento, no la verborragia: **715 → 1419 palabras** en la 15 y **441 → 693** en la 16, unos
+16 minutos hablados para las dos.
+
+### Lo que se agregó, y de dónde sale cada dato
+
+| Bloque nuevo | Fuente |
+|---|---|
+| Qué **produce** HoVer-NeXt: un inventario de núcleos, no un mapa de calor. **238 329 células** segmentadas, 7 clases, **177** de mitosis | `corrida_5008.md` §2 (tabla por clase) |
+| Qué **representa** cada marca: la amarilla es **un núcleo** que el clasificador etiquetó mitosis; la blanca es el dibujo del patólogo. Dos fuentes independientes en la misma imagen | `cruce_marcas.md` §1, [[anotaciones-patologo-qupath]] |
+| **Por qué falla la mitad**, en cuatro capas: no es artefacto de medición (meseta de 10× en la tolerancia, 115 µm de mediana a la detección más cercana) → la clase de mitosis se entrenó **solo en colon** y la lámina es de **mama** → ni en colon es exhaustiva (**recall 0,720** de HNTiny, que es el checkpoint que corrimos) → y las 26 marcadas deberían ser **las fáciles**, así que el sesgo empeora la lectura | `cruce_marcas.md` §2 y **§2.b nueva**, `papers_14_agosto/hovernext_estudio.md` §3.a y §3.b |
+| Lo que **no** se midió y es lo barato que sigue: si el núcleo fallado fue segmentado y **mal clasificado** o no fue segmentado. Se contesta con los `raw` guardados, sin GPU | `cruce_marcas.md` §2.b, `corrida_5008.md` §2 (`--keep_raw`) |
+
+La 16 cierra ahora abriendo la discusión hacia dónde mover el número, con las dos vías baratas y
+la advertencia de escáner de MIDOG (`tareas_geometricas/midog_notas.md` §3.a).
+
+### El error que se corrigió de paso, y que iba a costar GPU
+
+`cruce_marcas.md` §6 afirmaba que **el brazo de ensemble «ahora tiene contra qué compararse»** y
+que el mismo cruce sobre su salida daría el Δ. **Es falso.** El ensemble son los tres folds de
+**PanNuke**, y PanNuke **no tiene clase de mitosis** (`out_channels_cls` 6 = 5 + fondo, contra 8 =
+7 + fondo de Lizard-Mitosis; `auditoria_codigo.md`). Sobre su salida el cruce **no es computable**.
+Corregido en el documento, tachando el enunciado viejo en vez de borrarlo. **Correr el ensemble no
+contesta la pregunta de mitosis**, y por eso las notas de la 16 no lo proponen.
+
+### El análisis de arcos y de reloj que sí se hizo, y quedó sin ejecutar
+
+Se leyó el guion completo de las 16 de corrido. Vale para cuando se retome el deck entero:
+
+- **Desfase entre las prioridades declaradas y el presupuesto real.** La portada llama «corto» al
+  encargo de expertos (**6,0 min**, su lámina es la 3ª más larga), «comprimida» a la lectura de
+  SI-MIL (**17,4 min, 27,6 %**) y «lo que más quiero discutir» a HoVer-NeXt (**11,8 min**). O sea
+  que lo declarado comprimido ocupa más que lo declarado prioritario. Si hay que recortar, el
+  propio texto dice dónde: la lámina 10 sola son 866 palabras.
+- **La 13 propone como futuro lo que la 14 a la 16 muestran hecho** («correr un detector ya
+  entrenado y ver cuánto acierta contra las 26 marcas»). Es problema de tiempo verbal.
+- **La 13 descarta un paper «porque no distingue mitosis entre sus clases»** (es CellViT, y es
+  cierto) y dos láminas después entra un segmentador de pesos públicos que **sí** la tiene. No es
+  contradicción, son herramientas distintas, pero sin una cláusula que lo diga suena a una.
+- **Dato stale de fondo**: la 4 dice «la única que tenemos anotada» y la 13 pregunta cuántas hay.
+  Esas notas son del 6-ago; el **17-ago** aparecieron **12 láminas anotadas** con 94 marcas de
+  mitosis. Está **solo en las notas habladas**, ningún cuerpo de lámina lo afirma. **No se tocó**,
+  porque esas láminas no se presentan hoy y la decisión de cómo reencuadrar el objetivo 1 quedó
+  sin tomar.
+- Redundancias medidas entre la 14 y la 16 (el «si hubiéramos recortado antes» casi textual, y los
+  18 minutos): **la de la 14 ya no aplica** porque la 14 no se presenta; la de la 16 se conservó
+  porque ahora es la única vez que se dice.
+
+### Lo que NO se hizo
+
+- **No se recortó el guion de las otras catorce**, ni se tocó su contenido: el alcance cambió.
+- **No se cambió la fecha de portada**: Ernesto decidió dejar el 19 de agosto.
+- **Cero GPU**, cero `sbatch`. El brazo de ensemble sigue sin lanzarse, y ahora hay una razón
+  documentada para no lanzarlo con la mitosis como objetivo.
