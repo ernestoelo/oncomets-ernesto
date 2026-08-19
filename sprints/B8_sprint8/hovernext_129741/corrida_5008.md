@@ -55,6 +55,12 @@ Detecciones por clase, en la lámina entera:
 
 ## 4. Qué queda stale en el deck del 18-ago
 
+> **CONSUMIDA el 19-ago-2026.** Las cinco filas se corrigieron: las cuatro primeras en la sesión
+> de la mañana y la última en la de la tarde, que además metió la lámina del cruce (el deck pasó
+> de 26 a 27 láminas). La tabla se conserva **sin tocar** como registro del estado del 18-ago;
+> **no es una lista de pendientes**. Lo único que sigue abierto de su última fila es el **brazo
+> de ensemble**. Detalle: `presentacion_b8/README.md`, las dos secciones del 19-ago.
+
 | Lámina | Lo que afirma hoy | Por qué quedó stale |
 |---|---|---|
 | **15** | «Cero números de segmentación»; sello «Falta la GPU»; remate «uno detenido por la cola de la GPU» | Corrió |

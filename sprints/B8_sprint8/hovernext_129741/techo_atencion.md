@@ -6,6 +6,14 @@
 > Se hizo porque la fase 2 quedó bloqueada en la cola (ver
 > [coordinacion_gpu.md](sprints/B8_sprint8/hovernext_129741/coordinacion_gpu.md)) y **esta parte
 > de la fase 3 no depende de HoVer-NeXt**.
+>
+> **Nota del 19-ago-2026 — el segundo factor YA SE MIDIÓ.** La lectura 1 de abajo cierra con «lo
+> que falta medir es cuánto de ese margen se come la detección»: era cierto el 17-ago y se deja
+> como está, porque es el registro de por qué se hizo el cruce. La respuesta está en
+> [cruce_marcas.md](sprints/B8_sprint8/hovernext_129741/cruce_marcas.md): **13 de 26 marcas**, y
+> desde K=189 el factor que manda es la detección y no la máscara. **Ojo con la unidad**: este
+> documento cuenta **parches con marca (28)** y el cruce cuenta **marcas (26)**; las dos tablas
+> no se encadenan.
 
 ---
 

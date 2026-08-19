@@ -2229,3 +2229,92 @@ ningún ADDENDUM anterior (integridad de pre-registración).
 - **Si la etapa B es el próximo cuello** (V3): se contesta al cosechar, no antes.
 - **El veredicto de la 129741** sigue abierto; la lámina está en el barrido en curso.
 - **HoVer-NeXt sin un solo número**: el 5008 sigue `PD` detrás de un `UNLIMITED`.
+
+---
+
+# Vigésima tercera pasada — una frase falsa que sobrevivió a su propia corrección (19-ago-2026, tarde)
+
+Sesión de deck: entró la lámina del cruce y se corrigieron las frases que daban el cruce por
+pendiente. La auditoría de la sesión anterior (19-ago, mañana) no dejó pasada propia; sus
+hallazgos están en `progress/current.md` §Sesión 13 y en el ADDENDUM 19-ago de
+[[deck-qa-puntos-ciegos-chequeo]], así que esta pasada arranca desde ahí.
+
+| id | hallazgo | severidad | acción |
+|---|---|---|---|
+| W1 | «ahorró una corrida entera» se corrigió en la lámina donde se cazó y siguió vivo en el **mapa del bloque** | alta | ADDENDUM a [[deck-qa-puntos-ciegos-chequeo]] |
+| W2 | `techo_atencion.md` sigue pidiendo medir lo que ya se midió, sin puntero de ida | media | nota fechada + puntero |
+| W3 | `corrida_5008.md` §4 es una lista de trabajo ya consumida y sin marcar | media | nota de cierre fechada |
+
+## W1 — corregir la lámina donde se cazó la frase NO cierra el defecto
+
+El ADDENDUM 19-ago de [[deck-qa-puntos-ciegos-chequeo]] registró, como hallazgo 1 de la cuarta
+capa, que el remate de una lámina afirmaba que un patrón **«ahorró la corrida entera»** y que no
+la ahorró: el techo dio alto y la corrida se hizo igual. Se corrigió esa lámina.
+
+**La misma afirmación siguió viva, palabra por palabra, en la lámina 15**, que es el **mapa del
+bloque**: «Uno de ellos ahorró una corrida entera». Apareció al barrer el generador entero
+buscando otra cosa, no por un chequeo.
+
+**Por qué pasa, y por qué ninguna capa lo ve.** Un deck largo tiene láminas de **mapa** y de
+**recapitulación** que repiten en una línea lo que otra lámina desarrolla. Las cuatro capas de QA
+miran **una lámina a la vez** (geometría, reglas duras, prosa) o **el arco de corrido**, y la
+lectura de corrido llega al mapa **antes** que al desarrollo: cuando uno lee la afirmación
+correcta, ya pasó por la versión comprimida y falsa sin material para juzgarla. Y el desarrollo
+suele ser el lugar donde el defecto se caza, porque es donde está el detalle.
+
+**Regla que queda: una frase corregida se busca en TODO el generador antes de darla por
+corregida** (`grep` del sustantivo y del verbo, no de la frase entera: el mapa la dice más
+corta). Vale especialmente para las láminas de mapa, recapitulación y «qué sigue», que son
+justamente las que se escriben una vez y no se vuelven a leer.
+
+**Segunda instancia del mismo modo de falla en esta sesión**: el handoff listaba **cuatro** frases
+que daban el cruce por pendiente, las cuatro de guion. El barrido encontró **seis**: las dos que
+faltaban eran de **cuerpo**, y las dos estaban en la lámina 15. El inventario de una sesión
+anterior no sustituye al barrido.
+
+**Canónico**: ADDENDUM en [[deck-qa-puntos-ciegos-chequeo]] +
+`presentacion_b8/README.md` §«La sesión del 19-ago (tarde)».
+
+## W2 — `techo_atencion.md` pide medir lo que ya se midió
+
+`techo_atencion.md` §«Tres lecturas» 1 cierra con «lo que **falta medir** es cuánto de ese margen
+se come la detección». Se midió el 19-ago: `cruce_marcas.md`, 13 de 26.
+
+El puntero existe **en un solo sentido**: `cruce_marcas.md` cita a `techo_atencion.md` cinco
+veces; `techo_atencion.md` no lo menciona nunca. Un lector que entre por el techo (que es el
+documento del patrón P2.a, o sea el que más se va a volver a abrir) se lleva la pregunta como
+abierta.
+
+**No se reescribe la lectura 1** — era cierta el 17-ago y es el registro de por qué se hizo el
+cruce. Fix aditivo: nota fechada en la cabecera con el puntero de ida.
+
+## W3 — una lista de trabajo consumida que no dice que lo está
+
+`corrida_5008.md` §4 («Qué queda stale en el deck del 18-ago») es una tabla de cinco láminas a
+corregir. Las cinco se corrigieron entre la sesión 13 y ésta, y su última fila dice «lo que falta
+es el brazo de ensemble **y el cruce**», que ya no es cierto.
+
+Es el mismo riesgo que W1 visto desde el otro lado: un documento que enumera pendientes envejece
+peor que uno que enumera hechos, porque **se lee como instrucción**. Fix aditivo: nota de cierre
+fechada arriba de la tabla, sin tocar la tabla (es el registro del estado del 18-ago).
+
+## Verificado sin cambios
+
+- **Los conteos «26 láminas» del repo NO son stale**: los cuatro (dos en `progress/current.md`,
+  dos en el README del deck, dos en la memoria de QA) están dentro de secciones **fechadas** que
+  describen el deck de ese día. El conteo vigente (27) vive en la sección nueva del README y en
+  la línea de índice del `.pptx`, que sí se actualizó.
+- **`CLAUDE.md`**: workarounds A-M y patrones P1-P4 sin contradecir. El **P2.a.bis** que escribió
+  la sesión 13 es justamente lo que la lámina nueva dibuja, y la lámina no afirma más que él.
+- **Agentes** (`trainer`, `reviewer`): sin contacto — la sesión no tocó modelo ni entrenamiento.
+- **Skills**: las 13 con `SKILL.md`. `@humanizer-es` **no se corrió**, y por decisión medida: la
+  prosa nueva da sd 10,2 sobre media 19,1 y cero tells, o sea el caso que la propia skill pide no
+  sobre-editar.
+
+## Lo que queda abierto y va al handoff
+
+- **El brazo de ensemble de HoVer-NeXt**, sin lanzar. Decisión de Ernesto, sostenida tres veces.
+- **La reunión con Sebastián**, sin ocurrir al cierre de esta sesión.
+- **Coordinar con `sgaete`** antes de barrer las once láminas anotadas restantes.
+- Los dos papers de `papers_11_agosto/` sin fichar, las dos preguntas del 6-ago, la réplica del
+  4589 con semillas nuevas, el sign-off del patólogo y `@grilling` sin estrenar.

@@ -4156,6 +4156,20 @@ palabras**, sd 10,2 sobre media 19,1, cero dígitos en la prosa; medido con `gre
 invocar `@humanizer-es`, que por eso no se corrió (habría sobre-editado prosa limpia).
 Rasterizadas y miradas la 15, la 24 y la 27.
 
+### 4. La 23ª pasada de auditoría
+
+`sprints/B8_sprint8/auditoria_coherencia/hallazgos.md`. Tres hallazgos, uno durable:
+
+- **W1 (durable)** — una frase falsa **sobrevive a su propia corrección** porque el mapa del
+  bloque la repite más corta, y de corrido el mapa llega **antes** que el desarrollo donde se
+  caza. Regla: barrer el generador entero por **sustantivo y verbo**, no por la frase. Y el
+  inventario de un handoff no sustituye al barrido (listaba cuatro, había seis). ADDENDUM en
+  [[deck-qa-puntos-ciegos-chequeo]] + línea de índice.
+- **W2** — `techo_atencion.md` seguía pidiendo medir lo ya medido, y el puntero existía en un
+  solo sentido. Nota fechada en la cabecera; la lectura 1 **no se reescribe**.
+- **W3** — `corrida_5008.md` §4 era una lista de trabajo consumida sin marcar, que se lee como
+  instrucción. Nota de cierre fechada; la tabla queda intacta.
+
 ### Lo que NO se hizo
 
 - **El brazo de ensemble**, sin lanzar. Sigue siendo decisión de Ernesto.
