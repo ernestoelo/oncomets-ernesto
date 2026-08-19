@@ -144,3 +144,11 @@ results/b8_hovernext_129741/interp/expertos/topk_patches/
 # los PNG (~108 x 400 KB) se regeneran desde el JSON con el mismo script.
 sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/barrido_138/*.png
 sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/barrido_rot/*.png
+
+# Salida de HoVer-NeXt (job 5008 en adelante): son 11 GB por lamina y `results/**/*.zip`
+# NO estaba cubierto por las reglas de arriba, que solo excluyen *.pt/*.pth/*.h5/*.pkl.
+# Un `git add results/b8_hovernext_129741/` intentaba versionar un _inst.zip de 9,7 GB.
+# La verdad de campo chica de esta corrida es `pred_mitosis.tsv` (8,5 KB), que SI se versiona
+# al cerrar el objetivo; el resto son intermedios reproducibles relanzando el .slurm.
+results/**/hovernext/**/*.zip
+results/**/hovernext/**/class_inst.json
