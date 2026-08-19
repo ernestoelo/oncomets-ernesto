@@ -16,5 +16,9 @@
   "marcas": 26,
   "pares_uno_a_uno": 13,
   "tolerancia_um": 30.0,
-  "mpp": 0.465
+  "mpp": 0.465,
+  "parches_lamina": 4799,
+  "parches_otra_region": 2303,
+  "detecciones_otra_region": 95,
+  "detecciones_region_anotada": 82
 }

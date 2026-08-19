@@ -4182,7 +4182,8 @@ Rasterizadas y miradas la 15, la 24 y la 27.
 ## Sesión 15 (19-ago-2026, tarde) — el deck se recorta a la mitad y los mapas entran
 
 **Misión**: ejecutar el recorte que Ernesto dejó escrito en
-`sprints/B8_sprint8/presentacion_b8/correcciones.txt`. De **27 láminas a 15**.
+`sprints/B8_sprint8/presentacion_b8/correcciones.txt`. De **27 láminas a 15**, más una de control
+que pidió después: **16**.
 
 ### 1. Las dos lecturas contradictorias, resueltas ANTES de borrar
 
@@ -4219,9 +4220,26 @@ nulo por traslación por su nombre; y «en dos láminas más» en la 6 **sigue r
 que se verificó en vez de asumirlo. En el generador quedaron sin uso **13 constantes y 4
 funciones**, retiradas; las que ya estaban huérfanas antes del recorte se dejaron como estaban.
 
-### 4. Verificación
+### 4. La lámina de control, pedida después del recorte
 
-`AUDITORÍA: sin avisos` en las 15, copia sin notas regenerada. **Rasterizado y mirado**: las 15 en
+Ernesto pidió «una última lámina donde se use puramente HoVer-NeXt para la misma WSI, sin CLAM».
+**Se pudo sin correr nada**: la corrida fue sobre la lámina entera y el recorte se aplicó después,
+sobre la salida, justamente para conservar esa comparación. Queda de cierre (lámina 16) y es la
+que hace legible a la de resultados: sin un brazo sin recorte, «13 de 26 con el recorte» no se
+compara con nada.
+
+La escalera, toda medida: **lámina entera** 4799 parches / 68,0 mm² / 177 detecciones / **13 de
+26**; **solo la región anotada** 2496 / 35,4 mm² / 82 / **13 de 26**; **el 12 % más atendido** 300
+/ 4,3 mm² / 48 / **11 de 26**. O sea que **el recorte no compra marcas, compra área**: factor 16
+en superficie por dos marcas. Las dos primeras filas coinciden por construcción (las 26 marcas
+caen todas en la región anotada), y se verificó en vez de asumirlo.
+
+Sigue sin afirmarse nada sobre las **95 detecciones de la región sin anotar**, y van del mismo
+color que las otras para no sugerir que sean errores.
+
+### 5. Verificación
+
+`AUDITORÍA: sin avisos` en las 16, copia sin notas regenerada. **Rasterizado y mirado**: las 15 en
 contacto y las dos nuevas a tamaño. Tres defectos que la auditoría no ve, arreglados: un rótulo que
 se partía y quedaba tapado por la figura, una cabecera de tabla que partía «Detectada / s», y la
 tabla diciendo «máscara» mientras el resto de la lámina decía «recorte». Los dos títulos nuevos

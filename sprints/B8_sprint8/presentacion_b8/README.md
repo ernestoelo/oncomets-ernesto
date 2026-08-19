@@ -12,7 +12,8 @@
 > **Recortada y rehecha el 5-ago-2026**, a pedido de Ernesto: nueve cambios que dejan el
 > deck en **16 láminas**. Ver §«El recorte del 5-ago» al final, que es la sección vigente.
 >
-> **Recortada el 19-ago-2026** a 15 láminas (`correcciones.txt`): ver §«El recorte del 19-ago»
+> **Recortada el 19-ago-2026** a 16 láminas (`correcciones.txt` + la de control que pidió
+> Ernesto después): ver §«El recorte del 19-ago»
 > al final, que es la sección vigente.
 >
 > Reunión: **jueves 06/08/2026** con Sebastián. Se adelantó un día (el viernes 7 es la de
@@ -1142,7 +1143,7 @@ del filtro) sale, porque es método; la 24 **cambia de forma** y se convierte en
 resultados, con los mapas primero y el número al lado. Conserva el 13 de 26 y la tabla de los dos
 factores; pierde la meseta de tolerancia.
 
-### El deck que queda, 15 láminas
+### El deck que queda, 16 láminas
 
 | # | Función | |
 |---|---|---|
@@ -1153,6 +1154,7 @@ factores; pierde la meseta de tolerancia.
 | 13 | `lam_objetivos_propuestos` | |
 | **14** | **`lam_hovernext_paper`** | nueva: la Figura 1 del paper |
 | **15** | **`lam_resultados`** | nueva: la fusión de 23 y 24 |
+| **16** | **`lam_hovernext_solo`** | nueva: el control, la herramienta sola |
 
 ### La lámina de resultados, y por qué tiene esa forma
 
@@ -1168,6 +1170,33 @@ Tres salvedades van en el **cuerpo** y no solo en el guion, porque son las que m
 - **no hay precisión y es deliberado** — las marcas son positivos parciales, así que una detección
   sin marca no es un error.
 
+### La lámina de control (pedido posterior de Ernesto, el mismo día)
+
+«Una última lámina donde se use puramente HoVer-NeXt para la misma WSI, sin CLAM.» **Se pudo sin
+correr nada**: la corrida fue sobre la **lámina entera** y el recorte se aplicó después, sobre la
+salida, precisamente para conservar esta comparación.
+
+Es la lámina que hace legible a la de resultados: sin un brazo sin recorte, «13 de 26 con el
+recorte puesto» no se compara con nada. La escalera que arma, toda medida:
+
+| Qué se revisa | Parches | Área | Det. | Marcas |
+|---|---|---|---|---|
+| La lámina entera, sin recorte | 4799 | 68,0 mm² | 177 | 13 de 26 |
+| Solo la región anotada | 2496 | 35,4 mm² | 82 | 13 de 26 |
+| El 12 % más atendido por CLAM | 300 | 4,3 mm² | 48 | 11 de 26 |
+
+**El recorte no compra marcas, compra área**: un factor de 16 en superficie por dos marcas. Es la
+respuesta a «cuánta superficie hay que ponerle delante al patólogo», que es distinta de «cuántas
+mitosis encontramos» — y ésa ya se contestó en la lámina anterior (manda el detector).
+
+Las dos primeras filas dan lo mismo **por construcción**: las 26 marcas caen todas en la región
+anotada, así que restringirse a ella no puede perder ninguna. Verificado igual, no asumido: el
+emparejamiento con las 82 detecciones de esa región sola da los mismos 13 que con las 177.
+
+**Lo que la lámina NO afirma**: nada sobre las **95 detecciones de la región sin anotar**. No hay
+marcas ahí, así que no son ni aciertos ni errores, y van dibujadas **del mismo color** que las
+otras para no sugerir lo contrario.
+
 ### Los assets nuevos, y que ninguno necesitó GPU
 
 Todo salió de lo que ya estaba en disco. `prep_assets_hovernext.py` reusa el emparejamiento uno a
@@ -1178,6 +1207,9 @@ corte de región), así que la figura **no puede** contar algo distinto del núm
   guardar: en la lámina miden 4,62", o sea que el montaje original iba a 1340 DPI de puro peso.
 - `hovernext_zoom.png` — cuatro recortes de 260 px de nivel 0, elegidos **por separación máxima
   entre sí** para no mostrar cuatro veces el mismo foco.
+- `hovernext_solo.png` — las dos regiones de escaneo con las 177 detecciones. Su caja se toma
+  sobre los parches y se **ensancha** hasta cubrirlas: tres caen unos 700 px por encima del
+  teselado, y recortarlas dejaría el panel mostrando 174 con el guion diciendo 177.
 - `hovernext_paper_fig1.png` — paneles A, B y C de la Figura 1 del paper, por
   `prep_assets_paper_hovernext.py`. Queda fuera el panel D (distribuciones de clase de los
   conjuntos de entrenamiento): es del paper, no de lo que corrimos, y competía por el alto.
@@ -1208,7 +1240,7 @@ estaban huérfanas **antes** del recorte se dejaron como estaban, que no son de 
 
 ### Verificación
 
-- **`AUDITORÍA: sin avisos`** en las 15, copia sin notas regenerada (15 láminas, 0 con notas).
+- **`AUDITORÍA: sin avisos`** en las 16, copia sin notas regenerada (16 láminas, 0 con notas).
 - **Rasterizado y mirado**: las 15 en contacto, y las dos nuevas a tamaño. Tres defectos que la
   auditoría no ve, arreglados: el rótulo «Detecciones de HoVer-NeXt» se partía y la segunda línea
   quedaba tapada por la figura; la cabecera de tabla partía «Detectada / s»; y la tabla decía

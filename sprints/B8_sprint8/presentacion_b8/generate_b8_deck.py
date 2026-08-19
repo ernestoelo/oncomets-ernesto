@@ -79,6 +79,11 @@ criterio es la reunión pendiente con Sebastián: lo que no sirva para llegar a 
     de CLAM recorta y el detector trabaja adentro. No son dos herramientas por separado.
   - Barrido de referencias cruzadas después de cortar: la portada prometía «tres cosas» y
     ahora son cuatro; dos guiones apuntaban a la lámina de controles y ya no la nombran.
+  - **Pedido posterior, el mismo día**: una lámina de CONTROL con la herramienta SOLA sobre la
+    misma lámina, sin nada del modelo de atención encima. Queda de cierre y es la que hace
+    legible a la de resultados: sin un brazo sin recorte, «13 de 26 con el recorte» no se
+    compara con nada. No hizo falta correr nada — la corrida fue sobre la lámina entera y el
+    recorte se aplicó después, sobre la salida. Deck en **16**.
 
 Reglas que gobiernan el archivo:
   - Se construye SOBRE el template válido (Deep-LLM-V), nunca con Presentation() a secas:
@@ -146,6 +151,9 @@ FIG_ZOOM = os.path.join(ASSETS, "mitosis_zoom.png")                # el detalle 
 # El detalle son cuatro recortes a resolución nativa sobre mitosis acertadas: ar = 4.069.
 FIG_CADENA = os.path.join(ASSETS, "cadena_clam_hovernext.png")
 FIG_HN_ZOOM = os.path.join(ASSETS, "hovernext_zoom.png")
+# El brazo de CONTROL: la herramienta sola sobre la lámina entera, sus dos regiones de
+# escaneo una al lado de la otra con las 177 detecciones. ar = 2.471.
+FIG_HN_SOLO = os.path.join(ASSETS, "hovernext_solo.png")
 # Figura EXTERNA: la Figura 1 del paper de HoVer-NeXt, extraída por
 # prep_assets_paper_hovernext.py. ar = 1.621. Va como imagen por ser de un paper.
 FIG_HN_PAPER = os.path.join(ASSETS, "hovernext_paper_fig1.png")
@@ -2420,6 +2428,14 @@ def lam_objetivos_propuestos(prs):
 # cruce_marcas.md §3: los dos factores del techo y su intersección. La unidad son MARCAS
 # (26), NO los 28 parches con marca: una marca puede caer sobre dos parches vecinos, así
 # que las dos cuentas no se encadenan.
+# La escalera de lo que cuesta cada brazo, en área revisada. El área sale de la geometría
+# real del h5: parche de 256 px a 0,465 µm/px = 0,0142 mm². Las marcas recuperadas de
+# techo_conjunto.csv (brazo CLAM), y el 13 de la lámina entera verificado también contra las
+# 82 detecciones de la región anotada sola: da lo mismo, porque las 26 marcas caen todas ahí.
+ESCALERA_AREA = [["La lámina entera, sin recorte", "4799", "68,0 mm²", "177", "13 de 26"],
+                 ["Solo la región anotada", "2496", "35,4 mm²", "82", "13 de 26"],
+                 ["El 12 % más atendido por CLAM", "300", "4,3 mm²", "48", "11 de 26"]]
+
 CRUCE_CONJUNTA = [["4,0 % de la región", "12", "13", "8", "12"],
                   ["7,6 %", "15", "13", "10", "13"],
                   ["12,0 %", "19", "13", "11", "13"],
@@ -2622,6 +2638,96 @@ def lam_resultados(prs):
              "saquemos de acá sale sesgada hacia abajo por construcción y no mide al detector.")
 
 
+def lam_hovernext_solo(prs):
+    # ---- El control de la cadena: la herramienta SOLA, sin recorte ----
+    # Pedido de Ernesto el 19-ago, después del recorte. Es la lámina que hace legible a la
+    # anterior: sin un brazo sin máscara, «13 de 26 con el recorte» no se puede comparar con
+    # nada. Y el dato existe sin correr nada nuevo, porque la corrida fue así de entrada — la
+    # lámina completa — y el recorte se aplicó después, sobre la salida.
+    #
+    # La afirmación que la lámina NO hace, y que es la fácil de colar: nada sobre las 95
+    # detecciones de la región sin anotar. No tienen marcas, así que no son ni aciertos ni
+    # errores. Van dibujadas del mismo color que las otras justamente por eso.
+    s = content(prs, "La herramienta sola, sin recorte")
+    FIG_L, FIG_W = 0.35, 5.30
+    FIG_H = FIG_W / 2.471                      # razón exacta del asset (3400 x 1376)
+    add_image_fit(s, FIG_HN_SOLO, FIG_L, TOP + 0.26, FIG_W, FIG_H, align="top")
+    gap = 26 / 3400.0 * FIG_W
+    pw = (FIG_W - gap) / 2
+    for i, rot in enumerate(("Región sin marcas · 95", "Región anotada · 82")):
+        caption(s, FIG_L + i * (pw + gap), TOP + 0.00, pw, rot, size=9, col=TEAL_TITLE,
+                bold=True)
+    pie_lineas(s, FIG_L, TOP + 0.34 + FIG_H, FIG_W, [
+        "Las 177 detecciones de la lámina entera, sin máscara de ninguna clase. La corrida "
+        "fue así: el recorte se aplica después, sobre la salida.",
+        "De la región sin marcas, la de la izquierda, no se afirma nada: sus 95 detecciones "
+        "no son ni aciertos ni errores, y por eso van del mismo color que las otras."],
+        size=8.5)
+
+    xr, wr = 5.90, 3.75
+    _grupo(s, xr, TOP + 0.02, wr, 0.74, fill=TEAL_CARD)
+    add_textbox(s, xr, TOP + 0.02, wr, 0.74, [
+        ("El mismo 13 de 26, sobre 68 mm²", 15, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER),
+        ("Recortar no cambió cuántas marcas se recuperan", 9.5, False, GRIS_BODY, F_BODY,
+         PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
+    add_textbox(s, xr, TOP + 0.88, wr, 0.26,
+                [("Lo que cuesta cada brazo", 12, True, ONCO_DARK, F_BODY)])
+    simple_table(s, xr, TOP + 1.18, wr,
+                 ["Qué se revisa", "Parches", "Área", "Det.", "Marcas"],
+                 ESCALERA_AREA, col_fracs=[0.36, 0.15, 0.18, 0.12, 0.19],
+                 row_h=0.36, fs=9.5, destacar=2)
+    pie_lineas(s, xr, TOP + 2.72, wr, [
+        "Área desde el h5: un parche de 256 px a 0,465 µm/px son 0,0142 mm².",
+        "El recorte cambia el ÁREA en un factor de 16, y las marcas en dos.",
+        "Las 26 marcas caen todas en la región anotada, así que restringirse a ella no "
+        "pierde ninguna: por eso las dos primeras filas dan lo mismo."], size=8)
+    takeaway_bar(s, "El recorte no compra marcas, compra área: 16 veces menos superficie "
+                    "y dos marcas menos")
+    notes(s, "Ésta es la herramienta sola, sin nada del modelo de atención encima.\n"
+             "La lámina entera son 68 milímetros cuadrados y 177 detecciones.\n"
+             "Recupera las mismas 13 de 26 que con el recorte puesto.\n"
+             "Lo que el recorte cambia es el área: dieciséis veces menos, y dos marcas "
+             "menos.\n"
+             "De la región sin anotar no se afirma nada.\n"
+             "\n"
+             "Puse esta lámina al final a propósito, porque es la que hace legible a la "
+             "anterior. Sin un brazo sin recorte, decir trece de veintiséis con el recorte "
+             "puesto no se compara con nada.\n"
+             "\n"
+             "Y no hubo que correr nada nuevo para tenerla. La corrida fue así de entrada: la "
+             "lámina completa, y el recorte se aplicó después, sobre la salida. Fue una "
+             "decisión deliberada, justamente para conservar esta comparación; si "
+             "hubiéramos recortado antes de correr, este brazo no existiría.\n"
+             "\n"
+             "Lo que se ve son las dos regiones en que se escaneó la lámina, con las ciento "
+             "setenta y siete detecciones encima. La de la derecha es la anotada, la única "
+             "que tiene marcas del patólogo. La de la izquierda no tiene ninguna, y quiero "
+             "ser explícito con eso: de sus noventa y cinco detecciones no afirmo nada. No "
+             "son aciertos ni son errores, porque no hay contra qué compararlas. Están "
+             "dibujadas del mismo color que las otras justamente para no sugerir lo "
+             "contrario.\n"
+             "\n"
+             "La tabla es lo que quiero discutir. Cada fila es una manera de usar la "
+             "herramienta, y las columnas dicen qué cuesta y qué devuelve. Revisando la "
+             "lámina entera, sesenta y ocho milímetros cuadrados, se recuperan trece de las "
+             "veintiséis marcas. Revisando solo la región anotada, la mitad del área, se "
+             "recuperan las mismas trece, y eso no es sorpresa: las veintiséis marcas caen "
+             "todas ahí, así que restringirse a esa región no puede perder ninguna. Y "
+             "revisando el doce por ciento más atendido por el modelo, cuatro milímetros "
+             "cuadrados, se recuperan once.\n"
+             "\n"
+             "Léanlo así, que es lo que quiero dejar dicho. El recorte no compra marcas: "
+             "compra área. Pasar de sesenta y ocho milímetros cuadrados a cuatro es un factor "
+             "de dieciséis, y cuesta dos marcas de veintiséis. Si la pregunta es cuánta "
+             "superficie hay que ponerle delante a un patólogo para que revise, esa es la "
+             "respuesta y es buena. Si la pregunta es cuántas mitosis encontramos, el recorte "
+             "no ayuda y ya vimos por qué: el que manda pasó a ser el detector.\n"
+             "\n"
+             "Una última cosa, sobre el costo. La lámina entera tardó dieciocho minutos, así "
+             "que recortar para ahorrar cómputo hoy no hace falta. Recortar para achicar lo "
+             "que hay que revisar sí, y son dos motivos distintos que no piden el mismo "
+             "tamaño de recorte.")
+
 # ============================================================================
 # Orden pedido por Sebastián el 6-ago, y no se re-decide acá: abre el grid de
 # expertos y slots, sigue la medición de atención contra las marcas del patólogo,
@@ -2656,6 +2762,7 @@ def build():
     # ---- el segundo hilo: la herramienta, y los resultados de cruzarla con la atención ----
     lam_hovernext_paper(prs)
     lam_resultados(prs)
+    lam_hovernext_solo(prs)
 
     # ---- cierre: reflow, auditoría, escala al tamaño del template, tipografía ----
     reflow_onco(prs, skip=keep_ids)

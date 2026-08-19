@@ -8,6 +8,11 @@ otra: los tres paneles son la misma región y el mismo recorte, en tres estados.
   Panel 2  el recorte: el 12 % más atendido (300 de los 2496 parches)
   Panel 3  las detecciones de HoVer-NeXt, separando las que caen dentro del recorte
 
+Y el CONTROL de esa cadena, que es la herramienta sola: la lámina entera, sus DOS regiones
+de escaneo y las 177 detecciones, sin ninguna máscara. Es el brazo contra el que se lee todo
+lo demás, porque la corrida fue así de entrada — la lámina completa, y el recorte aplicado
+después sobre la salida.
+
 Y el detalle, que es lo que contesta «dónde se fija»: cuatro recortes a resolución nativa
 sobre mitosis que la herramienta acertó, con la marca del patólogo encima.
 
@@ -26,6 +31,7 @@ Es una FIGURA sobre tejido real, o sea la excepción legítima a «todo nativo»
 Salidas, en `assets/`:
   cadena_clam_hovernext.png   los tres paneles
   hovernext_zoom.png          los cuatro detalles a resolución nativa
+  hovernext_solo.png          la lámina entera, sus dos regiones y las 177 detecciones
 
 Uso (workaround B: binario absoluto del env):
   PYTHONPATH=/media/administrador/Storage1/sdonoso/clam_testing2/.pylibs \
@@ -237,6 +243,35 @@ def detalles(sl, det, marcas, pares, n=4):
     return componer(crops, sep=18), elegidos
 
 
+def panel_detecciones(sl, coords, ps0, idx, det, x0=None):
+    """Una región de escaneo con TODAS sus detecciones, sin máscara de ninguna clase.
+
+    Es el brazo de control: la herramienta sola. Las detecciones van todas del mismo color
+    a propósito — son la misma salida, y pintar de distinto las de la región sin anotar
+    sugeriría una diferencia de calidad que no medimos."""
+    # La caja se toma sobre los parches y se ENSANCHA hasta cubrir las detecciones de la
+    # banda: tres de las 177 caen unos 700 px por encima del teselado, en tejido que el
+    # umbral no llegó a cubrir. Recortarlas dejaría el panel mostrando 174 y el guion
+    # diciendo 177.
+    c = coords[idx]
+    a, b = float(c[:, 0].min()), float(c[:, 1].min())
+    d, e = float(c[:, 0].max() + ps0), float(c[:, 1].max() + ps0)
+    banda = det[(det[:, 1] >= b - 6000) & (det[:, 1] < e + 6000)] if len(det) else det
+    if len(banda):
+        a = min(a, float(banda[:, 0].min()) - 200); b = min(b, float(banda[:, 1].min()) - 200)
+        d = max(d, float(banda[:, 0].max()) + 200); e = max(e, float(banda[:, 1].max()) + 200)
+    im, ds = region_thumb(sl, a, b, d, e)
+    dr = ImageDraw.Draw(im)
+    n = 0
+    for (px, py) in det:
+        if not (a <= px < d and b <= py < e):
+            continue
+        u, v = (px - a) / ds, (py - b) / ds
+        dr.ellipse([u - 10, v - 10, u + 10, v + 10], fill=AMARILLO, outline=ONCO_INK, width=3)
+        n += 1
+    return im, n
+
+
 # ---------------------------------------------------------------- main
 
 def main():
@@ -281,6 +316,15 @@ def main():
     print("  %-30s %s  (pares %s)" % ("hovernext_zoom.png", zoom.size,
                                       [p[0] for p in elegidos]))
 
+    # ---- el control: la herramienta sola sobre la lámina entera ----
+    idx_otra = np.where(coords[:, 1] < Y_CORTE_REGION)[0]
+    pa, na = panel_detecciones(sl, coords, ps0, idx_otra, det)
+    pb, nb = panel_detecciones(sl, coords, ps0, idx_region, det)
+    solo = _acotar(componer([pa, pb]), 3400)
+    solo.save(DST / "hovernext_solo.png")
+    print("  %-30s %s  (región sin marcas %d · región anotada %d)"
+          % ("hovernext_solo.png", solo.size, na, nb))
+
     (DST / "cadena_clam_hovernext.json").write_text(json.dumps(dict(
         region=[x0, y0, x1, y1], nivel=NIVEL, downsample=ds,
         parches_region=int(len(idx_region)), k_mascara=K_MASCARA,
@@ -289,6 +333,8 @@ def main():
         detecciones_dentro=len(dentro), detecciones_fuera=len(fuera),
         marcas=int(len(marcas)), pares_uno_a_uno=len(pares),
         tolerancia_um=TOL_UM, mpp=MPP,
+        parches_lamina=int(len(coords)), parches_otra_region=int(len(idx_otra)),
+        detecciones_otra_region=na, detecciones_region_anotada=nb,
     ), indent=2, ensure_ascii=False))
 
 
