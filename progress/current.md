@@ -4176,3 +4176,64 @@ Rasterizadas y miradas la 15, la 24 y la 27.
 - Sin cambios en: los dos papers de `papers_11_agosto/` sin fichar, las dos preguntas del 6-ago,
   la réplica del 4589 con semillas nuevas, el sign-off del patólogo, `@grilling` sin estrenar, y
   **coordinar con `sgaete`** antes de barrer las doce láminas anotadas.
+
+---
+
+## Sesión 15 (19-ago-2026, tarde) — el deck se recorta a la mitad y los mapas entran
+
+**Misión**: ejecutar el recorte que Ernesto dejó escrito en
+`sprints/B8_sprint8/presentacion_b8/correcciones.txt`. De **27 láminas a 15**.
+
+### 1. Las dos lecturas contradictorias, resueltas ANTES de borrar
+
+El texto ordena eliminar 9, 15, 16-21, 22, 25, 26 y 27, y sobre **23 y 24** dice otra cosa: que
+esperaba los mapas de calor con imágenes de dónde se fija, «**junto con los datos de si
+identifica las mitosis**». Ese dato **es** la 24, o sea el 13 de 26. Leerlo como «borrar las dos»
+se llevaba el único resultado cuantitativo que el mismo renglón pide conservar. Y «eliminá la 26,
+deberíamos tener una que mencione RESULTADOS» describe esa misma lámina.
+
+Ernesto resolvió las dos juntas: **una sola lámina de resultados**, con los mapas y el número. Se
+va la 23 (el techo, que es método); la 24 cambia de forma y conserva el 13 de 26 y la tabla de los
+dos factores. Se va la meseta de tolerancia.
+
+### 2. Los mapas, sin GPU y sin re-medir nada
+
+Todo el material estaba en disco. `presentacion_b8/prep_assets_hovernext.py` **reusa el
+emparejamiento de `scripts/cruce_hovernext_marcas.py`** (húngaro, 30 µm, mismo offset del geojson,
+mismo corte de región), así que la figura no puede contar algo distinto del número que ya está
+publicado. Produce la **cadena de tres paneles** (la misma región en tres estados: atención · el
+12 % más atendido · las detecciones) y **cuatro detalles a resolución nativa**, elegidos por
+separación máxima entre sí. `prep_assets_paper_hovernext.py` saca la Figura 1 del paper para la
+lámina 14.
+
+Dato nuevo que salió de dibujarlo: en el 12 % recortado caen **48 de las 82** detecciones de la
+región. Eso cuenta **detecciones**, no marcas, y la lámina lo dice explícito al lado de la tabla
+que cuenta marcas.
+
+### 3. El barrido de referencias cruzadas (el hallazgo W1, aplicado)
+
+Borrar seis láminas seguidas deja punteros colgando que **no se encuentran grepeando la frase**.
+Aparecieron cuatro sitios: la portada prometía «tres cosas» y ahora son cuatro; el guion de la 7
+apuntaba a «las pruebas que vienen ahora» (la lámina de controles); el de la 13 se apoyaba en el
+nulo por traslación por su nombre; y «en dos láminas más» en la 6 **sigue resolviendo bien**, lo
+que se verificó en vez de asumirlo. En el generador quedaron sin uso **13 constantes y 4
+funciones**, retiradas; las que ya estaban huérfanas antes del recorte se dejaron como estaban.
+
+### 4. Verificación
+
+`AUDITORÍA: sin avisos` en las 15, copia sin notas regenerada. **Rasterizado y mirado**: las 15 en
+contacto y las dos nuevas a tamaño. Tres defectos que la auditoría no ve, arreglados: un rótulo que
+se partía y quedaba tapado por la figura, una cabecera de tabla que partía «Detectada / s», y la
+tabla diciendo «máscara» mientras el resto de la lámina decía «recorte». Los dos títulos nuevos
+salían en dos renglones (los únicos del deck) y se acortaron. El generador bajó de 3783 a 2657
+líneas; el `.pptx`, de 20,9 a **17,1 MB** tras acotar los assets a la resolución que la lámina usa.
+
+### Lo que NO se hizo
+
+- **`correcciones.txt` no se versiona** — decisión de Ernesto.
+- **No se borraron** los assets de regiones de `assets/`: el deck ya no los usa, pero son producto
+  de trabajo real y su script sigue ahí.
+- **Cero GPU**, cero `sbatch`. El brazo de ensemble sigue sin lanzarse.
+- Sin cambios en: los dos papers de `papers_11_agosto/` sin fichar, las dos preguntas del 6-ago,
+  la réplica del 4589 con semillas nuevas, el sign-off del patólogo, y **coordinar con `sgaete`**
+  antes de barrer las doce láminas anotadas.

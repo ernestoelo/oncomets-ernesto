@@ -12,6 +12,9 @@
 > **Recortada y rehecha el 5-ago-2026**, a pedido de Ernesto: nueve cambios que dejan el
 > deck en **16 láminas**. Ver §«El recorte del 5-ago» al final, que es la sección vigente.
 >
+> **Recortada el 19-ago-2026** a 15 láminas (`correcciones.txt`): ver §«El recorte del 19-ago»
+> al final, que es la sección vigente.
+>
 > Reunión: **jueves 06/08/2026** con Sebastián. Se adelantó un día (el viernes 7 es la de
 > Benjamín, a la que Ernesto probablemente no llegue por clases). `FECHA_REUNION` del
 > generador ya la tiene.
@@ -1117,3 +1120,100 @@ es lo que sigue»). En ese punto del recorrido son verdad, y ahora además **arm
   pasada que habría sobre-editado prosa limpia ([[deck-qa-puntos-ciegos-chequeo]]).
 - **Rasterizadas y miradas**: la 15, la 24 y la 27. El titular de la 24 salió en dos renglones
   pegado al borde del panel y se acortó el subtítulo hasta que entra en uno.
+
+---
+
+## El recorte del 19-ago (de 27 a 15 láminas) — VIGENTE
+
+> Ernesto dejó la orden en `correcciones.txt` (**sin trackear**, decisión suya). El criterio
+> es la reunión pendiente con Sebastián: **lo que no sirva para llegar a ella, sale.**
+
+### Las dos lecturas que había que resolver ANTES de borrar
+
+El texto ordena eliminar las láminas 9, 15, 16-21, 22, 25, 26 y 27, y sobre la 23 y la 24 dice
+otra cosa: que esperaba **los mapas de calor de HoVer-NeXt con imágenes de dónde se fija**, y que
+eso es lo más importante **junto con los datos de si identifica las mitosis**. Leerlo como «borrar
+las dos» se habría llevado el **13 de 26**, que es exactamente el dato que la misma frase pide
+conservar. Y el otro renglón, «eliminá la 26, deberíamos tener una que mencione RESULTADOS»,
+describe esa misma lámina.
+
+Resuelto con Ernesto en la primera ronda: **las dos tensiones se cierran juntas.** La 23 (el techo
+del filtro) sale, porque es método; la 24 **cambia de forma** y se convierte en la lámina de
+resultados, con los mapas primero y el número al lado. Conserva el 13 de 26 y la tabla de los dos
+factores; pierde la meseta de tolerancia.
+
+### El deck que queda, 15 láminas
+
+| # | Función | |
+|---|---|---|
+| 1-2 | heredadas del template | |
+| 3 | `lam_grid` | el grid E×S |
+| 4-8 | `lam_pregunta_medible` … `lam_mira_responde` | la medición de atención |
+| 9-12 | `lam_simil_*` | SI-MIL |
+| 13 | `lam_objetivos_propuestos` | |
+| **14** | **`lam_hovernext_paper`** | nueva: la Figura 1 del paper |
+| **15** | **`lam_resultados`** | nueva: la fusión de 23 y 24 |
+
+### La lámina de resultados, y por qué tiene esa forma
+
+Su eje es **el encadenamiento que pidió Sebastián**: la atención de CLAM recorta y el detector
+trabaja adentro. No son dos herramientas contadas por separado, así que los tres paneles son **la
+misma región en tres estados** (atención · el 12 % más atendido · las detecciones), y abajo el
+detalle a resolución nativa, que es lo que contesta «dónde se fija».
+
+Tres salvedades van en el **cuerpo** y no solo en el guion, porque son las que más fácil se pierden:
+
+- la unidad de la tabla son **marcas (26)**, no los 28 parches con marca de la lámina 7;
+- la cota `mín( )` es **floja**: donde promete 13, la intersección real es 11;
+- **no hay precisión y es deliberado** — las marcas son positivos parciales, así que una detección
+  sin marca no es un error.
+
+### Los assets nuevos, y que ninguno necesitó GPU
+
+Todo salió de lo que ya estaba en disco. `prep_assets_hovernext.py` reusa el emparejamiento uno a
+uno de `scripts/cruce_hovernext_marcas.py` (húngaro, 30 µm, el mismo offset del geojson y el mismo
+corte de región), así que la figura **no puede** contar algo distinto del número:
+
+- `cadena_clam_hovernext.png` — los tres paneles, dibujados a ÷16 y **acotados a 3400 px** al
+  guardar: en la lámina miden 4,62", o sea que el montaje original iba a 1340 DPI de puro peso.
+- `hovernext_zoom.png` — cuatro recortes de 260 px de nivel 0, elegidos **por separación máxima
+  entre sí** para no mostrar cuatro veces el mismo foco.
+- `hovernext_paper_fig1.png` — paneles A, B y C de la Figura 1 del paper, por
+  `prep_assets_paper_hovernext.py`. Queda fuera el panel D (distribuciones de clase de los
+  conjuntos de entrenamiento): es del paper, no de lo que corrimos, y competía por el alto.
+
+### El barrido de referencias cruzadas, que es donde esto falla
+
+Borrar seis láminas seguidas deja punteros colgando, y **no se encuentran grepeando la frase**:
+hay que grepear por sustantivo y verbo. Lo que apareció:
+
+- La portada prometía **«tres cosas»** y el deck recortado entrega cuatro. Es la costura que ya
+  falló una vez; ahora anuncia el hilo de HoVer-NeXt como la cuarta.
+- El guion de la 7 (`lam_escalera`) decía «cuando lo sometemos a **las pruebas que vienen ahora**»,
+  apuntando a la lámina de controles. El hecho se conserva; el puntero se fue.
+- El guion de la 13 (`lam_objetivos_propuestos`) se apoyaba en **el nulo por traslación** por su
+  nombre, y la audiencia ya no lo ve.
+- «En **dos láminas más** cuento de dónde sale esa diferencia», en la 6, **sigue resolviendo bien**:
+  el recorte solo tocó láminas posteriores. Verificado, no asumido.
+
+Y en el generador: 13 constantes y 4 funciones quedaron sin uso, todas retiradas. Las que ya
+estaban huérfanas **antes** del recorte se dejaron como estaban, que no son de esta sesión.
+
+### Lo que NO se hizo
+
+- **No se versionó `correcciones.txt`** — decisión de Ernesto.
+- **No se borraron** `region0/region1/registro_level0_129741.png` de `assets/`. El deck ya no los
+  usa, pero son producto de un trabajo real y `prep_assets_regiones.py` sigue ahí.
+- **Cero GPU**, cero `sbatch`, y el brazo de ensemble sigue sin lanzarse.
+
+### Verificación
+
+- **`AUDITORÍA: sin avisos`** en las 15, copia sin notas regenerada (15 láminas, 0 con notas).
+- **Rasterizado y mirado**: las 15 en contacto, y las dos nuevas a tamaño. Tres defectos que la
+  auditoría no ve, arreglados: el rótulo «Detecciones de HoVer-NeXt» se partía y la segunda línea
+  quedaba tapada por la figura; la cabecera de tabla partía «Detectada / s»; y la tabla decía
+  «máscara» mientras el resto de la lámina decía «recorte».
+- **Los dos títulos nuevos entraban en dos renglones** y eran los únicos del deck: acortados a
+  «HoVer-NeXt y la clase de mitosis» y «Resultados: recortar y detectar». El mensaje largo vive en
+  la barra de remate, que es su lugar.
+- El deck bajó de 12,3 a **17,1 MB**, y no a los 21 que daba antes de acotar los assets.
