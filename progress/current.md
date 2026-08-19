@@ -3993,3 +3993,69 @@ sus bandas anidadas: es diseño, no defecto.
 - **El brazo de ensemble de HoVer-NeXt**, sin lanzar.
 - **El cruce de las 177 contra las marcas**, sin hacer.
 - Cero GPU, cero `sbatch`, cero ediciones al generador del deck.
+
+---
+
+## Sesión 12 (19-ago-2026) — el deck quedó presentable, y el dato refutó una predicción nuestra
+
+Sesión de ejecución con reunión el mismo día. Se cosechó el re-barrido, se corrigió el cuerpo de
+nueve láminas y se escribió el guion de las doce. **Cero GPU.**
+
+### 1. El paso 0 valió la pena: el plan estaba parcialmente obsoleto
+
+El plan del 18-ago se escribió antes de que el job de HoVer-NeXt corriera. Al reevaluarlo contra
+el estado nuevo, el alcance resultó **mayor** que el presupuestado: **nueve** de las doce láminas
+nuevas necesitaban edición de cuerpo, no las cinco que el plan contaba. Se llevó la decisión de
+alcance a Ernesto antes de ejecutar, con tres preguntas.
+
+**Lo que Ernesto decidió**: reencuadrar la lámina 24 como lección en vez de borrarla; **cuerpo
+primero, guion después** (garantiza que nada falso llegue a la pantalla); y **no lanzar** el brazo
+de ensemble, para no distraer del deck.
+
+### 2. La cosecha, y la predicción que falló
+
+`sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/resultados.md` **§12** (nueva).
+
+| | Antes | Ahora |
+|---|---|---|
+| Cadena | 490 → 139 → 129 → 108 | 490 → 139 → **130 → 109** |
+| Medibles | 54 de 108 (50 %) | **77 de 109 (70 %)** |
+| Re-escaneo | 33 de 54 (61 %) | **31 de 77 (40 %)** |
+| Seriadas | 1 | **12** |
+
+- **La tasa de recuperación (24/54 = 44 %) cae dentro del IC [21 %, 79 %] que §10.c predijo.** El
+  probe acertó.
+- **Pero §10.c también escribió que «el 33 es un piso», y el dato lo REFUTA**: el pool creció y el
+  recuento bajó a 31. Se reporta el fallo en el cuerpo del deck y en el guion, sin taparlo.
+- **El patrón P4 quedó MEDIDO**: las recuperadas caen en «seriadas» al 29 % contra el 10 % de las
+  ya medibles, y **10 de las 18** que no dan re-escaneo fallan **los dos** criterios a la vez.
+- **Próximo cuello identificado**: la etapa B pide escala (mediana 1,0117, **11 de 24** fuera de
+  ±2 %) y no la busca.
+- Las **30** que no se recuperan **resisten el giro** ⇒ la lectura de §9.a se les sostiene entera.
+
+### 3. El deck: nueve láminas de cuerpo y el guion de las doce
+
+- **18 a 21** por los números; **15, 22, 23, 26** por la corrida; **24** reencuadrada como lección
+  (la fila de GPU se drenó sola); **23 y 24** además por sus dos defectos visuales.
+- **Guion: 5.036 palabras**, 25 de 26 láminas con nota. Formato verificado a máquina: cero dígitos
+  en la prosa, cero guiones largos, cero «palanca», cero nombres, cero números de trabajo.
+- **QA visual hecho**: las ocho láminas tocadas rasterizadas y miradas una por una.
+- La lámina 22 ahora etiqueta `0,872 / 0,914` como **percentil medio** y no como AUC (los AUC son
+  `0,874 / 0,919`, casi iguales: ésa era la trampa).
+
+### 4. Verificación de paso: los conteos de la corrida cuadran
+
+Las siete clases de `pred_*.tsv` en disco reproducen **exactamente** la tabla de
+`corrida_5008.md` §2 (mitosis 177, epitelial 87.553, conectivo 68.364, linfocito 67.952, plasma
+12.322, neutrófilo 1.419, eosinófilo 542).
+
+### Lo que NO se hizo
+
+- **Las dos primeras capas de QA del guion**: `@humanizer-es` y la lectura en voz alta de las doce
+  notas extraídas a un solo archivo. La tercera (barrido de reglas duras) **sí** corrió.
+- **El brazo de ensemble de HoVer-NeXt**, sin lanzar (decisión de Ernesto). Cola vacía, un envío.
+- **El cruce de las 177 contra las 26 marcas**, sin hacer. Es el segundo factor del techo, y es
+  análisis, no GPU.
+- Sin cambios en: los dos papers de `papers_11_agosto/` sin fichar, las dos preguntas del 6-ago
+  sin respuesta, la réplica del 4589 con semillas nuevas, el sign-off del patólogo y `@grilling`
+  sin estrenar.

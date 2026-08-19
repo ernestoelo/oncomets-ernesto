@@ -913,19 +913,19 @@ andar (detalle en [[deck-qa-puntos-ciegos-chequeo]], ADDENDUM del 18-ago noche):
 dos bandas nacen las dos en cero y se pintaban en el orden declarado, así que la más ancha cubría
 entera a la chica, **que es la que carga el hallazgo**. Se pintan de la más grande a la más chica.
 
-### Lo que NO se verificó
+### Lo que NO se verificó — CERRADO el 19-ago (ver § final)
 
 **Las láminas tocadas no se volvieron a mirar.** La auditoría da cero y eso es exactamente lo que
 daba con los seis defectos adentro: no alcanza. Quedan por rasterizar y mirar una por una las
 **15, 17, 18, 19, 20, 23, 24 y 26**, que son las ocho que cambiaron de geometría o de texto.
 
-### El guion, sin escribir
+### El guion, sin escribir — CERRADO el 19-ago (ver § final)
 
 **Las doce láminas nuevas no tienen `notes()`.** Es lo más grande que queda, y falta además la
 pasada de `@humanizer-es` y la lectura en voz alta, que es la capa que caza lo que ninguna cuenta
 automática ve.
 
-### El plan del guion, escrito el 18-ago (noche) y sin ejecutar
+### El plan del guion, escrito el 18-ago (noche) — EJECUTADO el 19-ago (ver § final)
 
 Sesión de plan, **sin tocar el generador**. El plan completo vive en
 `~/.claude/plans/handoffs-handoff-b8-20260818-1920-md-hazy-dijkstra.md` y lo ejecuta una **sesión
@@ -955,3 +955,89 @@ positivo se leyó primero y que además **calibró el corte**.
 **Y una costura que ningún chequeo automático puede ver**, anotada acá porque es de la clase que
 reaparece: al **extender** un deck, la nota de la portada sigue anunciando el número de bloques
 **viejo**. Es lo primero que se oye y no está escrito en ninguna lámina.
+
+---
+
+## La sesión del 19-ago: el cuerpo cosechado y el guion escrito — VIGENTE
+
+El plan del 18-ago se ejecutó, **pero no como estaba escrito**: entre que se escribió y que se
+ejecutó, **el job de HoVer-NeXt corrió de madrugada** y el re-barrido con giro cerró. El paso 0
+de la sesión fue reevaluar el plan contra ese estado nuevo, y el alcance resultó **mayor** que el
+presupuestado: **nueve** de las doce láminas nuevas necesitaban edición de cuerpo, no cinco.
+
+### Lo que movió el recuento (láminas 18 a 21)
+
+Cosechado con `cosechar_barrido_registro.py` + `comparar_barridos_rotacion.py`; la verdad de campo
+está en `../anotaciones_patologo/regiones_escaneo/resultados.md` §12.
+
+| | Antes | Ahora |
+|---|---|---|
+| Cadena | 490 → 139 → 129 → 108 | 490 → 139 → **130 → 109** |
+| Medibles | 54 de 108 (50 %) | **77 de 109 (70 %)** |
+| Re-escaneo | 33 de 54 (61 %) | **31 de 77 (40 %)** |
+| Seriadas | 1 | **12** |
+
+**La lámina 20 afirmaba «el 33 es un piso» y el dato lo refutó.** El cuerpo lo dice ahora como
+predicción fallida, y el guion la cuenta en voz alta. La otra predicción de esa lámina (pool a
+«unas 81», rango 65-97) acertó: 77. **Se reportan las dos**, que es el punto.
+
+**El patrón P4 quedó medido, no conjeturado**: las recuperadas caen en «seriadas» al 29 % contra
+el 10 % de las ya medibles, y 10 de las 18 que no dan re-escaneo fallan **los dos** criterios. La
+lámina 21 pasó de contar un riesgo futuro a contar un resultado.
+
+### Lo que movió la corrida (láminas 15, 22, 23, 26)
+
+`../hovernext_129741/corrida_5008.md` §4 las listaba stale. La segmentación corrió en **18 min** y
+dio **177 mitosis crudas**, sin cruzar contra las 26 marcas. Las cuatro se reescribieron con ese
+estado, y las tres precisiones que la lámina 22 debía cargar están puestas: **percentil medio** y
+no AUC (los AUC del par son 0,874 y 0,919, casi iguales, que es la trampa), la composición de los
+cuatro juegos de pesos, y el freno explícito de que 177 **no es** precisión ni exhaustividad.
+
+### La lámina 24, reencuadrada
+
+Pedía coordinar una fila de GPU que **se drenó sola**. Decisión de Ernesto: **reencuadrarla como
+lección** en vez de borrarla. Conserva la tabla como evidencia del momento y cambia los tres
+paneles por las tres cosas que la fila enseñó (workaround L): un turno en espera por prioridad
+puede no estar esperando, sin tope declarado adelante no hay forma de colar, y achicar el propio
+pedido no adelanta. Deja de pedirle algo a Sebastián que ya no aplica.
+
+### Los dos defectos visuales, arreglados
+
+- **Lámina 23**: el rótulo `marcas / de 28` se centraba verticalmente y caía en el renglón de la
+  etiqueta `14` del eje Y (`curva_techo` dibuja los ticks 0/7/14/21/28 en `l-0.56`); se leía
+  «de 2814». Ahora va **arriba del eje, alineado a la izquierda**, en `TOP+0.20`, que queda libre
+  porque el tick más alto ocupa `TOP+0.53` a `TOP+0.79`.
+- **Lámina 24**: `pie_lineas` arrancaba en `TOP+2.10` y la tabla termina en `TOP+2.14`. Bajó a
+  `TOP+2.24`.
+
+### El guion de las doce
+
+**5.036 palabras**, dentro del presupuesto de 4.500 a 6.000, con la 15 corta (**201**) porque es
+de tránsito y carga la **costura de la portada**. Cobertura: **25 de 26** láminas con nota (la 1
+es la portada del template y no lleva).
+
+Formato verificado a máquina contra las 13 notas previas: punteo de 1 a 5 líneas con las cifras,
+línea en blanco, prosa hablada en párrafos y **cero dígitos en la prosa** (los números van en
+letras). Cero guiones largos, cero «palanca», cero nombres propios, cero números de trabajo.
+
+| Lámina | Palabras | | Lámina | Palabras |
+|---|---|---|---|---|
+| 15 | 201 | | 21 | 488 |
+| 16 | 325 | | 22 | 541 |
+| 17 | 427 | | 23 | 494 |
+| 18 | 352 | | 24 | 399 |
+| 19 | 440 | | 25 | 451 |
+| 20 | **633** | | 26 | 285 |
+
+La **20** es la más larga, como el plan anticipaba: el hallazgo del giro no se entiende sin contar
+que el control positivo se leyó primero y que además **calibró el corte**.
+
+### Lo que NO se hizo en esta sesión
+
+- **Las tres capas de QA del guion**: `@humanizer-es`, la lectura en voz alta de las doce notas
+  extraídas a un archivo, y el barrido de reglas duras **ya corrido a máquina** (esa sí está: cero
+  guiones largos, cero «palanca», cero nombres, cero cifras en prosa). Faltan las dos primeras,
+  que son las que ven los arcos rotos entre láminas.
+- **El brazo de ensemble de HoVer-NeXt**: sin lanzar, por decisión de Ernesto (el foco era el
+  deck). La cola está vacía y es un solo envío.
+- **El cruce de las 177 contra las 26 marcas**: sin hacer. Es el segundo factor del techo.

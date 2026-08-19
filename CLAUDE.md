@@ -714,6 +714,9 @@ instrumento. **Es lectura del criterio, no conjetura sobre los datos**: las dos 
 definen la categoría son las dos que produce una etapa B que no da abasto. Detalle:
 `sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/resultados.md` §11.b +
 [[categoria-residual-fabricada-por-el-instrumento]].
+**CONFIRMADO con dato el 19-ago** (§12.d): al cosechar el re-barrido, «seriadas» pasó de 1 a 12 y
+**7 de las 12 son recuperadas** (29 % contra 10 % de las ya medibles); de las 18 recuperadas que no
+dan re-escaneo, **10 fallan los dos criterios a la vez**. El patrón dejó de ser mecanismo con n=1.
 
 **Corolario que emparenta P2, P3 y P4**: los tres son formas de que **el instrumento se cuele en la
 conclusión** — el umbral en P2, el corte en P3, la categoría en P4. Frente a un resultado que

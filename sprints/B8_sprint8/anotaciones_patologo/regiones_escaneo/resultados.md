@@ -856,3 +856,119 @@ instrumento que lo mide.
 - **§8.b sigue provisional** exactamente como lo dejó §10.c. Nada de esta sección lo destraba.
 - **No se tocó** `barrido_resumen.csv`: se verificó que el cosechador lo reproduce celda a celda y
   quedó protegido contra sobrescritura.
+
+---
+
+## 12. ADDENDUM 19-ago-2026: el re-barrido se cosechó, y refuta una predicción propia
+
+> Cierra el pendiente que §10.c dejó abierto y que §11 instrumentó. El barrido con giro en la
+> etapa A terminó el 18-ago 20:53 (366 min, 0 fallidas) y se cosechó el 19-ago con
+> `scripts/cosechar_barrido_registro.py` + `scripts/comparar_barridos_rotacion.py`.
+> **Salida**: `barrido_resumen_barrido_rot.csv` (109 filas). `barrido_resumen.csv` **intacto**.
+
+### 12.a Dos denominadores, y no son intercambiables
+
+El re-barrido lanzó **130** láminas (las 129 del anterior **más la 129741**, que esta vez sí
+entró) y **109** produjeron JSON; las **21** restantes las rechazó el propio test antes de medir,
+igual que en §7.a y en la misma proporción (**16 %**).
+
+De acá salen dos vistas que **no** hay que mezclar:
+
+| Vista | n | Para qué sirve |
+|---|---|---|
+| **Pareada** | 108 | comparar contra `barrido_resumen.csv` lámina a lámina (excluye la 129741, que no está en el viejo) |
+| **Autónoma** | 109 | el reparto que se reporta hacia afuera (incluye la 129741) |
+
+**El deck usa la autónoma**, que es autoconsistente: 32 + 31 + 34 + 12 = 109.
+
+### 12.b La puerta de medibilidad: +22 láminas, y la tasa cae dentro del IC predicho
+
+Transición **pareada** (n=108):
+
+```
+                 con rot: no    con rot: sí
+sin rot: no          30             24      <- recuperadas
+sin rot: sí           2             52      <- 2 perdidas
+```
+
+- **medibles antes**: 54 de 108 (50 %) → **ahora**: 76 de 108 (70 %), **+22 netas**
+- **tasa de recuperación medida**: 24/54 = **44 %**. §10.c la había extrapolado de 6/12 = 50 %
+  con IC Clopper-Pearson **[21 %, 79 %]** → **cae dentro**. El probe predijo bien.
+- En la vista autónoma (n=109) los medibles son **77**.
+
+**Las 30 que no se recuperan resisten un barrido de rotación**: la lectura de §9.a (no hay señal
+que encontrar) **se les sostiene entera**. No son un artefacto del método que se arregle buscando
+mejor.
+
+### 12.c §8.b rehecho: el recuento BAJA, y eso refuta a §10.c
+
+| Perfil | sin rot (de 108) | con rot (de 109) |
+|---|---|---|
+| La etapa A no localiza | 54 | **32** |
+| Perfil de re-escaneo | 33 | **31** |
+| Ambiguo | 20 | **34** |
+| Perfil de secciones seriadas | 1 | **12** |
+
+Medianas de las 31: **razón 5,27 · escala 1,0022 · residuo 34,3 µm**.
+
+> **§10.c escribió que «el 33 es un piso» y el dato lo REFUTA.** El pool de medibles creció de 54
+> a 77 y el recuento de re-escaneo **bajó a 31**; en proporción cae de **61 % a 40 %**. La otra
+> predicción de §10.c (pool a «unas 81», rango 65-97) **sí acertó**: 77.
+>
+> Esto **no** invalida el instrumento: invalida una extrapolación nuestra. Lo que entró al pool
+> nuevo no se parece a lo que ya estaba, que es justo lo que §11.b anticipó.
+
+Sensibilidad sobre el pool nuevo (los cortes siguen siendo posteriores al dato):
+
+| Corte | Re-escaneo | Ambiguo | Seriadas |
+|---|---|---|---|
+| Laxo (razón≥2,5 · banda 0,03 · frac≥0,6) | 41 | 27 | 9 |
+| **Base** (razón≥3 · banda 0,02 · frac≥0,75) | **31** | **34** | **12** |
+| Estricto (razón≥4 · banda 0,015 · frac≥0,875) | 18 | 46 | 13 |
+
+### 12.d Las dos trampas de §11: una inocua, la otra CONFIRMADA
+
+**§11.a (razón degenerada)**: pasa en **1** lámina (`120361`, control medio −0,0227 → razón
+5,05e7). **No cruza la puerta** (`etapaA_ok=False`), así que no entra al reparto. **Inocua**, como
+en §8. El guard del script la listó aparte con AVISO, según lo diseñado.
+
+**§11.b (seriadas fabricadas por el instrumento)**: **confirmada con dato**, no ya con mecanismo.
+
+- seriadas pasa de **1 a 12**, y **7 de las 12 son recuperadas**
+- reparto de las **24 recuperadas** contra las que **ya eran medibles**:
+
+| Perfil | recuperadas | ya medibles |
+|---|---|---|
+| re-escaneo | 25 % | 46 % |
+| ambiguo | 46 % | 44 % |
+| **seriadas** | **29 %** | **10 %** |
+
+- descomposición de las **18** recuperadas que no dan re-escaneo: **solo escala 1 · solo señal 7 ·
+  las dos 10**. Que la mayoría falle **las dos a la vez** es la firma de un instrumento al límite,
+  no la de un hallazgo (patrón **P4**).
+- escala pedida por las recuperadas: mediana **1,0117**, rango **0,9082-1,0916**; **11 de 24 fuera
+  de la banda ±2 %** ⇒ **la etapa B es el próximo cuello**: pide escala que no busca.
+
+### 12.e Chequeo de sanidad y la 129741
+
+- **2 láminas empeoran** (`B25-150881`, `147247`). No es necesariamente bug: θ se elige por el
+  máximo de NCC y un ángulo que sube el pico puede subir también el segundo, bajando el margen
+  (mismo mecanismo que §10.b, caso 142430).
+- **Δ pareado**: el NCC de señal **baja** en promedio (−0,0522) pero el **margen del pico sube en
+  96 de 108**. Y sube el NCC **también entre las que ya eran medibles** (−0,0428 medio, sube en
+  14/52) ⇒ §10.a se verifica sobre el set entero: **la etapa A venía tolerando la rotación, no
+  evitándola**.
+- **La 129741 entró por primera vez** al barrido: **perfil de re-escaneo**, NCC 0,3091 (percentil
+  **88** de las otras 76), razón 5,96, escala 1,014, residuo 104 µm, θ_sd 3,47. Su **0,3820**
+  previo era **cota inferior** (su barrido de rotación saturaba).
+
+### 12.f Qué NO se afirma
+
+- **No se afirma que las 31 sean re-escaneos confirmados.** Es un perfil compatible medido con
+  tres ejes, no una verificación contra el registro del laboratorio.
+- **No se afirma que las 12 «seriadas» sean secciones seriadas.** §12.d muestra lo contrario: el
+  grupo está contaminado por el límite de la etapa B, y **7 de 12** son recuperadas.
+- **No se proyecta el reparto viejo sobre el pool nuevo**, ni al revés (P4).
+- **El denominador honesto siguen siendo las medibles** (31 de 77), nunca «de 139» ni «de 490».
+- **No se re-midió la etapa B con escala**: que sea el próximo cuello es un diagnóstico, no un
+  resultado corregido.
