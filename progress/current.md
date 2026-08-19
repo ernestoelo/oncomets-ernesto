@@ -3941,3 +3941,55 @@ que no son nuestros. Nuestro 5008 sigue `PD (Priority)` y **no va a correr antes
   26 en caso de que el recuento cierre antes de la reunión.
 - Cero GPU, cero `sbatch`, cero cambios a los dos scripts que el driver relee, cero ediciones al
   generador del deck.
+
+---
+
+## Sesión 11 (19-ago-2026) — el plan quedó escrito, y dos cosas cambiaron de estado solas
+
+Sesión corta y de reconocimiento: se escribió el plan de ejecución
+(`~/.claude/plans/enumerated-finding-cocke.md`) para que una sesión limpia haga el guion, y en el
+camino se descubrió que **dos procesos que el handoff daba por pendientes ya cerraron**.
+
+### 1. El job de HoVer-NeXt CORRIÓ (lo más importante para la reunión)
+
+`sprints/B8_sprint8/hovernext_129741/corrida_5008.md`. La cola de la GPU **se drenó sola** de
+madrugada; el job 5008 arrancó 00:33 y cerró 00:52 con exit 0. **18 min de pared** contra las
+3 h 36 de HoVer-Net. Produjo **177 detecciones de mitosis** en la lámina entera (más seis clases
+más), con los dos zips crudos que la auditoría había pedido conservar.
+
+**Corrió solo el brazo de mitosis** (`lizard_convnextv2_tiny`). El de ensemble
+(`pannuke_..._{1,2,3}`) **nunca se lanzó** y su directorio está vacío. La cola está vacía ahora,
+así que lanzarlo es un `sbatch` — decisión de Ernesto.
+
+**No se cruzó nada todavía** contra las 26 marcas del patólogo: las 177 son salida cruda.
+
+**Esto deja stale cinco láminas del deck** (15, 22, 23, 24, 26), que fue construido dando por
+hecho que la corrida no había pasado. El detalle por lámina está en §4 de `corrida_5008.md`.
+
+### 2. El re-barrido con giro también cerró
+
+18-ago 20:53, 366 min de pared, 109 JSON, 20 rechazadas por el test, **0 fallidas**. Ernesto
+decidió **cosecharlo y actualizar el cuerpo del deck** con los números nuevos, en vez de
+presentar el recuento como provisional. Sin cosechar todavía.
+
+### 3. QA visual de las ocho láminas tocadas: hecho
+
+Rasterizadas y miradas. La medición de tinta por renglón dio **cero en las ocho**, igual que
+daba con los seis defectos anteriores adentro; los dos hallazgos salieron del ojo:
+
+- **Lámina 23**: el rótulo `marcas / de 28` colisiona con la etiqueta `14` del eje Y del gráfico
+  del techo. Se lee «de 2814».
+- **Lámina 24**: `pie_lineas` arranca 0,04″ antes de que termine la tabla; la nota queda pegada
+  a la última fila.
+
+Las otras seis (15, 17, 18, 19, 20, 26) están limpias. El eje de ángulos de la 20 dibuja bien
+sus bandas anidadas: es diseño, no defecto.
+
+### Lo que NO se hizo
+
+- **El guion de las doce láminas nuevas: sigue en cero.** Es el pendiente grande.
+- **La cosecha del re-barrido**, decidida pero sin correr.
+- **Los dos defectos visuales**, sin arreglar.
+- **El brazo de ensemble de HoVer-NeXt**, sin lanzar.
+- **El cruce de las 177 contra las marcas**, sin hacer.
+- Cero GPU, cero `sbatch`, cero ediciones al generador del deck.
