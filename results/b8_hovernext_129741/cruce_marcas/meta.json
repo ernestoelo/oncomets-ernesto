@@ -1,0 +1,26 @@
+{
+  "que_es": "segundo factor del techo de la fase 3: cuanto se come la deteccion",
+  "no_es": [
+    "precision de HoVer-NeXt",
+    "una medida de cuantas mitosis HAY en la lamina",
+    "un recall sobre las mitosis reales: el denominador son LAS MARCADAS"
+  ],
+  "n_marcas": 26,
+  "n_detecciones": 177,
+  "n_detecciones_region_anotada": 82,
+  "tolerancia_adoptada_um": 30.0,
+  "recall": 0.5,
+  "tp": 13,
+  "plano_entre_um": [
+    7.5,
+    75.0
+  ],
+  "offset_aplicado": {
+    "dx": 3829,
+    "dy": 0
+  },
+  "y_corte_region": 49920,
+  "mpp": 0.465,
+  "fuente_detecciones": "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/b8_hovernext_129741/hovernext/lizard_mitosis/129741/pred_mitosis.tsv",
+  "fuente_atencion": "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/b8_hovernext_129741/interp/carcinoma_ductal_insitu_presente_ci_reform/129741/atencion_por_parche.npz"
+}
