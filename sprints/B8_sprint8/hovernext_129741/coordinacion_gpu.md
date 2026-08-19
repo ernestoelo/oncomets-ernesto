@@ -134,3 +134,26 @@ sin un solo número de segmentación y el pedido de coordinación se hace igual.
 llevar a la reunión, además del pedido escrito, es que **el bloqueo ya no es un solo servidor
 eterno sino una fila que rota**, y que la cuenta compartida está empezando a competir consigo
 misma.
+
+## ADDENDUM 19-ago-2026 (00:52): la fila se drenó sola y el pedido quedó sin objeto
+
+**El pedido de coordinación de este documento ya no aplica.** Entre el snapshot del 18-ago
+19:44 y la madrugada del 19-ago la fila se vació entera, sin que hiciéramos nada y sin que
+nadie cancelara nada. Nuestro **job 5008 arrancó a las 00:33 y cerró a las 00:52** con exit 0
+(`corrida_5008.md`). Al escribir esto `squeue` devuelve **cero trabajos**.
+
+**Lo que sigue siendo verdad**, y es lo que vale la pena conservar del documento:
+
+- El nodo tiene **un solo turno de GPU**, y eso no cambió.
+- Un trabajo con `TimeLimit=UNLIMITED` delante **mata el backfill**, y mientras estuvo ahí no
+  hubo forma de adelantar (workaround L).
+- **Achicar el pedido propio no adelanta** — se confirmó por la vía contraria: no achicamos
+  nada y el trabajo corrió igual, cuando el recurso se liberó.
+
+**Lo que NO se puede concluir:** que esperar sea la estrategia correcta. Acá funcionó, pero la
+espera duró desde el 17-ago hasta el 19-ago de madrugada, y **fue suerte de calendario, no un
+plan**. Si el servidor de inferencia declarado a 365 días hubiera seguido levantado, el turno no
+se liberaba. El pedido de que los trabajos largos declaren un `--time` real sigue siendo lo
+barato y lo correcto; lo que cambió es que **ya no es urgente para nosotros**.
+
+> Para la reunión: la lámina 24 del deck cuenta esta fila como problema vivo. **Ya no lo es.**
