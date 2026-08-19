@@ -1,0 +1,36 @@
+[silueta] level 6 (downsample 64), miniatura 360x480
+[silueta] NCC sin registrar 0.9332, registrada 0.9332 (dx=0 dy=0 px de level 0)
+[silueta] control contra la región 1 espejada: -0.2868
+[silueta] OJO: esta medida la domina el CONTORNO del tejido, no las células. Dos secciones seriadas del mismo bloque también la pasan.
+
+[etapa A] 8 ventanas de 1024 px (476 µm) repartidas en grilla 4x4; búsqueda ±2048 px (952 µm) a level 2
+vent      x0      y0      NCC      dx      dy     sd     2do
+   0   17152   17920   0.1257   -1312   -1956    3.3  0.1141
+   1   20864   16384   0.2066    1384    -780    9.1  0.2018
+   2   15616   13824   0.2172    2048    1692    4.2  0.2107
+   3   17792   10240   0.2048    1916    1648    3.1  0.2007
+   4   10368   10240   0.2388   -2048    2048    3.6  0.2128
+   5   20864    4608   0.1962    2048   -2040    3.5  0.1959
+   6   17280   26624   0.2343    1044     556    5.1  0.2096
+   7   11392   21504   0.3678    1800   -1604    3.8  0.3676
+
+[rígido] ajuste con 5 ventanas sobre 8.8 mm de vidrio: rotación +3.531°, escala 0.93161
+[rígido] residuo: RMS 1702 px = 791 µm, máximo 1298 µm
+
+[etapa B] level 0, plantilla 512 px (238 µm), residual ±48 px, rotación ±8.0° en pasos de 0.5°
+vent      NCC     ctrl      θ    dx    dy     sd     2do
+   0   0.0408   0.0324  +1.00     1   -14    5.4  0.0166
+   1   0.0129   0.0291  +8.00    28    48    5.0  0.0047
+   2   0.0174   0.0783  -3.50     9   -31    5.3  0.0043
+   3   0.0409   0.0134  -7.00    39    48    2.8  0.0363
+   4   0.0278   0.0288  +5.00   -25    41    2.9  0.0249
+   5   0.0483   0.0447  +0.00    48    48    3.6  0.0440
+   6   0.0660   0.0437  -5.00    31   -48    6.2  0.0405
+   7   0.0523   0.0464  +8.00    29   -44    5.5  0.0241
+
+[resumen] NCC a level 0, señal  : medio 0.0383, mediana 0.0409, rango 0.0129..0.0660
+[resumen] NCC a level 0, control: medio 0.0396, mediana 0.0380, máximo 0.0783
+[resumen] separación señal-control: -0.1 sd del control; ventanas con señal > máximo del control: 0/8
+
+[out] /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/138527_registro_level0.png  (izq = región 0 en (17536,26880), der = lo mejor que se encontró en la región 1, NCC 0.0660)
+[out] /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/registro_138527.json

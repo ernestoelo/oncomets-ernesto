@@ -1,0 +1,32 @@
+[silueta] level 6 (downsample 64), miniatura 500x440
+[silueta] NCC sin registrar 0.9817, registrada 0.9847 (dx=0 dy=1216 px de level 0)
+[silueta] control contra la región 1 espejada: -0.5177
+[silueta] OJO: esta medida la domina el CONTORNO del tejido, no las células. Dos secciones seriadas del mismo bloque también la pasan.
+
+[etapa A] 8 ventanas de 1024 px (476 µm) repartidas en grilla 4x4; búsqueda ±2048 px (952 µm) a level 2
+vent      x0      y0      NCC      dx      dy     sd     2do
+   0   21120   49280   0.5651     504   -1196    6.9  0.2581
+   1   21632   48896   0.5487     540   -1152    5.9  0.2548
+   2   27584   41856   0.3570    1104    -888    9.4  0.1043
+   3   29120   32256   0.6185    1680    -936    9.8  0.1873
+   4   19584   41856   0.5877    1104   -1324    8.5  0.2420
+   7   13632   36736   0.8879    1524   -1532    7.3  0.5364
+
+[rígido] ajuste con 6 ventanas sobre 10.7 mm de vidrio: rotación +3.407°, escala 1.00408
+[rígido] residuo: RMS 136 px = 63 µm, máximo 106 µm
+
+[etapa B] level 0, plantilla 512 px (238 µm), residual ±48 px, rotación ±8.0° en pasos de 0.5°
+vent      NCC     ctrl      θ    dx    dy     sd     2do
+   0   0.1443   0.1399  -7.00    46    47    3.7  0.1344
+   1   0.2310   0.0694  +6.00    48    -2    2.4  0.2020
+   2   0.1330   0.0681  +0.00    48    48    7.8  0.0613
+   3   0.1694   0.1086  +8.00    48    48    3.9  0.1319
+   4   0.1976   0.1466  +3.00    48    47    4.6  0.1413
+   7   0.7061   0.0115  +3.00    48    48    2.8  0.6671
+
+[resumen] NCC a level 0, señal  : medio 0.2636, mediana 0.1835, rango 0.1330..0.7061
+[resumen] NCC a level 0, control: medio 0.0907, mediana 0.0890, máximo 0.1466
+[resumen] separación señal-control: 3.7 sd del control; ventanas con señal > máximo del control: 4/6
+
+[out] /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/148781_registro_level0.png  (izq = región 0 en (13888,36992), der = lo mejor que se encontró en la región 1, NCC 0.7061)
+[out] /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/registro_148781.json

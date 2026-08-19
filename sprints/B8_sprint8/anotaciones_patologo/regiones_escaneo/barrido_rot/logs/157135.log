@@ -1,0 +1,30 @@
+[silueta] level 6 (downsample 64), miniatura 440x400
+[silueta] NCC sin registrar 0.9813, registrada 0.9813 (dx=0 dy=0 px de level 0)
+[silueta] control contra la región 1 espejada: -0.6954
+[silueta] OJO: esta medida la domina el CONTORNO del tejido, no las células. Dos secciones seriadas del mismo bloque también la pasan.
+
+[etapa A] 7 ventanas de 1024 px (476 µm) repartidas en grilla 4x4; búsqueda ±2048 px (952 µm) a level 2
+vent      x0      y0      NCC      dx      dy     sd     2do
+   0   22016   19200   0.2155   -1468    1812    5.0  0.1202
+   1   22016   18944   0.1756   -1496    1824    5.9  0.0909
+   2   23936   14848   0.1292    -992   -1860    4.1  0.1266
+   4   24960    7936   0.1924   -1128    1500    3.7  0.1818
+   5   22016   11008   0.2278   -1224   -1280    3.3  0.2067
+
+[rígido] ajuste con 5 ventanas sobre 5.4 mm de vidrio: rotación +0.899°, escala 1.11211
+[rígido] residuo: RMS 1550 px = 721 µm, máximo 1085 µm
+
+[etapa B] level 0, plantilla 512 px (238 µm), residual ±48 px, rotación ±8.0° en pasos de 0.5°
+vent      NCC     ctrl      θ    dx    dy     sd     2do
+   0   0.0434   0.0325  +7.50    -5   -35    4.8  0.0268
+   1   0.0371   0.0176  +6.50   -34   -28    4.6  0.0253
+   2   0.0210   0.0227  +6.50   -26   -43    4.1  0.0154
+   4   0.0655   0.0436  +8.00   -28    29    3.4  0.0598
+   5   0.0469   0.0316  +7.00    17    -8    3.0  0.0409
+
+[resumen] NCC a level 0, señal  : medio 0.0428, mediana 0.0434, rango 0.0210..0.0655
+[resumen] NCC a level 0, control: medio 0.0296, mediana 0.0316, máximo 0.0436
+[resumen] separación señal-control: 1.5 sd del control; ventanas con señal > máximo del control: 2/5
+
+[out] /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/157135_registro_level0.png  (izq = región 0 en (25216,8192), der = lo mejor que se encontró en la región 1, NCC 0.0655)
+[out] /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/registro_157135.json

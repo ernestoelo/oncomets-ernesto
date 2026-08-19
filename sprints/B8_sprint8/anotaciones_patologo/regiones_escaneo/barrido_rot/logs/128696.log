@@ -1,0 +1,28 @@
+[silueta] level 6 (downsample 64), miniatura 500x440
+[silueta] NCC sin registrar 0.9973, registrada 0.9974 (dx=0 dy=128 px de level 0)
+[silueta] control contra la región 1 espejada: -0.7447
+[silueta] OJO: esta medida la domina el CONTORNO del tejido, no las células. Dos secciones seriadas del mismo bloque también la pasan.
+
+[etapa A] 5 ventanas de 1024 px (476 µm) repartidas en grilla 4x4; búsqueda ±2048 px (952 µm) a level 2
+vent      x0      y0      NCC      dx      dy     sd     2do
+   0   25024   17664   0.2985   -1176    -304    8.3  0.1301
+   1   23680   16640   0.2988   -1064    -488    5.1  0.1603
+   2   22144   13696   0.2273    -740    -816    4.8  0.1600
+   3   24512   12160   0.2830    -520    -632   11.7  0.0802
+
+[rígido] ajuste con 4 ventanas sobre 2.9 mm de vidrio: rotación +6.697°, escala 1.04921
+[rígido] residuo: RMS 36 px = 17 µm, máximo 20 µm
+
+[etapa B] level 0, plantilla 512 px (238 µm), residual ±48 px, rotación ±8.0° en pasos de 0.5°
+vent      NCC     ctrl      θ    dx    dy     sd     2do
+   0   0.0731   0.0185  -2.50    23   -14    4.8  0.0476
+   1   0.0780   0.0373  -1.00    48   -47    4.2  0.0505
+   2   0.0581   0.0546  +2.50    37   -28    3.7  0.0457
+   3   0.0795   0.0525  -5.00    46   -44    4.3  0.0442
+
+[resumen] NCC a level 0, señal  : medio 0.0722, mediana 0.0756, rango 0.0581..0.0795
+[resumen] NCC a level 0, control: medio 0.0407, mediana 0.0449, máximo 0.0546
+[resumen] separación señal-control: 2.2 sd del control; ventanas con señal > máximo del control: 4/4
+
+[out] /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/128696_registro_level0.png  (izq = región 0 en (24768,12416), der = lo mejor que se encontró en la región 1, NCC 0.0795)
+[out] /media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/registro_128696.json

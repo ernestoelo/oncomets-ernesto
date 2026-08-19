@@ -1,0 +1,9 @@
+[silueta] level 6 (downsample 64), miniatura 440x360
+[silueta] NCC sin registrar 0.9894, registrada 0.9918 (dx=0 dy=832 px de level 0)
+[silueta] control contra la región 1 espejada: -0.4386
+[silueta] OJO: esta medida la domina el CONTORNO del tejido, no las células. Dos secciones seriadas del mismo bloque también la pasan.
+
+[etapa A] 5 ventanas de 1024 px (476 µm) repartidas en grilla 4x4; búsqueda ±2048 px (952 µm) a level 2
+vent      x0      y0      NCC      dx      dy     sd     2do
+   3   20736   38656   0.8789     432   -1328    3.5  0.7426
+[stop] solo 1 ventanas utilizables
