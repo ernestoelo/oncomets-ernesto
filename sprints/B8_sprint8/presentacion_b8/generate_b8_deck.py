@@ -38,8 +38,8 @@ láminas, con la estructura cambiada en las dos puntas y el cuerpo aligerado:
     nueva de OBJETIVOS PROPUESTOS. La lámina del determinismo se retiró: lo que quedaba en
     pie de ella es una línea de comparabilidad en el guion del grid.
   - Dos láminas se volvieron figura donde antes había un panel de texto: el estadístico
-    (`escala_auc`) y, sobre todo, el nulo por traslación (`_mancha` + `nube_traslaciones`),
-    que era la lámina que Ernesto dijo no entender. La de los mapas pasa a la región anotada
+    (`escala_auc`) y, sobre todo, el nulo por traslación, que era la lámina que Ernesto
+    dijo no entender (retirada el 19-ago, con sus figuras). La de los mapas pasa a la región anotada
     sola, al doble de lado, con la procedencia al pie (`pie_lineas`).
   - Transversales: títulos minimalistas, y cada guion abre con un punteo de 3 a 5 renglones
     de una línea antes de la prosa hablada, que sigue siendo prosa
@@ -63,11 +63,31 @@ en 14 láminas y la audiencia pasa a ser Benjamín, la semana del 11-ago:
     (el IC de Hanley-McNeil, que es una incertidumbre distinta de la sd entre checkpoints).
   - `build()` deja de ser un bloque único: una función por lámina y el orden en un solo lugar.
 
+RECORTE del 19-ago, pedido por Ernesto en `correcciones.txt`. De 27 láminas a 15, y el
+criterio es la reunión pendiente con Sebastián: lo que no sirva para llegar a ella, sale.
+  - Se van, por orden explícito: la lámina de controles, la que fechaba el trabajo, las SEIS
+    de regiones de escaneo, la de estado de la herramienta, la de la cola de cómputo, la de
+    patrones y la de próximos pasos. La cola de cómputo no se menciona en ninguna parte, y
+    tampoco se fecha lo que se hizo un día concreto.
+  - Las dos que medían los factores del techo (la curva del filtro y el cruce) se FUNDEN en
+    una sola de RESULTADOS, con la forma que pidió: los mapas de calor primero y el número
+    al lado. Se conserva el 13 de 26 y la tabla de los dos factores; se va la meseta de
+    tolerancia, que era método. Resuelto con Ernesto antes de borrar: el texto admitía
+    leerse como «borrar las dos», y eso se habría llevado el único resultado cuantitativo.
+  - Entra la FIGURA 1 del paper de HoVer-NeXt en lugar de la lámina de estado.
+  - El eje de la lámina de resultados es el encadenamiento que pidió Sebastián: la atención
+    de CLAM recorta y el detector trabaja adentro. No son dos herramientas por separado.
+  - Barrido de referencias cruzadas después de cortar: la portada prometía «tres cosas» y
+    ahora son cuatro; dos guiones apuntaban a la lámina de controles y ya no la nombran.
+
 Reglas que gobiernan el archivo:
   - Se construye SOBRE el template válido (Deep-LLM-V), nunca con Presentation() a secas:
     el template EMBEBE sus fuentes y ese es el motivo real de que un deck "no parezca el
     template" ([[deck-template-fuentes-embebidas]]).
-  - TODO nativo salvo la figura del paper, única excepción de la convención de decks.
+  - TODO nativo salvo las IMÁGENES: las dos figuras de papers y las nuestras sobre tejido
+    real (mapas de atención, la cadena, los detalles a resolución nativa). El criterio no es
+    de dónde salió la imagen sino si el objeto es dibujable: tabla, gráfico o diagrama van
+    nativos siempre (CLAUDE.md, ADDENDUM 3-ago).
   - Gramática de diagrama de Deep-LLM-V ([[deck-gramatica-diagrama-deep-llm-v]]).
   - Tipografía: TODO Barlow, forzado con forzar_barlow() sobre theme + master + layouts.
   - Sin rayas «—»/«–», sin la palabra «palanca», sin la expresión «al revés».
@@ -120,14 +140,15 @@ FIG_MAPAS_ANOTADA = os.path.join(ASSETS, "atencion_region_anotada.png")
 FIG_MITOSIS = os.path.join(ASSETS, "mitosis_region_anotada.png")   # con el recuadro de foco
 FIG_ZOOM = os.path.join(ASSETS, "mitosis_zoom.png")                # el detalle del recuadro
 
-# --- figuras de la sección de regiones de escaneo (producción NUESTRA) ---
-# Preparadas por prep_assets_regiones.py. Las dos regiones vienen recortadas en la misma
-# cantidad de columnas, así que la correspondencia entre ellas se conserva; el registro a
-# resolución completa se saca de git y no del árbol, porque el re-barrido en curso movió el
-# archivo del árbol a su propio subdirectorio.
-REG0 = os.path.join(ASSETS, "region0_129741.png")            # ar 1.0437
-REG1 = os.path.join(ASSETS, "region1_129741.png")            # ar 1.0021
-REGISTRO = os.path.join(ASSETS, "registro_level0_129741.png")  # ar 2.0312
+# --- figuras de la lámina de resultados del 19-ago (producción NUESTRA) ---
+# Preparadas por prep_assets_hovernext.py. La cadena son tres paneles de la MISMA región en
+# tres estados (atención · recorte · detecciones), montados con 26 px de aire: ar = 3.694.
+# El detalle son cuatro recortes a resolución nativa sobre mitosis acertadas: ar = 4.069.
+FIG_CADENA = os.path.join(ASSETS, "cadena_clam_hovernext.png")
+FIG_HN_ZOOM = os.path.join(ASSETS, "hovernext_zoom.png")
+# Figura EXTERNA: la Figura 1 del paper de HoVer-NeXt, extraída por
+# prep_assets_paper_hovernext.py. ar = 1.621. Va como imagen por ser de un paper.
+FIG_HN_PAPER = os.path.join(ASSETS, "hovernext_paper_fig1.png")
 
 # --- procedencia de la lámina anotada, para la lámina de los mapas ---
 # Sebastián preguntó de dónde salió la lámina y con qué checkpoints se midió. Las tres líneas
@@ -983,75 +1004,8 @@ def escala_auc(slide, l, t, w, valor, alto=0.16, fs=9.5, pie=None):
     return ye + (0.50 if pie else 0.22) - t
 
 
-# El racimo es SIEMPRE el mismo: que la forma se conserve es justamente lo que define al
-# nulo por traslación, así que una sola función dibuja la mancha real y sus copias, y lo
-# único que cambia entre ellas es de dónde arrancan.
-_RACIMO = [(0, 0), (1, 0), (2, 0), (0, 1), (1, 1), (2, 1), (3, 1),
-           (1, 2), (2, 2), (3, 2), (2, 3)]
-
-
-def _mancha(slide, x, y, c=0.052, solida=True, col=None):
-    """El racimo de parches marcados, sólido si es el real y hueco si es una traslación."""
-    for dx, dy in _RACIMO:
-        sp = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(x + dx * c), Inches(y + dy * c),
-                                    Inches(c * 0.86), Inches(c * 0.86))
-        if solida:
-            sp.fill.solid(); sp.fill.fore_color.rgb = col or ONCO_INK
-            sp.line.fill.background()
-        else:
-            # relleno BLANCO, no transparente: sobre el celeste de la zona caliente un
-            # contorno sin relleno se lee casi como la mancha sólida, y la diferencia entre
-            # las dos cosas es justamente lo que la figura tiene que mostrar.
-            sp.fill.solid(); sp.fill.fore_color.rgb = WHITE
-            sp.line.color.rgb = col or GRIS_BODY; sp.line.width = Pt(0.75)
-        sp.shadow.inherit = False
-
-
-def _lcg(semilla=7):
-    """Generador propio para el jitter de la nube: el dibujo tiene que salir igual en cada
-    regenerada, y `random` sin semilla haría que el deck cambie de una corrida a otra."""
-    x = semilla
-    while True:
-        x = (1103515245 * x + 12345) % 2147483648
-        yield x / 2147483648.0
-
-
-def nube_traslaciones(slide, l, t, w, h, lo, hi, banda, obs, fs=9,
-                      n_marcas=54, rot_banda=None, rot_obs=None):
-    """Dónde caen las traslaciones del nulo contra dónde cayó la mancha en su lugar real.
-
-    `banda` es el RANGO MEDIDO de los AUC nulos, que es el dato que existe: la corrida
-    guardó el rango, no los ~440 valores uno por uno. Por eso lo medido se dibuja como
-    banda rotulada con sus dos extremos, y las marcas de adentro solo dicen «acá hay
-    muchas», sin fingir un histograma que no tenemos."""
-    def X(v):
-        return l + (v - lo) / (hi - lo) * w
-    yb = t + 0.30
-    _rect(slide, l, yb, w, h, TEAL_CARD2)
-    b0, b1 = X(banda[0]), X(banda[1])
-    _rect(slide, b0, yb, b1 - b0, h, ONCO_PANEL)
-    g = _lcg()
-    for i in range(n_marcas):
-        fx, fy = next(g), next(g)
-        cx = b0 + fx * (b1 - b0 - 0.05)
-        cy = yb + 0.05 + fy * (h - 0.14)
-        _rect(slide, cx, cy, 0.045, 0.045, ONCO_DATA)
-    _rect(slide, X(obs) - 0.035, yb - 0.10, 0.07, h + 0.20, ONCO_DARK)
-    add_textbox(slide, X(obs) - 0.80, yb - 0.34, 1.60, 0.24,
-                [(_num(obs), 13, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER)],
-                anchor=MSO_ANCHOR.MIDDLE)
-    ye = yb + h + 0.04
-    if rot_banda:
-        add_textbox(slide, b0 - 0.60, ye, (b1 - b0) + 1.20, 0.22,
-                    [(rot_banda, fs, True, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
-    if rot_obs:
-        add_textbox(slide, X(obs) - 1.30, ye, 1.60, 0.22,
-                    [(rot_obs, fs, True, ONCO_DARK, F_BODY, PP_ALIGN.RIGHT)])
-    return ye + 0.22 - t
-
-
 # ============================================================================
-# Figuras nativas del rediseño del 5-ago (SI-MIL pedagógico y nulo espacial)
+# Figuras nativas del rediseño del 5-ago (SI-MIL pedagógico)
 # ============================================================================
 def _mezcla(c0, c1, f):
     """Interpola dos colores de la paleta. Sirve para dar INTENSIDAD sin inventar tonos
@@ -1118,47 +1072,6 @@ def grilla_contribuciones(slide, l, t, w, h, filas, cols, patron, celda_max=0.20
             col = _mezcla(TEAL_CARD2, ONCO_DARK if v > 0 else ONCO_DATA,
                           0.35 + 0.65 * abs(v) / 3.0)
             _rect(slide, cx - lado / 2, cy - lado / 2, lado, lado, col)
-    return t + h
-
-
-def mapa_traslaciones(slide, l, t, w, h, c=0.055):
-    """El nulo por traslación, dibujado sobre una lámina con forma.
-
-    Rehecha el 5-ago: la versión anterior era un rectángulo con otro rectángulo adentro y
-    una leyenda de colores al pie, y Ernesto dijo que no se entendía. Acá la zona de
-    atención tiene forma orgánica, las copias se atan a la original con flechas punteadas
-    (traslación = un movimiento, no cuatro manchas sueltas) y los rótulos van PEGADOS a lo
-    que nombran, en vez de en una leyenda ([[deck-qa-puntos-ciegos-chequeo]])."""
-    _grupo(slide, l, t, w, h, fill=TEAL_CARD2)
-    # zona de atención alta: tres óvalos solapados, para que se lea como una mancha de
-    # tejido y no como una caja
-    for fx, fy, fw, fh in ((0.30, 0.16, 0.30, 0.62), (0.44, 0.30, 0.26, 0.56),
-                           (0.24, 0.42, 0.22, 0.44)):
-        sp = slide.shapes.add_shape(MSO_SHAPE.OVAL, Inches(l + fx * w), Inches(t + fy * h),
-                                    Inches(fw * w), Inches(fh * h))
-        sp.fill.solid(); sp.fill.fore_color.rgb = ONCO_PANEL
-        sp.line.fill.background(); sp.shadow.inherit = False
-    # el rótulo de la zona caliente va a la DERECHA de las manchas y no encima: centrado
-    # arriba quedaba pegado al de la mancha real y los dos se leían como un título de dos
-    # renglones, en vez de como dos rótulos de dos cosas distintas
-    add_textbox(slide, l + 0.62 * w, t + 0.20 * h, 0.36 * w, 0.22,
-                [("donde el modelo mira", 8.5, True, ONCO_DARK, F_BODY, PP_ALIGN.LEFT)])
-    # la mancha real, dentro de la zona caliente
-    rx, ry = l + 0.40 * w, t + 0.36 * h
-    # las copias: una fuera del tejido caliente, una en el borde y una que cae DENTRO —
-    # esa última es la que explica que el nulo parta de 0,67 y no del azar
-    copias = [(l + 0.06 * w, t + 0.10 * h), (l + 0.74 * w, t + 0.56 * h),
-              (l + 0.31 * w, t + 0.62 * h)]
-    for cx, cy in copias:
-        _mancha(slide, cx, cy, c=c, solida=False)
-        _conn_dash(slide, rx + 1.5 * c, ry + 1.5 * c, cx + 1.5 * c, cy + 1.5 * c)
-    _mancha(slide, rx, ry, c=c, solida=True)
-    add_textbox(slide, rx - 0.30, ry - 0.30, 1.70, 0.22,
-                [("las marcas, donde están", 9, True, ONCO_INK, F_BODY)])
-    add_textbox(slide, copias[1][0] - 0.20, copias[1][1] + 4.2 * c, 2.10, 0.22,
-                [("la misma mancha, corrida", 9, True, GRIS_BODY, F_BODY)])
-    add_textbox(slide, copias[2][0] - 0.10, copias[2][1] + 4.2 * c, 2.60, 0.22,
-                [("algunas caen igual en zona caliente", 8.5, True, GRIS_BODY, F_BODY)])
     return t + h
 
 
@@ -1452,7 +1365,7 @@ def retitular_portada(prs):
 def lam_portada(prs):
     """Portada de marca, heredada del template."""
     s = retitular_portada(prs)
-    notes(s, "Traigo tres cosas, y las puse en ese orden a propósito.\n"
+    notes(s, "Traigo cuatro cosas, y las puse en ese orden a propósito.\n"
              "\n"
              "Empiezo por un encargo que había quedado del sprint pasado y que ya cerró: si al "
              "modelo con expertos le sobra capacidad por dentro, y de qué lado conviene "
@@ -1469,7 +1382,12 @@ def lam_portada(prs):
              "trabajo habitual: la red profunda deja de ser la que predice y pasa a ser la que "
              "enseña dónde mirar, mientras la predicción la hace un modelo lineal sobre "
              "mediciones de núcleos que tienen nombre de patología. Es una lectura terminada, "
-             "así que la voy a contar comprimida.")
+             "así que la voy a contar comprimida.\n"
+             "\n"
+             "Y al final, después de los objetivos que propongo, dejo lo que más quiero "
+             "discutir hoy: el segundo instrumento, que trabaja a nivel de núcleo, corriendo "
+             "sobre el mapa de atención del modelo. Es el encadenamiento que quedó pedido en "
+             "la reunión anterior, y ya tiene mapas y un número.")
 
 
 def lam_grid(prs):
@@ -1878,8 +1796,8 @@ def lam_escalera(prs):
              "negativo: son regiones marcadas con otro criterio, y que la grasa dé cero coma "
              "quince muestra que la atención distingue tejido, no que el método esté validado. Y "
              "los núcleos de alto grado, el segundo renglón, no aguantan el estirón: dan un "
-             "número parecido, pero cuando lo sometemos a las pruebas que vienen ahora, solo uno "
-             "de cuatro modelos lo pasa. Además es el segundo bigote más ancho de los siete, "
+             "número parecido, pero al repetir la medición con los cuatro modelos solo uno "
+             "lo sostiene. Además es el segundo bigote más ancho de los siete, "
              "así que hay dos razones independientes para no presentarlo como resultado.")
 
 
@@ -2027,114 +1945,6 @@ def lam_mira_responde(prs):
              "se lo comprime a un vector, y en cómo un conjunto de parches bien elegidos se "
              "convierte en un puntaje. Eso mueve el trabajo a un lugar distinto del que "
              "teníamos previsto.")
-
-
-def lam_controles(prs):
-    # ---- Los cuatro controles ----
-    # Rehecha entera el 4-ago: Ernesto dijo que esta lámina no se entendía. La versión
-    # anterior eran cuatro paneles de texto en fila, y el primero, que es el que sostiene el
-    # resultado, contaba un procedimiento espacial con palabras. Acá el nulo por traslación
-    # ES el objeto visual, y los otros tres controles bajan a una línea cada uno. La vara es
-    # que la lámina se entienda sin nadie que la explique.
-    s = content(prs, "Los cuatro controles")
-    add_textbox(s, 0.36, TOP, 9.28, 0.62, [
-        ("El nulo honesto traslada la mancha de marcas entera, en vez de barajar qué "
-         "parches están marcados.", 12.5, True, ONCO_DARK, F_BODY),
-        ("Barajar no sirve: las marcas están pegadas unas a otras y la atención también "
-         "viene en manchas, así que cualquier mancha compacta gana.", 10, False, GRIS_BODY,
-         F_BODY)])
-
-    # Segunda pasada sobre el dibujo, 5-ago: Ernesto dijo que seguía sin quedar claro. Lo
-    # que fallaba era que la lámina y la zona caliente eran dos rectángulos, que la
-    # traslación se leía como cuatro manchas sueltas y que el color lo explicaba una leyenda
-    # al pie. Ahora la zona de atención tiene forma, las copias cuelgan de la original por
-    # una línea punteada, y los rótulos van pegados a lo que nombran. Detalle en
-    # `mapa_traslaciones`.
-    PL, PT, PW, PH = 0.36, 1.90, 5.60, 1.70
-    mapa_traslaciones(s, PL, PT, PW, PH)
-
-    # La distribución de los nulos contra el valor observado, que es el argumento entero:
-    # la brecha entre la banda y la marca oscura. La banda va rotulada CON SUS VALORES, que
-    # es lo que dice que el nulo ya parte alto y no del azar.
-    nube_traslaciones(s, PL, PT + PH + 0.08, PW, 0.38, lo=0.60, hi=0.95, banda=(0.67, 0.75),
-                      obs=0.890, rot_banda="las ~440 traslaciones: 0,67 a 0,75",
-                      rot_obs="en su lugar real")
-
-    # Los otros tres controles, a una línea cada uno.
-    CL, CT, CW = 6.16, 1.90, 3.48
-    _grupo(s, CL, CT, CW, 2.60, fill=TEAL_CARD2)
-    add_textbox(s, CL + 0.18, CT + 0.10, CW - 0.36, 0.26,
-                [("LOS OTROS TRES", 10, True, GRIS_BODY, F_BODY)])
-    otros = [
-        ("El efecto de región",
-         "Descartado: la región anotada recibe algo menos de atención que la otra."),
-        ("La memorización",
-         "Los 4 modelos no la vieron en entrenamiento, y haberla visto suma solo 0,056."),
-        ("El sesgo de la anotación",
-         "El patólogo no marca todas las mitosis, y las que faltan acercan el número a 0,5."),
-    ]
-    for i, (tit, linea) in enumerate(otros):
-        yy = CT + 0.42 + i * 0.70
-        add_textbox(s, CL + 0.18, yy, CW - 0.36, 0.24,
-                    [(tit, 11, True, ONCO_DARK, F_BODY)])
-        add_textbox(s, CL + 0.18, yy + 0.24, CW - 0.36, 0.40,
-                    [(linea, 9.5, False, INK, F_BODY)])
-    takeaway_bar(s, "Ninguna de las ~440 traslaciones alcanzó el valor observado. Y aun así: "
-                    "una lámina y un anotador describen, no establecen.", t=4.72, size=12.5)
-    notes(s, "Cuatro cosas fuimos a descartar antes de creerle al número.\n"
-             "La primera es la del dibujo: mover la mancha de marcas a otro lado de la lámina "
-             "y ver si el número aguanta.\n"
-             "De unas 440 posiciones, ninguna llegó a lo que da en su lugar real.\n"
-             "Los otros tres controles están a la derecha, y ninguno explica el resultado.\n"
-             "\n"
-             "Un número alto sin controles no vale gran cosa, así que fuimos a descartar "
-             "cuatro.\n"
-             "\n"
-             "La primera es la más importante y es una lección que me llevo, así que la dibujé. "
-             "La manera obvia de poner a prueba un resultado así es barajar al azar cuáles "
-             "parches están marcados y ver cuántas veces sale un valor tan alto por casualidad. "
-             "Eso lo hicimos, da significativo, y no sirve para nada: también da significativo "
-             "donde no debería. El motivo es que las marcas están pegadas unas a otras y la "
-             "atención también viene en manchas, así que cualquier mancha compacta le gana a un "
-             "sorteo que rompe la contigüidad.\n"
-             "\n"
-             "La prueba honesta es la del dibujo. El recuadro grande es la lámina, y las "
-             "manchas celestes son donde el modelo concentra su atención. El grupito oscuro y "
-             "relleno son las marcas en el lugar donde realmente están. Los tres grupitos "
-             "vacíos que cuelgan de él por una línea punteada son esa misma mancha, con la "
-             "misma forma y el mismo tamaño, corrida a otro lado; hicimos eso unas "
-             "cuatrocientas cuarenta veces, en todas las posiciones donde entra completa. "
-             "Miren la copia de abajo a la izquierda, que cae otra vez sobre el celeste: esa "
-             "es la que explica lo que viene ahora.\n"
-             "\n"
-             "Y abajo está lo que salió de esas cuatrocientas cuarenta. La banda gris es dónde "
-             "caen las traslaciones: entre cero coma sesenta y siete y cero coma setenta y "
-             "cinco. Fíjense que no parten del azar, y eso tiene una explicación que el dibujo "
-             "muestra: si uno mueve la mancha dentro del tumor, como pasa con una de las copias "
-             "huecas, sigue "
-             "cayendo en zona de atención alta, así que el nulo ya es exigente de entrada. La "
-             "marca oscura de la derecha es el valor en el lugar real. Ninguna de las "
-             "cuatrocientas cuarenta llegó ahí, y esa brecha es el resultado.\n"
-             "\n"
-             "Los otros tres los paso rápido. El de la región ya lo conté. La memorización: los "
-             "cuatro modelos no tenían esta lámina en su entrenamiento, y podemos medir cuánto "
-             "ayudaría haberla tenido, porque hay otros que sí; la diferencia es de cero coma "
-             "cero cincuenta y seis, chica al lado de la distancia que hay hasta el azar. Y el "
-             "cuarto "
-             "juega a nuestro favor sin que hiciéramos nada: el patólogo marca donde la "
-             "evidencia es clara, no marca todas las mitosis, y las que no marcó quedan "
-             "contadas como si no tuvieran nada, lo cual empuja el número hacia el azar. El "
-             "cero coma ochenta y nueve es creíble justamente porque el sesgo lo empuja para "
-             "abajo.\n"
-             "\n"
-             "Queda lo que el resultado no dice, que también estaba pre-registrado. "
-             "Sigue en pie lo que dije al empezar: una lámina y un anotador describen, no "
-             "establecen. No estamos diciendo que la "
-             "atención de nuestros modelos esté bien en general, ni damos por buenos los "
-             "nombres de tejido que le pusimos a las unidades internas la vez pasada, que "
-             "siguen esperando el visto bueno de un patólogo. Y un parche sin marca que reciba "
-             "mucha atención no es un error del modelo: puede ser tejido que el patólogo "
-             "simplemente no marcó.")
 
 
 def lam_simil_propone(prs):
@@ -2544,8 +2354,8 @@ def lam_objetivos_propuestos(prs):
              "La primera es llevar la medición de atención a más láminas anotadas. Hoy tengo "
              "una, y con una lámina el resultado describe pero no establece; lo dije al "
              "principio y lo sostengo. La herramienta ya está "
-             "construida y puesta a prueba: el nulo por traslación, que fue lo que más costó, "
-             "sirve tal cual para cualquier lámina que tenga marcas. El trabajo "
+             "construida y puesta a prueba, con sus controles, y sirve tal cual para cualquier "
+             "lámina que tenga marcas. El trabajo "
              "pesado ya está hecho y lo que falta es material.\n"
              "\n"
              "La segunda es el paper de detección con marcas parciales. No propongo montarlo "
@@ -2600,1120 +2410,216 @@ def lam_objetivos_propuestos(prs):
 # ============================================================================
 # Datos de la sección del 19-ago
 # ============================================================================
-# Todo lo de acá sale de sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/resultados.md
-# (§3, §8, §10, §11) y de sprints/B8_sprint8/hovernext_129741/ (techo_atencion.md,
-# coordinacion_gpu.md, plan_semana_17ago.md). Se escriben a mano acá para que la lámina no
-# dependa de leer los CSV en tiempo de build, y cada bloque dice de qué sección viene.
-
-# §3: el barrido de las 589 carpetas de wsi/
-REGIONES_ALCANCE = [("Con 1 sola región", "351"), ("Con 2 regiones", "130"),
-                    ("Con 3 regiones", "8"), ("Con 4 regiones", "1")]
-
-# §12: el reparto rehecho sobre las 109 medidas del re-barrido CON giro en la etapa A
-PERFILES = [("La etapa A no localiza", "32", "29 %"),
-            ("Perfil de re-escaneo", "31", "28 %"),
-            ("Ambiguo", "34", "31 %"),
-            ("Perfil de secciones seriadas", "12", "11 %")]
-
-# §12: la sensibilidad, que hace falta porque los cortes son posteriores a ver los datos
-SENSIBILIDAD = [("Laxo", "41", "27", "9"), ("Base", "31", "34", "12"),
-                ("Estricto", "18", "46", "13")]
-
-# §10.b: el probe de rotación, leído en el orden que manda su pre-registro
-PROBE = [("Control positivo", "4", "0,76 → 0,83", "ya lo eran"),
-         ("Silueta ≥ 0,95", "8", "0,12 → 0,48", "4 de 8"),
-         ("Silueta < 0,95", "4", "0,29 → 0,45", "2 de 4")]
-
-# techo_atencion.md: los 11 K del plan, con rótulo solo en los que la lámina nombra
-TECHO_KS = [("20", ""), ("50", ""), ("100", "1,4 mm²"), ("189", ""), ("300", "4,3 mm²"),
-            ("500", ""), ("750", "10,6 mm²"), ("1000", ""), ("1392", ""), ("2000", ""),
-            ("2496", "la región")]
-TECHO_CLAM = [2, 6, 12, 15, 19, 23, 25, 26, 27, 27, 28]
-TECHO_MAMM = [3, 4, 13, 18, 22, 23, 28, 28, 28, 28, 28]
-TECHO_AZAR = [0.22, 0.56, 1.12, 2.12, 3.37, 5.61, 8.41, 11.22, 15.62, 22.44, 28.0]
-
-# cruce_marcas.md §2: el barrido de tolerancia del emparejamiento, en µm. Los seis
-# primeros son la meseta; los dos grises están tan lejos que ya no dicen «mismo objeto».
-CRUCE_TOL = [("7,5", 13, True), ("15", 13, True), ("22,5", 13, True), ("30", 13, True),
-             ("50", 13, True), ("75", 13, True), ("100", 14, False), ("150", 17, False)]
+# Sale de sprints/B8_sprint8/hovernext_129741/cruce_marcas.md. Se escribe a mano acá para
+# que la lámina no dependa de leer los CSV en tiempo de build.
+#
+# El recorte del 19-ago se llevó los datos de las regiones de escaneo (alcance, perfiles,
+# sensibilidad, probe de rotación), la curva del techo y su barrido de tolerancia, y el
+# estado de la cola de cómputo. Están en el historial: no se re-escriben acá.
 
 # cruce_marcas.md §3: los dos factores del techo y su intersección. La unidad son MARCAS
-# (26), NO los parches con marca (28) de la lámina del techo: las dos tablas no se encadenan.
+# (26), NO los 28 parches con marca: una marca puede caer sobre dos parches vecinos, así
+# que las dos cuentas no se encadenan.
 CRUCE_CONJUNTA = [["4,0 % de la región", "12", "13", "8", "12"],
                   ["7,6 %", "15", "13", "10", "13"],
                   ["12,0 %", "19", "13", "11", "13"],
                   ["la región entera", "26", "13", "13", "13"]]
 
-# coordinacion_gpu.md: el estado de la cola, sin nombres de usuario ni números de trabajo
-COLA = [("Servidor de inferencia", "corriendo", "365 días", "tiene la GPU"),
-        ("Trabajo de otro grupo", "en espera", "sin límite", "delante nuestro"),
-        ("Trabajo de otro grupo", "en espera", "sin límite", "delante nuestro"),
-        ("El nuestro", "en espera", "12 horas", "tercero en la fila")]
-
-
-# ============================================================================
-# Figuras nativas de la sección del 19-ago
-# ============================================================================
-def barra_reparto(slide, l, t, w, h, tramos, fs=10.5, fs_num=15):
-    """Un total repartido en tramos contiguos, cada uno proporcional a su cuenta.
-
-    Un reparto es una proporción, y una proporción se dibuja ([[deck-contenido-visual-no-bullets]]).
-    Se usa solo donde los tramos son anchos: con un tramo de 1 sobre 108 el rótulo no cabría
-    debajo, y para ese caso la tabla cuenta mejor. `tramos` = (rótulo, n, color, texto_blanco)."""
-    total = sum(n for _, n, _, _ in tramos)
-    x = l
-    for rot, n, col, blanco in tramos:
-        aw = w * n / total
-        _rect(slide, x, t, aw, h, col)
-        add_textbox(slide, x, t, aw, h,
-                    [(str(n), fs_num, True, WHITE if blanco else ONCO_INK, F_BODY,
-                      PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
-        add_textbox(slide, x, t + h + 0.06, aw, 0.30,
-                    [(rot, fs, True, ONCO_DARK if blanco else GRIS_BODY, F_BODY,
-                      PP_ALIGN.CENTER)])
-        x += aw
-    return t + h + 0.42
-
-
-def eje_angulos(slide, l, t, w, hi=12.0, bandas=(), marcas=(), fs=9.5, h=0.30):
-    """El ángulo de giro sobre su recorrido, con lo que el método barría y lo que hacía falta.
-
-    Es el hallazgo entero en una figura: dos bandas de diseño y tres marcas medidas, y se ve
-    de un vistazo que las marcas caen fuera de la banda chica. Dicho en texto («barríamos
-    hasta ocho grados y hacían falta siete coma ocho de mediana») hay que reconstruirlo
-    mentalmente; dibujado no hay nada que reconstruir.
-
-    `bandas` = (hasta_grados, rótulo, color), en orden creciente de `hasta`;
-    `marcas` = (grados, rótulo, destacada).
-
-    Dos cosas que salieron del rasterizado del 18-ago y que la auditoría no ve, porque cada
-    objeto estaba dentro de su caja ([[deck-qa-puntos-ciegos-chequeo]]):
-
-    - **Las bandas se pintan de la más ancha a la más angosta.** Todas arrancan en cero, así
-      que pintarlas en el orden en que se declaran deja a la última tapando a las anteriores,
-      y la banda chica, que es la que carga el hallazgo, no se ve.
-    - **Los rótulos no van al lado de cada banda, van a una leyenda debajo del eje.** Al lado
-      se pisaban entre sí. Las marcas se escalonan en dos alturas por el mismo motivo, con la
-      destacada más alta y sola en su fila."""
-    def px(g):
-        return l + w * g / hi
-
-    def grados(g):
-        return ("%g" % g).replace(".", ",") + "°"
-
-    base = t + 1.20
-    for i, (hasta, _rot, col) in reversed(list(enumerate(bandas))):
-        alto = h * (0.55 if i == 0 else 1.0)
-        _rect(slide, l, base - alto, px(hasta) - l, alto, col)
-    _conn(slide, l, base, l + w, base, arrow=False)
-    for g in range(0, int(hi) + 1, 2):
-        _rect(slide, px(g) - 0.006, base, 0.012, 0.07, ONCO_INK)
-        add_textbox(slide, px(g) - 0.30, base + 0.10, 0.60, 0.24,
-                    [(grados(g), fs - 0.5, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
-    for g, rot, dest in marcas:
-        col = ONCO_DARK if dest else ONCO_CONN
-        alto = 0.96 if dest else 0.66
-        _rect(slide, px(g) - 0.022, base - alto, 0.044, alto, col)
-        add_textbox(slide, px(g) - 1.10, base - alto - 0.32, 2.20, 0.30,
-                    [(rot, fs + (1.5 if dest else 0.0), dest, col, F_BODY, PP_ALIGN.CENTER)],
-                    anchor=MSO_ANCHOR.BOTTOM)
-    ly = base + 0.38
-    x = l
-    for hasta, rot, col in bandas:
-        _rect(slide, x, ly + 0.05, 0.20, 0.14, col)
-        tw = 0.30 + 0.062 * len(rot)
-        add_textbox(slide, x + 0.26, ly - 0.02, tw, 0.28,
-                    [(rot, fs, False, GRIS_BODY, F_BODY)], anchor=MSO_ANCHOR.MIDDLE)
-        x += 0.26 + tw + 0.22
-    return ly + 0.34
-
-
-def curva_techo(slide, l, t, w, h, series, ks, fs=9.5, ymax=28.0):
-    """Recall alcanzable contra el tamaño de la máscara, con las tres curvas superpuestas.
-
-    El objeto es una curva, así que va como curva y no como tabla: lo que hay que ver es que
-    las dos de atención despegan del azar temprano y se vuelven a juntar al final, que es
-    justo donde el chequeo de sanidad exige que coincidan. El eje horizontal va por índice y
-    no por K: los K están espaciados de forma casi logarítmica y a escala lineal los seis
-    primeros se apilarían contra el margen izquierdo."""
-    n = len(ks)
-    paso = w / (n - 1)
-
-    def pt(i, v):
-        return l + i * paso, t + h - h * v / ymax
-    _conn(slide, l, t + h, l + w, t + h, arrow=False)
-    for g in (0, 7, 14, 21, 28):
-        y = t + h - h * g / ymax
-        add_textbox(slide, l - 0.56, y - 0.13, 0.46, 0.26,
-                    [("%d" % g, fs - 0.5, False, GRIS_BODY, F_BODY, PP_ALIGN.RIGHT)],
-                    anchor=MSO_ANCHOR.MIDDLE)
-    for serie in series:
-        nombre, vals, col, grueso = serie[:4]
-        marca = serie[4] if len(serie) > 4 else ("cuad" if grueso else None)
-        pts = [pt(i, v) for i, v in enumerate(vals)]
-        for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
-            ln = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, Inches(x0), Inches(y0),
-                                            Inches(x1), Inches(y1))
-            ln.line.color.rgb = col; ln.line.width = Pt(2.25 if grueso else 1.25)
-            ln.shadow.inherit = False
-            if not grueso:
-                lnpr = ln.line._get_or_add_ln()
-                lnpr.append(lnpr.makeelement(qn('a:prstDash'), {'val': 'dash'}))
-        # El color solo no alcanzaba: las dos series de atención venían en dos teales que
-        # difieren en tres unidades por canal y en el rasterizado son el mismo. Se separan
-        # por color Y por forma del marcador, que es lo que sobrevive a un proyector malo.
-        for x0, y0 in pts:
-            if marca == "circ":
-                sp = slide.shapes.add_shape(MSO_SHAPE.OVAL, Inches(x0 - 0.043),
-                                            Inches(y0 - 0.043), Inches(0.086), Inches(0.086))
-                sp.fill.solid(); sp.fill.fore_color.rgb = col
-                sp.line.color.rgb = WHITE; sp.line.width = Pt(0.75)
-                sp.shadow.inherit = False
-            elif marca == "cuad":
-                _rect(slide, x0 - 0.035, y0 - 0.035, 0.07, 0.07, col)
-    return t + h + 0.30
-
-
-def meseta_tolerancia(slide, l, t, w, celdas, h=0.44, fs=15, fs_rot=9):
-    """El recuento contra la tolerancia del emparejamiento, como tira de celdas.
-
-    El objeto es una MESETA, y una meseta dibujada como curva es un tramo recto que no le
-    llama la atención a nadie. Como tira, lo que se ve es el mismo número repetido seis
-    veces, que es exactamente el mensaje: el corte no decide nada. Las celdas de fuera de la
-    meseta van en gris y se dejan a la vista a propósito, para que se vea de dónde sale el
-    número que sube. `celdas` = (rótulo, n, dentro_de_la_meseta)."""
-    n = len(celdas)
-    cw = w / n
-    for i, (rot, v, dentro) in enumerate(celdas):
-        x = l + i * cw
-        _rect(slide, x + 0.025, t, cw - 0.05, h, ONCO_DARK if dentro else ONCO_DATA)
-        add_textbox(slide, x, t, cw, h,
-                    [(str(v), fs, True, WHITE if dentro else BLACK, F_BODY, PP_ALIGN.CENTER)],
-                    anchor=MSO_ANCHOR.MIDDLE)
-        add_textbox(slide, x, t + h + 0.03, cw, 0.24,
-                    [(rot, fs_rot, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
-    return t + h + 0.27
-
 
 # ============================================================================
 # Láminas del 19-ago
 # ============================================================================
-# Ernesto eligió EXTENDER el deck del 6-ago en vez de hacer uno nuevo, y que el material
-# entre en orden CRONOLÓGICO, después de «Objetivos propuestos». Con eso el deck queda
-# como el recorrido completo del sprint y la reunión de mañana ocurre en su última parte.
-# El bloque del 6-ago no se toca: ni una lámina, ni un número, ni una nota.
-def lam_desde_6ago(prs):
-    # ---- El mapa del bloque nuevo ----
-    s = content(prs, "Lo que se hizo desde el 6 de agosto")
-    cw, gap = 3.0, 0.30
-    xs = [0.35 + i * (cw + gap) for i in range(3)]
-    panel(s, xs[0], TOP + 0.30, cw, 2.12, "Regiones de escaneo", ONCO_DARK, [
-        "139 de 490 láminas privadas tienen más de una región de escaneo.",
-        "130 barridas, 109 medidas, con giro.",
-        "El recuento quedó cerrado."], ONCO_CONN)
-    panel(s, xs[1], TOP + 0.30, cw, 2.12, "HoVer-NeXt", ONCO_DARK, [
-        "Instalado y auditado, con tres correcciones al plan.",
-        "La interpretabilidad corrió sobre la lámina del patólogo.",
-        "Y la segmentación corrió: 177 mitosis, 13 de las 26 marcas."], ONCO_CONN)
-    panel(s, xs[2], TOP + 0.30, cw, 2.12, "Método", ONCO_DARK, [
-        "Tres patrones nuevos, escritos y ya en uso.",
-        "Los tres dicen lo mismo: el instrumento se mete en la conclusión.",
-        "Uno de ellos mide el techo de una prueba antes de pedir la GPU."], ONCO_CONN)
-    status_done(s, xs[0] + cw / 2, TOP + 2.70)
-    status_done(s, xs[1] + cw / 2, TOP + 2.70)
-    status_done(s, xs[2] + cw / 2, TOP + 2.70)
-    takeaway_bar(s, "Los tres hilos con resultado, y el que faltaba cerró de madrugada")
-    notes(s, "Hasta acá, lo que traía del 6 de agosto. Ahora, las dos semanas desde entonces.\n"
-             "Tres hilos: regiones de escaneo, segmentación de núcleos y método.\n"
-             "Los tres tienen resultado, y el último cerró de madrugada.\n"
+# Ernesto recortó el deck el 19-ago (`correcciones.txt`): se fueron la sección entera de
+# regiones de escaneo, la lámina que fechaba el trabajo, la de la cola de cómputo, la de
+# patrones y la de próximos pasos. De las dos que medían los factores del techo queda UNA,
+# de resultados, con la forma que pidió: los mapas primero y el número al lado.
+
+def lam_hovernext_paper(prs):
+    # ---- La herramienta, contada con la figura del paper ----
+    # Ernesto pidió la figura del diagrama original en lugar de la lámina de estado. La
+    # figura ES el contenido, así que se le da todo el alto disponible y lo que la acompaña
+    # es una columna angosta: lo que hicimos nosotros con ella, no lo que dice el paper.
+    s = content(prs, "HoVer-NeXt y la clase de mitosis")
+    # La figura ES el contenido, así que se lleva todo el alto disponible y no se le pone
+    # rótulo arriba: el título de la lámina ya dice qué es (CLAUDE.md, ADDENDUM 19-jul).
+    FIG_L, FIG_H = 0.35, 3.02
+    FIG_W = FIG_H * 1.621                      # razón exacta del asset (2301 x 1419)
+    add_image_fit(s, FIG_HN_PAPER, FIG_L, TOP + 0.06, FIG_W, FIG_H, align="top")
+    caption(s, FIG_L, TOP + 3.11, FIG_W,
+            "Figura 1 de Baumann et al., MIDL 2024 · reproducida del paper", size=8)
+
+    xr, wr = 5.52, 4.13
+    panel(s, xr, TOP + 0.06, wr, None, "Por qué encaja", ONCO_DARK, [
+        "Trabaja a media micra por píxel, y nuestras láminas privadas están casi "
+        "exactamente ahí: no hay que reescalar nada.",
+        "Entre sus siete clases de núcleo tiene una de mitosis, que es la que nos "
+        "interesa.",
+    ], ONCO_CONN, tsize=13, bsize=10.5)
+    panel(s, xr, TOP + 1.62, wr, None, "Qué corrimos", ONCO_DARK, [
+        "La lámina anotada entera, en 18 minutos.",
+        "177 mitosis, y seis clases más de núcleo.",
+        "El recorte por atención se aplica después, sobre la salida.",
+    ], ONCO_CONN, tsize=13, bsize=10.5)
+    takeaway_bar(s, "Un segundo instrumento, que trabaja a nivel de núcleo y no de parche")
+    notes(s, "Un segmentador de núcleos, con una clase de mitosis entre las suyas.\n"
+             "Encaja sin reescalar: trabaja a media micra por píxel, y nuestras láminas "
+             "privadas están ahí.\n"
+             "Corrió sobre la lámina anotada entera en dieciocho minutos.\n"
+             "Encontró ciento setenta y siete mitosis, además de seis clases más de núcleo.\n"
              "\n"
-             "Lo que vimos hasta acá es el bloque que traía preparado de la reunión anterior. "
-             "A partir de esta lámina cambia el marco: esto es lo que pasó en las dos semanas "
-             "que siguieron, y lo cuento en el orden en que ocurrió, que no siempre es el "
-             "orden en que uno lo contaría después.\n"
+             "La idea de fondo viene de la reunión anterior. Si el modelo mira donde hay "
+             "mitosis y aun así falla, quizás lo que falta no es atención sino resolución de "
+             "detalle, y conviene tener un segundo instrumento que trabaje a nivel de núcleo "
+             "en vez de a nivel de parche.\n"
              "\n"
-             "Son tres hilos. El primero es una pregunta que apareció mirando los archivos de "
-             "la cohorte privada y que terminó en un recuento sobre casi quinientas láminas. "
-             "El segundo es la segmentación de núcleos, que llevaba una semana esperando turno "
-             "de cómputo y entró de madrugada. El tercero no es un resultado sino una forma de "
-             "trabajar: tres patrones que escribimos en estas dos semanas y que ya están en uso.\n"
+             "Ésta es la figura del paper y la dejo entera porque cuenta bien las tres cosas "
+             "que importan. Arriba, la tubería: la lámina se parte en mosaicos, cada mosaico "
+             "pasa por la red, y un segundo componente vuelve a coser la salida en una imagen "
+             "única. Abajo a la izquierda, la arquitectura: un codificador y dos "
+             "decodificadores, uno que dice de qué clase es cada núcleo y otro que separa un "
+             "núcleo de su vecino. La combinación de las dos salidas es el mapa final, donde "
+             "cada núcleo es un objeto con su clase. Y abajo a la derecha, el cosido, que es "
+             "la parte de ingeniería: los mosaicos se solapan, así que hay que resolver los "
+             "núcleos que caen en el borde para no contarlos dos veces.\n"
              "\n"
-             "Aviso algo sobre el primero, porque va a volver a aparecer: es el hilo donde más "
-             "nos equivocamos, y prefiero dejarlo dicho de entrada. Hay una predicción nuestra "
-             "que el dato terminó refutando, y la voy a contar cuando llegue.")
+             "Por qué elegimos ésta y no otra. La razón concreta es la escala de trabajo: está "
+             "pensada para media micra por píxel, y nuestras láminas privadas están casi "
+             "exactamente en ese punto. No hay que reescalar nada, que es donde suelen "
+             "aparecer los problemas silenciosos. Y entre sus siete clases de núcleo tiene una "
+             "de mitosis, que es justamente la que necesitamos.\n"
+             "\n"
+             "Lo que corrimos fue la lámina anotada completa, no un recorte. Tardó menos de "
+             "veinte minutos y encontró ciento setenta y siete mitosis en toda la lámina. "
+             "Decidimos correrla entera a propósito, para poder aplicar el recorte por "
+             "atención después, sobre la salida, y compararlo con no recortar nada. Si "
+             "hubiéramos recortado antes, esa comparación ya no existía.\n"
+             "\n"
+             "Ese número, ciento setenta y siete, así solo es salida cruda. Sin cruzarlo contra "
+             "las marcas del patólogo no es ni acierto ni error. El cruce es la lámina que "
+             "sigue.")
 
 
-def lam_regiones_pregunta(prs):
-    # ---- Las dos regiones, y cuántas láminas alcanza ----
-    # Las dos imágenes van al MISMO alto a propósito: las dos regiones están al mismo
-    # downsample, así que a igual alto quedan a igual escala y la comparación que la lámina
-    # propone es legítima. Dibujarlas a igual ANCHO las pondría a escalas distintas.
-    s = content(prs, "Dos regiones de escaneo dentro del mismo archivo")
-    hi = 2.16
-    w0, w1 = hi * 1.0437, hi * 1.0021
-    x0 = 0.38
-    x1 = x0 + w0 + 0.14
-    s.shapes.add_picture(REG0, Inches(x0), Inches(TOP + 0.40), Inches(w0), Inches(hi))
-    s.shapes.add_picture(REG1, Inches(x1), Inches(TOP + 0.40), Inches(w1), Inches(hi))
-    caption(s, x0, TOP + 0.14, w0, "región 0", size=10.5, col=ONCO_DARK, bold=True)
-    caption(s, x1, TOP + 0.14, w1, "región 1", size=10.5, col=ONCO_DARK, bold=True)
-    caption(s, x0, TOP + 2.62, w0 + 0.14 + w1,
-            "la 129741: los seis fragmentos, en las dos", size=9.5)
-    xt = x1 + w1 + 0.40
-    wt = 9.62 - xt
-    simple_table(s, xt, TOP + 0.32, wt, ["Láminas privadas con imagen", "490"],
-                 REGIONES_ALCANCE, [0.66, 0.34], row_h=0.34, fs=10.5, destacar=1)
-    _grupo(s, xt, TOP + 2.14, wt, 0.76, fill=TEAL_CARD)
-    add_textbox(s, xt, TOP + 2.14, wt, 0.76, [
-        ("139 de 490   =   28,4 %", 17, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER),
-        ("tienen más de una región de escaneo", 10, False, GRIS_BODY, F_BODY,
-         PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
-    pie_lineas(s, xt, TOP + 3.02, wt, [
-        "Del mismo barrido: las 490 están a 0,465 µm/px y 20 aumentos, sin una excepción."])
-    takeaway_bar(s, "Casi tres de cada diez láminas privadas, y el archivo lo declara solo")
-    notes(s, "Una región de escaneo es un recorte que el aparato guarda dentro del mismo archivo.\n"
-             "139 de 490 láminas privadas tienen más de una.\n"
-             "En ésta, los seis fragmentos de tejido aparecen en las dos.\n"
-             "Las 490 están a la misma resolución, sin una excepción.\n"
-             "\n"
-             "Empiezo por explicar qué es una región de escaneo, porque es una palabra del "
-             "formato y no del microscopio. Cuando se digitaliza un vidrio, el aparato no "
-             "siempre guarda una sola imagen: puede guardar varios recortes distintos, cada "
-             "uno con su propio sistema de coordenadas, todos dentro del mismo archivo. Cada "
-             "uno de esos recortes es una región. Y esto no es algo que hayamos deducido "
-             "mirando el tejido: el archivo lo declara solo, en su encabezado, y basta leerlo "
-             "para saber cuántas tiene.\n"
-             "\n"
-             "Lo que ven son las dos regiones de la lámina que tenemos anotada, dibujadas al "
-             "mismo tamaño a propósito, porque están a la misma resolución y así la "
-             "comparación es legítima. Si las hubiera puesto al mismo ancho quedarían a "
-             "escalas distintas y no se podrían mirar juntas. Los seis fragmentos de tejido "
-             "que hay sobre el vidrio aparecen en las dos.\n"
-             "\n"
-             "Cuando fuimos a contar cuántas láminas de la cohorte privada están en esta "
-             "situación, la respuesta fue casi tres de cada diez. Es una fracción grande, y "
-             "por eso dejó de ser una curiosidad del archivo y pasó a ser una pregunta.\n"
-             "\n"
-             "Ahora, lo que esta lámina todavía no dice, y quiero ser cuidadoso porque es la "
-             "tentación entera de este hilo. Que los seis fragmentos aparezcan en las dos "
-             "regiones no prueba que sean el mismo tejido. Podría ser el mismo vidrio "
-             "digitalizado dos veces, y entonces la segunda región es material repetido; o "
-             "podrían ser dos cortes distintos del mismo bloque, y entonces es material nuevo. "
-             "Las dos cosas se ven parecidas a esta distancia. Distinguirlas es lo que ocupa "
-             "las láminas que siguen, y hace falta un instrumento, no una mirada.")
+def lam_resultados(prs):
+    # ---- La lámina de resultados: la cadena que pidió Sebastián, y el número ----
+    # Funde las dos láminas que antes iban separadas (el techo del filtro y el cruce) en una
+    # sola, y le cambia la forma: lo que se ve son los mapas, y el número los acompaña. El
+    # eje es el encadenamiento — la atención recorta, el detector trabaja adentro — porque
+    # eso es lo que Sebastián pidió integrar, y no dos herramientas contadas por separado.
+    #
+    # Tres salvedades van en el CUERPO y no solo en el guion, porque son las que más fácil
+    # se pierden: la unidad de la tabla son MARCAS (26) y no los parches (28) de la lámina 7,
+    # la cota del mínimo es floja, y no hay ninguna precisión calculada — las marcas son
+    # positivos parciales, así que una detección sin marca no es un error.
+    s = content(prs, "Resultados: recortar y detectar")
 
+    # ---- izquierda: la cadena, y el detalle a resolución nativa ----
+    # Las dos figuras se apilan y hay que dejar sitio para el pie: los altos salen de las
+    # razones EXACTAS de los assets (3.694 la cadena, 4.069 el detalle), y el ancho es lo
+    # que se ajusta para que la pila entre completa arriba de la barra de remate.
+    xl, wl = 0.35, 4.62
+    H_CAD, H_ZOOM = wl / 3.694, wl / 4.069
+    GAP = 26 / 6205.0 * wl                     # el aire del montaje, en pulgadas
+    pw = (wl - 2 * GAP) / 3
+    # Los tres rótulos tienen que entrar en UN renglón de 1,53": el tercio es angosto y
+    # `caption` no avisa cuando parte una palabra, solo la tapa con la figura de abajo.
+    for i, rot in enumerate(("Atención de CLAM", "El 12 % más atendido",
+                             "HoVer-NeXt detecta")):
+        caption(s, xl + i * (pw + GAP), TOP + 0.00, pw, rot, size=9, col=TEAL_TITLE,
+                bold=True)
+    add_image_fit(s, FIG_CADENA, xl, TOP + 0.26, wl, H_CAD, align="top")
+    caption(s, xl, TOP + 0.28 + H_CAD, wl,
+            "Cuatro de las 13 que coinciden, a resolución nativa", size=9,
+            col=TEAL_TITLE, bold=True)
+    add_image_fit(s, FIG_HN_ZOOM, xl, TOP + 0.56 + H_CAD, wl, H_ZOOM, align="top")
+    pie_lineas(s, xl, TOP + 0.62 + H_CAD + H_ZOOM, wl, [
+        "Amarillo, la detección; blanco, la marca del patólogo. La barra son 25 µm.",
+        "En el 12 % recortado caen 48 de las 82 detecciones de la región. Eso cuenta "
+        "detecciones; la tabla de al lado cuenta marcas."], size=8)
 
-def lam_regiones_metodo(prs):
-    # ---- El instrumento: dos etapas y una puerta ----
-    s = content(prs, "Cómo se mide si son la misma lámina")
-    xl, wl = 0.35, 4.42
-    y = TOP + 0.30
-    _proc(s, xl, y, wl, 0.62,
-          "Etapa A · se eligen ventanas de tejido en la región 0 y se buscan en la región 1",
-          dim="a 1 de cada 4 píxeles · plantilla de 1024")
-    _conn(s, xl + wl / 2, y + 0.62, xl + wl / 2, y + 0.96)
-    _oper(s, xl + wl / 2, y + 1.13, sym="?")
-    add_textbox(s, xl + wl / 2 + 0.26, y + 0.94, wl / 2 - 0.26, 0.40,
-                [("puerta: el pico tiene que ser alto y único", 10, True, ONCO_DARK, F_BODY)],
-                anchor=MSO_ANCHOR.MIDDLE)
-    _conn(s, xl + wl / 2, y + 1.30, xl + wl / 2, y + 1.62)
-    _proc(s, xl, y + 1.62, wl, 0.62,
-          "Etapa B · cada ventana que pasó se vuelve a buscar a resolución completa",
-          dim="plantilla de 512 · correspondencia celular")
-    _conn(s, xl + wl / 2, y + 2.24, xl + wl / 2, y + 2.56)
-    _proc_claro(s, xl, y + 2.56, wl, 0.56,
-                "Y contra ventanas de control, que son tejido que no corresponde")
-    xr, wr = 5.10, 4.55
-    hr = wr / 2.0312
-    s.shapes.add_picture(REGISTRO, Inches(xr), Inches(TOP + 0.30), Inches(wr), Inches(hr))
-    caption(s, xr, TOP + 0.34 + hr, wr,
-            "la misma célula, en las dos regiones", size=9.5)
-    _grupo(s, xr, TOP + 0.64 + hr, wr, 0.62, fill=TEAL_CARD)
-    add_textbox(s, xr, TOP + 0.64 + hr, wr, 0.62, [
-        ("0,382   contra   0,049 del control", 15, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER),
-        ("8 de 8 ventanas, en la lámina del patólogo", 9.5, False, GRIS_BODY, F_BODY,
-         PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
-    takeaway_bar(s, "Tres ejes deciden: pico único, cuerpo rígido y señal muy sobre el control")
-    notes(s, "Dos etapas, con una puerta en el medio.\n"
-             "La etapa A busca ventanas de tejido de una región en la otra, en miniatura.\n"
-             "La que pasa la puerta se vuelve a buscar a resolución completa.\n"
-             "Y todo corre también contra ventanas de control, que son tejido que no corresponde.\n"
-             "\n"
-             "El instrumento tiene dos etapas y una puerta entre las dos, y la puerta es lo "
-             "más importante del diseño.\n"
-             "\n"
-             "La primera etapa trabaja en miniatura, a uno de cada cuatro píxeles. Toma "
-             "pedazos de tejido de la primera región y los va a buscar dentro de la segunda, "
-             "deslizándolos por encima y midiendo en cada posición cuánto se parecen. Queda "
-             "una superficie de parecido, y lo que interesa de esa superficie no es solo dónde "
-             "está el punto más alto sino si ese punto es alto y además está solo. Un pico "
-             "único quiere decir que el pedazo tiene un lugar en la otra región y no otro. Una "
-             "superficie plana, con muchos picos parecidos, quiere decir que el pedazo encaja "
-             "más o menos en cualquier parte, que es lo mismo que no haber encontrado nada.\n"
-             "\n"
-             "Ésa es la puerta: solo lo que tiene pico alto y único pasa a la segunda etapa. "
-             "Lo que no pasa, no se mide, y no se mide a propósito.\n"
-             "\n"
-             "La segunda etapa toma lo que pasó y lo vuelve a buscar a resolución completa, "
-             "con pedazos más chicos, hasta el nivel en que se distinguen células "
-             "individuales. Ahí ya no se pregunta si el tejido está, se pregunta cuánto se "
-             "movió y si todo se movió junto.\n"
-             "\n"
-             "Y hay una tercera cosa que corre en paralelo y que es la que hace que el número "
-             "signifique algo. Además de buscar cada pedazo donde debería estar, lo buscamos "
-             "en sitios donde sabemos que no corresponde. Eso es el control. La clave está en "
-             "que el control corre con exactamente los mismos grados de libertad que la señal: "
-             "la misma cantidad de posiciones probadas, el mismo margen de giro, el mismo "
-             "tamaño de pedazo. Si le diéramos menos libertad, cualquier parecido nuestro "
-             "parecería enorme al lado suyo, y estaríamos midiendo la generosidad del método y "
-             "no el tejido.\n"
-             "\n"
-             "De acá salen los tres ejes que uso en las dos láminas que siguen, y los dejo "
-             "nombrados porque después los doy por sabidos. Uno, que el pico sea único, que es "
-             "la puerta. Dos, que el cuerpo se mueva rígido, o sea que el desplazamiento se "
-             "explique sin estirar ni encoger nada. Y tres, que la señal esté muy por encima "
-             "del control.")
-
-
-def lam_regiones_mitad(prs):
-    # ---- El primer resultado, que es el que nadie esperaba ----
-    s = content(prs, "El primer resultado: tres de cada diez no localizan")
-    cadena_cuenta(s, 0.35, TOP + 0.20, 9.28, [
-        ("490", "láminas privadas\ncon imagen"),
-        ("139", "con más de una\nregión de escaneo"),
-        ("130", "barridas"),
-        ("109", "midieron")], h=0.46, fs=17)
-    caption(s, 0.35, TOP + 1.20, 9.28,
-            "las 21 restantes las rechazó el propio test antes de medir, un 16 %", size=9.5)
-    barra_reparto(s, 1.60, TOP + 1.56, 6.80, 0.62, [
-        ("la etapa A localiza", 77, ONCO_DARK, True),
-        ("la etapa A no localiza", 32, ONCO_PANEL, False)], fs_num=18)
-    panel(s, 1.60, TOP + 2.58, 6.80, 0.90, "No medible no es tejido distinto", ONCO_DARK, [
-        "Una etapa A que no localiza deja a la etapa B midiendo ruido, y eso es "
-        "indistinguible de que el tejido sea de verdad otro. Las 32 resisten también "
-        "el barrido con giro."], ONCO_CONN, tsize=13, bsize=11)
-    takeaway_bar(s, "Tres de cada diez no localizan ni con giro, y eso sigue sin decir qué tejido son")
-    notes(s, "De 490 láminas, 139 tienen más de una región; barrimos 130 y midieron 109.\n"
-             "Las 21 que faltan las rechazó el propio test antes de medir.\n"
-             "De las 109, en 77 la primera etapa localiza y en 32 no.\n"
-             "Esas 32 resisten también el barrido con giro.\n"
-             "\n"
-             "Éste es el primer resultado, y es el que menos esperábamos.\n"
-             "\n"
-             "La cadena de arriba se lee de izquierda a derecha. De las láminas privadas con "
-             "imagen, poco menos de un tercio tiene más de una región. Barrimos casi todas, y "
-             "de ésas midieron algo menos, porque unas cuantas las descartó el propio "
-             "procedimiento antes de intentar medirlas: no tenían tejido suficiente, o la "
-             "miniatura no daba para elegir pedazos. Que el test rechace por su cuenta a una "
-             "de cada seis me parece buena señal y no mala: prefiero un instrumento que avise "
-             "que no puede a uno que devuelva un número igual.\n"
-             "\n"
-             "Y la barra de abajo es el resultado. En siete de cada diez la primera etapa "
-             "encuentra el tejido en la otra región. En las tres restantes, no. No es que "
-             "encuentre poco: no encuentra, la superficie de parecido queda plana y no hay pico "
-             "que valga.\n"
-             "\n"
-             "Acá está el punto que quiero que quede, porque es el que se malinterpreta "
-             "siempre. Que una lámina no sea medible no significa que su segunda región sea "
-             "tejido distinto. Significa que no lo sabemos. Cuando la primera etapa no "
-             "localiza, la segunda queda midiendo ruido, y el ruido se parece exactamente a lo "
-             "que uno esperaría si el tejido fuera de verdad otro. Las dos situaciones dan el "
-             "mismo aspecto y el instrumento no las separa. Contarlas como material nuevo "
-             "sería regalarnos un resultado que no medimos.\n"
-             "\n"
-             "Agrego algo que en la versión anterior de esta lámina no podía decir. Esas "
-             "treinta y dos "
-             "resisten también un barrido con giro, que es la mejora que cuento en un momento. "
-             "O sea que no son un problema del método que se arregle buscando mejor: por ahora "
-             "son un grupo duro, y su falta de señal se sostuvo cuando le dimos al instrumento "
-             "más libertad para encontrarla.")
-
-
-def lam_regiones_perfil(prs):
-    # ---- El reparto, con su sensibilidad al lado ----
-    # La sensibilidad va en la MISMA lámina que el reparto y no en el guion: los cortes son
-    # posteriores a ver los datos, así que el número y su fragilidad son un solo objeto.
-    s = content(prs, "Entre las medibles, 31 de 77")
-    xl, wl = 0.35, 4.60
-    simple_table(s, xl, TOP + 0.34, wl, ["Perfil", "Láminas", "de 109"],
-                 PERFILES, [0.58, 0.21, 0.21], row_h=0.36, fs=10.5, destacar=1)
-    panel(s, xl, TOP + 2.28, wl, 1.02, "Las 31, en mediana", ONCO_DARK, [
-        "Señal 5,3 veces el control · escala 1,0022 · residuo 34 µm.",
-        "Un cuerpo rígido explica el desplazamiento entero."], ONCO_CONN, tsize=13, bsize=10.5)
-    xr, wr = 5.28, 4.34
-    caption(s, xr, TOP + 0.02, wr, "Y qué pasa si se mueve el corte", size=11,
-            col=ONCO_DARK, bold=True, align=PP_ALIGN.LEFT)
-    simple_table(s, xr, TOP + 0.34, wr,
-                 ["Corte", "Re-escaneo", "Ambiguo", "Seriadas"],
-                 SENSIBILIDAD, [0.28, 0.26, 0.23, 0.23], row_h=0.36, fs=10.5, destacar=1)
-    pie_lineas(s, xr, TOP + 1.86, wr, [
-        "Lo que se mueve es el reparto entre re-escaneo y ambiguo. Las seriadas se quedan "
-        "entre 9 y 13 con los tres cortes, pero 7 de las 12 son láminas que el giro acaba "
-        "de recuperar, que es justo donde la segunda etapa tiene menos con qué medir."], size=9.5)
-    _grupo(s, xr, TOP + 2.86, wr, 0.44, fill=ONCO_DATA)
-    add_textbox(s, xr, TOP + 2.86, wr, 0.44,
-                [("El recuento ya está cerrado", 11.5, True, BLACK,
-                  F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
-    takeaway_bar(s, "El denominador honesto es 31 de 77 medibles, nunca 31 de 490")
-    notes(s, "De las 77 medibles, 31 tienen perfil de re-escaneo.\n"
-             "En mediana: señal 5,3 veces el control, escala 1,0022, residuo 34 µm.\n"
-             "Los cortes son posteriores a ver los datos, así que va la sensibilidad al lado.\n"
-             "El denominador honesto son las medibles, nunca las 490.\n"
-             "\n"
-             "Entre las que sí se pueden medir, la tabla de la izquierda reparte por perfil, y "
-             "el grupo grande es el que se comporta como re-escaneo: la segunda región es el "
-             "mismo tejido, digitalizado otra vez.\n"
-             "\n"
-             "Las tres medianas de abajo son las que sostienen esa lectura, y conviene mirarlas "
-             "juntas porque cada una sola no alcanza. La señal está más de cinco veces por "
-             "encima del control, o sea que el parecido no es el que sale por probar muchas "
-             "posiciones. La escala da prácticamente uno, y eso quiere decir que el tejido no "
-             "está estirado ni encogido respecto de la otra región. Y el residuo, que es lo que "
-             "queda sin explicar después de mover el pedazo, son unas pocas decenas de "
-             "micrómetros, que a esta resolución es del orden de unas pocas células. Las tres "
-             "juntas dicen lo mismo: un cuerpo rígido explica el desplazamiento entero.\n"
-             "\n"
-             "Ahora la mitad derecha, que está en la misma lámina a propósito y no en un "
-             "apéndice. Los cortes que separan un perfil de otro los elegimos después de ver "
-             "los datos. Eso no está mal en sí, es lo normal cuando uno explora, pero obliga a "
-             "mostrar cuánto depende el resultado del corte elegido, porque si no el número se "
-             "lee más firme de lo que es. Moviendo el criterio de laxo a estricto, el grupo de "
-             "re-escaneo va de cuarenta y una láminas a dieciocho. Es mucho movimiento, y "
-             "prefiero decirlo yo a que se note después.\n"
-             "\n"
-             "Lo que se mueve, en realidad, es el reparto entre re-escaneo y ambiguo: lo que "
-             "sale de un grupo entra en el otro. Y hay un detalle en la última columna que "
-             "retomo en dos láminas más: las que quedan clasificadas como secciones seriadas "
-             "son estables en número, pero más de la mitad son láminas que acabamos de "
-             "recuperar con una mejora del método, que es justo el lugar donde la segunda etapa "
-             "tiene menos con qué medir. O sea que ese grupo hay que mirarlo con desconfianza, "
-             "y no porque el tejido sea raro.\n"
-             "\n"
-             "Y el remate de abajo es la regla que me impuse para hablar de esto. El "
-             "denominador honesto son las láminas que se pudieron medir. No las que tienen dos "
-             "regiones, y muchísimo menos el total de la cohorte. Decir treinta y una sobre "
-             "cuatrocientas noventa sería una cifra tranquilizadora y falsa.")
-
-
-def lam_regiones_rotacion(prs):
-    # ---- Por qué el número quedó provisional ----
-    s = content(prs, "Faltaba buscar giro, y estaba fuera de rango por diseño")
-    eje_angulos(s, 0.90, TOP + 0.24, 5.20, hi=12.0, bandas=[
-        (1.5, "la etapa B barre 1,5° por defecto", ONCO_DATA),
-        (8.0, "y puede llegar a 8°", ONCO_PANEL)], marcas=[
-        (3.8, "control: 3,8°", False),
-        (7.8, "recuperadas: 7,8°", True),
-        (10.5, "la mayor: 10,5°", False)])
-    simple_table(s, 0.35, TOP + 2.14, 5.75,
-                 ["Grupo", "n", "Ventanas que localizan", "Pasan a medible"],
-                 PROBE, [0.30, 0.09, 0.35, 0.26], row_h=0.34, fs=10.5, destacar=1)
-    xr, wr = 6.42, 3.20
-    _grupo(s, xr, TOP + 0.34, wr, 0.86, fill=TEAL_CARD)
-    add_textbox(s, xr, TOP + 0.34, wr, 0.86, [
-        ("6 de 12", 24, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER),
-        ("no medibles se recuperan al buscar giro", 10, False, GRIS_BODY, F_BODY,
-         PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
-    panel(s, xr, TOP + 1.34, wr, 1.02, "El pool subió, como predijo", ONCO_DARK, [
-        "Predijo unas 81, con un rango de 65 a 97. Medido: 77."], ONCO_CONN,
-          tsize=12.5, bsize=10.5)
-    panel(s, xr, TOP + 2.48, wr, 1.02, "El 33 no era un piso", ONCO_DARK, [
-        "El pool creció y el recuento bajó a 31. La predicción falló."],
-          ONCO_CONN, tsize=12.5, bsize=10.5)
-    takeaway_bar(s, "El giro que hacía falta era mayor que el que el método buscaba")
-    notes(s, "La primera etapa no buscaba giro, y el giro que hacía falta era mayor que el que barría.\n"
-             "El control positivo pasó primero: por eso el resto se puede leer.\n"
-             "Y además fijó el corte, que estaba mal escrito.\n"
-             "Predijo un pool de unas 81, con rango de 65 a 97: medimos 77.\n"
-             "Predijo que 33 era un piso, y eso falló: bajó a 31.\n"
-             "\n"
-             "Ésta es la lámina donde el hilo se corrige a sí mismo, así que la cuento despacio.\n"
-             "\n"
-             "El punto de partida fue desconfiar del número anterior. Si la mitad de las "
-             "láminas no era medible, la primera pregunta razonable es si el instrumento estaba "
-             "mal ajustado. Fuimos a descartar eso primero, y quedó descartado: el modo en que "
-             "fallaban no era el de un parámetro mal puesto, era el de no encontrar señal. Lo "
-             "que quedaba era una sospecha distinta, sobre algo que el método directamente no "
-             "hacía.\n"
-             "\n"
-             "La primera etapa buscaba el tejido desplazándolo, pero sin girarlo. Y si al "
-             "digitalizar por segunda vez el vidrio quedó apoyado con otra inclinación, un "
-             "pedazo de tejido girado no se encuentra por más que uno lo deslice: hay que "
-             "girarlo también. Así que armamos una prueba chica, de doce de estas láminas, "
-             "para ver si "
-             "buscar giro cambiaba algo.\n"
-             "\n"
-             "Y acá viene lo que quiero subrayar del método, más que del resultado. La prueba "
-             "tenía cuatro láminas de control, que son las que ya sabíamos que localizan bien. "
-             "Están ahí para contestar una pregunta previa: si el instrumento con la mejora "
-             "puesta sigue funcionando donde ya funcionaba. Si el control hubiera fallado, "
-             "nada del resto se podía leer, y estaba escrito de antemano que en ese caso no lo "
-             "íbamos a leer.\n"
-             "\n"
-             "El control sirvió además para algo que no habíamos previsto, y que terminó siendo "
-             "la lección más útil. El criterio que teníamos escrito para decidir cuándo un giro "
-             "es de verdad era demasiado exigente: aplicado tal cual, rechazaba a tres de las "
-             "cuatro láminas de control, que son justamente las que sí localizan. O sea que el "
-             "corte estaba mal, no las láminas. Lo volvimos a medir usando solo los pedazos que "
-             "efectivamente responden, y ahí las cuatro pasan. El corte quedó fijado en el peor "
-             "del control, que es la única manera de fijarlo sin elegir el número que nos "
-             "conviene.\n"
-             "\n"
-             "El resultado de la prueba está en la tabla: la mitad de las no medibles se "
-             "recuperan al buscar giro. Y el eje de arriba explica por qué se escapaban. La "
-             "segunda etapa barre giro, pero muy poco por defecto, y puede llegar a unos pocos "
-             "grados. El giro que las recuperadas piden en mediana está justo afuera de ese "
-             "rango, y la que más pide está claramente afuera. No era un error: era una "
-             "decisión de diseño que nadie había puesto a prueba contra este material.\n"
-             "\n"
-             "Hay un detalle que me parece el más interesante de todo el hilo. Al buscar giro, "
-             "el parecido sube también en las láminas de control, que ya localizaban sin él. "
-             "Eso quiere decir que la primera etapa venía tolerando el giro, no evitándolo: "
-             "encontraba el tejido a pesar de la inclinación, pagando en calidad de "
-             "coincidencia. Lo veníamos leyendo como que no había giro, y lo que había era un "
-             "método que lo aguantaba callado.\n"
-             "\n"
-             "Y cierro con las dos predicciones que hicimos acá, porque una salió y la otra no. "
-             "Dijimos que el conjunto de medibles iba a subir a unas ochenta, con un rango "
-             "amplio, y medimos setenta y siete, que cae adentro. Y dijimos que el recuento de "
-             "re-escaneos era un piso, que solo podía subir. Eso falló: el conjunto creció y el "
-             "recuento bajó. Lo dejo dicho tal cual porque es el tipo de cosa que uno no "
-             "descubre si solo se acuerda de sus aciertos.")
-
-
-def lam_regiones_rebarrido(prs):
-    # ---- El recuento que viene, y las dos trampas que ya tiene puestas ----
-    s = content(prs, "El recuento se rehízo, y las dos trampas saltaron")
-    _grupo(s, 0.35, TOP + 0.24, 9.28, 0.60, fill=TEAL_CARD)
-    add_textbox(s, 0.35, TOP + 0.24, 9.28, 0.60,
-                [("130 láminas rebarridas con giro en la primera etapa, y 109 midieron. "
-                  "Las dos trampas se resolvieron al cosechar.", 13, True, ONCO_DARK,
-                  F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
-    pw = 4.54
-    panel(s, 0.35, TOP + 1.06, pw, 2.10, "Una razón que se dispara a cien millones",
-          ONCO_DARK, [
-          "La fuerza de la señal se mide dividiendo por el control. Cuando el control sale "
-          "negativo, el divisor queda clavado en un valor mínimo de guarda y el cociente se "
-          "va a cien millones.",
-          "Ese número supera cualquier corte, así que la lámina entraría a re-escaneo por el "
-          "signo del divisor y no por su señal.",
-          "Pasó en 1 de las 109. No cruza la puerta, así que no entra al reparto: quedó "
-          "listada aparte y resultó inocua."],
-          ONCO_CONN, tsize=13, bsize=10.5)
-    panel(s, 5.09, TOP + 1.06, pw, 2.10, "Secciones seriadas que fabrica el método",
-          ONCO_DARK, [
-          "Una lámina cae en seriadas cuando la señal es débil y el ajuste no es rígido.",
-          "Las seriadas pasaron de 1 a 12, y 7 de las 12 son recuperadas: caen ahí al 29 %, "
-          "contra el 10 % de las que ya eran medibles.",
-          "De las 18 recuperadas que no dan re-escaneo, 10 fallan los dos criterios a la vez. "
-          "Es el instrumento, no el tejido."],
-          ONCO_CONN, tsize=13, bsize=10.5)
-    takeaway_bar(s, "Más seriadas entre las recuperadas no es evidencia de seriadas")
-    notes(s, "El re-barrido con giro corrió sobre 130 láminas y midieron 109.\n"
-             "Trampa uno: una razón que se dispara a cien millones cuando el divisor cambia de signo.\n"
-             "Trampa dos: una categoría que fabrica el propio método.\n"
-             "Las dos estaban previstas por escrito, y las dos saltaron.\n"
-             "\n"
-             "El recuento se rehízo entero con giro en la primera etapa, y antes de correrlo "
-             "dejamos anotadas dos maneras concretas en que el resultado nos podía engañar. Las "
-             "dos aparecieron, así que esta lámina es el chequeo de esas dos anotaciones.\n"
-             "\n"
-             "La primera es aritmética y es fácil de pasar por alto. La fuerza de la señal la "
-             "medimos dividiéndola por el control. Cuando el control sale negativo, y puede "
-             "salir negativo porque es una correlación, el divisor queda clavado en un valor "
-             "mínimo de protección que alguien puso para no dividir por cero, y el cociente se "
-             "dispara a cien millones. Ese número supera cualquier corte que uno ponga, así que "
-             "esa lámina entraría al grupo de re-escaneo por el signo del divisor y no por "
-             "haber encontrado nada. El detalle feo es que un valor de protección así no falla: "
-             "miente, y devuelve un número que parece buenísimo. Pasó en una sola lámina, esa "
-             "lámina no cruza la puerta por otros motivos, y quedó listada aparte. Resultó "
-             "inocua, pero lo cuento porque si en vez de una hubieran sido veinte, el recuento "
-             "entero se habría inflado sin que nada avisara.\n"
-             "\n"
-             "La segunda es más sutil y es la que me interesa. Una lámina cae en el grupo de "
-             "secciones seriadas cuando pasan dos cosas a la vez: la señal es débil y el ajuste "
-             "no es rígido. Ahora bien, las láminas que el giro acaba de recuperar son, por "
-             "construcción, las más giradas de todas. Y la segunda etapa barre poco giro y "
-             "además no busca cambio de tamaño. O sea que sobre esas láminas la segunda etapa "
-             "trabaja al límite, y cuando trabaja al límite produce exactamente esas dos cosas "
-             "juntas: señal débil y ajuste malo. Que caigan en seriadas era esperable, y no por "
-             "lo que muestra el tejido.\n"
-             "\n"
-             "Los números lo confirmaron. Ese grupo pasó de una lámina a doce, y más de la "
-             "mitad son recuperadas: caen ahí a casi el triple de la tasa de las que ya eran "
-             "medibles. Y cuando se abre por cuál de los dos criterios falló cada una, la "
-             "mayoría de las recuperadas falla los dos a la vez, que es la firma de un "
-             "instrumento que no da abasto y no la de un hallazgo.\n"
-             "\n"
-             "Por eso el remate. Si mañana alguien mira la tabla y ve que las secciones "
-             "seriadas se multiplicaron por doce, la lectura tentadora es que encontramos "
-             "material nuevo. No lo encontramos. Ampliamos la población medida metiendo adentro "
-             "a las láminas más difíciles, y la categoría creció sola. Dejar esto escrito antes "
-             "de correr es lo que permite decirlo ahora sin que suene a excusa.")
-
-
-def lam_hovernext_estado(prs):
-    # ---- Dónde está HoVer-NeXt, y por qué no hay ni un número de segmentación ----
-    s = content(prs, "HoVer-NeXt: instalado, auditado y con su primera corrida")
-    cw, gap = 3.0, 0.30
-    xs = [0.35 + i * (cw + gap) for i in range(3)]
-    panel(s, xs[0], TOP + 0.30, cw, 1.94, "Instalación y auditoría", ONCO_DARK, [
-        "Repositorio y entorno propio, con cuatro juegos de pesos: uno trae la clase de "
-        "mitosis y los otros tres se promedian.",
-        "Seis preguntas de auditoría, contestadas contra el código."], ONCO_CONN,
-          tsize=13, bsize=10.5)
-    panel(s, xs[1], TOP + 0.30, cw, 1.94, "Atención sobre la lámina anotada", ONCO_DARK, [
-        "Primera vez que la interpretabilidad corre sobre una lámina privada.",
-        "Mitosis es el grupo más atendido de los siete: percentil medio 0,872 y 0,914.",
-        "Y los dos modelos igual clasifican mal la lámina."], ONCO_CONN,
-          tsize=13, bsize=10.5)
-    panel(s, xs[2], TOP + 0.30, cw, 1.94, "La corrida", ONCO_DARK, [
-        "Corrió de madrugada, en 18 minutos de pared.",
-        "177 mitosis en la lámina entera, y seis clases más.",
-        "Es salida cruda: nada cruzado todavía contra las marcas."], ONCO_CONN,
-          tsize=13, bsize=10.5)
-    status_done(s, xs[0] + cw / 2, TOP + 2.52)
-    status_done(s, xs[1] + cw / 2, TOP + 2.52)
-    status_done(s, xs[2] + cw / 2, TOP + 2.52)
-    pie_lineas(s, 0.35, TOP + 2.86, 9.28, [
-        "Tres hallazgos de la auditoría cambiaron el plan: hay que pedir explícitamente que "
-        "guarde sus mapas internos, porque los borra al terminar; el costo de dos minutos por "
-        "lámina no aplica a esta lámina, que no expone miniatura y obliga a recorrer el lienzo "
-        "entero, y la corrida lo confirmó; y los mapas de distancia se descartan en inferencia, "
-        "así que la figura de la cadena interna tiene tres paneles y no cuatro."], size=9.5)
-    takeaway_bar(s, "Hay 177 mitosis crudas, y cruzarlas contra las 26 marcas es lo que sigue")
-    notes(s, "Un segmentador de núcleos con clase de mitosis, pensado para media micra por píxel.\n"
-             "La auditoría cambió tres cosas del plan antes de correr.\n"
-             "La atención sobre la lámina anotada: mitosis es el grupo más atendido de los siete.\n"
-             "Corrió de madrugada: 18 minutos, 177 mitosis en la lámina entera.\n"
-             "Es salida cruda: el cruce contra las marcas lo cuento enseguida.\n"
-             "\n"
-             "Éste es el segundo hilo. La idea de fondo viene de la reunión anterior: si el "
-             "modelo mira donde hay mitosis pero igual falla, quizás lo que falta no es "
-             "atención sino resolución de detalle, y conviene tener un segundo instrumento que "
-             "trabaje a nivel de núcleo.\n"
-             "\n"
-             "La herramienta que elegimos segmenta y clasifica núcleos uno por uno, y tiene una "
-             "clase de mitosis entre las suyas, que es lo que nos interesa. Encaja bien por una "
-             "razón concreta: está pensada para trabajar a media micra por píxel, y nuestras "
-             "láminas privadas están casi exactamente ahí. No hay que reescalar nada, que es "
-             "donde suelen aparecer los problemas.\n"
-             "\n"
-             "Antes de correr nada hicimos una auditoría contra el código, con seis preguntas "
-             "escritas, y tres de las respuestas cambiaron el plan. La primera: la herramienta "
-             "borra sus mapas internos al terminar, así que si uno quiere conservarlos hay que "
-             "pedírselo explícitamente, y son justamente los que sirven para entender por qué "
-             "decidió lo que decidió. La segunda: el costo de un par de minutos por lámina que "
-             "promete no aplica a esta lámina, porque el archivo no expone una miniatura y "
-             "obliga a recorrer el lienzo entero en vez de saltarse el fondo. La tercera es "
-             "menor pero afectaba una figura: los mapas de distancia se descartan en "
-             "inferencia, así que la cadena interna tiene tres pasos y no cuatro como "
-             "dibujábamos.\n"
-             "\n"
-             "El panel del medio es la primera vez que corremos nuestra medición de atención "
-             "sobre la lámina anotada con esta herramienta puesta al lado, y el número dice que "
-             "de los siete grupos de tejido el que más atención recibe es el de mitosis. "
-             "Aclaro qué son esos dos valores porque se confunden con facilidad: son el "
-             "percentil medio de los parches marcados, no el área bajo la curva. Los dos "
-             "números quedan casi iguales por casualidad, y por eso conviene decir cuál es cuál.\n"
-             "\n"
-             "Y hay algo que no quiero que pase inadvertido: los dos modelos, mirando donde hay "
-             "que mirar, igual clasifican mal esta lámina. Que la atención caiga bien no "
-             "alcanza.\n"
-             "\n"
-             "El tercer panel es la novedad de anoche. El trabajo llevaba una semana esperando "
-             "turno de cómputo y entró de madrugada. Tardó menos de veinte minutos, contra las "
-             "más de tres horas y media que había tardado la herramienta anterior sobre "
-             "material equivalente. Encontró ciento setenta y siete mitosis en la lámina "
-             "entera, además de las otras seis clases de célula.\n"
-             "\n"
-             "Ese número hay que leerlo con cuidado, y prefiero frenarlo yo. Así solo es salida "
-             "cruda: sin cruzarlo contra las marcas del patólogo no es ni acierto ni error, y "
-             "no hay precisión ni exhaustividad. El cruce lo cuento enseguida, y ahí va a "
-             "importar que las marcas son positivos parciales, o sea que fuera de ellas puede "
-             "haber mitosis reales sin marcar, y eso empuja cualquier medida de precisión hacia "
-             "abajo por construcción.")
-
-
-def lam_techo(prs):
-    # ---- El techo, que es la mitad de la prueba y no necesitaba la GPU ----
-    s = content(prs, "El techo de la prueba, medido sin gastar GPU")
-    eq(s, 1.30, TOP + 0.06, 7.38,
-       "lo que la prueba puede recuperar  ≤  mín ( lo que la máscara deja pasar ,  lo que el "
-       "detector detecta )", size=12.5, h=0.44)
-    curva_techo(s, 1.05, TOP + 0.66, 7.30, 1.90, [
-        ("Atención de Mammoth", TECHO_MAMM, ONCO_DARK, True, "cuad"),
-        ("Atención de CLAM", TECHO_CLAM, ONCO_INK, True, "circ"),
-        ("Azar", TECHO_AZAR, ONCO_DATA, False, None)], TECHO_KS)
-    # El rotulo va ARRIBA del eje y alineado a la izquierda: centrado verticalmente caia en
-    # el renglon de la etiqueta «14» del eje Y (que curva_techo dibuja en l-0.56) y se leia
-    # «de 2814». Los ticks son 0/7/14/21/28, el mas alto ocupa TOP+0.53 a TOP+0.79.
-    add_textbox(s, 0.15, TOP + 0.20, 1.10, 0.26,
-                [("marcas de 28", 9.5, True, GRIS_BODY, F_BODY, PP_ALIGN.LEFT)],
-                anchor=MSO_ANCHOR.MIDDLE)
-    for i, (k, rot) in enumerate(TECHO_KS):
-        if not rot:
-            continue
-        x = 1.05 + i * (7.30 / (len(TECHO_KS) - 1))
-        add_textbox(s, x - 0.70, TOP + 2.60, 1.40, 0.24,
-                    [(rot, 9, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)])
-    add_textbox(s, 8.55, TOP + 0.66, 1.20, 1.90, [
-        ("Mammoth", 10, True, ONCO_DARK, F_BODY),
-        ("CLAM", 10, True, ONCO_INK, F_BODY),
-        ("azar", 10, False, GRIS_BODY, F_BODY)], anchor=MSO_ANCHOR.MIDDLE)
-    _grupo(s, 1.05, TOP + 2.92, 7.30, 0.56, fill=TEAL_CARD)
-    add_textbox(s, 1.05, TOP + 2.92, 7.30, 0.56,
-                [("Con el 12 % de la región ya entran 19 y 22 de las 28 marcas, seis veces "
-                  "más de lo que daría tomar esa misma área al azar", 12, True, ONCO_DARK,
-                  F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
-    takeaway_bar(s, "El techo no condena la prueba, y el segundo factor ya se puede medir")
-    notes(s, "La prueba encadena un filtro barato y una etapa cara.\n"
-             "El techo lo pone el filtro solo, y se calcula sin gastar cómputo.\n"
-             "Con el 12 % de la región ya entran 19 y 22 de las 28 marcas, seis veces el azar.\n"
-             "Un techo bajo condena la prueba; uno alto no promete nada.\n"
-             "\n"
-             "Esta lámina es el patrón que más nos sirvió en estas dos semanas, así que la "
-             "cuento como método y no solo como resultado.\n"
-             "\n"
-             "La prueba que queríamos hacer encadena dos cosas: primero un filtro barato, que "
-             "se queda con los parches más atendidos, y después una etapa cara, que es correr "
-             "el segmentador ahí adentro. La desigualdad de arriba dice algo que suena obvio "
-             "cuando uno lo escribe y que sin embargo no habíamos usado nunca: lo que la prueba "
-             "entera puede recuperar es, como mucho, el menor de dos límites. Lo que la máscara "
-             "deja pasar, y lo que el detector es capaz de detectar. Un candidato que no entra "
-             "en la máscara no lo recupera nadie, por bueno que sea el detector.\n"
-             "\n"
-             "Y el punto operativo es que el primer límite no depende del segundo. Se puede "
-             "calcular con la atención que ya teníamos guardada, sin pedir turno de cómputo y "
-             "sin esperar a que corra nada. Eso fue justamente lo que hicimos mientras el "
-             "trabajo estaba encolado.\n"
-             "\n"
-             "La curva muestra, para cada tamaño de máscara, cuántas de las marcas quedarían "
-             "adentro. La línea de puntos es lo que daría tomar esa misma superficie al azar, y "
-             "es la referencia contra la que hay que leer todo lo demás. Con poco más de una "
-             "décima parte de la región ya entran alrededor de veinte de las veintiocho, que es "
-             "unas seis veces lo que daría el azar. Al final las tres curvas se juntan, y eso "
-             "no es un hallazgo sino el chequeo de sanidad: cuando la máscara es la región "
-             "entera, todos los criterios tienen que dar lo mismo. Si ahí no coincidieran, "
-             "habría un error en el código.\n"
-             "\n"
-             "Ahora, cómo se lee esto, que es la parte que quiero dejar clavada. Un techo alto "
-             "no promete nada. No dice que la prueba vaya a funcionar, solo dice que no está "
-             "condenada de antemano. La pregunta sigue viva. Lo que sí sería concluyente es lo "
-             "contrario: si el techo hubiera sido bajo, la prueba estaba muerta y nos "
-             "ahorrábamos la corrida entera. Ésa es toda la utilidad de medirlo antes.\n"
-             "\n"
-             "Y una precisión sobre el denominador, que vale para toda esta parte. Las "
-             "veintiocho son los parches que contienen una marca del patólogo. No son las "
-             "mitosis que hay en la lámina. El patólogo marcó lo que marcó, y fuera de eso "
-             "puede haber más. Así que esto mide cuánto recuperamos de lo anotado, que no es lo "
-             "mismo que cuánto hay.\n"
-             "\n"
-             "Con la corrida ya se pudo medir el segundo factor, que era el que faltaba, y es "
-             "justamente lo que viene en la lámina siguiente.")
-
-
-def lam_cruce(prs):
-    # ---- El segundo factor del techo: las detecciones contra las marcas ----
-    # La lámina no puede afirmar más que cruce_marcas.md §5, así que las tres salvedades que
-    # más fácil se pierden van en el CUERPO y no solo en el guion: que la unidad son marcas
-    # (26) y no los parches (28) de la lámina anterior, que la cota del mínimo es floja, y
-    # que el número de la región entera es el chequeo de sanidad y no un resultado nuevo.
-    # No hay precisión en ninguna parte, y es deliberado: las marcas son positivos parciales.
-    s = content(prs, "El cruce: el detector recupera 13 de las 26 marcas")
-    _grupo(s, 0.35, TOP + 0.06, 9.28, 0.76, fill=TEAL_CARD)
-    add_textbox(s, 0.35, TOP + 0.06, 9.28, 0.76, [
-        ("13 de las 26 marcas de mitosis   =   50,0 %", 17, True, ONCO_DARK, F_BODY,
-         PP_ALIGN.CENTER),
-        ("Emparejamiento uno a uno: una detección no puede acreditar dos marcas. Por "
-         "distancia mínima llegaba a 18, con las mismas 13 detecciones.",
-         10, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
-
-    # ---- izquierda: la meseta, que es lo que hace robusto al 13 ----
-    xl, wl = 0.35, 4.30
-    add_textbox(s, xl, TOP + 0.94, wl, 0.26,
-                [("El corte no decide nada", 12.5, True, ONCO_DARK, F_BODY)])
-    meseta_tolerancia(s, xl, TOP + 1.26, wl, CRUCE_TOL)
-    add_textbox(s, xl, TOP + 2.00, wl, 0.24,
-                [("tolerancia del emparejamiento, en µm", 8.5, False, GRIS_BODY, F_BODY,
-                  PP_ALIGN.CENTER)])
-    pie_lineas(s, xl, TOP + 2.32, wl, [
-        "Plano entre 7,5 y 75 µm, un rango de 10 veces. Se adopta 30 µm y la elección es "
-        "indiferente.",
-        "Las distancias son bimodales: o acierta encima, o no hay nada cerca. Las 13 que "
-        "fallan tienen su detección más próxima a 115 µm de mediana, así que no fallan por "
-        "poco: es ausencia, no tolerancia.",
-        "Las dos celdas grises quedan a más de 100 µm, unos seis núcleos: ahí el "
-        "emparejamiento ya no dice que sea el mismo objeto."], size=8.5)
-
-    # ---- derecha: los dos factores juntos, y la intersección contada ----
-    xr, wr = 4.93, 4.70
-    add_textbox(s, xr, TOP + 0.94, wr, 0.26,
-                [("Los dos factores, y su intersección", 12.5, True, ONCO_DARK, F_BODY)])
+    # ---- derecha: el número y los dos factores ----
+    xr, wr = 5.22, 4.43
+    _grupo(s, xr, TOP + 0.02, wr, 0.78, fill=TEAL_CARD)
+    add_textbox(s, xr, TOP + 0.02, wr, 0.78, [
+        ("13 de las 26 marcas   =   50,0 %", 17, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER),
+        ("Emparejamiento uno a uno: una detección no puede acreditar dos marcas",
+         9, False, GRIS_BODY, F_BODY, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.MIDDLE)
+    add_textbox(s, xr, TOP + 0.90, wr, 0.26,
+                [("Los dos factores, y su intersección", 12, True, ONCO_DARK, F_BODY)])
     simple_table(s, xr, TOP + 1.22, wr,
-                 ["Máscara", "En la máscara", "Detectadas", "Ambas", "Cota mín( )"],
-                 CRUCE_CONJUNTA, col_fracs=[0.30, 0.19, 0.17, 0.16, 0.18],
+                 ["Recorte", "En el recorte", "Detectadas", "Ambas", "Cota mín( )"],
+                 CRUCE_CONJUNTA, col_fracs=[0.28, 0.19, 0.19, 0.15, 0.19],
                  row_h=0.32, fs=10, destacar=2)
-    pie_lineas(s, xr, TOP + 2.88, wr, [
-        "Unidad: marcas (26). La lámina anterior contaba parches con marca (28): las dos "
-        "tablas no se encadenan.",
+    pie_lineas(s, xr, TOP + 2.82, wr, [
+        "Unidad: marcas del patólogo (26). No son los 28 parches con marca: una marca puede "
+        "caer sobre dos parches vecinos.",
         "La cota mín( ) es floja: donde promete 13, la intersección real es 11.",
-        "Con la región entera los dos brazos dan 13: chequeo de sanidad aprobado."],
-        size=8.5)
-    takeaway_bar(s, "El cuello se movió: desde el 7,6 % de la región, el que manda es el "
+        "Sin precisión, y es deliberado: las marcas son positivos parciales, así que una "
+        "detección sin marca no es un error."], size=8)
+
+    takeaway_bar(s, "Desde el 7,6 % de la región el cuello ya no es el recorte, es el "
                     "detector")
-    notes(s, "El detector recupera 13 de las 26 marcas del patólogo: 50 %.\n"
-             "El emparejamiento es uno a uno, y el corte de tolerancia no decide nada.\n"
-             "Desde el 7,6 % de la región el que manda es el detector, no la máscara.\n"
-             "La cota es floja: donde promete 13, la intersección real es 11.\n"
+    notes(s, "La atención de CLAM recorta la región, y el detector trabaja adentro.\n"
+             "El detector recupera 13 de las 26 marcas del patólogo: la mitad.\n"
+             "Desde el siete y medio por ciento de la región, el que manda es el detector.\n"
+             "El denominador son las marcas, no las mitosis que hay en la lámina.\n"
              "\n"
-             "Ésta es la otra mitad de la lámina anterior. Ahí medimos lo que la máscara deja "
-             "pasar y dije que el segundo límite no lo podíamos medir todavía. Con la corrida "
-             "ya se pudo, y esto es lo que dio.\n"
+             "Ésta es la lámina que arma las dos piezas juntas, que es lo que quedó pedido en "
+             "la reunión anterior: integrar el modelo de atención al camino de detección, y "
+             "aplicar el detector sobre su mapa de calor.\n"
              "\n"
-             "El número es trece de veintiséis, o sea la mitad. El emparejamiento es uno a "
-             "uno, y eso importa más de lo que parece: una detección no puede acreditar dos "
-             "marcas. Si uno cuenta de la manera fácil, preguntándole a cada marca cuál es la "
-             "detección que tiene más cerca, el número sube hasta dieciocho, pero son siempre "
-             "las mismas trece detecciones contadas varias veces. Preferí el conteo honesto.\n"
+             "Los tres paneles de la izquierda son la misma región en tres estados. El primero "
+             "es el mapa de atención tal como lo vimos antes: rojo mucha atención, azul poca. "
+             "El segundo es el recorte, y es el paso nuevo: nos quedamos con el doce por "
+             "ciento más atendido, que son trescientos parches de dos mil quinientos, y el "
+             "resto del tejido queda apagado. El tercero pone encima lo que encontró el "
+             "detector. Los puntos llenos son las detecciones que caen dentro del recorte, los "
+             "círculos vacíos las que quedaron afuera. Lo que se ve, y es el punto de la "
+             "figura, es que las detecciones se agrupan sobre el recorte: la atención y el "
+             "detector están mirando el mismo tejido.\n"
              "\n"
-             "A la izquierda está lo que pasa cuando uno mueve la tolerancia, que es la "
-             "distancia dentro de la cual aceptamos que una detección y una marca son el "
-             "mismo objeto. La respuesta es que el corte no decide nada: seis valores "
-             "seguidos dan el mismo número, y entre el primero y el último hay un factor de "
-             "diez. Eso pasa porque las distancias son de dos tipos y no de uno. O la "
-             "detección cae encima de la marca, a un par de micras, o no hay nada cerca. Las "
-             "que fallan tienen su detección más próxima a más de cien micras, que es como "
-             "decir que no está. No fallan por poco, y no es un problema de centrado ni de "
-             "umbral: es ausencia. Las dos celdas grises son tolerancias tan anchas que ya no "
-             "dicen que sea el mismo objeto, y las dejo a la vista justamente para que se vea "
-             "de dónde sale el número que sube.\n"
+             "Abajo está el detalle, que es lo que uno quiere ver de verdad. Son cuatro "
+             "recortes a resolución nativa, sin ampliar nada artificial. El círculo amarillo "
+             "es dónde puso la detección la herramienta, el blanco es la marca del patólogo. "
+             "Coinciden, y ahí se ve que están hablando del mismo núcleo y no de la misma zona "
+             "en general.\n"
              "\n"
-             "La tabla de la derecha junta los dos límites. Cada fila es un tamaño de "
-             "máscara, desde una porción chica de la región hasta la región entera. Una "
-             "columna dice cuántas marcas entran en la máscara, la siguiente cuántas detecta "
-             "la herramienta, y la que importa es la de al lado, que cuenta las que cumplen "
-             "las dos cosas a la vez.\n"
+             "El número está a la derecha y es trece de veintiséis, la mitad. El "
+             "emparejamiento es uno a uno, y eso importa más de lo que parece: una detección "
+             "no puede acreditar dos marcas. Si uno cuenta de la manera fácil, preguntándole a "
+             "cada marca cuál es la detección más cercana, el número sube, pero son siempre "
+             "las mismas trece detecciones contadas varias veces. Preferí el conteo honesto. Y "
+             "las trece que fallan no fallan por poco: su detección más cercana está a más de "
+             "cien micras, que es como decir que no hay nada ahí. Es ausencia, no un problema "
+             "de centrado.\n"
              "\n"
-             "Y ahí está lo que cambió. Hasta hace poco la discusión de esta parte era cuán "
-             "grande convenía hacer el recorte por atención. La tabla dice que a partir de "
-             "menos de una décima parte de la región el recorte deja de ser el problema: por "
-             "generoso que uno lo haga, el techo se queda en trece. El que manda pasó a ser "
-             "la detección. Si queremos subir ese número, lo que hay que mover es el "
-             "detector, no el tamaño de la máscara.\n"
+             "La tabla junta los dos límites que tiene esta prueba. Cada fila es un tamaño de "
+             "recorte. Una columna dice cuántas marcas entran en el recorte, la siguiente "
+             "cuántas detecta la herramienta, y la que importa es la de al lado, que cuenta "
+             "las que cumplen las dos cosas a la vez.\n"
              "\n"
-             "Dos cosas más sobre cómo se lee la tabla. La primera es que la cota del mínimo "
-             "es floja, y conviene decirlo: en la fila resaltada promete trece y la "
-             "intersección real es once. Sirve para condenar una prueba antes de correrla, no "
-             "para presupuestar lo que va a dar. La segunda es el chequeo de sanidad: con la "
-             "región entera los dos criterios dan exactamente el mismo número, que es lo que "
-             "tiene que pasar si el cruce está bien hecho. Si ahí no coincidieran, habría un "
-             "error en el código.\n"
+             "Y ahí está lo que cambió, que es el mensaje de la lámina. Hasta ahora la "
+             "discusión era cuán grande convenía hacer el recorte. La tabla dice que a partir "
+             "de menos de una décima parte de la región el recorte deja de ser el problema: "
+             "por generoso que uno lo haga, el techo se queda en trece. El que manda pasó a "
+             "ser la detección. Si queremos subir ese número, lo que hay que mover es el "
+             "detector, no el tamaño del recorte. Y eso también contesta, por si sale en la "
+             "conversación, cuánto se puede achicar el área que le proponemos al patólogo: la "
+             "respuesta ya no está de ese lado.\n"
              "\n"
-             "Y lo que este número no dice, que es la parte que quiero dejar clara. La mitad "
-             "no es la exhaustividad de la herramienta en mitosis. El denominador son las "
-             "marcas del patólogo, no las mitosis que hay en la lámina. Tampoco hay precisión "
-             "calculada, y no la vamos a calcular: en la región anotada la herramienta "
-             "encontró bastante más de lo que está marcado, y eso de más no son errores, "
-             "porque el patólogo marca donde la evidencia es más clara y no pretende marcarlo "
-             "todo. Cualquier precisión que saquemos de acá sale sesgada hacia abajo por "
-             "construcción y no mide al detector.\n"
+             "Dos cosas más sobre cómo se lee. La cota del mínimo es floja, y conviene "
+             "decirlo: en la fila resaltada promete trece y la intersección real es once. "
+             "Sirve para condenar una prueba antes de correrla, no para presupuestar lo que va "
+             "a dar. Y con la región entera los dos criterios dan el mismo número, que es lo "
+             "que tiene que pasar si el cruce está bien hecho; si ahí no coincidieran, habría "
+             "un error en el código.\n"
              "\n"
-             "Una última precisión de unidad, porque las dos tablas se parecen y no se "
-             "encadenan. Ésta cuenta marcas del patólogo. La anterior contaba parches que "
-             "contienen una marca, y son unos pocos más, porque una marca puede caer sobre "
-             "dos parches vecinos. Algunas casillas coinciden de casualidad, así que no hay "
-             "que leer una tabla como continuación de la otra.\n"
-             "\n"
-             "Con esto el patrón de la lámina anterior queda cerrado con los dos factores "
-             "medidos, y el brazo que todavía no corrimos ya tiene contra qué compararse: el "
-             "mismo cruce sobre su salida da la diferencia.")
-
-
-def lam_gpu(prs):
-    # ---- El pedido de coordinación, que es un pedido y no una excusa ----
-    s = content(prs, "La cola de la GPU: lo que se aprendió")
-    simple_table(s, 0.35, TOP + 0.34, 5.30,
-                 ["El nodo tiene un solo turno de GPU", "Estado", "Declarado"],
-                 [(a, b, c) for a, b, c, _ in COLA], [0.50, 0.24, 0.26],
-                 row_h=0.36, fs=10.5, destacar=3)
-    # pie_lineas baja de TOP+2.10 a TOP+2.24: la tabla son 5 filas x 0.36 desde TOP+0.34,
-    # o sea termina en TOP+2.14, y la nota quedaba pegada a la ultima fila.
-    pie_lineas(s, 0.35, TOP + 2.24, 5.30, [
-        "Así estaba la fila el lunes. Para colar un trabajo chico antes que uno grande, el "
-        "planificador necesita saber cuándo termina el grande, y con dos trabajos sin límite "
-        "declarado adelante esa cuenta no existía.",
-        "",
-        "Se drenó sola de madrugada y el trabajo entró sin que coordináramos nada."], size=9.5)
-    xr, wr = 6.00, 3.62
-    for i, (t_, txt) in enumerate([
-            ("Esperar por prioridad no es esperar", "La fila lo muestra como turno normal. "
-             "No lo era, y solo el planificador lo dice si se le pregunta."),
-            ("Sin tope no hay forma de colar", "Para adelantar un trabajo chico, el "
-             "planificador necesita saber cuándo termina el grande."),
-            ("Achicar el pedido no adelanta", "Menos memoria solo importa después de que el "
-             "turno se libere, nunca antes.")]):
-        panel(s, xr, TOP + 0.28 + i * 1.12, wr, 0.98, t_, ONCO_DARK, [txt], ONCO_CONN,
-              tsize=12.5, bsize=10)
-    takeaway_bar(s, "Se destrabó sola, y la lección queda escrita para la próxima vez")
-    notes(s, "El nodo tiene un solo turno de cómputo, y no se comparte.\n"
-             "Con dos trabajos sin tiempo declarado adelante, no hay forma de colar uno chico.\n"
-             "Achicar el propio pedido no adelanta nada.\n"
-             "La fila se destrabó sola, y la lección queda.\n"
-             "\n"
-             "Esta lámina la traía preparada como un pedido, y entre que la escribí y hoy dejó "
-             "de hacer falta, así que la cuento como lo que aprendimos.\n"
-             "\n"
-             "La situación era la de la tabla, y es del principio de la semana. El nodo tiene "
-             "un solo turno de cómputo, que no se reparte: quien lo toma lo tiene hasta "
-             "terminar. Adelante nuestro había un servicio corriendo con un tiempo declarado "
-             "larguísimo y dos trabajos más esperando, los dos sin declarar cuánto iban a "
-             "durar. El nuestro estaba último, con su tope puesto y a propósito.\n"
-             "\n"
-             "Lo primero que aprendimos es que la fila mentía, o mejor dicho, que la miramos "
-             "mal. El estado que muestra se lee como turno normal, como decir que hay gente "
-             "adelante y ya nos toca. No era eso. Para saber qué pasaba de verdad había que "
-             "preguntarle al planificador directamente, y recién ahí aparece el motivo.\n"
-             "\n"
-             "El motivo es el segundo punto, y es el que me pareció menos evidente. Para colar "
-             "un trabajo chico antes que uno grande, el planificador necesita saber cuándo "
-             "termina el grande. Si el grande no declaró cuánto va a durar, esa cuenta no "
-             "existe, y entonces no hay ventana en la que meter a nadie. No es que estuviéramos "
-             "en mala posición: es que no había forma de calcular una posición.\n"
-             "\n"
-             "Y de ahí sale el tercero, que es el más contraintuitivo y por eso el que anoté. "
-             "Achicar el propio pedido no adelanta. La reacción natural cuando uno espera es "
-             "pedir menos memoria, menos procesadores, hacerse chiquito para caber. Eso solo "
-             "sirve después de que el turno se libere. Mientras el bloqueo sea éste, hacerse "
-             "chico no cambia absolutamente nada, y uno puede pasar días optimizando algo que "
-             "no es el problema.\n"
-             "\n"
-             "El final es casi cómico: la fila se drenó sola de madrugada, sin que "
-             "coordináramos nada y sin que nadie cancelara nada, y el trabajo entró y terminó "
-             "en menos de veinte minutos. Así que el pedido que traía ya no tiene objeto. La "
-             "lección sí queda escrita, porque el nodo sigue teniendo un solo turno y esto va a "
-             "volver a pasar.")
-
-
-def lam_patrones(prs):
-    # ---- Los tres patrones, que es cómo se está trabajando ----
-    s = content(prs, "Tres patrones nuevos en dos semanas")
-    cw, gap = 3.0, 0.30
-    xs = [0.35 + i * (cw + gap) for i in range(3)]
-    panel(s, xs[0], TOP + 0.30, cw, 2.30, "El umbral", ONCO_DARK, [
-        "Un recorte de los k parches más atendidos se dimensiona por el percentil de lo que "
-        "se quiere recuperar, no por el AUC.",
-        "Con un AUC de 0,890, los veinte parches más atendidos contienen tres de veintiocho "
-        "mitosis."], ONCO_CONN, tsize=13.5, bsize=10.5)
-    panel(s, xs[1], TOP + 0.30, cw, 2.30, "El corte", ONCO_DARK, [
-        "Un control positivo no solo dice si el instrumento mide: fija el corte, y se le "
-        "aplica antes que al grupo de estudio.",
-        "El corte que teníamos escrito rechazaba a tres de las cuatro láminas que sí "
-        "localizan."], ONCO_CONN, tsize=13.5, bsize=10.5)
-    panel(s, xs[2], TOP + 0.30, cw, 2.30, "La categoría", ONCO_DARK, [
-        "Una categoría definida por dos fallos a la vez puede fabricarla el propio "
-        "instrumento cuando llega a su límite.",
-        "Crece sola al ampliar la población medida, y el aumento se lee como hallazgo."],
-          ONCO_CONN, tsize=13.5, bsize=10.5)
-    _grupo(s, 0.35, TOP + 2.78, 9.28, 0.62, fill=TEAL_CARD)
-    add_textbox(s, 0.35, TOP + 2.78, 9.28, 0.62,
-                [("Uno de ellos mide el techo de una prueba antes de pedir la GPU: un techo "
-                  "bajo la ahorra entera", 12.5, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER)],
-                anchor=MSO_ANCHOR.MIDDLE)
-    takeaway_bar(s, "Frente a un resultado que sorprende, el primer sospechoso es la herramienta")
-    notes(s, "Tres patrones escritos en estas dos semanas, y los tres ya en uso.\n"
-             "El umbral: un recorte por percentil, no por área bajo la curva.\n"
-             "El corte: el control positivo lo fija, y se le aplica primero.\n"
-             "La categoría: un grupo definido por dos fallos lo puede fabricar el instrumento.\n"
-             "\n"
-             "Estos tres son lo que más me interesa de estas dos semanas, porque no son "
-             "resultados de un experimento sino cosas que ya cambiaron cómo trabajamos.\n"
-             "\n"
-             "El primero salió de proponer quedarnos con los parches más atendidos. La "
-             "intuición era que si la atención ordena bien, quedarse con los de arriba tiene "
-             "que capturar lo que buscamos. Y es falso, o por lo menos no se sigue. Un valor "
-             "alto de área bajo la curva resume todos los umbrales a la vez; quedarse con los "
-             "de arriba es un umbral solo, y de los extremos. Con la atención ordenando muy "
-             "bien, los veinte parches más atendidos contenían tres de veintiocho mitosis, "
-             "porque el percentil típico de esos parches deja al grueso bastante más abajo. La "
-             "regla que queda es mirar el percentil de lo que uno quiere recuperar antes de "
-             "elegir cuántos se queda, y declarar cuántos son alcanzables en el mejor caso.\n"
-             "\n"
-             "El segundo salió de la prueba de giro que conté hace un rato. Un control positivo "
-             "sirve para lo obvio, que es comprobar que el instrumento mide. Tiene una segunda "
-             "función que se nos había escapado: acota cuánto vale el estadístico cuando la "
-             "respuesta es que sí. Sin eso, cualquier corte elegido mirando el grupo de estudio "
-             "confunde no cumple mi corte con no hay efecto. En nuestro caso el corte que "
-             "teníamos escrito rechazaba a tres de las cuatro láminas que sí funcionan, y eso "
-             "lo descubrimos solamente porque se lo aplicamos al control antes que al resto.\n"
-             "\n"
-             "El tercero es el que conté al cerrar el recuento con giro. Una categoría "
-             "definida por dos fallos "
-             "simultáneos hereda todo lo que el instrumento no supo medir. Y si además uno "
-             "amplía la población arreglando una etapa previa, entran las unidades más "
-             "difíciles por construcción, esa categoría crece sola, y el crecimiento se lee "
-             "como hallazgo. La defensa es separar esas unidades y mostrar por cuál de los dos "
-             "criterios falló cada una.\n"
-             "\n"
-             "Los tres dicen lo mismo desde ángulos distintos, y es lo que puse abajo. En los "
-             "tres casos el instrumento se estaba metiendo en la conclusión: el umbral en el "
-             "primero, el corte en el segundo, la categoría en el tercero. Cuando un resultado "
-             "sorprende, el primer sospechoso es la herramienta y no el mundo.\n"
-             "\n"
-             "Y el primero tiene un corolario que ya usamos: medir el techo de una prueba "
-             "antes de pedir turno. Esta vez dio alto y la corrida se hizo igual, pero si "
-             "hubiera dado bajo nos la ahorrábamos entera.")
-
-
-def lam_que_sigue(prs):
-    # ---- El cierre: lo que sigue y lo que bloquea ----
-    s = content(prs, "Qué sigue")
-    for i, txt in enumerate([
-            "Lanzar el brazo de ensemble, que es un solo envío con la fila vacía, y correrle "
-            "el mismo cruce para tener la diferencia entre los dos brazos.",
-            "Antes de extender a las doce láminas anotadas, coordinar: hay otro trabajo del "
-            "equipo midiendo atención contra las mismas marcas.",
-            "Para subir el 13 de 26 hay que mover la detección: agrandar el recorte por "
-            "atención ya no compra nada."]):
-        add_card(s, 0.35, TOP + 0.16 + i * 0.80, 9.28, 0.66, i + 1, txt, size=12.5)
-    panel(s, 0.35, TOP + 2.54, 9.28, 0.90, "Y dos preguntas para vos", ONCO_DARK, [
-        "De las treinta láminas anotadas que mencionaste, en el servidor hay doce. Faltan "
-        "dieciocho, y no sabemos si existen o si están en otro lado.",
-        "Las anotaciones vienen firmadas con tres iniciales que no sabemos de quién son."],
-          ONCO_CONN, tsize=13, bsize=10.5)
-    takeaway_bar(s, "El recuento cerró, la segmentación corrió y el cruce dio 13 de 26: falta comparar brazos")
-    notes(s, "Tres pasos, y los tres son cortos.\n"
-             "El brazo que falta es un solo envío, con la fila vacía.\n"
-             "Antes de extender, coordinar: hay otro trabajo del equipo midiendo lo mismo.\n"
-             "Y para subir el 13 de 26 hay que mover la detección, no el recorte.\n"
-             "\n"
-             "Cierro con lo que sigue, y son tres cosas cortas.\n"
-             "\n"
-             "La primera es lanzar el brazo que falta. La herramienta trae varios juegos de "
-             "pesos: corrimos el que tiene clase de mitosis, y queda el otro, que promedia tres "
-             "modelos y sirve de contraste. Con la fila vacía es un solo envío y menos de media "
-             "hora. El cruce que acabo de mostrar ya deja el molde armado, así que sobre su "
-             "salida sale la diferencia entre los dos brazos sin trabajo extra.\n"
-             "\n"
-             "La segunda es la que quería conversar. Cuando armé el bloque anterior creía que "
-             "teníamos una sola lámina anotada; buscando en el servidor aparecieron doce, y "
-             "eso cambia el tamaño de lo que se puede hacer. Antes de extender la medición a "
-             "esas doce, conviene coordinar, porque hay otro trabajo del "
-             "equipo que está midiendo atención contra las mismas marcas. Sería una pena "
-             "duplicar el esfuerzo, y peor todavía llegar a dos números distintos sobre lo "
-             "mismo sin saber por qué.\n"
-             "\n"
-             "La tercera no es una tarea sino una dirección, y sale del cruce. Mientras el "
-             "límite lo ponía el recorte por atención, tenía sentido discutir cuánto "
-             "agrandarlo. Ahora el límite lo pone el detector, así que agrandar el recorte no "
-             "compra nada y el esfuerzo tiene que ir a la detección. Lo digo acá porque cambia "
-             "qué vale la pena probar después.\n"
-             "\n"
-             "Y quedan dos preguntas para vos, que no son retóricas. Mencionaste treinta "
-             "láminas anotadas y en el servidor encontramos doce. Faltan dieciocho y no sabemos "
-             "si existen, si están en otro lado o si el número era otro. La segunda es más "
-             "chica pero conviene resolverla: las anotaciones vienen firmadas con tres "
-             "iniciales, y no sabemos de quién son. Si vamos a apoyarnos en ese material, "
-             "necesitamos saber quién lo anotó.")
+             "Por último, lo que este número no dice. La mitad no es la exhaustividad de la "
+             "herramienta en mitosis: el denominador son las marcas del patólogo, no las "
+             "mitosis que hay en la lámina. Tampoco hay precisión calculada, y no la vamos a "
+             "calcular. En la región anotada la herramienta encontró bastante más de lo que "
+             "está marcado, y eso de más no son errores, porque el patólogo marca donde la "
+             "evidencia es más clara y no pretende marcarlo todo. Cualquier precisión que "
+             "saquemos de acá sale sesgada hacia abajo por construcción y no mide al detector.")
 
 
 # ============================================================================
@@ -3737,7 +2643,6 @@ def build():
     lam_escalera(prs)
     lam_28_parches(prs)
     lam_mira_responde(prs)
-    lam_controles(prs)
 
     # ---- SI-MIL, al final ----
     lam_simil_propone(prs)
@@ -3748,20 +2653,9 @@ def build():
     # ---- cierre del bloque del 6-ago ----
     lam_objetivos_propuestos(prs)
 
-    # ---- lo hecho desde el 6-ago, en orden cronológico (elección de Ernesto, 18-ago) ----
-    lam_desde_6ago(prs)
-    lam_regiones_pregunta(prs)
-    lam_regiones_metodo(prs)
-    lam_regiones_mitad(prs)
-    lam_regiones_perfil(prs)
-    lam_regiones_rotacion(prs)
-    lam_regiones_rebarrido(prs)
-    lam_hovernext_estado(prs)
-    lam_techo(prs)
-    lam_cruce(prs)
-    lam_gpu(prs)
-    lam_patrones(prs)
-    lam_que_sigue(prs)
+    # ---- el segundo hilo: la herramienta, y los resultados de cruzarla con la atención ----
+    lam_hovernext_paper(prs)
+    lam_resultados(prs)
 
     # ---- cierre: reflow, auditoría, escala al tamaño del template, tipografía ----
     reflow_onco(prs, skip=keep_ids)
