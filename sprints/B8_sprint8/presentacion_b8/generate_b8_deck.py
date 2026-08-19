@@ -3105,7 +3105,8 @@ def lam_regiones_rotacion(prs):
              "La primera etapa buscaba el tejido desplazándolo, pero sin girarlo. Y si al "
              "digitalizar por segunda vez el vidrio quedó apoyado con otra inclinación, un "
              "pedazo de tejido girado no se encuentra por más que uno lo deslice: hay que "
-             "girarlo también. Así que armamos una prueba chica, de doce láminas, para ver si "
+             "girarlo también. Así que armamos una prueba chica, de doce de estas láminas, "
+             "para ver si "
              "buscar giro cambiaba algo.\n"
              "\n"
              "Y acá viene lo que quiero subrayar del método, más que del resultado. La prueba "
@@ -3465,8 +3466,8 @@ def lam_patrones(prs):
           ONCO_CONN, tsize=13.5, bsize=10.5)
     _grupo(s, 0.35, TOP + 2.78, 9.28, 0.62, fill=TEAL_CARD)
     add_textbox(s, 0.35, TOP + 2.78, 9.28, 0.62,
-                [("Uno de ellos ahorró la corrida entera de una prueba, midiendo su techo "
-                  "antes de pedir la GPU", 12.5, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER)],
+                [("Uno de ellos mide el techo de una prueba antes de pedir la GPU: un techo "
+                  "bajo la ahorra entera", 12.5, True, ONCO_DARK, F_BODY, PP_ALIGN.CENTER)],
                 anchor=MSO_ANCHOR.MIDDLE)
     takeaway_bar(s, "Frente a un resultado que sorprende, el primer sospechoso es la herramienta")
     notes(s, "Tres patrones escritos en estas dos semanas, y los tres ya en uso.\n"
@@ -3495,7 +3496,8 @@ def lam_patrones(prs):
              "teníamos escrito rechazaba a tres de las cuatro láminas que sí funcionan, y eso "
              "lo descubrimos solamente porque se lo aplicamos al control antes que al resto.\n"
              "\n"
-             "El tercero es el de hace dos láminas. Una categoría definida por dos fallos "
+             "El tercero es el que conté al cerrar el recuento con giro. Una categoría "
+             "definida por dos fallos "
              "simultáneos hereda todo lo que el instrumento no supo medir. Y si además uno "
              "amplía la población arreglando una etapa previa, entran las unidades más "
              "difíciles por construcción, esa categoría crece sola, y el crecimiento se lee "
@@ -3507,8 +3509,9 @@ def lam_patrones(prs):
              "primero, el corte en el segundo, la categoría en el tercero. Cuando un resultado "
              "sorprende, el primer sospechoso es la herramienta y no el mundo.\n"
              "\n"
-             "Y uno de ellos se pagó solo: medir el techo antes de pedir turno nos habría "
-             "ahorrado la corrida entera si hubiera dado bajo.")
+             "Y el primero tiene un corolario que ya usamos: medir el techo de una prueba "
+             "antes de pedir turno. Esta vez dio alto y la corrida se hizo igual, pero si "
+             "hubiera dado bajo nos la ahorrábamos entera.")
 
 
 def lam_que_sigue(prs):
@@ -3545,8 +3548,10 @@ def lam_que_sigue(prs):
              "modelos y sirve de contraste. Con la fila vacía es un solo envío y menos de media "
              "hora. Recién con los dos se pueden comparar.\n"
              "\n"
-             "La tercera es la que quería conversar. Antes de extender esto a las doce láminas "
-             "anotadas que hay en el servidor, conviene coordinar, porque hay otro trabajo del "
+             "La tercera es la que quería conversar. Cuando armé el bloque anterior creía que "
+             "teníamos una sola lámina anotada; buscando en el servidor aparecieron doce, y "
+             "eso cambia el tamaño de lo que se puede hacer. Antes de extender la medición a "
+             "esas doce, conviene coordinar, porque hay otro trabajo del "
              "equipo que está midiendo atención contra las mismas marcas. Sería una pena "
              "duplicar el esfuerzo, y peor todavía llegar a dos números distintos sobre lo "
              "mismo sin saber por qué.\n"
