@@ -2452,3 +2452,119 @@ positivos y falsos negativos a la vez. Hay que leer el `name:` de cada archivo. 
 - **El brazo de ensemble de HoVer-NeXt**, sin lanzar. Decisión de Ernesto, sostenida cuatro veces.
 - Coordinar con `sgaete`, los dos papers de `papers_11_agosto/` sin fichar, las dos preguntas del
   6-ago, la réplica del 4589 con semillas nuevas, el sign-off del patólogo, `@grilling` sin estrenar.
+
+# Vigesimoquinta pasada — la sección que mira adelante y no relee lo de arriba (19-ago-2026, noche)
+
+> Sesión con **alcance cambiado a mitad de camino**: entró a leer el guion de las 16 de corrido y
+> terminó reescribiendo solo la 15 y la 16, porque Ernesto redujo la reunión a esas dos. Los dos
+> trabajos dejaron hallazgos, y los de la lectura completa quedan registrados **sin ejecutar**.
+
+| id | Hallazgo | Tipo | Acción |
+|---|---|---|---|
+| Y1 | La sección «qué habilita» contradecía al propio documento **y a la propia memoria** | error | tachar + corregir en los dos; memoria nueva del patrón |
+| Y2 | El resultado y su explicación existían hace 5 días **en documentos distintos** | hueco | §2.b nueva en `cruce_marcas.md` |
+| Y3 | El deck afirma «la única lámina anotada» y hay **doce** | stale | **NO corregido**: decisión de Ernesto pendiente |
+| Y4 | Arcos y reloj del guion de las 16, medidos | abierto | registrados en el README del deck |
+
+## Y1 — la sección «qué habilita» contradecía al propio documento, y a la propia memoria
+
+**Severidad: alta (iba a costar GPU).** `cruce_marcas.md` §6 abría con: «El **brazo de ensemble**
+ahora tiene contra qué compararse: el mismo cruce sobre su salida da el Δ, y ése era el punto de
+correrlo». **Es falso.** El ensemble son los tres folds de **PanNuke**, y PanNuke **no tiene clase
+de mitosis** (`out_channels_cls` 6 = 5 clases + fondo, contra 8 = 7 + fondo de Lizard-Mitosis;
+`hovernext_129741/auditoria_codigo.md`, tabla «Diferencias entre los dos juegos»). Sobre su salida
+el cruce **no es computable**: no produce el objeto que se empareja con las marcas.
+
+Lo que lo vuelve hallazgo de auditoría y no un simple error: **el mismo enunciado estaba en la
+memoria [[hovernext-especialista-segunda-etapa]]**, en su ADDENDUM final, **contradiciendo al punto
+1 de su propio «How to apply»**, que dice correctamente «el que sí es pan-cáncer y cubre mama es el
+de PanNuke, y **ese no tiene clase mitótica**». Un archivo que se contradice consigo mismo a unas
+200 líneas de distancia, y ninguna de las 24 pasadas anteriores lo vio.
+
+**Mecanismo, y es transportable:** las secciones **prospectivas** («qué habilita», «próximos
+pasos», «lo que sigue») se escriben **al final y mirando adelante**, y nadie relee la sección de
+**restricciones** que está arriba en el mismo archivo. Ahí se acumulan los errores, no en los
+números, que sí se revisan.
+
+**Fix aplicado**: enunciado viejo **tachado, no borrado**, con la corrección al lado, en
+`cruce_marcas.md` §6 y en la memoria; línea de `MEMORY.md` actualizada. Patrón guardado en
+[[seccion-prospectiva-contradice-restricciones]].
+
+## Y2 — el resultado estaba, la explicación estaba, y nunca se habían escrito juntas
+
+**Severidad: media (hueco, no error).** `cruce_marcas.md` §2 cerraba el 13 de 26 en «no es
+tolerancia ni centrado, **es ausencia**» y se detenía. La causa estaba fichada desde el **14-ago**
+en `papers_14_agosto/hovernext_estudio.md` §3.a y §3.b (clase de mitosis entrenada y validada
+**solo en colon**, cero mitosis medidas en mama, recall 0,720 de HNTiny en su propio terreno), pero
+**en otro documento y a otro propósito**. Cinco días con las dos mitades separadas, y «¿por qué
+falla la mitad?» es la primera pregunta de cualquiera que vea el número.
+
+**Fix aplicado**: **§2.b nueva** en `cruce_marcas.md` con las cuatro capas (no es artefacto de
+medición → dominio colon vs mama → ni en colon es exhaustiva → las marcadas deberían ser las
+fáciles), más lo que **no** está medido: si el núcleo fallado fue segmentado y **mal clasificado**
+o no fue segmentado, contestable con los `raw` y sin GPU. Replicado en la memoria (puntos 6 y 7).
+
+**Lección**: un documento de resultados que dice «es ausencia» y no dice **por qué** está incompleto
+aunque cada frase suya sea correcta. El hueco se encuentra preguntándole al documento lo que le
+preguntaría alguien que lo lee por primera vez.
+
+## Y3 — el deck afirma que hay una sola lámina anotada, y hay doce (NO corregido, a propósito)
+
+**Severidad: media. Queda abierto.** Las notas habladas de la lámina 4 («El material es una sola
+lámina, **la única que tenemos anotada**») y de la 13 («cuántas láminas anotadas hay además de
+esta, y quién las anotó») son del **6-ago** (`git log -L 2403,2410:generate_b8_deck.py` → commit
+`266388a`). El **17-ago** aparecieron **12 láminas anotadas** en `sdonoso/anotaciones/`, las 12 con
+marcas de `Mitosis`, 94 en total ([[anotaciones-patologo-qupath]] §10). Verificado en disco esta
+sesión: 12 `<slide>.bif - GDT.geojson`.
+
+**Está solo en las notas del presentador.** Barrido el `.pptx`: **ningún cuerpo de lámina** lo
+afirma; la 13 dice «Llevar la medición de atención a más láminas anotadas», neutro y sobrevive. El
+arreglo es prosa en el generador, sin tocar assets.
+
+**Por qué NO se corrigió**: esas láminas no se presentaban hoy, y **cómo reencuadrar el objetivo 1**
+(deja de ser «falta material» y pasa a ser «el material está, hay que coordinar con `sgaete`») es
+decisión de Ernesto. Va al handoff.
+
+## Y4 — arcos y reloj del guion de las 16, medidos y sin ejecutar
+
+**Severidad: baja. Queda abierto.** Se leyó el guion entero de corrido, que es una capa de QA
+distinta del barrido por sustantivo del W1 ([[deck-qa-puntos-ciegos-chequeo]]):
+
+1. **La 13 propone como futuro lo que la 14 a la 16 muestran hecho** («correr un detector ya
+   entrenado y ver cuánto acierta contra las 26 marcas»). Es **tiempo verbal**, no orden: la
+   portada anuncia deliberadamente que HoVer-NeXt va después de los objetivos.
+2. **La 13 descarta un paper «porque no distingue mitosis entre sus clases»** (es CellViT, y es
+   correcto: [[papers-rama-mitosis-bcd]]) y dos láminas después entra un segmentador de **pesos
+   públicos que sí la tiene**. No es contradicción, son herramientas distintas, pero sin una
+   cláusula que lo diga suena a una, y se pierde el remate: HoVer-NeXt **arregla exactamente el
+   defecto** que descalificó a CellViT.
+3. **Desfase entre prioridades declaradas y presupuesto real**: la portada llama «corto» al encargo
+   de expertos (**6,0 min**, y su lámina es la 3ª más larga), «comprimida» a SI-MIL (**17,4 min,
+   27,6 %**) y «lo que más quiero discutir» a HoVer-NeXt (**11,8 min**). Lo declarado comprimido
+   ocupa más que lo declarado prioritario. **Si hay que recortar, el propio texto dice dónde.**
+
+Detalle en `presentacion_b8/README.md`, sección del 19-ago (noche).
+
+## Verificado sin cambios
+
+- **`CLAUDE.md`**: sin tocar. Los workarounds A-M y los patrones P1-P4 no se contradicen con nada
+  de esta sesión; Y1 es un error de dato en un doc de resultados, no una regla nueva.
+- **Agentes** (`trainer`, `reviewer`): sin contacto, no se tocó modelo ni entrenamiento.
+- **Skills**: `@humanizer-es` **no se corrió**, y la prosa nueva se midió antes de decidirlo (cero
+  rayas «—» en las notas nuevas; las dos del archivo están en un comentario de código preexistente).
+- **Las notas nuevas respetan las dos prohibiciones** de `correcciones.txt`: cero menciones de la
+  cola de cómputo, cero fechas de lo que se hizo.
+- **Los conteos de pasadas anteriores** quedan: viven en secciones fechadas.
+
+## Lo que queda abierto y va al handoff
+
+- **Planificar los pendientes post-reunión.** La reunión con Sebastián **ya ocurrió**; lo que dijo
+  **no está en el repo** y lo trae Ernesto.
+- **Y3**: el dato stale de las 12 láminas en las notas de la 4 y la 13, con la decisión de
+  reencuadre sin tomar.
+- **Y4**: los tres arcos del guion y el desfase de reloj, si se retoma el deck completo.
+- **El brazo de ensemble**, sin lanzar, y **ahora con razón documentada** para no lanzarlo con la
+  mitosis como objetivo.
+- **Lo barato que sigue** (Y2): si los núcleos fallados fueron segmentados y mal clasificados.
+- Coordinar con `sgaete`; los dos papers de `papers_11_agosto/` sin fichar; las dos preguntas del
+  6-ago; la réplica del 4589 con semillas nuevas; el sign-off del patólogo; `@grilling` sin estrenar.
