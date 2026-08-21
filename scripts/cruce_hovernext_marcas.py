@@ -36,13 +36,15 @@ import sys
 from pathlib import Path
 
 import numpy as np
-import pandas as pd
 from scipy.optimize import linear_sum_assignment
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "scripts"))
 from alinear_anotaciones_qupath import cargar_anotaciones          # noqa: E402
-from techo_atencion_topk import cargar, techo, Y_CORTE_REGION, KS  # noqa: E402
+
+# `pandas` y `techo_atencion_topk` se importan DENTRO de main(): asi `marcas_mitosis()` y
+# `emparejar_pares()` quedan importables desde el env de HoVer-NeXt, que tiene zarr pero no
+# pandas (lo necesita a0_segmentadas_o_no.py). El comportamiento de main() no cambia.
 
 # Tolerancias del barrido, en µm. Las de detección de mitosis en la literatura viven entre
 # 7,5 y 30 µm; se barre hasta 300 para MOSTRAR dónde el emparejamiento deja de ser creíble.
@@ -62,16 +64,28 @@ def marcas_mitosis(geojson: str, dx: int, dy: int):
     return np.asarray(cen), np.asarray(lados)
 
 
-def emparejar(dist, tol_px):
-    """Húngaro con corte: devuelve la máscara booleana de marcas acreditadas."""
+def emparejar_pares(dist, tol_px):
+    """Húngaro con corte. Devuelve (ok, pares).
+
+    `ok` es la máscara booleana de marcas acreditadas — lo único que necesitaba el cruce.
+    `pares` mapea marca -> índice de la detección que la acreditó (-1 si ninguna), que es
+    lo que la galería del encargo 2 necesita para recortar la detección correcta.
+    """
     c = dist.copy()
     c[c > tol_px] = 1e9
     fi, ci = linear_sum_assignment(c)
     ok = np.zeros(dist.shape[0], bool)
+    pares = np.full(dist.shape[0], -1, dtype=int)
     for i, j in zip(fi, ci):
         if dist[i, j] <= tol_px:
             ok[i] = True
-    return ok
+            pares[i] = j
+    return ok, pares
+
+
+def emparejar(dist, tol_px):
+    """Máscara booleana de marcas acreditadas (envoltorio de `emparejar_pares`)."""
+    return emparejar_pares(dist, tol_px)[0]
 
 
 def main():
@@ -91,6 +105,9 @@ def main():
     ap.add_argument("--mpp", type=float, default=0.465)
     ap.add_argument("--out-dir", default=str(REPO / "results/b8_hovernext_129741/cruce_marcas"))
     a = ap.parse_args()
+
+    import pandas as pd                                                    # noqa: E402
+    from techo_atencion_topk import cargar, Y_CORTE_REGION, KS             # noqa: E402
 
     out = Path(a.out_dir); out.mkdir(parents=True, exist_ok=True)
     off = json.loads(Path(a.offset).read_text())

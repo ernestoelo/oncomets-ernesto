@@ -37,7 +37,6 @@ import collections
 import json
 import os
 
-import h5py
 import numpy as np
 
 H5_DIR = "/media/administrador/Storage1/sdonoso/clam_environ/environ/features/h5_files"
@@ -167,6 +166,7 @@ def main():
     anot = cargar_anotaciones(args.geojson)
     centro = np.array([p.mean(0) for _, p in anot])
     clases = [c for c, _ in anot]
+    import h5py   # perezoso: el modulo se importa desde envs sin h5py (ver a0_*)
     with h5py.File(os.path.join(args.h5_dir, f"{args.slide_id}.h5"), "r") as f:
         coords = f["coords"][:].astype(int)
     ps = patch_size_desde_coords(coords)

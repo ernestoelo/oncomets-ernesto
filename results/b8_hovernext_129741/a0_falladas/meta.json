@@ -1,0 +1,35 @@
+{
+  "que_es": "A0: reparto segmentada-y-mal-clasificada vs no-segmentada, sobre las marcas que HoVer-NeXt no acredito en la 129741",
+  "no_es": [
+    "precision de HoVer-NeXt",
+    "cuantas mitosis HAY en la lamina",
+    "una afirmacion sobre que ES cada nucleo: la verdad de campo dice Mitosis"
+  ],
+  "unidad": "marcas (26 en la 129741). NO parches (28) ni detecciones (177)",
+  "n_marcas": 26,
+  "n_acreditadas": 13,
+  "n_falladas": 13,
+  "n_falladas_segmentadas": 13,
+  "n_falladas_sin_instancia": 0,
+  "tolerancia_emparejamiento_um": 30.0,
+  "tolerancia_vecindad_um": 15.0,
+  "clases_falladas_bajo_centroide": {
+    "epithelial-cell": 9,
+    "(sin instancia)": 3,
+    "neutrophil": 1
+  },
+  "clases_acreditadas_bajo_centroide": {
+    "mitosis": 11,
+    "(sin instancia)": 2
+  },
+  "n_instancias_mapa": 238329,
+  "ds_factor_verificado": 1,
+  "offset_aplicado": {
+    "dx": 3829,
+    "dy": 0
+  },
+  "mpp": 0.465,
+  "fuente_pinst": "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/b8_hovernext_129741/hovernext/lizard_mitosis/129741/pinst_pp.zip",
+  "fuente_class_inst": "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/b8_hovernext_129741/hovernext/lizard_mitosis/129741/class_inst.json",
+  "fuente_detecciones": "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/b8_hovernext_129741/hovernext/lizard_mitosis/129741/pred_mitosis.tsv"
+}
