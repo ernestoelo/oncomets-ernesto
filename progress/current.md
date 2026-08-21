@@ -4339,3 +4339,62 @@ re-extraído. Las notas nuevas: cero rayas «—», cero «palanca», números h
   documentada para no lanzarlo con la mitosis como objetivo.
 - Sin cambios en: los dos papers de `papers_11_agosto/` sin fichar, las dos preguntas del 6-ago, la
   réplica del 4589 con semillas nuevas, el sign-off del patólogo, y **coordinar con `sgaete`**.
+
+## Sesión 17 (21-ago-2026) — sesión de PLAN: los cuatro encargos de Sebastián, cruzados contra el disco
+
+**Sesión de planificación, sin ejecutar nada.** Ernesto trajo la retroalimentación de la reunión
+(cuatro encargos) y esta sesión los verificó contra lo que hay en disco antes de proponer nada.
+Cero GPU, cero escrituras fuera del repo. El plan ejecutable quedó en
+`sprints/B8_sprint8/encargos_sebastian/plan.md` y la evidencia en `hallazgos_exploracion.md`.
+
+### 1. Los cuatro encargos
+
+1. Mapa de calor con el checkpoint de CLAM de **carcinoma invasivo**, top-k a HoVer-NeXt, y
+   comparar contra el resultado ya obtenido.
+2. Ver las imágenes de las **164** detecciones sin marca (177 − 13) y ver si se parecen entre sí.
+3. Cruzar la **necrosis** de HoVer-NeXt contra las marcas del patólogo.
+4. Correr HoVer-NeXt sobre las **12 láminas anotadas**.
+
+### 2. Lo que la verificación cambió del enunciado
+
+- **El checkpoint que Sebastián no recordaba era CDIS**, no invasivo:
+  `carcinoma_ductal_insitu_presente_ci_reform` fold 4 (job 4589), escrito en los dos `meta.json`.
+  El de invasivo es la tarea **`invasion_carcinoma_gate_pth_balance`** (2013 invasivo / 802 no);
+  la 129741 está etiquetada `invasivo` y cae en **test del fold 0**.
+- **El checkpoint del gate que hay en disco es Mammoth, y su `experiment.txt` dice `clam_mb`.**
+  El `state_dict` tiene `attention_net.0.mammoth.*`. CLAM plano del gate **no existe** ⇒ hay que
+  entrenarlo. Memoria nueva [[checkpoint-familia-se-lee-del-statedict]].
+- **Lizard-Mitosis no tiene clase de necrosis**: sus 7 clases son neutrophil, epithelial-cell,
+  lymphocyte, plasma-cell, eosinophil, connective-tissue-cell y mitosis. `dead` está **solo en
+  PanNuke**, que nunca se lanzó ⇒ el encargo 3 exige el ensemble, **sin que eso reabra** la
+  decisión de no correrlo para mitosis (esa sigue en pie, y por la misma razón). Memoria nueva
+  [[hovernext-clases-necrosis-solo-pannuke]].
+- **Las 12 tienen mitosis**, pero tres concentran 63 de 94 y **seis tienen ≤3** ⇒ el denominador
+  que se reporta es el agregado. Necrosis hay en **5 láminas, 18 polígonos**, con el vocabulario
+  partido en `necrosis` / `Necrosis` / `Comedonecrosis`.
+- **`sgaete` ya midió atención contra anotaciones en 8 tareas × las 12 láminas**, necrosis
+  incluida, pero leyendo la **rama predicha** — para la 129741 predice `no identificado` cuando la
+  etiqueta es `presente_central`, y por eso le da AUC 0,382. El gate de invasivo **no** está entre
+  sus 8 ⇒ el encargo 1 es trabajo nuevo.
+
+### 3. Las decisiones que tomó Ernesto
+
+- **Encargo 1: los dos brazos.** El Mammoth del gate hoy en CPU, y el CLAM plano entrenando el
+  fold 0 sobre el mismo `--split_dir` y la misma config, pareado por construcción (P1).
+- **GPU autorizada para los tres**: las 11 láminas restantes, el ensemble PanNuke sobre la 129741,
+  y el CLAM plano del gate. Orden de envío: el corto primero.
+- **Encargo 2: láminas de contacto agrupadas por parecido**, en tres bloques (164 sin marca, 13
+  acertadas, 13 marcas que se escaparon).
+- **`sgaete`: seguimos y le avisamos después.**
+- **Pedido nuevo, sobre el cierre**: incorporar **CLAM puro como línea base** antes de HoVer-NeXt,
+  contra Mammoth y contra los dos con el detector encima, para saber si el detector **agrega**.
+  Quedó como A2.bis del plan. Casi todo ya está computado en `techo_conjunto.csv`; lo nuevo es el
+  **eje**: se grafica recall contra **carga de revisión** (mm² y objetos a mirar), porque
+  compararlos por recall a secas dice que HoVer-NeXt empeora, y eso es artefacto de mirar una sola
+  columna. Precisión de forma que hay que sostener: **Mammoth no se suma a CLAM, lo reemplaza**.
+
+### 4. Estado al cierre
+
+Rama `main`, sincronizada con `origin`, **sin jobs propios**. El nodo lo ocupan `sgaete` 5052
+(`phase3_s`, corriendo hace 6 h 20) y `capstone` 5063; `nschiaff` 5061 en cola por `Resources`.
+Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
