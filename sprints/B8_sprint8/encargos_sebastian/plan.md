@@ -293,6 +293,35 @@ Config **idéntica a la del brazo Mammoth** de `sgaete` para que quede pareado p
 Cuando termine, se repite A2 con el brazo CLAM y la comparación queda CLAM-vs-CLAM, que es lo
 que pidió Sebastián.
 
+> **ADDENDUM 21-ago (sesión 19) — el `main.py` a usar es el de `clam_testing`, no el de
+> `clam_environ`, y esto NO es un detalle de plomería.** Verificado leyendo los dos árboles:
+> `clam_testing/main.py` (885 líneas) y `clam_environ/main.py` (750) **divergieron**, y con
+> ellos `utils/core_utils.py` (~1000 líneas de diff) y `models/model_clam.py` (~312). El brazo
+> Mammoth de `sgaete` salió de `clam_testing/main.py --use_mammoth`
+> (`clam_testing/run_mammoth_5fold_balanced.slurm`). Correr el CLAM plano desde
+> `clam_environ/main.py` **no quedaría pareado**: cambiaría el modelo *y* el bucle de
+> entrenamiento a la vez, que es exactamente lo que P1 existe para evitar.
+> **La corrida pareada es `clam_testing/main.py` SIN `--use_mammoth`** — mismo archivo, único
+> delta el flag. Verificado que sin el flag `CLAM_MB` construye la `nn.Linear` de siempre
+> (`clam_testing/models/model_clam.py:282-284`) y que `use_mammoth` no toca ninguna otra rama.
+>
+> Tres cosas más que hay que saber antes del `sbatch`:
+> - **Containment**: `main.py` y `core_utils.py` escriben **solo** bajo `args.results_dir`
+>   (verificado con grep de `open/to_csv/torch.save/SummaryWriter`), así que un `--results_dir`
+>   absoluto dentro de nuestro repo alcanza. `os.mkdir` (no `makedirs`) ⇒ crear el padre antes.
+> - **`csv_path` de `TASK_CONFIGS` se resuelve relativo al CWD**, así que hay que `--chdir` a
+>   `clam_testing`; su `environ/` es un **symlink a `clam_environ/environ`**, o sea el CSV
+>   canónico. No se escribe nada ahí.
+> - **`--k 5 --k_start 0 --k_end 1`** da `folds = arange(0,1) = [0]` y el resumen sale como
+>   `summary_partial_0_1.csv`, no `summary.csv`. Y `seed_torch(args.seed)` corre **por fold**,
+>   así que el fold 0 solo reproduce el fold 0 de una corrida de 5.
+>
+> **Riesgo declarado (workaround H, al revés):** `clam_testing/` es árbol **compartido y vivo**
+> — `sgaete` tiene el job 5052 corriendo. Si edita `main.py`, `core_utils.py` o `model_clam.py`
+> mientras nuestro job corre, le cambia el piso. Mitigación barata: registrar `md5sum` + `mtime`
+> de los tres archivos **al lanzar y al terminar**, y guardarlos con el resultado. Si cambiaron,
+> el run queda marcado como sospechoso en vez de pasar por bueno.
+
 ---
 
 ## Verificación

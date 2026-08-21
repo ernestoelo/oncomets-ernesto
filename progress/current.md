@@ -4401,6 +4401,67 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 19 — 21-ago-2026 · A3: los 12 offsets, y dos bugs que la 129741 no disparaba
+
+> Sesión corta, cerrada a pedido de Ernesto para que una sesión limpia siga con la Fase B.
+> Se ejecutó **A3 entero** (CPU). **Nada de la Fase B se lanzó**: B3 sigue sin pre-registro y
+> sin pasar por `reviewer`, y no hubo un solo `sbatch`. Doc:
+> `sprints/B8_sprint8/encargos_sebastian/a3_offsets_11_laminas.md`.
+
+### 1. A3 — las 94 marcas de las 12 láminas caen sobre un parche
+
+`scripts/run_a3_offsets.sh` · `scripts/a3_denominador_mitosis.py` ·
+`sprints/B8_sprint8/anotaciones_patologo/{offset_*.json,parches_anotados_*.csv,denominador_mitosis_12.json}`
+
+Derivados los offsets de las **11** que faltaban. En **las 12** el offset adoptado es la
+**geometría del contenedor** (`dx = level0.width − region[0].width`, `dy = 0`), y donde los
+barridos empíricos (a) y (b) no se cruzan (124729, 164001, B25-158899, 109609) el geométrico
+**les gana a los dos** — el «revisar a mano» que imprime el script es el barrido quedándose
+corto, no un caso abierto.
+
+**Techo del filtro (P2.a): 94 de 94 marcas de `Mitosis` sobre parche extraído.** La alineación
+**no acota** B1 ⇒ el denominador honesto sigue siendo el agregado de 94, con la tabla por
+lámina y su `n`. Un techo alto no promete nada: no dice cuántas va a recuperar el detector.
+
+**Y_CORTE_REGION**: solo **2 de las 12** tienen dos regiones de escaneo — 129741 (49920, ya en
+uso) y **B25-158899 (30720)**; las otras 10 se saltan el confinamiento. La constante de módulo
+de `techo_atencion_topk.py:45` **sigue sin generalizar** — el valor por lámina está en el doc,
+el cambio de código no se hizo.
+
+### 2. Dos bugs que habrían corrompido B1 en silencio
+
+- **`patch_size_desde_coords` daba 64 o 128 en 9 de 12 láminas** (el paso real es 256 en las
+  12). Tomaba la moda sobre el `np.unique` **global** de cada eje, y CLAM arranca la grilla en
+  el bbox de cada contorno ⇒ el unique global mezcla los desfases entre islas con el paso.
+  La 129741 daba 256 **por casualidad**, y por eso sobrevivió desde el 31-jul. Corregido a la
+  moda **por fila/columna**, que es la forma que ya usaban los otros cuatro scripts.
+- **QuPath deja anotaciones sin clase** (2 en las 12: 126504 y 106552, tamaño de núcleo). El
+  script crasheaba al formatear `None`. Se conservan como `(sin clase)` y **no** entran al
+  denominador de Mitosis.
+
+**Regresión**: la 129741 reproduce `parches_anotados_129741.csv` **byte a byte** y su
+`dx=3829` no se movió.
+
+### 3. El gate de alineación mide otra cosa que la que B1 necesita
+
+El chequeo del script («≥80 % de **todas** las anotaciones sobre tejido») deja fuera a
+**B25-158899 (27/38)** y **164001 (23/30)**. Medido sobre la unidad de la pregunta —
+**las marcas de Mitosis** — las dos dan **6/6** y **3/3**. Lo que se cae son polígonos grandes
+(`Negative`, `Tejido Adiposo`, `Tumor`) cuyo centroide queda sobre fondo. **110616 lo cierra**:
+30/30 por «cae sobre parche» y 24/30 por «cae sobre tejido» — el offset ubica todas y la
+máscara de saturación es la que pierde seis. Registrado como ADDENDUM de
+[[techo-filtro-antes-de-correr]]: el techo se mide en la **unidad del resultado**, o el gate
+rechaza material sano.
+
+### 4. Estado al cierre
+
+Rama `main`, **sin jobs propios**, working tree limpio salvo
+`presentacion_b8/correcciones.txt` (sin trackear por decisión de Ernesto). El nodo lo ocupan
+`sgaete` 5052 (`phase3_s`, 12 h) y `capstone` 5065, con `nschiaff` 5061 y `gvenegas` 5064 en
+cola. Pendientes de la Fase A: **A2.bis** y **A4**. Fase B entera sin arrancar.
+
+---
+
 ## Sesión 18 — 21-ago-2026 · se ejecuta la Fase A: A0, A1 y A2
 
 > La sesión 17 dejó el plan escrito y sin correr nada. Ésta ejecutó las tres primeras piezas de
