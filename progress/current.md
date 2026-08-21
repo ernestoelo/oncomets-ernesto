@@ -4255,3 +4255,87 @@ líneas; el `.pptx`, de 20,9 a **17,1 MB** tras acotar los assets a la resoluci�
 - Sin cambios en: los dos papers de `papers_11_agosto/` sin fichar, las dos preguntas del 6-ago,
   la réplica del 4589 con semillas nuevas, el sign-off del patólogo, y **coordinar con `sgaete`**
   antes de barrer las doce láminas anotadas.
+
+## Sesión 16 (19-ago-2026, noche) — la reunión se reduce a dos láminas, y esas dos se reescriben
+
+**El alcance cambió a mitad de sesión, por decisión de Ernesto.** La sesión entró con el encargo
+del handoff (leer el guion de las 16 de corrido, buscar arcos, decidir el recorte de tiempo) y ese
+trabajo se hizo entero; pero al preguntarle por las decisiones, Ernesto redefinió la reunión: **solo
+se presentan la 15 y la 16**, el reloj deja de importar, y el pedido pasa a ser pedagógico. Que cada
+una quede muy bien explicada, y que las notas digan **qué hicimos**, **qué genera HoVer-NeXt**, **qué
+representan las marcas que genera** y **por qué no rescató las 26 mitosis del patólogo**.
+
+**La reunión con Sebastián YA OCURRIÓ** al cierre de esta sesión. Lo que dijo no está en el repo:
+lo trae Ernesto a la sesión que planifique lo que sigue.
+
+### 1. La consecuencia de diseño que gobernó la reescritura
+
+Presentadas solas, la 15 y la 16 **pierden todo el andamiaje** de las anteriores: la 1 a la 8
+establecían qué es la atención de CLAM, de dónde salen las 26 marcas y que son positivos parciales;
+la 14 presentaba la herramienta. Nada de eso iba a estar en la sala. Las notas nuevas **cargan ese
+contexto ellas mismas**, y ése es el motivo del crecimiento: **715 → 1419 palabras** en la 15 y
+**441 → 693** en la 16, unos 16 minutos hablados para las dos.
+
+### 2. El «por qué falla la mitad», que faltaba y estaba fichado hace cinco días
+
+`cruce_marcas.md` §2 cerraba en «es ausencia» y ahí se detenía. La explicación estaba en
+`papers_14_agosto/hovernext_estudio.md` desde el 14-ago, **nunca escrita junto al resultado**. Se
+escribió como **§2.b nueva** y es lo que sostiene las notas:
+
+1. **No es artefacto de medición**: meseta de 10× en la tolerancia (7,5 a 75 µm) y 115 µm de
+   mediana a la detección más cercana en las falladas.
+2. **La clase de mitosis se entrenó y validó SOLO en colon** (Lizard colon + 48 ROI de 11 WSI de
+   colon + MitEval 13 ROI de colon; **cero mitosis medidas en mama**) y la lámina es de mama.
+3. **Ni en colon es exhaustiva**: recall **0,720** de HNTiny, que es exactamente el checkpoint que
+   corrimos ⇒ un 50 % fuera de su tejido **no es anómalo**.
+4. **La dirección del sesgo empeora la lectura**: el patólogo marca solo lo más claro, así que las
+   26 deberían ser **las fáciles**.
+
+⚠ Con la salvedad que el propio estudio ya traía: **la versión ingenua («es un paper de colon») está
+desactivada** para *tipificar núcleos* en mama (6ª de 19 tejidos). Lo que no tiene validación fuera
+de colon es **la clase mitótica**, que es justo la que usamos.
+
+**Lo que NO está medido y es lo barato que sigue**: si los núcleos fallados **fueron segmentados y
+mal clasificados** o **no fueron segmentados**. Dos fallas con arreglos de costo muy distinto, y el
+cruce solo miró la clase `mitosis`. Se contesta **sin GPU y sin re-correr**, con los `raw` que
+sobrevivieron por `--keep_raw`.
+
+### 3. Un error nuestro que iba a costar GPU
+
+`cruce_marcas.md` §6 afirmaba que **el brazo de ensemble «ahora tiene contra qué compararse»**.
+**Es falso**: el ensemble son los tres folds de **PanNuke**, que **no tiene clase de mitosis**
+(`out_channels_cls` 6 = 5 + fondo, contra 8 = 7 + fondo de Lizard-Mitosis). Sobre su salida el cruce
+**no es computable**. Lo mismo estaba en la memoria, **contradiciendo a su propio punto 1 de «How to
+apply»**, que decía correctamente que PanNuke no tiene clase mitótica. Corregido en los dos, tachando
+el enunciado viejo en vez de borrarlo. **Correr el ensemble no contesta la pregunta de mitosis.**
+
+### 4. El análisis de arcos y de reloj, hecho y sin ejecutar
+
+Se leyó el guion completo de las 16 de corrido. Queda en el README del deck para cuando se retome:
+
+- **Desfase entre prioridades declaradas y presupuesto real**: la portada llama «corto» al encargo
+  de expertos (**6,0 min**, 3ª lámina más larga), «comprimida» a SI-MIL (**17,4 min, 27,6 %**) y «lo
+  que más quiero discutir» a HoVer-NeXt (**11,8 min**). Lo declarado comprimido ocupa más que lo
+  declarado prioritario, y la lámina 10 sola son 866 palabras.
+- **La 13 propone como futuro lo que la 14 a la 16 muestran hecho**. Es tiempo verbal.
+- **La 13 descarta un paper «porque no distingue mitosis»** (CellViT, y es cierto) y dos láminas
+  después entra un segmentador de pesos públicos que sí la tiene. No es contradicción, pero sin una
+  cláusula que lo diga suena a una.
+
+### 5. Verificación
+
+`AUDITORÍA: sin avisos` en las 16, copia sin notas regenerada (16 láminas, 0 con notas), guion
+re-extraído. Las notas nuevas: cero rayas «—», cero «palanca», números hablados en palabras.
+
+### Lo que NO se hizo
+
+- **No se recortó el guion de las otras catorce**, ni se tocó su contenido: el alcance cambió.
+- **No se corrigió el dato stale de la 4 y la 13** («la única que tenemos anotada» / «cuántas
+  láminas anotadas hay»), que son notas del 6-ago contra las **12 láminas** aparecidas el 17-ago.
+  Está **solo en las notas habladas**; ningún cuerpo de lámina lo afirma. No se presentaban hoy, y
+  cómo reencuadrar el objetivo 1 quedó sin decidir.
+- **La fecha de portada queda en el 19 de agosto**, por decisión de Ernesto.
+- **Cero GPU**, cero `sbatch`. El brazo de ensemble sigue sin lanzarse, y ahora hay una razón
+  documentada para no lanzarlo con la mitosis como objetivo.
+- Sin cambios en: los dos papers de `papers_11_agosto/` sin fichar, las dos preguntas del 6-ago, la
+  réplica del 4589 con semillas nuevas, el sign-off del patólogo, y **coordinar con `sgaete`**.
