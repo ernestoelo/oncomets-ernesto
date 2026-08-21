@@ -1,0 +1,24 @@
+{
+  "slide_id": "103762",
+  "dx": 19148,
+  "dy": 0,
+  "patch_size": 256,
+  "offset_adoptado_por": "geometria del contenedor (el area no separa los candidatos)",
+  "n_parches": 5203,
+  "n_anotaciones": 34,
+  "criterio_a_mejor": 20,
+  "criterio_b_mejor": 20,
+  "verif_a_en_offset_adoptado": 34,
+  "verif_b_en_offset_adoptado": 34,
+  "alineada": true,
+  "parches_bajo_anotacion": 91,
+  "parches_por_clase": {
+    "AreaTubular": 14,
+    "Tumor": 31,
+    "Mitosis": 2,
+    "AreaSolida": 46,
+    "NucleosBajoGrado": 3
+  },
+  "aviso": "un parche sin anotacion NO es un negativo: el patologo marca solo la evidencia clara",
+  "geojson": "/media/administrador/Storage1/sdonoso/anotaciones/103762.bif - GDT.geojson"
+}

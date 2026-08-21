@@ -1,0 +1,26 @@
+{
+  "slide_id": "144317",
+  "dx": 10349,
+  "dy": 0,
+  "patch_size": 256,
+  "offset_adoptado_por": "geometria del contenedor (el area no separa los candidatos)",
+  "n_parches": 4769,
+  "n_anotaciones": 40,
+  "criterio_a_mejor": 33,
+  "criterio_b_mejor": 27,
+  "verif_a_en_offset_adoptado": 40,
+  "verif_b_en_offset_adoptado": 39,
+  "alineada": true,
+  "parches_bajo_anotacion": 87,
+  "parches_por_clase": {
+    "Permeaciones vasculares": 7,
+    "Tumor": 24,
+    "Stroma": 12,
+    "AreaSolida": 23,
+    "Nucleos alto grado": 14,
+    "Mitosis": 4,
+    "Tejido Adiposo": 6
+  },
+  "aviso": "un parche sin anotacion NO es un negativo: el patologo marca solo la evidencia clara",
+  "geojson": "/media/administrador/Storage1/sdonoso/anotaciones/144317.bif - GDT.geojson"
+}

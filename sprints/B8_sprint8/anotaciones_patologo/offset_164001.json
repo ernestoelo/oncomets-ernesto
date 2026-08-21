@@ -1,0 +1,27 @@
+{
+  "slide_id": "164001",
+  "dx": 11261,
+  "dy": 0,
+  "patch_size": 256,
+  "offset_adoptado_por": "geometria del contenedor (el area no separa los candidatos)",
+  "n_parches": 3796,
+  "n_anotaciones": 30,
+  "criterio_a_mejor": 22,
+  "criterio_b_mejor": 22,
+  "verif_a_en_offset_adoptado": 23,
+  "verif_b_en_offset_adoptado": 23,
+  "alineada": false,
+  "parches_bajo_anotacion": 133,
+  "parches_por_clase": {
+    "Negative": 45,
+    "Tejido Adiposo": 31,
+    "Tumor": 18,
+    "Mitosis": 4,
+    "Immune cells": 5,
+    "DCIS": 23,
+    "Nucleos mod grado": 5,
+    "Stroma": 13
+  },
+  "aviso": "un parche sin anotacion NO es un negativo: el patologo marca solo la evidencia clara",
+  "geojson": "/media/administrador/Storage1/sdonoso/anotaciones/164001.bif - GDT.geojson"
+}

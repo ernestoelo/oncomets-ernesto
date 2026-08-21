@@ -50,6 +50,12 @@ def cargar_anotaciones(path):
     for ft in feats:
         cl = ft.get("properties", {}).get("classification", {})
         name = cl.get("name") if isinstance(cl, dict) else str(cl)
+        # QuPath deja anotaciones SIN clase (el patologo dibujo la marca y no la etiqueto).
+        # Hay 2 en las 12 laminas (126504 y 106552), del tamano de un nucleo. Se conservan
+        # con nombre explicito: cuentan como tejido para el criterio (c) y NUNCA se suman a
+        # ninguna clase real -- en particular NO entran al denominador de Mitosis.
+        if not name:
+            name = "(sin clase)"
         geom = ft["geometry"]
         anillos = geom["coordinates"] if geom["type"] == "Polygon" else [c[0] for c in geom["coordinates"]]
         out.append((name, np.asarray(anillos[0], dtype=float)))
@@ -57,9 +63,23 @@ def cargar_anotaciones(path):
 
 
 def patch_size_desde_coords(coords):
-    """Moda del paso entre coords consecutivas (memoria patch-size-desde-geometria-h5)."""
-    pasos = np.concatenate([np.diff(np.unique(coords[:, 0])), np.diff(np.unique(coords[:, 1]))])
-    return int(collections.Counter(pasos.tolist()).most_common(1)[0][0])
+    """Moda del paso entre coords contiguas DENTRO de cada fila y de cada columna.
+
+    Memoria [[patch-size-desde-geometria-h5]]: el tamano sale de la geometria, nunca de
+    la magnificacion. Pero la moda hay que tomarla **por fila/columna**, no sobre el
+    `np.unique` global de cada eje: CLAM arranca la grilla en el bbox de cada contorno de
+    tejido, asi que una lamina con varias islas tiene varias grillas desfasadas entre si y
+    el unique global mezcla los desfases con el paso real. Medido en las 12 anotadas, la
+    version global devolvia 64 o 128 en 9 de 12 laminas cuando el paso real es 256 en las
+    12 (la 129741 daba 256 por casualidad, asi que su resultado no cambia).
+    """
+    pasos = []
+    for eje, otro in ((0, 1), (1, 0)):
+        for v in np.unique(coords[:, otro]):
+            s = np.sort(coords[coords[:, otro] == v][:, eje])
+            d = np.diff(s)
+            pasos += d[d > 0].tolist()
+    return int(collections.Counter(pasos).most_common(1)[0][0])
 
 
 def mascara_tejido(wsi_path, objetivo_ds=32):
@@ -248,6 +268,18 @@ def main():
                 print(f"   -> el dato no los separa (tolerancia {args.tol_geo:.1%}); se adopta el geometrico")
     print(f"\noffset adoptado: dx={DX} dy={DY}  [{adoptado}]")
 
+    # Verificacion del offset que se adopta, no del que gano cada barrido. Es la que pide
+    # el plan: una lamina donde las anotaciones caigan casi todas fuera del tejido se
+    # reporta como NO alineada y no entra al agregado.
+    desp = centro + np.array([DX, DY])
+    ver_a = acierta_parche(desp)
+    ver_b = acierta_tejido(desp) if plat_b is not None else None
+    print(f"   verificacion en el offset adoptado: (a) sobre parche {ver_a}/{len(anot)}"
+          + (f"   (b) sobre tejido {ver_b}/{len(anot)}" if ver_b is not None else ""))
+    if ver_b is not None and ver_b < 0.8 * len(anot):
+        print(f"   !! ATENCION: menos del 80 % de las anotaciones cae sobre tejido "
+              f"({ver_b}/{len(anot)}) -> lamina NO alineada, no entra al agregado")
+
     # mapeo parche -> clases, con el offset adoptado
     filas, tocados = [], collections.defaultdict(set)
     for (clase, poly) in anot:
@@ -282,6 +314,9 @@ def main():
                    "n_parches": int(len(coords)), "n_anotaciones": len(anot),
                    "criterio_a_mejor": int(mejor_a),
                    "criterio_b_mejor": int(mejor_b) if plat_b is not None else None,
+                   "verif_a_en_offset_adoptado": int(ver_a),
+                   "verif_b_en_offset_adoptado": int(ver_b) if ver_b is not None else None,
+                   "alineada": bool(ver_b is not None and ver_b >= 0.8 * len(anot)),
                    "parches_bajo_anotacion": len(filas),
                    "parches_por_clase": dict(porclase),
                    "aviso": "un parche sin anotacion NO es un negativo: el patologo marca solo la evidencia clara",

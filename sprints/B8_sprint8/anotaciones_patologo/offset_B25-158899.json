@@ -1,0 +1,27 @@
+{
+  "slide_id": "B25-158899",
+  "dx": 22708,
+  "dy": 0,
+  "patch_size": 256,
+  "offset_adoptado_por": "geometria del contenedor (el area no separa los candidatos)",
+  "n_parches": 4697,
+  "n_anotaciones": 38,
+  "criterio_a_mejor": 12,
+  "criterio_b_mejor": 10,
+  "verif_a_en_offset_adoptado": 27,
+  "verif_b_en_offset_adoptado": 27,
+  "alineada": false,
+  "parches_bajo_anotacion": 123,
+  "parches_por_clase": {
+    "microcalcificaciones": 7,
+    "Tumor": 15,
+    "DCIS": 13,
+    "Negative": 62,
+    "Nucleos alto grado": 2,
+    "Mitosis": 6,
+    "Necrosis": 10,
+    "Tejido Adiposo": 11
+  },
+  "aviso": "un parche sin anotacion NO es un negativo: el patologo marca solo la evidencia clara",
+  "geojson": "/media/administrador/Storage1/sdonoso/anotaciones/B25-158899.bif - GDT.geojson"
+}

@@ -1,0 +1,25 @@
+{
+  "slide_id": "110616",
+  "dx": 8981,
+  "dy": 0,
+  "patch_size": 256,
+  "offset_adoptado_por": "geometria del contenedor (el area no separa los candidatos)",
+  "n_parches": 2933,
+  "n_anotaciones": 30,
+  "criterio_a_mejor": 30,
+  "criterio_b_mejor": 26,
+  "verif_a_en_offset_adoptado": 30,
+  "verif_b_en_offset_adoptado": 24,
+  "alineada": true,
+  "parches_bajo_anotacion": 345,
+  "parches_por_clase": {
+    "Mucinoso": 247,
+    "CDIS_papilar": 84,
+    "NucleosBajoGrado": 2,
+    "AreaTubular": 7,
+    "Mitosis": 2,
+    "Tumor": 7
+  },
+  "aviso": "un parche sin anotacion NO es un negativo: el patologo marca solo la evidencia clara",
+  "geojson": "/media/administrador/Storage1/sdonoso/anotaciones/110616.bif - GDT.geojson"
+}

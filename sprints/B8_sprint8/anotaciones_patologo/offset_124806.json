@@ -1,0 +1,25 @@
+{
+  "slide_id": "124806",
+  "dx": 8890,
+  "dy": 0,
+  "patch_size": 256,
+  "offset_adoptado_por": "geometria del contenedor (el area no separa los candidatos)",
+  "n_parches": 2705,
+  "n_anotaciones": 34,
+  "criterio_a_mejor": 34,
+  "criterio_b_mejor": 34,
+  "verif_a_en_offset_adoptado": 34,
+  "verif_b_en_offset_adoptado": 34,
+  "alineada": true,
+  "parches_bajo_anotacion": 273,
+  "parches_por_clase": {
+    "Permeaciones vasculares": 12,
+    "Tumor": 150,
+    "Nucleos alto grado": 15,
+    "Mitosis": 7,
+    "Comedonecrosis": 61,
+    "CDIS_solido": 35
+  },
+  "aviso": "un parche sin anotacion NO es un negativo: el patologo marca solo la evidencia clara",
+  "geojson": "/media/administrador/Storage1/sdonoso/anotaciones/124806.bif - GDT.geojson"
+}

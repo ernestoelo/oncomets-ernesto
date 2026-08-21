@@ -1,0 +1,116 @@
+{
+  "unidad": "marcas de Mitosis (no parches, no detecciones)",
+  "total_marcas": 94,
+  "sobre_parche": 94,
+  "por_lamina": [
+    {
+      "slide_id": "129741",
+      "marcas": 26,
+      "sobre_parche": 26,
+      "dx": 3829,
+      "dy": 0,
+      "verif_a": 58,
+      "n_anotaciones": 61
+    },
+    {
+      "slide_id": "126504",
+      "marcas": 20,
+      "sobre_parche": 20,
+      "dx": 8981,
+      "dy": 0,
+      "verif_a": 44,
+      "n_anotaciones": 44
+    },
+    {
+      "slide_id": "128194",
+      "marcas": 17,
+      "sobre_parche": 17,
+      "dx": 7431,
+      "dy": 0,
+      "verif_a": 52,
+      "n_anotaciones": 52
+    },
+    {
+      "slide_id": "124729",
+      "marcas": 8,
+      "sobre_parche": 8,
+      "dx": 13358,
+      "dy": 0,
+      "verif_a": 45,
+      "n_anotaciones": 45
+    },
+    {
+      "slide_id": "124806",
+      "marcas": 6,
+      "sobre_parche": 6,
+      "dx": 8890,
+      "dy": 0,
+      "verif_a": 34,
+      "n_anotaciones": 34
+    },
+    {
+      "slide_id": "B25-158899",
+      "marcas": 6,
+      "sobre_parche": 6,
+      "dx": 22708,
+      "dy": 0,
+      "verif_a": 27,
+      "n_anotaciones": 38
+    },
+    {
+      "slide_id": "144317",
+      "marcas": 3,
+      "sobre_parche": 3,
+      "dx": 10349,
+      "dy": 0,
+      "verif_a": 40,
+      "n_anotaciones": 40
+    },
+    {
+      "slide_id": "164001",
+      "marcas": 3,
+      "sobre_parche": 3,
+      "dx": 11261,
+      "dy": 0,
+      "verif_a": 23,
+      "n_anotaciones": 30
+    },
+    {
+      "slide_id": "106552",
+      "marcas": 2,
+      "sobre_parche": 2,
+      "dx": 15501,
+      "dy": 0,
+      "verif_a": 39,
+      "n_anotaciones": 39
+    },
+    {
+      "slide_id": "103762",
+      "marcas": 1,
+      "sobre_parche": 1,
+      "dx": 19148,
+      "dy": 0,
+      "verif_a": 34,
+      "n_anotaciones": 34
+    },
+    {
+      "slide_id": "109609",
+      "marcas": 1,
+      "sobre_parche": 1,
+      "dx": 10030,
+      "dy": 0,
+      "verif_a": 25,
+      "n_anotaciones": 25
+    },
+    {
+      "slide_id": "110616",
+      "marcas": 1,
+      "sobre_parche": 1,
+      "dx": 8981,
+      "dy": 0,
+      "verif_a": 30,
+      "n_anotaciones": 30
+    }
+  ],
+  "aviso": "positivos parciales: 94 son las marcadas, no las que hay"
+}

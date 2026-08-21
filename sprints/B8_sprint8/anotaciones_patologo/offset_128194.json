@@ -1,0 +1,26 @@
+{
+  "slide_id": "128194",
+  "dx": 7431,
+  "dy": 0,
+  "patch_size": 256,
+  "offset_adoptado_por": "geometria del contenedor (el area no separa los candidatos)",
+  "n_parches": 4570,
+  "n_anotaciones": 52,
+  "criterio_a_mejor": 52,
+  "criterio_b_mejor": 52,
+  "verif_a_en_offset_adoptado": 52,
+  "verif_b_en_offset_adoptado": 51,
+  "alineada": true,
+  "parches_bajo_anotacion": 162,
+  "parches_por_clase": {
+    "Tumor": 54,
+    "Mitosis": 21,
+    "Nucleos alto grado": 9,
+    "AreaSolida": 22,
+    "Stroma": 35,
+    "Permeaciones vasculares": 6,
+    "Necrosis": 18
+  },
+  "aviso": "un parche sin anotacion NO es un negativo: el patologo marca solo la evidencia clara",
+  "geojson": "/media/administrador/Storage1/sdonoso/anotaciones/128194.bif - GDT.geojson"
+}
