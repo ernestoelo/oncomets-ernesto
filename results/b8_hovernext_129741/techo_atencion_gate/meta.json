@@ -1,0 +1,33 @@
+{
+  "que_es": "cota superior del recall de mitosis de los brazos 2 y 3 de la fase 3",
+  "no_es": [
+    "el recall de la fase 3",
+    "una medicion de HoVer-NeXt"
+  ],
+  "n_parches": 4799,
+  "n_region_anotada": 2496,
+  "n_mitosis_marcadas": 28,
+  "n_mitosis_casadas": 28,
+  "area_parche_mm2": 0.014170521600000001,
+  "area_region_anotada_mm2": 35.3696219136,
+  "y_corte_region": 49920,
+  "patch_size_level0": 256.0,
+  "mpp": 0.465,
+  "ks": [
+    20,
+    50,
+    100,
+    189,
+    300,
+    500,
+    750,
+    1000,
+    1392,
+    2000,
+    2496
+  ],
+  "brazos": [
+    "Mammoth"
+  ],
+  "fuente_atencion": "results/b8_hovernext_129741/interp/invasion_carcinoma_gate_pth_balance/129741/atencion_por_parche.npz"
+}

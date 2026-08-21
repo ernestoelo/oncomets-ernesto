@@ -172,8 +172,12 @@ def main():
     print("=" * 74)
     print("  'máscara' = la marca cae en el top-K por atención dentro de la región anotada")
     print("  'detectada' = HoVer-NeXt puso una mitosis encima (uno a uno, 30 µm)")
+    brazos = [(nom, at) for nom, at in (("CLAM", a_clam), ("Mammoth", a_mam))
+              if at is not None]
+    if len(brazos) < 2:
+        print(f"  (brazos presentes en el npz: {[b for b, _ in brazos]})")
     filas2 = []
-    for nombre, at in (("CLAM", a_clam), ("Mammoth", a_mam)):
+    for nombre, at in brazos:
         a_reg = at[idx_region]
         orden = idx_region[np.argsort(a_reg)[::-1]]
         print(f"\n{nombre}")
@@ -204,6 +208,7 @@ def main():
         plano_entre_um=[7.5, 75.0],
         offset_aplicado=dict(dx=off["dx"], dy=off["dy"]),
         y_corte_region=Y_CORTE_REGION, mpp=mpp,
+        brazos=[b for b, _ in brazos],
         fuente_detecciones=str(a.tsv), fuente_atencion=str(a.npz),
     )
     (out / "meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False))

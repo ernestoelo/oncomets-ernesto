@@ -1,0 +1,29 @@
+{
+  "que_es": "galeria de las 177 detecciones de mitosis de la 129741, en tres bloques, ordenada por parecido de pixeles",
+  "no_es": [
+    "una evaluacion de precision: las 164 sin marca NO son falsos positivos",
+    "un orden semantico: el parecido es de pixeles (16x16 RGB + histograma)",
+    "un orden por confianza: pred_mitosis.tsv no trae score"
+  ],
+  "unidad": "detecciones (177) en los bloques 1 y 2; marcas (26) en el bloque 3",
+  "n_detecciones": 177,
+  "n_acreditan_marca": 13,
+  "n_sin_marca": 164,
+  "n_marcas": 26,
+  "n_marcas_acreditadas": 13,
+  "n_marcas_falladas": 13,
+  "tolerancia_um": 30.0,
+  "ventana_px_level0": 128,
+  "ventana_um": 59.5,
+  "mpp": 0.465,
+  "orden": "scipy.cluster.hierarchy: PCA(20) + linkage average + optimal_leaf_ordering",
+  "k_familias": 4,
+  "familias_son": "corte del MISMO dendrograma; agrupan por color y textura, NO por entidad biologica",
+  "descriptores_son": "brillo medio, saturacion media y fraccion de pixeles de fondo (sat<=0.10 o gris>=225); NO son las features del clustering",
+  "offset_aplicado": {
+    "dx": 3829,
+    "dy": 0
+  },
+  "fuente_detecciones": "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/b8_hovernext_129741/hovernext/lizard_mitosis/129741/pred_mitosis.tsv",
+  "fuente_marcas": "/media/administrador/Storage1/sdonoso/hover_net/129741.bif - GDT.geojson"
+}

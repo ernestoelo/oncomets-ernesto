@@ -1,0 +1,38 @@
+{
+  "que_es": "AUC de ranking atencion-vs-marcas, brazos ['Mammoth'], fold 0",
+  "tarea": "invasion_carcinoma_gate_pth_balance",
+  "fold": 0,
+  "job_origen": "sgaete, 15-jul-2026 (checkpoint ajeno)",
+  "brazos": [
+    "Mammoth"
+  ],
+  "no_es": [
+    "el 0.890 de atencion_vs_patologo (esos son 12 ckpt de tasa mitotica)",
+    "una medida con sd entre checkpoints (aca hay UN par)"
+  ],
+  "clases": [
+    "invasivo",
+    "no_invasivo"
+  ],
+  "cabeza_verdadera": "invasivo",
+  "n_parches": 4799,
+  "paso_grilla": 256,
+  "y_corte_region": 49920,
+  "universos": {
+    "lamina": 4799,
+    "region_anotada": 2496
+  },
+  "grupos": {
+    "Nucleos alto grado": 13,
+    "Mitosis": 28,
+    "Immune cells": 23,
+    "Tumor": 48,
+    "necrosis": 18,
+    "Stroma": 12,
+    "Tejido Adiposo": 27
+  },
+  "seed": 1,
+  "n_perm": 2000,
+  "n_transl": 2000,
+  "fuente_atencion": "results/b8_hovernext_129741/interp/invasion_carcinoma_gate_pth_balance/129741/atencion_por_parche.npz"
+}

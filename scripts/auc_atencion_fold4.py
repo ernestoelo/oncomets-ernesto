@@ -69,7 +69,7 @@ def ic_hanley_mcneil(auc: float, n_pos: int, n_neg: int, z: float = 1.96):
     return ee, float(auc - z * ee), float(auc + z * ee)
 
 
-def figura(df, universo, path, clase_verdadera):
+def figura(df, universo, path, clase_verdadera, titulo):
     """Forest plot: AUC por grupo con el ANCHO de su IC a la vista.
 
     Es deliberado que no sean barras. Siete barras del mismo grosor sugieren siete numeros
@@ -82,15 +82,17 @@ def figura(df, universo, path, clase_verdadera):
     import matplotlib.pyplot as plt
 
     sub = df[df.es_cabeza_verdadera & (df.universo == universo)]
-    orden = (sub[sub.brazo == "Mammoth"].sort_values("auc_ranking", ascending=False)
+    presentes = [b for b in ("CLAM", "Mammoth") if (sub.brazo == b).any()]
+    orden = (sub[sub.brazo == presentes[-1]].sort_values("auc_ranking", ascending=False)
              .grupo.tolist())
     col = {"CLAM": "#386271", "Mammoth": "#B85C38"}
-    off = {"CLAM": -0.17, "Mammoth": 0.17}
+    off = ({"CLAM": -0.17, "Mammoth": 0.17} if len(presentes) > 1
+           else {presentes[0]: 0.0})
 
     fig, ax = plt.subplots(figsize=(7.8, 4.6))
     ax.axvline(0.5, color="#888888", lw=1.1, ls="--", zorder=1)
     for gi, g in enumerate(orden):
-        for brazo in ("CLAM", "Mammoth"):
+        for brazo in presentes:
             r = sub[(sub.grupo == g) & (sub.brazo == brazo)].iloc[0]
             y = len(orden) - 1 - gi + off[brazo]
             ax.plot([r.ic95_lo, r.ic95_hi], [y, y], "-", color=col[brazo], lw=2.0, alpha=.85)
@@ -100,7 +102,7 @@ def figura(df, universo, path, clase_verdadera):
     ax.set_yticklabels([f"{g}  (n={int(sub[sub.grupo == g].n_parches.iloc[0])})"
                         for g in orden][::-1], fontsize=9)
     ax.set_xlabel("AUC de ranking de la atencion  (nulo 0.5; barra = IC 95 % de Hanley-McNeil)")
-    ax.set_title(f"129741 — atencion vs marcas del patologo, par del fold 4 (CDIS `_ci_reform`)\n"
+    ax.set_title(f"{titulo}\n"
                  f"cabeza de la clase verdadera '{clase_verdadera}'; universo = {universo}",
                  fontsize=10.5)
     ax.set_xlim(-0.02, 1.02)
@@ -132,6 +134,15 @@ def main():
     ap.add_argument("--out-dir", default=str(
         REPO / "results/b8_hovernext_129741/auc_fold4"))
     ap.add_argument("--clases", default="no,si", help="orden de --auto-label-dict")
+    # La tarea deja de estar cableada: el encargo 1 corre el MISMO analisis sobre el gate
+    # de invasivo. Los defaults reproducen la corrida del fold 4 tal cual.
+    ap.add_argument("--tarea", default="carcinoma_ductal_insitu_presente_ci_reform")
+    ap.add_argument("--fold", type=int, default=4)
+    ap.add_argument("--job-origen", default="4589")
+    ap.add_argument("--prefijo", default="auc_atencion_fold4",
+                    help="prefijo de los PNG y del CSV; distinto por tarea para no pisar")
+    ap.add_argument("--titulo", default="129741 — atencion vs marcas del patologo, "
+                                        "par del fold 4 (CDIS `_ci_reform`)")
     ap.add_argument("--n-perm", type=int, default=2000)
     ap.add_argument("--n-transl", type=int, default=2000)
     ap.add_argument("--seed", type=int, default=1)
@@ -147,7 +158,12 @@ def main():
     z = np.load(a.npz)
     coords = z["coords_level0"].astype(np.int64)
     N = len(coords)
-    brazos = {"CLAM": z["atencion_clam_todas"], "Mammoth": z["atencion_mammoth_todas"]}
+    # Un brazo puede faltar: el gate de invasivo solo tiene Mammoth hasta que B3 entrene
+    # el CLAM plano. Se mide con el que hay.
+    brazos = {nom: z[k] for nom, k in (("CLAM", "atencion_clam_todas"),
+                                       ("Mammoth", "atencion_mammoth_todas")) if k in z}
+    if not brazos:
+        raise ValueError(f"{a.npz}: no trae ningun brazo de atencion")
     i_true = int(z["clase_rama"])          # la cabeza de la clase verdadera ("si")
     step = paso_de_grilla(coords)
 
@@ -181,7 +197,7 @@ def main():
     for k in sorted(grupos, key=lambda g: -len(grupos[g])):
         print(f"  grupo    {k:22s} n={len(grupos[k])}")
 
-    csv_path = out / "auc_atencion_fold4.csv"
+    csv_path = out / f"{a.prefijo}.csv"
     filas = []
     for brazo, A in ({} if a.from_csv else brazos).items():
         for ci, cname in enumerate(clases):
@@ -223,7 +239,7 @@ def main():
         df.to_csv(csv_path, index=False)
 
     for uname in universos:
-        figura(df, uname, out / f"auc_atencion_fold4_{uname}.png", clases[i_true])
+        figura(df, uname, out / f"{a.prefijo}_{uname}.png", clases[i_true], a.titulo)
 
     for uname in universos:
         print("\n" + "-" * 78)
@@ -232,18 +248,20 @@ def main():
         print(f"{'grupo':22s} {'n':>4} {'brazo':>8} {'AUC':>7} {'IC 95 %':>16} "
               f"{'pct med':>8} {'p_trasl':>8}")
         sub = df[df.es_cabeza_verdadera & (df.universo == uname)]
+        primero = list(brazos)[0]     # el rotulo va en la 1a fila del grupo, sea cual sea
         for g in sorted(grupos, key=lambda k: -df[(df.grupo == k)].auc_ranking.max()):
             for brazo in brazos:
                 r = sub[(sub.grupo == g) & (sub.brazo == brazo)].iloc[0]
                 pt = "     -  " if not np.isfinite(r.p_traslacion) else f"{r.p_traslacion:>8.4f}"
-                print(f"{g if brazo=='CLAM' else '':22s} "
-                      f"{r.n_parches if brazo=='CLAM' else '':>4} {brazo:>8} "
+                print(f"{g if brazo==primero else '':22s} "
+                      f"{r.n_parches if brazo==primero else '':>4} {brazo:>8} "
                       f"{r.auc_ranking:>7.3f} {r.ic95_lo:>7.3f}–{r.ic95_hi:<8.3f} "
                       f"{r.percentil_mediano:>7.1f}% {pt}")
 
     meta = dict(
-        que_es="AUC de ranking atencion-vs-marcas del par CLAM/Mammoth del fold 4",
-        tarea="carcinoma_ductal_insitu_presente_ci_reform", fold=4, job_origen=4589,
+        que_es=f"AUC de ranking atencion-vs-marcas, brazos {list(brazos)}, "
+               f"fold {a.fold}",
+        tarea=a.tarea, fold=a.fold, job_origen=a.job_origen, brazos=list(brazos),
         no_es=["el 0.890 de atencion_vs_patologo (esos son 12 ckpt de tasa mitotica)",
                "una medida con sd entre checkpoints (aca hay UN par)"],
         clases=clases, cabeza_verdadera=clases[i_true],
@@ -253,7 +271,7 @@ def main():
         seed=a.seed, n_perm=a.n_perm, n_transl=a.n_transl, fuente_atencion=str(a.npz),
     )
     (out / "meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False))
-    print(f"\n[out] {out}/auc_atencion_fold4.csv  ({len(df)} filas)")
+    print(f"\n[out] {csv_path}  ({len(df)} filas)")
 
 
 if __name__ == "__main__":

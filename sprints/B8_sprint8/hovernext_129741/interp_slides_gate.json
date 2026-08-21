@@ -1,0 +1,26 @@
+{
+  "invasion_carcinoma_gate_pth_balance": {
+    "fold": 0,
+    "classes": [
+      "invasivo",
+      "no_invasivo"
+    ],
+    "nota_label_dict": "`label_dict` vacio en TASK_CONFIGS (main.py:371-375) => --auto-label-dict, que ordena alfabeticamente: invasivo=0, no_invasivo=1. Confirmado contra el probability_log del fold 0 de sgaete: la 129741 sale true_label=0 con prob_class_0=0.99999.",
+    "ckpt_clam": null,
+    "nota_ckpt_clam": "CLAM plano del gate NO existe en disco. Lo entrena B3 sobre el MISMO split_dir y la misma config, y entonces se rellena este campo y se re-corre.",
+    "ckpt_mammoth": "/media/administrador/Storage1/sdonoso/clam_testing/results_mammoth_5fold_balanced_tcga_sc/invasion_carcinoma_gate_pth_balance_mammoth_5fold_s1/s_0_checkpoint.pt",
+    "nota_ckpt_mammoth": "AJENO (sgaete), se LEE y no se toca. Su experiment.txt declara model_type clam_mb y es FALSO: el state_dict trae attention_net.0.mammoth.* => es clam_mammoth (30 expertos, 10 slots, 16 cabezas, slot_dim 256, keep_slots=False).",
+    "slides": [
+      {
+        "slide_id": "129741",
+        "cohort": "privado",
+        "y_true": 0,
+        "label": "invasivo",
+        "h5": "/media/administrador/Storage1/sdonoso/clam_environ/environ/features/h5_files/129741.h5",
+        "wsi": "/media/administrador/Storage1/sdonoso/wsi/129741/129741.bif",
+        "mpp_confiable": true,
+        "nota": "Cae en TEST del fold 0 de environ/splits_5fold_balanced/invasion_carcinoma_gate_pth_balance_100 (no vista en entrenamiento). DOS regiones de escaneo: region[1].y=49920; las anotaciones caen todas ABAJO."
+      }
+    ]
+  }
+}

@@ -193,22 +193,41 @@ def main():
         n_classes = len(cfg["classes"])
         print(f"\n{'=' * 74}\nTAREA {task}  (n_classes={n_classes}, fold {cfg['fold']})")
         print("  cargando brazos...")
-        clam, _ = build_arm("clam", n_classes, cfg["ckpt_clam"], args.device)
-        mam, _ = build_arm("clam_mammoth", n_classes, cfg["ckpt_mammoth"], args.device)
+        # Un brazo puede venir en `null`: el gate de invasivo tiene checkpoint Mammoth en
+        # disco y el CLAM plano NO existe todavia (lo entrena B3). Se corre con el brazo
+        # que hay en vez de esperar. Con los dos presentes la salida no cambia en nada.
+        clam = build_arm("clam", n_classes, cfg["ckpt_clam"], args.device)[0] \
+            if cfg.get("ckpt_clam") else None
+        mam = build_arm("clam_mammoth", n_classes, cfg["ckpt_mammoth"], args.device)[0] \
+            if cfg.get("ckpt_mammoth") else None
+        if clam is None and mam is None:
+            raise ValueError(f"{task}: los dos brazos vienen en null, no hay nada que medir")
+        if clam is None or mam is None:
+            print(f"  !! brazo ausente: se corre solo "
+                  f"{'Mammoth' if clam is None else 'CLAM'}")
 
         for sl in cfg["slides"]:
             sid = sl["slide_id"]
             short = sid.split(".")[0]
             print(f"\n  --- {short}  (clase real: {sl['label']}, {sl['cohort']})")
             feats, coords = load_feats_and_coords(sl["h5"])
-            A_c, Araw_c, prob_c, yhat_c = get_attention(clam, feats, args.device)
-            A_m, Araw_m, prob_m, yhat_m = get_attention(mam, feats, args.device)
-            print(f"      N={feats.shape[0]} parches | CLAM pred={yhat_c} "
-                  f"p={prob_c[yhat_c]:.3f} | Mammoth pred={yhat_m} p={prob_m[yhat_m]:.3f}")
+            res = {}
+            for nombre, modelo in (("clam", clam), ("mammoth", mam)):
+                if modelo is None:
+                    continue
+                A, Araw, prob, yhat = get_attention(modelo, feats, args.device)
+                res[nombre] = dict(A=A, Araw=Araw, prob=prob, yhat=yhat)
+                print(f"      N={feats.shape[0]} parches | {nombre} pred={yhat} "
+                      f"p={prob[yhat]:.3f}")
 
-            # rama de atencion de la clase VERDADERA (comparable entre brazos)
+            # rama de atencion de la clase VERDADERA (comparable entre brazos). La clase
+            # PREDICHA queda registrada aparte: leer la rama predicha cuando el modelo se
+            # equivoca mide la rama equivocada, que es de donde sale el AUC 0,382 de sgaete.
             ci = sl["y_true"]
-            a_c, a_m = A_c[ci], A_m[ci]
+            for r in res.values():
+                r["a"] = r["A"][ci]
+            a_c = res["clam"]["a"] if "clam" in res else None
+            a_m = res["mammoth"]["a"] if "mammoth" in res else None
 
             thumb, scale, mag, w0, h0 = get_wsi_thumbnail(sl["wsi"])
             if np.nanmax(coords) <= 1.1:
@@ -232,13 +251,16 @@ def main():
             um_parche = ps0 * mpp if (mpp and ps0) else None
 
             od = out_root / task / short; od.mkdir(parents=True, exist_ok=True)
-            save_single(thumb, coords, a_c, scale, ps0, od / "attention_clam.png",
-                        f"CLAM · {short} · {sl['label']}")
-            save_single(thumb, coords, a_m, scale, ps0, od / "attention_mammoth.png",
-                        f"Mammoth · {short} · {sl['label']}")
-            save_pair_figure(thumb, coords, a_c, a_m, scale, ps0,
-                             od / "attention_side_by_side.png",
-                             f"{short} — clase {sl['label']} (rama {ci})")
+            if a_c is not None:
+                save_single(thumb, coords, a_c, scale, ps0, od / "attention_clam.png",
+                            f"CLAM · {short} · {sl['label']}")
+            if a_m is not None:
+                save_single(thumb, coords, a_m, scale, ps0, od / "attention_mammoth.png",
+                            f"Mammoth · {short} · {sl['label']}")
+            if a_c is not None and a_m is not None:
+                save_pair_figure(thumb, coords, a_c, a_m, scale, ps0,
+                                 od / "attention_side_by_side.png",
+                                 f"{short} — clase {sl['label']} (rama {ci})")
 
             st = dict(
                 slide_id=sid, task=task, fold=cfg["fold"], cohort=sl["cohort"],
@@ -247,13 +269,21 @@ def main():
                 patch_size_level0=float(ps0),
                 patch_size_level0_por_magnif=float(ps0_mag),
                 campo_fisico_parche_um=um_parche,
-                clam=dict(pred=yhat_c, prob=float(prob_c[yhat_c]),
-                          entropia_atencion=norm_entropy(a_c)),
-                mammoth=dict(pred=yhat_m, prob=float(prob_m[yhat_m]),
-                             entropia_atencion=norm_entropy(a_m)),
-                spearman_atencion=spearman(a_c, a_m),
-                jaccard_top5pct=topk_jaccard(a_c, a_m, 0.05),
-                jaccard_top1pct=topk_jaccard(a_c, a_m, 0.01),
+                rama_leida=int(ci), rama_leida_es="clase verdadera",
+                clam=(dict(pred=res["clam"]["yhat"],
+                           prob=float(res["clam"]["prob"][res["clam"]["yhat"]]),
+                           acierta=bool(res["clam"]["yhat"] == ci),
+                           entropia_atencion=norm_entropy(a_c)) if a_c is not None else None),
+                mammoth=(dict(pred=res["mammoth"]["yhat"],
+                              prob=float(res["mammoth"]["prob"][res["mammoth"]["yhat"]]),
+                              acierta=bool(res["mammoth"]["yhat"] == ci),
+                              entropia_atencion=norm_entropy(a_m)) if a_m is not None else None),
+                spearman_atencion=(spearman(a_c, a_m)
+                                   if a_c is not None and a_m is not None else None),
+                jaccard_top5pct=(topk_jaccard(a_c, a_m, 0.05)
+                                 if a_c is not None and a_m is not None else None),
+                jaccard_top1pct=(topk_jaccard(a_c, a_m, 0.01)
+                                 if a_c is not None and a_m is not None else None),
             )
             (od / "attention_stats.json").write_text(json.dumps(st, indent=2))
 
@@ -262,25 +292,47 @@ def main():
                 # atenciones. Se guardan las normalizadas (softmax sobre N) de la rama
                 # de la clase verdadera, que son las que se comparan entre brazos, y
                 # ademas las matrices completas por si otra rama hace falta.
-                np.savez_compressed(
-                    od / "atencion_por_parche.npz",
-                    coords_level0=coords.astype(np.float64),
-                    patch_size_level0=np.float64(ps0),
-                    clase_rama=np.int64(ci),
-                    atencion_clam=a_c, atencion_mammoth=a_m,
-                    atencion_clam_todas=A_c, atencion_mammoth_todas=A_m,
-                    atencion_clam_presoftmax=Araw_c,
-                    atencion_mammoth_presoftmax=Araw_m,
-                )
+                # Un brazo ausente NO se rellena con NaN: sus claves simplemente no
+                # estan, y `brazos` dice cuales hay. Un centinela NaN se propaga en
+                # silencio; una clave que falta se nota.
+                dump = dict(coords_level0=coords.astype(np.float64),
+                            patch_size_level0=np.float64(ps0),
+                            clase_rama=np.int64(ci),
+                            brazos=np.array(sorted(res.keys())))
+                for nombre, r in res.items():
+                    dump[f"atencion_{nombre}"] = r["a"]
+                    dump[f"atencion_{nombre}_todas"] = r["A"]
+                    dump[f"atencion_{nombre}_presoftmax"] = r["Araw"]
+                    dump[f"pred_{nombre}"] = np.int64(r["yhat"])
+                np.savez_compressed(od / "atencion_por_parche.npz", **dump)
                 print(f"      atencion por parche -> {od / 'atencion_por_parche.npz'}")
 
             summary.append(st)
-            print(f"      Spearman(atencion)={st['spearman_atencion']:.3f}  "
-                  f"Jaccard top-5%={st['jaccard_top5pct']:.3f}  "
-                  f"entropia CLAM={st['clam']['entropia_atencion']:.3f} / "
-                  f"Mammoth={st['mammoth']['entropia_atencion']:.3f}")
+            if st["spearman_atencion"] is not None:
+                print(f"      Spearman(atencion)={st['spearman_atencion']:.3f}  "
+                      f"Jaccard top-5%={st['jaccard_top5pct']:.3f}  "
+                      f"entropia CLAM={st['clam']['entropia_atencion']:.3f} / "
+                      f"Mammoth={st['mammoth']['entropia_atencion']:.3f}")
+            else:
+                unico = "clam" if st["clam"] else "mammoth"
+                print(f"      un solo brazo ({unico}): entropia de la atencion "
+                      f"{st[unico]['entropia_atencion']:.3f}, "
+                      f"pred={st[unico]['pred']} (rama leida {ci}, "
+                      f"{'acierta' if st[unico]['acierta'] else 'FALLA'})")
 
-    (out_root / "attention_summary.json").write_text(json.dumps(summary, indent=2))
+    # `attention_summary.json` es un agregador de NOMBRE FIJO: escribirlo de una pasada
+    # con lo de esta corrida destruye lo de las anteriores, que es justo la referencia
+    # contra la que se compara ([[agregador-nombre-fijo-pisa-referencia]]). Se MEZCLA:
+    # cada (tarea, slide) recalculado pisa su propia fila y el resto sobrevive. El guard
+    # va aca, no en el handoff.
+    agg = out_root / "attention_summary.json"
+    previo = json.loads(agg.read_text()) if agg.exists() else []
+    nuevas = {(r["task"], r["slide_id"]) for r in summary}
+    fusion = [r for r in previo if (r["task"], r["slide_id"]) not in nuevas] + summary
+    if len(fusion) > len(summary):
+        print(f"  ({len(fusion) - len(summary)} filas previas conservadas en "
+              f"attention_summary.json)")
+    agg.write_text(json.dumps(fusion, indent=2))
     print(f"\n\nListo. {len(summary)} slides. Salida: {out_root}")
 
 

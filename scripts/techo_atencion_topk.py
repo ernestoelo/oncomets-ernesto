@@ -52,7 +52,11 @@ def cargar(npz_path: Path, csv_path: Path, mpp: float):
     z = np.load(npz_path)
     coords = z["coords_level0"]
     ps0 = float(z["patch_size_level0"])
-    a_clam, a_mam = z["atencion_clam"], z["atencion_mammoth"]
+    # Un brazo puede faltar (el gate de invasivo corre solo con Mammoth hasta que B3
+    # entrene el CLAM plano). Se devuelve None y el que llama filtra; NO se rellena con
+    # NaN, que se propagaria en silencio hasta la figura.
+    a_clam = z["atencion_clam"] if "atencion_clam" in z else None
+    a_mam = z["atencion_mammoth"] if "atencion_mammoth" in z else None
 
     ann = pd.read_csv(csv_path)
     # `clases` es multi-etiqueta separada por '|': un parche puede ser "Mitosis|Tumor".
@@ -84,13 +88,15 @@ def figura(df, denom, area_total, path):
 
     fig, ax = plt.subplots(figsize=(7.4, 4.8))
     estilos = {"CLAM": ("#386271", "o", "-"), "Mammoth": ("#B85C38", "s", "-")}
-    for nombre, (col, mk, ls) in estilos.items():
+    presentes = [b for b in estilos if (df.brazo == b).any()]
+    for nombre in presentes:
+        col, mk, ls = estilos[nombre]
         s = df[df.brazo == nombre].sort_values("area_mm2")
         ax.plot(s.area_mm2, s.techo_recall, ls, marker=mk, color=col,
                 lw=1.9, ms=5, label=f"{nombre} (techo)")
 
     # la referencia sin informacion: top-K sorteado al azar dentro de la region
-    s = df[df.brazo == "CLAM"].sort_values("area_mm2")
+    s = df[df.brazo == presentes[0]].sort_values("area_mm2")
     ax.plot(s.area_mm2, s.esperado_al_azar / denom, ":", color="#999999", lw=1.6,
             label="azar (top-K sorteado)")
 
@@ -153,8 +159,12 @@ def main():
     print("-" * 74)
 
     denom = len(mit_idx)
+    brazos = [(nom, at) for nom, at in (("CLAM", a_clam), ("Mammoth", a_mam))
+              if at is not None]
+    if len(brazos) < 2:
+        print(f"brazos presentes en el npz : {[b for b, _ in brazos]}")
     filas = []
-    for nombre, at in (("CLAM", a_clam), ("Mammoth", a_mam)):
+    for nombre, at in brazos:
         for k, cae in techo(coords, at, idx_region, mit_idx, KS):
             # Referencia sin informacion: si el top-K se sorteara al azar dentro de la
             # region, cuantas marcas esperariamos. Es el punto de comparacion honesto.
@@ -172,7 +182,7 @@ def main():
     df = pd.DataFrame(filas)
     df.to_csv(out / "techo_atencion_topk.csv", index=False)
 
-    for nombre in ("CLAM", "Mammoth"):
+    for nombre, _ in brazos:
         sub = df[df.brazo == nombre]
         print(f"\n{nombre}")
         print(f"{'K':>6} {'area mm²':>9} {'% region':>9} {'mitosis':>8} "
@@ -191,7 +201,7 @@ def main():
         n_mitosis_marcadas=len(mit_xy), n_mitosis_casadas=denom,
         area_parche_mm2=area_mm2, area_region_anotada_mm2=len(idx_region) * area_mm2,
         y_corte_region=Y_CORTE_REGION, patch_size_level0=ps0, mpp=a.mpp,
-        ks=KS, fuente_atencion=str(a.npz),
+        ks=KS, brazos=[b for b, _ in brazos], fuente_atencion=str(a.npz),
     )
     (out / "meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False))
     print(f"\nSalida: {out}")

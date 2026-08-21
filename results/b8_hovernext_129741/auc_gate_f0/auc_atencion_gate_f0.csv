@@ -1,0 +1,29 @@
+brazo,cabeza,es_cabeza_verdadera,universo,n_universo,grupo,n_parches,auc_ranking,ee_hanley,ic95_lo,ic95_hi,ancho_ic,percentil_mediano,p_permutacion,p_traslacion,n_traslaciones,auc_nula_media
+Mammoth,invasivo,True,lamina,4799,Nucleos alto grado,13,0.8682,0.064,0.7428,0.9936,0.2508,87.35,0.0004997501249375312,0.03948025987006497,2000.0,0.5733487149787545
+Mammoth,invasivo,True,lamina,4799,Mitosis,28,0.8625,0.0443,0.7756,0.9494,0.1738,86.08,0.0004997501249375312,0.002127659574468085,469.0,0.7062465896172072
+Mammoth,invasivo,True,lamina,4799,Immune cells,23,0.3351,0.0495,0.2381,0.4322,0.1941,26.97,,,,
+Mammoth,invasivo,True,lamina,4799,Tumor,48,0.8258,0.0369,0.7535,0.8981,0.1446,82.96,0.0004997501249375312,0.05967741935483871,619.0,0.6802384365254562
+Mammoth,invasivo,True,lamina,4799,necrosis,18,0.5228,0.0691,0.3873,0.6583,0.2709,67.37,,,,
+Mammoth,invasivo,True,lamina,4799,Stroma,12,0.5268,0.0848,0.3607,0.693,0.3323,70.11,,,,
+Mammoth,invasivo,True,lamina,4799,Tejido Adiposo,27,0.0431,0.0082,0.027,0.0592,0.0322,3.33,,,,
+Mammoth,invasivo,True,region_anotada,2496,Nucleos alto grado,13,0.8694,0.0638,0.7444,0.9944,0.25,87.37,0.0004997501249375312,0.031984007996002,2000.0,0.5596789884710602
+Mammoth,invasivo,True,region_anotada,2496,Mitosis,28,0.8649,0.0441,0.7785,0.9512,0.1728,85.95,0.0004997501249375312,0.0007535795026375283,1326.0,0.7119982681653465
+Mammoth,invasivo,True,region_anotada,2496,Immune cells,23,0.3393,0.0501,0.2412,0.4375,0.1963,27.33,,,,
+Mammoth,invasivo,True,region_anotada,2496,Tumor,48,0.8308,0.0366,0.7591,0.9025,0.1434,83.03,0.0004997501249375312,0.056818181818181816,1847.0,0.6686165650189092
+Mammoth,invasivo,True,region_anotada,2496,necrosis,18,0.5285,0.0694,0.3924,0.6646,0.2722,68.28,,,,
+Mammoth,invasivo,True,region_anotada,2496,Stroma,12,0.5312,0.0851,0.3645,0.6979,0.3334,70.9,,,,
+Mammoth,invasivo,True,region_anotada,2496,Tejido Adiposo,27,0.0422,0.0083,0.0259,0.0584,0.0325,3.37,,,,
+Mammoth,no_invasivo,False,lamina,4799,Nucleos alto grado,13,0.8897,0.0596,0.7728,1.0066,0.2338,89.79,,,,
+Mammoth,no_invasivo,False,lamina,4799,Mitosis,28,0.8469,0.0461,0.7565,0.9373,0.1808,82.64,,,,
+Mammoth,no_invasivo,False,lamina,4799,Immune cells,23,0.2741,0.0433,0.1891,0.359,0.1699,17.42,,,,
+Mammoth,no_invasivo,False,lamina,4799,Tumor,48,0.8275,0.0368,0.7555,0.8996,0.1441,81.19,,,,
+Mammoth,no_invasivo,False,lamina,4799,necrosis,18,0.5926,0.0708,0.454,0.7313,0.2774,65.76,,,,
+Mammoth,no_invasivo,False,lamina,4799,Stroma,12,0.4774,0.0821,0.3166,0.6383,0.3218,68.57,,,,
+Mammoth,no_invasivo,False,lamina,4799,Tejido Adiposo,27,0.214,0.0334,0.1486,0.2795,0.1309,20.28,,,,
+Mammoth,no_invasivo,False,region_anotada,2496,Nucleos alto grado,13,0.8945,0.0586,0.7797,1.0094,0.2296,90.26,,,,
+Mammoth,no_invasivo,False,region_anotada,2496,Mitosis,28,0.8535,0.0454,0.7644,0.9425,0.1781,83.37,,,,
+Mammoth,no_invasivo,False,region_anotada,2496,Immune cells,23,0.2764,0.0438,0.1906,0.3623,0.1717,17.64,,,,
+Mammoth,no_invasivo,False,region_anotada,2496,Tumor,48,0.8356,0.0362,0.7646,0.9066,0.1419,81.82,,,,
+Mammoth,no_invasivo,False,region_anotada,2496,necrosis,18,0.6023,0.0709,0.4633,0.7413,0.2781,66.89,,,,
+Mammoth,no_invasivo,False,region_anotada,2496,Stroma,12,0.4803,0.0824,0.3188,0.6418,0.3229,69.46,,,,
+Mammoth,no_invasivo,False,region_anotada,2496,Tejido Adiposo,27,0.2164,0.0339,0.15,0.2829,0.1329,20.8,,,,

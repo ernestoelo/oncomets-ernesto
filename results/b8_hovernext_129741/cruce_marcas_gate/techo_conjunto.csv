@@ -1,0 +1,12 @@
+brazo,K,pct_region,en_mascara,detectadas,ambas,cota_min,recall_conjunto
+Mammoth,20,0.8,0,13,0,0,0.0
+Mammoth,50,2.0,0,13,0,0,0.0
+Mammoth,100,4.0,1,13,1,1,0.0385
+Mammoth,189,7.6,8,13,6,8,0.2308
+Mammoth,300,12.0,11,13,8,11,0.3077
+Mammoth,500,20.0,17,13,10,13,0.3846
+Mammoth,750,30.0,26,13,13,13,0.5
+Mammoth,1000,40.1,26,13,13,13,0.5
+Mammoth,1392,55.8,26,13,13,13,0.5
+Mammoth,2000,80.1,26,13,13,13,0.5
+Mammoth,2496,100.0,26,13,13,13,0.5
