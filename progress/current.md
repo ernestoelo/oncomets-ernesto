@@ -4398,3 +4398,74 @@ Cero GPU, cero escrituras fuera del repo. El plan ejecutable quedó en
 Rama `main`, sincronizada con `origin`, **sin jobs propios**. El nodo lo ocupan `sgaete` 5052
 (`phase3_s`, corriendo hace 6 h 20) y `capstone` 5063; `nschiaff` 5061 en cola por `Resources`.
 Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
+
+---
+
+## Sesión 18 — 21-ago-2026 · se ejecuta la Fase A: A0, A1 y A2
+
+> La sesión 17 dejó el plan escrito y sin correr nada. Ésta ejecutó las tres primeras piezas de
+> la Fase A, todas en CPU y sin tocar la cola de la GPU. Docs bajo
+> `sprints/B8_sprint8/encargos_sebastian/`.
+
+### 1. A0 (camino crítico) — las 13 que se escapan estaban segmentadas
+
+`a0_segmentadas_o_no.md` · `scripts/a0_segmentadas_o_no.py` ·
+`results/b8_hovernext_129741/a0_falladas/`
+
+**13 de 13** de las marcas falladas tienen un núcleo segmentado **encima** (mediana 2,1 µm del
+centroide de la marca, máximo 6,7 µm, sobre marcas de 16,7 µm de lado). **Cero** fallos de
+segmentación. **12 recibieron `epithelial-cell` y 1 `neutrophil`**, y ninguna tiene una
+instancia de clase `mitosis` a 15 µm a la redonda.
+
+Control positivo (patrón P3): las 13 acreditadas salen **indistinguibles** en distancia,
+densidad de núcleos y tamaño de marca — la única variable que separa los grupos es la clase.
+
+⇒ **El arreglo es la cabeza de clase, no la segmentación**, y la etapa cara ya está pagada con
+su salida en disco. Queda descartado tocar segmentación, cambiar de modelo de instancias o
+re-correr HoVer-NeXt para el eje de mitosis.
+
+**Abierto**: si `mitosis` quedó **segunda por poco** (se arregla con umbral) o no aparece (hay
+que reentrenar). Exige las probabilidades por instancia, que viven **por tesela** en
+`*_raw_256_cls.zip` y obligan a reconstruir la grilla.
+
+### 2. A1 — encargo 2: la galería de las 177
+
+`a1_galeria_177.md` · `scripts/galeria_mitosis_129741.py` ·
+`results/b8_hovernext_129741/galeria_mitosis/`
+
+Tres láminas de contacto a resolución nativa (ventana 128 px = 59,5 µm): **164** sin marca,
+**13** acertadas, **13** marcas que se escapan. **164 + 13 = 177**, la verificación del plan,
+cierra contra `pred_mitosis.tsv`.
+
+**Sí se parecen**: cortando el dendrograma en cuatro, **145 de las 164 (88 %) caen en una sola
+familia** — epitelio denso, 2 % de fondo. Se despega una familia de **15** recortes claros con
+**65 % de fondo** (tejido laxo o borde), más 4 sueltos.
+
+### 3. A2 — encargo 1, brazo de hoy: la atención del gate de invasivo
+
+`a2_atencion_gate_invasivo.md` · `interp_slides_gate.json` ·
+`results/b8_hovernext_129741/{auc_gate_f0,techo_atencion_gate,cruce_marcas_gate}/`
+
+Fold 0 (donde la 129741 cae en test), leyendo la rama de la clase verdadera `invasivo` y
+registrando la predicha — **coinciden**, el modelo acierta con p = 1,000, así que acá la
+elección de rama no cambia nada.
+
+| | AUC Mitosis | percentil med. | top-50 | top-300 |
+|---|---|---|---|---|
+| gate · Mammoth | 0,865 (0,778–0,951) | **86** | **0/26** | **11/26** |
+| CDIS · Mammoth | 0,919 (0,848–0,989) | 95 | 4/26 | 22/26 |
+| CDIS · CLAM | 0,876 (0,793–0,960) | 94 | 2/26 | 19/26 |
+
+**Patrón P2 de manual**: los tres AUC se solapan y los top-K son radicalmente distintos. El
+aporte nuevo respecto del caso del 14-ago es el simétrico — **el AUC tampoco sirve para
+comparar dos candidatos a filtro**. Chequeo de sanidad: en K=2496 los dos convergen a 13/26.
+
+**Media respuesta**: con un solo brazo en el gate no se puede separar si el recorte peor es de
+**la tarea** o del **brazo**. Lo separa B3.
+
+### 4. Estado al cierre
+
+Rama `main`, **sin jobs propios**; el nodo lo ocupan `sgaete` 5052 (`phase3_s`, 11 h 28) y
+`capstone` 5065, con `nschiaff` 5061 y `gvenegas` 5064 en cola. **Nada de la Fase B se lanzó**:
+B3 sigue sin pre-registro y sin pasar por `reviewer`. Pendientes de la Fase A: **A2.bis** (la
+escalera de brazos), **A3** (offsets de las 11) y **A4** (atención de necrosis).
