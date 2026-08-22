@@ -49,6 +49,9 @@ from scripts.atencion_vs_anotaciones import (  # noqa: E402  (reuso, no copia)
 Y_CORTE_REGION = 49920
 
 # Grupos para los que vale la pena pagar los nulos (el resto solo lleva AUC + IC).
+# Es el DEFAULT del eje de mitosis; se puede cambiar con --grupos-nulo sin tocar el codigo
+# (A4 necesita `necrosis`, que no esta en esta lista). Dejarlo como default mantiene las
+# corridas de mitosis byte-identicas.
 GRUPOS_CON_NULO = ["Mitosis", "Nucleos alto grado", "Tumor"]
 
 
@@ -143,6 +146,9 @@ def main():
                     help="prefijo de los PNG y del CSV; distinto por tarea para no pisar")
     ap.add_argument("--titulo", default="129741 — atencion vs marcas del patologo, "
                                         "par del fold 4 (CDIS `_ci_reform`)")
+    ap.add_argument("--grupos-nulo", default=",".join(GRUPOS_CON_NULO),
+                    help="grupos para los que se pagan los nulos (permutacion + traslacion "
+                         "rigida), separados por coma. Default = el eje de mitosis.")
     ap.add_argument("--n-perm", type=int, default=2000)
     ap.add_argument("--n-transl", type=int, default=2000)
     ap.add_argument("--seed", type=int, default=1)
@@ -154,6 +160,7 @@ def main():
     out = Path(a.out_dir); out.mkdir(parents=True, exist_ok=True)
     rng = np.random.default_rng(a.seed)
     clases = [c.strip() for c in a.clases.split(",")]
+    grupos_nulo = [g.strip() for g in a.grupos_nulo.split(",") if g.strip()]
 
     z = np.load(a.npz)
     coords = z["coords_level0"].astype(np.int64)
@@ -214,7 +221,7 @@ def main():
                     ee, lo, hi = ic_hanley_mcneil(auc, len(idx), u_n - len(idx))
 
                     pp = pt = nacc = nmean = float("nan")
-                    if ci == i_true and g in GRUPOS_CON_NULO:
+                    if ci == i_true and g in grupos_nulo:
                         pp, _ = p_permutacion(u_ranks, gi, a.n_perm, rng)
                         sub = np.empty(N); sub[uidx] = u_ranks
                         pt, _, nacc, nmean = p_traslacion(
@@ -268,7 +275,8 @@ def main():
         n_parches=int(N), paso_grilla=int(step), y_corte_region=Y_CORTE_REGION,
         universos={k: int(len(v)) for k, v in universos.items()},
         grupos={k: int(len(v)) for k, v in grupos.items()},
-        seed=a.seed, n_perm=a.n_perm, n_transl=a.n_transl, fuente_atencion=str(a.npz),
+        seed=a.seed, n_perm=a.n_perm, n_transl=a.n_transl, grupos_con_nulo=grupos_nulo,
+        fuente_atencion=str(a.npz),
     )
     (out / "meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False))
     print(f"\n[out] {csv_path}  ({len(df)} filas)")

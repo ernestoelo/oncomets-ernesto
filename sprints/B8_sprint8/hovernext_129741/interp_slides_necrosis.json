@@ -1,0 +1,29 @@
+{
+  "carcinoma_ductal_insitu_necrosis": {
+    "fold": 0,
+    "classes": [
+      "ausente",
+      "no_identificado",
+      "presente_central",
+      "presente_focal"
+    ],
+    "nota_label_dict": "El `label_dict` HARDCODEADO en clam_environ/main.py:157-161 es {'no identificado':0,'focal':1,'central':2} y esta STALE: sus strings no existen en el CSV. El CSV real (environ/csv_privado/dataset_carcinoma_ductal_in_situ_necrosis_label.csv, 90 filas) trae {ausente:32, presente_central:30, no_identificado:27, presente_focal:1}. La corrida uso --auto-label-dict (alfabetico) => ausente=0, no_identificado=1, presente_central=2, presente_focal=3. Confirmado por dos vias: el checkpoint tiene attention_c con 4 salidas (4 clases, no 3), y en split_0_results.pkl la 129741 sale label=2, que es presente_central, su etiqueta en el CSV.",
+    "ckpt_clam": "/media/administrador/Storage1/sdonoso/clam_environ/environ/results_modelo/carcinoma_ductal_insitu_necrosis_s1/s_0_checkpoint.pt",
+    "nota_ckpt_clam": "CLAM_MB PLANO, verificado por state_dict (25 claves, cero 'mammoth'), embed_dim 512, 4 clases. AJENO (clam_environ), se LEE y no se toca. Checkpoint del 21-abr-2026; las features de la 129741 son del 9-mar-2026 y es cohorte PRIVADA, o sea que el drift de re-extraccion de TCGA del 26-27 jun no la toca.",
+    "ckpt_mammoth": null,
+    "nota_ckpt_mammoth": "No existe brazo Mammoth para esta tarea/split. A4 es la mitad CLAM del encargo 3; la otra mitad (la clase `dead`) exige el ensemble PanNuke = B2.",
+    "aviso_modelo_debil": "ESTE MODELO ES DEBIL Y HAY QUE DECIRLO EN CUALQUIER LECTURA: entrenado con train=45 / val=7 / test=9, su summary.csv da test_auc 0.557 y test_acc 0.222, y colapsa (predice la clase 1 en 8 de 9 laminas de test). Sobre la 129741 se EQUIVOCA: rama verdadera 2 (presente_central), predice 0 (ausente) con probs [0.599, 0.106, 0.294, 0.000].",
+    "slides": [
+      {
+        "slide_id": "129741",
+        "cohort": "privado",
+        "y_true": 2,
+        "label": "presente_central",
+        "h5": "/media/administrador/Storage1/sdonoso/clam_environ/environ/features/h5_files/129741.h5",
+        "wsi": "/media/administrador/Storage1/sdonoso/wsi/129741/129741.bif",
+        "mpp_confiable": true,
+        "nota": "Cae en TEST del fold 0 de environ/splits/carcinoma_ductal_insitu_necrosis_100 (no vista en entrenamiento). DOS regiones de escaneo: region[1].y=49920; las anotaciones caen todas ABAJO. El geojson tiene 6 poligonos de `necrosis`."
+      }
+    ]
+  }
+}

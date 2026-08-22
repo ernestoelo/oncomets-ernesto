@@ -1,0 +1,25 @@
+{
+  "slide_id": "129741",
+  "task": "carcinoma_ductal_insitu_necrosis",
+  "fold": 0,
+  "cohort": "privado",
+  "clase_real": "presente_central",
+  "n_patches": 4799,
+  "level0_mag": 20.0,
+  "mpp_x": 0.465,
+  "patch_size_level0": 256.0,
+  "patch_size_level0_por_magnif": 512.0,
+  "campo_fisico_parche_um": 119.04,
+  "rama_leida": 2,
+  "rama_leida_es": "clase verdadera",
+  "clam": {
+    "pred": 0,
+    "prob": 0.5993682146072388,
+    "acierta": false,
+    "entropia_atencion": 0.7820057481510245
+  },
+  "mammoth": null,
+  "spearman_atencion": null,
+  "jaccard_top5pct": null,
+  "jaccard_top1pct": null
+}

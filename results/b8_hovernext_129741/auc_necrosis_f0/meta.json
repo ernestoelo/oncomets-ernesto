@@ -1,0 +1,46 @@
+{
+  "que_es": "AUC de ranking atencion-vs-marcas, brazos ['CLAM'], fold 0",
+  "tarea": "carcinoma_ductal_insitu_necrosis",
+  "fold": 0,
+  "job_origen": "clam_environ/results_modelo (ajeno, 21-abr-2026)",
+  "brazos": [
+    "CLAM"
+  ],
+  "no_es": [
+    "el 0.890 de atencion_vs_patologo (esos son 12 ckpt de tasa mitotica)",
+    "una medida con sd entre checkpoints (aca hay UN par)"
+  ],
+  "clases": [
+    "ausente",
+    "no_identificado",
+    "presente_central",
+    "presente_focal"
+  ],
+  "cabeza_verdadera": "presente_central",
+  "n_parches": 4799,
+  "paso_grilla": 256,
+  "y_corte_region": 49920,
+  "universos": {
+    "lamina": 4799,
+    "region_anotada": 2496
+  },
+  "grupos": {
+    "Nucleos alto grado": 13,
+    "Mitosis": 28,
+    "Immune cells": 23,
+    "Tumor": 48,
+    "necrosis": 18,
+    "Stroma": 12,
+    "Tejido Adiposo": 27
+  },
+  "seed": 1,
+  "n_perm": 2000,
+  "n_transl": 2000,
+  "grupos_con_nulo": [
+    "necrosis",
+    "Mitosis",
+    "Tumor",
+    "Nucleos alto grado"
+  ],
+  "fuente_atencion": "results/b8_hovernext_129741/interp/carcinoma_ductal_insitu_necrosis/129741/atencion_por_parche.npz"
+}
