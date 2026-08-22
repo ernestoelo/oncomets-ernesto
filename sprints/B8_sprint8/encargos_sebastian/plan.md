@@ -303,7 +303,7 @@ que pidió Sebastián.
 > entrenamiento a la vez, que es exactamente lo que P1 existe para evitar.
 > **La corrida pareada es `clam_testing/main.py` SIN `--use_mammoth`** — mismo archivo, único
 > delta el flag. Verificado que sin el flag `CLAM_MB` construye la `nn.Linear` de siempre
-> (`clam_testing/models/model_clam.py:282-284`) y que `use_mammoth` no toca ninguna otra rama.
+> (`clam_testing/models/model_clam.py:303`, rama `else` 301-306) y que `use_mammoth` no toca ninguna otra rama.
 >
 > Tres cosas más que hay que saber antes del `sbatch`:
 > - **Containment**: `main.py` y `core_utils.py` escriben **solo** bajo `args.results_dir`
