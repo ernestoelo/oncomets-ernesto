@@ -149,7 +149,20 @@ def main():
                 avisos.append(f"quedan {free/2**30:.1f} GB de GPU libres: bajar --batch_size "
                               f"o esperar a que se descongestione")
     except Exception as e:
-        fallos.append(f"no se pudo consultar torch/cuda: {e!r}")
+        # Distinguir DOS cosas que se ven parecidas y no lo son:
+        #   - no hay GPU / torch roto  -> FALLA: inference.py:87-90 aborta y no hay corrida
+        #   - la GPU esta LLENA AHORA   -> AVISO: es transitorio (otro job sin --gres puede
+        #     estar ocupandola, ver la nota de cortesia de CLAUDE.md) y para cuando arranque
+        #     la inferencia puede haberse liberado.
+        # Tratar lo segundo como FALLA es peor que inutil en un barrido: un job que espero
+        # dias en cola se saltaria TODAS las laminas y saldria en blanco.
+        msg = str(e).lower()
+        if "out of memory" in msg:
+            avisos.append(f"la GPU esta llena AHORA y no se pudo medir memoria libre ({e!r}). "
+                          f"Es transitorio: se sigue. Si al arrancar la inferencia sigue llena, "
+                          f"main.py va a fallar solo y la marca .done no se escribe.")
+        else:
+            fallos.append(f"no se pudo consultar torch/cuda: {e!r}")
 
     print("-" * 70)
     for w in avisos:

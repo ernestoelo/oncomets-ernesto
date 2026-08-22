@@ -60,7 +60,7 @@ METRIC=${METRIC:-f1}
 TTA=${TTA:-4}
 BATCH=${BATCH:-32}
 
-OUTBASE=$REPO/results/b8_hovernext_12laminas/hovernext/$TAG
+OUTBASE=${OUTBASE:-$REPO/results/b8_hovernext_12laminas/hovernext/$TAG}
 
 # Las 11 que faltan. La 129741 NO esta: ya corrio (job 5008) y su salida vive en
 # results/b8_hovernext_129741/. El agregado de las 12 se arma en CPU despues.
@@ -69,13 +69,28 @@ OUTBASE=$REPO/results/b8_hovernext_12laminas/hovernext/$TAG
 SLIDES=(126504 128194 124729 124806 B25-158899 144317 164001 106552 103762 109609 110616)
 MARCAS=(20     17     8      6      6          3      3      2      1      1      1)
 
+# Override para reusar este mismo bucle con otra lista (lo usa B2: la 129741 sola con el
+# ensemble de PanNuke, que es la UNICA via a la clase `dead` = necrosis). Se pasa con '+'
+# y no con coma, por el workaround L.a: --export de SLURM parte los valores por coma.
+#   sbatch --export=ALL,CP=pannuke_convnextv2_tiny_1+pannuke_convnextv2_tiny_2+pannuke_convnextv2_tiny_3,\
+#          TAG=pannuke,SLIDES=129741,OUTBASE=... --mem=128G --time=10:00:00 <este script>
+if [ -n "${SLIDES_OVERRIDE:-}" ]; then
+    IFS='+' read -r -a SLIDES <<< "${SLIDES_OVERRIDE//,/+}"
+    MARCAS=(); for _ in "${SLIDES[@]}"; do MARCAS+=("?"); done
+    echo "[override] lista de laminas reemplazada: ${SLIDES[*]}"
+fi
+
 mkdir -p "$SHIM" "$OUTBASE" "$REPO/logs" || exit 1
 
 echo "================================================================"
 echo "B1 — HoVer-NeXt sobre las 11 laminas anotadas restantes"
 echo "  job $SLURM_JOB_ID  |  $(date -Is)  |  $(hostname)"
 echo "  CP=$CP  TAG=$TAG  METRIC=$METRIC  TTA=$TTA  BATCH=$BATCH"
-echo "  laminas: ${#SLIDES[@]}   marcas que aportan: 68  (+26 de la 129741 = 94)"
+if [ -z "${SLIDES_OVERRIDE:-}" ]; then
+  echo "  laminas: ${#SLIDES[@]}   marcas que aportan: 68  (+26 de la 129741 = 94)"
+else
+  echo "  laminas: ${#SLIDES[@]}   (lista por override, el conteo de marcas no aplica)"
+fi
 echo "  salida: $OUTBASE"
 echo "  SIN --keep_raw"
 echo "================================================================"
@@ -95,6 +110,7 @@ for i in "${!SLIDES[@]}"; do
     echo ""
     echo "────────────────────────────────────────────────────────────────"
     echo "[$((i+1))/${#SLIDES[@]}] $SID   (${MARCAS[$i]} marcas de Mitosis)   $(date -Is)"
+    echo "    salida: $OUT"
     echo "────────────────────────────────────────────────────────────────"
 
     if [ -f "$DONE" ]; then
