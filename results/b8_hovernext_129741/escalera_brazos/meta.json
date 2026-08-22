@@ -1,0 +1,34 @@
+{
+  "que_es": "A2.bis — recall contra carga de revision, por brazo",
+  "unidad_del_recall": "marcas del patologo (no parches, no detecciones)",
+  "n_marcas": 26,
+  "n_marcas_region": 26,
+  "n_detecciones": 177,
+  "n_detecciones_region": 82,
+  "marcas_detectadas": 13,
+  "convencion_area_nucleo": {
+    "ventana_px": 128,
+    "lado_um": 59.5,
+    "area_mm2": 0.003543,
+    "aclaracion": "convencion, no medida: un nucleo es un punto"
+  },
+  "area_parche_mm2": 0.014171,
+  "n_parches_region": 2496,
+  "area_region_mm2": 35.37,
+  "brazos_de_atencion": [
+    "CLAM",
+    "Mammoth"
+  ],
+  "tolerancia_um": 30.0,
+  "y_corte_region": 49920,
+  "mpp": 0.465,
+  "etiqueta": "CDIS fold 4",
+  "chequeo_sanidad": "CIERRA",
+  "no_es": [
+    "precision de HoVer-NeXt",
+    "un recall sobre las mitosis que HAY",
+    "una comparacion CLAM-vs-Mammoth de rendimiento"
+  ],
+  "fuente_atencion": "results/b8_hovernext_129741/interp/carcinoma_ductal_insitu_presente_ci_reform/129741/atencion_por_parche.npz",
+  "fuente_detecciones": "/media/administrador/Storage1/sdonoso/clam_testing2/oncomets-ernesto/results/b8_hovernext_129741/hovernext/lizard_mitosis/129741/pred_mitosis.tsv"
+}
