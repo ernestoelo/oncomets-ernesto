@@ -4401,6 +4401,124 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 20 — 22-ago-2026 · Fase A CERRADA (A2.bis, A4) y Fase B encolada (B3, B1)
+
+Cierra la Fase A entera y pone dos de los tres jobs de la Fase B en la cola. **Cero
+resultados de GPU todavía**: la GPU está tomada y los dos jobs propios quedaron `PD`.
+
+### 1. A2.bis — la escalera de brazos, en la unidad de la pregunta
+
+`a2bis_escalera_brazos.md` · `scripts/escalera_brazos.py` ·
+`results/b8_hovernext_129741/{escalera_brazos,escalera_brazos_gate}/`
+
+Contesta la pregunta de Ernesto (¿el detector agrega algo sobre la atención sola?)
+comparando **a carga fija**, no a K fijo. Chequeo de sanidad: **cierra en las dos tareas**
+(atención → 26/26, HoVer-NeXt → 13/26, azar converge).
+
+Objetos para llegar al mismo recall, CDIS fold 4, denominador **26 marcas**:
+
+| llegar a | CLAM | Mammoth | CLAM∩Mam | CLAM∪Mam | HoVer-NeXt solo |
+|---|---|---|---|---|---|
+| 8/26 | 71 parches | 70 | **33** | 80 | — |
+| **13/26** | 130 | 95 | **84** | 126 | **82 núcleos** |
+| 19/26 | 300 | **217** | 241 | 251 | imposible |
+| 26/26 | 2496 | 2496 | 2496 | 2496 | imposible |
+
+Tres cosas que **solo aparecen con este eje**:
+
+- **La unión nunca es el mejor brazo.** A K fijo parecía el mejor de todos (24/26 en
+  K=300); a carga fija queda igual que CLAM y por debajo de Mammoth. Su ventaja era **el
+  tamaño de la máscara**, no la calidad del ranking.
+- **La intersección es el brazo más eficiente** hasta ~16/26: la mitad de parches que
+  cualquiera de los dos solos.
+- **HoVer-NeXt está TOPADO en 13/26** a cualquier carga; la atención sola llega a 26/26.
+  Por debajo de 13/26 piden objetos comparables; por encima, el detector no es opción.
+
+**Y la advertencia que gobierna el eje de área**: el área de un núcleo es una **convención**
+(ventana de inspección), no una medida. El «6,3× menos área» se da vuelta a **0,7×** con una
+ventana de 384 px. **El eje de objetos no depende de nada** y es el que sostiene las
+conclusiones. Sensibilidad completa en el §4 del documento.
+
+El gate pide **2,5 a 4 veces más carga** que CDIS para el mismo recall, y en K=100 queda **al
+nivel del azar** (1,0/26 contra 1,0/26 esperado por sorteo). Si eso es la tarea o el brazo lo
+separa B3.
+
+### 2. A4 — encargo 3, mitad CLAM: la atención de necrosis
+
+`a4_atencion_necrosis.md` · `interp_slides_necrosis.json` ·
+`results/b8_hovernext_129741/{interp/carcinoma_ductal_insitu_necrosis,auc_necrosis_f0}/`
+
+Rama verdadera (`presente_central`): **AUC 0,899** (IC 0,804–0,995), percentil mediano
+**96,8 %**, nulo por **traslación rígida** p = **0,0005**. Específica: necrosis primera y
+separada, con Tejido Adiposo en 0,088 (la atención lo **evita**).
+
+**La rama que se lee decide todo**: la rama que el modelo **predijo** (`ausente`) da **0,500
+exacto**, el azar. `sgaete` midió sobre la predicha y obtuvo 0,382. **Queda pendiente
+preguntarle si es deliberado**, y éste es el número a mostrarle.
+
+**Hallazgo que no esperábamos:** el modelo **se equivoca de clase** en esta lámina (predice
+`ausente`, la verdad es `presente_central`) y su cabeza de `presente_central` **igual localiza**
+la necrosis en el percentil 96,8. **Localización y decisión se disocian.**
+
+**Aviso que va antes de cualquier número:** el modelo es **débil** (train 45 / val 7 / test 9,
+test_auc 0,557, test_acc 0,222, colapsa en 8 de 9). No se afirma que sirva.
+
+De paso: el `label_dict` hardcodeado de `clam_environ/main.py:157-161` está **stale** (sus
+strings no existen en el CSV); la corrida usó `--auto-label-dict`, y el mapeo real se confirmó
+por dos vías independientes.
+
+### 3. B3 — pre-registrado, revisado y ENCOLADO (job 5069)
+
+`prereg_gate_invasivo.md` · `scripts/run_b3_gate_clam_fold0.slurm`
+
+Regla 9 cumplida en orden: pre-registro → `reviewer` → commit → `sbatch`. El `reviewer`
+**aprobó con observaciones** y las tres están aplicadas.
+
+**Lo que el `reviewer` encontró y yo había afirmado de más:** `clam_testing/main.py` tiene
+**mtime 15-jul 18:07** y el comparador corrió **09:12–13:25 del mismo día**, o sea que el
+entrypoint **no es demostrablemente el mismo**. El §3 ahora lo declara con los tres datos que
+acotan el riesgo (los dirs `_ci` creados a las 18:01 ⇒ edición aditiva sobre `TASK_CONFIGS`;
+las claves de `settings` idénticas a las serializadas; el `csv_path` igual) y queda como
+**riesgo 4** en vez de darse por resuelto. `core_utils.py` (28-may) y `model_clam.py` (4-jun)
+**sí** son anteriores: **el bucle de entrenamiento está limpio**.
+
+Comparador recomputado desde el `.pkl`: Mammoth fold 0 → **bal_acc 0,9194 · AUC 0,9681**,
+confusión [[188,12],[8,71]], test n=279 (200/79). Descriptor **en sync** con el join (regla 10).
+
+Además: guard que **aborta si el directorio de resultados existe** (una re-corrida
+**concatena** los `probability_logs` sin avisar, `core_utils.py:157-168`).
+
+### 4. B1 — encolado (job 5070)
+
+`scripts/run_hovernext_slides.slurm`. Las **11** láminas restantes en **un solo job** (un token
+de GPU), reanudable por una marca `.done` que se escribe **después** de que `main.py` salga 0.
+**Sin `--keep_raw`**: ~142 MB por lámina en vez de ~10,5 GB.
+
+**Presupuesto medido, no a ojo:** 18 min y 3199 Mpx de la 129741 contra 17,3 Gpx de las 11 =
+**~103 min**. Las 12 comparten que **no exponen `thumbnail`**, así que las 12 teselan el lienzo
+entero y la extrapolación es apples-to-apples. `--time=5:00:00`.
+
+**Preflight corrido en CPU sobre las 11: 11/11 OK**, driver `ventana` con mpp 0,465 en todas
+(workaround M verificado, ninguna cae a `generic-tiff`).
+
+Eso obligó a tocar `preflight_hovernext.py` dos veces, y las dos son lecciones:
+
+- Trataba `keep_raw=0` como **falla incondicional**. Ese guard protegía contra **olvidarse** el
+  flag, no contra **elegirlo**: ahora hace falta `--sin-raw-a-proposito` para bajarlo a aviso.
+- Su chequeo de GPU **fallaba duro cuando la GPU estaba llena**. En un barrido eso es peor que
+  inútil: un job que esperó días en cola se saltaría **las 11** y saldría en blanco. Ahora
+  distingue «no hay GPU» (falla) de «está llena ahora» (aviso, transitorio).
+
+### 5. Estado al cierre
+
+Rama `main`. **Jobs propios: 5069 (B3) y 5070 (B1), los dos `PD (Priority)`.** El nodo lo tiene
+`gvenegas` 5064 con `TimeLimit=UNLIMITED`, y delante van `sdonoso` 5066/5067/5068 (de **otro
+operador**, `WorkDir=Test_D/`, verificado con `scontrol` — workaround L.b). Con dos `UNLIMITED`
+en juego no hay backfill y `StartTime` sale `Unknown`: **puede ser días**.
+
+**B2 NO se lanzó.** El script quedó listo y verificado (los 3 pesos de PanNuke cargan,
+preflight OK con el ensemble), pero sin `sbatch`.
+
 ## Sesión 19 — 21-ago-2026 · A3: los 12 offsets, y dos bugs que la 129741 no disparaba
 
 > Sesión corta, cerrada a pedido de Ernesto para que una sesión limpia siga con la Fase B.
