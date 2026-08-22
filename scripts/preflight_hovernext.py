@@ -37,6 +37,12 @@ def main():
     ap.add_argument("--output-root", required=True)
     ap.add_argument("--metric", default="f1")
     ap.add_argument("--keep-raw", type=int, default=1)
+    ap.add_argument("--sin-raw-a-proposito", action="store_true",
+                    help="declara que --keep_raw=0 es una DECISION, no un olvido. Sin este "
+                         "flag, keep_raw=0 sigue siendo FALLA (que es lo que protege contra "
+                         "correr 40 min y descubrir que el raw no se guardo). Con el, baja a "
+                         "AVISO. Lo usa B1, que barre 11 laminas y no necesita el raw: son "
+                         "~142 MB por lamina en vez de ~10,5 GB.")
     a = ap.parse_args()
 
     print("=" * 70)
@@ -107,9 +113,15 @@ def main():
                       "distinto nº de clases y distinta magnificacion de crop")
 
     # --- 4. el flag que decide si sobrevive el insumo de la fase 2.b ---
-    if not a.keep_raw:
+    if not a.keep_raw and not a.sin_raw_a_proposito:
         fallos.append("--keep_raw esta APAGADO: main.py:121-126 borra los zarr _inst/_cls "
-                      "al terminar y la fase 2.b (BCB-map / raw class) se queda sin insumo")
+                      "al terminar y la fase 2.b (BCB-map / raw class) se queda sin insumo. "
+                      "Si es a proposito, pasar --sin-raw-a-proposito")
+    elif not a.keep_raw:
+        avisos.append("--keep_raw APAGADO A PROPOSITO: NO van a quedar los zarr _inst/_cls, "
+                      "asi que esta salida no sirve para preguntar si un nucleo fue "
+                      "segmentado-pero-mal-clasificado (eso es A0 y ya se contesto sobre la "
+                      "129741). Ahorra ~10,4 GB por lamina.")
     else:
         print("[ok] --keep_raw activo: sobreviven _inst.zip (BCB) y _cls.zip (raw class)")
 
