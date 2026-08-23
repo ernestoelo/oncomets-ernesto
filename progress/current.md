@@ -4401,6 +4401,68 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 21 — 22-ago-2026 · sesión de PLAN: el deck del lunes, especificado y sin escribir
+
+Sesión **de planificación**, cerrada a pedido de Ernesto para que una sesión limpia ejecute.
+**Cero código, cero GPU, cero láminas tocadas.** Lo que produjo es el plan completo de la
+actualización del deck para la reunión del **lunes 24-ago**, en
+`sprints/B8_sprint8/presentacion_b8/plan_actualizacion_24ago.md`.
+
+### 1. La restricción que ordenó todo el plan
+
+**No entra ningún resultado nuevo.** B3 (5069) y B1 (5070) siguen `PD` detrás del
+`llm_labeller` de `gvenegas` (`TimeLimit=UNLIMITED`, 11 h 40 al cierre) y B2 nunca se lanzó.
+Verificado que `results/b8_hovernext_12laminas/hovernext/lizard_mitosis/<slide>/` está
+**vacío en las 11 láminas**: el job creó los directorios y no escribió nada.
+
+⇒ El deck se arma **solo con lo que ya está medido en disco**, o sea la Fase A entera.
+
+### 2. Las cuatro decisiones de Ernesto sobre el plan
+
+| decisión | qué implica |
+|---|---|
+| **la necrosis queda FUERA** | el encargo 3 pide comparar la necrosis de HoVer-NeXt contra las marcas, y esa mitad exige `dead` (solo PanNuke = B2, sin lanzar). **A4 no se presenta**: sin la mitad del detector contesta otra pregunta |
+| **fecha 24-ago-2026** | `correcciones.txt` decía 22; la reunión es el lunes |
+| **los objetivos reemplazan la lámina de título** | `TPL_KEEP` pasa de `(0,1)` a `(0,)` y la posición 2 la ocupa una lámina nuestra con el molde de la ex-13 |
+| **solo material ya medido** | nada de esperar a B1/B2/B3 |
+
+### 3. El deck queda en 17 láminas
+
+16 − 3 (se van `lam_simil_ramas`, `lam_simil_reporte`, y `lam_objetivos_propuestos` se muda a
+la posición 2) + **4 nuevas**, todas con datos en disco:
+
+| nueva | fuente | forma |
+|---|---|---|
+| CLAM, Mammoth y el detector a igual carga | A2.bis §2-§3 | tabla nativa |
+| El checkpoint de carcinoma invasivo | A2 §2-§4 | dos bloques + tabla nativa |
+| Las 13 que se escapan sí estaban segmentadas | A0 | tabla nativa (control positivo P3) |
+| Las 164 detecciones sin marca | A1 | láminas de contacto (excepción legítima a «todo nativo») |
+
+Más **13 correcciones de forma** sobre las láminas que quedan, y el guion entero reescrito de
+**9131 palabras (~70 min) a ~4500 (~35 min)**, que es el pedido transversal de Ernesto.
+
+### 4. Los dos datos que hubo que verificar contra el código, y no estaban escritos
+
+- **Ernesto atribuyó a HoVer-NeXt las 246 dimensiones, que son de SI-MIL.** HoVer-Net es el
+  **front-end de SI-MIL** (`papers_b8.md:87`) y de su mapa de núcleos salen las 246 mediciones
+  por parche (`simil_estudio.md:40`). HoVer-NeXt no tiene nada de eso.
+- **Las dimensiones reales de HoVer-NeXt**, verificadas contra
+  `hover_next_reference/lizard_convnextv2_tiny/params.toml` y `src/inference.py:249-250`:
+  codificador **ConvNeXtV2-tiny**, decodificador de instancia **5 canales** (2 de regresión +
+  3 clases: fondo / interior / borde) y decodificador de clase **8 canales** (fondo + las 7 de
+  Lizard-Mitosis). Eso es lo que hace legible el `(n_tiles, 8, 256, 256)` del `_cls.zip`.
+- **Las 4 clases de tasa mitótica**, contadas sobre
+  `environ/csv/dataset_grado_histologico_tasa_mitotica_label.csv`: `no_identificado` (693),
+  `score_1` (636), `score_2` (287), `score_3` (254).
+
+### 5. Estado al cierre
+
+Rama `main`, sincronizada con `origin`. **5069 y 5070 siguen `PD`**; el nodo lo tiene
+`gvenegas` 5064 con `UNLIMITED`, y delante de los nuestros hay tres jobs ajenos de otro
+operador (5066/5067/5068). **B2 sigue sin lanzar.** Nada de la Fase B se movió.
+
+---
+
 ## Sesión 20 — 22-ago-2026 · Fase A CERRADA (A2.bis, A4) y Fase B encolada (B3, B1)
 
 Cierra la Fase A entera y pone dos de los tres jobs de la Fase B en la cola. **Cero
