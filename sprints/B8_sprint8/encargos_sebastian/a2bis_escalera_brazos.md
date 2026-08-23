@@ -46,6 +46,25 @@ denominador **26 marcas**:
 | 22/26 | 450 | **300** | 382 | 372 | imposible |
 | 26/26 | 2496 | 2496 | 2496 | 2496 | imposible |
 
+> **CORRECCIÓN 22-ago-2026 (al armar el deck) — la fila de 26/26 no dice lo que dice el
+> encabezado de la tabla.** Los `2496` son el **chequeo de sanidad** del §1 (la región
+> entera), no la carga mínima para llegar a 26/26, que es lo que promete la columna
+> «llegar a». Reconstruida la tabla desde `escalera_brazos.csv`, el primer K del barrido
+> donde cada brazo alcanza las 26 marcas es: **CLAM K=1392 (1392 parches)**, **Mammoth
+> K=750 (750)**, **CLAM∩Mammoth K=1392 (915)**, **CLAM∪Mammoth K=750 (1022)**. Las otras
+> seis filas reproducen exactas y no se tocan.
+>
+> Por qué se coló: en la meseta la interpolación que produce el resto de la tabla es
+> **degenerada** (entre dos K con el mismo recall no hay pendiente), así que la fila del
+> tope pide el **primer cruce medido** y no una interpolación. Mezclar las dos convenciones
+> en una tabla exige decirlo; poner el valor del chequeo de sanidad, no.
+>
+> **Nada de lo que el documento concluye se mueve**: las conclusiones del §2 y del §3 se
+> apoyan en las filas de 8 a 22, y el argumento del techo («por encima de 13/26 el detector
+> no es una opción a ninguna carga») es sobre HoVer-NeXt, cuya celda decía «imposible» y
+> sigue diciéndolo. Por eso el deck del 24-ago presenta las filas **8, 13, 19 y 22**, y deja
+> el tope de la atención dicho en prosa en vez de en una fila.
+
 Tres cosas que **solo aparecen con este eje**:
 
 1. **La unión nunca es el mejor brazo.** A K fijo `CLAM∪Mammoth` parecía el mejor de todos
