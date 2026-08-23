@@ -4401,6 +4401,69 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 23 — 22-ago-2026 · el guion escrito ENTERO, sin recortar y sin aplicar
+
+Sesión corta, de CPU: ni GPU ni jobs. Ejecuta el §13 del
+`plan_actualizacion_24ago.md`, que era lo único que le faltaba al deck del lunes, y lo deja
+**a mitad de camino**: el guion de las **17 láminas está escrito** y **el recorte no**.
+Cerrada a pedido de Ernesto para que una sesión limpia siga.
+
+### 1. El entregable
+
+`sprints/B8_sprint8/presentacion_b8/guion_borrador_24ago.md`, **sin aplicar al generador**.
+Trae las 17 láminas, incluidas las **cinco que tenían `PLACEHOLDER_…`** (objetivos del
+sprint y las cuatro de la Fase A), más una cabecera con el presupuesto por lámina, la lista
+de lo que el recorte no puede comer y los cuatro arcos ya corregidos.
+
+Cada cifra sale de su fuente y no del guion viejo: `a2bis_escalera_brazos.md` §2-§3,
+`a2_atencion_gate_invasivo.md` §2-§3, `a0_segmentadas_o_no.md` §1-§4,
+`a1_galeria_177.md` §1-§2, y las dimensiones de HoVer-NeXt de
+[[hovernext-salida-geometria-y-clases]] (entrada RGB a 0,5 µm/px, ConvNeXtV2-tiny,
+decodificador de instancia de 5 canales, de clase de 8, 13 en total).
+
+### 2. Lo que NO se hizo, y es lo que bloquea presentar
+
+**El recorte.** El borrador son **7160 palabras (~55 min)** contra el objetivo de **~4500
+(~35 min)**. La cobertura está completa y la densidad no: las doce viejas quedaron más
+cortas que su versión previa, pero las cinco nuevas suman unas 2100 palabras que antes no
+existían, así que el total apenas baja de 7220 a 7160. Falta también la pasada de
+`@humanizer-es`, que es el procedimiento de la convención, y aplicar los bloques a las
+llamadas `notes()` del generador.
+
+### 3. Cuatro arcos que el guion vigente tenía rotos, y el borrador corrige
+
+Salieron de leer las 17 notas en un archivo corrido, que es el método
+([[humanizer-es-skill]] §3), y ninguno se ve lámina por lámina dentro del generador:
+
+1. La **portada** anunciaba «al final, después de los objetivos que propongo»: los objetivos
+   se mudaron a la posición 2 el 22-ago y lo que cierra ahora es la Fase A.
+2. La **lámina 12** decía «falta algo que no medimos, es lo primero que yo haría» sobre si
+   los núcleos fallados estaban segmentados. Lo contesta la **lámina 16**, que entró en esa
+   misma tanda: la promesa quedaba viva veinte segundos antes de su respuesta.
+3. La **lámina 13** cerraba la presentación («con eso cierro») con **cuatro láminas por
+   delante**. Es exactamente el defecto que [[humanizer-es-skill]] §3 describe.
+4. La **lámina 13** conservaba «el recorte no compra marcas, compra área», que Ernesto
+   rechazó por poco profesional en `correcciones.txt`; el cuerpo de la lámina ya se había
+   corregido el 22-ago y el guion no.
+
+Los cuatro son consecuencia de la misma causa: la reestructura del 22-ago movió láminas y el
+guion se quedó describiendo el recorrido anterior.
+
+### 4. Decisión de Ernesto en esta sesión
+
+**`CLAM_Sprint8_sin_notas.pptx` ya no hace falta.** Sale de la lista de derivables a
+regenerar; `sin_notas.py` queda en el repo sin correr.
+
+### 5. Estado al cierre
+
+- Rama `main`, árbol limpio antes de esta sesión. Jobs **5069 (B3) y 5070 (B1) siguen `PD`**,
+  detrás del `llm_labeller` de `gvenegas` (12 h 24 al cierre) y de tres ajenos de la cuenta
+  compartida. **B2 sigue sin lanzar.**
+- El deck **sigue sin poder presentarse**: las notas del `.pptx` son las viejas, con los
+  cinco marcadores puestos.
+
+---
+
 ## Sesión 22 — 22-ago-2026 · el plan del deck, EJECUTADO salvo el guion
 
 Ejecuta `sprints/B8_sprint8/presentacion_b8/plan_actualizacion_24ago.md`. **Trabajo de CPU y

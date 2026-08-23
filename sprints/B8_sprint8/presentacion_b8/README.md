@@ -1379,9 +1379,63 @@ de título del template: `TPL_KEEP` pasó de `(0, 1)` a `(0,)`.
 
 ### Lo que quedó pendiente
 
-- **El guion entero (§13 del plan).** Sigue en **9131 palabras (~70 min)** contra el objetivo
-  de **~4500**, y las **cinco láminas nuevas tienen `notes()` con un `PLACEHOLDER_…`**.
-  Incluye pasar el resultado por `@humanizer-es`, que es el procedimiento de la convención.
-- **Regenerar los derivados**: `CLAM_Sprint8_sin_notas.pptx` y `CLAM_Sprint8_guion.md`.
+- **El guion entero (§13 del plan).** ~~Sigue en 9131 palabras~~ **ESCRITO el 22-ago por la
+  tarde y sin recortar**: ver la sección siguiente. Las cinco láminas nuevas siguen con
+  `PLACEHOLDER_…` en el generador porque el borrador **no se aplicó**.
+- **Regenerar los derivados**: `CLAM_Sprint8_guion.md`. **`CLAM_Sprint8_sin_notas.pptx` ya no
+  hace falta** (Ernesto, 22-ago).
 - **Mirar las 17 rasterizadas de punta a punta**: solo se revisaron cuatro.
 - Los **tres PNG de regiones huérfanos** en `assets/` siguen sin uso.
+
+---
+
+## La sesión del 22-ago (tarde): el guion escrito entero, sin recortar — VIGENTE
+
+Ejecuta el §13 de [`plan_actualizacion_24ago.md`](plan_actualizacion_24ago.md), que era lo
+único pendiente del deck, y lo deja **a mitad**: las 17 láminas tienen guion y el recorte no
+está hecho. **El `.pptx` no se tocó**: sus notas siguen siendo las viejas, con los cinco
+marcadores puestos.
+
+### El entregable, y por qué está aparte del generador
+
+[`guion_borrador_24ago.md`](guion_borrador_24ago.md). Las notas se escribieron **en un archivo
+corrido y no dentro de las 17 llamadas `notes()`**, que es el método: leídas de a una dentro
+del generador, los defectos entre láminas son invisibles ([[humanizer-es-skill]] §3). Esta
+pasada lo confirmó, porque los cuatro hallazgos mayores fueron **de arco y no de prosa**.
+
+El archivo trae, además del texto: el presupuesto por lámina (objetivo y cuánto sobra), la
+lista de lo que el recorte no puede comer, y los cuatro arcos corregidos.
+
+### Los cuatro arcos que el guion vigente tenía rotos
+
+Los cuatro salen de la reestructura del 22-ago, que movió láminas y dejó el guion describiendo
+el recorrido anterior:
+
+1. La **portada** anunciaba «al final, después de los objetivos que propongo», y los objetivos
+   pasaron a la lámina 2.
+2. La **lámina 12** dejaba viva la pregunta de si los núcleos fallados estaban segmentados
+   («lo primero que yo haría»). La contesta la **16**, veinte segundos después.
+3. La **lámina 13** cerraba la presentación con **cuatro láminas por delante**.
+4. La **lámina 13** conservaba «el recorte no compra marcas, compra área», rechazada en
+   `correcciones.txt`; el cuerpo de la lámina ya estaba corregido y el guion no.
+
+### El recorte, que es lo que falta
+
+| | palabras | minutos |
+|---|---|---|
+| guion vigente en el `.pptx` (12 con notas + 5 marcadores) | 7220 | 56 |
+| borrador de las 17 | **7160** | **55** |
+| objetivo del plan §13 | ~4500 | ~35 |
+
+El total casi no baja porque **las cinco láminas nuevas suman ~2100 palabras que antes no
+existían**: las doce viejas sí quedaron más cortas. El recorte que falta es de un tercio y su
+presupuesto por lámina está en la cabecera del borrador.
+
+### Lo que quedó pendiente
+
+- **Recortar a ~4500 y aplicar** los 17 bloques a las llamadas `notes()` del generador.
+- **Pasar `@humanizer-es`** sobre el resultado, que es el procedimiento de la convención.
+- **Regenerar `CLAM_Sprint8_guion.md`** después de aplicar. **`CLAM_Sprint8_sin_notas.pptx`
+  ya no hace falta** (Ernesto, 22-ago): `sin_notas.py` queda sin correr.
+- **Mirar las 17 rasterizadas de punta a punta**: siguen revisadas solo 2, 3, 4 y 11.
+- Los **tres PNG de regiones huérfanos** en `assets/`.
