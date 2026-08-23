@@ -1319,3 +1319,69 @@ Se leyó el guion completo de las 16 de corrido. Vale para cuando se retome el d
 - **No se cambió la fecha de portada**: Ernesto decidió dejar el 19 de agosto.
 - **Cero GPU**, cero `sbatch`. El brazo de ensemble sigue sin lanzarse, y ahora hay una razón
   documentada para no lanzarlo con la mitosis como objetivo.
+
+## El recorte del 22-ago (de 16 a 17 láminas) — VIGENTE, con el guion PENDIENTE
+
+Ejecución de [`plan_actualizacion_24ago.md`](plan_actualizacion_24ago.md), que nació de
+[`correcciones.txt`](correcciones.txt). El deck se rearma para la reunión del **lunes 24-ago**.
+**La estructura está terminada; el guion NO** — ver «Lo que quedó pendiente» al final.
+
+### Estructura vigente (17 láminas)
+
+| # | Lámina | Estado |
+|---|---|---|
+| 1 | Portada (template) | fecha 24-ago, y el nombre del sprint rotulado acá |
+| 2 | **Objetivos del sprint** | NUEVA en esa posición, con el molde de la ex-lámina de cierre |
+| 3 | ¿Recortar expertos o slots? | diagrama divergente rotulado |
+| 4 | ¿La atención de CLAM cae sobre los núcleos de la mitosis? | título nuevo, cintas al doble |
+| 5 | Atención y marcas del patólogo | sin cambios de cuerpo |
+| 6 | El resultado, grupo por grupo | escalera más grande, sin las tarjetas |
+| 7 | Los 28 parches de mitosis | cierre del bloque de escala reescrito |
+| 8 | La atención acierta y la clasificación falla | título nuevo, las 4 clases explícitas |
+| 9 | SI-MIL: qué propone | sin cambios de cuerpo |
+| 10 | Resultados y costo de adopción | sin cambios |
+| 11 | HoVer-NeXt y la clase de mitosis | figura 24 % más grande, sin paneles |
+| 12 | Resultados: recortar y detectar | tabla de 5 columnas a 3 |
+| 13 | El detector sobre la lámina completa | título, pie y remate reescritos |
+| 14 | **CLAM, Mammoth y el detector a igual carga** | NUEVA (A2.bis) |
+| 15 | **El checkpoint de carcinoma invasivo** | NUEVA (A2) |
+| 16 | **Las 13 que se escapan sí estaban segmentadas** | NUEVA (A0) |
+| 17 | **En qué se fija el detector** | NUEVA (A1) |
+
+Salen `lam_simil_ramas` y `lam_simil_reporte` (las dos que Ernesto pidió eliminar), y la lámina
+de título del template: `TPL_KEEP` pasó de `(0, 1)` a `(0,)`.
+
+### Dos desvíos del plan, con su motivo
+
+1. **La fila «26/26» de la lámina 14 no se presenta.** El plan la traía con `2496` en las
+   cuatro columnas, y eso contradice a `escalera_brazos.csv`: ese 2496 es el chequeo de
+   sanidad, no la carga mínima para llegar a 26 marcas (CLAM 1392, Mammoth 750, la
+   intersección 915, la unión 1022). El documento fuente lleva la corrección fechada; la
+   lámina muestra **8, 13, 19 y 22** y deja el tope de la atención dicho en prosa.
+2. **La Figura 1 de HoVer-NeXt no llega a 9,28" de ancho.** Con su razón de 1,621 eso pediría
+   5,72" de alto y el cuerpo mide 4,22": ahí manda el alto. Con la barra de remate puesta el
+   techo daba un 7 % más, que no es «ampliar», así que se retiró también la barra, que es lo
+   que hace el template en sus láminas de arquitectura. La figura pasó de 4,90" a 6,10".
+
+### Verificación corrida
+
+- `auditar()` **sin avisos**; 17 láminas a 13.333×7.5.
+- `pdffonts` sobre el PDF rasterizado da `Barlow-Regular` y `Barlow-Bold` embebidas. `DejaVu`
+  aparece como fallback de `← → ∩ ∪`, que es lo esperado y no un defecto.
+- **Cada cifra de las cuatro láminas nuevas, verificada contra su CSV** y no contra el
+  documento que la cita: `escalera_brazos.csv`, `cruce_marcas_gate/techo_conjunto.csv`,
+  `cruce_marcas/techo_conjunto.csv`, `a0_falladas/marcas_vs_instancias.csv`,
+  `galeria_mitosis/familias.csv`, `auc_fold4/`, `auc_gate_f0/` y el CSV de labels de tasa
+  mitótica (636 / 287 / 254 / 693).
+- Rasterizado y **mirado** en las láminas 2, 3, 4 y 11, que es de donde salieron tres defectos
+  que la auditoría no ve: el ítem de dos renglones que desborda su fila, el rótulo
+  «OBSERVADO» partido en dos, y la cuenta de pares cayendo sobre el eje de las cintas.
+
+### Lo que quedó pendiente
+
+- **El guion entero (§13 del plan).** Sigue en **9131 palabras (~70 min)** contra el objetivo
+  de **~4500**, y las **cinco láminas nuevas tienen `notes()` con un `PLACEHOLDER_…`**.
+  Incluye pasar el resultado por `@humanizer-es`, que es el procedimiento de la convención.
+- **Regenerar los derivados**: `CLAM_Sprint8_sin_notas.pptx` y `CLAM_Sprint8_guion.md`.
+- **Mirar las 17 rasterizadas de punta a punta**: solo se revisaron cuatro.
+- Los **tres PNG de regiones huérfanos** en `assets/` siguen sin uso.

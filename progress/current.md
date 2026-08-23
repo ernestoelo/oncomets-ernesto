@@ -4401,6 +4401,67 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 22 — 22-ago-2026 · el plan del deck, EJECUTADO salvo el guion
+
+Ejecuta `sprints/B8_sprint8/presentacion_b8/plan_actualizacion_24ago.md`. **Trabajo de CPU y
+python-pptx**: ni GPU ni jobs. `CLAM_Sprint8.pptx` pasa de 16 a **17 láminas**, compila con
+`auditar()` **sin avisos** y con Barlow embebida.
+
+### 1. Lo que quedó hecho
+
+- **`TPL_KEEP` a `(0,)`**: se retira la lámina de título del template y **los objetivos del
+  sprint ocupan la posición 2**, con el molde exacto de la ex-lámina de cierre. Los seis
+  objetivos (4 cerrados, 2 en curso) se midieron con `text_w` para que cada uno entre en un
+  renglón. El sprint y la fecha, **24 de agosto de 2026**, pasan a la portada.
+- **Las 13 correcciones de forma** de `correcciones.txt`, incluida la que más pesaba: el
+  diagrama divergente ahora lleva **encabezado de métrica** («diferencia de AUC entre los dos
+  recortes, partición por partición») y las dos direcciones flanqueando el cero, y pierde las
+  dos leyendas que se leían como jerga. Los cuadros por partición se siguen dibujando, sin
+  rótulo, y cómo se leen es material del guion, que es lo que Ernesto pidió.
+- **Las cuatro láminas nuevas de la Fase A**, las tres primeras con tabla nativa:
+  `lam_escalera_brazos` (A2.bis), `lam_gate_invasivo` (A2), `lam_a0_falla_la_clase` (A0) y
+  `lam_galeria_164` (A1, con las dos láminas de contacto). **Cada cifra verificada contra su
+  CSV**, no contra el documento que la cita.
+- **Las láminas de contacto se copian a `assets/` desde `prep_assets_hovernext.py`**, así que
+  el deck se reproduce entero desde el generador.
+- **La necrosis queda fuera**, por la decisión del 22-ago: sin la clase `dead` (B2, sin
+  lanzar) el encargo 3 no se contesta.
+
+### 2. El cross-check encontró un número mal en un documento propio
+
+`a2bis_escalera_brazos.md` §2 tenía **`2496` en las cuatro columnas de la fila «26/26»** de una
+tabla cuya columna promete «cuántos objetos pide cada brazo para llegar a». Ese 2496 es el
+**chequeo de sanidad** (la región entera), no la carga mínima: el CSV da **CLAM 1392, Mammoth
+750, la intersección 915 y la unión 1022**. Las otras seis filas reprodujeron **exactas**.
+
+La causa es de método y por eso se registró: en la meseta la interpolación que produce el resto
+de la tabla es **degenerada**, así que esa fila pide el primer cruce medido, que es otra
+convención. **Ninguna conclusión del documento se mueve** — se apoyan en las filas de 8 a 22 y
+en el techo del detector. El documento lleva la corrección fechada y el deck presenta **8, 13,
+19 y 22**, con el tope de la atención dicho en prosa. Detalle: [[carga-fija-no-k-fijo]].
+
+### 3. Lo que NO se hizo, y bloquea presentar
+
+**El §13 del plan, o sea el guion entero.** Sigue en **9131 palabras (~70 min)** contra el
+objetivo de **~4500 (~35 min)**, y **las cinco láminas nuevas tienen `notes()` con un
+`PLACEHOLDER_…`**. Falta también pasar el resultado por `@humanizer-es`, regenerar
+`CLAM_Sprint8_sin_notas.pptx` y `CLAM_Sprint8_guion.md`, mirar las 17 rasterizadas de punta a
+punta y escribir la sección «El recorte del 22-ago» en `presentacion_b8/README.md`.
+
+Dos cosas del plan que no sobrevivieron a los datos, las dos con su motivo en el código: la
+fila de 26/26 (arriba) y que **la Figura 1 de HoVer-NeXt no puede ir a 9,28" de ancho** (su
+razón 1,621 pediría 5,72" de alto y el cuerpo mide 4,22"); para que ampliarla fuera real se
+retiró también su barra de remate, que es lo que hace el template en sus láminas de
+arquitectura.
+
+### 4. Estado al cierre
+
+- Rama `main`. Jobs **5069 (B3) y 5070 (B1) siguen `PD`**, detrás del `llm_labeller` de
+  `gvenegas` (12 h) y de tres jobs ajenos. **B2 sigue sin lanzar.**
+- El deck **no se puede presentar como está**: sin guion.
+
+---
+
 ## Sesión 21 — 22-ago-2026 · sesión de PLAN: el deck del lunes, especificado y sin escribir
 
 Sesión **de planificación**, cerrada a pedido de Ernesto para que una sesión limpia ejecute.
