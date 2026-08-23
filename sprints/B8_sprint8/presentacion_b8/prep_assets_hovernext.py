@@ -42,6 +42,7 @@ from __future__ import annotations
 
 import csv
 import json
+import shutil
 import sys
 from pathlib import Path
 
@@ -324,6 +325,21 @@ def main():
     solo.save(DST / "hovernext_solo.png")
     print("  %-30s %s  (región sin marcas %d · región anotada %d)"
           % ("hovernext_solo.png", solo.size, na, nb))
+
+    # ---- las dos láminas de contacto de la galería (encargo 2) ----
+    # Se copian y no se re-dibujan: las produce `scripts/galeria_mitosis_129741.py` a
+    # resolución nativa y el deck solo las inserta. Van con nombre propio en `assets/` para
+    # que regenerar el deck no dependa de un `cp` a mano.
+    GAL = REPO / "results/b8_hovernext_129741/galeria_mitosis"
+    for orig, destino in (("bloque_sin_marca.png", "galeria_sin_marca.png"),
+                          ("bloque_falladas.png", "galeria_falladas.png")):
+        src = GAL / orig
+        if not src.exists():
+            print("  FALTA %s — corré scripts/galeria_mitosis_129741.py" % src)
+            continue
+        shutil.copyfile(src, DST / destino)
+        with Image.open(DST / destino) as im:
+            print("  %-30s %s  (copiada de %s)" % (destino, im.size, orig))
 
     (DST / "cadena_clam_hovernext.json").write_text(json.dumps(dict(
         region=[x0, y0, x1, y1], nivel=NIVEL, downsample=ds,
