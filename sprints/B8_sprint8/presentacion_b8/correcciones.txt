@@ -1,0 +1,76 @@
+La reunion es el dia 22 de agosto y necesitamos actualizar las slides de la ppt, aqui te dejo las correcciones principales, aunque me gustaria mejorar las notas del presentador de todas para que fuesen mas minimalistas y objetivas.
+
+# Correcciones
+
+- Slide 2:
+
+    * no aparecen los objetivos del sprint ni en el formato que deberia pues en la slide 13 de la presentacion esta con el formato correcto. toma el formato de la slide 13  y reemplazalo en la slide 2 , luego elimina la slide 13 y completa los objetivos propuestos para este sprint junto con mencionar objetivos que fuemos desarrollando a lo largo del sprint como investigar e implementar un modelo de deteccion particular (en este caso hover-next) para mitossis
+
+- Slide 3: 
+
+    * La frase "El signo se da vuelta entre peldaños..." ELIMINALA
+    * La frase "Abajo AUC medio por brazo..." ELIMINALA
+    * No se entiende el diagrama de cajas y sus numeros, ademas eso de "gana recor      tar expertos vs gana recortar slots" no se alcanza apreciar que metrica esta      mos comparando, quiero que sea mas claro, y especialmente en las notas del p      resentador debemos mencionar que significa y como se lee el diagrama de bloq        ues. (no se entiende eso de escala masmenos 0.1 AUC ni lo de cada cuadro es una particion relleno = a favor de recortar slots, no deberiamos escribirlo pero si mencionar en las notas del presentador)
+
+
+- Slide 4:
+
+    * Quiero modificar el titulo con algo como "¿es CLAM capaz de identificar los dispersos y finos nucleos de la mitosis y esta enfocando su atencion en lo correctp?
+
+    * Elimina el bullet " en mitosis los nucleos son..."
+    * En el bullet " el estadistico es el auc que es la U de mann whitney normalizada..." no tengo idea lo que es mann whitney deberiamos eliminarlo, junto con " las dos lecturas quedaron registradas"
+
+    * No se entiende 28 parches con mitosis x 4771 con el resto de la limna = 133 588 pares en el 89%... ¿ existe otra forma de redactarlo mas clara?
+
+    * elimina los 3 bullets "contra que se mide" "porque son comparables *" y " que dice por debajo de 0.5"
+
+    * Las notas del presentador deben mencionar que al tener las notas del patologo podemos medir si el modelo esta atendiendo las zonas marcadas
+
+- Slide 5:
+
+    * quiero volver las notas del presentador mas minimalistas, precisas y concisas junto pedagogicas sin mencionar que la slide se divide en 2 regiones. lo mas importante que debemos mencionar son la cantidad de poligonos, regiones, nucleos , mitosis, y las diferentes clases que marco el patologo y si coinciden con los mapas de clam
+
+- SLide 6:
+
+    * esta slide me gustaria eliminar los bullets de "si cambia el modelo" y " si cambian las marcas" , ademas, el bullet de "estroma lo tiene tres veces mas ancho que..." no se entiende ni tampoco lo del "bigote es el intervalo al 95%" debemos ser claros con que estamos mostrando y como tomamos esas medidas de AUC para cada clase
+
+- Slide 7:
+
+    * no se entiende el bullet " y que lo que el modelo comprime sea un parche que es casi todo otra cosa "
+    * debemos ser explicar que implica que una mitosis ocupa el 2% y el 4% en las
+notas del presnetador
+
+- Slide 8:
+
+    * quiero un titulo mas profeisonal
+    * explicar mejor que cuatro modelos de tasa mitotica se utilizaron, es decir, cuales son las 4 clases.
+    * no es necesario decir que los folds 0 y 2 son los dos unicos donde no quedo en entrenamiento, basta con que hayamos mencionado que ninguno de esos checkpoints la tuvo en entrenamiento
+    * hay que especificar que significa " el que mejor mira es el que mas se equivoca, no esta en elegir los parches, sino en lo que queda del parche una vez comprimido" esa frase no se entiende nada, ademas, elimina el bullet del "desacople entre mira bien..."
+
+- Slide 9:
+
+    * me gustaria ser mas genericos y no mencionar cosas tan profundas de la arquitectura, debemos mejorar las notas del presentador para que quede muy claro y que trabaja junto a hover-net y que significan las 246 dimensiones
+
+- slide 10 y 11:
+
+    * no me gustan elimina ambas slides
+
+
+- slide 14:
+
+    * elimina los bullets y amplia la figura 1, las notas del presentador deben mencionar cada paso del diagrama de la figura 1 explicando el pipeline y como funcionan las etapas mencionadas en el mismo diagrama
+    *¿hover-next tiene un vector de 246 dimensiones donde cada una es evidencia del patologo o me estoy confundiendo de modelo? me gustaria mencionar las dimensiones de las entradas y salidas de encoder y decoder para mayor interpretacion
+
+- slide 15:
+
+    * no se entienden las columnas en la tabla ¿que significa ambas?¿que significa ¿cota minima? ¿es necesario incluir esas columnas? quiero que sea lo mas precisa y concisa para que la explicacion nazca clara junto con que significa el porcentaje de recorte de la region
+
+- slide 16:
+
+    * no me gusta la palabra " herramienta sola" debiese ser mas profesiona y cambiarla por el "modelo"
+    * mno entiendo el bullet, "el recorte cambia el area en un factor de 16 y las marcas en dos"
+    * no me gusta la palabra " el recorte no compra marcas compra area" recuerda ser profesional con la nomenclatura tecnica
+    
+
+debemos crear nuevas slides con la integracion de las ultimas pruebas realizadas para la deteccion de mitosis con hover-next + clam + mammoth junto con las pruebas de clam (checkpoint carcinoma) + hover-next y ver la diferencias .
+ademas, añadir imagenes de en que se esta fijando el modelo con las otras 164 mitosis que predice, y tambien añadir las marcas que hover next identifico de necrosis versus las del patologo
