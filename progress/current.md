@@ -4401,6 +4401,61 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 24 — 23-ago-2026 · el guion RECORTADO y aplicado: el deck queda presentable
+
+Sesión de CPU y python-pptx: ni GPU ni jobs. Cierra el §13 del
+`plan_actualizacion_24ago.md` y con él **el último pendiente del deck del lunes**. El `.pptx`
+ya se puede presentar.
+
+### 1. El recorte
+
+`sprints/B8_sprint8/presentacion_b8/guion_recortado_24ago.md`, **de 7160 a 5585 palabras
+(22 %)**, contra el objetivo de ~4500 del plan. Quedó en ~43 min y **la diferencia es
+deliberada**: la lista de «lo que el recorte no puede comer» son los pedidos literales de
+`correcciones.txt` y suma ella sola ~1000 palabras repartidas en diez láminas. Las láminas sin
+contenido obligatorio llegaron a su presupuesto (L1 +3, L2 +2, L5 −2); las que se pasan son
+exactamente las que cargan esa lista. Bajar más exigía desobedecer una corrección, así que el
+presupuesto por lámina se trató como estimación, no como gate.
+
+### 2. La pasada de `@humanizer-es`
+
+Sobre el archivo corrido. Quinta pasada, y **quinta vez que los racimos son de ritmo y ninguno
+de vocabulario**: «lo que quiero / me importa» ×10 en nueve láminas, «Lo que…» abriendo oración
+×11, párrafo que abre con «Y» ×8, «es el/la que» ×12 con cuatro en una sola lámina de 348
+palabras, y los cierres «Con eso» ×5 y «Una precisión/salvedad» ×5. **El recorte y la
+humanización tiraron para el mismo lado**: ese racimo era el meta-comentario que había que podar
+igual.
+
+### 3. Aplicado al generador y verificado en round-trip
+
+Los 17 bloques a sus `notes()`, incluidos los **cinco `PLACEHOLDER_…`**. Las notas del `.pptx`
+coinciden **palabra por palabra** con el markdown en las 17 láminas. `CLAM_Sprint8_guion.md`
+regenerado; `CLAM_Sprint8_sin_notas.pptx` **no**, por la decisión del 22-ago.
+
+### 4. El QA visual de las 17 encontró tres defectos con `auditar()` en CERO
+
+Era el pendiente («siguen revisadas solo 2, 3, 4 y 11») y valió la pena:
+
+1. **L17: panel y pie superpuestos 0,35"**, la clase «dos objetos válidos superpuestos» de
+   [[deck-qa-puntos-ciegos-chequeo]]. Ninguna caja desborda la suya, así que no hay consulta
+   programática que lo vea. El alto y el hueco ahora salen de lo que queda libre hasta el pie.
+2. **L15 nombraba a una persona en el cuerpo** de la lámina, contra la convención del deck.
+3. **L14 tenía un guion largo** en una celda, constraint-cero, que además convivía con
+   «imposible» sin distinguirse. Ahora «no aplica» contra «imposible», y el guion lo explica.
+
+Más dos desincronizaciones guion-lámina por la regla 13 (`score_N` proyectado y no dicho, en L5
+y L8) y un decimal (L13 muestra 4,3 mm² y el guion decía «cuatro»).
+
+### 5. Estado al cierre
+
+- **17 láminas**, `auditar()` sin avisos, Barlow embebida. Cero placeholders, cero guiones
+  largos, cero nombres propios y cero números de job en cuerpo, tablas y notas.
+- Rama `main`, commits locales. **El push lo autoriza Ernesto.**
+- Jobs **5069 (B3) y 5070 (B1) siguen `PD`**; **B2 sin lanzar**. Nada de esto lo toca el deck.
+- Queda suelto: los **tres PNG de regiones huérfanos** en `assets/`, decisión de Ernesto.
+
+---
+
 ## Sesión 23 — 22-ago-2026 · el guion escrito ENTERO, sin recortar y sin aplicar
 
 Sesión corta, de CPU: ni GPU ni jobs. Ejecuta el §13 del

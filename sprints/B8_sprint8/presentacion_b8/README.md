@@ -1389,7 +1389,7 @@ de título del template: `TPL_KEEP` pasó de `(0, 1)` a `(0,)`.
 
 ---
 
-## La sesión del 22-ago (tarde): el guion escrito entero, sin recortar — VIGENTE
+## La sesión del 22-ago (tarde): el guion escrito entero, sin recortar — SUPERSEDED por la del 23-ago
 
 Ejecuta el §13 de [`plan_actualizacion_24ago.md`](plan_actualizacion_24ago.md), que era lo
 único pendiente del deck, y lo deja **a mitad**: las 17 láminas tienen guion y el recorte no
@@ -1439,3 +1439,83 @@ presupuesto por lámina está en la cabecera del borrador.
   ya no hace falta** (Ernesto, 22-ago): `sin_notas.py` queda sin correr.
 - **Mirar las 17 rasterizadas de punta a punta**: siguen revisadas solo 2, 3, 4 y 11.
 - Los **tres PNG de regiones huérfanos** en `assets/`.
+
+
+---
+
+## La sesión del 23-ago: el guion RECORTADO, aplicado y el deck cerrado — VIGENTE
+
+Cierra el §13 del plan y con él el último pendiente del deck. **El `.pptx` ya se puede
+presentar**: las 17 láminas tienen sus notas definitivas, no queda ningún `PLACEHOLDER_…` y el
+deck compila con `auditar()` sin avisos.
+
+### El recorte, y por qué no llegó a las ~4500
+
+`guion_recortado_24ago.md` es el texto aplicado. **De 7160 a 5585 palabras, un 22 %**, contra el
+objetivo de ~4500 (~35 min) que traía el plan. Quedó en unos 43 min y la diferencia es
+deliberada, no un recorte a medio hacer:
+
+**La lista de «lo que el recorte no puede comer» es ella misma ~1000 palabras.** Son los pedidos
+literales de `correcciones.txt`: cómo se lee el diagrama divergente (L3), el estadístico contado
+sin nombrar el test (L4), los siete conteos del patólogo (L5), las dos incertidumbres (L6), qué
+implica el 2-4 % (L7), las cuatro clases de la tarea (L8), de dónde salen las 246 mediciones
+(L9), cada paso del diagrama y las dimensiones reales (L11), que el brazo del gate es Mammoth
+(L15) y que las 164 no son falsos positivos (L17). Diez láminas con contenido pedido
+explícitamente, y en varias ese contenido **es** el grueso de la lámina.
+
+Las láminas sin contenido obligatorio sí llegaron a su presupuesto o cerca: L1 +3, L2 +2, L5 −2.
+Las que se pasan son exactamente las que cargan la lista. **Bajar de ahí exigía desobedecer una
+corrección**, así que el presupuesto por lámina se trató como estimación y no como gate.
+
+### La pasada de `@humanizer-es`
+
+Sobre el archivo corrido, que es el método. Los racimos eran de **ritmo**, como en las cuatro
+pasadas anteriores, y ninguno de vocabulario: «lo que quiero / me importa» ×10 en nueve láminas
+(§26 señalización + §25 tropo de autoridad), «Lo que…» abriendo oración ×11, párrafo que abre con
+«Y» ×8, «es el/la que» ×12 con **cuatro en una sola lámina de 348 palabras**, y los cierres
+«Con eso/Con esto» ×5 y «Una precisión/salvedad» ×5, que anuncian la salvedad en vez de decirla.
+**El recorte y la humanización tiraron para el mismo lado**: casi todo ese racimo era el
+meta-comentario que había que podar igual.
+
+### El QA visual encontró tres defectos que `auditar()` no ve
+
+Las 17 rasterizadas de punta a punta, que era el pendiente. `auditar()` dio **cero avisos** en
+todas las generaciones y aun así:
+
+1. **L17, dos objetos válidos superpuestos.** El panel teal arrancaba en `TOP+2.845` con alto
+   `0.98"` y el pie a todo el ancho en `TOP+3.48`: **se pisaban 0,35"** y las dos cajas se leían
+   una encima de la otra. Ninguna desborda la suya, así que no hay consulta programática que lo
+   vea. Es la clase del ADDENDUM 4-ago de [[deck-qa-puntos-ciegos-chequeo]]. Corregido con el
+   alto y el hueco derivados de lo que queda libre hasta el pie, no de una constante.
+2. **L15 nombraba a una persona en el cuerpo** («Sebastián pidió repetir la cadena»). La
+   convención del deck es sin nombres propios y el resto de las 17 la respeta.
+3. **L14 tenía un guion largo** en una celda de tabla, que es constraint-cero para Ernesto y
+   además convivía con «imposible» en la misma columna sin que se distinguiera qué significaba
+   cada uno. Ahora dice **«no aplica»** (no se le puede pedir menos de 13 porque el detector no
+   ordena sus detecciones) contra **«imposible»** (por encima de su techo), y el guion lo explica.
+
+Los tres salieron **mirando**, y los tres son de una clase que el chequeo no consulta.
+
+### Dos desincronizaciones guion-lámina, por la regla 13
+
+Corregidas al mirar: la lámina 8 proyecta `score_1..score_3` y el guion decía «tasa baja,
+intermedia, alta» sin atar los dos, y la lámina 5 muestra `score_3`/`score_2` **antes** de que la
+8 los presente. El guion ahora los nombra en las dos. Y la 13 muestra `4,3 mm²` donde el guion
+decía «cuatro milímetros cuadrados» (la 12 dice 4,25 del mismo número).
+
+### Verificaciones al cierre
+
+- **17 láminas**, `auditar()` sin avisos, 13.333×7.5, Barlow embebida (`pdffonts` da
+  Barlow-Regular y Barlow-Bold; DejaVu es el fallback esperado de `← → ∩ ∪`).
+- **Cero `PLACEHOLDER_`, cero guiones largos, cero nombres propios y cero números de job** en
+  cuerpo, tablas y notas de las 17.
+- **Las notas del `.pptx` coinciden palabra por palabra con `guion_recortado_24ago.md`** en las
+  17 láminas (round-trip verificado, 5585 palabras).
+- `CLAM_Sprint8_guion.md` regenerado. `CLAM_Sprint8_sin_notas.pptx` **no** se regeneró, por la
+  decisión del 22-ago.
+
+### Lo que queda
+
+- Los **tres PNG de regiones huérfanos** en `assets/` (`region0_129741.png`,
+  `region1_129741.png`, `registro_level0_129741.png`). Decisión de Ernesto si se borran.
+- Si Ernesto edita las notas en OnlyOffice, **no regenerar el deck**: lo pisaría.
