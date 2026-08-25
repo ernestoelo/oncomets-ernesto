@@ -1451,7 +1451,7 @@ deck compila con `auditar()` sin avisos.
 
 ### El recorte, y por qué no llegó a las ~4500
 
-`guion_recortado_24ago.md` es el texto aplicado. **De 7160 a 5585 palabras, un 22 %**, contra el
+`guion_recortado_24ago.md` es el texto aplicado. **De 7160 a 5624 palabras, un 21,5 %**, contra el
 objetivo de ~4500 (~35 min) que traía el plan. Quedó en unos 43 min y la diferencia es
 deliberada, no un recorte a medio hacer:
 
@@ -1463,9 +1463,15 @@ implica el 2-4 % (L7), las cuatro clases de la tarea (L8), de dónde salen las 2
 (L15) y que las 164 no son falsos positivos (L17). Diez láminas con contenido pedido
 explícitamente, y en varias ese contenido **es** el grueso de la lámina.
 
-Las láminas sin contenido obligatorio sí llegaron a su presupuesto o cerca: L1 +3, L2 +2, L5 −2.
-Las que se pasan son exactamente las que cargan la lista. **Bajar de ahí exigía desobedecer una
-corrección**, así que el presupuesto por lámina se trató como estimación y no como gate.
+**Pero eso explica algo más de la mitad del exceso, no todo** (corregido en la auditoría de
+cierre, `sprints/B8_sprint8/auditoria_coherencia/hallazgos_sesion24.md` §H2). Repartido: **629
+palabras** de exceso caen en las diez láminas con pedido literal y **496** en las siete que no
+tienen ninguno, concentradas en cinco (L12 +177, L14 +101, L16 +93, L10 +71, L13 +49). Solo
+llegaron a su presupuesto las dos más cortas y sin figura, L1 +3 y L2 +2.
+
+O sea que la lista de intocables **fija un piso real** pero no justifica los 43 min: quedan
+**~491 palabras recortables sin tocar un solo pedido**, que llevarían el guion a ~5133 (~39 min).
+No se bajó más porque la sesión priorizó cerrar el deck; queda como pendiente.
 
 ### La pasada de `@humanizer-es`
 
@@ -1503,6 +1509,28 @@ intermedia, alta» sin atar los dos, y la lámina 5 muestra `score_3`/`score_2` 
 8 los presente. El guion ahora los nombra en las dos. Y la 13 muestra `4,3 mm²` donde el guion
 decía «cuatro milímetros cuadrados» (la 12 dice 4,25 del mismo número).
 
+### La 17 blindada: de dónde sale el 88 %
+
+Ernesto preguntó, al cerrar, si las **145** del 88 % son epitelio tumoral denso **marcado por el
+patólogo** o **inferencia del modelo**. Ninguna de las dos, y el guion no lo dejaba claro. Son
+**tres capas** que hay que poder separar en la reunión:
+
+1. Las **164 detecciones** son inferencia de HoVer-NeXt: les puso la clase `mitosis`, y no tienen
+   marca del patólogo (por eso son «sin marca»).
+2. El **grupo de 145** es **nuestro**, post-hoc y no supervisado: clustering de los **píxeles**
+   del recorte (16×16 RGB + histograma de color, PCA + linkage `average`, cortado en `k=4`). Ni
+   el patólogo ni el modelo intervienen; **el detector no sub-clasificó nada**, a las 164 les dio
+   la misma etiqueta.
+3. El nombre **«epitelio tumoral denso»** es **lectura visual nuestra**, no una anotación ni una
+   clase del modelo. Lo medido son tres descriptores: brillo 142,0 · saturación 0,341 · fracción
+   de fondo 0,023.
+
+El guion de la 17 ahora lo dice explícito. Fuente: `encargos_sebastian/a1_galeria_177.md` §2-§3,
+que además avisa que **`k=4` es una elección, no un resultado** (con otro corte los 145 se
+subdividen; lo estable es que la familia clara de 15 se separa primero). Mismo patrón de
+honestidad que los nombres de tejido de los expertos de mammoth
+([[mammoth-interpretabilidad-objA]]): sign-off de patólogo pendiente.
+
 ### Verificaciones al cierre
 
 - **17 láminas**, `auditar()` sin avisos, 13.333×7.5, Barlow embebida (`pdffonts` da
@@ -1510,7 +1538,7 @@ decía «cuatro milímetros cuadrados» (la 12 dice 4,25 del mismo número).
 - **Cero `PLACEHOLDER_`, cero guiones largos, cero nombres propios y cero números de job** en
   cuerpo, tablas y notas de las 17.
 - **Las notas del `.pptx` coinciden palabra por palabra con `guion_recortado_24ago.md`** en las
-  17 láminas (round-trip verificado, 5585 palabras).
+  17 láminas (round-trip verificado, 5624 palabras).
 - `CLAM_Sprint8_guion.md` regenerado. `CLAM_Sprint8_sin_notas.pptx` **no** se regeneró, por la
   decisión del 22-ago.
 
