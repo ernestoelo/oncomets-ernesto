@@ -1,0 +1,6 @@
+slide_id=128194
+cp=lizard_convnextv2_tiny  tag=lizard_mitosis  metric=f1  tta=4  batch=32
+keep_raw=0
+job=5070
+fin=2026-08-25T02:31:35-04:00
+segundos=643

@@ -1,0 +1,10 @@
+# Procedencia del job 5069 — B3 CLAM plano gate fold 0
+# Arbol ajeno y compartido: /media/administrador/Storage1/sdonoso/clam_testing
+## AL LANZAR  2026-08-25T01:33:08-04:00
+f5fb7cc287aabb7f35c4c27f4e61ccb4  2026-07-15T18:07:04-04:00  main.py
+95f49f50c8f921f2d216322cdc22a677  2026-05-28T21:18:08-04:00  utils/core_utils.py
+454579c67b973a6b882caacc36f8c126  2026-06-04T17:37:49-04:00  models/model_clam.py
+## AL TERMINAR  2026-08-25T02:09:55-04:00   rc=0
+f5fb7cc287aabb7f35c4c27f4e61ccb4  2026-07-15T18:07:04-04:00  main.py
+95f49f50c8f921f2d216322cdc22a677  2026-05-28T21:18:08-04:00  utils/core_utils.py
+454579c67b973a6b882caacc36f8c126  2026-06-04T17:37:49-04:00  models/model_clam.py

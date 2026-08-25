@@ -152,3 +152,8 @@ sprints/B8_sprint8/anotaciones_patologo/regiones_escaneo/barrido_rot/*.png
 # al cerrar el objetivo; el resto son intermedios reproducibles relanzando el .slurm.
 results/**/hovernext/**/*.zip
 results/**/hovernext/**/class_inst.json
+# Los pred_<clase>.tsv de las OTRAS clases son volcados por nucleo: 88 MB en el barrido de
+# las 11 laminas (job 5070), con archivos de 5,7 MB. Mismo criterio que arriba: reproducibles
+# relanzando el .slurm, y lo que se analiza es la mitosis. Se versiona solo ese.
+results/**/hovernext/**/pred_*.tsv
+!results/**/hovernext/**/pred_mitosis.tsv

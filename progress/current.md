@@ -4401,6 +4401,52 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Cosecha del 25-ago — B3 y B1 corrieron solos y terminaron bien
+
+Registrado al cerrar la sesión 24 (que fue el 23). **La reunión del lunes 24 ya pasó y esta
+sesión no sabe cómo salió.** Los dos jobs que llevaban tres sesiones en `PD` corrieron la
+madrugada del 25, sin que nadie los tocara.
+
+**5069 — B3, CLAM plano del gate de invasivo, fold 0.** Fin 02:09. Cerró por early stopping con
+**test ROC AUC 0,9539** (error 0,1004; clase 0 185/200, clase 1 66/79) y val AUC 0,9749.
+Resultados en `results/b8_gate_invasivo/invasion_carcinoma_gate_pth_balance_clam_fold0_s1/`, con
+resumen en **`summary_partial_0_1.csv`** (no `summary.csv`). **Esto destraba la pregunta abierta
+de la lámina 15 del deck**: hasta ahora el brazo del gate era Mammoth y no existía el plano en
+disco, así que no se podía separar si el efecto era de la tarea o del brazo. Ahora sí, y es CPU
+post-hoc.
+
+**5070 — B1, HoVer-NeXt sobre 11 láminas.** Fin 04:03, 113 min de pared, ~7 min por lámina.
+`TERMINADO OK=11 SKIP=0 FALLO=0`, 831 MB, las 11 completas. **555 detecciones de mitosis**
+(103762 252 · 126504 109 · 124806 74 · 128194 45 · 164001 20 · 109609 13 · 124729 10 · 144317 10 ·
+106552 10 · B25-158899 7 · 110616 5), más las 177 de la 129741 = las 12 anotadas. Habilita el
+**cruce de las 94 marcas**, que es el pendiente arrastrado.
+
+⚠ **`--keep_raw` fue apagado a propósito**: no quedaron los zarr `_inst`/`_cls`, así que esta
+salida **no** sirve para la pregunta de A0 (segmentado-pero-mal-clasificado), que ya está
+contestada sobre la 129741.
+
+### El inventario del `.slurm` mentía, y era caro
+
+El log de 5070 cierra con **«SIN SALIDA» en las 11 láminas**, sobre un barrido que había
+terminado OK y con 831 MB en disco. El chequeo miraba `$OUTBASE/<slide>/pred_mitosis.tsv` y
+HoVer-NeXt escribe con el id **anidado dos veces**, `$OUTBASE/<slide>/<slide>/`. Corregido en
+`scripts/run_hovernext_slides.slurm` (ahora tolera las dos disposiciones).
+
+**Por qué se registra y no se arregla en silencio:** leer ese log sin mirar el disco lleva a dar
+el barrido por fallido y **re-encolar ~2 h de GPU detrás de un `UNLIMITED` ajeno**. Es la misma
+familia que el workaround C (sin `sacct`, el `.out` es la única traza) con un agravante: acá la
+traza **existe y miente**. Un verificador de salida se prueba contra una corrida buena, no solo
+contra una fallida.
+
+### La cola sigue igual de mala
+
+El nodo pasó a **`nschiaffi` 5085 (`UNLIMITED`, 6 h)** y **`gvenegas` 5087 también pide
+`UNLIMITED`**. El problema de backfill del workaround L **no se resolvió**: los dos jobs no
+entraron porque la cola mejorara, entraron porque el `UNLIMITED` anterior terminó. **B2 sigue sin
+lanzar** y encolarlo hoy lo pone detrás de dos `UNLIMITED`.
+
+---
+
 ## Sesión 24 — 23-ago-2026 · el guion RECORTADO y aplicado: el deck queda presentable
 
 Sesión de CPU y python-pptx: ni GPU ni jobs. Cierra el §13 del
@@ -4409,13 +4455,17 @@ ya se puede presentar.
 
 ### 1. El recorte
 
-`sprints/B8_sprint8/presentacion_b8/guion_recortado_24ago.md`, **de 7160 a 5585 palabras
-(22 %)**, contra el objetivo de ~4500 del plan. Quedó en ~43 min y **la diferencia es
+`sprints/B8_sprint8/presentacion_b8/guion_recortado_24ago.md`, **de 7160 a 5624 palabras
+(21,5 %)**, contra el objetivo de ~4500 del plan. Quedó en ~43 min y **la diferencia es
 deliberada**: la lista de «lo que el recorte no puede comer» son los pedidos literales de
-`correcciones.txt` y suma ella sola ~1000 palabras repartidas en diez láminas. Las láminas sin
-contenido obligatorio llegaron a su presupuesto (L1 +3, L2 +2, L5 −2); las que se pasan son
-exactamente las que cargan esa lista. Bajar más exigía desobedecer una corrección, así que el
-presupuesto por lámina se trató como estimación, no como gate.
+`correcciones.txt` y suma ella sola ~1000 palabras repartidas en diez láminas.
+
+**La auditoría de cierre corrigió el argumento** (`auditoria_coherencia/hallazgos_sesion24.md`
+§H2): esa lista explica **668** palabras del exceso, pero las otras **496** caen en láminas
+**sin** ningún pedido literal (L12 +177, L14 +101, L16 +93, L10 +71, L13 +49). Llegaron a su
+presupuesto solo L1 (+3) y L2 (+2). El piso que impone lo intocable es real, pero **quedan ~491
+palabras recortables sin desobedecer nada**, que dejarían el guion en ~5133 (~39 min). Pendiente,
+no cerrado.
 
 ### 2. La pasada de `@humanizer-es`
 

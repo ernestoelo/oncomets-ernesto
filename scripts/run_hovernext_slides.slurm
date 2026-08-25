@@ -193,9 +193,15 @@ if [ ${#FALLIDAS[@]} -gt 0 ]; then
 fi
 echo "--- inventario ---"
 du -sh "$OUTBASE" 2>/dev/null
+# OJO: HoVer-NeXt escribe en $OUTBASE/<slide>/<slide>/, con el id ANIDADO dos veces.
+# Mirar un nivel mas arriba daba "SIN SALIDA" sobre un barrido que habia terminado OK
+# (job 5070: OK=11 FALLO=0, 831 MB en disco, y las 11 reportadas como sin salida).
+# Es una falsa alarma cara: invita a re-encolar ~2 h de GPU detras de un UNLIMITED ajeno.
 for s in "${SLIDES[@]}"; do
-    if [ -f "$OUTBASE/$s/pred_mitosis.tsv" ]; then
-        printf "  %-12s %6d detecciones\n" "$s" "$(( $(wc -l < "$OUTBASE/$s/pred_mitosis.tsv") - 1 ))"
+    TSV="$OUTBASE/$s/$s/pred_mitosis.tsv"
+    [ -f "$TSV" ] || TSV="$OUTBASE/$s/pred_mitosis.tsv"   # tolera la disposicion plana
+    if [ -f "$TSV" ]; then
+        printf "  %-12s %6d detecciones\n" "$s" "$(( $(wc -l < "$TSV") - 1 ))"
     else
         printf "  %-12s %s\n" "$s" "SIN SALIDA"
     fi
