@@ -4401,6 +4401,37 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 25 — 25-ago-2026 · sesión de PLAN: evaluado `fixing-smartass-opus-5`, cosecha sin ejecutar
+
+Sesión sin GPU y sin tocar el sprint. Ernesto subió al root del repo
+`fixing-smartass-opus-5-main/` (repo MIT de IndyDevDan: un system prompt que se cuelga de
+cada sesión para que el modelo responda corto y no ensanche el trabajo) y pidió evaluar si
+integrarlo.
+
+**Veredicto: no se integra, se cosechan tres primitivas.** Molde de
+[[wayfinder-evaluacion-y-cosecha]]. Los cuatro bloqueos, la cosecha y los textuales de lo
+rechazado quedan en la memoria [[fixing-opus5-evaluacion-y-cosecha]], que es
+autosuficiente porque **la carpeta se borra**.
+
+El bloqueo decisivo fue **de vehículo, no de contenido**: `just`, `herdr`, `jq`, `pi`,
+`npm` y `brew` están los seis ausentes, `--append-system-prompt-file` no existe en claude
+2.1.152, no hay output-styles en esta versión, y la extensión de VSCode no pasa flags de
+CLI. **El único vehículo de instrucción por-sesión acá es `CLAUDE.md`.**
+
+Lo que sí compra algo: **nada gobierna hoy cómo responde Claude en el chat**
+(`@humanizer-es` declara su alcance en el guion hablado y los entregables). Y los códigos
+de referencia que el repo ajeno propone **ya son convención de facto** en los
+`hallazgos.md` (F1 aparece 120 veces bajo `sprints/`) sin estar escritos en ninguna parte.
+
+**Decisiones de Ernesto:** alcance solo chat · el trailer `Co-Authored-By` se mantiene ·
+se adoptan códigos y alias · la carpeta se borra una vez cosechada.
+
+**Pendiente, para una sesión limpia:** escribir la sección de CLAUDE.md (30-35 líneas) y
+recién después borrar la carpeta. Handoff
+`.handoffs/handoff_20260825_contrato_chat_claudemd.md`.
+
+---
+
 ## Cosecha del 25-ago — B3 y B1 corrieron solos y terminaron bien
 
 Registrado al cerrar la sesión 24 (que fue el 23). **La reunión del lunes 24 ya pasó y esta
