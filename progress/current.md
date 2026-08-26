@@ -4409,6 +4409,93 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 28 — 26-ago-2026 · el cruce de las 94 EJECUTADO, el B9 abierto y el B8 cerrado
+
+> Ejecutó entero el plan de la sesión 27 (`.handoffs/handoff_B9_20260825_apertura.md`), los
+> cuatro bloques. **Todo CPU: cero `sbatch`.** Tres commits, pusheados.
+
+### 1. El cruce de las 94 marcas (bloque 1)
+
+`scripts/cruce_94_marcas.py` · `results/b9_cruce_94/` ·
+`sprints/B9_sprint9/mitosis_12_laminas/cruce_94.md`
+
+**26 de las 94 marcas a 30 µm = 27,7 %**, emparejamiento uno a uno, plano de 7,5 a 50 µm (75 →
+27 · 100 → 28 · 150 → 33 · 200 → 36 · 300 → 41). Script **nuevo**, no una edición del existente:
+`cruce_hovernext_marcas.py` quedó intacto y de él se importan `marcas_mitosis()`,
+`emparejar_pares()`, `TOLS_UM` y `TOL_ADOPTADA_UM`. El emparejamiento no se re-implementó.
+
+**Lo que cambia la lectura del B8 entero: la 129741 aporta 13 de esos 26.** Sin ella las once dan
+**13 de 68 = 19,1 %**. O sea que **el 13 de 26 (50 %) no era pesimista, era el mejor caso de las
+doce**, y todo lo que se construyó sobre esa lámina hereda el sesgo. Sólo **5 de 12** láminas
+acreditan al menos una marca, y esas cinco concentran 77 de las 94.
+
+**El cero de las otras siete NO es desalineación**, con tres argumentos: los offsets se validaron
+antes y con criterio independiente (94 de 94 sobre parche, A3); donde algo empareja lo hace a
+**menos de 16 px**, y un offset global equivocado desplazaría todas las marcas por igual (la
+126504 tiene 5 aciertos a 7,5 µm junto a quince fallos a 300 µm); y casi todas las de cero son
+las de **pocas detecciones** (la 110616 tiene 5 en la lámina entera).
+
+Los tres chequeos, en verde: **94** marcas, **732** detecciones, y la **regresión de la 129741**
+idéntica a la del B8 en las diez tolerancias. El script **aborta** si difiere.
+
+### 2. Dos premisas del handoff que no calzaban con el disco
+
+- **La región anotada de la B25-158899 es la de ARRIBA** (`region[0]`; sus 38 de 38 anotaciones
+  entre y=7537 y y=17495), no la de abajo como la 129741. Un corte escalar `y >= 30720` **da vuelta
+  esa lámina**. A `Y_CORTE_REGION` de `scripts/techo_atencion_topk.py:45` no le faltaba un valor por
+  lámina: **le faltaba la dirección**. Queda el intervalo `[y_min, y_max)` por lámina, verificado
+  contra las marcas, que falla ruidosamente si está mal. Con él, la B25-158899 tiene **2 de sus 7**
+  detecciones en la región anotada, no 5. Los números del cruce **no cambian** (el emparejamiento
+  nunca se confinó y la región contraria está a decenas de miles de píxeles); lo que se corrige es
+  el reporte.
+- **Cuatro clases del inventario venían contadas sobre el glob de TRECE geojson**: `Tumor`
+  **108 → 98**, `AreaSolida` **54 → 45**, `AreaTubular` **30 → 25**, `NucleosBajoGrado`
+  **25 → 16**. La trampa del 13º archivo estaba cazada para `Mitosis` (94, no 95) **y no para el
+  resto**. Los `n` correctos sobre los doce `- GDT` suman **472** anotaciones y **21 clases**, de
+  las cuales **sólo `Tumor` y `Mitosis` están en las doce láminas**.
+
+### 3. El B9 abierto (bloque 2)
+
+`sprints/B9_sprint9/objetivos_sprint9.md` con las cinco secciones fijas más *Qué no se afirma*, y
+los tres objetivos de la reunión textuales. Destino: **dejar medido en qué tareas HoVer-NeXt aporta
+y en cuáles es ciego**, y entregar la primera versión de una **zona propuesta al patólogo** con su
+número.
+
+`sprints/B9_sprint9/hovernext_tareas/inventario_tareas.md`, que es lo que Ernesto pidió primero:
+**ocho ejes** con rúbrica de seis columnas. El resultado que mueve el plan: **pleomorfismo y
+tumor/estroma son CPU, no GPU**, porque las **siete** clases de Lizard y los `pinst_pp.zip` están
+en disco para las doce (12 GB, gitignored **pero no ausentes**, verificado). **Tres NO-GO
+argumentados** (permeaciones vasculares, microcalcificaciones, arquitectura): el objeto de esas
+tareas **no es un núcleo**, así que no es falta de presupuesto. Necrosis queda **GO** con costo
+extrapolado de **7 a 9 h** de GPU para las cinco láminas que la tienen.
+
+Sección propia para el objetivo 3: **computables hoy** el conteo por mm², el mapa de densidad, el
+**hotspot** (que es la zona a proponerle al patólogo), el recall **a carga fija** y la concordancia
+ordinal; **no computables** precisión, F1 y cualquier métrica con umbral de confianza, porque
+`pred_mitosis.tsv` no trae score y las once corrieron sin `--keep_raw`.
+
+### 4. El B8 cerrado (bloque 3)
+
+`progress/history.md` suma el resumen con el molde de B4 y B5. `objetivos_sprint8.md` lleva la nota
+de cierre arriba y el **cuerpo intacto**. `current.md` suma el roll-over y la línea de cierre en el
+bloque del B8; **el log de sesiones se conserva entero**.
+
+**Regla 11**: `git branch -a --no-merged main` salió **vacío**, así que se borraron las dos ramas
+mergeadas que quedaban, las dos del B5 y de hace dos meses: `chore/audit-cierre-loss-deck-b5`
+(da7aafb) y `chore/audit-notas-guion-b5` (4a625e1). Verificado antes de borrar que las dos son
+**ancestro de main** (cero pérdida) y que no tenían equivalente en remoto.
+
+### 5. Estado al cierre
+
+Rama `main`, **sincronizada con `origin`** (3 commits pusheados: `aa3f53c`, `1eee28f`, `a04a902`),
+working tree limpio. **Cero jobs propios**: los `sdonoso` 5086 y 5088 son de otro operador
+(`WorkDir=Test_D/D_abs_cambiado`, verificado con `scontrol`, workaround L.b). La GPU la tiene
+`nschiaffi` 5085 hace **más de un día**. **B2 sigue sin lanzar.**
+
+**Hueco anterior a esta sesión, no tocado:** **B6 y B7 nunca pasaron a `history.md`**.
+
+---
+
 ## Sesión 27 — 25-ago-2026 · la reunión dejó tres objetivos, y el formato de presentación cambió
 
 > Sesión de **PLAN**, sin GPU y sin ejecutar el sprint. Cierra dejando el plan escrito para una
