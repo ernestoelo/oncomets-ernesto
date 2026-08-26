@@ -4401,6 +4401,36 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 26 — 25-ago-2026 · escrito el contrato de comunicación en chat, y borrada la carpeta
+
+Sesión limpia, documental, sin GPU: ejecuta el plan que la 25 dejó escrito y nada más.
+
+**CLAUDE.md §"Contrato de comunicación en chat"** (commit `8ed4289`, líneas 1508-1542, junto a
+§"Contexto del usuario para sesiones rápidas"). **35 líneas**, 1507 → 1542, dentro del presupuesto
+de 30-35. Lleva las tres primitivas cosechadas: conclusión al final de la respuesta, códigos de
+referencia y alias. Alcance **solo el chat**: los entregables escritos siguen bajo `@humanizer-es`
+y las reglas de deck, y la sección los enlaza en vez de copiarlos.
+
+**Lo que se recortó para entrar en presupuesto** (el primer borrador salía en 44 líneas): de las
+colisiones de namespace quedaron `A1`/`B1` (brazos del grid 4774 y encargos de Sebastián) y `Q1` (la
+pregunta del B7), y se fue `P1`-`P4`, que no era colisión real porque la sección no define códigos
+`P`. También se fue la cláusula "en respuestas cortas, no", que ya la implica el umbral de tres o
+más. Las dos siguen completas en la memoria.
+
+**La carpeta `fixing-smartass-opus-5-main/` se borró** (14 archivos, 192 KB, nunca trackeada),
+después del commit y con confirmación de Ernesto en el momento. El orden importaba: la memoria
+[[fixing-opus5-evaluacion-y-cosecha]] y la sección son lo que queda en su lugar, y la memoria
+incluye los textuales de lo rechazado para no tener que volver al original.
+
+**Verificado que la sección no choca con nada**: los alias `scr`/`eli`/`foc`/`cod` no colisionan con
+ningún token del repo (el único match de `cod` es el glob `*.py[cod]` de un `.gitignore` de
+ejemplo), y de los códigos de referencia solo `@grilling` los usaba en una skill. Sin cambios en
+agentes ni en skills.
+
+**Nada del sprint se movió.** Los pendientes del B8 siguen abiertos tal como los dejó la sesión 24.
+
+---
+
 ## Sesión 25 — 25-ago-2026 · sesión de PLAN: evaluado `fixing-smartass-opus-5`, cosecha sin ejecutar
 
 Sesión sin GPU y sin tocar el sprint. Ernesto subió al root del repo
