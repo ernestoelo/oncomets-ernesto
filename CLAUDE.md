@@ -1293,6 +1293,23 @@ Si falla por `timm` en `models/__init__.py`, aplicar fallback `importlib.util`
 plano. Estilo visual: `Modelo_OncoMets_Spatial_V1.pdf`. Estructura:
 `Plantilla.pdf`.
 
+> **ADDENDUM 25-ago-2026 — la plantilla oficial CAMBIÓ, y todos los ADDENDUM de
+> abajo quedan como historia del template anterior.** Ernesto borró las plantillas
+> viejas de `papers/presentations/` y dejó la única válida:
+> **`[AAAAMMDD] [Nombre Apellido] [Image-to-text].pptx`** (de `sgaete`, verificada en
+> su `docProps`). **Supersede a Deep-LLM-V para todo deck nuevo.** Lo que cambia:
+> el deck va en **inglés**, son **4 láminas** con registro de *executive deck*
+> (portada → tabla `OBJECTIVES <rango de fechas>` → contenido → tabla
+> `Tasks for the next period`), otra paleta (`1A1A2E` título, `1B4F8C` cuerpo,
+> `5293DE` acento, `28D5C1` teal de portada) y **nombre de archivo con el patrón
+> `[AAAAMMDD] [Nombre Apellido] [Proyecto].pptx`**, los corchetes incluidos.
+> Lo que **NO** cambia: Barlow en todo (el `fontScheme` del theme sigue siendo
+> **Arial**, así que `forzar_barlow()` sigue haciendo falta), construir **sobre** el
+> `.pptx` de la plantilla y nunca con `Presentation()`, todo nativo y no PNG, y las
+> notas como guion hablado. **El `.pptx` NO está versionado** (`papers/presentations/`
+> es gitignored): la especificación completa y verificada, que es lo que permite
+> reconstruirlo, vive en **`docs/plantilla_oficial.md`**.
+
 > **Aclaración 19-jul-2026 — no son dos plantillas, son dos CABECERAS de la
 > misma.** `Plantilla.pptx` (30 láminas) contiene las dos: la **Environ**
 > (cuadro teal + barra gris) en sus 13 láminas administrativas (portada,
