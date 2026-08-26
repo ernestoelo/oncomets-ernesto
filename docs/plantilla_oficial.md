@@ -94,3 +94,54 @@ Igual que s02 pero **tabla 4×3** (`Objective · Deliverable · Date`, sin `Stat
 El deck cuenta un período, no un sprint entero: **qué me propuse (s02) · qué salió (s03, tantas
 como haga falta) · qué sigue (s04)**. Las dos tablas son las que sostienen la reunión, y la de
 `Tasks for the next period` es la que después se convierte en los objetivos del período siguiente.
+
+## 7. Cómo se construye un deck sobre esta plantilla
+
+> Verificado el **26-ago-2026** leyendo el archivo con python-pptx. Nada de acá es inferido.
+
+**El deck se RELLENA en sitio, no se reconstruye.** Invierte lo que hicieron los seis decks
+anteriores, que abrían el template y le **borraban** las láminas para dibujar todo de cero
+(`base_from_template()` de `generate_b8_deck.py:341`, con su `TPL_KEEP`). Con esta plantilla ese
+camino cuesta más y sale peor: las tablas de s02 y s04 traen las filas de cuerpo **vacías pero ya
+estilizadas** (relleno `1B4F8C` en la cabecera, bordes por celda, márgenes de 22860 EMU,
+`anchor="ctr"`, 16 pt bold blanco), y reproducir eso a mano es trabajo perdido y una fuente de
+diferencias contra el molde.
+
+El esqueleto queda así:
+
+```
+abrir la plantilla
+├── s01 portada     → se conserva TAL CUAL (titular de la empresa, no contenido nuestro)
+├── s02 OBJECTIVES  → reescribir el título y rellenar la tabla, quitando las filas que sobren
+├── s03 contenido   → clonar tantas veces como láminas de contenido, reescribir, y BORRAR
+│                     el s03 original (trae el ejemplo de otra persona)
+└── s04 Tasks       → reescribir el título y rellenar la tabla
+reordenar el sldIdLst · forzar_barlow · auditar · guardar
+```
+
+Sigue en pie el motivo de siempre para abrir el `.pptx` en vez de usar `Presentation()`: la
+plantilla **embebe Barlow** y un deck construido desde cero la pierde
+([[deck-template-fuentes-embebidas]]).
+
+### 7.a Las tres maniobras de python-pptx que esto exige
+
+1. **Clonar s03.** De sus siete formas, **sólo la imagen tiene una relación** (`r:embed` del
+   `a:blip`). Las otras seis (cejilla, título, cuerpo, la línea de remate, la barra y un
+   `Text 2` vacío) no referencian nada, así que se clonan con un `deepcopy` del XML a una lámina
+   nueva del layout `DEFAULT` **sin copiar rels**. Si la figura va a ser nativa, la imagen no se
+   clona y el problema de las relaciones no existe.
+2. **Quitar o agregar una fila de tabla**: sacar o insertar el `<a:tr>` y ajustarle la altura al
+   `graphicFrame` por el `h` de esa fila. No hay API en python-pptx.
+3. **Reordenar láminas**: mover el `sldId` dentro del `sldIdLst`. Tampoco hay API.
+
+### 7.b Dos detalles que muerden al escribir
+
+- El cuerpo de s03 usa `algn="just"` con **`spAutoFit`**, que python-pptx **no recalcula**: la
+  altura guardada es la que dejó PowerPoint para el texto anterior. Fijarla midiendo el texto con
+  los TTF de Barlow (`_face` / `text_w` / `wrap_lines` de `generate_b8_deck.py:708`) en vez de
+  confiar en el autofit.
+- El `Text 2` vacío de s03 está en L=0,41 T=1,41, **justo donde va el cuerpo**. Conviene no
+  clonarlo.
+- La portada trae un «—» en el titular de la empresa. Es copy ajeno y no se edita, así que
+  cualquier barrido de rayas ([[deck-estilo-sin-rayas-ni-palanca]]) **tiene que excluir s01** o
+  reporta un falso positivo en cada corrida.
