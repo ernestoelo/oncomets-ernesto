@@ -4401,6 +4401,68 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 27 — 25-ago-2026 · la reunión dejó tres objetivos, y el formato de presentación cambió
+
+> Sesión de **PLAN**, sin GPU y sin ejecutar el sprint. Cierra dejando el plan escrito para una
+> sesión limpia: `.handoffs/handoff_B9_20260825_apertura.md`.
+
+### 1. La reunión con Sebastián y Benjamín, y qué pidió
+
+Ernesto trajo los tres objetivos textuales del período que viene. **No estaban en el repo**: los
+escribió en su copia local del deck, así que `sprints/B8_sprint8/` no los tiene.
+
+1. **Escalar la tarea de mitosis con HoVer-NeXt a más WSI etiquetadas por el patólogo.**
+2. **Evaluar HoVer-NeXt para la tarea de necrosis.**
+3. **Evaluar la implementación de nuevas métricas para la tarea de mitosis.**
+
+Y el encuadre de Ernesto: el eje del período es **ahondar en HoVer-NeXt y hacer más pruebas que
+ayuden a demarcar una zona importante para el patólogo**. Es la misma pretensión del 14-ago
+(HoVer-NeXt vale aunque no suba ninguna métrica, porque le propone zonas al patólogo), ahora como
+objetivo del sprint y no como argumento suelto.
+
+**Decisiones de Ernesto en esta sesión:** el **B8 se cierra** y sus pendientes se re-enuncian en el
+B9 · el **cruce de las 94 marcas se ejecuta** (el análisis B3 del gate queda de pendiente) · la
+plantilla nueva es **el formato oficial**, en inglés, con el tercer corchete como nombre de proyecto.
+
+### 2. El formato de presentación cambió, y no es un cambio de branding
+
+Ernesto borró todas las plantillas viejas de `papers/presentations/` y dejó una sola:
+`[AAAAMMDD] [Nombre Apellido] [Image-to-text].pptx`. Verificada leyendo el archivo, **supersede a
+Deep-LLM-V**: va en **inglés**, son **4 láminas** de registro ejecutivo (portada → tabla
+`OBJECTIVES <rango de fechas>` → contenido → tabla `Tasks for the next period`) y cambia la paleta
+entera (`1A1A2E` título, `1B4F8C` cuerpo, `5293DE` acento, `28D5C1` teal de portada). Sigue en pie
+Barlow embebida con `fontScheme` **Arial** por debajo, así que `forzar_barlow()` no se puede
+saltear.
+
+El `.pptx` **no se versiona** (`papers/presentations/` es gitignored), así que la especificación
+verificada quedó en **`docs/plantilla_oficial.md`**, que es lo que permite reconstruirlo si se
+pierde. `CLAUDE.md` §"Formato de entregables" lleva el ADDENDUM que lo declara oficial.
+
+### 3. Tres cosas que la exploración verificó, y ninguna costó GPU
+
+- **`sgaete` está haciendo detección de mitosis con YOLOv11-m.** La lámina de ejemplo de la
+  plantilla es suya y trae sus números de Phase 2: **recall 0,952 con 2.348 TP / 3.918 FP / 119
+  FN**. Es el **segundo** solape con `sgaete` en nuestro mismo eje, después del pipeline de
+  atención-vs-anotaciones. Coordinar **antes** de escalar mitosis, que es justo el objetivo 1.
+- **En `sdonoso/anotaciones/` hay 13 geojson, no 12.** El extra es
+  `103762.bif - Series 0-full.geojson`: las mismas 34 anotaciones **más un rectángulo sin clase**
+  que cubre la región entera (x 0-33280, y 0-28160). **El denominador sigue siendo 94 marcas**; un
+  `glob` ingenuo cuenta 95.
+- **La salida de HoVer-NeXt de las 12 láminas tiene las siete clases en disco**, no solo mitosis:
+  los `pred_<clase>.tsv` y los `pinst_pp.zip` están (gitignored por peso, no ausentes). Eso vuelve
+  **CPU post-hoc** dos ejes que parecían pedir GPU: descriptores de núcleo para pleomorfismo y
+  fracción epitelio/estroma para arquitectura.
+
+### 4. Estado al cierre
+
+Rama `main`, sincronizada, working tree limpio salvo lo documental de esta sesión. **Cero jobs
+propios**: los tres `sdonoso` en cola (5086, 5088, 5094) son de otro operador
+(`WorkDir=Test_D/D_abs_cambiado`, workaround L.b). La GPU la tiene `nschiaffi` 5085 hace 11 h y los
+`PD` devuelven `StartTime=2027`, que es la firma de que no hay backfill (workaround L). **B2 sigue
+sin lanzar** y el cruce de las 94 **no se ejecutó**: está planificado, no hecho.
+
+---
+
 ## Sesión 26 — 25-ago-2026 · escrito el contrato de comunicación en chat, y borrada la carpeta
 
 Sesión limpia, documental, sin GPU: ejecuta el plan que la 25 dejó escrito y nada más.
