@@ -675,6 +675,15 @@ en **marcas** (26). Coinciden en algunas celdas por casualidad. **Declarar la un
 o alguien va a leer una como continuación de la otra. Detalle:
 `sprints/B8_sprint8/hovernext_129741/cruce_marcas.md`.
 
+> **ACOTACIÓN 25-ago-2026 — el caso de referencia era el MEJOR de doce, no el típico.** Generalizado
+> el cruce a las 12 láminas anotadas, la detección da **26 de 94 marcas (27,7 %)** y la 129741
+> aporta **13 de esos 26**: sin ella el agregado cae a **19,1 %**, y sólo 5 de 12 láminas acreditan
+> una marca. **El patrón no cambia** (los dos factores se miden igual y la intersección sigue siendo
+> mejor que `min()`); lo que cambia es que **el segundo factor de arriba, 13 de 26, es optimista**.
+> Regla que se desprende: un caso de referencia de **una** unidad no da la magnitud, sólo el método;
+> antes de presupuestar con él, medir la dispersión sobre las demás. Detalle:
+> `sprints/B9_sprint9/mitosis_12_laminas/cruce_94.md`.
+
 **P2.a.ter — si la etapa cara se puede pagar entera, CORRERLA SIN EL FILTRO** (19-ago-2026).
 P2.a dice cómo medir el techo del filtro sin correr lo caro. Ésta es la decisión **anterior**, y
 gobierna a las otras dos: cuando el presupuesto alcanza, se corre la etapa cara **sobre todo** y el
