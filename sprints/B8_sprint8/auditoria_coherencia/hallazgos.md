@@ -2568,3 +2568,46 @@ Detalle en `presentacion_b8/README.md`, sección del 19-ago (noche).
 - **Lo barato que sigue** (Y2): si los núcleos fallados fueron segmentados y mal clasificados.
 - Coordinar con `sgaete`; los dos papers de `papers_11_agosto/` sin fichar; las dos preguntas del
   6-ago; la réplica del 4589 con semillas nuevas; el sign-off del patólogo; `@grilling` sin estrenar.
+
+---
+
+# Pasada de la sesión 26 (25-ago-2026) — el contrato de chat aterrizó en CLAUDE.md
+
+Sesión documental de un solo entregable, así que la pasada es corta. Lo que se audita es si la
+sección nueva de `CLAUDE.md` (§"Contrato de comunicación en chat", commit `8ed4289`) contradice o
+deja stale algo de los cuatro frentes.
+
+## Z1 — dos punteros declaraban pendiente algo ya hecho (stale)
+
+`progress/current.md` §"Sesión 25" cerraba con *"Pendiente, para una sesión limpia: escribir la
+sección de CLAUDE.md"*, y la línea de índice de `MEMORY.md` describía la cosecha sin decir dónde
+había aterrizado. La memoria `fixing-opus5-evaluacion-y-cosecha` decía **PENDIENTE** en su §Estado.
+
+**Corregido**: §Estado pasa a HECHO con el hash y el conteo de líneas, la `description` del
+frontmatter deja de decir "quedó PENDIENTE de escribir", `MEMORY.md` apunta a la sección, y
+`progress/current.md` suma la entrada de la sesión 26. **La línea de la sesión 25 NO se reescribe**:
+es registro histórico y la entrada nueva la supersede por orden cronológico.
+
+## Z2 — la sección nueva no colisiona con nada (verificado, no asumido)
+
+Es la parte que importaba, porque la sección introduce vocabulario nuevo (seis códigos y cuatro
+alias) en un repo que ya usa esas letras:
+
+- **Alias** `scr`/`eli`/`foc`/`cod`: cero colisiones como token suelto bajo `.claude/` y `CLAUDE.md`.
+  El único match de `cod` es `*.py[cod]`, una clase de caracteres dentro de un `.gitignore` de
+  ejemplo en `dev-workflow/references/`, que no es un token de chat.
+- **Códigos de referencia**: de los seis, en skills y agentes solo los usa `@grilling` (`Q1`). Las
+  tablas `F1/D1/O1/R1` viven en los `hallazgos.md` bajo `sprints/`, o sea en documentos, que es
+  exactamente el caso que cubre la segunda cláusula anti-colisión ("manda el doc").
+- **Reglas de tono**: no existía ninguna otra que gobernara el chat, que es el hueco que la sección
+  vino a llenar. `@humanizer-es` declara su alcance en el guion hablado y la prosa de entregables, y
+  la sección lo enlaza en vez de duplicarlo.
+
+## Verificado sin cambios
+
+- **Agentes** (`trainer`, `reviewer`): sin contacto. La sesión no tocó modelo ni entrenamiento, así
+  que la regla 9 no aplica.
+- **Skills**: ninguna se editó. Se evaluó agregarle un puntero a `@knowledge-audit` y `@grilling`
+  desde la sección, y se descartó: las dos ya hacen lo que la sección formaliza, y el puntero sería
+  ruido aditivo contra [[edicion-concisa-agentes-skills]].
+- **Presupuesto de `CLAUDE.md`**: 1507 → 1542 líneas, 35 aditivas y ninguna borrada.
