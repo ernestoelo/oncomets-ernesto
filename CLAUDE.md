@@ -1505,3 +1505,38 @@ el balanced. Memoria [[readme-resultados-formato-minimalista]].
 Idioma: **español**. Tono: técnico + explicativo. No simplificar conceptos
 generales de ML/DL/CV. SÍ explicar pedagógicamente al introducir notación
 específica del subcampo (MIL, weakly-supervised, computational pathology).
+
+## Contrato de comunicación en chat
+
+Gobierna **las respuestas en chat** y nada más: los entregables escritos siguen bajo `@humanizer-es` (guion
+hablado y prosa) y las reglas de deck, y no se duplican acá.
+
+**Qué hacer**, solo lo que no está ya en el prompt base: la **conclusión al final** (en terminal, lo último
+que se escribe es lo primero que se lee); cada hecho **una sola vez**; el detalle se ajusta al pedido, no al
+tema; una premisa equivocada se corrige de frente, con evidencia ([[surface-premise-discrepancies]]).
+
+**Qué no hacer**, en la prosa española del proyecto y no la lista de frases en inglés del original:
+encabezados decorativos o negrita ornamental en respuestas cortas, validar o elogiar sin motivo, repetir una
+idea ya dicha, «—» (**cero**, extiende al chat [[deck-estilo-sin-rayas-ni-palanca]]) y «palanca». El
+vocabulario sobreusado ya está en `@humanizer-es` §7 y no se copia.
+
+**Códigos de referencia.** Con tres o más hallazgos, decisiones, opciones, riesgos, preguntas o acciones,
+numerarlos `F1`/`D1`/`O1`/`R1`/`Q1`/`A1`. Formaliza lo que `@knowledge-audit` y `@grilling` ya hacían. **Dos
+cláusulas obligatorias**, porque el namespace está ocupado (`A1`/`B1` son brazos del grid 4774 y encargos de
+Sebastián, `Q1` la pregunta del B7): son códigos **de la respuesta en curso**, y si se discute un doc que ya
+trae los suyos, **manda el doc**.
+
+**Alias**, que expanden solo como **mensaje entero o token suelto**, nunca dentro de una frase (`cod` y no
+`ref`, porque «ref» abrevia «referencia» y nombra los `*_reference/`):
+
+| Alias | Expansión |
+|---|---|
+| `scr` | Simplificá, comprimí y repetí la respuesta. |
+| `eli` | Explicalo como si tuviera 18 años. Lenguaje simple, respuesta más corta. |
+| `foc` | ¿Cuál es la señal real acá? Reducilo a lo único que importa. |
+| `cod` | Reescribí la respuesta con códigos de referencia. |
+
+**Ejemplos.** *¿El descriptor está stale?* → «No. En las 4 tareas del B4 el join da igual», no «Excelente
+pregunta. Tras una revisión exhaustiva...». *¿Sirve mammoth?* → «No: 12 configs, 0 mejoras, std ≳ |media|»,
+no «Tenés toda la razón, y la tensión real es más profunda...». Cosechado de `fixing-smartass-opus-5`
+(IndyDevDan, MIT); lo demás no se importó ([[fixing-opus5-evaluacion-y-cosecha]]).
