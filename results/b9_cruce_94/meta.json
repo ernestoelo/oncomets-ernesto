@@ -1,0 +1,63 @@
+{
+  "que_es": "recall de deteccion de HoVer-NeXt contra las 94 marcas de Mitosis del patologo, sobre las 12 laminas anotadas",
+  "unidad": "marcas de Mitosis",
+  "no_es": [
+    "precision de HoVer-NeXt",
+    "el recall de HoVer-NeXt: el denominador son LAS MARCADAS, no las mitosis que hay en la lamina",
+    "una medida por lamina: seis laminas tienen <=3 marcas",
+    "parches (28 en la 129741), detecciones (732) ni poligonos (472)"
+  ],
+  "n_laminas": 12,
+  "n_marcas": 94,
+  "n_detecciones": 732,
+  "tolerancia_adoptada_um": 30.0,
+  "tolerancias_barridas_um": [
+    7.5,
+    15,
+    22.5,
+    30,
+    50,
+    75,
+    100,
+    150,
+    200,
+    300
+  ],
+  "tp_adoptada": 26,
+  "recall_adoptada": 0.2766,
+  "mpp": 0.465,
+  "emparejamiento": "hungaro uno a uno con corte por tolerancia",
+  "procedencia": {
+    "job_129741": 5008,
+    "job_11_laminas": 5070,
+    "pesos": "lizard_mitosis (la unica de los dos juegos con clase de mitosis)",
+    "geojson": "/media/administrador/Storage1/sdonoso/anotaciones/<slide>.bif - GDT.geojson",
+    "offsets": "sprints/B8_sprint8/anotaciones_patologo/offset_<slide>.json (A3, 21-ago)",
+    "offsets_dx": {
+      "129741": 3829,
+      "126504": 8981,
+      "128194": 7431,
+      "124729": 13358,
+      "124806": 8890,
+      "B25-158899": 22708,
+      "144317": 10349,
+      "164001": 11261,
+      "106552": 15501,
+      "103762": 19148,
+      "109609": 10030,
+      "110616": 8981
+    },
+    "region_anotada": {
+      "129741": [
+        49920,
+        80640
+      ],
+      "B25-158899": [
+        0,
+        25600
+      ]
+    }
+  },
+  "regresion_129741": "OK",
+  "chequeos_fallidos": []
+}

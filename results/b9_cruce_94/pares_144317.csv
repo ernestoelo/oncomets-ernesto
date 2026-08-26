@@ -1,0 +1,4 @@
+marca,x,y,lado_px,en_region_anotada,dmin_px,dmin_um,acreditada,deteccion,det_x,det_y
+0,27705.7,23322.9,34.0,True,8920.7,4148.1,False,-1,,
+1,27531.7,23853.9,34.0,True,9393.4,4367.9,False,-1,,
+2,31881.1,20842.0,40.0,True,8929.6,4152.3,False,-1,,
