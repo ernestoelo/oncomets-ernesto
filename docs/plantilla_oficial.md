@@ -83,7 +83,11 @@ El rango de fechas del título es el **período que cubre el deck**, no la fecha
   cada punto en **bold** y el resto en regular. Ese bold de entrada es la gramática de la lámina:
   hace de rótulo, no de énfasis.
 - Figura centrada debajo (en el archivo: 9,12 × 3,80 en L=1,66 T=2,92).
-- Remate al pie: barra `1B4F8C` en T=6,72 (12,10 × 0,40) y línea `E4E9EC` en T=7,08.
+- Remate al pie: línea `E4E9EC` en T=7,08, y encima un **cuadro de texto de pie VACÍO**
+  en T=6,72 (12,10 × 0,40), centrado. **No es una barra `1B4F8C`**: su `spPr` trae
+  `<a:noFill/>` y `<a:ln><a:noFill/></a:ln>` (verificado en el XML el 26-ago, corrige la
+  primera redacción de este §). Lo único visible al pie es la línea; el cuadro se respeta
+  como límite inferior del contenido porque es la zona de pie, no porque se vea.
 
 ### s04 — `Tasks for the next period`
 Igual que s02 pero **tabla 4×3** (`Objective · Deliverable · Date`, sin `Status`) en L=1,37 T=2,72,
