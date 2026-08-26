@@ -1,5 +1,15 @@
 # Sprint 8 (B8) — mapa
 
+> ## CERRADO el 25-ago-2026
+>
+> Resumen de cierre en [`../../progress/history.md`](../../progress/history.md)
+> §"Sprint 8 (B8)". El sprint siguiente arranca en
+> [`../B9_sprint9/objetivos_sprint9.md`](../B9_sprint9/objetivos_sprint9.md), y hereda los
+> pendientes vivos (B2 sin lanzar, el análisis B3 del gate, la réplica del 4589, el
+> vocabulario de necrosis y los pendientes con personas).
+>
+> **El cuerpo de abajo no se toca**: queda como estaba al cierre.
+
 > **Reestructurado el 5-ago-2026** como índice, adoptando la gramática de secciones de la
 > skill *wayfinder* (Destino / Decisiones / Todavía sin especificar / Fuera de alcance).
 > Antes era una narrativa cronológica de 319 líneas con tres ADDENDUMs encima, que

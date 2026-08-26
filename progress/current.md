@@ -8,6 +8,9 @@
 > salió bien). El eje **magnificación** de B6 **NO se cierra**: sigue vivo (pipeline
 > armado, se lanza el próximo fin de semana con OK) y se arrastra a B7 más abajo. El
 > detalle histórico de B6 puede pasar a `history.md` **si Ernesto lo pide** (pendiente).
+> **Roll-over 25-ago-2026:** **B8 CERRADO**, resumen en `history.md` §"Sprint 8 (B8)"; abre
+> **B9** sobre HoVer-NeXt (`sprints/B9_sprint9/objetivos_sprint9.md`). El log de sesiones de
+> abajo **se conserva entero**: recortarlo es decisión de Ernesto, aparte.
 
 ---
 
@@ -787,6 +790,11 @@ Sesión de deck, sin GPU ni CPU pesado. Sin cambios al `.pptx` ni al generador.
 ---
 
 ## Reunión del 24-jul-2026 (viernes) — B7 presentado, se abre B8
+
+> **El B8 que abre acá quedó CERRADO el 25-ago-2026.** El resumen consolidado está en
+> [`history.md`](history.md) §"Sprint 8 (B8)"; el mapa del sprint, en
+> [`../sprints/B8_sprint8/objetivos_sprint8.md`](../sprints/B8_sprint8/objetivos_sprint8.md).
+> Lo que sigue es el **log de sesiones**, que se conserva como estaba.
 
 Presentación del Sprint 7 ante **Sebastián y Benjamín**. Según Ernesto, **la mejor
 reunión hasta ahora**: quedó demostrado el entendimiento del mecanismo al explicar
