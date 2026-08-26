@@ -4409,6 +4409,71 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 29 — 26-ago-2026 · el deck del período, especificado entero y sin ejecutar
+
+> Sesión de **PLAN**. Cero GPU, cero `sbatch`, cero código escrito. Cierra dejando el generador
+> del deck especificado al detalle para una sesión limpia:
+> `.handoffs/handoff_B9_20260826_deck_ejecutar.md`.
+
+### 1. La plantilla oficial, verificada contra el archivo
+
+`docs/plantilla_oficial.md` se escribió el 25-ago leyendo el `.pptx` y **calza exacto**: 13,333 ×
+7,5, la paleta entera, la tabla 5×4 de s02 y la 4×3 de s04, y las cuatro láminas shape a shape. No
+hubo que corregir nada. Lo que el doc **no** tenía es cómo se usa, y eso es lo que se agregó como
+§7.
+
+### 2. El hallazgo de método: el deck se RELLENA en sitio, no se reconstruye
+
+Invierte lo que hicieron los seis decks anteriores, que abrían el template y le **borraban** las
+láminas para dibujar todo de cero (`base_from_template()` de `generate_b8_deck.py:341`, con su
+`TPL_KEEP`). Con esta plantilla ese camino cuesta más y sale peor: las tablas de s02 y s04 traen
+las filas de cuerpo **vacías pero ya estilizadas** (relleno `1B4F8C` en cabecera, bordes por celda,
+márgenes de 22860 EMU, `anchor="ctr"`, 16 pt bold blanco), y rehacerlas a mano es trabajo perdido
+que además se aparta del molde.
+
+Las tres maniobras que ese enfoque exige, **ninguna con API en python-pptx**, verificadas en
+memoria contra el archivo real:
+
+1. **Clonar s03** con un `deepcopy` del XML a una lámina nueva del layout `DEFAULT`. De sus siete
+   formas **sólo la imagen tiene relación** (`r:embed` del `a:blip`), así que si la figura va a ser
+   nativa no hay ni una rel que copiar.
+2. **Quitar o agregar una fila de tabla**: sacar o insertar el `<a:tr>` y ajustarle la altura al
+   `graphicFrame` por el `h` de esa fila.
+3. **Reordenar láminas**: mover el `sldId` dentro del `sldIdLst`.
+
+Dos trampas que salieron al verificar: el cuerpo de s03 usa `algn="just"` con **`spAutoFit`**, que
+python-pptx **no recalcula** (la altura hay que fijarla midiendo con los TTF de Barlow), y hay un
+`Text 2` vacío en L=0,41 T=1,41, **justo donde va el cuerpo**, que conviene no clonar.
+
+Y una que afecta al QA: **el titular de la portada trae un «—» y es copy de la empresa**, así que
+no se edita. Cualquier barrido de rayas tiene que **excluir s01** o reporta un falso positivo en
+cada corrida.
+
+### 3. Las cuatro decisiones de Ernesto
+
+| | |
+|---|---|
+| Guion | **español**, con las láminas en inglés (la plantilla lo exige, pero él presenta hablando) |
+| Proyecto (3er corchete y cejilla) | **Nuclear Detection**. No `Mitosis Detection`, que es el rótulo con el que `sgaete` presenta su YOLOv11-m en la lámina de ejemplo de la propia plantilla |
+| Período | **25/08/2026 – 08/09/2026** |
+| Láminas de contenido | **dos**: el cruce de las 94 marcas y el inventario de los ocho ejes. Deck de 6 |
+
+### 4. Lo que NO se hizo, y es todo lo que falta
+
+**No se escribió una línea del generador ni existe el `.pptx`.** El handoff lleva el contenido
+literal de las dos tablas y de las dos láminas de contenido, los helpers a portar con su número de
+línea, y las cuatro capas de QA, para que la sesión siguiente no re-derive nada.
+
+### 5. Estado al cierre
+
+Rama `main`, **cero jobs propios** (5086 y 5088 son de otro operador,
+`WorkDir=Test_D/D_abs_cambiado`, verificado con `scontrol`, workaround L.b). La GPU la tiene
+`nschiaffino` 5085 hace **más de 25 h** con `TimeLimit=UNLIMITED`, y `gvenegas` 5087 pide
+`UNLIMITED` también ⇒ **no hay backfill** y los `PD` devuelven `StartTime=2027` (workaround L).
+**B2 sigue sin lanzar.**
+
+---
+
 ## Sesión 28 — 26-ago-2026 · el cruce de las 94 EJECUTADO, el B9 abierto y el B8 cerrado
 
 > Ejecutó entero el plan de la sesión 27 (`.handoffs/handoff_B9_20260825_apertura.md`), los
