@@ -4409,6 +4409,103 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 30 — 26-ago-2026 · el deck del período, ESCRITO y verificado
+
+> Ejecuta el handoff de la sesión 29. Cero GPU, cero `sbatch`, cero jobs propios. Entrega
+> `sprints/B9_sprint9/presentacion_b9/`: generador, guion, README y el `.pptx` (gitignored).
+
+### 1. El deck: cinco láminas, no seis
+
+Primer deck sobre la plantilla oficial nueva. Registro **executive deck en inglés**:
+
+```
+s01  portada          TAL CUAL, es copy de la empresa. Sólo se le pone guion
+s02  OBJECTIVES 25/08/2026 - 08/09/2026     tabla 4x4 (se quitó la 4ª fila de cuerpo)
+s03  Mitosis: 26 of 94 pathologist marks    cuerpo + figura NATIVA de 12 barras
+s04  HoVer-NeXt: what is measurable, ...    cuerpo + tabla NATIVA de 8 ejes
+s05  Tasks for the next period              tabla 4x3
+```
+
+**Son cinco y no seis.** El handoff decía «seis» en §1, §10 y §11, pero su propia aritmética
+(«las cuatro de la plantilla más una lámina de contenido extra») da cinco, su §5 fija **dos**
+láminas de contenido y su §7 manda borrar la s03 original. El contenido literal de §8 cubre
+exactamente s02, s03(a), s03(b) y s04 más la portada: **no hay material especificado para una
+sexta**. Declarado en el README del deck.
+
+El método del §7 de `docs/plantilla_oficial.md` **funcionó tal cual**: clonar s03 con
+`deepcopy` sin copiar una sola rel, quitar la fila sobrante ajustando el `graphicFrame`, y
+reordenar el `sldIdLst`. Ninguna de las tres tiene API en python-pptx.
+
+**Los números se leen, no se transcriben.** `leer_datos()` arma el título, los tres puntos del
+cuerpo, las doce barras y el tramo plano de la escalera desde `results/b9_cruce_94/*.csv`, y
+**aborta** si el agregado y el por-lámina no coinciden. El guion vive en `guion_b9.md` y el
+generador lo lee: el `.md` es la fuente y las notas del `.pptx` son derivadas.
+
+### 2. Tres restricciones que el método no anticipaba
+
+Quedaron en `docs/plantilla_oficial.md` §7.c, que es donde las va a buscar el próximo deck.
+
+1. **El título de 40 pt en una línea condiciona la REDACCIÓN.** La caja mide 12,44" con
+   `lIns=0`: unos 46 caracteres de Barlow bold. El título de la segunda lámina de contenido
+   pedía **14,07"**, o sea dos líneas encima del cuerpo, o bajar a 34 pt y romper el 40 pt del
+   molde. Se reformuló a `HoVer-NeXt: what is measurable, and what is not` (11,99"), que dice
+   lo mismo. `set_titulo()` **aborta** si un título futuro no entra.
+2. **Con tres filas donde el molde trae cuatro, la tabla hay que estirarla.** Con el alto justo
+   del texto se encogía y dejaba media lámina vacía. `min_h=0.76` conserva la huella original
+   (0,745 + 3 × 0,76 = 3,03, el alto del molde).
+3. **`Google Shape;287;p7` NO es una barra `1B4F8C`**, es un cuadro de texto de pie **vacío**
+   (`<a:noFill/>`). Lo único visible al pie es la línea `E4E9EC` de 7,079. El spec lo daba como
+   barra de color en **dos** lugares, los dos corregidos. Lección: un spec «verificado leyendo
+   el archivo» puede acertar toda la geometría y errar un **relleno**, porque las propiedades
+   que uno lista con python-pptx no incluyen el fill y ése hay que ir al XML a buscarlo.
+
+### 3. El QA, y lo que encontró cada capa
+
+Las cuatro capas de [[deck-qa-puntos-ciegos-chequeo]], más las dos de estilo. Auditoría y
+barrido limpios al cierre; Barlow embebida con sus cuatro variantes y 1265 referencias forzadas.
+
+| Capa | Qué cazó |
+|---|---|
+| Round-trip estructural | nada (5 láminas en orden, tablas con las filas esperadas) |
+| Medición con los TTF de Barlow | el título de 14,07", y una celda a 0,02" de su filete |
+| Rasterizado y lectura visual | la tabla encogida de s02 y s05 |
+| **Cruce contra las fuentes** | **el `107 / 8`**, que las otras tres no podían ver |
+
+Dos cosas nuevas sobre el chequeo automático, las dos ya en la memoria:
+
+- **Medir dice si el texto ENTRA, no si RESPIRA.** «Scale mitosis detection to more annotated
+  WSI» medía 3,37" en 3,39" utilizables: una línea, cero avisos, y en el rasterizado tocaba el
+  borde. Hace falta una **banda de guarda** de 0,06" para una clase de defecto que vive entre
+  «entra» y «no entra».
+- **Los márgenes SUPUESTOS del auditor inventan defectos.** Asumía 0,20" de `lIns+rIns` y los
+  cuadros propios usaban 0,04": una leyenda de 1,01" en una caja de 1,18" se reportaba como
+  desborde. Se lee `text_frame.margin_left/right` y `cell.margin_left/right`, no se supone.
+
+### 4. El dato que estaba mal: 107 regiones sobre 12 láminas, no sobre 8
+
+El eje de grado nuclear iba como **`107 graded regions / 8`**, tomando el `/8` de
+`Nucleos alto grado` sola. Recontado sobre los doce geojson `- GDT`: las tres clases de grado
+son **disjuntas** (alto 8, moderado 2, bajo 2) y parten las doce exactas ⇒ **107 / 12**. O sea
+que **el grado está declarado en todas las láminas**, que es justo lo que vuelve barato ese eje.
+
+El resto del inventario dio **exacto**: 472 anotaciones, 21 clases, `Mitosis` 94/12,
+`Tumor` 98/12, `Stroma` 12/7, necrosis 18/5. Que necrosis (1+2+2 = 5) saliera bien no valida el
+método: es la misma forma y ahí las clases también eran disjuntas.
+
+Generalizado en [[conteo-de-grupo-es-union]]: un `n / unidades` de un **grupo** de clases es una
+**unión**; la suma por clase es cota superior y el máximo por clase cota inferior, y si el
+número publicado coincide con cualquiera de las dos hay que **verificar** por qué.
+
+### 5. Estado al cierre
+
+Rama `main`, working tree limpio, **cero jobs propios** (5086 `atencion` y 5088 `juez` son de
+otro operador, `WorkDir=.../Test_D/D_abs_cambiado`, verificado con `scontrol`). La GPU la sigue
+teniendo `nschiaffino` 5085 hace **más de 30 h** con `TimeLimit=UNLIMITED`, y `gvenegas` 5087
+pide `UNLIMITED` también ⇒ **sin backfill**, los `PD` devuelven `StartTime=2027`.
+
+**El guion no pasó por `@humanizer-es`.** Está escrito con la convención (prosa hablada, sin
+etiquetas de fase, sin nombres ni números de trabajo) pero la skill no se corrió sobre él.
+
 ## Sesión 29 — 26-ago-2026 · el deck del período, especificado entero y sin ejecutar
 
 > Sesión de **PLAN**. Cero GPU, cero `sbatch`, cero código escrito. Cierra dejando el generador
