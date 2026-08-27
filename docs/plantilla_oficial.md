@@ -171,3 +171,12 @@ plantilla **embebe Barlow** y un deck construido desde cero la pierde
    lado), o sea **3,39" utilizables** en la columna `Objective` y **5,98"** en `Deliverable`.
    Medir contra el ancho de la columna sin descontar los márgenes deja celdas pegadas al
    filete ([[deck-qa-puntos-ciegos-chequeo]]).
+4. **La plantilla es inglesa y el deck puede no serlo: el español ocupa más.** Del pase a
+   español del mismo deck (27-ago). Los encabezados del molde (`Objective | Deliverable |
+   Date | Status`) se traducen con un `_solo_run` por celda, que conserva el estilizado; lo
+   que no avisa es el **crecimiento del texto**. Un rótulo de figura que entraba en inglés
+   puede dejar de entrar (`recovered of marks` sí, `reencontradas de marcas` no), y el
+   título de 40 pt tiene el mismo problema con menos margen todavía: los ~46 caracteres de
+   la restricción 1 se gastan antes. **Los números también cambian de forma**: `%.1f`
+   escribe punto decimal y el resto del deck usa coma, así que hace falta un formateador
+   propio. Nada de esto lo ve la auditoría; se ve al rasterizar y mirar.
