@@ -82,14 +82,18 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   verificado) — gitignored por peso, **no ausentes**. Eso mueve los ejes de pleomorfismo y de
   tumor/estroma a **CPU post-hoc**. Lo que **no** está es el raw: las once corrieron sin
   `--keep_raw`.
-- **El deck del período queda especificado entero** (26-ago) — cuatro decisiones de Ernesto:
+- **El deck del período, especificado y ESCRITO** (26-ago) — cuatro decisiones de Ernesto:
   láminas en **inglés** pero guion hablado en **español**, proyecto **Nuclear Detection** en el
   tercer corchete y en la cejilla, período **25/08/2026 a 08/09/2026**, y **dos** láminas de
   contenido (el cruce de las 94 y el inventario de los ocho ejes). El hallazgo de método es que
   esta plantilla **se rellena en sitio** y no se reconstruye, al revés que los seis decks
-  anteriores: [`../../docs/plantilla_oficial.md`](../../docs/plantilla_oficial.md) §7. El
-  generador **no está escrito**: la especificación completa vive en
-  `.handoffs/handoff_B9_20260826_deck_ejecutar.md`.
+  anteriores: [`../../docs/plantilla_oficial.md`](../../docs/plantilla_oficial.md) §7.
+  **ESCRITO el 26-ago** en [`presentacion_b9/`](presentacion_b9/): cinco láminas, generador,
+  guion y README, con la auditoría y el barrido de estilo limpios. Salieron **cinco** y no seis
+  (la aritmética del handoff no cerraba) y el QA corrigió tres datos, entre ellos que las 107
+  regiones con grado están en **las 12** láminas y no en 8 ([[conteo-de-grupo-es-union]]). Las
+  restricciones que sólo aparecieron al rellenar la plantilla de verdad quedaron en
+  `plantilla_oficial.md` §7.c.
 - **La simetría de los dos juegos de pesos** (heredada del B8, se re-declara porque gobierna el
   objetivo 2) — Lizard-Mitosis tiene **mitosis y no necrosis**; PanNuke tiene **`dead` y no
   mitosis**. Las dos son verdaderas a la vez y **ninguna reabre nada**
