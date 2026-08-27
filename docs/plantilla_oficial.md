@@ -130,10 +130,12 @@ plantilla **embebe Barlow** y un deck construido desde cero la pierde
 ### 7.a Las tres maniobras de python-pptx que esto exige
 
 1. **Clonar s03.** De sus siete formas, **sólo la imagen tiene una relación** (`r:embed` del
-   `a:blip`). Las otras seis (cejilla, título, cuerpo, la línea de remate, la barra y un
-   `Text 2` vacío) no referencian nada, así que se clonan con un `deepcopy` del XML a una lámina
-   nueva del layout `DEFAULT` **sin copiar rels**. Si la figura va a ser nativa, la imagen no se
-   clona y el problema de las relaciones no existe.
+   `a:blip`). Las otras seis (cejilla, título, cuerpo, la línea de remate, el **cuadro de pie
+   vacío** del §5 y un `Text 2` también vacío) no referencian nada, así que se clonan con un
+   `deepcopy` del XML a una lámina nueva del layout `DEFAULT` **sin copiar rels**. Si la
+   figura va a ser nativa, la imagen no se clona y el problema de las relaciones no existe.
+   **Ejecutado el 26-ago** en `clonar_s03()` de
+   `sprints/B9_sprint9/presentacion_b9/generate_b9_deck.py`: funcionó tal cual.
 2. **Quitar o agregar una fila de tabla**: sacar o insertar el `<a:tr>` y ajustarle la altura al
    `graphicFrame` por el `h` de esa fila. No hay API en python-pptx.
 3. **Reordenar láminas**: mover el `sldId` dentro del `sldIdLst`. Tampoco hay API.
@@ -149,3 +151,23 @@ plantilla **embebe Barlow** y un deck construido desde cero la pierde
 - La portada trae un «—» en el titular de la empresa. Es copy ajeno y no se edita, así que
   cualquier barrido de rayas ([[deck-estilo-sin-rayas-ni-palanca]]) **tiene que excluir s01** o
   reporta un falso positivo en cada corrida.
+
+### 7.c Tres restricciones que sólo aparecen al rellenarla de verdad
+
+> Del primer deck construido sobre esta plantilla (`sprints/B9_sprint9/presentacion_b9/`,
+> 26-ago-2026). El §7.a y el §7.b son el método; esto es lo que el método no anticipaba.
+
+1. **El título de 40 pt en UNA línea es una restricción de redacción, no de formato.** La caja
+   mide 12,44" con `lIns=0`, así que a 40 pt bold entran unos **46 caracteres** de Barlow. Un
+   título descriptivo se pasa fácil: el de la segunda lámina de contenido pedía 14,07" y las
+   dos salidas eran envolver a dos líneas encima del cuerpo, o bajar a 34 pt y romper el 40 pt
+   del molde. **Se reformula el título.** Conviene que el generador **aborte** si no entra, en
+   vez de dejarlo desbordar (`set_titulo()` lo hace).
+2. **Con menos filas de las que trae el molde, la tabla hay que estirarla.** Las de s02 y s04
+   traen **cuatro** filas de cuerpo. Con tres y el alto justo del texto, la tabla se encoge,
+   queda pegada al título y deja media lámina vacía. Un alto mínimo de fila de **0,76"**
+   conserva la huella original (0,745 + 3 × 0,76 = 3,03, que es el alto del molde).
+3. **Las celdas de cuerpo son de 12 pt, centradas y con márgenes de 22860 EMU** (0,025" por
+   lado), o sea **3,39" utilizables** en la columna `Objective` y **5,98"** en `Deliverable`.
+   Medir contra el ancho de la columna sin descontar los márgenes deja celdas pegadas al
+   filete ([[deck-qa-puntos-ciegos-chequeo]]).
