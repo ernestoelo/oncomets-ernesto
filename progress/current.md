@@ -4409,6 +4409,75 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 31 — 27-ago-2026 · el deck pasa a español y suma las láminas de recortes
+
+> Ejecuta el handoff de la sesión 30, cuya misión era **preguntarle a Ernesto qué quería
+> cambiar del deck**. Cero GPU, cero `sbatch`, cero jobs propios.
+
+### 1. Los tres cambios que pidió
+
+| | qué pidió | qué se hizo |
+|---|---|---|
+| Idioma | el documento entero en español | traducido todo menos la portada, que es copy de la empresa. El proyecto pasó a **Detección Nuclear**, así que cambió el nombre del archivo |
+| Imágenes | las mitosis que detecta HoVer-NeXt contra las que etiquetó el patólogo, **por WSI** | dos láminas nuevas: los **26 aciertos** y las **68 falladas**, agrupadas por lámina. Eligió esa partición sobre las otras tres opciones |
+| s04 | «un bullet más resumido» | **un solo punto** de resumen y la tabla de ocho ejes agrandada, que pasa a ser el contenido |
+
+El deck quedó en **siete láminas**. Las decisiones del 26-ago que sobrevivieron son el período
+y que la portada no se toca; el resto está en el ADDENDUM de `objetivos_sprint9.md`.
+
+### 2. Las dos láminas de recortes
+
+`scripts/galeria_mitosis_12.py`, CPU, **no re-mide nada**: lee los pares marca↔detección de
+`results/b9_cruce_94/pares_<slide>.csv`, que ya traen el offset del geojson aplicado, y sólo
+recorta con openslide y dibuja. Aborta si no cuenta 94 marcas y 26 aciertos.
+
+Recorte de 128 px de nivel 0 (**59,5 µm** de lado) centrado en la marca; anillo **blanco** para
+la marca del patólogo y **amarillo** para la detección que la acredita. Agrupados por lámina,
+con el rótulo una vez por grupo y una banda que alterna entre los dos azules para que se vea
+dónde empieza cada uno. **No se dibuja ninguna detección que no acredite una marca**: no hay
+cómo distinguirla de una mitosis real sin marcar.
+
+Las figuras van como imagen (fotografía de un resultado, la excepción declarada de CLAUDE.md);
+título, cuerpo, leyenda y pie son nativos. La leyenda dibuja el anillo sobre un cuadradito del
+rosa del tejido, porque un anillo blanco sobre el fondo blanco de la lámina es invisible.
+
+### 3. Lo que encontró el QA de la versión en español
+
+1. **Dos capas del QA medían el mismo párrafo con supuestos distintos.** `set_cuerpo()` fijaba
+   el alto midiendo todo como normal y `auditar()` lo verificaba midiendo todo como bold, sobre
+   párrafos que son bold + normal. Con el inglés la diferencia nunca cambiaba el número de
+   líneas; con el español sí, y salió como un aviso de 0,44" que era del **desacuerdo**, no del
+   texto. `wrap_lines_mixto()` mide cada tramo con su peso y las dos la usan.
+   [[deck-qa-puntos-ciegos-chequeo]].
+2. **Hay dos `68` en láminas contiguas y significan cosas distintas**: 94 − 26 marcas de la
+   129741, y 94 − 26 aciertos. Coinciden por construcción. Las dos láminas nombran su
+   denominador. [[dos-numeros-iguales-denominador-distinto]].
+3. **`%.1f` escribe punto decimal** y el resto del deck usa coma: la misma lámina decía «7,5 a
+   50 µm» y «7.5». La auditoría no lo ve.
+4. **`reencontradas de marcas` no entra donde entraba `recovered of marks`.**
+
+Los cuatro están en `sprints/B9_sprint9/presentacion_b9/README.md`; el 1, el 3 y el 4 se
+generalizaron al punto 4 de `docs/plantilla_oficial.md` §7.c, que es lo que va a volver a pasar
+en cualquier deck en español.
+
+### 4. El guion
+
+Sumó los bloques `[s03b]` y `[s03c]`, y el argumento de por qué las siete láminas que dan cero
+**no** están mal alineadas se movió a la lámina de falladas, que es donde ahora corresponde.
+Pasó por `@humanizer-es`, que era el único paso del plan de la sesión 29 sin hacer: sacó dos
+aperturas de señalización, un aforismo, «ahondar», y **la palabra «deck»**, que la convención
+del guion prohíbe y se había colado en el bloque nuevo.
+
+### 5. Estado al cierre
+
+Rama `main`, working tree limpio, **sin jobs propios** (5086 y 5088 son del otro operador de la
+cuenta compartida, `WorkDir=Test_D/D_abs_cambiado`, verificado con `scontrol`). La GPU la tiene
+`nschiaffino` 5085 hace **2 días** con `TimeLimit=UNLIMITED`, y `gvenegas` 5087 pide `UNLIMITED`
+también: no hay backfill y los `PD` devuelven `StartTime=2027`. **B2 sigue sin lanzar** y los
+dos ejes de CPU siguen sin correr.
+
+---
+
 ## Sesión 30 — 26-ago-2026 · el deck del período, ESCRITO y verificado
 
 > Ejecuta el handoff de la sesión 29. Cero GPU, cero `sbatch`, cero jobs propios. Entrega
