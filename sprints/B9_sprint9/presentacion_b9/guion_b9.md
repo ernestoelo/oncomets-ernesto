@@ -1,24 +1,24 @@
 # Guion hablado del deck del período (B9)
 
-> Las cinco láminas en un solo archivo, que es el método de `@humanizer-es`: se escribe
+> Las siete láminas en un solo archivo, que es el método de `@humanizer-es`: se escribe
 > entero, se pasa entero, y recién después `generate_b9_deck.py` lo lee y lo aplica con
 > `notes()`. **Este archivo es la fuente**; las notas del `.pptx` son derivadas.
 >
 > Convención vigente ([[notas-presentador-guion-didactico]]): prosa hablada corrida, sin
 > etiquetas de fase, sin números de trabajo ni nombres propios, sin ejemplos numéricos que
-> no estén en la lámina. Las láminas van en inglés porque la plantilla lo exige; el guion
-> va en español porque es el idioma en que se habla.
+> no estén en la lámina. Desde el 27-ago **el deck entero va en español**, así que ya no hay
+> desajuste entre lo que se lee y lo que se dice.
 >
 > El separador de bloque es `## [sNN]` y el generador parsea por ahí. No cambiar el formato
-> sin tocar `_leer_guion()`.
+> sin tocar `leer_guion()`.
 
 ## [s01] Portada
 
 Buenos días. Les voy a contar en qué quedó el período, que fue corto y tuvo un solo eje: la
-detección de núcleos sobre las láminas que el patólogo ya nos anotó. Son cuatro láminas y
-la idea es que la discusión quede para el final.
+detección de núcleos sobre las láminas que el patólogo ya nos anotó. Son seis láminas y la
+idea es que la discusión quede para el final.
 
-## [s02] OBJECTIVES
+## [s02] OBJETIVOS
 
 Al abrir el período nos pusimos tres cosas y quiero pasar por las tres con el estado real,
 no con el estado que me gustaría.
@@ -60,22 +60,57 @@ otras once dan diecinueve por ciento. O sea que el cincuenta por ciento con el q
 trabajando no era el caso típico: era el mejor de doce. Todo lo que construimos apoyado en
 esa lámina hereda ese sesgo, y prefiero decirlo acá antes de que aparezca más adelante.
 
+## [s03b] Las marcas reencontradas
+
+Las dos láminas que siguen son el mismo cruce, pero mirándolo una marca por vez. Me parece
+que el número solo no alcanza para saber si esto anda o no anda, así que las puse todas.
+
+Acá están las que sí. Cada recorte está centrado en una marca del patólogo, el anillo
+blanco es esa marca y el amarillo es la detección que la acredita. Están agrupadas por
+lámina y el rótulo dice cuántas aporta cada una.
+
+Donde acierta, acierta encima del objeto. Los dos anillos caen prácticamente concéntricos,
+muy por debajo de la tolerancia más chica que barrimos, y en casi todos se ve la figura
+mitótica en el medio, con la cromatina condensada. No es un acierto de casualidad ni de
+estar cerca: está sobre la célula.
+
+Acá se ve también de dónde salen los aciertos. Son de cinco láminas nada más; las otras
+siete no acreditan ninguna, así que acá no tienen ni un recorte.
+
+## [s03c] Las marcas que se escapan
+
+Y acá están las que no, que son la parte que más informa, porque es la única que muestra en
+qué se equivoca.
+
+Son las marcas para las que no hubo ninguna detección de mitosis dentro de la tolerancia.
+Sólo está el anillo blanco del patólogo, y les pido que las miren con calma: en muchas se ve
+perfectamente la figura mitótica que el detector no señaló. No es que la imagen sea mala ni
+que la marca esté puesta sobre nada.
+
+Que una marca se escape no la vuelve un error del patólogo, y al revés tampoco: una
+detección que quede sin marca encima no es un falso positivo, porque bien puede ser una
+mitosis real que no fue marcada. Por eso no van a ver un número de precisión en ninguna de
+estas láminas.
+
 Sobre las siete láminas que no acreditan ninguna marca, la sospecha natural es que estén
-mal alineadas. No lo están, y hay dos razones. Donde algo empareja, empareja apretado, muy
-por debajo de la tolerancia más chica que barrimos; y un desplazamiento global equivocado
-movería todas las marcas de esa lámina por igual, así que no dejaría aciertos pegados junto
-a fallas lejísimos en la misma lámina. Además, casi todas las que dan cero son las que
-tienen muy pocas detecciones en la lámina entera, y con esa densidad la distancia esperada
-a la detección más cercana es enorme aunque la alineación sea perfecta.
+mal alineadas. No lo están, y hay dos razones. Donde algo empareja, empareja apretado, que
+es lo que acaban de ver en la lámina anterior; y un desplazamiento global equivocado movería
+todas las marcas de esa lámina por igual, así que no dejaría aciertos pegados junto a fallas
+lejísimos dentro de la misma lámina. Además, casi todas las que dan cero son las que tienen
+muy pocas detecciones en la lámina entera, y con esa densidad la distancia esperada a la
+detección más cercana es enorme aunque la alineación sea perfecta.
 
-## [s03b] Los ocho ejes
+## [s03d] Los ocho ejes
 
-La reunión pedía ahondar en la herramienta, así que en vez de quedarnos en mitosis
-listamos contra qué se puede medir, en total, y le pusimos precio a cada cosa.
+En la reunión pidieron mirar la herramienta más a fondo, así que en vez de quedarnos en
+mitosis listamos contra qué se puede medir, en total, y le pusimos precio a cada cosa. El
+contenido de esta lámina es la tabla; la línea de arriba dice cómo leerla.
 
 El vocabulario del patólogo sobre estas doce láminas tiene veintiún etiquetas distintas, y
-sólo dos aparecen en las doce. Todo lo demás vive en ocho láminas o menos, y siete
-etiquetas viven en tres o menos. Eso ya ordena la lista sin que uno tenga que opinar.
+sólo dos aparecen en las doce. Todo lo demás vive en ocho láminas o menos, y siete etiquetas
+viven en tres o menos. Eso ya ordena la lista sin que uno tenga que opinar. Los nombres de la
+segunda columna están tal cual él los escribió, con sus mayúsculas y sus mezclas de idioma,
+porque son las etiquetas del archivo y no conviene traducirlas.
 
 Hay tres ejes que están pagados. Cuando corrimos el detector no escribió sólo mitosis:
 escribió las siete clases y el polígono de cada núcleo, y eso está en disco para las doce.
@@ -101,7 +136,7 @@ puede calcular precisión, ni efe uno, ni las métricas de calidad de segmentaci
 usan en los papers, en ningún eje. El archivo del patólogo no es una segmentación
 exhaustiva ni son contornos de núcleo: son marcas puestas donde la evidencia es clara.
 
-## [s04] Tasks for the next period
+## [s04] Tareas del próximo período
 
 Tres cosas para el período que viene.
 

@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 """generate_b9_deck.py — el deck del período sobre la plantilla oficial nueva.
 
-Registro: **executive deck en inglés**, no deck técnico de sprint. Cuenta un período con la
-gramática de la plantilla: qué me propuse (OBJECTIVES), qué salió (dos láminas de contenido),
-qué sigue (Tasks for the next period).
+Registro: **executive deck**, no deck técnico de sprint. Cuenta un período con la gramática
+de la plantilla: qué me propuse (OBJETIVOS), qué salió (cuatro láminas de contenido), qué
+sigue (Tareas del próximo período).
+
+**Va entero en español** por decisión de Ernesto del 27-ago, el nombre del proyecto incluido
+(«Detección Nuclear», que también nombra el archivo). La única lámina que queda en inglés es
+la portada, que es copy de la empresa y viene tal cual del molde. Los nombres de clase del
+patólogo (`Mitosis`, `Tumour`, `AreaTubular`…) tampoco se traducen: son las etiquetas
+literales de su geojson y traducirlas rompería el vínculo con el material.
 
 El método es lo que lo separa de los seis decks anteriores: **se RELLENA en sitio**, no se
 reconstruye. `base_from_template()` de `generate_b8_deck.py` abría el template y le BORRABA
@@ -49,9 +55,10 @@ from pptx.util import Emu, Inches, Pt
 # ---------------------------------------------------------------------------
 FECHA_ARCHIVO = "20260908"          # fin del período = fecha de la reunión
 AUTOR = "Ernesto Gamero"
-PROYECTO = "Nuclear Detection"      # NO «Mitosis Detection»: ése es el rótulo con el que
+PROYECTO = "Detección Nuclear"      # NO «Mitosis Detection»: ése es el rótulo con el que
                                     # otra persona del equipo presenta su detector, y es
-                                    # literalmente el ejemplo que trae la plantilla
+                                    # literalmente el ejemplo que trae la plantilla. En
+                                    # español desde el 27-ago, con el deck entero
 PERIODO = "25/08/2026 - 08/09/2026"
 
 RAIZ = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
@@ -62,6 +69,9 @@ OUT = os.path.join(AQUI, "[%s] [%s] [%s].pptx" % (FECHA_ARCHIVO, AUTOR, PROYECTO
 GUION = os.path.join(AQUI, "guion_b9.md")
 CSV_LAMINA = os.path.join(RAIZ, "results", "b9_cruce_94", "por_lamina.csv")
 CSV_TOL = os.path.join(RAIZ, "results", "b9_cruce_94", "recall_por_tolerancia_agregado.csv")
+PNG_ACIERTOS = os.path.join(AQUI, "assets", "mitosis_aciertos.png")
+PNG_FALLADAS = os.path.join(AQUI, "assets", "mitosis_falladas.png")
+LADO_RECORTE_UM = 59.5              # 128 px de nivel 0 a 0,465 µm/px (galeria_mitosis_12.py)
 
 SW, SH = 13.3333, 7.5
 
@@ -74,6 +84,10 @@ ACENTO = RGBColor(0x52, 0x93, 0xDE)
 SEP = RGBColor(0x9A, 0xA3, 0xB4)
 LINEA = RGBColor(0xE4, 0xE9, 0xEC)
 BLANCO = RGBColor(0xFF, 0xFF, 0xFF)
+# Los dos anillos de las láminas de recortes. Son los de `galeria_mitosis_12.py` y tienen que
+# seguir siendo los mismos: la leyenda es nativa y los círculos están quemados en el PNG.
+BLANCO_ANILLO = BLANCO
+AMARILLO = RGBColor(0xFF, 0xC1, 0x07)
 
 F = "Barlow"
 PT_TITULO, PT_CEJILLA, PT_CUERPO = 40, 12, 16
@@ -100,6 +114,12 @@ A = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
 BARLOW_DIR = "/media/administrador/Storage1/sdonoso/clam_testing2/fonts/barlow"
 _FCACHE = {}
 _MEDIDA = 40
+
+
+def num(x, dec=1):
+    """Número con coma decimal. El deck está en español y el `%.1f` de Python escribe punto:
+    sin esto la misma lámina decía «7,5 a 50 µm» en la tabla y «7.5» en el cuerpo."""
+    return ("%.*f" % (dec, x)).replace(".", ",")
 
 
 def _face(bold):
@@ -130,6 +150,33 @@ def wrap_lines(txt, ancho, size, bold=False):
             actual = palabra
         else:
             actual = cand
+    return n
+
+
+def wrap_lines_mixto(tramos, ancho, size):
+    """Igual que `wrap_lines` pero con el peso de cada tramo, para párrafos MIXTOS.
+
+    Los puntos del cuerpo son «arranque en bold + resto normal» y medirlos con un solo peso
+    se equivoca en los dos sentidos: todo normal subestima (el bold es más ancho) y todo bold
+    sobreestima. Con el inglés, más corto, la diferencia nunca llegaba a cambiar el número de
+    líneas; en español sí, y el generador y el auditor daban alturas distintas para el mismo
+    párrafo. Cada uno medía a su manera, y el desacuerdo era el aviso."""
+    tokens = []
+    for txt, bold in tramos:
+        for w in txt.split(" "):
+            if w:
+                tokens.append((w, bool(bold)))
+    if not tokens:
+        return 1
+    n, ancho_actual = 1, 0.0
+    for w, bold in tokens:
+        pieza = text_w(w, size, bold)
+        sep = text_w(" ", size, bold) if ancho_actual else 0.0
+        if ancho_actual and ancho_actual + sep + pieza > ancho:
+            n += 1
+            ancho_actual = pieza
+        else:
+            ancho_actual += sep + pieza
     return n
 
 
@@ -351,7 +398,8 @@ def set_cuerpo(slide, puntos, nombre="CuadroTexto 6"):
     ancho_txt = w - 0.20                      # lIns/rIns por defecto del cuadro de texto
     alto = 0.05
     for bold, resto in puntos:
-        alto += wrap_lines(bold + resto, ancho_txt, PT_CUERPO) * PT_CUERPO * 1.22 / 72.0
+        alto += (wrap_lines_mixto([(bold, True), (resto, False)], ancho_txt, PT_CUERPO)
+                 * PT_CUERPO * 1.22 / 72.0)
     alto += 0.05
     sh.left, sh.top, sh.width = Inches(l), Inches(t), Inches(w)
     sh.height = Inches(alto)
@@ -407,7 +455,7 @@ def barras_marcas(slide, l, t, w, alto_max, datos):
     plantilla. La 129741 va en el celeste de acento porque es la que aporta la mitad de los
     aciertos y la lámina lo dice. El `n of m` va a la derecha en **columna fija**: es lo único
     que se lee cuando la barra mide un píxel, y siete láminas tienen de 1 a 3 marcas."""
-    w_lab, w_num, gap = 1.30, 1.18, 0.14
+    w_lab, w_num, gap = 1.30, 1.30, 0.14
     x_bar = l + w_lab + gap
     w_bar = w - w_lab - w_num - 2 * gap
     x_num = l + w - w_num
@@ -416,13 +464,13 @@ def barras_marcas(slide, l, t, w, alto_max, datos):
     # leyenda
     fs_leg = 8.5
     cx = x_bar
-    for col, txt in ((CUERPO, "recovered at 30 µm"), (LINEA, "not recovered")):
+    for col, txt in ((CUERPO, "reencontradas a 30 µm"), (LINEA, "no reencontradas")):
         _rect(slide, cx, t + 0.045, 0.16, 0.105, col)
         add_textbox(slide, cx + 0.21, t, 1.9, 0.18,
                     [(txt, fs_leg, False, CUERPO)], anchor=MSO_ANCHOR.MIDDLE)
         cx += 0.21 + text_w(txt, fs_leg) + 0.30
     add_textbox(slide, x_num, t, w_num, 0.18,
-                [("recovered of marks", fs_leg, True, CUERPO, PP_ALIGN.RIGHT)],
+                [("reencontradas", fs_leg, True, CUERPO, PP_ALIGN.RIGHT)],
                 anchor=MSO_ANCHOR.MIDDLE)
 
     y0 = t + 0.30
@@ -442,7 +490,7 @@ def barras_marcas(slide, l, t, w, alto_max, datos):
                     [(d["slide_id"], fs, destacada, CUERPO, PP_ALIGN.RIGHT)],
                     anchor=MSO_ANCHOR.MIDDLE)
         add_textbox(slide, x_num, y, w_num, paso,
-                    [("%d of %d" % (d["tp"], d["marcas"]), fs, destacada, CUERPO,
+                    [("%d de %d" % (d["tp"], d["marcas"]), fs, destacada, CUERPO,
                       PP_ALIGN.RIGHT)], anchor=MSO_ANCHOR.MIDDLE)
     return t + alto_max
 
@@ -661,11 +709,11 @@ def auditar(prs, saltar_idx=(1,)):
                 if not p.runs:
                     continue
                 sz = max((r.font.size.pt for r in p.runs if r.font.size), default=12)
-                bold = any(r.font.bold for r in p.runs)
-                txt = "".join(r.text for r in p.runs)
                 if sz >= 6 and (chico is None or sz < chico):
                     chico = sz
-                alto += wrap_lines(txt, max(w - ins, 0.2), sz, bold) * sz * 1.22 / 72.0
+                tramos = [(r.text, bool(r.font.bold)) for r in p.runs]
+                alto += (wrap_lines_mixto(tramos, max(w - ins, 0.2), sz)
+                         * sz * 1.22 / 72.0)
             if alto > h + 0.06:
                 problemas.append("s%02d  texto que no entra: sobra %.2f\" en «%s…»"
                                  % (idx, alto - h, sh.text_frame.text[:44].replace("\n", " ")))
@@ -719,44 +767,96 @@ def barrer_rayas(prs, saltar_idx=(1,)):
 # ===========================================================================
 # Las láminas
 # ===========================================================================
+def set_encabezado(gf, textos):
+    """Traduce la fila de cabecera de una tabla del molde conservando su estilizado.
+
+    El molde trae `Objective | Deliverable | Date | Status` a 16 pt bold blanco sobre 1B4F8C.
+    Se reescribe el texto y nada más: relleno, bordes y márgenes son los que ya venían."""
+    tbl = gf.table
+    for ci, txt in enumerate(textos):
+        _solo_run(tbl.cell(0, ci).text_frame.paragraphs[0], txt)
+    return gf
+
+
+def leyenda_circulos(slide, l, t, items, fs=9.5, lado=0.20):
+    """Leyenda NATIVA de las dos láminas de recortes: el anillo sobre una muestra de tejido.
+
+    Un anillo blanco sobre el fondo blanco de la lámina es invisible, así que cada muestra va
+    dentro de un cuadradito del rosa del tejido. Es la única forma de que la leyenda sea
+    nativa y editable en vez de quedar quemada dentro del PNG."""
+    TEJIDO = RGBColor(0xD6, 0xB2, 0xC8)
+    x = l
+    for color, txt in items:
+        _rect(slide, x, t, lado, lado, TEJIDO)
+        ov = slide.shapes.add_shape(MSO_SHAPE.OVAL, Inches(x + 0.035), Inches(t + 0.035),
+                                    Inches(lado - 0.07), Inches(lado - 0.07))
+        ov.fill.background()
+        ov.line.color.rgb = color
+        ov.line.width = Pt(1.5)
+        ov.shadow.inherit = False
+        add_textbox(slide, x + lado + 0.09, t - 0.02, text_w(txt, fs) + 0.10, lado + 0.04,
+                    [(txt, fs, False, CUERPO)], anchor=MSO_ANCHOR.MIDDLE)
+        x += lado + 0.09 + text_w(txt, fs) + 0.34
+    return t + lado
+
+
+def poner_figura(slide, png, l, t, w_max, h_max):
+    """Inserta el PNG escalado para entrar entero en la caja, centrado en el ancho.
+
+    La figura es una **fotografía de un resultado** y por eso va como imagen y no como
+    shapes: es la excepción declarada en CLAUDE.md §"Formato de entregables". Lo que la
+    acompaña (título, cuerpo, leyenda y pie) sí es nativo."""
+    from PIL import Image
+    with Image.open(png) as im:
+        wi, hi = im.size
+    esc = min(w_max / float(wi), h_max / float(hi))
+    w, h = wi * esc, hi * esc
+    slide.shapes.add_picture(png, Inches(l + (w_max - w) / 2.0), Inches(t),
+                             Inches(w), Inches(h))
+    return t + h
+
+
+# ---------------------------------------------------------------------------
 def lamina_objetivos(s, guion):
     set_cejilla(s, PROYECTO)
-    set_titulo(s, "OBJECTIVES " + PERIODO)
+    set_titulo(s, "OBJETIVOS " + PERIODO)
     gf = _shape(s, "Google Shape;196;p29")
+    set_encabezado(gf, ["Objetivo", "Entregable", "Fecha", "Estado"])
     llenar_tabla(gf, [
-        ("Scale mitosis detection to 12 annotated WSI",
-         "Cross-checked against 94 pathologist marks over 12 slides: 26 recovered at "
-         "30 µm, one to one matching, flat from 7.5 to 50 µm",
-         "25/08", "Done"),
-        ("Evaluate HoVer-NeXt for necrosis",
-         "GO with the PanNuke weights, the only ones carrying a dead cell class. Five "
-         "slides, 7 to 9 h of GPU. Not launched: the node has been taken",
-         "08/09", "Blocked"),
-        ("Evaluate new metrics for mitosis",
-         "Eight axes scored: what is computable today, what needs GPU, and three that no "
-         "amount of compute unlocks",
-         "08/09", "In progress"),
+        ("Escalar la detección de mitosis a 12 láminas",
+         "Cruzada contra las 94 marcas del patólogo sobre las 12 láminas: 26 reencontradas "
+         "a 30 µm, emparejamiento uno a uno, plano de 7,5 a 50 µm",
+         "25/08", "Cerrado"),
+        ("Evaluar HoVer-NeXt para necrosis",
+         "GO con los pesos PanNuke, los únicos con clase de célula muerta. Cinco láminas, "
+         "7 a 9 h de GPU. Sin lanzar: el nodo está tomado",
+         "08/09", "Bloqueado"),
+        ("Evaluar métricas nuevas para mitosis",
+         "Ocho ejes puntuados: qué se puede calcular hoy, qué pide GPU, y tres que no se "
+         "desbloquean con ningún presupuesto",
+         "08/09", "En curso"),
     ])
     notes(s, guion)
 
 
 def lamina_mitosis(s, datos, agg, guion):
     set_cejilla(s, PROYECTO)
-    set_titulo(s, "Mitosis: %d of %d pathologist marks" % (agg["tp"], agg["marcas"]),
+    set_titulo(s, "Mitosis: %d de %d marcas del patólogo" % (agg["tp"], agg["marcas"]),
                nombre="Text 1")
     fin = set_cuerpo(s, [
-        ("Twelve annotated slides, %d marks: " % agg["marcas"],
-         "%d recovered at 30 µm, one to one, flat from %.1f to %d µm."
-         % (agg["tp"], agg["plano"][0], int(agg["plano"][1]))),
-        ("One slide carries half the hits: ",
-         "129741 alone accounts for %d of the %d. Without it the other eleven give "
-         "%d of %d, or %.1f %%." % (agg["ref_tp"], agg["tp"], agg["resto_tp"],
-                                    agg["resto_marcas"], 100 * agg["resto_recall"])),
-        ("The reference case of the last period was the best of twelve: ",
-         "everything built on that slide inherits the bias."),
+        ("Doce láminas anotadas, %d marcas: " % agg["marcas"],
+         "%d reencontradas a 30 µm, una a una, y el número es plano de %s a %d µm."
+         % (agg["tp"], num(agg["plano"][0]), int(agg["plano"][1]))),
+        ("Una sola lámina aporta la mitad de los aciertos: ",
+         "la 129741 pone %d de los %d. Sin ella, las otras once reencuentran %d de sus "
+         "%d marcas, o sea %s %%." % (agg["ref_tp"], agg["tp"], agg["resto_tp"],
+                                      agg["resto_marcas"],
+                                      num(100 * agg["resto_recall"]))),
+        ("El caso de referencia del período anterior era el mejor de doce: ",
+         "todo lo que se construyó sobre esa lámina hereda el sesgo."),
     ])
-    pie = ["The denominator is what the pathologist marked, not the mitoses in the slide. "
-           "No precision or F1 against partial positives."]
+    pie = ["El denominador es lo que el patólogo marcó, no las mitosis que hay en la lámina. "
+           "Contra positivos parciales no se calcula precisión ni F1."]
     l, _, w = G_CUERPO
     h_pie = _alto_bloque(pie, w - 0.06, PT_PIE, space_after=1.5)
     top = fin + 0.16
@@ -766,73 +866,119 @@ def lamina_mitosis(s, datos, agg, guion):
     notes(s, guion)
 
 
+def lamina_aciertos(s, agg, guion):
+    """Los 26 recortes acreditados: la marca del patólogo y la detección que la acredita."""
+    set_cejilla(s, PROYECTO)
+    set_titulo(s, "Las %d marcas que el detector reencuentra" % agg["tp"], nombre="Text 1")
+    fin = set_cuerpo(s, [
+        ("Las %d marcas acreditadas, agrupadas por lámina: " % agg["tp"],
+         "cinco de las doce ponen alguna, y la 129741 pone la mitad."),
+    ])
+    l, _, w = G_CUERPO
+    pie = ["Cada recorte mide %s µm de lado, a la magnificación nativa de la lámina. "
+           "El emparejamiento es uno a uno: ninguna detección acredita dos marcas."
+           % num(LADO_RECORTE_UM)]
+    h_pie = _alto_bloque(pie, w - 0.06, PT_PIE, space_after=1.5)
+    top = leyenda_circulos(s, l, fin + 0.10,
+                           [(BLANCO_ANILLO, "marca del patólogo"),
+                            (AMARILLO, "detección de HoVer-NeXt")]) + 0.12
+    alto_fig = T_PIE_S03 - 0.12 - h_pie - 0.10 - top
+    fin_fig = poner_figura(s, PNG_ACIERTOS, l, top, w, alto_fig)
+    pie_lineas(s, l, fin_fig + 0.12, w, pie)
+    notes(s, guion)
+
+
+def lamina_falladas(s, agg, guion):
+    """Las 68 que se escapan: es la mitad del cruce que muestra en qué se equivoca."""
+    n = agg["marcas"] - agg["tp"]
+    set_cejilla(s, PROYECTO)
+    set_titulo(s, "Las %d marcas que se escapan" % n, nombre="Text 1")
+    fin = set_cuerpo(s, [
+        ("Las %d marcas de las doce que quedaron sin detección: " % n,
+         "no hubo ninguna mitosis detectada dentro de la tolerancia."),
+    ])
+    l, _, w = G_CUERPO
+    pie = ["Que una marca no se reencuentre no la vuelve un error del patólogo, y una "
+           "detección sin marca encima no es un falso positivo: no hay con qué distinguirla "
+           "de una mitosis real sin marcar."]
+    h_pie = _alto_bloque(pie, w - 0.06, PT_PIE, space_after=1.5)
+    top = leyenda_circulos(s, l, fin + 0.10,
+                           [(BLANCO_ANILLO, "marca del patólogo")]) + 0.12
+    alto_fig = T_PIE_S03 - 0.12 - h_pie - 0.10 - top
+    fin_fig = poner_figura(s, PNG_FALLADAS, l, top, w, alto_fig)
+    pie_lineas(s, l, fin_fig + 0.12, w, pie)
+    notes(s, guion)
+
+
 def lamina_ejes(s, guion):
     set_cejilla(s, PROYECTO)
-    set_titulo(s, "HoVer-NeXt: what is measurable, and what is not", nombre="Text 1")
+    set_titulo(s, "HoVer-NeXt: qué se puede medir y qué no", nombre="Text 1")
+    # UN solo punto de resumen, por pedido de Ernesto del 27-ago: el contenido de la lámina
+    # es la tabla, y el cuerpo sólo dice cómo leerla.
     fin = set_cuerpo(s, [
-        ("Eight axes scored against the pathologist's vocabulary: ",
-         "21 classes over 472 annotations, and only Tumour and Mitosis appear in all "
-         "twelve slides."),
-        ("Three axes are already paid for: ",
-         "the seven Lizard classes and the per nucleus polygons are on disk for the "
-         "twelve, so nuclear grade and tumour/stroma are CPU, not GPU."),
-        ("Three are NO-GO by argument, not by budget: ",
-         "the object of those tasks is not a nucleus, so more GPU or more slides does "
-         "not unlock them."),
+        ("Ocho ejes contra el vocabulario del patólogo: ",
+         "tres ya están pagados y son de procesador, uno pide GPU, uno tiene muy pocas "
+         "marcas y tres son NO-GO por argumento."),
     ])
     l, _, w = G_CUERPO
     # `107 / 12` y no `107 / 8`: el «/8» es el de `Nucleos alto grado` sola. Las tres clases
     # de grado (alto 8, moderado 2, bajo 2) son DISJUNTAS y parten las doce láminas exactas,
     # verificado sobre los doce geojson `- GDT` el 26-ago. O sea que el grado está declarado
     # en TODAS, que es lo que vuelve a este eje el más barato de los tres GO.
+    #
+    # Los nombres de la segunda columna NO se traducen: son las etiquetas literales del
+    # geojson del patólogo y traducirlas rompe el vínculo con el material.
     filas = [
-        ("Mitosis", "Mitosis, 94 / 12 slides", "done",
-         "Measured: 26 of 94 at 30 µm"),
-        ("Necrosis", "necrosis + Necrosis + Comedonecrosis, 18 / 5", "7 to 9 h GPU",
-         "GO, needs the PanNuke weights"),
-        ("Nuclear grade", "107 graded regions / 12", "CPU, on disk",
-         "GO, and the cheapest"),
-        ("Tumour and stroma", "Tumour 98 / 12, Stroma 12 / 7", "CPU, on disk",
-         "GO, the positive control of the method"),
-        ("Immune infiltrate", "Immune cells, 7 / 3", "CPU, on disk",
-         "Too few to report a number"),
-        ("Vascular permeation", "Permeaciones vasculares, 9 / 6", "not applicable",
-         "NO-GO: no endothelial or lumen class"),
-        ("Microcalcification", "microcalcificaciones, 8 / 3", "not applicable",
-         "NO-GO: not a nucleus, and type I is invisible in H&E"),
-        ("Architecture", "AreaTubular 25 / 5, Mucinoso 11 / 1", "not applicable",
-         "NO-GO: the unit is the gland, not the nucleus"),
+        ("Mitosis", "Mitosis, 94 / 12 láminas", "hecho",
+         "Medido: 26 de 94 a 30 µm"),
+        ("Necrosis", "necrosis + Necrosis + Comedonecrosis, 18 / 5", "7 a 9 h de GPU",
+         "GO, pide los pesos PanNuke"),
+        ("Grado nuclear", "107 regiones con grado / 12", "CPU, en disco",
+         "GO, y el más barato"),
+        ("Tumor y estroma", "Tumour 98 / 12, Stroma 12 / 7", "CPU, en disco",
+         "GO, el control positivo del método"),
+        ("Infiltrado inmune", "Immune cells, 7 / 3", "CPU, en disco",
+         "Muy pocas para reportar un número"),
+        ("Permeación vascular", "Permeaciones vasculares, 9 / 6", "no aplica",
+         "NO-GO: no hay clase de endotelio ni de luz"),
+        ("Microcalcificación", "microcalcificaciones, 8 / 3", "no aplica",
+         "NO-GO: no es un núcleo, y el tipo I es invisible en H&E"),
+        ("Arquitectura", "AreaTubular 25 / 5, Mucinoso 11 / 1", "no aplica",
+         "NO-GO: la unidad es la glándula, no el núcleo"),
     ]
-    pie = ["No precision, F1 or PQ against this material, on any axis: the geojson marks "
-           "partial positives, not an exhaustive segmentation."]
+    pie = ["Contra este material no se calcula precisión, F1 ni PQ, en ningún eje: el "
+           "archivo del patólogo marca positivos parciales, no una segmentación exhaustiva."]
     h_pie = _alto_bloque(pie, w - 0.06, PT_PIE, space_after=1.5)
     top = fin + 0.16
     disp = T_PIE_S03 - 0.12 - h_pie - 0.10 - top
-    row_h = min(0.34, disp / (len(filas) + 1))
+    # Con un solo punto de cuerpo sobra alto: la tabla se lo queda, que es el contenido.
+    row_h = min(0.40, disp / (len(filas) + 1))
     fin_tabla = tabla_ejes(s, l, top, w,
-                           ["Axis", "Pathologist annotation", "Cost", "Verdict"],
+                           ["Eje", "Anotación del patólogo", "Costo", "Veredicto"],
                            filas, [2.60 / 12.10, 3.90 / 12.10, 1.70 / 12.10, 3.90 / 12.10],
-                           row_h=row_h)
+                           fs=10.5, row_h=row_h)
     pie_lineas(s, l, fin_tabla + 0.10, w, pie)
     notes(s, guion)
 
 
 def lamina_tareas(s, guion):
     set_cejilla(s, PROYECTO)
-    set_titulo(s, "Tasks for the next period")
+    set_titulo(s, "Tareas del próximo período")
     gf = _shape(s, "Google Shape;196;p29")
+    set_encabezado(gf, ["Objetivo", "Entregable", "Fecha"])
     llenar_tabla(gf, [
-        ("Run the necrosis axis",
-         "Density of dead cell detections inside against outside the pathologist's "
-         "polygons, null by translation of the mask. Needs the vocabulary unified first",
+        ("Correr el eje de necrosis",
+         "Densidad de detecciones de célula muerta dentro contra fuera de los polígonos del "
+         "patólogo, con el nulo por traslación de la máscara. Antes hay que unificar el "
+         "vocabulario",
          "08/09"),
-        ("Two CPU axes already on disk",
-         "Do nuclear descriptors order the three grades over 107 regions, and does the "
-         "epithelium against stroma fraction hold as a positive control",
+        ("Los dos ejes de procesador que ya están en disco",
+         "Si los descriptores nucleares ordenan los tres grados sobre las 107 regiones, y si "
+         "la fracción de epitelio contra estroma se sostiene como control positivo",
          "08/09"),
-        ("Mitotic hotspot",
-         "Count per mm², density map, and the fixed area window that maximises it: "
-         "the first version of a zone proposed to the pathologist",
+        ("Punto caliente mitótico",
+         "Conteo por mm², mapa de densidad y la ventana de área fija que lo maximiza: la "
+         "primera versión de una zona para proponerle al patólogo",
          "15/09"),
     ])
     notes(s, guion)
@@ -849,17 +995,21 @@ def main():
     prs = Presentation(TPL)
     s01, s02, s03, s04 = list(prs.slides)
 
-    sA = clonar_s03(prs, s03)
-    sB = clonar_s03(prs, s03)
+    sA = clonar_s03(prs, s03)       # el número
+    sB = clonar_s03(prs, s03)       # los 26 recortes acreditados
+    sC = clonar_s03(prs, s03)       # las 68 que se escapan
+    sD = clonar_s03(prs, s03)       # los ocho ejes
 
     lamina_objetivos(s02, guion["s02"])
     lamina_mitosis(sA, datos, agg, guion["s03a"])
-    lamina_ejes(sB, guion["s03b"])
+    lamina_aciertos(sB, agg, guion["s03b"])
+    lamina_falladas(sC, agg, guion["s03c"])
+    lamina_ejes(sD, guion["s03d"])
     lamina_tareas(s04, guion["s04"])
     notes(s01, guion["s01"])
 
     borrar_slide(prs, s03)                      # trae el ejemplo de otra persona
-    reordenar(prs, [s01, s02, sA, sB, s04])
+    reordenar(prs, [s01, s02, sA, sB, sC, sD, s04])
 
     forzar_barlow(prs)
     problemas = auditar(prs)
