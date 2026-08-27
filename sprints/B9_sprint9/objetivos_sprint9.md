@@ -94,6 +94,18 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   regiones con grado están en **las 12** láminas y no en 8 ([[conteo-de-grupo-es-union]]). Las
   restricciones que sólo aparecieron al rellenar la plantilla de verdad quedaron en
   `plantilla_oficial.md` §7.c.
+
+  > **ADDENDUM 27-ago-2026 — Ernesto cambió tres de las cuatro decisiones y el deck quedó en
+  > siete láminas.** Va **entero en español**, el nombre del proyecto incluido: **Detección
+  > Nuclear**, que también nombra el archivo. Las láminas de contenido pasaron de dos a
+  > **cuatro**, porque pidió ver **las mitosis detectadas contra las que marcó el patólogo** y
+  > eligió partirlas en aciertos y falladas; y la lámina de los ocho ejes quedó con **un solo
+  > punto** de resumen para que la tabla se quede con el contenido. Lo único que no cambió es
+  > el período. La portada sigue en inglés, ahora por decisión y no por herencia: es copy de la
+  > empresa. Las dos láminas nuevas salen de `scripts/galeria_mitosis_12.py`, que **no re-mide
+  > nada**: lee los pares del cruce y recorta. Detalle y QA en
+  > [`presentacion_b9/README.md`](presentacion_b9/README.md); lo que quedó stale por el cambio,
+  > en [`auditoria_coherencia/hallazgos.md`](auditoria_coherencia/hallazgos.md).
 - **La simetría de los dos juegos de pesos** (heredada del B8, se re-declara porque gobierna el
   objetivo 2) — Lizard-Mitosis tiene **mitosis y no necrosis**; PanNuke tiene **`dead` y no
   mitosis**. Las dos son verdaderas a la vez y **ninguna reabre nada**
