@@ -125,6 +125,31 @@ completa», no «da significativo».
 La diferencia entre las dos tiene mecanismo, no es ruido: la completa mete marcas resueltas a
 clases distintas, y **el área absoluta no es comparable entre clases de HoVer-NeXt** (§2.d).
 
+> **ADDENDUM 28-ago-2026 (cierre) — el `p` de la restringida es el PISO, y la completa no está
+> limitada por el diseño.** Sale de dibujar el nulo, no de re-medir: los números de arriba no
+> cambian. El §1 ya decía «el `p` es el piso» del eje 4; acá vale también, y por una razón más
+> fuerte.
+>
+> | población | láminas | asignaciones | ρ obs | ρ **máximo** posible | `p` obs | **piso** del `p` |
+> |---|---|---|---|---|---|---|
+> | (i) restringida | 10 | 360 | **+0,809** | **+0,809** | 0,0056 | **0,0056** |
+> | (ii) completa | 12 | 2970 | +0,552 | +0,836 | 0,0673 | 0,0007 |
+>
+> **En la restringida el ρ observado ES el máximo de las 360 asignaciones**: la observada es la
+> única que ordena perfecto (`p` unilateral 1/360, bilateral 2/360). Con este reparto
+> (2 bajo / 1 moderado / 7 alto) **no existe un resultado mejor**, así que 0,0056 no es «el `p`
+> que salió» sino el mínimo que el diseño puede dar, alcanzado. Leerlo como holgura contra el
+> 0,05 convencional es un error: no hay holgura, hay techo.
+>
+> **Y la completa no está frenada por el diseño**, que es la mitad que faltaba: tenía un piso
+> cien veces más bajo disponible (0,0007) y quedó en 0,0673. Lo que la frena son **dos láminas de
+> `alto` que caen por debajo de las de `bajo`** (la 106552 en 70,3 y la B25-158899 en 73,1,
+> contra 66,7 y 75,1 de las dos de `bajo`), las dos con marcas resueltas a clases no epiteliales.
+> Es el mecanismo del §2.d, escrito en la unidad del nulo. Sin esto, «la restringida despega y la
+> completa no» se lee como «más láminas, peor `p`», que es al revés.
+>
+> Detalle: [`../auditoria_coherencia/hallazgos.md`](../auditoria_coherencia/hallazgos.md) C1-C2.
+
 ### 2.b El `n` real es peor que 10 láminas, y hay que decirlo
 
 El reparto por lámina, que es lo que el §0.c del pre-registro obligaba a mirar:
@@ -291,3 +316,5 @@ Se corrieron **las dos**. El primario cambia en el tercer decimal:
 | Las 107 marcas resueltas, con grado y descriptores | `results/b9_nucleos/marcas_grado.csv` |
 | Logs del eje 3 | `logs/b9_descriptores_nucleos.log`, `logs/b9_pleomorfismo.log` |
 | Scripts del eje 3 | `scripts/b9_descriptores_nucleos.py`, `scripts/b9_pleomorfismo.py` |
+| **Las figuras de los dos ejes** (4 láminas nativas) | `figuras/generate_figuras_ejes34.py` → `figuras_ejes_3_4.pptx` (gitignored, regenerable) |
+| Los 48 números que quedan dibujados | `figuras/numeros_figuras.csv` |

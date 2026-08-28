@@ -224,3 +224,127 @@ corrección del 25-ago.
 
 **Fix**: nota en el inventario §0, que es donde vive la cuenta de las 472 anotaciones, para que
 la próxima sesión no lo lea como bug.
+
+---
+
+# Tercera pasada — B9, sesión 34 (28-ago-2026)
+
+> Cierre de la sesión que le dio **forma presentable** a los dos ejes nucleares. La sesión 33
+> los midió y no dejó pasada de auditoría, así que ésta cubre lo que salió al dibujarlos.
+> Los hallazgos son los tres que produjo el acto de hacer la figura, que es exactamente el
+> valor que [[hallazgo-necesita-forma-presentable]] le atribuye.
+
+| id | hallazgo | tipo | severidad | acción |
+|---|---|---|---|---|
+| **C1** | El `p` del eje 3 **también es el piso**, y `resultados.md` §2 no lo dice (§1 sí lo dice para el eje 4) | error de omisión | **media** | ADDENDUM fechado en `resultados.md` §2.a |
+| **C2** | La comparación entre las dos poblaciones se puede leer al revés: la completa **no** está limitada por el diseño | error de omisión | **media** | mismo ADDENDUM |
+| **C3** | El solape entre dos formas **REINCIDIÓ**; no es una clase nueva (ya está desde el 4-ago), y la regla que la evita se violó en un generador nuevo | reincidencia | media | ADDENDUM en [[deck-qa-puntos-ciegos-chequeo]] |
+| **C4** | Los dos ejes ya tienen figura: el pendiente «sin una sola figura» se cierra | stale | baja | `resultados.md` §4, `progress/current.md`, handoff |
+| **C5** | La figura importó el código del número con un kwarg **aditivo**, y la regresión se verificó con el log byte a byte | método | baja | ADDENDUM en [[hallazgo-necesita-forma-presentable]] |
+
+---
+
+## C1 — El `p` del eje 3 también es el PISO
+
+`resultados.md` §1 lo dice del eje 4, textual: «**El `p` es el piso**: con 200 traslaciones el
+mínimo alcanzable es 1/201 = 0,00498, así que el resultado es "por debajo de 1 en 201", no un
+valor exacto». El §2 **no dice lo equivalente del eje 3**, y lo es, por una razón distinta y más
+fuerte.
+
+Medido al dibujar el nulo (`permutacion_exacta(..., con_rhos=True)`, población restringida):
+
+| | valor |
+|---|---|
+| ρ observado | **+0,8090** |
+| ρ **máximo** de las 360 asignaciones | **+0,8090** |
+| asignaciones con \|ρ\| ≥ observado | **2 de 360** ⇒ `p` bilateral 0,0056 = 2/360 |
+| asignaciones con ρ ≥ observado | **1 de 360** ⇒ `p` unilateral 0,0028 = 1/360 |
+
+O sea que **la asignación observada es la única de las 360 que ordena perfecto**: con este
+reparto (2 bajo / 1 moderado / 7 alto sobre 10 láminas) no existe un resultado mejor, y
+**0,0056 es el mínimo que el diseño puede dar**. El número no es «el `p` que salió»; es el techo
+del instrumento, alcanzado.
+
+**Por qué importa y no es cosmético**: quien lea 0,0056 contra el 0,05 convencional va a leerlo
+como holgura. No la hay. Un diseño con dos láminas menos en el peldaño chico no podría bajar de
+ahí ni con una separación perfecta, y eso condiciona qué se puede pedirle a este eje sin más
+láminas. Es el mismo argumento que el §1 ya hacía para el eje 4, aplicado donde faltaba.
+
+**Acción**: ADDENDUM fechado en `resultados.md` §2.a. **No** se toca el pre-registro ni la tabla
+de §2: los números publicados no cambian, se les agrega la lectura.
+
+## C2 — La completa NO está limitada por el diseño, y ésa es la mitad que falta
+
+Corolario de C1 que corrige una lectura tentadora. Con el §2.a tal como está («la restringida da
+0,0056 y la completa 0,0673»), la conclusión natural es «más láminas, peor `p`», que sería
+absurda. Medido, es al revés:
+
+| población | láminas | asignaciones | ρ obs | ρ **máximo** posible | `p` obs | **piso** del `p` |
+|---|---|---|---|---|---|---|
+| restringida | 10 | 360 | **+0,809** | **+0,809** | 0,0056 | **0,0056** |
+| completa | 12 | 2970 | +0,552 | +0,836 | 0,0673 | 0,0007 |
+
+La completa tenía **un piso cien veces más bajo disponible** (0,0007) y quedó en 0,0673. No la
+frena el diseño: la frenan **dos láminas de `alto` que caen por debajo de las de `bajo`** (la
+106552 en 70,3 y la B25-158899 en 73,1, contra 66,7 y 75,1 de las dos de `bajo`), y las dos son
+láminas donde la marca resolvió a clases no epiteliales. Es el mecanismo del §2.d escrito en la
+unidad del nulo.
+
+**Acción**: entra en el mismo ADDENDUM, con la tabla.
+
+## C3 — El solape entre dos formas reincidió, y NO es una clase nueva
+
+**Primero, la corrección a mí mismo**: al ver los dos defectos escribí que era un punto ciego
+nuevo, un «sexto». Es falso, y grepear la memoria antes de editarla lo mostró: el **ADDENDUM del
+4-ago-2026** de [[deck-qa-puntos-ciegos-chequeo]] ya nombra la clase («DOS OBJETOS VÁLIDOS
+SUPERPUESTOS») y ya trae la regla que la evita: «cuando un bloque auto-dimensionado va seguido de
+un elemento fijo, el fijo tiene que posicionarse **desde el alto medido**». El addendum
+redundante se retiró antes de quedar escrito.
+
+Lo que sí aporta el caso es **dónde vuelve a aparecer**. `auditar()` devolvió «sin avisos» sobre
+las cuatro láminas y el rasterizado mostró dos solapes evidentes: la leyenda de marcadores del
+eje 3 encima del pie, y el rótulo del eje de la lámina del nulo encima de los ticks del
+histograma de abajo. Los dos salían de un `top` calculado a mano (`t_pl + h_pl + 0.54` y
+`top + 2 * h_par - 0.10`), o sea de violar la regla del 4-ago.
+
+**Por qué reincide**: la regla vivía en el generador del deck, no en quien escribe uno nuevo. Un
+archivo nuevo que compone paneles propios re-deriva las posiciones a mano y estrena la misma
+clase de defecto **aunque importe todos los helpers auditados** del anterior. Los arquetipos ya
+posicionados no la disparan; la composición nueva sí.
+
+**Acción**: ADDENDUM en la memoria registrando la reincidencia y la pista barata (grepear los
+`top` que suman una constante a mano), no una capa ciega nueva.
+
+## C4 — El pendiente «los dos ejes sin una sola figura» se cierra
+
+Estado verificado al cierre: `sprints/B9_sprint9/ejes_nucleares/figuras/` con el generador, el
+CSV de los 48 números dibujados y el `.pptx` de cuatro láminas (gitignored por
+`sprints/**/*.pptx`, regenerable en segundos). Los cuatro números de cabecera reproducen los
+publicados: eje 4 AUC 0,906 con `p` 0,0050; eje 3 ρ +0,809 con `p` 0,0056 sobre 360.
+
+**Acción**: `resultados.md` §4, `progress/current.md` sesión 34, y sale del handoff.
+
+## C5 — El «cómo» del ADDENDUM 19-ago, con un caso que le agrega una condición
+
+[[hallazgo-necesita-forma-presentable]] fija que la figura **importa** el código del número en
+vez de reimplementarlo. Acá la primitiva que hacía falta (`permutacion_exacta`) devolvía el `p`
+y **no** la distribución, o sea que dibujar el nulo exigía enumerar de nuevo, que es exactamente
+lo que la regla prohíbe.
+
+Se resolvió con un kwarg **aditivo y compatible** (`con_rhos=False`) que agrega la distribución
+como quinto elemento sin tocar ningún valor ni ninguna firma existente. La condición que el
+ADDENDUM no traía: **eso edita el script que produjo un número ya publicado**, así que hace falta
+la regresión. Se corrió `b9_pleomorfismo.py` entero y su salida es **idéntica al log commiteado**
+(`logs/b9_pleomorfismo.log`, 164 líneas, diff vacío) y `marcas_grado.csv` no se movió.
+
+**Acción**: ADDENDUM corto en la memoria. La regla no cambia; se le agrega el caso «si para
+importar el código hay que tocarlo, el cambio es aditivo y se verifica con el artefacto viejo».
+
+## C6 — Lo que NO se toca
+
+- **El pre-registro** (`prereg.md`): intacto. Ningún hallazgo de esta pasada reescribe una
+  hipótesis (regla 9).
+- **Las tablas del §2 de `resultados.md`**: los números publicados no cambian. C1 y C2 son
+  lectura, y van como ADDENDUM fechado.
+- **El deck del período** y su generador: la sesión paró antes de tocarlo, como pedía el handoff.
+- **`b9_epitelio_estroma.py` y `b9_descriptores_nucleos.py`**: sin cambios.
