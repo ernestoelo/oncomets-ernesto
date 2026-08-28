@@ -4434,6 +4434,71 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 33 — 28-ago-2026 · el eje 3 medido: los descriptores ordenan, y el instrumento se cuela
+
+> Ejecuta el handoff de la sesión 32, cuya misión era **correr el eje 3** (pleomorfismo), ya
+> pre-registrado y con el gate pasado. Cero GPU, cero `sbatch`, cero jobs propios. Entrega el
+> **eje medido, documentado y commiteado**. Detalle: [`ejes_nucleares/resultados.md`](../sprints/B9_sprint9/ejes_nucleares/resultados.md) §2.
+
+### 1. El resultado
+
+Los descriptores **ordenan** alto > moderado > bajo. Primario H3.a (percentil del área dentro de
+la población epitelial de la propia lámina, restringida a las marcas que HoVer-NeXt llamó
+`epithelial-cell`): bajo **75,1** · moderado **92,1** · alto **98,9**, con **ρ = +0,809** por
+lámina y `p` **0,0056** de un nulo por permutación **exhaustiva** del grado entre las 10 láminas
+(360 asignaciones: no hay muestreo ni piso de iteraciones). Los dos AUC de pares contiguos por
+encima de 0,5. Está en la dirección pre-registrada, no es H3 nula ni H3 regresión.
+
+**Lo que no da**: la población **completa** (107 marcas, 12 láminas) ordena igual pero queda en
+`p` = **0,0673** a nivel lámina, y el pre-registro dice que manda el nivel lámina. Se reportan
+las dos, como estaba declarado.
+
+### 2. El `n` honesto es peor que 10 láminas
+
+El peldaño del medio de la población limpia son **4 marcas de UNA lámina**, la 164001, que además
+tiene `alineada: false`. La 109609 aporta **cero** epiteliales (sus 10 marcas de moderado cayeron
+sobre 7 plasmáticas y 3 conectivas), así que la restringida corre sobre **10 láminas, no 12**. Y
+los AUC por lámina de esa población valen 1,000 con `n` = 1 de un lado: están en el log por
+completitud y no se citan.
+
+### 3. El hallazgo que vale más que el ρ
+
+**El área de una instancia de HoVer-NeXt no es comparable entre clases.** `pinst_pp` no es el
+contorno del núcleo: es lo que sobrevive al umbral de foreground del post-proceso, y ese umbral
+está **afinado por clase** — `epithelial-cell` **0,6**, el más alto de las siete, contra **0,3**
+de `plasma-cell` y `connective`. Medido: una plasmática sale **más grande** (25,7 µm²) que una
+epitelial (22,7 µm²), que biológicamente está al revés. Es el mecanismo por el que la población
+completa despega menos que la restringida, y aplica a **cualquier** eje futuro que mida tamaño
+sobre esta salida, el de necrosis incluido.
+
+### 4. Un chequeo de sanidad que falló sin que nada estuviera mal
+
+El pre-registro había declarado que el área epitelial mediana cayera entre **30 y 120 µm²**.
+**No se cumple en 4 de 12 láminas** (22,7 a 46,5 µm² el rango real). No se movió el rango: se
+verificó la escala contra la fuente y **pasa** — el shape de `pinst_pp` reproduce las dimensiones
+de level 0 del `.bif` en las 12, con recorte menor a una tesela, y el centroide de los momentos
+coincide con `class_inst.json` con **mediana 0,00 px**. La causa del sesgo es el §3.
+
+### 5. Tres cosas menores que igual se registran
+
+1. **Una marca de 107 depende del desempate.** El gate del 27-ago se corrió con un script que no
+   quedó en el repo. Al reimplementarlo aparecieron dos desempates razonables para las marcas cuyo
+   centroide cae en fondo; difieren en la 106552 #4 y el primario cambia en el tercer decimal. Se
+   corren y se reportan **los dos**.
+2. **Excentricidad y razón de aspecto son el mismo descriptor** bajo transformación monótona
+   (Spearman **1,000000** exacto): todo estadístico de rango da idéntico y reportarlas como dos
+   sería contar dos veces.
+3. **La forma casi no aporta**: la excentricidad no despega del nulo (`p` 0,0556) y su AUC
+   alto > moderado es **0,447**, bajo 0,5. Lo que ordena es el **tamaño**.
+
+### 6. Estado al cierre
+
+Rama `main`, árbol limpio. **Cero jobs propios** (5086, 5088 y 5121 son del otro operador,
+`WorkDir=Test_D/D_abs_cambiado`, verificado con `scontrol`). `nschiaffino` 5085 sigue con la GPU
+y `TimeLimit=UNLIMITED`, van **3 días y 4 horas**: no hay backfill. **Los dos ejes nucleares de
+CPU quedan medidos**; los pendientes del sprint siguen todos abiertos.
+
+---
 ## Sesión 32 — 27-ago-2026 · los dos ejes nucleares: pre-registro y tres premisas corregidas
 
 > Ejecuta el handoff de la sesión 31, cuya misión era **correr los dos ejes GO y baratos** del

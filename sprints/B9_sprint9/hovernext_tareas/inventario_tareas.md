@@ -157,6 +157,20 @@ puede hacer en una lámina y en once no.
 > 109609), así que restringir a epitelio lo deja en **n = 4**.
 >
 > Pre-registro completo: [`../ejes_nucleares/prereg.md`](../ejes_nucleares/prereg.md).
+>
+> **MEDIDO el 28-ago-2026**, resultados en
+> [`../ejes_nucleares/resultados.md`](../ejes_nucleares/resultados.md) §2. Los descriptores
+> **ordenan** alto > moderado > bajo: percentil intra-lámina 75,1 · 92,1 · 98,9 en la población
+> restringida a epitelio, ρ = +0,809 por lámina, `p` = 0,0056 de un nulo por permutación
+> exhaustiva sobre 10 láminas. La población completa ordena igual pero queda en `p` = 0,0673 a
+> nivel lámina, y manda el nivel lámina. **El `n` honesto es peor que 10 láminas**: el peldaño
+> `moderado` son 4 marcas de una sola lámina, la 164001, que además tiene `alineada: false`.
+>
+> **Y sale un hallazgo que condiciona los ejes que queden**: el área de una instancia de
+> HoVer-NeXt **no es comparable entre clases**, porque el umbral de foreground del post-proceso
+> está afinado por clase (`epithelial` 0,6 contra `plasma` y `connective` 0,3). Aplica al eje 2
+> (necrosis) el día que se corra: `dead` de PanNuke traerá su propio umbral.
+> [[descriptor-absoluto-trae-el-umbral]].
 
 ### 4.a Cómo leer la columna de unidad, que es la que decide
 
@@ -211,7 +225,9 @@ entre láminas como si fueran homogéneas: van con su `n` y su dispersión, o no
 ## 6. Qué no se afirma
 
 - **No se midió nada nuevo acá.** Los ejes 3, 4 y 5 están declarados **GO** porque el insumo está
-  en disco, no porque se hayan corrido.
+  en disco, no porque se hayan corrido. (Los ejes **4 y 3 sí se corrieron después**, el 27 y el
+  28-ago: `../ejes_nucleares/resultados.md`. El **5 sigue sin correr** y sigue sin sostener
+  número propio: 7 marcas en 3 láminas.)
 - **No se afirma que los ejes GO vayan a dar señal.** Se afirma que son computables y baratos.
 - **Los tres NO-GO son por falta de clase o de unidad, no por falta de presupuesto.** Correrlos
   más tiempo o con más láminas no los habilita.
