@@ -24,6 +24,13 @@ Sale con código 1 si la auditoría o el barrido de estilo tienen avisos. Hoy sa
 limpios. Las dos figuras **no** se regeneran desde acá: si cambia el cruce, primero
 `scripts/galeria_mitosis_12.py` y después el deck.
 
+> **Cuando se incorporen las cuatro figuras de los ejes nucleares, el intérprete cambia.** El
+> deck pasa a depender de `zarr` (por `b9_pleomorfismo`, de donde salen `spearman` y
+> `permutacion_exacta`), y `clam_latest` no lo tiene. Verificado el 28-ago:
+> `/home/sdonoso/miniconda3/envs/pruebas/bin/python` con el mismo `PYTHONPATH` importa **pptx
+> 1.0.2, lxml, PIL, pandas, numpy, zarr y scipy** en un solo proceso y abre los TTF de Barlow.
+> No hace falta re-verificarlo.
+
 ## Las decisiones de Ernesto
 
 | | |
@@ -33,6 +40,7 @@ limpios. Las dos figuras **no** se regeneran desde acá: si cambia el cruce, pri
 | Período del título | **25/08/2026 - 08/09/2026** |
 | Láminas de contenido | **cuatro**: el número, los aciertos, las falladas y los ocho ejes |
 | Portada | queda **en inglés y tal cual**: es copy de la empresa, no contenido nuestro |
+| Los dos ejes nucleares (28-ago) | las **cuatro figuras entran al cuerpo**, entre los recortes de mitosis y la lámina de ejes. El deck pasa a **once láminas**. **Decidido y NO ejecutado**: ver abajo |
 
 Lo que **no** se traduce, a propósito: los nombres de clase del patólogo (`Mitosis`,
 `Tumour`, `Stroma`, `AreaTubular`, `Comedonecrosis`…). Son las etiquetas literales de su
@@ -153,8 +161,21 @@ el deck quedó en **siete**. La discrepancia original no se resolvió: quedó su
 - **No** se mezclan unidades: marcas (26 / 68 / 94), detecciones (732), polígonos (472).
 - Los tres NO-GO son **por argumento**, no por presupuesto.
 
-## Pendiente
+## Pendiente: las cuatro figuras de los ejes nucleares
 
-El `.pptx` viejo en inglés, `[20260908] [Ernesto Gamero] [Nuclear Detection].pptx`, sigue en
-esta carpeta y ya no corresponde a nada. Está gitignored y se regenera cambiando `PROYECTO`.
-Borrarlo lo decide Ernesto.
+Ernesto decidió el **28-ago** que **las cuatro entran al cuerpo**, entre los recortes de mitosis
+y la lámina de ejes, y que el deck pasa a **once láminas**. Con eso, **tres tablas quedan
+contradiciendo al deck** y se actualizan en el mismo movimiento:
+
+| Tabla | Qué cambia |
+|---|---|
+| OBJETIVOS (s02) | la fila de métricas nuevas pasa de «En curso» a **Cerrado**, nombrando los dos ejes medidos |
+| Los ocho ejes | «Grado nuclear» y «Tumor y estroma» pasan de «CPU, en disco / GO» a **medidos**, con la forma de la fila de Mitosis |
+| Tareas | pierde la fila de los dos ejes de procesador y **queda con dos**, sin reemplazo |
+
+**Nada de esto está ejecutado.** Hoy el deck tiene siete láminas; el plan de integración lo
+ejecuta una sesión limpia y vive en el handoff. Las cuatro láminas ya existen y están
+verificadas en [`../ejes_nucleares/figuras/`](../ejes_nucleares/figuras/).
+
+El `.pptx` viejo en inglés, `[20260908] [Ernesto Gamero] [Nuclear Detection].pptx`, **se borró**
+el 28-ago por decisión de Ernesto. Era derivado y gitignored: se regenera cambiando `PROYECTO`.
