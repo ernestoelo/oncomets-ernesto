@@ -4434,6 +4434,55 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 35 — 28-ago-2026 · sesión de PLAN: las figuras entran al deck, y nadie las metió todavía
+
+> La sesión 34 dejó las cuatro figuras hechas y **fuera** del deck, porque meterlas era decisión
+> de Ernesto. La tomó. El plan quedó escrito y **sin ejecutar** por pedido suyo: lo toma una
+> sesión limpia. Cero GPU, cero `sbatch`, cero jobs propios.
+> Detalle: [`auditoria_coherencia/hallazgos.md`](../sprints/B9_sprint9/auditoria_coherencia/hallazgos.md) §Cuarta pasada.
+
+### 1. Las cuatro decisiones
+
+1. **Las cuatro figuras van al cuerpo del deck**, entre los recortes de mitosis y la lámina de
+   los ocho ejes. De **siete a once láminas**. La alternativa que se le ofreció (las dos de
+   resultado en el cuerpo y los dos nulos como anexo) no la tomó: quiere el método adelante.
+2. **Se actualizan las tablas que quedarían contradiciendo al deck.** Son **tres**, no dos: a
+   OBJETIVOS y Tareas se suma la de los ocho ejes, donde «Grado nuclear» y «Tumor y estroma»
+   siguen diciendo «CPU, en disco / GO» dos láminas después de mostrar sus resultados.
+3. **Tareas queda con dos filas** (necrosis y punto caliente mitótico). La fila que se libera no
+   se reemplaza: ni cerrar el eje 3 con más láminas ni el eje 5 entran al período.
+4. **Se borra el `.pptx` huérfano en inglés**, que venía arrastrándose hace tres sesiones. Hecho.
+
+### 2. El plan, en una línea cada pieza
+
+Invertir la dependencia entre los dos generadores (las cuatro láminas se **mudan** al del deck y
+la hoja suelta queda como envoltorio, porque si el deck importara de ella habría ciclo y una
+segunda copia del módulo) · ocho `clonar_s03` en vez de cuatro y `reordenar` con las once · las
+tres tablas · cuatro bloques de guion nuevos, con las claves renumeradas para que el `.md` se lea
+en orden de lámina · el intérprete pasa a `envs/pruebas`, que es el único con `zarr` **y**
+`python-pptx`.
+
+**Lo que el guion tiene que decir y las figuras no pueden**: que el `p` del eje 3 es el piso del
+diseño y no una holgura, que el `n` honesto son diez láminas y no 85 marcas, que los percentiles
+son altos en los tres grados, y que nada de esto valida Nottingham.
+
+### 3. Lo que la auditoría encontró de paso
+
+El mapa del sprint decía en **dos** lugares que el eje 3 **sigue sin correr**. Era verdad el
+27-ago y lo midió la sesión 33. Es el peor archivo donde puede quedar algo stale: por el formato
+«índice, no almacén» es lo que una sesión nueva lee para orientarse, y le decía que lo principal
+del período estaba por hacer. Corregido, más las dos líneas de decisión que faltaban (el eje 3
+medido y las figuras).
+
+### 4. Estado al cierre
+
+Rama `main`, sincronizada con `origin` al abrir (6180a7c). **Cero jobs propios** (5086, 5088 y
+5121 son del otro operador, `WorkDir=Test_D/`, reverificado con `scontrol`). `nschiaffino` 5085
+sigue con la GPU y `TimeLimit=UNLIMITED`, van **3 días y 5 horas**: sin backfill. El deck tiene
+**siete** láminas y las cuatro figuras siguen en su hoja aparte.
+
+---
+
 ## Sesión 34 — 28-ago-2026 · los dos ejes tienen figura, y el `p` del eje 3 es un techo
 
 > Ejecuta el handoff de la sesión 33, cuya misión primaria era **darles forma presentable** a los
