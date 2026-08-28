@@ -4434,6 +4434,70 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 34 — 28-ago-2026 · los dos ejes tienen figura, y el `p` del eje 3 es un techo
+
+> Ejecuta el handoff de la sesión 33, cuya misión primaria era **darles forma presentable** a los
+> ejes 3 y 4, que estaban medidos y sin una sola figura. Cero GPU, cero `sbatch`, cero jobs
+> propios. Detalle: [`auditoria_coherencia/hallazgos.md`](../sprints/B9_sprint9/auditoria_coherencia/hallazgos.md) §Tercera pasada.
+
+### 1. Lo que se entrega
+
+**Cuatro láminas nativas**, `sprints/B9_sprint9/ejes_nucleares/figuras/`: la fracción epitelial
+por clase del eje 4, su estadístico contra el nulo por traslación, el ordenamiento de los tres
+grados **con el `n` por lámina visible**, y los dos nulos exactos del eje 3 lado a lado. Es una
+**hoja de figuras, no un deck**: la sesión paró antes de tocar el deck del período, como pedía el
+handoff.
+
+Todo nativo (barras, puntos, histogramas, ejes y tablas son objetos dibujables, así que no van
+como PNG), sobre la plantilla oficial, con Barlow forzada y las dos capas de QA del generador del
+deck. Los 48 números que quedan dibujados se escriben a `numeros_figuras.csv`, versionado: el
+`.pptx` es derivado y está gitignored.
+
+**El generador importa el código que produjo cada número** en vez de reimplementarlo
+([[hallazgo-necesita-forma-presentable]]): `rank_auc` de `b9_epitelio_estroma.py`, y `spearman`,
+`permutacion_exacta` y `ORDEN` de `b9_pleomorfismo.py`. Los cuatro números de cabecera reproducen
+los publicados, dígito a dígito.
+
+### 2. El hallazgo: el `p` del eje 3 también es el PISO
+
+Salió de dibujar el nulo, no de re-medir. El `resultados.md` §1 ya decía «el `p` es el piso» del
+eje 4; del eje 3 no lo decía, y vale, por una razón más fuerte:
+
+| población | láminas | asignaciones | ρ obs | ρ **máximo** posible | `p` obs | **piso** del `p` |
+|---|---|---|---|---|---|---|
+| restringida | 10 | 360 | **+0,809** | **+0,809** | 0,0056 | **0,0056** |
+| completa | 12 | 2970 | +0,552 | +0,836 | 0,0673 | 0,0007 |
+
+**En la restringida el ρ observado ES el máximo de las 360**: la asignación observada es la única
+que ordena perfecto, así que 0,0056 no es «el `p` que salió» sino el mínimo que el reparto
+(2 bajo / 1 moderado / 7 alto) puede dar. Leerlo como holgura contra el 0,05 convencional es un
+error: no hay holgura, hay techo.
+
+**Y la completa no está frenada por el diseño**, que es la mitad que faltaba: tenía un piso cien
+veces más bajo disponible y quedó en 0,0673 porque **dos láminas de `alto` caen por debajo de las
+de `bajo`** (106552 en 70,3 y B25-158899 en 73,1). Sin esto, «la restringida despega y la completa
+no» se lee como «más láminas, peor `p`», que es al revés. Va como ADDENDUM fechado en
+`resultados.md` §2.a; ninguna tabla publicada cambia.
+
+### 3. Dos cosas de método
+
+1. **Para importar el código del número hubo que tocarlo**, porque `permutacion_exacta` devolvía
+   el `p` y no la distribución. Se resolvió con un kwarg **aditivo** (`con_rhos`) y la regresión
+   se verificó contra el artefacto viejo: el script entero reproduce `logs/b9_pleomorfismo.log`
+   con diff vacío. Sin ese paso, «la figura usa el mismo código» es una afirmación sin respaldo.
+2. **La auditoría automática dio «sin avisos» sobre dos solapes evidentes.** No es una capa ciega
+   nueva: es la clase del ADDENDUM del 4-ago, reincidiendo. Vale registrar **dónde** vuelve, y es
+   en cuanto un generador nuevo compone paneles propios y calcula los `top` a mano, aunque importe
+   helpers auditados. Los cazó mirar el rasterizado, que es la única capa que puede.
+
+### 4. Estado al cierre
+
+Rama `main`, sin divergencia con `origin`. **Cero jobs propios** (5086, 5088 y 5121 son del otro
+operador, `WorkDir=Test_D/D_abs_cambiado`, reverificado con `scontrol`). `nschiaffino` 5085 sigue
+con la GPU y `TimeLimit=UNLIMITED`, van **3 días y 5 horas**: no hay backfill. Los pendientes del
+sprint siguen todos abiertos menos el de las figuras, que se cierra acá.
+
+---
 ## Sesión 33 — 28-ago-2026 · el eje 3 medido: los descriptores ordenan, y el instrumento se cuela
 
 > Ejecuta el handoff de la sesión 32, cuya misión era **correr el eje 3** (pleomorfismo), ya
