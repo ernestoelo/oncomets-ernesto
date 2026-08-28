@@ -106,6 +106,14 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   > nada**: lee los pares del cruce y recorta. Detalle y QA en
   > [`presentacion_b9/README.md`](presentacion_b9/README.md); lo que quedó stale por el cambio,
   > en [`auditoria_coherencia/hallazgos.md`](auditoria_coherencia/hallazgos.md).
+- [**Los dos ejes nucleares, pre-registrados**](ejes_nucleares/prereg.md) (27-ago, CPU) — antes
+  de medir aparecieron **tres correcciones de premisa**: las 107 anotaciones de grado son
+  **núcleos sueltos y no regiones** (218,8 µm² y bbox 36×36, el perfil de una marca de
+  `Mitosis`), así que la unidad del eje 3 es **punto contra punto**; el **área del polígono es en
+  parte el pincel de QuPath** y por eso ningún descriptor sale de la marca; y el grado está
+  **confundido con la lámina** sin un solo cruce, así que el `n` del ordenamiento es **12
+  láminas**. Gate pasado: **107 de 107** marcas caen sobre un núcleo segmentado. El §4 del
+  inventario queda corregido por ADDENDUM. **Nada medido todavía.**
 - **La simetría de los dos juegos de pesos** (heredada del B8, se re-declara porque gobierna el
   objetivo 2) — Lizard-Mitosis tiene **mitosis y no necrosis**; PanNuke tiene **`dead` y no
   mitosis**. Las dos son verdaderas a la vez y **ninguna reabre nada**
@@ -141,8 +149,11 @@ algo de acá **no es poder responderlo, es poder enunciarlo**.
   para las cinco láminas con necrosis, extrapolado por área de canvas. Exige que Ernesto lo pida y
   que la GPU se libere.
 - **¿Los descriptores nucleares de `pinst_pp.zip` ordenan los tres grados del patólogo?** Eje 3 del
-  inventario, **CPU y ya en disco**: 107 regiones con grado declarado (77 alto, 14 moderado, 16
-  bajo). El criterio de éxito es que **ordenen**, no que separen perfecto.
+  inventario, **CPU y ya en disco**: 107 **núcleos** con grado declarado (77 alto, 14 moderado, 16
+  bajo), no regiones (ver la decisión de arriba). **Ya pre-registrado** en
+  [`ejes_nucleares/prereg.md`](ejes_nucleares/prereg.md) §3 y **sin correr**. El criterio de éxito
+  es que **ordenen**, no que separen perfecto, y el primario es el percentil intra-lámina porque
+  el grado está confundido con la lámina.
 - **¿El Δ del job 4589 en CDIS `_ci_reform` sobrevive a semillas nuevas?** Arrastrado del B8.
   Mammoth dio Δbal_acc **+0.074 ± 0.033 (5/5 folds)**. La réplica **exige semillas nuevas** y entra
   por **regla 9.b** con pre-registro, branch y `reviewer`.

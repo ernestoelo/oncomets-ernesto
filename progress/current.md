@@ -4409,6 +4409,50 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 32 — 27-ago-2026 · los dos ejes nucleares: pre-registro y tres premisas corregidas
+
+> Ejecuta el handoff de la sesión 31, cuya misión era **correr los dos ejes GO y baratos** del
+> inventario. Cero GPU, cero `sbatch`, cero jobs propios. Se cierra **antes de medir**: quedó el
+> pre-registro escrito y el control positivo codificado pero **sin correr**.
+
+### 1. Lo que cambió el diseño antes de escribir una línea de código
+
+Al mirar el material de verdad, tres premisas del inventario resultaron falsas o incompletas.
+Las tres están en [`ejes_nucleares/prereg.md`](../sprints/B9_sprint9/ejes_nucleares/prereg.md) §0
+y auditadas en [`auditoria_coherencia/hallazgos.md`](../sprints/B9_sprint9/auditoria_coherencia/hallazgos.md) §B.
+
+| | qué decía | qué es verdad |
+|---|---|---|
+| Unidad del eje 3 | «región contra población» | las 107 marcas de grado son **núcleos sueltos**: 218,8 µm² y bbox 36×36, el perfil exacto de una marca de `Mitosis`. La unidad es **punto contra punto** |
+| Área de la marca | medida del objeto | es en parte el **pincel de QuPath**: 218,82 µm² aparece 14 veces en `Mitosis` y 4 en `alto`, con los mismos 53 vértices |
+| `n` del ordenamiento | 107 marcas | **12 láminas**: el grado está confundido con la lámina sin un solo cruce (8 alto / 2 moderado / 2 bajo, disjuntas) |
+
+La segunda es la que más cerca estuvo de fabricar un resultado: las medianas de las marcas
+**ordenan bien** por grado, así que reportarlas era medir el pincel.
+
+### 2. El gate que sí pasó
+
+**107 de 107** marcas de grado caen sobre un núcleo segmentado por HoVer-NeXt (alto 77/77,
+moderado 14/14, bajo 16/16). El eje 3 es medible. Sale además que la clase asignada no siempre
+es epitelial: `moderado` trae **7 `plasma-cell`**, todos de la 109609, así que restringir a
+epitelio lo deja en **n = 4** y las dos poblaciones se reportan juntas.
+
+### 3. Dos gotchas de herramienta
+
+1. **`/home/sdonoso/miniconda3/envs/pruebas` tiene zarr 2.18.3 y pandas 2.3.3 juntos.** Cae la
+   restricción de partir en dos procesos cualquier análisis que necesite las dos cosas.
+2. **Los 131 extras de `MultiPolygon` son astillas** (mediana 0,4 µm², 105 bajo 10 µm²). El
+   loader actual está bien; expandirlos hincharía los conteos del inventario §0.
+
+### 4. Estado al cierre
+
+Rama `main`, **sin jobs propios** (5086 y 5088 son del otro operador, `WorkDir=Test_D`,
+verificado con `scontrol`). `nschiaffino` 5085 sigue con la GPU y `TimeLimit=UNLIMITED`, van
+**3 días**: no hay backfill. **Los dos ejes siguen sin medirse** y `scripts/b9_epitelio_estroma.py`
+quedó escrito y **nunca ejecutado**.
+
+---
+
 ## Sesión 31 — 27-ago-2026 · el deck pasa a español y suma las láminas de recortes
 
 > Ejecuta el handoff de la sesión 30, cuya misión era **preguntarle a Ernesto qué quería
