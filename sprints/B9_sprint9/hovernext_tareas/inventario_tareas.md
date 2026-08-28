@@ -30,6 +30,14 @@ llegaban infladas a este inventario:
 Todos los `n` de este documento son sobre los **doce** `- GDT`, y suman **472** anotaciones, que
 es el total que el B8 ya había verificado.
 
+> **Nota 27-ago-2026 — los extras de `MultiPolygon` son astillas, no contenido que se pierda.**
+> `cargar_anotaciones()` (`scripts/alinear_anotaciones_qupath.py:59-61`) toma el primer anillo
+> del primer sub-polígono, y parece que descarta 131 sub-polígonos justo en `Tumor`, `Stroma` y
+> `AreaSolida`. Medido: **105 de esos 131 miden menos de 10 µm² y 127 menos de 400**, con mediana
+> **0,4 µm²**. Expandirlos hincharía los conteos de acá (`Tumor` 98 → 170, `Stroma` 12 → 42,
+> `AreaSolida` 45 → 63) y rompería esta misma corrección. **El loader está bien: no lo
+> «arregles».**
+
 ## 1. El vocabulario completo del patólogo sobre las 12
 
 Veintiún etiquetas distintas. Ninguna sesión anterior lo había listado entero.
@@ -112,6 +120,43 @@ puede hacer en una lámina y en once no.
 | **6. Permeaciones vasculares** | **ninguna**: no hay clase de endotelio ni de luz vascular | `Permeaciones vasculares` 9 / 6 | `invasion_linfatica_vascular` | no aplica | no aplica | **NO-GO**: el objeto de la tarea es una **estructura** (émbolo dentro de una luz revestida) y la salida es una **población de núcleos**. Falta la clase, no la escala |
 | **7. Microcalcificaciones** | **ninguna**: no es un núcleo | `microcalcificaciones` 8 / 3 | `microcalcificaciones` | no aplica | no aplica | **NO-GO** doble: no hay clase, y además el oxalato (Tipo I) es **invisible en H&E** ([[luz-polarizada-oxalato-birrefringencia]]) |
 | **8. Arquitectura (tubular, papilar, mucinoso)** | **ninguna**: exige segmentación **glandular**, no nuclear | `AreaTubular` 25 / 5 · `Mucinoso` 11 / 1 · `CDIS_papilar` 6 / 1 | `carcinoma_ductal_insitu_patron_arquitectonico` | no aplica | no aplica | **NO-GO**: la unidad es la glándula y su luz. Se podría **derivar** de la densidad nuclear, pero eso es un método nuevo, no una medición de HoVer-NeXt |
+
+> **ADDENDUM 27-ago-2026 — la fila del eje 3 tiene la unidad equivocada, y eso cambia el
+> método.** La rúbrica de arriba no se reescribe (es el registro de lo que se sabía el 25-ago);
+> lo que sigue la corrige.
+>
+> **Las 107 anotaciones de grado son núcleos sueltos, no regiones.** Tienen el perfil de tamaño
+> de una marca puntual, y es el mismo de `Mitosis`:
+>
+> | Clase | `n` | área mediana | diámetro eq. | bbox mediano | % bajo 400 µm² |
+> |---|---|---|---|---|---|
+> | `Mitosis` (referencia) | 94 | 218,8 µm² | 16,7 µm | 36×36 px | 82 % |
+> | `Nucleos alto grado` | 77 | **218,8 µm²** | 16,7 µm | **36×36 px** | 78 % |
+> | `Nucleos mod grado` | 14 | 35,5 µm² | 6,7 µm | 16×14 px | 100 % |
+> | `NucleosBajoGrado` | 16 | 25,6 µm² | 5,7 µm | 12×12 px | 100 % |
+>
+> Un núcleo epitelial mamario mide 7 a 9 µm de diámetro; las clases que sí son regiones están dos
+> órdenes de magnitud más arriba (`Tumor` 4.025 µm², `Tejido Adiposo` 191.364 µm²). ⇒ la unidad
+> del eje 3 es **punto contra punto**, la del eje 1, y no «región contra población»: cada marca
+> se resuelve al núcleo segmentado que tiene debajo y se leen **sus** descriptores.
+>
+> **El área del polígono es en parte el pincel de QuPath.** 218,82 µm² aparece **14 veces** en
+> `Mitosis` y **4** en `alto`, siempre con 53 vértices; 155,25 µm² aparece **8** y **4**, con 65.
+> `NucleosBajoGrado` tiene 16 áreas distintas en 16 marcas (a mano). ⇒ **ningún descriptor
+> nuclear sale del polígono del patólogo**, todos de `pinst_pp.zip`. Las medianas de las marcas
+> ordenan bien por grado, y reportarlo sería medir el pincel.
+>
+> **El grado está confundido con la lámina, sin un solo cruce**: `alto` en 8 láminas, `moderado`
+> en 2, `bajo` en 2, y ninguna lámina tiene dos grados. Comparar grados **es** comparar láminas,
+> así que el `n` efectivo del ordenamiento es **12 láminas**, no 107 marcas. Mitigación
+> pre-registrada: percentil del núcleo dentro de la población epitelial **de su propia lámina**.
+>
+> **Gate ejecutado: 107 de 107 marcas caen sobre un núcleo segmentado** (alto 77/77, moderado
+> 14/14, bajo 16/16), con el patrón de `scripts/a0_segmentadas_o_no.py:118-135`. La clase que les
+> asigna HoVer-NeXt no siempre es epitelial: `moderado` trae **7 `plasma-cell`** (todos de la
+> 109609), así que restringir a epitelio lo deja en **n = 4**.
+>
+> Pre-registro completo: [`../ejes_nucleares/prereg.md`](../ejes_nucleares/prereg.md).
 
 ### 4.a Cómo leer la columna de unidad, que es la que decide
 
