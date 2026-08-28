@@ -157,3 +157,9 @@ results/**/hovernext/**/class_inst.json
 # relanzando el .slurm, y lo que se analiza es la mitosis. Se versiona solo ese.
 results/**/hovernext/**/pred_*.tsv
 !results/**/hovernext/**/pred_mitosis.tsv
+
+# Descriptores por instancia del eje 3 del B9 (`b9_descriptores_nucleos.py`): 44 MB en las 12
+# laminas y son un INTERMEDIO regenerable en ~10 min de CPU desde `pinst_pp.zip`, que ya esta
+# en disco. Lo que se versiona es la verdad de campo chica: `marcas_grado.csv`, las 107 marcas
+# resueltas. Declarado asi en `sprints/B9_sprint9/ejes_nucleares/prereg.md` §5.
+results/b9_nucleos/*_nucleos.npz
