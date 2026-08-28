@@ -167,7 +167,7 @@ def spearman(x, y):
     return float(r.statistic), float(r.pvalue)
 
 
-def permutacion_exacta(orden_por_lamina, valor_por_lamina, tope=500_000):
+def permutacion_exacta(orden_por_lamina, valor_por_lamina, tope=500_000, con_rhos=False):
     """`p` EXACTO de rho, enumerando todas las asignaciones del grado a las laminas.
 
     Con el reparto real 8/2/2 sobre 12 laminas son 12!/(8!·2!·2!) = 2.970 asignaciones, o sea
@@ -176,6 +176,10 @@ def permutacion_exacta(orden_por_lamina, valor_por_lamina, tope=500_000):
 
     Bajo la nula «el grado no tiene relacion con el descriptor» las laminas son intercambiables.
     A nivel MARCA esto no seria valido: las marcas de una misma lamina no son independientes.
+
+    `con_rhos` agrega la distribucion entera como quinto elemento. Es aditivo y no toca ningun
+    valor: existe para que la FIGURA del nulo dibuje la misma enumeracion que produjo el `p`,
+    en vez de reimplementarla ([[hallazgo-necesita-forma-presentable]] ADDENDUM 19-ago).
     """
     from math import comb
 
@@ -202,10 +206,11 @@ def permutacion_exacta(orden_por_lamina, valor_por_lamina, tope=500_000):
             lab[list(b)] = o2
             rhos.append(float(spearmanr(lab, v).statistic))
     rhos = np.asarray(rhos)
-    return (obs,
-            float((np.abs(rhos) >= abs(obs) - 1e-12).mean()),   # bilateral
-            float((rhos >= obs - 1e-12).mean()),                # unilateral, direccion de H3.a
-            len(rhos))
+    salida = (obs,
+              float((np.abs(rhos) >= abs(obs) - 1e-12).mean()),   # bilateral
+              float((rhos >= obs - 1e-12).mean()),                # unilateral, direccion de H3.a
+              len(rhos))
+    return (salida + (rhos,)) if con_rhos else salida
 
 
 def bloque_analisis(df, etiqueta, col, nombre_col):
