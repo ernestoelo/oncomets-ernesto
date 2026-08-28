@@ -106,6 +106,16 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   > nada**: lee los pares del cruce y recorta. Detalle y QA en
   > [`presentacion_b9/README.md`](presentacion_b9/README.md); lo que quedó stale por el cambio,
   > en [`auditoria_coherencia/hallazgos.md`](auditoria_coherencia/hallazgos.md).
+  >
+  > **ADDENDUM 28-ago-2026 — Ernesto decidió que los dos ejes nucleares entran al deck, y el
+  > deck pasa a ONCE láminas.** Las cuatro figuras van **en el cuerpo**, entre los recortes de
+  > mitosis y la lámina de los ocho ejes. Con eso, tres tablas quedaban contradiciendo al deck y
+  > se actualizan: OBJETIVOS marca el objetivo como **Cerrado**, la tabla de los ocho ejes pasa
+  > «Grado nuclear» y «Tumor y estroma» a **medidos**, y **Tareas queda con dos filas** (necrosis
+  > y punto caliente mitótico), sin reemplazar la que se libera. Se borra además el `.pptx`
+  > huérfano en inglés. **NADA de esto está ejecutado**: el plan quedó escrito para una sesión
+  > limpia y hasta entonces el deck tiene siete láminas. Detalle en
+  > [`auditoria_coherencia/hallazgos.md`](auditoria_coherencia/hallazgos.md) §Cuarta pasada.
 - [**Los dos ejes nucleares, pre-registrados**](ejes_nucleares/prereg.md) (27-ago, CPU) — antes
   de medir aparecieron **tres correcciones de premisa**: las 107 anotaciones de grado son
   **núcleos sueltos y no regiones** (218,8 µm² y bbox 36×36, el perfil de una marca de
@@ -119,7 +129,23 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   **AUC de rango 0,906** sobre 209 regiones (0,937 en las 10 láminas bien alineadas), contra un
   nulo **por traslación** centrado en 0,439 con p97,5 = 0,528; `p` = 0,0050, que es el piso de 200
   iteraciones. `Stroma` y `Tejido Adiposo` dan **cero exacto** en la mediana. ⇒ **el instrumento
-  funciona** y la condición de lectura del eje 3 queda satisfecha. **El eje 3 sigue sin correr.**
+  funciona** y la condición de lectura del eje 3 queda satisfecha, que es lo que habilitó medirlo
+  al día siguiente (línea de abajo).
+- [**El eje 3, pleomorfismo: los descriptores ORDENAN**](ejes_nucleares/resultados.md) (28-ago,
+  CPU) — el percentil del área dentro de la población epitelial de la propia lámina da **75,1 ·
+  92,1 · 98,9** de mediana para bajo, moderado y alto, con **ρ = +0,809** entre las **10 láminas**
+  de la población restringida y `p` = **0,0056** en el nulo exacto de 360 asignaciones. La
+  población completa ordena igual (+0,552) y **no despega** (0,0673), y el pre-registro dice que
+  manda el nivel lámina. El `n` honesto son **láminas y no marcas**, porque el grado está
+  confundido con la lámina; y el ordenamiento **no valida Nottingham**: son núcleos que el
+  patólogo eligió como ejemplares, con percentiles altos en los tres grados.
+- [**Los dos ejes tienen figura, y el `p` del eje 3 es un techo**](ejes_nucleares/figuras/) (28-ago)
+  — cuatro láminas nativas sobre la plantilla oficial, con el generador importando el código que
+  produjo cada número en vez de reimplementarlo. Dibujar el nulo produjo el hallazgo: en la
+  restringida el ρ observado **es el máximo** de las 360 asignaciones, así que 0,0056 es el piso
+  del diseño y **no una holgura** contra el 0,05; y la completa **no está frenada por el diseño**
+  (tenía 0,0007 disponible), la frenan dos láminas de `alto` que caen por debajo de las de `bajo`.
+  Va como ADDENDUM en `resultados.md` §2.a: ninguna tabla publicada cambia.
 - **La simetría de los dos juegos de pesos** (heredada del B8, se re-declara porque gobierna el
   objetivo 2) — Lizard-Mitosis tiene **mitosis y no necrosis**; PanNuke tiene **`dead` y no
   mitosis**. Las dos son verdaderas a la vez y **ninguna reabre nada**
@@ -154,12 +180,6 @@ algo de acá **no es poder responderlo, es poder enunciarlo**.
   el vocabulario** (`necrosis` / `Necrosis` / `Comedonecrosis`). Costo estimado **7 a 9 h** de GPU
   para las cinco láminas con necrosis, extrapolado por área de canvas. Exige que Ernesto lo pida y
   que la GPU se libere.
-- **¿Los descriptores nucleares de `pinst_pp.zip` ordenan los tres grados del patólogo?** Eje 3 del
-  inventario, **CPU y ya en disco**: 107 **núcleos** con grado declarado (77 alto, 14 moderado, 16
-  bajo), no regiones (ver la decisión de arriba). **Ya pre-registrado** en
-  [`ejes_nucleares/prereg.md`](ejes_nucleares/prereg.md) §3 y **sin correr**. El criterio de éxito
-  es que **ordenen**, no que separen perfecto, y el primario es el percentil intra-lámina porque
-  el grado está confundido con la lámina.
 - **¿El Δ del job 4589 en CDIS `_ci_reform` sobrevive a semillas nuevas?** Arrastrado del B8.
   Mammoth dio Δbal_acc **+0.074 ± 0.033 (5/5 folds)**. La réplica **exige semillas nuevas** y entra
   por **regla 9.b** con pre-registro, branch y `reviewer`.

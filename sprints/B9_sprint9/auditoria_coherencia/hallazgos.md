@@ -348,3 +348,84 @@ importar el código hay que tocarlo, el cambio es aditivo y se verifica con el a
   lectura, y van como ADDENDUM fechado.
 - **El deck del período** y su generador: la sesión paró antes de tocarlo, como pedía el handoff.
 - **`b9_epitelio_estroma.py` y `b9_descriptores_nucleos.py`**: sin cambios.
+
+---
+
+# Cuarta pasada — 28-ago-2026 (sesión 35, de PLAN)
+
+> Sesión sin código: Ernesto decidió qué pasa con las cuatro figuras y el plan quedó escrito
+> **sin ejecutar**, para que lo tome una sesión limpia. Esta pasada registra la decisión y
+> limpia lo que el avance de las sesiones 33 y 34 dejó stale en el **mapa del sprint**, que es
+> el índice que toda sesión lee antes de elegir en qué trabajar.
+
+| id | hallazgo | tipo | acción |
+|---|---|---|---|
+| D1 | El mapa del sprint dice que el eje 3 **sigue sin correr** | stale | corregido en dos lugares |
+| D2 | El eje 3 medido y las cuatro figuras no tienen línea en «Decisiones tomadas» | falta | dos líneas nuevas |
+| D3 | Las cuatro decisiones de Ernesto sobre el deck no están en ningún doc | falta | README + ADDENDUM |
+| D4 | Dos pendientes que Ernesto acaba de decidir siguen escritos como abiertos | stale | cerrados |
+| D5 | `envs/pruebas` corre el generador del deck entero | dato | al README, no a memoria |
+
+## D1 — El mapa del sprint dice que el eje 3 sigue sin correr
+
+`objetivos_sprint9.md:122` cierra la línea del eje 4 con «**El eje 3 sigue sin correr.**», y la
+sección «Pendiente sharp» lo vuelve a enunciar como «**Ya pre-registrado** y **sin correr**».
+Las dos eran verdad al escribirlas el 27-ago. El eje 3 se midió el 28 (sesión 33) y se dibujó el
+mismo día (sesión 34), con su `resultados.md` §2 y su ADDENDUM.
+
+Es el peor lugar donde puede quedar algo stale: por el formato de `objetivos_sprintN.md`
+(CLAUDE.md §«índice, no almacén»), ese archivo es lo que una sesión nueva lee para orientarse, y
+hoy le dice que lo principal del período está por hacer.
+
+**Acción**: la frase del §Decisiones pasa a apuntar al resultado; el bullet de «Pendiente sharp»
+se **elimina** de ahí, porque graduó a decisión tomada.
+
+## D2 — Faltan las dos líneas de decisión
+
+El §Decisiones tomadas tiene línea para el pre-registro y para el eje 4, y no para lo que salió
+después: el **eje 3 medido** y las **cuatro figuras**. Se agregan las dos, con enlace y con el
+número que las resume, en el formato de una línea por asunto.
+
+## D3 — Las cuatro decisiones de Ernesto sobre el deck
+
+Tomadas hoy, y no estaban escritas en ningún lado:
+
+1. **Las cuatro figuras entran al cuerpo del deck**, entre los recortes de mitosis y la lámina
+   de los ocho ejes. El deck pasa de **7 a 11 láminas**.
+2. **Se actualizan OBJETIVOS y Tareas**, que si no quedan contradiciendo al deck: hoy dicen que
+   los dos ejes de procesador son tarea del 08/09 y que el objetivo está «En curso».
+3. **La tabla de Tareas queda con dos filas** (necrosis y punto caliente mitótico). No se
+   reemplaza la fila que se libera.
+4. **Se borra el `.pptx` huérfano en inglés.**
+
+**Acción**: README de `presentacion_b9/` §Las decisiones de Ernesto, y ADDENDUM en la línea del
+deck del mapa del sprint. **Nada de esto está ejecutado**: el plan lo ejecuta una sesión limpia
+y hasta entonces el deck tiene siete láminas.
+
+## D4 — Dos pendientes que ya no son pendientes
+
+- README de `presentacion_b9/` §Pendiente: «Borrarlo lo decide Ernesto» sobre el `.pptx` en
+  inglés. **Decidido**: se borra, y la sección se cierra.
+- El docstring de `generate_figuras_ejes34.py` dice que las láminas están «listas para entrar al
+  deck del período **cuando Ernesto lo decida**». Decidido también. **No se toca el archivo**: el
+  plan lo reescribe entero (las cuatro láminas se mudan al generador del deck), así que editarlo
+  hoy es churn. Queda en el handoff.
+
+## D5 — Un env que corre el generador del deck entero
+
+Verificado hoy: `/home/sdonoso/miniconda3/envs/pruebas/bin/python` con
+`PYTHONPATH=.../.pylibs` importa **pptx 1.0.2, lxml, PIL, pandas, numpy, zarr y scipy** en un
+solo proceso, y abre los TTF de Barlow. Importa porque al meter las figuras el deck pasa a
+depender de `zarr` (vía `b9_pleomorfismo`) y hoy se corre con `clam_latest`.
+
+**No va a memoria**: la del env (`hovernext-salida-geometria-y-clases`) es de la salida de
+HoVer-NeXt y éste es un dato de decks; y el intérprete del deck **todavía no cambió**, porque el
+plan no se ejecutó. Va al README, como condición del plan.
+
+## D6 — Lo que NO se toca
+
+- **El deck y su generador**: la decisión está tomada y **no ejecutada**. Ningún doc puede decir
+  todavía que el deck tiene once láminas.
+- **`resultados.md`, `prereg.md` y los scripts de los dos ejes**: sin cambios, no hubo medición.
+- **Las memorias**: esta sesión no produjo un hecho durable nuevo. La tentación era registrar el
+  env; D5 explica por qué no.
