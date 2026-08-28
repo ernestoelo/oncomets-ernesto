@@ -4401,7 +4401,32 @@ Cero GPU, cero escrituras fuera del repo. El plan ejecutable quedó en
   compararlos por recall a secas dice que HoVer-NeXt empeora, y eso es artefacto de mirar una sola
   columna. Precisión de forma que hay que sostener: **Mammoth no se suma a CLAM, lo reemplaza**.
 
-### 4. Estado al cierre
+### 4. El control positivo (eje 4) pasa
+
+| | valor | criterio |
+|---|---|---|
+| AUC de rango, epitelio > estroma | **0,906** | ≥ 0,80 |
+| Nulo por traslación (media, p97,5) | 0,439 · 0,528 | debajo del observado |
+| `p` | **0,0050**, que es el piso de 200 iteraciones | < 0,05 |
+| Sólo las 10 láminas `alineada: true` | **0,937** (n = 170) | aparte |
+
+209 regiones, 188 de epitelio y 21 de estroma, 11 sin ningún núcleo adentro. La sanidad que se
+había declarado antes de medir se cumple sola: `Stroma` y `Tejido Adiposo` dan **cero exacto** en
+la mediana, `CDIS_solido` 0,914 y `AreaSolida` 0,857. ⇒ **el instrumento funciona**, así que un
+nulo del eje 3 ya no se le va a poder atribuir.
+
+Dos cosas anotadas y no interpretadas: `CDIS_papilar` da 0,242 estando en el grupo epitelio (6
+marcas de una lámina), y el nulo se centra en 0,439 y no en 0,50 porque las regiones de epitelio
+son más grandes y no muestrean el mismo fondo al trasladarse. Detalle en
+[`ejes_nucleares/resultados.md`](../sprints/B9_sprint9/ejes_nucleares/resultados.md).
+
+**Un bug del nulo que vale para la próxima vez**: la primera corrida dio **cero traslaciones
+válidas**. «Tejido» estaba definido como celda de 8 px con al menos un núcleo, y como un núcleo
+aporta **un centroide** eso marcaba el 0,2 % de la grilla. Por bloque de 256 px da 12 a 21 % y el
+nulo corre. La resolución a la que «hay tejido acá» es verdad no es la resolución a la que se
+cuenta.
+
+### 5. Estado al cierre
 
 Rama `main`, sincronizada con `origin`, **sin jobs propios**. El nodo lo ocupan `sgaete` 5052
 (`phase3_s`, corriendo hace 6 h 20) y `capstone` 5063; `nschiaff` 5061 en cola por `Resources`.
@@ -4412,8 +4437,8 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 ## Sesión 32 — 27-ago-2026 · los dos ejes nucleares: pre-registro y tres premisas corregidas
 
 > Ejecuta el handoff de la sesión 31, cuya misión era **correr los dos ejes GO y baratos** del
-> inventario. Cero GPU, cero `sbatch`, cero jobs propios. Se cierra **antes de medir**: quedó el
-> pre-registro escrito y el control positivo codificado pero **sin correr**.
+> inventario. Cero GPU, cero `sbatch`, cero jobs propios. Entrega el **control positivo medido y
+> pasando**; el eje 3 queda pre-registrado y **sin correr**.
 
 ### 1. Lo que cambió el diseño antes de escribir una línea de código
 
@@ -4448,8 +4473,8 @@ epitelio lo deja en **n = 4** y las dos poblaciones se reportan juntas.
 
 Rama `main`, **sin jobs propios** (5086 y 5088 son del otro operador, `WorkDir=Test_D`,
 verificado con `scontrol`). `nschiaffino` 5085 sigue con la GPU y `TimeLimit=UNLIMITED`, van
-**3 días**: no hay backfill. **Los dos ejes siguen sin medirse** y `scripts/b9_epitelio_estroma.py`
-quedó escrito y **nunca ejecutado**.
+**3 días**: no hay backfill. **El eje 4 quedó medido y el eje 3 sin correr**: le faltan los dos
+scripts (descriptores por streaming de `pinst_pp`, y el ordenamiento de los tres grados).
 
 ---
 

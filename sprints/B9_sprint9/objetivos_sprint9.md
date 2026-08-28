@@ -113,7 +113,13 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   parte el pincel de QuPath** y por eso ningún descriptor sale de la marca; y el grado está
   **confundido con la lámina** sin un solo cruce, así que el `n` del ordenamiento es **12
   láminas**. Gate pasado: **107 de 107** marcas caen sobre un núcleo segmentado. El §4 del
-  inventario queda corregido por ADDENDUM. **Nada medido todavía.**
+  inventario queda corregido por ADDENDUM.
+- [**El control positivo del eje 4, medido y pasando**](ejes_nucleares/resultados.md) (27-ago,
+  CPU) — la fracción epitelial dentro de las regiones del patólogo separa epitelio de estroma con
+  **AUC de rango 0,906** sobre 209 regiones (0,937 en las 10 láminas bien alineadas), contra un
+  nulo **por traslación** centrado en 0,439 con p97,5 = 0,528; `p` = 0,0050, que es el piso de 200
+  iteraciones. `Stroma` y `Tejido Adiposo` dan **cero exacto** en la mediana. ⇒ **el instrumento
+  funciona** y la condición de lectura del eje 3 queda satisfecha. **El eje 3 sigue sin correr.**
 - **La simetría de los dos juegos de pesos** (heredada del B8, se re-declara porque gobierna el
   objetivo 2) — Lizard-Mitosis tiene **mitosis y no necrosis**; PanNuke tiene **`dead` y no
   mitosis**. Las dos son verdaderas a la vez y **ninguna reabre nada**
