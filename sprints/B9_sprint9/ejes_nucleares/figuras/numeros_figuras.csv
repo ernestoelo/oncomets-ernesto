@@ -1,0 +1,49 @@
+eje,medida,grupo,unidad,n,valor,p25_o_aux,p75_o_aux
+eje4,f_epi por clase,CDIS_solido,region,8,"0,914","0,783","0,965"
+eje4,f_epi por clase,AreaSolida,region,45,"0,857","0,549","0,946"
+eje4,f_epi por clase,DCIS,region,6,"0,835","0,333","0,904"
+eje4,f_epi por clase,Tumor,region,98,"0,792","0,215","0,926"
+eje4,f_epi por clase,AreaTubular,region,25,"0,754","0,333","0,856"
+eje4,f_epi por clase,CDIS_papilar,region,6,"0,242","0,112","0,495"
+eje4,f_epi por clase,Stroma,region,12,"0,000","0,000","0,000"
+eje4,f_epi por clase,Tejido Adiposo,region,9,"0,000","0,000","0,038"
+eje4,AUC de rango,epitelio > estroma,region,209,"0,906",,
+eje4,nulo por traslacion,"media / p97,5",region,200,"0,439","0,528",
+eje4,p,piso 1/(n+1),region,200,"0,0050",,
+eje4,AUC solo alineadas,epitelio > estroma,region,170,"0,937",,
+eje3,percentil intra-lamina (restringida),bajo,marca,15,"75,1","61,3","80,3"
+eje3,percentil intra-lamina (restringida),moderado,marca,4,"92,1","83,7","97,0"
+eje3,percentil intra-lamina (restringida),alto,marca,66,"98,9","95,9","99,9"
+eje3,mediana por lamina (restringida),bajo / 103762,lamina,9,"75,1",alineada,
+eje3,mediana por lamina (restringida),alto / 106552,lamina,2,"96,9",alineada,
+eje3,mediana por lamina (restringida),bajo / 110616,lamina,6,"71,7",alineada,
+eje3,mediana por lamina (restringida),alto / 124729,lamina,13,"98,1",alineada,
+eje3,mediana por lamina (restringida),alto / 124806,lamina,10,"100,0",alineada,
+eje3,mediana por lamina (restringida),alto / 126504,lamina,8,"99,6",alineada,
+eje3,mediana por lamina (restringida),alto / 128194,lamina,11,"99,3",alineada,
+eje3,mediana por lamina (restringida),alto / 129741,lamina,14,"98,7",alineada,
+eje3,mediana por lamina (restringida),alto / 144317,lamina,8,"95,5",alineada,
+eje3,mediana por lamina (restringida),moderado / 164001,lamina,4,"92,1",NO alineada,
+eje3,rho por lamina (restringida),grado vs percentil,lamina,10,"0,809",,
+eje3,nulo exacto (restringida),p bilateral / unilateral,asignacion,360,"0,0056","0,0028",
+eje3,AUC por marca (restringida),moderado > bajo,marca,19,"0,833",,
+eje3,AUC por marca (restringida),alto > moderado,marca,70,"0,739",,
+eje3,percentil intra-lamina (completa),bajo,marca,16,"70,9","58,8","79,4"
+eje3,percentil intra-lamina (completa),moderado,marca,14,"86,2","76,5","92,3"
+eje3,percentil intra-lamina (completa),alto,marca,77,"98,7","93,7","99,8"
+eje3,mediana por lamina (completa),bajo / 103762,lamina,9,"75,1",alineada,
+eje3,mediana por lamina (completa),alto / 106552,lamina,8,"70,3",alineada,
+eje3,mediana por lamina (completa),moderado / 109609,lamina,10,"85,4",alineada,
+eje3,mediana por lamina (completa),bajo / 110616,lamina,7,"66,7",alineada,
+eje3,mediana por lamina (completa),alto / 124729,lamina,13,"98,1",alineada,
+eje3,mediana por lamina (completa),alto / 124806,lamina,10,"100,0",alineada,
+eje3,mediana por lamina (completa),alto / 126504,lamina,8,"99,6",alineada,
+eje3,mediana por lamina (completa),alto / 128194,lamina,11,"99,3",alineada,
+eje3,mediana por lamina (completa),alto / 129741,lamina,14,"98,7",alineada,
+eje3,mediana por lamina (completa),alto / 144317,lamina,11,"93,5",alineada,
+eje3,mediana por lamina (completa),moderado / 164001,lamina,4,"92,1",NO alineada,
+eje3,mediana por lamina (completa),alto / B25-158899,lamina,2,"73,1",NO alineada,
+eje3,rho por lamina (completa),grado vs percentil,lamina,12,"0,552",,
+eje3,nulo exacto (completa),p bilateral / unilateral,asignacion,2970,"0,0673","0,0337",
+eje3,AUC por marca (completa),moderado > bajo,marca,30,"0,808",,
+eje3,AUC por marca (completa),alto > moderado,marca,91,"0,799",,
