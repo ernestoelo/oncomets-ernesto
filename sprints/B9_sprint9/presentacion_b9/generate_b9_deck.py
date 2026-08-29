@@ -28,13 +28,23 @@ Fuentes de los números, leídas por el script y no transcritas a mano:
   - `results/b9_cruce_94/por_lamina.csv` y `recall_por_tolerancia_agregado.csv`
   - `sprints/B9_sprint9/mitosis_12_laminas/cruce_94.md`
   - `sprints/B9_sprint9/hovernext_tareas/inventario_tareas.md`
+  - `results/b9_nucleos/{regiones_epi_estroma.csv,regiones_nulo.npy,marcas_grado.csv}`, que las
+    cuatro láminas de los ejes nucleares **recalculan** con las mismas primitivas que produjeron
+    el número (`scripts/b9_epitelio_estroma.py` y `scripts/b9_pleomorfismo.py`), no reimplementan
+    ([[hallazgo-necesita-forma-presentable]]). Los números que quedan dibujados se escriben a
+    `ejes_nucleares/figuras/numeros_figuras.csv`, que sí se versiona.
 
 El guion vive en `guion_b9.md` y se aplica desde ahí: ese archivo es la fuente y las notas
 del `.pptx` son derivadas.
 
 Uso:
     PYTHONPATH=/media/administrador/Storage1/sdonoso/clam_testing2/.pylibs \
-      /home/sdonoso/miniconda3/envs/clam_latest/bin/python generate_b9_deck.py
+      /home/sdonoso/miniconda3/envs/pruebas/bin/python generate_b9_deck.py
+
+(`envs/pruebas` y no `clam_latest` desde el 28-ago: al incorporar los dos ejes nucleares el deck
+pasa a depender de `zarr`, que `b9_pleomorfismo` importa al tope y `clam_latest` no tiene. Es el
+único env con pptx, pandas, numpy, zarr y scipy en un solo proceso. Workaround B: binario
+absoluto.)
 """
 import copy
 import csv
@@ -42,6 +52,7 @@ import os
 import re
 import sys
 
+import numpy as np
 from lxml import etree
 from pptx import Presentation
 from pptx.dml.color import RGBColor
@@ -72,6 +83,15 @@ CSV_TOL = os.path.join(RAIZ, "results", "b9_cruce_94", "recall_por_tolerancia_ag
 PNG_ACIERTOS = os.path.join(AQUI, "assets", "mitosis_aciertos.png")
 PNG_FALLADAS = os.path.join(AQUI, "assets", "mitosis_falladas.png")
 LADO_RECORTE_UM = 59.5              # 128 px de nivel 0 a 0,465 µm/px (galeria_mitosis_12.py)
+
+# Los dos ejes nucleares de CPU. `CSV_NUM` es el único artefacto versionado de las cuatro
+# figuras (el `.pptx` es derivado y está gitignored), y **no se mueve de sitio**: es el path
+# que citan `ejes_nucleares/resultados.md` §4 y el envoltorio de la hoja suelta.
+EJES_DIR = os.path.join(RAIZ, "sprints", "B9_sprint9", "ejes_nucleares", "figuras")
+CSV_REG = os.path.join(RAIZ, "results", "b9_nucleos", "regiones_epi_estroma.csv")
+NPY_NUL = os.path.join(RAIZ, "results", "b9_nucleos", "regiones_nulo.npy")
+CSV_MAR = os.path.join(RAIZ, "results", "b9_nucleos", "marcas_grado.csv")
+CSV_NUM = os.path.join(EJES_DIR, "numeros_figuras.csv")
 
 SW, SH = 13.3333, 7.5
 
@@ -418,9 +438,11 @@ def llenar_tabla(gf, filas, size=PT_CELDA, min_h=0.76):
     su texto pide de verdad, medido con Barlow, en vez de confiar en que PowerPoint la crezca
     al abrir el archivo.
 
-    `min_h` existe porque el molde trae CUATRO filas de cuerpo y acá van tres: con el alto
-    justo del texto la tabla se encoge, queda pegada al título y deja media lámina vacía. Con
-    0,76 conserva la huella del molde (0,745 + 3 x 0,76 = 3,03, su alto original)."""
+    `min_h` existe porque el molde trae CUATRO filas de cuerpo y acá van menos: con el alto
+    justo del texto la tabla se encoge, queda pegada al título y deja media lámina vacía. Se
+    calibra para conservar la huella del molde, 3,03" contando la cabecera de 0,745: con tres
+    filas es 0,76 (el default) y con dos, 1,14. **Cambiar el número de filas obliga a pasarlo**:
+    con dos filas y el default de tres la tabla de Tareas quedaba flotando arriba."""
     tbl = gf.table
     while len(tbl.rows) - 1 > len(filas):
         _quitar_fila(gf, len(tbl.rows) - 1)
@@ -538,6 +560,95 @@ def tabla_ejes(slide, l, t, w, headers, filas, fracs, fs=9.5, row_h=0.30):
 
 
 # ===========================================================================
+# Primitivas de dibujo que la plantilla no traía
+# ===========================================================================
+# Las usan las cuatro láminas de los ejes nucleares. Vivían en la hoja suelta
+# `ejes_nucleares/figuras/generate_figuras_ejes34.py`, que importaba de acá; con las láminas
+# adentro del deck la dependencia se invirtió, porque al revés habría ciclo y correr el deck
+# como `__main__` cargaría una segunda copia de este módulo.
+def eje_x(slide, l, t, w, vmin, vmax, ticks, dec=2, fs=8.5, col=SEP):
+    """Eje horizontal: línea de base y etiquetas debajo. Devuelve el borde inferior."""
+    _rect(slide, l, t, w, 0.012, col)
+    for v in ticks:
+        x = l + w * (v - vmin) / float(vmax - vmin)
+        _rect(slide, x - 0.006, t, 0.012, 0.07, col)
+        txt = num(v, dec)
+        add_textbox(slide, x - 0.45, t + 0.08, 0.90, 0.17,
+                    [(txt, fs, False, CUERPO, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.TOP)
+    return t + 0.08 + 0.17
+
+
+def eje_y(slide, l, t, h, vmin, vmax, ticks, dec=0, fs=8.5, col=SEP):
+    """Eje vertical con el 0 abajo. `l` es la x de la línea; las etiquetas van a su izquierda."""
+    _rect(slide, l, t, 0.012, h, col)
+    for v in ticks:
+        y = t + h * (1.0 - (v - vmin) / float(vmax - vmin))
+        _rect(slide, l - 0.06, y - 0.006, 0.07, 0.012, col)
+        add_textbox(slide, l - 0.62, y - 0.09, 0.50, 0.18,
+                    [(num(v, dec), fs, False, CUERPO, PP_ALIGN.RIGHT)],
+                    anchor=MSO_ANCHOR.MIDDLE)
+
+
+def punto(slide, cx, cy, d, color, hueco=False):
+    """Marcador circular. Hueco = anillo, para las láminas con `alineada: false`."""
+    ov = slide.shapes.add_shape(MSO_SHAPE.OVAL, Inches(cx - d / 2.0), Inches(cy - d / 2.0),
+                                Inches(d), Inches(d))
+    if hueco:
+        ov.fill.background()
+        ov.line.color.rgb = color
+        ov.line.width = Pt(1.75)
+    else:
+        ov.fill.solid()
+        ov.fill.fore_color.rgb = color
+        ov.line.fill.background()
+    ov.shadow.inherit = False
+    return ov
+
+
+def histograma(slide, l, t, w, h, vals, vmin, vmax, nbins, color):
+    """Histograma nativo: una barra por bin, apoyadas en la base. Devuelve el conteo máximo."""
+    bordes = np.linspace(vmin, vmax, nbins + 1)
+    cuenta, _ = np.histogram(np.asarray(vals, float), bins=bordes)
+    top = max(int(cuenta.max()), 1)
+    wb = w / float(nbins)
+    for i, c in enumerate(cuenta):
+        if not c:
+            continue
+        hb = h * c / float(top)
+        _rect(slide, l + i * wb + 0.006, t + h - hb, max(wb - 0.012, 0.012), hb, color)
+    return top
+
+
+def marcador_vertical(slide, x, t, h, texto, color, fs=9.5, lado="der"):
+    """Línea vertical rotulada: el valor observado sobre un histograma."""
+    _rect(slide, x - 0.012, t, 0.024, h, color)
+    aw = text_w(texto, fs, True) + 0.12
+    xl = x + 0.09 if lado == "der" else x - 0.09 - aw
+    al = PP_ALIGN.LEFT if lado == "der" else PP_ALIGN.RIGHT
+    add_textbox(slide, xl, t - 0.02, aw, 0.20, [(texto, fs, True, color, al)],
+                anchor=MSO_ANCHOR.MIDDLE)
+
+
+def leyenda_puntos(slide, l, t, items, fs=9, d=0.13):
+    """Leyenda de marcadores: (color, hueco, texto)."""
+    x = l
+    for color, hueco, txt in items:
+        punto(slide, x + d / 2.0, t + 0.09, d, color, hueco)
+        add_textbox(slide, x + d + 0.08, t, text_w(txt, fs) + 0.10, 0.18,
+                    [(txt, fs, False, CUERPO)], anchor=MSO_ANCHOR.MIDDLE)
+        x += d + 0.08 + text_w(txt, fs) + 0.30
+    return t + 0.18
+
+
+def caja_figura(fin_cuerpo, pie, w):
+    """Reparte lo que queda entre el cuerpo y la zona de pie. Devuelve (top, alto, y_pie)."""
+    h_pie = _alto_bloque(pie, w - 0.06, PT_PIE, space_after=1.5)
+    top = fin_cuerpo + 0.16
+    alto = T_PIE_S03 - 0.12 - h_pie - 0.12 - top
+    return top, alto, top + alto + 0.12
+
+
+# ===========================================================================
 # Datos: se LEEN, no se transcriben
 # ===========================================================================
 def leer_datos():
@@ -577,6 +688,84 @@ def leer_guion():
         bloques[clave] = m.group(2).strip()
         orden.append(clave)
     return bloques, orden
+
+
+def datos_eje4():
+    """Eje 4. Recalcula el AUC con `rank_auc` del propio script del eje, no con una copia.
+
+    Los dos módulos de los ejes se importan **acá adentro** y no al tope: `b9_pleomorfismo`
+    trae `zarr`, y con el import a nivel de módulo bastaría abrir este archivo desde un env
+    sin zarr para que ni siquiera cargue. El deck lo necesita para CORRER; importarlo no."""
+    import pandas as pd
+    sys.path.insert(0, os.path.join(RAIZ, "scripts"))
+    import b9_epitelio_estroma as E
+    df = pd.read_csv(CSV_REG)
+    nul = np.load(NPY_NUL)
+    pos = (df["grupo"] == "epitelio").to_numpy()
+    obs = E.rank_auc(df["f_epi"].to_numpy(), pos)
+    aucs = np.array([E.rank_auc(nul[:, i], pos) for i in range(nul.shape[1])])
+    aucs = aucs[~np.isnan(aucs)]
+    p = (1 + int((aucs >= obs).sum())) / (1.0 + len(aucs))
+    sub = df[df["alineada"]]
+    clases = []
+    for cl, g in df.groupby("clase"):
+        v = g["f_epi"].dropna()
+        if not len(v):
+            continue
+        clases.append(dict(clase=cl, grupo=g["grupo"].iloc[0], n=len(g), n_val=len(v),
+                           med=float(v.median()), p25=float(v.quantile(.25)),
+                           p75=float(v.quantile(.75))))
+    # epitelio primero, cada grupo por mediana descendente: el orden de la tabla de §1.a
+    clases.sort(key=lambda d: (d["grupo"] != "epitelio", -d["med"]))
+    return dict(df=df, clases=clases, obs=obs, nulo=aucs, p=p,
+                n_reg=len(df), n_epi=int(pos.sum()), n_est=int((~pos).sum()),
+                sin_nucleos=int(df["f_epi"].isna().sum()),
+                auc_alin=E.rank_auc(sub["f_epi"].to_numpy(),
+                                    (sub["grupo"] == "epitelio").to_numpy()),
+                n_alin=len(sub))
+
+
+def datos_eje3():
+    """Eje 3. `spearman` y `permutacion_exacta` son las del script del eje: el `p` que queda
+    dibujado sale de la MISMA enumeración que produjo el de `resultados.md`.
+
+    `ORDEN` viaja en el diccionario de vuelta para que `lamina_f3` no tenga que importar el
+    módulo (y con él zarr) sólo para saber el orden de los tres grados."""
+    import pandas as pd
+    sys.path.insert(0, os.path.join(RAIZ, "scripts"))
+    import b9_pleomorfismo as P
+    m = pd.read_csv(CSV_MAR)
+    COL = "pct_area_um2"                      # el PRIMARIO: percentil intra-lámina, no el área
+    # Las dos láminas cuyo offset quedó con `alineada: false`. Se dibujan con el punto
+    # HUECO: una de ellas es el peldaño del medio entero, y eso tiene que verse en la
+    # figura y no en el pie.
+    NO_ALIN = P.NO_ALINEADAS
+
+    def bloque(df, etiqueta):
+        pl = (df.groupby(["slide", "grado", "grado_ord"], as_index=False)
+                .agg(n=(COL, "size"), med=(COL, "median")))
+        pl["alineada"] = ~pl["slide"].isin(NO_ALIN)
+        rho, _ = P.spearman(pl["grado_ord"], pl["med"])
+        perm = P.permutacion_exacta(pl["grado_ord"], pl["med"], con_rhos=True)
+        grados = []
+        for g in P.ORDEN:
+            s = df[df["grado"] == g][COL].dropna()
+            grados.append(dict(grado=g, n_marcas=len(s),
+                               n_lam=int(pl[pl["grado"] == g].shape[0]),
+                               med=float(s.median()), p25=float(s.quantile(.25)),
+                               p75=float(s.quantile(.75))))
+        pares = []
+        for g1, g2 in (("bajo", "moderado"), ("moderado", "alto")):
+            sub = df[df["grado"].isin([g1, g2])]
+            auc, npos, nneg = P.rank_auc(sub[COL], (sub["grado"] == g2).to_numpy())
+            pares.append(dict(par="%s > %s" % (g2, g1), auc=auc, n_neg=nneg, n_pos=npos))
+        return dict(etiqueta=etiqueta, pl=pl, rho=rho, obs=perm[0], p_bi=perm[1],
+                    p_uni=perm[2], k=perm[3], rhos=perm[4], grados=grados, pares=pares,
+                    n_marcas=len(df), n_lam=len(pl))
+
+    r = m[m["clase_hovernext"] == "epithelial-cell"]
+    return dict(restringida=bloque(r, "restringida a epitelio"),
+                completa=bloque(m, "completa"), orden=list(P.ORDEN))
 
 
 # ===========================================================================
@@ -832,9 +1021,10 @@ def lamina_objetivos(s, guion):
          "7 a 9 h de GPU. Sin lanzar: el nodo está tomado",
          "08/09", "Bloqueado"),
         ("Evaluar métricas nuevas para mitosis",
-         "Ocho ejes puntuados: qué se puede calcular hoy, qué pide GPU, y tres que no se "
-         "desbloquean con ningún presupuesto",
-         "08/09", "En curso"),
+         "Ocho ejes puntuados, y los dos de procesador ya medidos: el control positivo separa "
+         "epitelio de estroma con AUC 0,906 sobre 209 regiones, y el grado nuclear ordena con "
+         "ρ +0,809 sobre 10 láminas",
+         "08/09", "Cerrado"),
     ])
     notes(s, guion)
 
@@ -910,6 +1100,229 @@ def lamina_falladas(s, agg, guion):
     notes(s, guion)
 
 
+def lamina_f1(s, d4, guion):
+    """Eje 4: la fracción epitelial por clase. Es el chequeo que no depende del estadístico."""
+    set_cejilla(s, PROYECTO)
+    set_titulo(s, "El control positivo separa epitelio de estroma", nombre="Text 1")
+    fin = set_cuerpo(s, [
+        ("%d regiones del patólogo en las doce láminas: " % d4["n_reg"],
+         "la fracción epitelial cuenta núcleos de HoVer-NeXt dentro del polígono, y las dos "
+         "clases de estroma dan cero exacto en la mediana."),
+    ])
+    l, _, w = G_CUERPO
+    pie = ["Unidad: una REGIÓN por fila. La barra es el rango intercuartil y la marca oscura "
+           "la mediana; %d regiones quedaron sin ningún núcleo adentro y salen del cálculo. "
+           "«CDIS_papilar» se comporta como estroma estando en el grupo epitelio, y son 6 "
+           "marcas de una sola lámina: se deja anotado, no se interpreta."
+           % d4["sin_nucleos"]]
+    top, alto, y_pie = caja_figura(fin, pie, w)
+
+    w_lab, w_num, gap = 2.05, 1.15, 0.16
+    x0 = l + w_lab + gap
+    w_bar = w - w_lab - w_num - 2 * gap
+    filas = d4["clases"]
+    h_eje = 0.25
+    paso = (alto - h_eje - 0.30) / len(filas)
+    h_b = min(0.20, paso - 0.10)
+
+    y_leg = top
+    cx = x0
+    for col, txt in ((CUERPO, "grupo epitelio"), (SEP, "grupo estroma")):
+        _rect(s, cx, y_leg + 0.045, 0.16, 0.11, col)
+        # el ancho es el MEDIDO, no un 1,7" holgado: una caja de más se cruza con la del
+        # item siguiente y ensucia cualquier chequeo de intersecciones con falsos positivos
+        add_textbox(s, cx + 0.21, y_leg, text_w(txt, 8.5) + 0.10, 0.19,
+                    [(txt, 8.5, False, CUERPO)], anchor=MSO_ANCHOR.MIDDLE)
+        cx += 0.21 + text_w(txt, 8.5) + 0.32
+    add_textbox(s, l + w - w_num, y_leg, w_num, 0.19,
+                [("regiones", 8.5, True, CUERPO, PP_ALIGN.RIGHT)], anchor=MSO_ANCHOR.MIDDLE)
+
+    y0 = top + 0.30
+    for i, f in enumerate(filas):
+        y = y0 + i * paso
+        yc = y + (paso - h_b) / 2.0
+        col = CUERPO if f["grupo"] == "epitelio" else SEP
+        _rect(s, x0, yc, w_bar, h_b, LINEA)
+        xa = x0 + w_bar * f["p25"]
+        xb = x0 + w_bar * f["p75"]
+        _rect(s, xa, yc, max(xb - xa, 0.02), h_b, col)
+        _rect(s, x0 + w_bar * f["med"] - 0.022, yc - 0.035, 0.044, h_b + 0.07, TITULO)
+        add_textbox(s, l, y, w_lab, paso, [(f["clase"], 9.5, True, CUERPO, PP_ALIGN.RIGHT)],
+                    anchor=MSO_ANCHOR.MIDDLE)
+        add_textbox(s, l + w - w_num, y, w_num, paso,
+                    [("%d" % f["n"], 9.5, False, CUERPO, PP_ALIGN.RIGHT)],
+                    anchor=MSO_ANCHOR.MIDDLE)
+    eje_x(s, x0, y0 + len(filas) * paso + 0.06, w_bar, 0.0, 1.0,
+          [0.0, 0.25, 0.5, 0.75, 1.0], dec=2)
+    pie_lineas(s, l, y_pie, w, pie)
+    notes(s, guion)
+
+
+def lamina_f2(s, d4, guion):
+    """Eje 4: el estadístico contra su propio nulo. El número necesita su figura."""
+    set_cejilla(s, PROYECTO)
+    set_titulo(s, "Ninguna traslación del nulo llega al observado", nombre="Text 1")
+    fin = set_cuerpo(s, [
+        ("AUC de rango %s, contra un nulo por traslación rígida: " % num(d4["obs"], 3),
+         "las %d traslaciones se centran en %s y su percentil 97,5 queda en %s, más de veinte "
+         "puntos por debajo." % (len(d4["nulo"]), num(d4["nulo"].mean(), 3),
+                                 num(float(np.percentile(d4["nulo"], 97.5)), 3))),
+    ])
+    l, _, w = G_CUERPO
+    pie = ["Unidad: una REGIÓN por observación. El nulo traslada la máscara de cada región "
+           "sobre el tejido de su lámina y nunca permuta etiquetas: los polígonos son "
+           "contiguos.",
+           "El p es el PISO alcanzable: con %d traslaciones el mínimo es 1 entre %d, así que "
+           "el resultado se lee «por debajo de 1 en %d» y no como un valor exacto. Y el nulo "
+           "se centra en %s y no en 0,5 porque las regiones de epitelio son más grandes que "
+           "las de estroma, así que al trasladarlas no muestrean el mismo fondo."
+           % (len(d4["nulo"]), len(d4["nulo"]) + 1, len(d4["nulo"]) + 1,
+              num(d4["nulo"].mean(), 3))]
+    top, alto, y_pie = caja_figura(fin, pie, w)
+
+    l_h, w_h = l + 0.70, w - 1.10
+    h_h = alto - 0.55
+    histograma(s, l_h, top + 0.22, w_h, h_h - 0.22, d4["nulo"], 0.0, 1.0, 50, LINEA)
+    for v, col, txt, lado in (
+            (float(d4["nulo"].mean()), SEP, "nulo %s" % num(d4["nulo"].mean(), 3), "izq"),
+            (float(np.percentile(d4["nulo"], 97.5)), SEP, "p97,5 %s"
+             % num(float(np.percentile(d4["nulo"], 97.5)), 3), "der"),
+            (float(d4["obs"]), ACENTO, "observado %s" % num(d4["obs"], 3), "izq")):
+        marcador_vertical(s, l_h + w_h * v, top + 0.22, h_h - 0.22, txt, col, lado=lado)
+    eje_x(s, l_h, top + h_h + 0.06, w_h, 0.0, 1.0, [0.0, 0.25, 0.5, 0.75, 1.0], dec=2)
+    add_textbox(s, l_h, top + h_h + 0.32, w_h, 0.20,
+                [("AUC de rango (epitelio > estroma)", 8.5, False, CUERPO, PP_ALIGN.CENTER)],
+                anchor=MSO_ANCHOR.TOP)
+    pie_lineas(s, l, y_pie, w, pie)
+    notes(s, guion)
+
+
+def lamina_f3(s, d3, guion):
+    """Eje 3: el ordenamiento, con el `n` por lámina VISIBLE. Es lo que exige el handoff §6.3."""
+    R = d3["restringida"]
+    set_cejilla(s, PROYECTO)
+    set_titulo(s, "Los tres grados ordenan sobre diez láminas", nombre="Text 1")
+    fin = set_cuerpo(s, [
+        ("Percentil del área dentro de la población epitelial de la propia lámina: ",
+         "%s · %s · %s de mediana, con ρ = %s entre las %d láminas."
+         % (num(R["grados"][0]["med"]), num(R["grados"][1]["med"]),
+            num(R["grados"][2]["med"]), num(R["rho"], 3), R["n_lam"])),
+    ])
+    l, _, w = G_CUERPO
+    pie = ["Unidad: una LÁMINA por punto, en la mediana de sus marcas. El grado está "
+           "confundido con la lámina sin un solo cruce, así que comparar grados es comparar "
+           "láminas y el n honesto son láminas, no las %d marcas." % R["n_marcas"],
+           "Los AUC por lámina de esta población no se citan: valen 1,000 con n = 1 de un "
+           "lado. Y los percentiles son altos en los tres grados, «bajo» incluido: el "
+           "patólogo marca núcleos grandes para su lámina en cualquier grado, y lo que "
+           "separa es cuánto."]
+    top, alto, y_pie = caja_figura(fin, pie, w)
+
+    # -- izquierda: el strip vertical, un punto por lámina
+    w_izq = 5.30
+    x_eje = l + 0.72
+    h_pl = alto - 0.62
+    t_pl = top + 0.24
+    eje_y(s, x_eje, t_pl, h_pl, 0, 100, [0, 25, 50, 75, 100])
+    add_textbox(s, l - 0.10, t_pl - 0.26, 3.2, 0.20,
+                [("percentil intra-lámina", 8.5, False, CUERPO)], anchor=MSO_ANCHOR.TOP)
+    w_pl = w_izq - (x_eje - l) - 0.20
+    d = 0.155
+    for gi, g in enumerate(d3["orden"]):
+        sub = R["pl"][R["pl"]["grado"] == g].sort_values("med")
+        cx = x_eje + w_pl * (gi + 0.5) / 3.0
+        # mediana del grado: tick horizontal, y el conector que muestra el ordenamiento
+        mg = R["grados"][gi]["med"]
+        ym = t_pl + h_pl * (1.0 - mg / 100.0)
+        _rect(s, cx - 0.34, ym - 0.011, 0.68, 0.022, ACENTO)
+        n = len(sub)
+        for j, (_, row) in enumerate(sub.iterrows()):
+            jitter = 0.0 if n == 1 else (j / float(n - 1) - 0.5) * min(0.62, 0.14 * n)
+            y = t_pl + h_pl * (1.0 - row["med"] / 100.0)
+            punto(s, cx + jitter, y, d, CUERPO, hueco=not row["alineada"])
+        add_textbox(s, cx - 0.75, t_pl + h_pl + 0.10, 1.50, 0.19,
+                    [(g, 9.5, True, CUERPO, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.TOP)
+        add_textbox(s, cx - 0.75, t_pl + h_pl + 0.29, 1.50, 0.19,
+                    [("%d lámina%s · %d marcas" % (n, "" if n == 1 else "s",
+                                                   R["grados"][gi]["n_marcas"]),
+                      8.0, False, CUERPO, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.TOP)
+    # La leyenda va DENTRO del panel y ABAJO. Arriba no: los puntos de `alto` viven en el
+    # percentil 95 a 100 por construcción, así que el borde superior es la única banda que
+    # está ocupada siempre, y ahí la leyenda quedaba a 0,08" de la nube, alineada con ella
+    # y leyéndose como dos puntos más. No se cruzaban, así que ni `auditar` ni un chequeo de
+    # intersecciones lo veían: es la proximidad, no el solape ([[deck-qa-puntos-ciegos-chequeo]]).
+    # El hueco de abajo no se supone, se mide: se apoya bajo el punto más bajo que haya.
+    y_leg = t_pl + h_pl * (1.0 - min(R["pl"]["med"]) / 100.0) + 0.30
+    leyenda_puntos(s, x_eje + 0.30, min(y_leg, t_pl + h_pl - 0.24),
+                   [(CUERPO, False, "offset alineado"),
+                    (CUERPO, True, "alineada: false")], fs=8.5)
+
+    # -- derecha: las diez láminas, que es de dónde sale cada punto
+    x_t = l + w_izq + 0.30
+    w_t = w - w_izq - 0.30
+    filas = []
+    for g in d3["orden"]:
+        sub = R["pl"][R["pl"]["grado"] == g].sort_values("med")
+        for _, row in sub.iterrows():
+            filas.append([g, row["slide"], "%d" % row["n"], num(row["med"]),
+                          "sí" if row["alineada"] else "NO"])
+    tabla_ejes(s, x_t, top, w_t,
+               ["grado", "lámina", "marcas", "percentil", "alineada"], filas,
+               [0.21, 0.26, 0.17, 0.21, 0.15], fs=9.0, row_h=0.265)
+    pie_lineas(s, l, y_pie, w, pie)
+    notes(s, guion)
+
+
+def lamina_f4(s, d3, guion):
+    """Eje 3: los dos nulos exactos, que es donde se ve qué población despega y cuál no."""
+    R, C = d3["restringida"], d3["completa"]
+    set_cejilla(s, PROYECTO)
+    set_titulo(s, "El nulo exacto, y la población que no despega", nombre="Text 1")
+    fin = set_cuerpo(s, [
+        ("Las dos poblaciones se declararon antes y se reportan juntas: ",
+         "la restringida a epitelio da p = %s sobre %d láminas y la completa queda en %s "
+         "sobre %d, y el pre-registro dice que manda el nivel lámina."
+         % (num(R["p_bi"], 4), R["n_lam"], num(C["p_bi"], 4), C["n_lam"])),
+    ])
+    l, _, w = G_CUERPO
+    n_igual = int((np.abs(R["rhos"]) >= abs(R["obs"]) - 1e-12).sum())
+    pie = ["Unidad: una ASIGNACIÓN del grado a las láminas por observación. El nulo permuta a "
+           "nivel lámina, donde las unidades son intercambiables bajo la nula; a nivel marca "
+           "no lo sería, porque las marcas de una lámina no son independientes.",
+           "En la restringida el p también es el PISO: la asignación observada es la única de "
+           "las %d que ordena perfecto, así que %s de las %d igualan o superan su ρ en valor "
+           "absoluto y %s es el mínimo que este reparto puede dar. La lectura honesta es "
+           "«ordena, con p = %s sobre %d láminas en la población limpia y %s sobre %d en la "
+           "completa», no «da significativo»."
+           % (R["k"], n_igual, R["k"], num(R["p_bi"], 4), num(R["p_bi"], 4), R["n_lam"],
+              num(C["p_bi"], 4), C["n_lam"])]
+    top, alto, y_pie = caja_figura(fin, pie, w)
+
+    l_h, w_h = l + 0.70, w - 1.30
+    h_par = (alto - 0.30) / 2.0
+    for i, B in enumerate((R, C)):
+        t_h = top + i * h_par
+        # 0,60 y no 0,46: con 0,46 las etiquetas del eje del panel de arriba entraban 0,05"
+        # en la caja del rótulo del de abajo. Es alto de histograma que se cede a propósito.
+        h_b = h_par - 0.60
+        histograma(s, l_h, t_h + 0.22, w_h, h_b, B["rhos"], -1.0, 1.0, 41, LINEA)
+        x_obs = l_h + w_h * (B["obs"] + 1.0) / 2.0
+        marcador_vertical(s, x_obs, t_h + 0.22, h_b,
+                          "ρ = %s   p = %s" % (num(B["obs"], 3), num(B["p_bi"], 4)),
+                          ACENTO, lado="izq")
+        add_textbox(s, l_h, t_h, w_h, 0.20,
+                    [("%s · %d láminas · %d asignaciones"
+                      % (B["etiqueta"], B["n_lam"], B["k"]), 9.5, True, CUERPO)],
+                    anchor=MSO_ANCHOR.MIDDLE)
+        eje_x(s, l_h, t_h + 0.22 + h_b + 0.04, w_h, -1.0, 1.0, [-1.0, -0.5, 0.0, 0.5, 1.0], dec=1)
+    # Debajo de los ticks del eje de abajo, no encima: a `- 0.10` pisaba el «0,0».
+    add_textbox(s, l_h, top + 2 * h_par + 0.06, w_h, 0.20,
+                [("ρ de Spearman entre el grado y el percentil, por lámina",
+                  8.5, False, CUERPO, PP_ALIGN.CENTER)], anchor=MSO_ANCHOR.TOP)
+    pie_lineas(s, l, y_pie, w, pie)
+    notes(s, guion)
+
+
 def lamina_ejes(s, guion):
     set_cejilla(s, PROYECTO)
     set_titulo(s, "HoVer-NeXt: qué se puede medir y qué no", nombre="Text 1")
@@ -917,8 +1330,8 @@ def lamina_ejes(s, guion):
     # es la tabla, y el cuerpo sólo dice cómo leerla.
     fin = set_cuerpo(s, [
         ("Ocho ejes contra el vocabulario del patólogo: ",
-         "tres ya están pagados y son de procesador, uno pide GPU, uno tiene muy pocas "
-         "marcas y tres son NO-GO por argumento."),
+         "tres ya están medidos, uno pide GPU, uno es de procesador pero tiene muy pocas "
+         "marcas, y tres son NO-GO por argumento."),
     ])
     l, _, w = G_CUERPO
     # `107 / 12` y no `107 / 8`: el «/8» es el de `Nucleos alto grado` sola. Las tres clases
@@ -933,10 +1346,10 @@ def lamina_ejes(s, guion):
          "Medido: 26 de 94 a 30 µm"),
         ("Necrosis", "necrosis + Necrosis + Comedonecrosis, 18 / 5", "7 a 9 h de GPU",
          "GO, pide los pesos PanNuke"),
-        ("Grado nuclear", "107 regiones con grado / 12", "CPU, en disco",
-         "GO, y el más barato"),
-        ("Tumor y estroma", "Tumour 98 / 12, Stroma 12 / 7", "CPU, en disco",
-         "GO, el control positivo del método"),
+        ("Grado nuclear", "107 regiones con grado / 12", "hecho",
+         "Medido: ordena, p = 0,0056 sobre 10 láminas"),
+        ("Tumor y estroma", "Tumour 98 / 12, Stroma 12 / 7", "hecho",
+         "Medido: AUC 0,906, el control positivo"),
         ("Infiltrado inmune", "Immune cells, 7 / 3", "CPU, en disco",
          "Muy pocas para reportar un número"),
         ("Permeación vascular", "Permeaciones vasculares, 9 / 6", "no aplica",
@@ -972,25 +1385,68 @@ def lamina_tareas(s, guion):
          "patólogo, con el nulo por traslación de la máscara. Antes hay que unificar el "
          "vocabulario",
          "08/09"),
-        ("Los dos ejes de procesador que ya están en disco",
-         "Si los descriptores nucleares ordenan los tres grados sobre las 107 regiones, y si "
-         "la fracción de epitelio contra estroma se sostiene como control positivo",
-         "08/09"),
         ("Punto caliente mitótico",
          "Conteo por mm², mapa de densidad y la ventana de área fija que lo maximiza: la "
          "primera versión de una zona para proponerle al patólogo",
          "15/09"),
-    ])
+    ], min_h=1.14)
     notes(s, guion)
+
+
+def escribir_numeros(d4, d3):
+    """Todo número que quede dibujado, en un CSV versionado: la figura tiene que ser auditable
+    sin abrir el .pptx, que es derivado y está gitignored."""
+    filas = []
+    for c in d4["clases"]:
+        filas.append(["eje4", "f_epi por clase", c["clase"], "region", c["n"],
+                      num(c["med"], 3), num(c["p25"], 3), num(c["p75"], 3)])
+    filas.append(["eje4", "AUC de rango", "epitelio > estroma", "region", d4["n_reg"],
+                  num(d4["obs"], 3), "", ""])
+    filas.append(["eje4", "nulo por traslacion", "media / p97,5", "region", len(d4["nulo"]),
+                  num(float(d4["nulo"].mean()), 3),
+                  num(float(np.percentile(d4["nulo"], 97.5)), 3), ""])
+    filas.append(["eje4", "p", "piso 1/(n+1)", "region", len(d4["nulo"]),
+                  num(d4["p"], 4), "", ""])
+    filas.append(["eje4", "AUC solo alineadas", "epitelio > estroma", "region", d4["n_alin"],
+                  num(d4["auc_alin"], 3), "", ""])
+    for k, B in (("restringida", d3["restringida"]), ("completa", d3["completa"])):
+        for g in B["grados"]:
+            filas.append(["eje3", "percentil intra-lamina (%s)" % k, g["grado"], "marca",
+                          g["n_marcas"], num(g["med"]), num(g["p25"]), num(g["p75"])])
+        for _, row in B["pl"].iterrows():
+            filas.append(["eje3", "mediana por lamina (%s)" % k,
+                          "%s / %s" % (row["grado"], row["slide"]), "lamina", int(row["n"]),
+                          num(row["med"]), "alineada" if row["alineada"] else "NO alineada",
+                          ""])
+        filas.append(["eje3", "rho por lamina (%s)" % k, "grado vs percentil", "lamina",
+                      B["n_lam"], num(B["rho"], 3), "", ""])
+        filas.append(["eje3", "nulo exacto (%s)" % k, "p bilateral / unilateral",
+                      "asignacion", B["k"], num(B["p_bi"], 4), num(B["p_uni"], 4), ""])
+        for pr in B["pares"]:
+            filas.append(["eje3", "AUC por marca (%s)" % k, pr["par"], "marca",
+                          pr["n_neg"] + pr["n_pos"], num(pr["auc"], 3), "", ""])
+    with open(CSV_NUM, "w", newline="") as fh:
+        wr = csv.writer(fh)
+        wr.writerow(["eje", "medida", "grupo", "unidad", "n", "valor", "p25_o_aux",
+                     "p75_o_aux"])
+        wr.writerows(filas)
+    return len(filas)
 
 
 # ===========================================================================
 def main():
     datos, agg = leer_datos()
+    d4 = datos_eje4()
+    d3 = datos_eje3()
+    R = d3["restringida"]
     guion, _ = leer_guion()
     print("Deck del período · %s · %s" % (PROYECTO, PERIODO))
-    print("  datos: %d láminas, %d marcas, %d detecciones, %d TP (%.1f %%)"
+    print("  mitosis: %d láminas, %d marcas, %d detecciones, %d TP (%.1f %%)"
           % (agg["n_laminas"], agg["marcas"], agg["det"], agg["tp"], 100 * agg["recall"]))
+    print("  eje 4: %d regiones (%d epi / %d estroma), AUC %.3f, p %.4f"
+          % (d4["n_reg"], d4["n_epi"], d4["n_est"], d4["obs"], d4["p"]))
+    print("  eje 3: %d marcas en %d láminas, rho %.3f, p exacto %.4f sobre %d asignaciones"
+          % (R["n_marcas"], R["n_lam"], R["rho"], R["p_bi"], R["k"]))
 
     prs = Presentation(TPL)
     s01, s02, s03, s04 = list(prs.slides)
@@ -999,23 +1455,35 @@ def main():
     sB = clonar_s03(prs, s03)       # los 26 recortes acreditados
     sC = clonar_s03(prs, s03)       # las 68 que se escapan
     sD = clonar_s03(prs, s03)       # los ocho ejes
+    sE = clonar_s03(prs, s03)       # F1  el control positivo por clase
+    sF = clonar_s03(prs, s03)       # F2  el observado contra su nulo
+    sG = clonar_s03(prs, s03)       # F3  los tres grados sobre diez láminas
+    sH = clonar_s03(prs, s03)       # F4  los dos nulos exactos
 
     lamina_objetivos(s02, guion["s02"])
     lamina_mitosis(sA, datos, agg, guion["s03a"])
     lamina_aciertos(sB, agg, guion["s03b"])
     lamina_falladas(sC, agg, guion["s03c"])
-    lamina_ejes(sD, guion["s03d"])
+    lamina_f1(sE, d4, guion["s03d"])
+    lamina_f2(sF, d4, guion["s03e"])
+    lamina_f3(sG, d3, guion["s03f"])
+    lamina_f4(sH, d3, guion["s03g"])
+    lamina_ejes(sD, guion["s03h"])
     lamina_tareas(s04, guion["s04"])
     notes(s01, guion["s01"])
 
     borrar_slide(prs, s03)                      # trae el ejemplo de otra persona
-    reordenar(prs, [s01, s02, sA, sB, sC, sD, s04])
+    # Las cuatro de los ejes nucleares van DESPUÉS de los recortes de mitosis y ANTES de la
+    # tabla de los ocho ejes, que a partir de acá las cita como medidas (decisión del 28-ago).
+    reordenar(prs, [s01, s02, sA, sB, sC, sE, sF, sG, sH, sD, s04])
 
     forzar_barlow(prs)
     problemas = auditar(prs)
     problemas += barrer_rayas(prs)
 
+    n = escribir_numeros(d4, d3)
     prs.save(OUT)
+    print("  %d números dibujados -> %s" % (n, os.path.basename(CSV_NUM)))
     print("  escrito: %s" % os.path.basename(OUT))
     return 1 if problemas else 0
 
