@@ -486,7 +486,9 @@ handoff anotaba como construible: la leyenda de s08 estaba a **0,08"** de la nub
 proximidad, no el solape.
 
 Es un matiz que vale guardar sobre [[deck-qa-puntos-ciegos-chequeo]]: un chequeo de
-intersecciones habría cazado el segundo defecto (s09, 0,05" de invasión) y no el primero. Y para
+intersecciones habría cazado el segundo defecto (s09, 0,05" de invasión) y no el primero.
+**Escrito ahí como ADDENDUM 28-ago (noche)**, porque corrige una predicción que esa memoria
+tenía en firme: decía que el chequeo no era construible, y sí lo era. Y para
 que sirva de algo hay que **medir las cajas de texto**, no dárselas holgadas: las de la leyenda
 de s06 medían 1,7" para 0,9" de texto y ensuciaban la salida con falsos positivos. Detalle en
 `presentacion_b9/README.md`.

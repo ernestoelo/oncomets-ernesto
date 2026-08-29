@@ -4513,6 +4513,22 @@ decía «seis láminas» y son diez, `s02` decía que la tercera cosa quedó en 
 con «tres cosas» y son dos. El párrafo de coordinación con la otra persona del equipo se
 conserva tal cual.
 
+### 6. Lo que fue a memoria
+
+Dos ADDENDUM, ninguno nuevo de cero: los dos corrigen una predicción que una memoria vigente
+tenía escrita.
+
+- **[[deck-qa-puntos-ciegos-chequeo]]** cerraba diciendo que el chequeo de intersecciones «sigue
+  sin construirse» porque pediría una lista de pares legítimamente superpuestos que no existe.
+  Se construyó, y las dos mitades de esa predicción salieron mal: la lista no hace falta (alcanza
+  con ignorar los pares donde ninguna forma lleva texto) y lo que sí lo vuelve inservible son las
+  cajas de texto holgadas. Y aun construido, **no habría cazado el peor de los tres defectos**,
+  que era proximidad y no solape.
+- **[[hallazgo-necesita-forma-presentable]]** fija que la figura importa el código del número.
+  Le faltaba el paso siguiente: cuando la figura **entra al deck**, el deck se queda con el
+  código y la hoja suelta pasa a envoltorio, o hay ciclo. Y un artefacto no puede tener dos
+  escritores.
+
 ## Sesión 35 — 28-ago-2026 · sesión de PLAN: las figuras entran al deck, y nadie las metió todavía
 
 > La sesión 34 dejó las cuatro figuras hechas y **fuera** del deck, porque meterlas era decisión
