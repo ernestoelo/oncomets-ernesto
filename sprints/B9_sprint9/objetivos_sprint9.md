@@ -107,15 +107,21 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   > [`presentacion_b9/README.md`](presentacion_b9/README.md); lo que quedó stale por el cambio,
   > en [`auditoria_coherencia/hallazgos.md`](auditoria_coherencia/hallazgos.md).
   >
-  > **ADDENDUM 28-ago-2026 — Ernesto decidió que los dos ejes nucleares entran al deck, y el
-  > deck pasa a ONCE láminas.** Las cuatro figuras van **en el cuerpo**, entre los recortes de
-  > mitosis y la lámina de los ocho ejes. Con eso, tres tablas quedaban contradiciendo al deck y
-  > se actualizan: OBJETIVOS marca el objetivo como **Cerrado**, la tabla de los ocho ejes pasa
-  > «Grado nuclear» y «Tumor y estroma» a **medidos**, y **Tareas queda con dos filas** (necrosis
-  > y punto caliente mitótico), sin reemplazar la que se libera. Se borra además el `.pptx`
-  > huérfano en inglés. **NADA de esto está ejecutado**: el plan quedó escrito para una sesión
-  > limpia y hasta entonces el deck tiene siete láminas. Detalle en
-  > [`auditoria_coherencia/hallazgos.md`](auditoria_coherencia/hallazgos.md) §Cuarta pasada.
+  > **ADDENDUM 28-ago-2026 — los dos ejes nucleares entraron al deck, que quedó en ONCE
+  > láminas.** Las cuatro figuras van **en el cuerpo**, entre los recortes de mitosis y la lámina
+  > de los ocho ejes. Con eso, tres tablas quedaban contradiciendo al deck y se actualizaron:
+  > OBJETIVOS marca el objetivo como **Cerrado** nombrando los dos ejes medidos, la tabla de los
+  > ocho ejes pasa «Grado nuclear» y «Tumor y estroma» a **medidos**, y **Tareas quedó con dos
+  > filas** (necrosis y punto caliente mitótico), sin reemplazar la que se libera. Se borró
+  > además el `.pptx` huérfano en inglés. Al incorporarlas **la dependencia entre los dos
+  > generadores se invirtió**: las cuatro láminas y sus primitivas viven en
+  > `presentacion_b9/generate_b9_deck.py` y la hoja de
+  > [`ejes_nucleares/figuras/`](ejes_nucleares/figuras/) quedó como envoltorio delgado. El
+  > intérprete del deck pasó a `envs/pruebas`, porque ahora depende de `zarr`. Lo decidió el
+  > 28-ago (§Cuarta pasada de
+  > [`auditoria_coherencia/hallazgos.md`](auditoria_coherencia/hallazgos.md)) y **se ejecutó** el
+  > mismo día; el QA visual encontró tres defectos de geometría que `auditar` no ve, detallados
+  > en [`presentacion_b9/README.md`](presentacion_b9/README.md).
 - [**Los dos ejes nucleares, pre-registrados**](ejes_nucleares/prereg.md) (27-ago, CPU) — antes
   de medir aparecieron **tres correcciones de premisa**: las 107 anotaciones de grado son
   **núcleos sueltos y no regiones** (218,8 µm² y bbox 36×36, el perfil de una marca de

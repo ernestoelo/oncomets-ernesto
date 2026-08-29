@@ -424,8 +424,75 @@ plan no se ejecutó. Va al README, como condición del plan.
 
 ## D6 — Lo que NO se toca
 
+> **ADDENDUM 28-ago (sesión 36): la primera viñeta quedó cumplida.** El plan se ejecutó el
+> mismo día y el deck tiene once láminas. Ver §Quinta pasada.
+
 - **El deck y su generador**: la decisión está tomada y **no ejecutada**. Ningún doc puede decir
   todavía que el deck tiene once láminas.
 - **`resultados.md`, `prereg.md` y los scripts de los dos ejes**: sin cambios, no hubo medición.
 - **Las memorias**: esta sesión no produjo un hecho durable nuevo. La tentación era registrar el
   env; D5 explica por qué no.
+
+---
+
+# Quinta pasada — 28-ago-2026 (sesión 36, de EJECUCIÓN)
+
+> La cuarta pasada registró una decisión **no ejecutada** y por eso escribió, en D3 y D6, que
+> ningún doc podía decir todavía que el deck tiene once láminas. Esta pasada la ejecuta y
+> **levanta esa condición**. La cuarta no se reescribe: era verdad cuando se escribió, y es el
+> registro de lo que la sesión de plan sabía.
+
+| id | hallazgo | tipo | acción |
+|---|---|---|---|
+| E1 | La condición de D6 se cumple: el deck tiene once láminas | resuelto | ADDENDUM acá, docs al día |
+| E2 | El intérprete del deck **sí** cambió, así que D5 dejó de ser condicional | stale | README |
+| E3 | `resultados.md` §2 redondeaba mal un `p25` | error | corregido |
+| E4 | Tres defectos de geometría que ninguna capa automática ve | dato | README §Lo que el QA visual encontró acá |
+
+## E1 — La condición de D6, levantada
+
+Ejecutado el plan del handoff: las cuatro figuras entran al cuerpo (s06 a s09), las tres tablas
+dejan de contradecirlo, el guion suma cuatro bloques y la lámina de los ocho ejes pasa de `s03d`
+a `s03h`. Se propagó a `presentacion_b9/README.md`, al ADDENDUM 28-ago de
+`objetivos_sprint9.md` y a `ejes_nucleares/resultados.md` §4.
+
+La **dependencia entre los dos generadores se invirtió**, que es lo único del plan que no era
+contenido: las cuatro láminas y sus primitivas viven ahora en `generate_b9_deck.py` y
+`generate_figuras_ejes34.py` quedó como envoltorio delgado. Al revés habría sido un ciclo, y
+correr el deck como `__main__` habría cargado una segunda copia de su propio módulo.
+
+## E2 — D5 dejó de ser condicional
+
+La cuarta pasada dejó el dato del env `pruebas` en el README «como condición del plan», y
+explicó que no iba a memoria porque el intérprete **todavía no había cambiado**. Cambió: el deck
+importa `zarr` vía `b9_pleomorfismo` y `clam_latest` no lo tiene. El bloque «Regenerar» del
+README ya no habla en futuro. **Sigue sin ir a memoria**: es un dato de este deck, y el README es
+donde se busca.
+
+## E3 — Un `p25` mal redondeado
+
+`resultados.md` §2 daba `p25` = 83,8 para el grado `moderado` de la población restringida. El
+valor es **83,7476**, o sea 83,7, que es lo que ya decía `numeros_figuras.csv`. Lo cazó el cruce
+de la figura contra el doc, que es exactamente para lo que está esa capa: los dos venían del
+mismo CSV y discrepaban sólo en el redondeo escrito a mano. **Corregido el doc**, que era el que
+estaba mal.
+
+## E4 — Tres defectos que ninguna capa automática ve
+
+Los tres salieron de mirar el rasterizado y **ninguno** disparó un aviso de `auditar`. El
+primero además no lo habría visto un chequeo de intersecciones, que es la herramienta que el
+handoff anotaba como construible: la leyenda de s08 estaba a **0,08"** de la nube de puntos de
+`alto`, alineada con ella y leyéndose como dos puntos más, **sin cruzarse**. El defecto era la
+proximidad, no el solape.
+
+Es un matiz que vale guardar sobre [[deck-qa-puntos-ciegos-chequeo]]: un chequeo de
+intersecciones habría cazado el segundo defecto (s09, 0,05" de invasión) y no el primero. Y para
+que sirva de algo hay que **medir las cajas de texto**, no dárselas holgadas: las de la leyenda
+de s06 medían 1,7" para 0,9" de texto y ensuciaban la salida con falsos positivos. Detalle en
+`presentacion_b9/README.md`.
+
+## E5 — Lo que NO se toca
+
+- **`prereg.md` y los scripts de los dos ejes**: sin cambios, no hubo medición nueva. Los números
+  del deck son los mismos de la sesión 33.
+- **La cuarta pasada**: se le pone ADDENDUM, no se reescribe.

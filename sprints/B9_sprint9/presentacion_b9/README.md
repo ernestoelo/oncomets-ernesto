@@ -8,28 +8,27 @@ técnico de sprint.
 |---|---|
 | Fuente de verdad | `generate_b9_deck.py` (el `.pptx` es derivado y está gitignored, `.gitignore:55`) |
 | Guion | `guion_b9.md`, que el generador **lee** y aplica con `notes()`. El `.md` es la fuente; las notas del `.pptx` son derivadas |
-| Figuras | `assets/mitosis_{aciertos,falladas}.png`, que produce `scripts/galeria_mitosis_12.py` |
+| Figuras | `assets/mitosis_{aciertos,falladas}.png`, que produce `scripts/galeria_mitosis_12.py`. Las cuatro de los ejes nucleares son **nativas** y las dibuja el propio generador |
 | Molde | `papers/presentations/[AAAAMMDD] [Nombre Apellido] [Image-to-text].pptx`, **read-only** |
-| Salida | 7 láminas, 13,333 × 7,5, Barlow embebida, 9,2 MB |
+| Salida | 11 láminas, 13,333 × 7,5, Barlow embebida, 9,2 MB |
 
 ## Regenerar
 
 ```bash
 cd sprints/B9_sprint9/presentacion_b9
 PYTHONPATH=/media/administrador/Storage1/sdonoso/clam_testing2/.pylibs \
-  /home/sdonoso/miniconda3/envs/clam_latest/bin/python generate_b9_deck.py
+  /home/sdonoso/miniconda3/envs/pruebas/bin/python generate_b9_deck.py
 ```
 
 Sale con código 1 si la auditoría o el barrido de estilo tienen avisos. Hoy salen los dos
-limpios. Las dos figuras **no** se regeneran desde acá: si cambia el cruce, primero
+limpios. Las dos figuras de recortes **no** se regeneran desde acá: si cambia el cruce, primero
 `scripts/galeria_mitosis_12.py` y después el deck.
 
-> **Cuando se incorporen las cuatro figuras de los ejes nucleares, el intérprete cambia.** El
-> deck pasa a depender de `zarr` (por `b9_pleomorfismo`, de donde salen `spearman` y
-> `permutacion_exacta`), y `clam_latest` no lo tiene. Verificado el 28-ago:
-> `/home/sdonoso/miniconda3/envs/pruebas/bin/python` con el mismo `PYTHONPATH` importa **pptx
-> 1.0.2, lxml, PIL, pandas, numpy, zarr y scipy** en un solo proceso y abre los TTF de Barlow.
-> No hace falta re-verificarlo.
+> **El intérprete es `envs/pruebas`, no `clam_latest`** (cambió el 28-ago, al incorporar las
+> cuatro figuras de los ejes nucleares). El deck pasa a depender de `zarr`, que
+> `b9_pleomorfismo` importa al tope y de donde salen `spearman` y `permutacion_exacta`, y
+> `clam_latest` no lo tiene. `envs/pruebas` con el mismo `PYTHONPATH` importa **pptx 1.0.2,
+> lxml, PIL, pandas, numpy, zarr y scipy** en un solo proceso y abre los TTF de Barlow.
 
 ## Las decisiones de Ernesto
 
@@ -40,7 +39,7 @@ limpios. Las dos figuras **no** se regeneran desde acá: si cambia el cruce, pri
 | Período del título | **25/08/2026 - 08/09/2026** |
 | Láminas de contenido | **cuatro**: el número, los aciertos, las falladas y los ocho ejes |
 | Portada | queda **en inglés y tal cual**: es copy de la empresa, no contenido nuestro |
-| Los dos ejes nucleares (28-ago) | las **cuatro figuras entran al cuerpo**, entre los recortes de mitosis y la lámina de ejes. El deck pasa a **once láminas**. **Decidido y NO ejecutado**: ver abajo |
+| Los dos ejes nucleares (28-ago) | las **cuatro figuras entran al cuerpo**, entre los recortes de mitosis y la lámina de ejes. El deck quedó en **once láminas**. Ejecutado el 28-ago: ver abajo |
 
 Lo que **no** se traduce, a propósito: los nombres de clase del patólogo (`Mitosis`,
 `Tumour`, `Stroma`, `AreaTubular`, `Comedonecrosis`…). Son las etiquetas literales de su
@@ -55,8 +54,12 @@ s02  OBJETIVOS 25/08/2026 - 08/09/2026          tabla 4x4 (se quitó la 4ª fila
 s03  Mitosis: 26 de 94 marcas del patólogo      cuerpo + figura NATIVA de 12 barras
 s04  Las 26 marcas que el detector reencuentra  cuerpo + leyenda nativa + lámina de contacto
 s05  Las 68 marcas que se escapan               cuerpo + leyenda nativa + lámina de contacto
-s06  HoVer-NeXt: qué se puede medir y qué no    UN punto de cuerpo + tabla NATIVA de 8 ejes
-s07  Tareas del próximo período                 tabla 4x3
+s06  El control positivo separa epitelio…       cuerpo + 8 barras de rango intercuartil NATIVAS
+s07  Ninguna traslación del nulo llega al…      cuerpo + histograma NATIVO + tres marcadores
+s08  Los tres grados ordenan sobre diez…        cuerpo + strip de 10 puntos + tabla NATIVA 11x5
+s09  El nulo exacto, y la población que no…     cuerpo + dos histogramas NATIVOS apilados
+s10  HoVer-NeXt: qué se puede medir y qué no    UN punto de cuerpo + tabla NATIVA de 8 ejes
+s11  Tareas del próximo período                 tabla 4x3 con DOS filas de cuerpo (`min_h=1.14`)
 ```
 
 ## Las dos láminas de recortes (s04 y s05)
@@ -91,7 +94,7 @@ láminas (`base_from_template()` de `generate_b8_deck.py:341`). Acá se rellena,
 tablas de s02 y s07 traen las filas de cuerpo vacías **pero ya estilizadas** y reproducir eso
 a mano es trabajo perdido. Las tres maniobras sin API en python-pptx están en
 `docs/plantilla_oficial.md` §7.a e implementadas en `clonar_s03`, `_quitar_fila` / `_alto_fila`
-y `reordenar`. La lámina de contenido del molde se clona **cuatro** veces.
+y `reordenar`. La lámina de contenido del molde se clona **ocho** veces.
 
 Sigue en pie el motivo de siempre para abrir el `.pptx` en vez de usar `Presentation()`: la
 plantilla **embebe Barlow** ([[deck-template-fuentes-embebidas]]). Y sigue haciendo falta
@@ -105,22 +108,33 @@ el tramo plano de la escalera. Los títulos de s04 y s05 también salen de ahí 
 Si el CSV cambia, el deck cambia solo. Además **verifica** que el agregado y el por-lámina
 coincidan, y **aborta** si no.
 
+`datos_eje4()` y `datos_eje3()` hacen lo mismo con las cuatro láminas de los ejes nucleares,
+sobre `results/b9_nucleos/{regiones_epi_estroma.csv,regiones_nulo.npy,marcas_grado.csv}`, y con
+una vuelta de tuerca: no re-implementan el estadístico, **importan el del script que produjo el
+número** (`rank_auc` de `scripts/b9_epitelio_estroma.py`; `spearman` y `permutacion_exacta` de
+`scripts/b9_pleomorfismo.py`). Los dos imports viven **dentro** de esas funciones y no al tope,
+para que abrir el módulo no exija `zarr`.
+
 ## QA — las cuatro capas ([[deck-qa-puntos-ciegos-chequeo]])
 
-1. **Round-trip estructural**: reabierto con python-pptx. 7 láminas en orden, cada una con
-   cejilla y título, las tres tablas del molde con sus filas, la tabla nativa de ejes, las
-   dos imágenes y notas en las siete. `auditar` sin avisos.
+1. **Round-trip estructural**: reabierto con python-pptx. 11 láminas en orden, cada una con
+   cejilla y título, OBJETIVOS con 3 filas de cuerpo y Tareas con **2**, las dos tablas nativas
+   (8 ejes y 10 láminas), las dos imágenes y notas en las once. `auditar` sin avisos.
 2. **Medición de texto real** con los TTF de Barlow bajo containment: ninguna caja que
    desborde, ninguna celda que corte, ningún cuerpo bajo los 7 pt del template.
 3. **Rasterizado y lectura visual**: LibreOffice con `FONTCONFIG_FILE` del workspace, las
-   siete láminas miradas una por una, y las dos figuras miradas aparte antes de insertarlas.
-   Hecho **temprano** ([[image-api-qa-limit]]).
+   once láminas miradas una por una. Hecho **temprano** ([[image-api-qa-limit]]). Es la capa que
+   encontró los tres defectos de geometría de s06 a s09, y **ninguno de los tres** disparó un
+   aviso de `auditar`.
 4. **Cruce de contenido contra las fuentes**: cada número contra `por_lamina.csv`,
    `recall_por_tolerancia_agregado.csv`, `cruce_94.md` §1-§2 e `inventario_tareas.md` §1 y §4.
    26 + 68 = 94 verificado sobre los doce `pares_*.csv`, y las cinco láminas que acreditan
-   alguna marca contadas sobre el mismo archivo.
+   alguna marca contadas sobre el mismo archivo. Para las cuatro nuevas, cada número dibujado
+   contra `numeros_figuras.csv` y `../ejes_nucleares/resultados.md` §1-§2 (AUC 0,906 · nulo
+   0,439 · p97,5 0,528 · ρ +0,809 · p 0,0056 sobre 360 · completa +0,552 y 0,0673 sobre 2970 ·
+   75,1 / 92,1 / 98,9), más que 26 / 68 / 94 no se movió.
 
-Más los dos de estilo: `unzip` y contar `typeface` (1290 `Barlow`; los `Arial` que quedan son
+Más los dos de estilo: `unzip` y contar `typeface` (1456 `Barlow`; los `Arial` que quedan son
 entradas `<a:font script="Arab|Viet|Hebr">` del theme y `tableStyles.xml`, que no gobiernan
 texto latino) y `ppt/fonts/*.fntdata` sigue en el paquete con las cuatro variantes · barrido
 de «—», «–» y «palanca» **saltando s01**, cuyo titular trae un «—» que es copy de la empresa.
@@ -148,7 +162,8 @@ de «—», «–» y «palanca» **saltando s01**, cuyo titular trae un «—»
 
 Se construyeron **cinco** el 26-ago, porque la aritmética de ese handoff daba cinco y no había
 contenido especificado para una sexta. El 27-ago Ernesto pidió las dos láminas de recortes y
-el deck quedó en **siete**. La discrepancia original no se resolvió: quedó superada.
+el deck quedó en **siete**, y el 28-ago, con las cuatro figuras de los ejes nucleares, en
+**once**. La discrepancia original no se resolvió: quedó superada.
 
 ## Lo que este deck NO dice, a propósito
 
@@ -158,24 +173,71 @@ el deck quedó en **siete**. La discrepancia original no se resolvió: quedó su
   la lámina de aciertos muestra 26 recortes y no las 732 detecciones.
 - El **13 de 26** de la 129741 **no** se presenta como el resultado: era el mejor caso de doce,
   y la lámina lo dice en su segundo punto.
-- **No** se mezclan unidades: marcas (26 / 68 / 94), detecciones (732), polígonos (472).
+- **No** se mezclan unidades: marcas (26 / 68 / 94 · 107), regiones (209), láminas (10 · 12),
+  asignaciones (360 · 2970), detecciones (732), polígonos (472). Cada figura declara la suya.
 - Los tres NO-GO son **por argumento**, no por presupuesto.
+- El `p` = 0,0056 del grado nuclear **no es holgura contra el 0,05**: es el piso que ese diseño
+  puede dar, alcanzado. Y el 0,0050 del control positivo es el piso de 200 traslaciones. Las dos
+  láminas lo dicen en su pie.
+- El ordenamiento de los tres grados **no valida Nottingham**, y su `n` honesto son **10 láminas**
+  y no las 85 marcas: el grado está confundido con la lámina sin un solo cruce.
+- **No** se cita ningún AUC por lámina de la población restringida: valen 1,000 con `n` = 1 de un
+  lado. Y **no** se presenta el área cruda como el resultado: el primario es el percentil.
 
-## Pendiente: las cuatro figuras de los ejes nucleares
+## Las cuatro láminas de los ejes nucleares (s06 a s09)
 
 Ernesto decidió el **28-ago** que **las cuatro entran al cuerpo**, entre los recortes de mitosis
-y la lámina de ejes, y que el deck pasa a **once láminas**. Con eso, **tres tablas quedan
-contradiciendo al deck** y se actualizan en el mismo movimiento:
+y la lámina de ejes, y el deck quedó en **once láminas**. Nacieron como una hoja suelta en
+[`../ejes_nucleares/figuras/`](../ejes_nucleares/figuras/); al incorporarlas **la dependencia se
+invirtió**: las láminas y sus primitivas viven ahora en `generate_b9_deck.py`, y la hoja quedó
+como envoltorio delgado que las arma solas para iterar el QA visual sin reconstruir el deck. Al
+revés habría sido un ciclo, y correr el deck como `__main__` habría cargado una segunda copia de
+su propio módulo.
 
-| Tabla | Qué cambia |
+| Lámina | Qué muestra | Unidad |
+|---|---|---|
+| s06 | La fracción epitelial por clase del patólogo: rango intercuartil y mediana, epitelio contra estroma | **región** (209) |
+| s07 | El AUC observado contra las 200 traslaciones de su nulo, con la media y el p97,5 marcados | **región** (209) |
+| s08 | Los tres grados sobre diez láminas, un punto por lámina, más la tabla de dónde sale cada punto | **lámina** (10) |
+| s09 | Los dos nulos exactos, restringida y completa, con el ρ observado marcado sobre cada uno | **asignación** (360 y 2970) |
+
+**Cada figura declara su unidad en el pie**, que en este deck no es decorativo: conviven marcas
+(26 / 68 / 94 · 107), regiones (209), láminas (10 · 12) y asignaciones (360 · 2970) en láminas
+contiguas, y dos de esos números coinciden por casualidad
+([[dos-numeros-iguales-denominador-distinto]]).
+
+Los números **no se transcriben**: `datos_eje4()` y `datos_eje3()` leen los CSV de
+`results/b9_nucleos/` y recalculan con `rank_auc`, `spearman` y `permutacion_exacta` **del propio
+script de cada eje**, así que «la figura muestra otra cosa que la tabla» no es representable
+([[hallazgo-necesita-forma-presentable]]). Los 48 que quedan dibujados se escriben a
+`../ejes_nucleares/figuras/numeros_figuras.csv`, versionado; **lo escribe el deck y sólo el
+deck**, que es la única fuente.
+
+Van **nativas** y no como PNG: son objetos dibujables (barras, puntos, histogramas, ejes), que es
+el criterio del ADDENDUM B5 de `CLAUDE.md`. La excepción de imagen es sólo para s04 y s05, que
+son la fotografía de un resultado.
+
+Con esto **tres tablas dejaron de contradecir al deck** y se actualizaron en el mismo movimiento:
+
+| Tabla | Qué cambió |
 |---|---|
-| OBJETIVOS (s02) | la fila de métricas nuevas pasa de «En curso» a **Cerrado**, nombrando los dos ejes medidos |
-| Los ocho ejes | «Grado nuclear» y «Tumor y estroma» pasan de «CPU, en disco / GO» a **medidos**, con la forma de la fila de Mitosis |
-| Tareas | pierde la fila de los dos ejes de procesador y **queda con dos**, sin reemplazo |
+| OBJETIVOS (s02) | la fila de métricas nuevas pasó de «En curso» a **Cerrado** y nombra los dos ejes medidos |
+| Los ocho ejes (s10) | «Grado nuclear» y «Tumor y estroma» pasaron de «CPU, en disco / GO» a **medidos**, con la forma de la fila de Mitosis; y el punto de cuerpo dejó de decir que son trabajo por hacer |
+| Tareas (s11) | perdió la fila de los dos ejes de procesador y **quedó con dos**, sin reemplazo |
 
-**Nada de esto está ejecutado.** Hoy el deck tiene siete láminas; el plan de integración lo
-ejecuta una sesión limpia y vive en el handoff. Las cuatro láminas ya existen y están
-verificadas en [`../ejes_nucleares/figuras/`](../ejes_nucleares/figuras/).
+### Lo que el QA visual encontró acá
+
+1. **La leyenda de s08 estaba a 0,08" de la nube de `alto`, alineada con ella.** No se cruzaban,
+   así que ni `auditar` ni un chequeo de intersecciones lo veían: el defecto era la **proximidad**,
+   no el solape, y sólo se ve mirando. Causa de fondo: los puntos de `alto` viven en el percentil
+   95 a 100 **por construcción**, o sea que el borde superior del panel es la única banda que está
+   ocupada siempre, y ahí es donde estaba puesta la leyenda. Ahora va **dentro del panel y abajo**,
+   apoyada bajo el punto más bajo que haya, medido y no supuesto.
+2. **En s09 las etiquetas del eje del panel de arriba entraban 0,05" en la caja del rótulo del de
+   abajo.** El histograma cede 0,14" de alto a cambio.
+3. **Las cajas de la leyenda de s06 medían 1,7" para 0,9" de texto** y se cruzaban entre sí sin que
+   se cruzara la tinta. Pasan a medir lo que mide su texto: una caja de más no se ve, pero llena de
+   falsos positivos cualquier chequeo de intersecciones y lo vuelve inservible.
 
 El `.pptx` viejo en inglés, `[20260908] [Ernesto Gamero] [Nuclear Detection].pptx`, **se borró**
 el 28-ago por decisión de Ernesto. Era derivado y gitignored: se regenera cambiando `PROYECTO`.

@@ -4434,6 +4434,85 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 36 — 28-ago-2026 · las cuatro figuras entran al deck, que queda en once láminas
+
+> Ejecución del plan que la sesión 35 dejó escrito, entero y sin desviarse de las decisiones de
+> Ernesto. Todo CPU: cero GPU, cero `sbatch`, cero jobs propios. La GPU sigue tomada por otro
+> usuario con `TimeLimit=UNLIMITED`, así que B2 (necrosis) sigue sin poder salir.
+
+### 1. El deck: de siete a once láminas
+
+`[20260908] [Ernesto Gamero] [Detección Nuclear].pptx`, 11 láminas, `auditar` y el barrido de
+estilo **sin avisos**, Barlow embebida (1456 referencias; los `Arial` que quedan son entradas
+`<a:font script="...">` del theme y `tableStyles.xml`, que no gobiernan texto latino).
+
+```
+s01 portada · s02 OBJETIVOS · s03 Mitosis 26 de 94 · s04 las 26 · s05 las 68
+s06 F1 control positivo · s07 F2 el nulo · s08 F3 los tres grados · s09 F4 el nulo exacto
+s10 los ocho ejes · s11 Tareas
+```
+
+Y **tres tablas dejaron de contradecirlo**, que era la mitad de la decisión de Ernesto:
+OBJETIVOS pasó su tercera fila de «En curso» a **Cerrado** nombrando los dos ejes medidos; la
+tabla de los ocho ejes pasó «Grado nuclear» y «Tumor y estroma» de «CPU, en disco / GO» a
+**medidos**; y Tareas quedó con **dos** filas, sin reemplazar la que se libera. Se sumó una
+cuarta corrección que el plan no listaba y que era la misma clase de contradicción: **el punto
+de cuerpo de la lámina de los ocho ejes** decía que dos de esos ejes eran trabajo por hacer,
+dos láminas después de mostrar sus resultados.
+
+### 2. La dependencia entre los dos generadores se invirtió
+
+Era lo único del plan que no era contenido. `generate_figuras_ejes34.py` importaba del deck;
+si además el deck hubiera importado de él habría habido ciclo, y correr el deck como
+`__main__` habría cargado **una segunda copia** de su propio módulo. Las cuatro láminas, sus
+siete primitivas de dibujo, los dos lectores de datos y `escribir_numeros` se mudaron a
+`generate_b9_deck.py`, y la hoja suelta quedó como **envoltorio de 69 líneas** que arma las
+cuatro solas, para iterar el QA visual sin reconstruir el deck.
+
+- `numeros_figuras.csv` **lo escribe el deck y sólo el deck**: una sola fuente. El envoltorio no
+  lo toca (verificado: corriéndolo, el CSV no cambia).
+- Los imports de `b9_epitelio_estroma` y `b9_pleomorfismo` van **dentro** de `datos_eje4` y
+  `datos_eje3`, no al tope, para que abrir el módulo no exija `zarr`. `ORDEN` viaja en el
+  diccionario de vuelta por lo mismo.
+- **El intérprete del deck cambió a `envs/pruebas`**, que es el único con pptx, pandas, numpy,
+  zarr y scipy en un solo proceso.
+
+### 3. El QA visual encontró tres cosas que ninguna capa automática ve
+
+`auditar` dio «sin avisos» en la primera corrida y las tres estaban ahí. La primera **tampoco**
+la habría visto un chequeo de intersecciones, que es la herramienta que el handoff anotaba como
+construible y que acá se construyó como script de apoyo:
+
+1. **La leyenda de s08 estaba a 0,08" de la nube de puntos de `alto`, alineada con ella**, y se
+   leía como dos puntos más. **No se cruzaban**: el defecto era la proximidad, no el solape. La
+   causa de fondo es estructural, no un descuido de posición: los puntos de `alto` viven en el
+   percentil 95 a 100 **por construcción**, así que el borde superior del panel es la única
+   banda que está ocupada siempre, y ahí estaba la leyenda. Ahora va dentro del panel y abajo,
+   apoyada bajo el punto más bajo que haya, **medido** y no supuesto.
+2. **En s09 las etiquetas del eje del panel de arriba entraban 0,05" en la caja del rótulo del
+   de abajo.** El histograma cede 0,14" de alto.
+3. **Las cajas de la leyenda de s06 medían 1,7" para 0,9" de texto.** No se veía, pero llenaba
+   de falsos positivos el chequeo de intersecciones y lo volvía inservible. Pasan a medir lo que
+   mide su texto.
+
+### 4. Un `p25` mal redondeado en `resultados.md`
+
+El cruce de la figura contra el doc encontró que §2 daba `p25` = 83,8 para `moderado` en la
+población restringida y el valor es **83,7476**, o sea 83,7, que es lo que ya decía
+`numeros_figuras.csv`. Los dos venían del mismo CSV y discrepaban sólo en el redondeo escrito a
+mano. Corregido el doc, que era el que estaba mal.
+
+### 5. El guion
+
+Cuatro bloques nuevos, `s03d` a `s03g`, y la lámina de los ocho ejes pasó de `s03d` a `s03h`
+para que las claves queden **en orden de lámina**. Dicen lo que las figuras no pueden afirmar
+solas: que el `p` del control positivo es el piso de 200 traslaciones, que el `n` honesto del
+grado nuclear son 10 láminas y no 85 marcas, que no valida Nottingham, y que el `p` = 0,0056 es
+el mínimo que el diseño puede dar y no una holgura. Tres bloques viejos se retocaron: `s01`
+decía «seis láminas» y son diez, `s02` decía que la tercera cosa quedó en curso, y `s04` abría
+con «tres cosas» y son dos. El párrafo de coordinación con la otra persona del equipo se
+conserva tal cual.
+
 ## Sesión 35 — 28-ago-2026 · sesión de PLAN: las figuras entran al deck, y nadie las metió todavía
 
 > La sesión 34 dejó las cuatro figuras hechas y **fuera** del deck, porque meterlas era decisión

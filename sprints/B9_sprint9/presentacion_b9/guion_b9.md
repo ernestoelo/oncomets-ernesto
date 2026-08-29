@@ -1,6 +1,6 @@
 # Guion hablado del deck del período (B9)
 
-> Las siete láminas en un solo archivo, que es el método de `@humanizer-es`: se escribe
+> Las once láminas en un solo archivo, que es el método de `@humanizer-es`: se escribe
 > entero, se pasa entero, y recién después `generate_b9_deck.py` lo lee y lo aplica con
 > `notes()`. **Este archivo es la fuente**; las notas del `.pptx` son derivadas.
 >
@@ -15,7 +15,7 @@
 ## [s01] Portada
 
 Buenos días. Les voy a contar en qué quedó el período, que fue corto y tuvo un solo eje: la
-detección de núcleos sobre las láminas que el patólogo ya nos anotó. Son seis láminas y la
+detección de núcleos sobre las láminas que el patólogo ya nos anotó. Son diez láminas y la
 idea es que la discusión quede para el final.
 
 ## [s02] OBJETIVOS
@@ -32,10 +32,11 @@ con qué pesos hay que correrlo y sabemos cuánto cuesta, pero no está lanzado,
 tarjeta lleva más de un día tomada por otra persona del equipo y no hay forma de colarse
 antes. Está listo para salir el día que se libere.
 
-Y la tercera era evaluar métricas nuevas para mitosis. Eso es lo que quedó en curso y es lo
-que le da forma al período que viene, porque el ejercicio no fue proponer métricas lindas
-sino separar cuáles se pueden calcular hoy con lo que ya está en disco, cuáles piden
-tarjeta, y cuáles no se desbloquean con ningún presupuesto.
+Y la tercera era evaluar métricas nuevas para mitosis, y ésa también quedó cerrada. El
+ejercicio no fue proponer métricas lindas sino separar cuáles se pueden calcular hoy con lo
+que ya está en disco, cuáles piden tarjeta y cuáles no se desbloquean con ningún
+presupuesto. Y de las que se podían calcular hoy, las dos que valían la pena están medidas
+y las van a ver en el medio de la presentación.
 
 ## [s03a] Mitosis sobre las doce láminas
 
@@ -100,7 +101,113 @@ lejísimos dentro de la misma lámina. Además, casi todas las que dan cero son 
 muy pocas detecciones en la lámina entera, y con esa densidad la distancia esperada a la
 detección más cercana es enorme aunque la alineación sea perfecta.
 
-## [s03d] Los ocho ejes
+## [s03d] El control positivo
+
+Antes de seguir, dos ejes que ya estaban pagados y que corrimos esta semana. Éste es el
+primero y es el control positivo del método.
+
+El patólogo dibujó regiones y les puso nombre: unas son epitelio y otras son estroma. Nosotros
+contamos, dentro de cada una, qué fracción de los núcleos que el detector encontró ahí adentro
+son epiteliales. Si un segmentador de núcleos no acierta eso, no hay nada más que discutir, así
+que es lo mínimo exigible.
+
+Y lo acierta. Las dos clases de estroma dan cero exacto en la mediana, o sea que en la mitad
+de esas regiones no aparece un solo núcleo epitelial, y las regiones sólidas de epitelio
+quedan todas arriba. Cada fila es una clase tal como él la escribió, la barra es el rango
+intercuartil y la marca oscura es la mediana. La unidad acá es la región, no la lámina ni la
+marca.
+
+Hay una fila que se sale del patrón. Una de las clases de epitelio se comporta como estroma.
+Son seis marcas de una sola lámina, así que no aguanta un número propio: queda anotado y no lo
+interpreto. La sospecha razonable es que ese patrón tiene ejes
+de tejido conectivo por dentro, pero eso hay que preguntarlo, no afirmarlo.
+
+Procedencia: results/b9_nucleos/regiones_epi_estroma.csv, vía scripts/b9_epitelio_estroma.py.
+Unidad: región.
+
+## [s03e] El observado contra su nulo
+
+El número que resume esa separación es un área bajo la curva de rangos, y sola no dice mucho,
+así que la puse contra su propio nulo, que es lo que contesta si podía haber salido por azar.
+
+El nulo se arma trasladando la máscara de cada región sobre el tejido de su propia lámina, y
+me quiero detener ahí un segundo porque es una decisión y no un detalle. Lo cómodo sería
+barajar las etiquetas de las regiones, pero las regiones son contiguas, así que barajarlas
+rompe la estructura espacial y el nulo sale demasiado fácil de vencer. Trasladar la conserva.
+
+Ninguna traslación llega al observado. La marca de acento queda sola a la derecha y el
+percentil de arriba del nulo está más de veinte puntos por debajo.
+
+Dos cosas para leerlo bien. La primera es que el valor de significancia es un piso y no un
+valor exacto: con la cantidad de traslaciones que corrimos, lo mínimo que puede dar es uno
+sobre doscientos uno, y dio exactamente eso, así que se lee como por debajo de uno en
+doscientos uno. La segunda es que el nulo no se centra en la mitad sino un poco más abajo, y
+tiene explicación: las regiones de epitelio son más grandes que las de estroma, así que al
+trasladarlas no muestrean el mismo fondo. No invalida el contraste, pero conviene decirlo
+antes de que alguien lo pregunte.
+
+Procedencia: results/b9_nucleos/regiones_nulo.npy, doscientas traslaciones por región, vía
+scripts/b9_epitelio_estroma.py. Unidad: región.
+
+## [s03f] El grado nuclear
+
+El segundo eje es el grado nuclear. Acá el patólogo marcó núcleos sueltos, no áreas, y les
+puso uno de tres niveles: bajo, moderado y alto.
+
+Lo que medimos es el tamaño del núcleo que la herramienta segmentó debajo de cada marca, pero
+no en micrones sino como percentil dentro de la población epitelial de la propia lámina. Eso
+es a propósito. Entre láminas el tamaño nuclear medio cambia por un factor dos, y el percentil
+cancela justamente esa diferencia.
+
+Los tres grados ordenan, y ordenan en la dirección esperada. Cada punto es una lámina, puesta
+en la mediana de sus marcas, y los dos puntos huecos son las dos láminas cuyo alineamiento
+quedó marcado como dudoso.
+
+Y ahora la parte incómoda, que es el tamaño real de esto. El grado está confundido con la
+lámina sin un solo cruce: cada lámina tiene un único grado. Entonces comparar grados es
+comparar láminas, y el número honesto de observaciones son diez láminas y no las marcas. La
+tabla de la derecha está para eso, para que se vea de dónde sale cada punto y con cuántas
+marcas.
+
+Falta decir otras dos. Los percentiles son altos en los tres grados, el bajo incluido: él
+marca núcleos grandes para su lámina en cualquier grado, y lo que separa es cuánto. Y esto no
+valida la escala de grado histológico. Esa escala puntúa la variación de una población entera en el
+peor campo; lo que tenemos acá son núcleos que él eligió como ejemplares.
+
+Procedencia: results/b9_nucleos/marcas_grado.csv, columna del percentil intra lámina, vía
+scripts/b9_pleomorfismo.py. Unidad: lámina.
+
+## [s03g] El nulo exacto del grado
+
+Con ese eje hicimos lo mismo que con el control positivo, ponerlo contra su nulo. Como son
+diez láminas no hace falta simularlo: se enumeran todas las formas de repartir los grados
+entre ellas y se cuentan. Es exacto.
+
+Las dos poblaciones estaban declaradas de antemano y las reporto juntas. Arriba está la
+limpia, que se queda solo con las marcas que cayeron sobre un núcleo epitelial. Abajo está la
+completa, con las ciento siete.
+
+La limpia despega del nulo y la completa no, y las dos cosas hay que decirlas con cuidado.
+
+Sobre la limpia: el valor que salió es el mínimo que este diseño puede dar. El reparto que
+observamos es el único de todos los posibles que ordena perfecto, así que no existe un
+resultado mejor disponible con estas láminas. Leerlo como un margen cómodo contra el corte de
+siempre sería un error. No hay margen, hay techo.
+
+Sobre la completa, que uno esperaría que fuera mejor por tener más láminas: no la frena el
+diseño. Ahí sí había disponible un valor mucho más chico. Lo que la frena son dos láminas de
+grado alto que caen por debajo de las de grado bajo, y las dos tienen sus marcas resueltas a
+clases que no son epitelio. El tamaño que devuelve el detector no es comparable entre clases,
+porque el umbral con el que recorta cada núcleo está afinado por clase. O sea que la diferencia
+entre las dos poblaciones tiene mecanismo, no es ruido.
+
+Entonces la lectura honesta es que ordena, con esos dos valores y esos dos denominadores.
+Nada más fuerte que eso.
+
+Procedencia: la misma enumeración que produjo el número, permutacion_exacta de
+scripts/b9_pleomorfismo.py. Unidad: asignación.
+
+## [s03h] Los ocho ejes
 
 En la reunión pidieron mirar la herramienta más a fondo, así que en vez de quedarnos en
 mitosis listamos contra qué se puede medir, en total, y le pusimos precio a cada cosa. El
@@ -112,12 +219,13 @@ viven en tres o menos. Eso ya ordena la lista sin que uno tenga que opinar. Los 
 segunda columna están tal cual él los escribió, con sus mayúsculas y sus mezclas de idioma,
 porque son las etiquetas del archivo y no conviene traducirlas.
 
-Hay tres ejes que están pagados. Cuando corrimos el detector no escribió sólo mitosis:
-escribió las siete clases y el polígono de cada núcleo, y eso está en disco para las doce.
-Entonces grado nuclear y la separación entre epitelio y estroma, que a primera vista
-parecían pedir tarjeta, son trabajo de procesador y de esta semana. El de epitelio contra
-estroma me interesa especialmente porque es el control positivo natural del método: si un
-segmentador de núcleos no acierta eso, no hay nada más que discutir.
+Hay tres ejes que están pagados, y dos de ellos son los que acaban de ver. Cuando corrimos
+el detector no escribió sólo mitosis: escribió las siete clases y el polígono de cada
+núcleo, y eso quedó en disco para las doce. Por eso el grado nuclear y la separación entre
+epitelio y estroma, que a primera vista parecían pedir tarjeta, salieron con trabajo de
+procesador y de esta misma semana. El tercero es el infiltrado inmune, que cuesta lo mismo
+y no lo corrimos por otro motivo: son muy pocas marcas y en muy pocas láminas, así que no
+sostendría un número propio.
 
 Hay uno que sí pide tarjeta, que es necrosis, y ahí aparece una simetría incómoda entre los
 dos juegos de pesos: el que tiene mitosis no tiene necrosis, y el que tiene necrosis no
@@ -138,7 +246,7 @@ exhaustiva ni son contornos de núcleo: son marcas puestas donde la evidencia es
 
 ## [s04] Tareas del próximo período
 
-Tres cosas para el período que viene.
+Dos cosas para el período que viene.
 
 La primera es correr necrosis en cuanto se libere la tarjeta, y ahí hay un prerrequisito
 que no es de formato: el vocabulario de necrosis del patólogo viene inconsistente entre
@@ -148,12 +256,7 @@ patólogo dibujó áreas y la herramienta devuelve núcleos: se compara densidad
 fuera, y el nulo se construye trasladando la máscara, no permutando etiquetas, porque las
 regiones son contiguas.
 
-La segunda junta los dos ejes que ya están en disco, porque son un solo bloque de trabajo.
-La pregunta concreta es si los descriptores de los núcleos ordenan los tres grados que el
-patólogo declaró, y si la fracción de epitelio contra estroma se sostiene como control
-positivo.
-
-Y la tercera es la que tiene forma de entregable: el punto caliente mitótico. Conteo por
+Y la segunda es la que tiene forma de entregable: el punto caliente mitótico. Conteo por
 milímetro cuadrado, que es el número clínico con el que la escala de grado histológico
 trabaja y que hoy no tenemos, el mapa de densidad, y la ventana de área fija que lo
 maximiza. Eso es la primera versión de una zona que se le puede proponer al patólogo, que

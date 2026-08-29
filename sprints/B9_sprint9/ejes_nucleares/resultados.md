@@ -90,7 +90,7 @@ lámina, población restringida a las marcas que HoVer-NeXt llamó `epithelial-c
 | Grado | marcas | láminas | percentil mediano | p25 | p75 |
 |---|---|---|---|---|---|
 | bajo | 15 | 2 | **75,1** | 61,3 | 80,3 |
-| moderado | 4 | **1** | **92,1** | 83,8 | 97,0 |
+| moderado | 4 | **1** | **92,1** | 83,7 | 97,0 |
 | alto | 66 | 7 | **98,9** | 95,9 | 99,9 |
 
 | Estadístico | valor | criterio pre-registrado |
@@ -316,5 +316,5 @@ Se corrieron **las dos**. El primario cambia en el tercer decimal:
 | Las 107 marcas resueltas, con grado y descriptores | `results/b9_nucleos/marcas_grado.csv` |
 | Logs del eje 3 | `logs/b9_descriptores_nucleos.log`, `logs/b9_pleomorfismo.log` |
 | Scripts del eje 3 | `scripts/b9_descriptores_nucleos.py`, `scripts/b9_pleomorfismo.py` |
-| **Las figuras de los dos ejes** (4 láminas nativas) | `figuras/generate_figuras_ejes34.py` → `figuras_ejes_3_4.pptx` (gitignored, regenerable) |
-| Los 48 números que quedan dibujados | `figuras/numeros_figuras.csv` |
+| **Las figuras de los dos ejes** (4 láminas nativas) | `../presentacion_b9/generate_b9_deck.py`, láminas 6 a 9 del deck del período. `figuras/generate_figuras_ejes34.py` quedó como envoltorio que arma las cuatro solas, para iterar el QA visual sin reconstruir el deck |
+| Los 48 números que quedan dibujados | `figuras/numeros_figuras.csv`, que escribe el generador del deck (única fuente desde el 28-ago; el envoltorio no lo toca) |
