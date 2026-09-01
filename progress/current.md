@@ -4434,6 +4434,70 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 38 — 1-sep-2026 · el plan se verifica contra el archivo, y tres afirmaciones caen
+
+> Sesión de **verificación y cierre**. Cero código nuevo, cero GPU, cero jobs propios. Ernesto
+> pidió no ejecutar: que el plan lo tome una sesión limpia. Lo que esta sesión aporta es que ese
+> plan ya **no arranca con tres errores adentro**, y que las dos decisiones de diseño que le
+> faltaban están tomadas.
+
+### 1. Tres afirmaciones del plan del 1-sep no resistieron el archivo
+
+Detalle completo, con las tablas: `sprints/B9_sprint9/atencion_12_laminas/hechos_verificados.md`.
+
+- **El gate de regresión apuntaba a un número que el driver no puede producir.** El plan pedía
+  reproducir «0,890 ± 0,034, universo región». Pero el 0,890 tiene sd **0,039**, es del universo
+  **lámina** (el de región es **0,903**) y promedia **4 checkpoints de tres directorios distintos**.
+  El driver especificado usa **una sola familia**, o sea 2 de esos 4, y su valor esperado es
+  **0,9265**: fuera de la banda que el propio plan fijaba. En región fallaba por construcción; en
+  lámina pasaba por 0,005 de suerte, que es peor. **Se cambia por el valor exacto por checkpoint**
+  (`seba_5fold_f0` = 0,925697 lámina / 0,936444 región · `seba_5fold_f2` = 0,916527 / 0,927269),
+  que está en el CSV del B8 y no cuesta nada ([[gate-regresion-valor-exacto-no-banda]]).
+- **El driver no corre en `envs/pruebas`.** `build_clam` (`atencion_vs_anotaciones.py:97`) importa
+  `topk.svm.SmoothTop1SVM` y ahí no está `topk`; tampoco la `libopenslide` parchada de 1,2 MB que
+  piden los `.bif` (workaround K). Los dos scripts nuevos van en **`clam_latest`**; el deck se
+  queda en **`pruebas`** por `zarr`. La costura aguanta porque `datos_atencion()` sólo lee un CSV.
+- **«Fold limpio» son TRES tiers, no dos.** La tabla de membresía es correcta (8 láminas con 5
+  folds, dos con 2, dos con 1), pero el motivo cambia: **ausente** de los cinco splits, limpio por
+  **test**, limpio por **val**. `val` gobernó el early stopping, así que es el más débil de los
+  tres. El pre-registro del B8 ya lo trataba como primario, así que el criterio no se toca; se
+  **declara**.
+
+### 2. Las dos decisiones que al plan le faltaban
+
+- **El primario son NUEVE láminas**, las de `score_1/2/3`, con **103 de los 113 parches**.
+  Verificado en el CSV de la tarea: `B25-158899` no tiene fila (ni bajo otro nombre), y **106552 y
+  110616** son `no_identificado`, que es clase entrenada pero significa «el reporte CAP no la
+  menciona», no un grado de severidad. Las tres se miden igual y se reportan **aparte**.
+- **El agregado es media sin ponderar sobre láminas**, cada lámina un voto, con el pooled sobre
+  parches como secundario. Con `n` de 2 a 28 las dos difieren, y ponderar por parches le daría a la
+  129741 y la 126504 la mitad del peso: el mismo sesgo que el cruce de las 94 ya documentó.
+
+### 3. El aviso a `sgaete`, redactado
+
+Está en `sprints/B9_sprint9/atencion_12_laminas/aviso_sgaete.md`, listo para que Ernesto lo mande.
+Cubre los dos solapes: que barrimos las 12 con HoVer-NeXt, y que vamos a medir atención contra sus
+anotaciones, que es lo que su pipeline de `anotaciones/atencion/` ya mide. Lleva además la pregunta
+de si leer la rama **predicha** es deliberado. Las dos preguntas viejas (las 30 láminas, quién es
+«GDT») quedan fuera a propósito: mezclarlas diluye el pedido de coordinación.
+
+### 4. Insumos confirmados, uno por uno
+
+**12 de 12** h5 y pt, **12 de 12** `parches_anotados_*.csv`, **113** parches con `Mitosis`
+(28·28·21·7·7·6·4·4·2·2·2·2), los **5** checkpoints y los **12** `pares_*.csv`. Las seis primitivas
+que el driver importa existen y están citadas por línea. Nada falta.
+
+### 5. Estado al cierre
+
+Rama `main`, sincronizada con `origin`, **sin jobs propios**: 5088, 5121 y 5172 son de la cuenta
+compartida (`WorkDir=…/Test_D/D_abs_cambiado`, verificado con `scontrol`, workaround L.b). La GPU
+la sigue teniendo `gvenegas` 5087 con `TimeLimit=UNLIMITED`, hace más de 20 h, así que **no hay
+backfill** y achicar un job propio no lo adelantaría. `sgaete` sigue con `hnx_time` 5125 encolado.
+**Nada del plan se ejecutó, y ésa fue la instrucción.** La sesión siguiente arranca por el aviso a
+`sgaete` y el `prereg.md`.
+
+---
+
 ## Sesión 37 — 1-sep-2026 · Ernesto lee el deck, y el eje de atención se abre
 
 > Sesión de **revisión y plan**. Cero código ejecutado, cero GPU, cero jobs propios. Ernesto miró
