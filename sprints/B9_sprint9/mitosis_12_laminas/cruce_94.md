@@ -39,6 +39,12 @@ significa otra cosa.
 
 **26 de las 94 marcas** a la tolerancia adoptada de 30 µm, o sea **27,7 %**.
 
+> **Los 30 µm son una DISTANCIA, no un tamaño.** Es la separación máxima entre la marca del
+> patólogo y el centroide de la detección para contarlas como el mismo objeto. Las doce
+> láminas están a la **misma** resolución (0,465 µm/px), así que la tolerancia no compensa
+> ninguna diferencia de escala entre ellas. Escribirla sin su sustantivo la vuelve ilegible
+> ([[parametro-necesita-su-semantica]]).
+
 | Tolerancia (µm) | 7,5 | 15 | 22,5 | **30** | 50 | 75 | 100 | 150 | 200 | 300 |
 |---|---|---|---|---|---|---|---|---|---|---|
 | TP sobre 94 | 26 | 26 | 26 | **26** | 26 | 27 | 28 | 33 | 36 | 41 |
@@ -115,6 +121,34 @@ de la 129741 y sólo de ella.
 Con el intervalo correcto, la B25-158899 tiene **2 de sus 7 detecciones** en la región
 anotada, no 5. Su cero es un problema de detección, no de alineación.
 
+### 3.d Las marcas que se escapan NO son más chicas
+
+Es la primera pregunta que hizo Ernesto al ver el número, y merece contestarse porque la
+tolerancia de 30 µm invita a confundirla con un tamaño: si el detector fallara con las mitosis
+chicas, el 27,7 % significaría otra cosa.
+
+`pares_<slide>.csv` ya trae la columna **`lado_px`**, el lado mayor de la caja envolvente del
+polígono del patólogo en px de nivel 0 (`cruce_hovernext_marcas.py:63`). Sobre las 94:
+
+| grupo | `n` | lado mediano | media | rango |
+|---|---|---|---|---|
+| acreditadas | 26 | **36 px** (16,7 µm) | 38,2 px | 22 a 66 |
+| falladas | 68 | **36 px** (16,7 µm) | 40,0 px | 19 a 66 |
+
+Las medianas coinciden y las falladas son, si algo, **levemente más grandes**. **No hay señal de
+que el detector falle por tamaño.**
+
+**La salvedad manda y hay que decirla junto al número**: 36 px es exactamente el bbox mediano
+del **pincel de radio fijo de QuPath** ([[anotacion-tamano-objeto-vs-region]] §2), así que este
+proxy mide el pincel tanto como el núcleo. Sirve para **descartar** un sesgo grande de tamaño,
+no para afirmar que los dos grupos tienen núcleos iguales.
+
+**Por qué no se mide sobre la segmentación, que sería lo natural**: una marca fallada no tiene
+instancia de clase `mitosis` por definición, así que habría que leer el núcleo de la clase que
+le tocara, y **el área no es comparable entre clases de HoVer-NeXt** porque el umbral de
+foreground está afinado por clase ([[descriptor-absoluto-trae-el-umbral]]). La comparación
+acertadas contra falladas sería entre clases distintas por construcción.
+
 ## 4. Por qué el cero de siete láminas no es un problema de alineación
 
 Es la sospecha natural: si las marcas quedan lejos de toda detección, quizás el offset está
@@ -168,6 +202,7 @@ el mejor caso de las doce, no el típico: sin ella el agregado baja a 19,1 %.
 | Qué | Valor |
 |---|---|
 | Detecciones | job **5008** (129741) y job **5070** (las once), pesos `lizard_mitosis` |
+| **Entrada del detector** | la **WSI entera**, en las doce (`main.py --input <WSI>`, `scripts/run_hovernext_slides.slurm:144`). **Sin CLAM delante**: no hubo selección de parches por atención ni mapa de calor a la entrada |
 | Anotaciones | `sdonoso/anotaciones/<slide>.bif - GDT.geojson`, READ-ONLY |
 | Offsets | `sprints/B8_sprint8/anotaciones_patologo/offset_<slide>.json` (A3, 21-ago), los doce con `dy=0` |
 | Escala | 0,465 µm/px, verificado en las doce (Ventana a 20×) |
