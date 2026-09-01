@@ -4434,6 +4434,94 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 37 — 1-sep-2026 · Ernesto lee el deck, y el eje de atención se abre
+
+> Sesión de **revisión y plan**. Cero código ejecutado, cero GPU, cero jobs propios. Ernesto miró
+> el deck armado por primera vez, devolvió cuatro cosas, y sobre la cuarta abrió un eje nuevo. El
+> plan quedó escrito y **sin ejecutar** por pedido suyo: lo toma una sesión limpia.
+
+### 1. Las cuatro devoluciones sobre el deck
+
+Las tres primeras son de comprensión y la cuarta abre trabajo. Están tabuladas en
+`sprints/B9_sprint9/presentacion_b9/README.md` §La revisión de Ernesto.
+
+- **Los 30 µm de s03 se leen como un tamaño.** Son la **tolerancia de emparejamiento** y el deck
+  nunca lo dice; de ahí salieron tres preguntas que no tenían sentido contra lo que el número
+  mide (¿resoluciones distintas? ¿mitosis de distinto tamaño? ¿falla con las chicas?). Y «el
+  número es plano de 7,5 a 50 µm» era directamente ilegible sin saber qué es el 30.
+- **«El caso de referencia…» sale, sólo de la lámina.** El guion conserva el párrafo del sesgo
+  heredado.
+- **s06 «está genial pero no la entiendo».** El eje horizontal **no tiene rótulo**: ocho barras
+  de 0 a 1 y nada dice qué se mide.
+- **s07 a s09, «no entiendo nada».** Pidió más pedagogía, sobre todo en las notas del presentador,
+  y títulos más profesionales, precisos y minimalistas. Eligió el juego **objeto medido**, con los
+  tres anchos ya medidos contra el límite de una línea a 40 pt.
+
+### 2. La pregunta de CLAM, contestada: no
+
+«¿Se le pasaron a HoVer-NeXt los parches con más atención seleccionados con CLAM?» **No.** Corrió
+sobre la **WSI entera** en las doce (`main.py --input <WSI>`,
+`scripts/run_hovernext_slides.slurm:144`). Queda escrito en `cruce_94.md` §6, que es donde
+cualquiera lo va a buscar.
+
+Y hay un dato del período anterior que apunta en contra de haberlo hecho: recortar al 12 % de la
+región bajaba de 13 a 11 aciertos, o sea que **el recorte no compra mitosis, compra área**
+(P2.a.ter de `CLAUDE.md`).
+
+### 3. Lo que se contestó sin medir nada nuevo: las falladas no son más chicas
+
+`pares_<slide>.csv` ya traía `lado_px`. Sobre las 94: **mediana 36 px en los dos grupos**
+(acreditadas 38,2 de media, falladas 40,0). Si algo, las falladas son levemente más grandes. La
+salvedad manda: 36 px es el bbox del pincel de QuPath, así que sirve para **descartar** un sesgo
+grande de tamaño y no para afirmar que los núcleos son iguales. `cruce_94.md` §3.d.
+
+### 4. El eje nuevo: la atención de CLAM sobre las doce
+
+Sobre la respuesta de §2, Ernesto decidió medir si la atención de CLAM coincide con las mitosis
+del patólogo, en las doce, y meterlo al deck como **dos láminas** (los doce mapas de calor con
+las marcas encima, y el AUC por lámina). El deck va a **trece**.
+
+Lo que se cerró de diseño, verificado contra los splits en esta sesión:
+
+- **No existe un fold limpio para las doce a la vez.** Ocho láminas nunca entraron a la tarea de
+  tasa mitótica; 129741 y 144317 tienen dos folds limpios, y 128194 y 164001 **uno**. Criterio
+  adoptado: promediar por lámina **sólo sus folds limpios**, con el `n_ckpt` visible.
+- **La contaminación infla**: 0,946 contra 0,890 en la 129741. El control contaminado se reporta
+  aparte.
+- **B25-158899 no tiene etiqueta** de tasa mitótica, así que su cabeza verdadera no existe y sale
+  del primario; 110616 y 106552 son `no_identificado`.
+- Insumos en disco: los doce `h5` (2705 a 5203 parches) y los doce `parches_anotados_*.csv`
+  (**113 parches** con `Mitosis`, repartidos de 2 a 28). Los estadísticos se **importan** de
+  `atencion_vs_anotaciones.py` y `auc_atencion_fold4.py`, no se copian.
+- El confinamiento va como **intervalo por lámina**, lo que de paso cierra el pendiente del
+  `Y_CORTE_REGION` escalar.
+
+Detalle en [[atencion-doce-laminas-folds-limpios]].
+
+### 5. Lo que fue a memoria
+
+- **[[parametro-necesita-su-semantica]]** (nueva) — declarar la unidad de un conteo no alcanza:
+  un **parámetro** con unidades físicas necesita su sustantivo, o el lector lo identifica con el
+  objeto.
+- **[[atencion-doce-laminas-folds-limpios]]** (nueva) — la membresía de splits de las doce y por
+  qué la contaminación no es ruido sino señal falsa.
+- **[[deck-qa-puntos-ciegos-chequeo]]** (ADDENDUM) — las cuatro capas certifican corrección, no
+  comprensión. Un eje sin rótulo las pasa las cuatro, porque son **ausencias** y el autor es el
+  peor detector de ausencias.
+- **[[anotacion-tamano-objeto-vs-region]]** (ADDENDUM) — existe `lado_px` como proxy de tamaño, y
+  dice que no hay sesgo.
+
+### 6. Estado al cierre
+
+Rama `main`, árbol limpio antes de esta sesión, `origin/main` al día (los dos commits de la
+sesión 36 sí se pushearon). **Cero jobs propios**: 5088, 5121 y 5172 son de la cuenta compartida
+con `WorkDir=Test_D/D_abs_cambiado`, reverificado con `scontrol`.
+
+**La GPU cambió de dueño**: la tiene `gvenegas` (job 5087, `wd_rope_grid_env`) hace **20 horas**,
+con `TimeLimit=UNLIMITED` ⇒ sigue sin haber backfill y B2 sigue sin poder salir. `nschiaffino`
+5085 terminó. Y `sgaete` sigue con `hnx_time` 5125 encolado, `WorkDir=sdonoso/MitosisDetection`:
+el solapamiento con él ya no es hipotético y **avisarle sigue sin hacerse**.
+
 ## Sesión 36 — 28-ago-2026 · las cuatro figuras entran al deck, que queda en once láminas
 
 > Ejecución del plan que la sesión 35 dejó escrito, entero y sin desviarse de las decisiones de
