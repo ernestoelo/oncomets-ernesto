@@ -168,6 +168,24 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   sesión limpia.
   De paso quedó contestado, sin medir nada nuevo, que **las marcas falladas no son más chicas**
   (lado mediano 36 px en los dos grupos, [`cruce_94.md`](mitosis_12_laminas/cruce_94.md) §3.d).
+
+  > **ADDENDUM 1-sep-2026 (sesión 38) — el plan se verificó contra el archivo y tres de sus
+  > afirmaciones no resistieron.** Sigue **sin ejecutar**: lo que cambió es que ahora la sesión que
+  > lo tome arranca con la verdad de campo hecha, en
+  > [`atencion_12_laminas/hechos_verificados.md`](atencion_12_laminas/hechos_verificados.md).
+  > **(1)** El **0,890 de referencia no lo produjo la familia 5fold**: promedia 4 checkpoints de
+  > tres directorios, y es del universo *lámina* (el de región es 0,903). Un driver que use sólo
+  > esa familia da **0,9265**, fuera de la banda que el propio plan fijaba ⇒ el gate se cambia por
+  > el **valor exacto por checkpoint** ([[gate-regresion-valor-exacto-no-banda]]). **(2)** El
+  > driver **no corre en `envs/pruebas`**: `build_clam` importa `topk`, que ahí no está, y tampoco
+  > está la `libopenslide` parchada; los dos scripts van en **`clam_latest`** y el deck se queda en
+  > `pruebas` por `zarr`. **(3)** «Fold limpio» son **tres** tiers (ausente · test · val) y no dos:
+  > `val` gobernó el early stopping, así que se declara. Más dos decisiones de Ernesto: el
+  > **primario son nueve láminas** con `score_1/2/3` (103 de los 113 parches; salen la que no tiene
+  > etiqueta y las dos `no_identificado`, que se reportan aparte) y el agregado es **media sin
+  > ponderar sobre láminas**, con el pooled como secundario. El **aviso a `sgaete` quedó redactado**
+  > en [`atencion_12_laminas/aviso_sgaete.md`](atencion_12_laminas/aviso_sgaete.md), listo para que
+  > lo mande.
 - **La simetría de los dos juegos de pesos** (heredada del B8, se re-declara porque gobierna el
   objetivo 2) — Lizard-Mitosis tiene **mitosis y no necrosis**; PanNuke tiene **`dead` y no
   mitosis**. Las dos son verdaderas a la vez y **ninguna reabre nada**
