@@ -108,7 +108,8 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   > en [`auditoria_coherencia/hallazgos.md`](auditoria_coherencia/hallazgos.md).
   >
   > **ADDENDUM 28-ago-2026 — los dos ejes nucleares entraron al deck, que quedó en ONCE
-  > láminas.** Las cuatro figuras van **en el cuerpo**, entre los recortes de mitosis y la lámina
+  > láminas.** (Superado el 1-sep: la revisión de Ernesto lo lleva a trece; ver la última línea
+  > de esta sección.) Las cuatro figuras van **en el cuerpo**, entre los recortes de mitosis y la lámina
   > de los ocho ejes. Con eso, tres tablas quedaban contradiciendo al deck y se actualizaron:
   > OBJETIVOS marca el objetivo como **Cerrado** nombrando los dos ejes medidos, la tabla de los
   > ocho ejes pasa «Grado nuclear» y «Tumor y estroma» a **medidos**, y **Tareas quedó con dos
@@ -152,6 +153,21 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   del diseño y **no una holgura** contra el 0,05; y la completa **no está frenada por el diseño**
   (tenía 0,0007 disponible), la frenan dos láminas de `alto` que caen por debajo de las de `bajo`.
   Va como ADDENDUM en `resultados.md` §2.a: ninguna tabla publicada cambia.
+- **La revisión del deck y el eje de atención, DECIDIDOS y sin ejecutar** (1-sep) — Ernesto miró
+  el deck armado por primera vez y devolvió cuatro cosas. Tres son de comprensión: los **30 µm**
+  de la lámina del resultado no dicen que son una **distancia de emparejamiento** y se leen como
+  un tamaño ([[parametro-necesita-su-semantica]]); las láminas 7, 8 y 9 «están bonitas pero no se
+  entienden»; y la 6 tampoco, con un **eje horizontal que no tiene rótulo** y pasó las cuatro
+  capas de QA. La cuarta abre trabajo: preguntó si a HoVer-NeXt se le pasaron los parches de más
+  atención de CLAM. **No** ([`cruce_94.md`](mitosis_12_laminas/cruce_94.md) §6: la WSI entera, en
+  las doce), y sobre esa respuesta decidió **medir la atención de CLAM sobre las doce** y ver si
+  coincide con las mitosis del patólogo. Diseño cerrado: **folds limpios por lámina**, cabeza
+  primaria la de la clase verdadera, nulo por traslación, unidad parche con el agregado por
+  lámina, y **dos láminas nuevas** en el deck, que queda en **trece**
+  ([[atencion-doce-laminas-folds-limpios]]). **Nada de esto se ejecutó**: el plan lo toma una
+  sesión limpia.
+  De paso quedó contestado, sin medir nada nuevo, que **las marcas falladas no son más chicas**
+  (lado mediano 36 px en los dos grupos, [`cruce_94.md`](mitosis_12_laminas/cruce_94.md) §3.d).
 - **La simetría de los dos juegos de pesos** (heredada del B8, se re-declara porque gobierna el
   objetivo 2) — Lizard-Mitosis tiene **mitosis y no necrosis**; PanNuke tiene **`dead` y no
   mitosis**. Las dos son verdaderas a la vez y **ninguna reabre nada**

@@ -10,7 +10,7 @@ técnico de sprint.
 | Guion | `guion_b9.md`, que el generador **lee** y aplica con `notes()`. El `.md` es la fuente; las notas del `.pptx` son derivadas |
 | Figuras | `assets/mitosis_{aciertos,falladas}.png`, que produce `scripts/galeria_mitosis_12.py`. Las cuatro de los ejes nucleares son **nativas** y las dibuja el propio generador |
 | Molde | `papers/presentations/[AAAAMMDD] [Nombre Apellido] [Image-to-text].pptx`, **read-only** |
-| Salida | 11 láminas, 13,333 × 7,5, Barlow embebida, 9,2 MB |
+| Salida | 11 láminas, 13,333 × 7,5, Barlow embebida, 9,2 MB. **Van a trece**: ver §La revisión de Ernesto, decidida el 1-sep y sin ejecutar |
 
 ## Regenerar
 
@@ -114,6 +114,39 @@ una vuelta de tuerca: no re-implementan el estadístico, **importan el del scrip
 número** (`rank_auc` de `scripts/b9_epitelio_estroma.py`; `spearman` y `permutacion_exacta` de
 `scripts/b9_pleomorfismo.py`). Los dos imports viven **dentro** de esas funciones y no al tope,
 para que abrir el módulo no exija `zarr`.
+
+## La revisión de Ernesto, 1-sep-2026 — DECIDIDA y sin ejecutar
+
+Es la primera vez que Ernesto mira el deck armado. Devolvió cuatro cosas y **ninguna está
+aplicada todavía**: el plan lo ejecuta una sesión limpia. El deck en disco sigue siendo el de
+once láminas del 28-ago.
+
+| # | Lámina | Qué devolvió | Qué se decidió |
+|---|---|---|---|
+| 1 | s03 | «no entiendo a qué te referís con 30 µm»; «¿qué número? ¿qué significa plano?»; «¿trabajamos en diferentes resoluciones o es la mitosis de diferentes tamaños?» | Nombrar la **tolerancia de emparejamiento** con su sustantivo, decir que las doce están a la misma resolución, y explicar «plano» como «no depende del corte» ([[parametro-necesita-su-semantica]]) |
+| 2 | s03 | «"el caso de referencia…" eliminalo todo» | Sale **sólo de la lámina**. El guion conserva el párrafo del sesgo heredado |
+| 3 | s06 | «está genial pero no la entiendo» | El **eje horizontal no tiene rótulo**. Se agrega, y el guion explica desde cero qué es un control positivo, qué es una región y qué es la fracción epitelial |
+| 4 | s07-s09 | «no entiendo nada, ¿de qué traslación estás hablando?»; «que sean más pedagógicas, especialmente las notas»; títulos «más profesionales, precisos y minimalistas» | Títulos nuevos del juego **objeto medido**, dos rótulos de «cómo se lee», y el guion de las cuatro reescrito de cero |
+| 5 | — | «¿se le pasaron los parches con más atención seleccionados con CLAM a HoVer-NeXt?» | **No**: la WSI entera en las doce. Se dice en el pie de s03, y se abre el eje de medir la atención sobre las doce, con **dos láminas nuevas** |
+
+### Los títulos nuevos
+
+Medidos con `text_w()` del propio generador; los tres entran en una línea a 40 pt en 12,44".
+
+| | hoy | nuevo | ancho |
+|---|---|---|---|
+| s07 | Ninguna traslación del nulo llega al observado | **El azar no separa epitelio de estroma** | 9,02" |
+| s08 | Los tres grados ordenan sobre diez láminas | **El tamaño nuclear ordena los tres grados** | 10,01" |
+| s09 | El nulo exacto, y la población que no despega | **Las dos poblaciones contra el mismo azar** | 10,23" |
+
+### Lo que esto le enseñó al QA
+
+Las cuatro capas de abajo estaban **las cuatro en verde** cuando salieron estas cuatro fallas.
+No es que hayan fallado: miden **defectos**, y un lector que no entiende es una **ausencia**.
+El caso más limpio es el eje sin rótulo de s06, que pasó las cuatro. Detalle en el ADDENDUM
+1-sep de [[deck-qa-puntos-ciegos-chequeo]]. Consecuencia operativa: **«el deck está terminado»
+no es una conclusión que el QA pueda emitir**, y cerrarlo antes de que el destinatario lo lea
+hace que su primera lectura llegue como reapertura.
 
 ## QA — las cuatro capas ([[deck-qa-puntos-ciegos-chequeo]])
 
