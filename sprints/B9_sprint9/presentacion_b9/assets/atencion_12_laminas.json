@@ -1,0 +1,78 @@
+{
+  "fuente": "clam_ensemble/attn_batch/json_out",
+  "tarea": "grado_histologico_mitotic_rate_pth_balance",
+  "laminas": [
+    {
+      "slide": "129741",
+      "parches_mitosis": 28,
+      "predicha": "score_3",
+      "confianza": 0.812095046043396
+    },
+    {
+      "slide": "126504",
+      "parches_mitosis": 28,
+      "predicha": "score_3",
+      "confianza": 0.5385264754295349
+    },
+    {
+      "slide": "128194",
+      "parches_mitosis": 21,
+      "predicha": "score_3",
+      "confianza": 0.9759362936019897
+    },
+    {
+      "slide": "124729",
+      "parches_mitosis": 7,
+      "predicha": "score_2",
+      "confianza": 0.5862212777137756
+    },
+    {
+      "slide": "124806",
+      "parches_mitosis": 7,
+      "predicha": "score_2",
+      "confianza": 0.45122915506362915
+    },
+    {
+      "slide": "B25-158899",
+      "parches_mitosis": 6,
+      "predicha": "score_2",
+      "confianza": 0.3629074692726135
+    },
+    {
+      "slide": "144317",
+      "parches_mitosis": 4,
+      "predicha": "score_1",
+      "confianza": 0.4362541139125824
+    },
+    {
+      "slide": "164001",
+      "parches_mitosis": 4,
+      "predicha": "score_1",
+      "confianza": 0.8127760887145996
+    },
+    {
+      "slide": "106552",
+      "parches_mitosis": 2,
+      "predicha": "score_1",
+      "confianza": 0.5781609416007996
+    },
+    {
+      "slide": "103762",
+      "parches_mitosis": 2,
+      "predicha": "score_1",
+      "confianza": 0.5480551719665527
+    },
+    {
+      "slide": "109609",
+      "parches_mitosis": 2,
+      "predicha": "score_1",
+      "confianza": 0.4605637192726135
+    },
+    {
+      "slide": "110616",
+      "parches_mitosis": 2,
+      "predicha": "score_1",
+      "confianza": 0.5482696294784546
+    }
+  ]
+}
