@@ -54,6 +54,7 @@ Acceso: **VPN oficial Environ + SSH**. Stack registrado el 19 may 2026
 ├── clam_testing/        ← workspace COMPARTIDO y activo (owner sdonoso; Sebastián/sgaete y otros corren ahí). Read-only por defecto; escribir solo si Sebastián lo pide (regla 3.a).
 ├── hover_net/           ← HoVer-Net de sgaete (29-jul-2026), CON TRABAJO VIVO. Ajeno → READ-ONLY, misma lógica que clam_testing/. [[hovernet-ya-corriendo-sgaete]]
 ├── anotaciones/         ← 12 geojson del PATÓLOGO (`<slide>.bif - GDT.geojson`) + pipeline atención/overlays de sgaete. Ajeno → READ-ONLY. [[anotaciones-patologo-qupath]]
+├── clam_ensemble/       ← ENSEMBLE 5-fold de sgaete + `attn_batch/json_out` (18 GB: atención por parche de 3013 láminas × 19 tareas). Ajeno → READ-ONLY. [[clam-ensemble-json-out-atencion]]
 └── clam_testing2/       ← MI workspace (todo lo mío vive acá; ver "Workspace containment")
     ├── oncomets-ernesto/        ← este repo
     ├── CLAM_official_reference/ ← CLAM oficial Mahmood Lab (REFERENCE ONLY — not in PYTHONPATH)
@@ -63,6 +64,20 @@ Acceso: **VPN oficial Environ + SSH**. Stack registrado el 19 may 2026
     ├── ZoomMIL_reference/       ← ZoomMIL, Thandiackal ECCV 2022               │ MISMA regla:
     └── MSCLAM_reference/        ← MS-CLAM, Tourniaire MedIA 2023               ┘ REFERENCE ONLY
 ```
+
+> **`clam_ensemble/` (READ-ONLY, descubierto el 1-sep-2026).** Es el ensemble de producción de
+> `sgaete`, y su `attn_batch/json_out` guarda la **atención por parche de las 3013 láminas × 19
+> tareas** (57.249 JSON, coords de level 0 + pesos que suman 1 + clase predicha + confianza). Las
+> **12 anotadas están completas**, con `invasion_carcinoma_gate` y `grado_histologico_mitotic_rate`
+> incluidas ⇒ **medir atención sobre esta cohorte no necesita GPU ni un driver nuevo**. Tres cosas
+> hay que **declarar** cada vez que se usa, porque ninguna es la que uno asume: es un **ensemble de
+> los cinco folds** (⇒ **contaminado por construcción**, incluye los folds donde la lámina estuvo
+> en `train`), lee la rama de la clase **predicha** y no la verdadera, y es la familia
+> **`_pth_balance`**, que no es la `_combined_5fold` de los números de referencia del B8. Su campo
+> `patch_size` **miente** (127 y 64 donde la geometría da 256): derivarlo con la moda por fila
+> ([[patch-size-desde-geometria-h5]]). Tablas y procedencia en
+> `sprints/B9_sprint9/atencion_12_laminas/insumos_json_out.md`. **Tercer solape con `sgaete`** en el
+> mismo eje ⇒ coordinar antes de escalar sigue pendiente.
 
 > **`anotaciones/` (READ-ONLY, descubierto el 17-ago-2026).** Es el material de patólogo del
 > proyecto y **ninguna sesión anterior lo había mirado**: `grep` sobre el repo entero daba cero.
