@@ -4434,6 +4434,78 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 40 — 2-sep-2026 · el eje de atención, PRE-REGISTRADO y MEDIDO; el deck baja a ocho
+
+**Misión**: ejecutar el plan del 07/09 (`.handoffs/plan_B9_20260901_deck_0709_y_cruce_clam_hovernext.md`).
+Se ejecutó **la mitad**: la medición primaria del eje de atención está hecha y el deck perdió
+las tres láminas que Ernesto pidió sacar. La escalera de área y las tres láminas visuales
+nuevas **no se hicieron**. Todo CPU, cero GPU, cero `sbatch`.
+
+### Lo que quedó medido
+
+**El eje de atención tiene pre-registro y resultado primario.**
+[`atencion_12_laminas/prereg.md`](../sprints/B9_sprint9/atencion_12_laminas/prereg.md) se
+escribió **antes** del código y
+[`resultados.md`](../sprints/B9_sprint9/atencion_12_laminas/resultados.md) lo contesta:
+
+- **Gate de regresión: PASA a 1e-6** en los cuatro valores del B8 (`--gate`). La geometría
+  de yapa: 256 px de paso en las doce, **49.832 parches = 706,1 mm²**, que reproduce por
+  otro camino lo que `insumos_json_out.md` §4 había derivado.
+- **Primario (nueve láminas con `score_1/2/3`, media sin ponderar): AUC 0,809 ± 0,127** en la
+  cabeza de mitosis y **0,745 ± 0,183** en la del gate. **Las nueve por encima de 0,5**, y las
+  cuatro de mayor `n` con `p` por traslación rígida bajo 0,05. Es la lectura que el
+  pre-registro había fijado como primaria.
+- Las doce dan **0,810** y **0,772**, que reproducen **al tercer decimal** el go/no-go que la
+  sesión 39 calculó en memoria ⇒ el driver lee la misma fuente de la misma manera.
+- Confinar a la **región anotada** sube el número en las dos láminas que la tienen (129741:
+  0,942 → **0,948**), así que el efecto no es «una región recibe más atención».
+- **La fuente está contaminada por construcción** y el número es optimista. El brazo
+  `ckpt_limpio` **no se corrió**: el driver ya lo soporta.
+
+**Un bug propio, cazado antes de publicar nada.** La primera versión de `medir()` pasaba al
+nulo los rangos **globales** con el universo restringido, así que en el universo `region` el
+`obs` del nulo no era el `auc` reportado. Se corrigió dispersando los rangos **locales** en un
+vector de largo N, que es lo que `atencion_vs_anotaciones.py:311` ya hacía, y se agregó un
+`assert` que compara los dos a 1e-9 en cada fila.
+
+### Lo que quedó en el deck
+
+- **Las tres láminas fuera** (D1 de Ernesto, confirmado por título): los dos histogramas de
+  nulo y la tabla de los ocho ejes. `lamina_f2` y `lamina_f4` **siguen definidas** porque las
+  importa `ejes_nucleares/figuras/generate_figuras_ejes34.py`; `lamina_ejes` se borró entera.
+  El deck queda en **ocho** láminas y compila con `auditar()` y `barrer_rayas()` sin avisos.
+- **Renombrado a `[20260907]`** y período `25/08/2026 - 07/09/2026`, confirmado por Ernesto.
+- **La lámina de mitosis, arreglada**: la tolerancia se nombra por lo que es (una distancia de
+  emparejamiento), salió el punto del caso de referencia (queda en el guion) y el pie tiene
+  las cuatro líneas del plan.
+- **El rótulo que faltaba** en el eje del control positivo, con `h_eje` de 0,25 a 0,52 para
+  que no se monte sobre el pie. Lo cazó el QA visual temprano, no la auditoría automática.
+- **Un `26` ambiguo, desambiguado.** El cuerpo decía «la 129741 pone 13 de los 26» (aciertos
+  del total) y la columna decía «13 de 26» (marcas de esa lámina). Coinciden por casualidad
+  ([[dos-numeros-iguales-denominador-distinto]]): ahora el cuerpo dice «de los 26 aciertos del
+  total» y el encabezado «de sus marcas».
+
+### Los insumos nuevos
+
+- **El paper de HoVer-NeXt bajado** desde PMLR v250 (23 MB, autorizado por Ernesto para *ese*
+  archivo) a `papers/hovernext_baumann_midl2024.pdf`, y su figura 1 (paneles A, B y C, sin el
+  D de distribuciones) recortada a
+  `papers/presentations/assets_branding/paper_figs/hovernext_fig1_pipeline.png`.
+- **El mosaico de atención de las doce** ya renderiza
+  (`sprints/B9_sprint9/presentacion_b9/assets/atencion_12_laminas.png`, 2590×870, 6×2). Dos
+  correcciones que salieron del QA visual: recortar al bounding box de las `coords` (el
+  thumbnail de un `.bif` es sobre todo fondo) y dibujar las marcas **después** del reescalado,
+  a tamaño fijo en píxeles de la hoja. A escala de mosaico un parche de 256 px mide 3 px.
+- **El aviso a `sgaete` ampliado** con el consumo de su `json_out`, el esquema de salida y la
+  respuesta al tamaño de parche de HoVer-NeXt, que es la pregunta que él hizo en la reunión.
+
+### Lo que NO se hizo
+
+La escalera de área (`scripts/b9_escalera_area.py` no existe), el brazo `ckpt_limpio`, las
+galerías de núcleos y de regiones epiteliales (los dos scripts están escritos pero **sin
+correr**), las cinco láminas nuevas del deck, el guion por `@humanizer-es` y `@csv-audit`.
+
+
 ## Sesión 39 — 1-sep-2026 · la reunión pasó, y los insumos del cruce ya estaban en disco
 
 **Sesión de PLAN. Cero código escrito, cero jobs.** El único número calculado se hizo en memoria,

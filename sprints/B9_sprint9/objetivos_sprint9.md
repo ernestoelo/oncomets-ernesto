@@ -59,6 +59,20 @@ evalúa con las métricas del paper y con utilidad para el patólogo, **no con A
 
 Una línea por asunto cerrado. El detalle está en el enlace.
 
+- [**La atención de CLAM cae sobre las mitosis, en las doce**](atencion_12_laminas/resultados.md)
+  (2-sep, CPU) — pre-registrado en [`prereg.md`](atencion_12_laminas/prereg.md) **antes** del
+  código. Primario, las **nueve** con `score_1/2/3` y media sin ponderar sobre láminas: **AUC
+  0,809 ± 0,127** (cabeza de mitosis) y **0,745 ± 0,183** (gate invasivo), **9 de 9 por encima
+  de 0,5** y `p` por traslación rígida bajo 0,05 en las cuatro de mayor `n`. El **gate de
+  regresión del B8 reproduce a 1e-6**. **La fuente está contaminada por construcción** (el
+  `json_out` promedia los cinco folds) ⇒ el número es optimista y el brazo `ckpt_limpio`
+  **queda pendiente**. La **escalera de área**, que es la pregunta de la reunión, **no se
+  corrió**.
+- **La geometría de HoVer-NeXt, contestada** (1-sep verificada, 2-sep escrita a `sgaete`) —
+  tesela **256 px a 20×**, paso **248**, escribe el centro **248**; en nuestras láminas
+  **119 µm = 0,0142 mm²**, el mismo tamaño físico que un parche de CLAM ⇒ **3 mm² ≈ 212
+  parches** y las doce juntas **706,1 mm²** (verificado por el driver, no sólo derivado).
+  Detalle en [`insumos_json_out.md`](atencion_12_laminas/insumos_json_out.md) §4.
 - [**El cruce de las 94 marcas**](mitosis_12_laminas/cruce_94.md) (25-ago, CPU) — HoVer-NeXt
   reencuentra **26 de las 94 marcas** de mitosis a 30 µm sobre las doce láminas anotadas
   (**27,7 %**), plano de 7,5 a 50 µm. La **129741 aporta 13 de esos 26 y es el mejor caso, no el
