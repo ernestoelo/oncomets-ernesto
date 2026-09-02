@@ -64,13 +64,13 @@ from pptx.util import Emu, Inches, Pt
 # ---------------------------------------------------------------------------
 # Constantes del período
 # ---------------------------------------------------------------------------
-FECHA_ARCHIVO = "20260908"          # fin del período = fecha de la reunión
+FECHA_ARCHIVO = "20260907"          # fin del período = fecha de la reunión
 AUTOR = "Ernesto Gamero"
 PROYECTO = "Detección Nuclear"      # NO «Mitosis Detection»: ése es el rótulo con el que
                                     # otra persona del equipo presenta su detector, y es
                                     # literalmente el ejemplo que trae la plantilla. En
                                     # español desde el 27-ago, con el deck entero
-PERIODO = "25/08/2026 - 08/09/2026"
+PERIODO = "25/08/2026 - 07/09/2026"
 
 RAIZ = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 TPL = os.path.join(RAIZ, "papers", "presentations",
@@ -492,7 +492,7 @@ def barras_marcas(slide, l, t, w, alto_max, datos):
                     [(txt, fs_leg, False, CUERPO)], anchor=MSO_ANCHOR.MIDDLE)
         cx += 0.21 + text_w(txt, fs_leg) + 0.30
     add_textbox(slide, x_num, t, w_num, 0.18,
-                [("reencontradas", fs_leg, True, CUERPO, PP_ALIGN.RIGHT)],
+                [("de sus marcas", fs_leg, True, CUERPO, PP_ALIGN.RIGHT)],
                 anchor=MSO_ANCHOR.MIDDLE)
 
     y0 = t + 0.30
@@ -1035,17 +1035,21 @@ def lamina_mitosis(s, datos, agg, guion):
                nombre="Text 1")
     fin = set_cuerpo(s, [
         ("Doce láminas anotadas, %d marcas: " % agg["marcas"],
-         "%d reencontradas a 30 µm, una a una, y el número es plano de %s a %d µm."
+         "%d reencontradas emparejando cada marca con la detección más cercana, si esa "
+         "distancia no pasa de 30 µm. El número es plano de %s a %d µm de distancia."
          % (agg["tp"], num(agg["plano"][0]), int(agg["plano"][1]))),
         ("Una sola lámina aporta la mitad de los aciertos: ",
-         "la 129741 pone %d de los %d. Sin ella, las otras once reencuentran %d de sus "
-         "%d marcas, o sea %s %%." % (agg["ref_tp"], agg["tp"], agg["resto_tp"],
+         "la 129741 aporta %d de los %d aciertos del total. Sin ella, las otras once "
+         "reencuentran %d de sus %d marcas, o sea %s %%."
+         % (agg["ref_tp"], agg["tp"], agg["resto_tp"],
                                       agg["resto_marcas"],
                                       num(100 * agg["resto_recall"]))),
-        ("El caso de referencia del período anterior era el mejor de doce: ",
-         "todo lo que se construyó sobre esa lámina hereda el sesgo."),
     ])
-    pie = ["El denominador es lo que el patólogo marcó, no las mitosis que hay en la lámina. "
+    pie = ["Los 30 µm son una distancia entre la marca y el centroide de la detección, no el "
+           "tamaño de nada.",
+           "Las doce láminas están a 0,465 µm/px, así que 30 µm son 65 píxeles de nivel 0.",
+           "El detector corrió sobre la lámina completa: nada se filtró antes de contar.",
+           "El denominador es lo que el patólogo marcó, no las mitosis que hay en la lámina. "
            "Contra positivos parciales no se calcula precisión ni F1."]
     l, _, w = G_CUERPO
     h_pie = _alto_bloque(pie, w - 0.06, PT_PIE, space_after=1.5)
@@ -1121,7 +1125,9 @@ def lamina_f1(s, d4, guion):
     x0 = l + w_lab + gap
     w_bar = w - w_lab - w_num - 2 * gap
     filas = d4["clases"]
-    h_eje = 0.25
+    # 0,52 y no 0,25: la línea con sus ticks mide 0,25 y debajo va el rótulo del eje. Sin
+    # reservarlo, el rótulo se monta sobre el pie.
+    h_eje = 0.52
     paso = (alto - h_eje - 0.30) / len(filas)
     h_b = min(0.20, paso - 0.10)
 
@@ -1152,8 +1158,15 @@ def lamina_f1(s, d4, guion):
         add_textbox(s, l + w - w_num, y, w_num, paso,
                     [("%d" % f["n"], 9.5, False, CUERPO, PP_ALIGN.RIGHT)],
                     anchor=MSO_ANCHOR.MIDDLE)
-    eje_x(s, x0, y0 + len(filas) * paso + 0.06, w_bar, 0.0, 1.0,
-          [0.0, 0.25, 0.5, 0.75, 1.0], dec=2)
+    y_eje = y0 + len(filas) * paso + 0.06
+    fin_eje = eje_x(s, x0, y_eje, w_bar, 0.0, 1.0, [0.0, 0.25, 0.5, 0.75, 1.0], dec=2)
+    # Todo eje dibujado lleva rótulo. Es el chequeo barato que ataca el defecto real: un eje
+    # sin nombre pasa las cuatro capas de QA y aun así no se entiende
+    # ([[deck-qa-puntos-ciegos-chequeo]]).
+    add_textbox(s, x0, fin_eje + 0.02, w_bar, 0.20,
+                [("fracción de núcleos epiteliales dentro de la región "
+                  "(0 = ninguno · 1 = todos)", 8.5, False, CUERPO, PP_ALIGN.CENTER)],
+                anchor=MSO_ANCHOR.MIDDLE)
     pie_lineas(s, l, y_pie, w, pie)
     notes(s, guion)
 
@@ -1323,57 +1336,6 @@ def lamina_f4(s, d3, guion):
     notes(s, guion)
 
 
-def lamina_ejes(s, guion):
-    set_cejilla(s, PROYECTO)
-    set_titulo(s, "HoVer-NeXt: qué se puede medir y qué no", nombre="Text 1")
-    # UN solo punto de resumen, por pedido de Ernesto del 27-ago: el contenido de la lámina
-    # es la tabla, y el cuerpo sólo dice cómo leerla.
-    fin = set_cuerpo(s, [
-        ("Ocho ejes contra el vocabulario del patólogo: ",
-         "tres ya están medidos, uno pide GPU, uno es de procesador pero tiene muy pocas "
-         "marcas, y tres son NO-GO por argumento."),
-    ])
-    l, _, w = G_CUERPO
-    # `107 / 12` y no `107 / 8`: el «/8» es el de `Nucleos alto grado` sola. Las tres clases
-    # de grado (alto 8, moderado 2, bajo 2) son DISJUNTAS y parten las doce láminas exactas,
-    # verificado sobre los doce geojson `- GDT` el 26-ago. O sea que el grado está declarado
-    # en TODAS, que es lo que vuelve a este eje el más barato de los tres GO.
-    #
-    # Los nombres de la segunda columna NO se traducen: son las etiquetas literales del
-    # geojson del patólogo y traducirlas rompe el vínculo con el material.
-    filas = [
-        ("Mitosis", "Mitosis, 94 / 12 láminas", "hecho",
-         "Medido: 26 de 94 a 30 µm"),
-        ("Necrosis", "necrosis + Necrosis + Comedonecrosis, 18 / 5", "7 a 9 h de GPU",
-         "GO, pide los pesos PanNuke"),
-        ("Grado nuclear", "107 regiones con grado / 12", "hecho",
-         "Medido: ordena, p = 0,0056 sobre 10 láminas"),
-        ("Tumor y estroma", "Tumour 98 / 12, Stroma 12 / 7", "hecho",
-         "Medido: AUC 0,906, el control positivo"),
-        ("Infiltrado inmune", "Immune cells, 7 / 3", "CPU, en disco",
-         "Muy pocas para reportar un número"),
-        ("Permeación vascular", "Permeaciones vasculares, 9 / 6", "no aplica",
-         "NO-GO: no hay clase de endotelio ni de luz"),
-        ("Microcalcificación", "microcalcificaciones, 8 / 3", "no aplica",
-         "NO-GO: no es un núcleo, y el tipo I es invisible en H&E"),
-        ("Arquitectura", "AreaTubular 25 / 5, Mucinoso 11 / 1", "no aplica",
-         "NO-GO: la unidad es la glándula, no el núcleo"),
-    ]
-    pie = ["Contra este material no se calcula precisión, F1 ni PQ, en ningún eje: el "
-           "archivo del patólogo marca positivos parciales, no una segmentación exhaustiva."]
-    h_pie = _alto_bloque(pie, w - 0.06, PT_PIE, space_after=1.5)
-    top = fin + 0.16
-    disp = T_PIE_S03 - 0.12 - h_pie - 0.10 - top
-    # Con un solo punto de cuerpo sobra alto: la tabla se lo queda, que es el contenido.
-    row_h = min(0.40, disp / (len(filas) + 1))
-    fin_tabla = tabla_ejes(s, l, top, w,
-                           ["Eje", "Anotación del patólogo", "Costo", "Veredicto"],
-                           filas, [2.60 / 12.10, 3.90 / 12.10, 1.70 / 12.10, 3.90 / 12.10],
-                           fs=10.5, row_h=row_h)
-    pie_lineas(s, l, fin_tabla + 0.10, w, pie)
-    notes(s, guion)
-
-
 def lamina_tareas(s, guion):
     set_cejilla(s, PROYECTO)
     set_titulo(s, "Tareas del próximo período")
@@ -1454,28 +1416,26 @@ def main():
     sA = clonar_s03(prs, s03)       # el número
     sB = clonar_s03(prs, s03)       # los 26 recortes acreditados
     sC = clonar_s03(prs, s03)       # las 68 que se escapan
-    sD = clonar_s03(prs, s03)       # los ocho ejes
     sE = clonar_s03(prs, s03)       # F1  el control positivo por clase
-    sF = clonar_s03(prs, s03)       # F2  el observado contra su nulo
     sG = clonar_s03(prs, s03)       # F3  los tres grados sobre diez láminas
-    sH = clonar_s03(prs, s03)       # F4  los dos nulos exactos
 
     lamina_objetivos(s02, guion["s02"])
     lamina_mitosis(sA, datos, agg, guion["s03a"])
     lamina_aciertos(sB, agg, guion["s03b"])
     lamina_falladas(sC, agg, guion["s03c"])
     lamina_f1(sE, d4, guion["s03d"])
-    lamina_f2(sF, d4, guion["s03e"])
     lamina_f3(sG, d3, guion["s03f"])
-    lamina_f4(sH, d3, guion["s03g"])
-    lamina_ejes(sD, guion["s03h"])
     lamina_tareas(s04, guion["s04"])
     notes(s01, guion["s01"])
 
     borrar_slide(prs, s03)                      # trae el ejemplo de otra persona
-    # Las cuatro de los ejes nucleares van DESPUÉS de los recortes de mitosis y ANTES de la
-    # tabla de los ocho ejes, que a partir de acá las cita como medidas (decisión del 28-ago).
-    reordenar(prs, [s01, s02, sA, sB, sC, sE, sF, sG, sH, sD, s04])
+    # Tres láminas salen por pedido de Ernesto tras la reunión del 1-sep (D1): los dos
+    # histogramas de nulo (F2 y F4) y la tabla de los ocho ejes. `lamina_f2` y `lamina_f4`
+    # NO se borran del archivo: las importa `ejes_nucleares/figuras/generate_figuras_ejes34.py`,
+    # que es el envoltorio que re-renderiza las cuatro figuras de los ejes para QA visual.
+    # `lamina_ejes` sí se borró (nadie más la usa); su tabla de los ocho ejes queda como
+    # única fuente en `hovernext_tareas/inventario_tareas.md` §4.
+    reordenar(prs, [s01, s02, sA, sB, sC, sE, sG, s04])
 
     forzar_barlow(prs)
     problemas = auditar(prs)

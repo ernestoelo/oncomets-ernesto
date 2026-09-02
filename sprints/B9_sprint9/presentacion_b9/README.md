@@ -1,4 +1,4 @@
-# Deck del período B9 — `[20260908] [Ernesto Gamero] [Detección Nuclear].pptx`
+# Deck del período B9 — `[20260907] [Ernesto Gamero] [Detección Nuclear].pptx`
 
 Primer deck sobre la **plantilla oficial nueva** (`docs/plantilla_oficial.md`), la que
 Ernesto fijó el 25-ago y que supersede a Deep-LLM-V. Registro **executive deck**, no deck
@@ -10,7 +10,7 @@ técnico de sprint.
 | Guion | `guion_b9.md`, que el generador **lee** y aplica con `notes()`. El `.md` es la fuente; las notas del `.pptx` son derivadas |
 | Figuras | `assets/mitosis_{aciertos,falladas}.png`, que produce `scripts/galeria_mitosis_12.py`. Las cuatro de los ejes nucleares son **nativas** y las dibuja el propio generador |
 | Molde | `papers/presentations/[AAAAMMDD] [Nombre Apellido] [Image-to-text].pptx`, **read-only** |
-| Salida | 11 láminas, 13,333 × 7,5, Barlow embebida, 9,2 MB. **Van a trece**: ver §La revisión de Ernesto, decidida el 1-sep y sin ejecutar |
+| Salida | **8 láminas** desde el 2-sep, 13,333 × 7,5, Barlow embebida, 9,6 MB. **Van a trece**: faltan las cinco nuevas, ver §Estado al 2-sep |
 
 ## Regenerar
 
@@ -50,17 +50,18 @@ material. La lámina de los ejes lo dice y el guion lo aclara al pasar.
 
 ```
 s01  portada                                    TAL CUAL, copy de la empresa. Sólo se le pone guion
-s02  OBJETIVOS 25/08/2026 - 08/09/2026          tabla 4x4 (se quitó la 4ª fila de cuerpo)
+s02  OBJETIVOS 25/08/2026 - 07/09/2026          tabla 4x4 (se quitó la 4ª fila de cuerpo)
 s03  Mitosis: 26 de 94 marcas del patólogo      cuerpo + figura NATIVA de 12 barras
 s04  Las 26 marcas que el detector reencuentra  cuerpo + leyenda nativa + lámina de contacto
 s05  Las 68 marcas que se escapan               cuerpo + leyenda nativa + lámina de contacto
 s06  El control positivo separa epitelio…       cuerpo + 8 barras de rango intercuartil NATIVAS
-s07  Ninguna traslación del nulo llega al…      cuerpo + histograma NATIVO + tres marcadores
-s08  Los tres grados ordenan sobre diez…        cuerpo + strip de 10 puntos + tabla NATIVA 11x5
-s09  El nulo exacto, y la población que no…     cuerpo + dos histogramas NATIVOS apilados
-s10  HoVer-NeXt: qué se puede medir y qué no    UN punto de cuerpo + tabla NATIVA de 8 ejes
-s11  Tareas del próximo período                 tabla 4x3 con DOS filas de cuerpo (`min_h=1.14`)
+s07  Los tres grados ordenan sobre diez…        cuerpo + strip de 10 puntos + tabla NATIVA 11x5
+s08  Tareas del próximo período                 tabla 4x3 con DOS filas de cuerpo (`min_h=1.14`)
 ```
+
+**Cambió el 2-sep**: salieron las dos láminas de nulo y la tabla de los ocho ejes (§1 de la
+revisión). El orden de arriba es el que produce `reordenar()` HOY; las cinco láminas nuevas del
+plan **todavía no están**.
 
 ## Las dos láminas de recortes (s04 y s05)
 
@@ -328,3 +329,49 @@ detecciones y de las 26 marcas acreditadas. Lo que la restricción compra es **�
 lámina es una **escalera de presupuesto en mm²** con el brazo sin filtro como control, y no un
 top-K ([[techo-filtro-antes-de-correr]], [[carga-fija-no-k-fijo]]). Prometer una mejora de conteo
 sería prometer algo que la aritmética no permite.
+
+
+---
+
+## Estado al 2-sep-2026 — ejecutada la mitad de la revisión
+
+Lo que la sesión 40 **sí** dejó hecho del plan del 07/09:
+
+| # | qué | estado |
+|---|---|---|
+| 1 | **Borrar las tres láminas** | **hecho**. `lamina_f2` y `lamina_f4` siguen definidas (las importa `../ejes_nucleares/figuras/generate_figuras_ejes34.py`); `lamina_ejes` se borró entera |
+| 2 | **Renombrar a `[20260907]`** y cerrar el período el 07/09 | **hecho**, confirmado por Ernesto |
+| 3 | **La lámina de mitosis** (§A.2 del plan) | **hecho**: la tolerancia nombrada como distancia de emparejamiento, fuera el punto del caso de referencia (queda en el guion), pie de cuatro líneas |
+| 4 | **El rótulo del eje** del control positivo (§A.3) | **hecho**, con `h_eje` de 0,25 a 0,52 para que no se monte sobre el pie |
+| 5 | **La figura del paper de HoVer-NeXt** (§C.1) | **hecho**: `papers/presentations/assets_branding/paper_figs/hovernext_fig1_pipeline.png`, paneles A-B-C |
+| 6 | **El mosaico de atención de las doce** (§C.2) | **hecho**: `assets/atencion_12_laminas.png`, 2590×870, grilla 6×2 |
+
+**Lo que falta, y es la mayor parte:** las **cinco láminas nuevas** (HoVer-NeXt, la atención, la
+escalera de área, las regiones epiteliales, los núcleos del grado), la **escalera de área** que
+las alimenta, las **dos galerías** que faltan renderizar, el **guion** de las cinco y el pase por
+`@humanizer-es`.
+
+### Un `26` que era ambiguo, y ahora no
+
+El cuerpo de la lámina de mitosis decía «la 129741 pone **13 de los 26**» (los aciertos del
+total) y su columna derecha decía «**13 de 26**» (las marcas **de esa lámina**). Son la misma
+unidad con **distinto denominador** y coinciden por casualidad, así que en láminas contiguas se
+leen como el mismo número ([[dos-numeros-iguales-denominador-distinto]]). Ahora el cuerpo dice
+«de los 26 **aciertos del total**» y el encabezado de la columna «**de sus marcas**».
+
+### Dos cosas que salieron del QA visual y no de la auditoría automática
+
+- **El rótulo del eje se montaba sobre el pie.** `h_eje = 0.25` alcanzaba para la línea y sus
+  ticks, no para un renglón más de texto debajo. `auditar()` no lo vio.
+- **El mosaico de atención era ilegible en su primera versión.** Dos causas: el thumbnail de un
+  `.bif` es sobre todo fondo (se recorta al bounding box de las `coords`), y a escala de mosaico
+  un parche de 256 px mide **3 píxeles**, así que las marcas hay que dibujarlas **después** del
+  reescalado y a tamaño fijo en píxeles de la hoja.
+- **Falta la leyenda nativa del mosaico**: qué significa el rojo del mapa y qué son los círculos
+  blancos. Va como `leyenda_circulos()` en la lámina, igual que en s04 y s05.
+
+### Dónde vive ahora el argumento de los tres NO-GO
+
+Al borrar `lamina_ejes`, su tabla de los ocho ejes queda como **única fuente** en
+[`../hovernext_tareas/inventario_tareas.md`](../hovernext_tareas/inventario_tareas.md) §4. Es lo
+que el plan anticipó; queda anotado acá para que no se pierda.
