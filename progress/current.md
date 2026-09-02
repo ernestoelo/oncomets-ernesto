@@ -4434,6 +4434,93 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 39 — 1-sep-2026 · la reunión pasó, y los insumos del cruce ya estaban en disco
+
+**Sesión de PLAN. Cero código escrito, cero jobs.** El único número calculado se hizo en memoria,
+sin escribir archivo. El plan queda para una sesión limpia, por decisión de Ernesto.
+
+### 0. Lo que cambió el encuadre
+
+El deck de once láminas **se presentó**. Ernesto volvió con seis pedidos y la reunión siguiente
+pasó al **lunes 07/09** (no el 08/09): borrar las láminas **7, 9 y 10**, cruzar la **atención de
+CLAM con HoVer-NeXt**, dejar la **zona de ~3 mm²** como objetivo propuesto del próximo sprint,
+contestarle a Sebastián **qué tamaño de parche toma HoVer-NeXt**, y **tres láminas visuales
+nuevas**. Detalle en `sprints/B9_sprint9/presentacion_b9/README.md` §"La reunión del 1-sep".
+
+Eso **supersede** la Parte B del plan de la sesión 37 (las láminas 7 y 9 ya no se re-titulan, se
+borran) y la Parte C (los mapas de atención **no** hay que generarlos). La Parte A sigue entera.
+
+### 1. El hallazgo: `clam_ensemble/attn_batch/json_out`
+
+`sprints/B9_sprint9/atencion_12_laminas/insumos_json_out.md` (nuevo) ·
+memoria [[clam-ensemble-json-out-atencion]] (nueva) · `CLAUDE.md` §Paths
+
+**La atención de CLAM de las 3013 láminas × 19 tareas ya está calculada** en
+`/media/administrador/Storage1/sdonoso/clam_ensemble/attn_batch/json_out` — **57.249 JSON, 18 GB**,
+de `sgaete`, del 21-jul (job 4606). Las **12 anotadas están completas**, con
+`grado_histologico_mitotic_rate_pth_balance` e `invasion_carcinoma_gate_pth_balance` incluidas.
+Es material del proyecto que **el repo nunca había referenciado**, igual que `anotaciones/` en su
+día: el plan de la sesión 37 lo iba a recalcular desde cero, con GPU de por medio.
+
+**Y ordena**: AUC de rango contra los parches con `Mitosis`, media sobre las doce = **0,810**
+(cabeza de mitosis) y **0,772** (gate). Es un go/no-go, no un resultado.
+
+**Pero hay que declarar tres cosas, y ninguna es la que uno asume**: es un **ensemble de los cinco
+folds** ⇒ **contaminado por construcción** (de las doce, sólo la B25-158899 está limpia, y cuatro
+están contaminadas en los cinco folds del gate); lee la rama de la clase **predicha**, no la
+verdadera; y es la familia **`_pth_balance`**, que no es la `_combined_5fold` del 0,890 del B8.
+Además su campo `patch_size` **miente** (127 y 64 donde la geometría da 256) — tercer caso de
+[[patch-size-desde-geometria-h5]], y el primero en que el valor **venía dentro del artefacto**.
+
+### 2. La geometría de HoVer-NeXt — la pregunta de Sebastián, contestada
+
+Tesela de entrada **256 × 256 px a 20×** (`main.py:186`); `--overlap 0.96875` es un **stride**, no
+un solapamiento, ⇒ paso **248 px** (8 px de contexto, 3,1 %); escribe el **centro 248 × 248**
+(`post_process_utils.py:649`), así que las teselas escritas embaldosan la lámina exactamente. El
+20× nominal es **0,485 µm/px** (`constants.py:52`), no el `CONIC_MPP = 0.5` que nadie importa.
+
+Nuestras láminas están a **0,465 µm/px** ⇒ casa con 20× ⇒ `ds_factor = 1` ⇒ **level 0, sin
+remuestreo**. La tesela mide **119 µm de lado = 0,0142 mm²**, que es **exactamente el tamaño físico
+de un parche de CLAM**. De ahí: **3 mm² ≈ 212 parches**, la lámina entera va de **38 a 74 mm²**, y
+las doce juntas son **49.832 parches = 706 mm²**. ADDENDUM en
+[[hovernext-salida-geometria-y-clases]], que hasta hoy sólo describía la salida.
+
+### 3. La restricción que decide cómo se dibuja la lámina del cruce
+
+**Filtrar por atención no puede subir el conteo de mitosis.** HoVer-NeXt ya corrió sobre la lámina
+entera en las doce, así que «HoVer-NeXt + CLAM» es un **subconjunto** de las 732 detecciones y de
+las 26 marcas acreditadas: sólo puede bajar. Lo que compra es **área**. ⇒ la medición es una
+**escalera de presupuesto en mm²** con el brazo sin filtro de control (que sale gratis), y **no hay
+que re-correr nada** ([[techo-filtro-antes-de-correr]] P2.a.ter, [[carga-fija-no-k-fijo]]).
+
+### 4. Cuatro datos operativos más
+
+- **Del gate invasivo sólo existe el fold 0**, y es nuestro (`results/b8_gate_invasivo/`), con
+  **ocho de las doce en `train`** ⇒ para el gate, `json_out` es la única fuente con cobertura.
+- **El paper de HoVer-NeXt**: OpenReview (el enlace del `README.md` del repo) devuelve **403**;
+  **PMLR v250** sí responde. Baumann et al., MIDL 2024. **Ernesto autorizó bajarlo** para recortar
+  su diagrama — la autorización es **para ese archivo**, no para el tema.
+- Los cinco jobs en cola bajo `sdonoso` son de `Test_D/D_abs_cambiado`, **ajenos**; dos se llaman
+  `atencion` y **no** son de Sebastián (workaround L.b: mirar el `WorkDir`).
+- **La GPU cambió de manos y volvió el backfill**: la tiene `capstone` 5104 con
+  `TimeLimit=06:00:00`. El `UNLIMITED` de `gvenegas` que bloqueaba ya no está.
+
+### 5. Lo entregado
+
+- `sprints/B9_sprint9/atencion_12_laminas/insumos_json_out.md` (nuevo, 196 líneas).
+- `presentacion_b9/README.md` §"La reunión del 1-sep" y `objetivos_sprint9.md` §Decisiones.
+- `CLAUDE.md`: `clam_ensemble/` entra al árbol de paths y a las restricciones READ-ONLY.
+- Memorias: **`clam-ensemble-json-out-atencion`** (nueva) + ADDENDUM en
+  `patch-size-desde-geometria-h5` y en `hovernext-salida-geometria-y-clases`. `MEMORY.md` estaba
+  **sobre el límite de tamaño** (25.598 B): se recortaron ocho entradas del índice a su primera
+  cláusula, verificando por `grep` que lo cortado vive en el archivo de tema. Queda en 24.118 B.
+
+### 6. Estado al cierre
+
+Rama `main`, sincronizado con `origin`, **sin jobs propios**. El plan del 07/09 está escrito y
+**no ejecutado**. Nada de la sesión 38 se movió: sus tres correcciones y sus dos decisiones siguen
+vigentes y son insumo del mismo plan.
+
 ## Sesión 38 — 1-sep-2026 · el plan se verifica contra el archivo, y tres afirmaciones caen
 
 > Sesión de **verificación y cierre**. Cero código nuevo, cero GPU, cero jobs propios. Ernesto
