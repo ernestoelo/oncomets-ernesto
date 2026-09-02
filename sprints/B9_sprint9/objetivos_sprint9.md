@@ -40,8 +40,8 @@ evalúa con las métricas del paper y con utilidad para el patólogo, **no con A
 - **Skills a consultar**: `@slurm-submission` antes de cualquier `sbatch`, `@csv-audit` si entra
   un CSV nuevo, `@grilling` antes de pre-registrar, `@knowledge-audit` al documentar,
   `@humanizer-es` para el guion.
-- **Restricciones permanentes**: `anotaciones/`, `hover_net/`, `clam_testing/`, `clam_environ/` y
-  `hover_next_reference/` son **READ-ONLY**; regla 9 en todo lo que toque entrenamiento; workaround
+- **Restricciones permanentes**: `anotaciones/`, `hover_net/`, `clam_testing/`, `clam_environ/`,
+  `clam_ensemble/` y `hover_next_reference/` son **READ-ONLY**; regla 9 en todo lo que toque entrenamiento; workaround
   **L** antes de leer un `PD (Priority)` como espera normal; workaround **J** para cualquier
   proceso CPU largo.
 - **Unidades**: en este sprint conviven cuatro y mezclarlas es el error más fácil. **Marcas** (94),
@@ -186,6 +186,21 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   > ponderar sobre láminas**, con el pooled como secundario. El **aviso a `sgaete` quedó redactado**
   > en [`atencion_12_laminas/aviso_sgaete.md`](atencion_12_laminas/aviso_sgaete.md), listo para que
   > lo mande.
+- **La reunión del 1-sep reordenó el período, y los insumos del cruce YA estaban en disco** (1-sep)
+  — Ernesto presentó el deck de once y volvió con seis cosas: **borrar las láminas 7, 9 y 10** (los
+  dos histogramas de nulo y la tabla de los ocho ejes), cruzar la **atención de CLAM con
+  HoVer-NeXt** para ver si mejora el conteo de mitosis, dejar la **zona de ~3 mm²** como objetivo
+  propuesto del sprint que viene, contestarle a Sebastián **qué tamaño de parche toma HoVer-NeXt**,
+  y **tres láminas visuales nuevas** (cómo funciona HoVer-NeXt con el diagrama del paper, los
+  núcleos del grado nuclear, las regiones del núcleo epitelial). La próxima reunión es el **lunes
+  07/09**. Verificado antes de planificar, en
+  [`atencion_12_laminas/insumos_json_out.md`](atencion_12_laminas/insumos_json_out.md): los mapas
+  de atención de las doce **ya existen** en `clam_ensemble/attn_batch/json_out`
+  ([[clam-ensemble-json-out-atencion]]) y **ordenan** los parches con mitosis (AUC de rango 0,810
+  mitosis · 0,772 gate), contaminados; la tesela de HoVer-NeXt es **256 px a 20× = 0,0142 mm²**, el
+  mismo tamaño físico que un parche de CLAM, de donde **3 mm² ≈ 212 parches**; y **filtrar no puede
+  subir el conteo**, sólo bajar el área, así que la medición es una **escalera de área** y no un
+  top-K ([[carga-fija-no-k-fijo]]). **Nada de esto se ejecutó**: el plan lo toma una sesión limpia.
 - **La simetría de los dos juegos de pesos** (heredada del B8, se re-declara porque gobierna el
   objetivo 2) — Lizard-Mitosis tiene **mitosis y no necrosis**; PanNuke tiene **`dead` y no
   mitosis**. Las dos son verdaderas a la vez y **ninguna reabre nada**

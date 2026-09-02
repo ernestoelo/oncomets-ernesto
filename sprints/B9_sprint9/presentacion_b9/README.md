@@ -274,3 +274,57 @@ Con esto **tres tablas dejaron de contradecir al deck** y se actualizaron en el 
 
 El `.pptx` viejo en inglés, `[20260908] [Ernesto Gamero] [Nuclear Detection].pptx`, **se borró**
 el 28-ago por decisión de Ernesto. Era derivado y gitignored: se regenera cambiando `PROYECTO`.
+
+## La reunión del 1-sep-2026 — el deck se presentó, y vuelve con seis pedidos
+
+El deck de once láminas **se presentó**. Lo que sigue es lo que Ernesto trajo de vuelta, decidido y
+**sin ejecutar**: lo toma una sesión limpia. **Supersede la sección anterior** en un punto: las
+láminas 7 y 9 ya no se re-titulan ni se hacen más pedagógicas, **se borran**. El resto de esa
+sección (los 30 µm de la lámina 3, el rótulo que le falta al eje de la 6) **sigue vigente entero**.
+
+**La próxima reunión es el lunes 07/09**, no el 08/09. Por defecto el archivo pasa a
+`[20260907] …` y la tabla OBJETIVOS cierra el período el 07/09; si Ernesto prefiere conservar el
+período declarado, cambia sólo el nombre del archivo.
+
+### 1. Borrar tres láminas
+
+| # | var | función | título |
+|---|---|---|---|
+| 7 | `sF` | `lamina_f2` | Ninguna traslación del nulo llega al observado |
+| 9 | `sH` | `lamina_f4` | El nulo exacto, y la población que no despega |
+| 10 | `sD` | `lamina_ejes` | HoVer-NeXt: qué se puede medir y qué no |
+
+Son las dos láminas de nulo y la tabla de los ocho ejes. **Se sacan de la lista de `reordenar()`**,
+no se borra su código: `lamina_f2` y `lamina_f4` las **importa**
+`../ejes_nucleares/figuras/generate_figuras_ejes34.py`, que es el envoltorio de QA visual de las
+cuatro figuras, y borrarlas lo rompe. `lamina_ejes` sí se puede borrar entera.
+
+> **Lo que se pierde y hay que saber que se pierde:** con la lámina 10 sale del deck el único lugar
+> donde vivía el **argumento de los tres NO-GO** (permeaciones, microcalcificaciones,
+> arquitectura). Queda sólo en `../hovernext_tareas/inventario_tareas.md` §4.
+
+### 2. Lo que entra
+
+Seis pedidos, tres de ellos láminas nuevas de imagen:
+
+| pedido | forma |
+|---|---|
+| Cruzar la **atención de CLAM** con HoVer-NeXt: ¿mejora el conteo de mitosis? | dos láminas — los doce mapas (imagen) y la **escalera de área** (nativa) |
+| ¿Qué **tamaño de parche** toma HoVer-NeXt? (lo preguntó Sebastián) | va en la lámina introductoria |
+| Una lámina de **cómo funciona HoVer-NeXt**, con el diagrama del paper y las dimensiones | figura del paper (descarga autorizada) + tira nativa |
+| Para el **grado nuclear**, ver los núcleos de cada lámina y su tamaño relativo | galería, imagen |
+| Para el **núcleo epitelial**, ver regiones comparadas | galería, imagen |
+| La **zona de ~3 mm²** para contar mitosis, como objetivo propuesto del próximo sprint | fila en la lámina de tareas |
+
+El deck queda en **trece láminas**. El orden y los detalles de cada una están en el plan de la
+sesión 39; los insumos verificados, en
+[`../atencion_12_laminas/insumos_json_out.md`](../atencion_12_laminas/insumos_json_out.md).
+
+### 3. La restricción que cambia cómo se dibuja la lámina del cruce
+
+**Filtrar por atención no puede subir el número de mitosis encontradas.** HoVer-NeXt ya corrió
+sobre la lámina entera en las doce, así que «HoVer-NeXt + CLAM» es un **subconjunto** de las 732
+detecciones y de las 26 marcas acreditadas. Lo que la restricción compra es **área**: por eso la
+lámina es una **escalera de presupuesto en mm²** con el brazo sin filtro como control, y no un
+top-K ([[techo-filtro-antes-de-correr]], [[carga-fija-no-k-fijo]]). Prometer una mejora de conteo
+sería prometer algo que la aritmética no permite.
