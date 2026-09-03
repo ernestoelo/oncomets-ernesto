@@ -55,6 +55,7 @@ Acceso: **VPN oficial Environ + SSH**. Stack registrado el 19 may 2026
 ├── hover_net/           ← HoVer-Net de sgaete (29-jul-2026), CON TRABAJO VIVO. Ajeno → READ-ONLY, misma lógica que clam_testing/. [[hovernet-ya-corriendo-sgaete]]
 ├── anotaciones/         ← 12 geojson del PATÓLOGO (`<slide>.bif - GDT.geojson`) + pipeline atención/overlays de sgaete. Ajeno → READ-ONLY. [[anotaciones-patologo-qupath]]
 ├── clam_ensemble/       ← ENSEMBLE 5-fold de sgaete + `attn_batch/json_out` (18 GB: atención por parche de 3013 láminas × 19 tareas). Ajeno → READ-ONLY. [[clam-ensemble-json-out-atencion]]
+├── MitosisDetection/    ← detector de mitosis de sgaete (YOLOv11-m + EfficientNet) y, desde el 2-sep, `hotspot/` con HoVer-NeXt. Ajeno → READ-ONLY. [[sgaete-yolo-mitosis-solapamiento]]
 └── clam_testing2/       ← MI workspace (todo lo mío vive acá; ver "Workspace containment")
     ├── oncomets-ernesto/        ← este repo
     ├── CLAM_official_reference/ ← CLAM oficial Mahmood Lab (REFERENCE ONLY — not in PYTHONPATH)
@@ -91,6 +92,16 @@ Acceso: **VPN oficial Environ + SSH**. Stack registrado el 19 may 2026
 > (`atencion/` sobre 8 tareas, `overlays/`, jobs 4838/4839) que **mide lo mismo** que nuestro
 > `sprints/B8_sprint8/atencion_vs_patologo/` ⇒ **riesgo de trabajo duplicado: coordinar antes de
 > barrer las 12.**
+
+> **`MitosisDetection/` (READ-ONLY, descubierto el 3-sep-2026).** Es el detector de mitosis de `sgaete`
+> y el **CUARTO solape** con él en nuestro eje, el más directo de los cuatro: su
+> `hotspot/run_hnx_windows.slurm` corre **HoVer-NeXt con `lizard_convnextv2_tiny`, exactamente nuestro
+> checkpoint**, sobre **81 ventanas** de **nuestras mismas láminas**, para compararlo contra su
+> YOLO+EfficientNet con todo lo demás fijo (jobs 5213 `hnx_time` y 5249 `hnx_win`). Toca de frente la
+> tarea del punto caliente que el deck del 07/09 propone para el próximo período ⇒ **preguntarle qué
+> cubre `hnx_win` antes de proponerla**. Ahí vive además **`AreaMitosis.md`**, que es el paper de las
+> 3 mm² que citó (Ibrahim et al., *Modern Pathology* 2022,
+> [[paper-3mm2-ibrahim-modern-pathology]]). [[sgaete-yolo-mitosis-solapamiento]]
 
 - **Codebase compartido (READ-ONLY)**: `/media/administrador/Storage1/sdonoso/clam_environ/`
 - **Datos compartidos (READ-ONLY)**: `/media/administrador/Storage1/sdonoso/clam_environ/environ/`
