@@ -6,8 +6,8 @@
 > Driver: [`scripts/b9_atencion_12_laminas.py`](../../../scripts/b9_atencion_12_laminas.py).
 > Salida: `results/b9_atencion_12/{auc_por_lamina.csv, geometria_por_lamina.csv, meta.json}`.
 >
-> **Estado: el brazo primario está medido; el brazo de control `ckpt_limpio` y la escalera de
-> área NO se corrieron todavía.** Lo que sigue vale para el primario y sólo para él.
+> **Estado al 2-sep (sesión 42): el eje está COMPLETO.** El brazo primario (§1), los dos
+> brazos de control (§4) y la escalera de área (§5) están medidos. Falta sólo llevarlo al deck.
 
 ---
 
@@ -94,17 +94,16 @@ región de escaneo recibe más atención que la otra». El confinamiento se hizo
 
 **La fuente está contaminada por construcción y el número es optimista.** El `json_out` es un
 ensemble de los cinco folds, así que incluye los folds donde cada lámina estuvo en `train`
-(dos a cinco de los cinco; sólo la B25-158899 está limpia de todos). **Cuánto infla, no se
-sabe**: se sabe la dirección y cuántos folds la producen. Medirlo es el brazo `ckpt_limpio`,
-que **queda pendiente**.
+(dos a cinco de los cinco; sólo la B25-158899 está limpia de todos). **Cuánto infla, no se sabe**: se sabe la dirección y cuántos folds la producen. Medir la
+contaminación *dentro de una misma familia* es el brazo `ckpt_limpio`, y está en **§4**.
 
 Las otras dos propiedades de la fuente, que van en toda tabla: lee la rama de la clase
 **predicha** y no la verdadera, y es la familia **`_pth_balance`**, que no es la
 `_combined_5fold` de los números del B8. **Los dos brazos no se promedian entre sí.**
 
 Y lo que un AUC alto **no** implica: que un top-k capture las mitosis. El AUC resume todos los
-umbrales y un top-k es uno solo, de los extremos ([[topk-percentil-no-auc]]). Eso es lo que
-mide la escalera de área, y es lo que falta.
+umbrales y un top-k es uno solo, de los extremos ([[topk-percentil-no-auc]]). Eso es lo que mide la escalera de
+área, en **§5**.
 
 ### 2.a El gate invasivo tiene una lámina por debajo del azar
 
@@ -145,7 +144,101 @@ uno: `sin_filtro` (la lámina completa, **732 · 26**) y `teselado` (todos los p
 
 ---
 
-## 4. Qué falta de este eje
+## 4. Los dos brazos de control, y el ordenamiento se sostiene
+
+Corridos el 2-sep con `--fuente ckpt_limpio --folds {limpios, todos}`. El **único delta entre
+los dos es qué folds entran**: misma familia `results_modelo_combined_5fold`, misma cabeza
+verdadera, misma definición de atención. Contra el `json_out` esa comparación estaba confundida
+por familia, cabeza y definición de atención a la vez, y por eso el brazo `todos` existe.
+
+El gate de regresión volvió a dar los cuatro valores del B8 a 1e-6 con el driver ya parcheado,
+así que la diferencia entre brazos es resultado y no deriva del código.
+
+| brazo | familia | cabeza | folds | AUC, nueve del primario |
+|---|---|---|---|---:|
+| `json_out` (primario) | `_pth_balance` | predicha, ensemble | los cinco | **0,809 ± 0,127** |
+| `ckpt --folds todos` | `_combined_5fold` | verdadera | los cinco | **0,792 ± 0,122** |
+| `ckpt --folds limpios` | `_combined_5fold` | verdadera | los limpios de cada lámina | **0,770 ± 0,128** |
+
+**Ordena como el pre-registro fijó antes de correr**: el contaminado da más alto que el limpio.
+Si no ordenara así sería bug de la tabla de membresía y no resultado (§5 del prereg).
+
+**Los dos brazos cubren ONCE láminas, no doce**: la B25-158899 no tiene fila en el CSV de la
+tarea, así que su cabeza verdadera no existe y se salta en los dos. Con eso los dos archivos
+suman **107** parches marcados, no los 113 de las doce ni los 103 de las nueve del primario.
+**Tres denominadores conviven en este eje** y cada tabla dice cuál usa
+([[dos-numeros-iguales-denominador-distinto]]).
+
+Y el resultado primario **sobrevive al control**: en el brazo limpio las **nueve del primario
+siguen por encima de 0,5**, y las cuatro de mayor `n` (28, 28, 21 y 7 parches marcados) tienen
+`p` por traslación rígida de 0,002, 0,001, 0,002 y 0,007. La lectura de §1 no dependía de la
+contaminación.
+
+### 4.a El contraste sólo existe en cuatro de las once, y ahí es mayor
+
+**Siete de las once láminas están ausentes de los cinco folds**, así que para ellas `limpios` y
+`todos` promedian exactamente los mismos cinco checkpoints y su Δ es **cero por construcción**,
+no un efecto medido. El agregado sobre las nueve del primario (Δ = +0,022 ± 0,041) está
+**diluido por cinco ceros estructurales**.
+
+Restringido a las láminas donde la comparación existe de verdad:
+
+| lámina | folds limpios | limpios | todos | Δ |
+|---|---|---:|---:|---:|
+| 129741 | 0+2 | 0,938 | 0,952 | **+0,014** |
+| 128194 | 2 | 0,909 | 0,926 | **+0,017** |
+| 144317 | 0+4 | 0,691 | 0,737 | **+0,046** |
+| 164001 | 3 | 0,660 | 0,784 | **+0,124** |
+
+**Δ = +0,050 ± 0,051, positivo en las cuatro.** Las cuatro son del primario. La dirección es la
+pre-registrada y la magnitud es el doble de lo que sugiere el agregado.
+
+**Lo que sigue sin saberse** es cuánto infla el `json_out`, que es otra familia y otra cabeza:
+lo medido acá es cuánto infla la contaminación **dentro de una misma familia**, y no se
+transfiere ([[dos-numeros-iguales-denominador-distinto]]).
+
+---
+
+## 5. La escalera de área: el recorte compra superficie, no marcas
+
+Corrida el 2-sep con `scripts/b9_escalera_area.py`. Mide **cuánta área compra cada marca
+retenida**, nunca si filtrar encuentra más mitosis: HoVer-NeXt ya corrió sobre la lámina entera
+en las doce, así que todo filtro es un subconjunto y el conteo **sólo puede bajar** (P2.a.ter).
+
+**Unidad de marca: CENTROIDE (94, de ellas 26 acreditadas).** El eje de atención de §1 cuenta
+por solape (113 parches). Son dos mapeos de la misma marca, no dos números
+([[escalera-punto-a-parche-geometria]]).
+
+| presupuesto | área total | % del área | `clam_mitosis` | `clam_gate` | `clam_combinado` | azar |
+|---|---:|---:|---:|---:|---:|---:|
+| lámina entera (`teselado`) | 706,1 mm² | 100 % | **26 de 26** | 26 | 26 | 26,0 |
+| 30 mm² por lámina | 360,2 mm² | 51 % | **26 de 26** | 26 | 26 | 12,6 |
+| 10 mm² por lámina | 120,1 mm² | 17 % | **23 de 26** | 15 | 22 | 4,2 |
+| **3 mm² por lámina** | **36,0 mm²** | **5,1 %** | **14 de 26** | 5 | 11 | 1,3 |
+| 1 mm² por lámina | 12,1 mm² | 1,7 % | **11 de 26** | 0 | 6 | 0,4 |
+
+**El control `sin_filtro`** (la lámina completa, tal como corrió el detector) da **732
+detecciones · 26 acreditadas**; el `teselado` da **707 · 26**. La diferencia de 25 detecciones
+es el precio de teselar: caen sobre tejido que el segmentador de CLAM descartó, así que ningún
+brazo enmascarado por parches puede alcanzarlas (ADDENDUM §6.a del prereg).
+
+**Lo que la escalera afirma**, y nada más: bajar de 706 a 36 mm² (un factor 20) retiene **14 de
+las 26 acreditadas**, contra 1,3 que retendría el azar con la misma carga de parches. Y bajar de
+706 a 120 retiene 23, o sea que **el primer factor 6 de recorte cuesta tres marcas**.
+
+**La cabeza decide.** El brazo del gate invasivo se desploma (5 acreditadas a 3 mm², 0 a 1 mm²)
+mientras el de tasa mitótica retiene 14 y 11. Localizar mitosis lo hace la cabeza de mitosis, no
+una atención genérica sobre tejido tumoral ([[rama-de-atencion-decide-el-resultado]]). El
+`clam_combinado` queda en el medio y **es exploratorio**, declarado como tal.
+
+Los **trece chequeos** del prereg §6 y su ADDENDUM pasan: el peldaño «lámina entera» da 732 · 26
+en `sin_filtro` y 707 · 26 en `teselado`, los tres brazos con filtro coinciden con `teselado`, la
+monotonía se sostiene en las 36 series, y los conteos duros no se mueven (94 marcas · 26
+acreditadas · 732 detecciones · 12 láminas · 49.832 parches = 706,1 mm²).
+
+---
+
+## 6. Lo que el eje se debía, y su estado
 
 | # | qué | por qué importa |
 |---|---|---|
@@ -154,6 +247,17 @@ uno: `sin_filtro` (la lámina completa, **732 · 26**) y `teselado` (todos los p
 | P2 | **La escalera de área** (`scripts/b9_escalera_area.py`, §6 del prereg) | Es la pregunta de la reunión. Todavía no existe el script |
 | P3 | **`@csv-audit`** sobre `auc_por_lamina.csv` y `escalera.csv` | Son CSV nuevos del pipeline |
 
-El driver ya soporta `--fuente ckpt_limpio` y `--cabeza {verdadera, predicha}`; falta correrlo
-y cruzarlo. **No hay ningún resultado del brazo limpio en este documento.** Tampoco de la escalera:
-lo único medido de ella es la geometría de §2.b.
+> **Cerrado el 2-sep (sesión 42).** P1, P1.bis y P2 están medidos y viven en §4 y §5. P3 se
+> resolvió con [`csv_audit.md`](csv_audit.md). Lo que queda del eje no es medición: es llevarlo
+> a las dos láminas del deck del 07/09 (la de atención y la de la escalera).
+
+Lo que el eje **sigue sin poder afirmar**, y va en el pie de las dos láminas:
+
+- Cuánto infla el `json_out` respecto de un modelo limpio de su misma familia. Lo medido en §4.a
+  es la contaminación **dentro de `_combined_5fold`**, y el `json_out` es otra familia y otra
+  cabeza.
+- Que las doce láminas representen la cohorte. Son las que el patólogo anotó, y Sebastián habló
+  de 30.
+- La **109609 da 0,278** en la cabeza del gate, la única de las doce bajo el azar en cualquier
+  cabeza. Tiene 2 parches marcados y su IC cruza el azar de sobra ⇒ **queda anotada, no
+  interpretada** (§2.a).
