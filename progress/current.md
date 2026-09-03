@@ -4434,6 +4434,62 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 41 — 2-sep-2026 · sesión de PLAN: el plan del 07/09 especificado, y tres correcciones de geometría
+
+**Misión**: terminar el plan del 07/09 (`.handoffs/handoff_B9_20260902_terminar_deck_0709.md`).
+Ernesto frenó **antes** de ejecutar y pidió que lo ejecute una sesión limpia, así que esta sesión
+**no escribió una línea de código ni corrió una medición**. Lo que dejó es el plan especificado y
+**tres verificaciones contra el archivo** que corrigen el diseño de la escalera de área.
+
+### Los tres hallazgos, y los tres son de geometría
+
+Todos salieron de medir la contención punto→parche sobre las doce, que es la operación que la
+escalera de área iba a dar por resuelta.
+
+- **La teselación de CLAM no cubre todo lo que el detector vio.** Las **94 marcas** y las **26
+  acreditadas** caen todas dentro de un parche, pero **sólo 707 de las 732 detecciones**: las 25
+  restantes están sobre tejido que el segmentador descartó. El chequeo pre-registrado decía que en
+  el peldaño «lámina entera» los brazos con filtro coinciden con `sin_filtro` en «26 acreditadas y
+  **732** detecciones», y ese 732 **no puede darse**.
+- **La grilla del h5 no es un retículo regular**: de **7 a 29 valores distintos de `x mod 256`** por
+  lámina. La contención va **por intervalo y exacta**; un hash con `//256` da **166** detecciones
+  donde la exacta da **168** en la 129741 sola. Misma familia de error que
+  [[patch-size-desde-geometria-h5]].
+- **Una marca tiene DOS mapeos a parche.** Por centroide, las 94 caen en 94 parches; por solape del
+  polígono, `parches_anotados_*.csv` cuenta **113**. El eje de atención cuenta por solape (de ahí
+  los 103 del primario) y la escalera va a contar por centroide
+  ([[dos-numeros-iguales-denominador-distinto]]).
+
+Los tres quedaron en la memoria [[escalera-punto-a-parche-geometria]], en el **ADDENDUM §6.a** del
+`prereg.md` del eje y en su `resultados.md` §3.
+
+### Las tres decisiones de Ernesto
+
+| # | Pregunta | Decisión |
+|---|---|---|
+| D1 | Cómo registrar el 707 contra el 732 | **ADDENDUM al pre-registro**, aditivo y fechado, y la escalera lleva **dos controles**: `sin_filtro` (la lámina completa, 732 · 26) y `teselado` (todos los parches, 707 · 26). El chequeo del peldaño «lámina entera» pasa a leerse contra `teselado` |
+| D2 | El tercer brazo de atención que el plan §B.1 pedía y el driver no tiene | **Entra**: bandera `--folds {limpios, todos}`, misma familia `_combined_5fold` y misma cabeza verdadera, único delta = qué folds entran. Sin él, el ordenamiento pre-registrado se contrasta contra `json_out`, que es otra familia, otra cabeza y otra definición de atención |
+| D3 | La ventana contigua de 3 mm² | **Enunciada** en la lámina de tareas, sin medir. Como decía el handoff: si no entra, no se improvisa |
+
+### Por qué el ADDENDUM y no una corrección
+
+El pre-registro es lo que separa una elección de lectura de un resultado fabricado, así que su
+integridad manda: el §6.a **agrega** la geometría medida y el chequeo corregido, y **no toca** una
+sola línea de las §1 a §5. Que la discrepancia se haya cazado **antes** de correr la escalera es
+justamente lo que la vuelve registrable: después habría sido indistinguible de mover el criterio
+para que pase.
+
+### Estado al cierre
+
+Rama `main`, `HEAD` al día con `origin/main`. **Cero jobs propios** (5197 `train` y 5238 `Dora` son
+de `Test_D/D_abs_cambiado`, verificado con `scontrol`, workaround L.b) y **cero procesos CPU
+propios**. La GPU la tiene `nschiaff` (5190) con nueve encolados detrás.
+
+**Nada del plan del 07/09 se ejecutó.** El deck sigue en **ocho** láminas y tiene que llegar a
+**trece** el lunes: faltan la escalera de área, los dos brazos de control, las dos galerías, las
+cinco láminas y el guion. El plan entero, con las tres decisiones ya incorporadas, quedó en
+`.handoffs/plan_B9_20260902_terminar_deck_0709.md`.
+
 ## Sesión 40 — 2-sep-2026 · el eje de atención, PRE-REGISTRADO y MEDIDO; el deck baja a ocho
 
 **Misión**: ejecutar el plan del 07/09 (`.handoffs/plan_B9_20260901_deck_0709_y_cruce_clam_hovernext.md`).
