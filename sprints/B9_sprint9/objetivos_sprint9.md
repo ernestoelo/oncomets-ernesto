@@ -224,6 +224,17 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   [`presentacion_b9/README.md`](presentacion_b9/README.md) § Estado al 2-sep (sesión 43), y el plan
   entero en `.handoffs/plan_B9_20260902_cinco_laminas_y_guion.md`. **Nada de esto se ejecutó**: lo
   toma una sesión limpia, y quedan cinco días para la reunión del 07/09.
+- **Las dos decisiones de forma que faltaban, y el paper de las 3 mm²** (3-sep, sesión 45) —
+  **D4**: en la lámina 7 las tres barras van **al lado** del mosaico y no debajo, porque apilado el
+  mosaico caía a 7,3" y así llega a **8,3"** ([[figura-alto-lo-decide-el-pie]]). **D5**: la lámina 12
+  se entrega a dos columnas y, si el QA visual muestra que a ~0,53" no se lee, se pasa a `--n-col 3`
+  **sin volver a preguntar**. Además apareció la **cita de las 3 mm²** en el workspace de `sgaete`
+  (Ibrahim et al., *Modern Pathology* 2022, [[paper-3mm2-ibrahim-modern-pathology]]), lo que cierra
+  ese pendiente con personas, y con ella el **cuarto solape**: sus jobs `hnx_time` y `hnx_win`
+  corren HoVer-NeXt con **nuestro checkpoint** sobre 81 ventanas de nuestras láminas, o sea la
+  tarea del punto caliente que la lámina 13 propone. Detalle en
+  [`presentacion_b9/README.md`](presentacion_b9/README.md) § Estado al 3-sep (sesión 45).
+  **Las cinco láminas siguen sin escribirse.**
 - **La simetría de los dos juegos de pesos** (heredada del B8, se re-declara porque gobierna el
   objetivo 2) — Lizard-Mitosis tiene **mitosis y no necrosis**; PanNuke tiene **`dead` y no
   mitosis**. Las dos son verdaderas a la vez y **ninguna reabre nada**

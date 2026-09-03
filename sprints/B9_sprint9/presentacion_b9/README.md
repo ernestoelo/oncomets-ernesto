@@ -515,3 +515,46 @@ en **~0,53"** de lado. Con **tres columnas de cuatro** el aspecto sería 4,34, e
 el **ancho** (los 12,097" completos) y el recorte subiría a **~0,60"**. Las doce láminas se
 conservan en las dos. **No se cambió nada**: D3 dice dos columnas y el flag `--n-col` deja probar
 la alternativa en un comando, si el QA visual muestra que a 0,53" no se lee.
+
+---
+
+## Estado al 3-sep-2026 (sesión 45) — sesión de plan: D4 y D5, y el paper de las 3 mm² apareció
+
+**No tocó el deck ni la galería**: sigue en **ocho** láminas. Dejó el plan de ejecución con las dos
+decisiones que faltaban y cerró un pendiente que venía arrastrado desde la sesión 41.
+
+### Las dos decisiones de Ernesto
+
+| # | lámina | decidido | por qué se preguntó |
+|---|---|---|---|
+| **D4** | 7 · la atención | **las tres barras van AL LADO del mosaico**, no debajo. El mosaico crece a **8,3"** (tile ~1,38") y las barras ocupan 3,5" a su derecha | D1 pedía «casi a todo el ancho» y «debajo», y apilado el mosaico caía a 7,3". Las dos cosas no entraban ([[figura-alto-lo-decide-el-pie]], ahora cerrada) |
+| **D5** | 12 · los núcleos | se entrega a **dos columnas** (D3); si el QA visual muestra que a ~0,53" no se lee, se pasa a **`--n-col 3`** (~0,60") **sin volver a preguntar**, y se reporta al entregar | el flag ya existe desde la sesión 44 y las doce láminas se conservan en las dos |
+
+Con D4 el reparto vertical de la lámina 7 cierra con holgura: cuerpo de una línea (fin ≈ 2,01),
+`leyenda_mapa` 0,20, mosaico 8,30 × 2,79" al lado de `barras_auc` en 3,50", y quedan ~0,5" que pagan
+una **quinta** línea de pie (las nueve láminas están sobre el azar en los tres brazos).
+
+### Verificado contra el archivo al abrir la sesión
+
+| qué | resultado |
+|---|---|
+| aspectos de las cuatro imágenes | 1,58 · 2,98 · 3,55 · **1,94** (la galería recompuesta) |
+| los cinco títulos a 40 pt bold en 12,44" | 6,74 · **12,98 no entra** · 9,83 · 9,63 · 11,38 ⇒ confirmada la corrección 1 de la sesión 44 |
+| `agregado.csv` | los cinco peldaños y los dos controles, tal como `leer_escalera()` los espera |
+| `main` contra `origin` | sincronizada, árbol limpio, cero jobs propios |
+
+### El paper de las 3 mm² apareció, y con él un cuarto solape
+
+`AreaMitosis.md` en el workspace de `sgaete` **es** el paper que Sebastián citó: Ibrahim, Lashen,
+Katayama, Mihai, Ball, Toss y Rakha, *Defining the area of mitoses counting in invasive breast
+cancer using whole slide image*, **Modern Pathology (2022) 35:739-748**,
+doi:10.1038/s41379-021-00981-w. Contar en **3 mm² es lo más representativo** en saturación y
+concordancia; por debajo de **2 mm²** el conteo baja significativamente (P = 0,02); de **4 mm²** para
+arriba se vuelve caro en tiempo. **La fila de la lámina 13 puede llevar la cita**, con la salvedad
+de que es una inferencia razonable y no una confirmación de él.
+[[paper-3mm2-ibrahim-modern-pathology]]
+
+En el mismo directorio están sus jobs `5213 hnx_time` y `5249 hnx_win`, que corren **HoVer-NeXt con
+nuestro mismo checkpoint** sobre 81 ventanas de **nuestras mismas láminas**. Es el **cuarto solape**
+con `sgaete` y toca la **fila 2 de la lámina 13** (el punto caliente por ventana de área fija).
+**Preguntarle qué cubre `hnx_win` antes de presentar esa fila.**
