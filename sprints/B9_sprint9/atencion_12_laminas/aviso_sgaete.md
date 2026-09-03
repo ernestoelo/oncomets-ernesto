@@ -1,10 +1,12 @@
 # Aviso a `sgaete` — lo manda Ernesto
 
-> Redactado el **1-sep-2026**, ampliado el **2-sep**. Es el aviso que el handoff arrastra sin dar
-> **desde el 17-ago**, y ahora hay **tres** solapes y no uno
+> Redactado el **1-sep-2026**, ampliado el **2-sep** y el **3-sep**. Es el aviso que el handoff
+> arrastra sin dar **desde el 17-ago**, y ahora hay **cuatro** solapes y no uno
 > ([[sgaete-yolo-mitosis-solapamiento]]): el tercero es que **vamos a leer su
 > `attn_batch/json_out`**, así que la medición ya no sólo se parece a la suya, **consume un
-> artefacto suyo** ([[clam-ensemble-json-out-atencion]]).
+> artefacto suyo** ([[clam-ensemble-json-out-atencion]]); y el cuarto, encontrado el 3-sep, es que
+> sus jobs `5213 hnx_time` y `5249 hnx_win` corren **HoVer-NeXt con nuestro mismo checkpoint**
+> (`lizard_convnextv2_tiny`) sobre **81 ventanas** de **nuestras mismas láminas**.
 >
 > **Por qué va antes de escalar y no después:** él tiene un pipeline propio de atención contra
 > anotaciones (`anotaciones/atencion/`, 8 tareas, `overlays/`, jobs 4838/4839) que **mide
@@ -17,6 +19,11 @@
 > el **esquema de salida** que proponemos para que su medición de tejido neoplásico y la nuestra
 > crucen sin re-trabajo, y la **respuesta al tamaño de parche de HoVer-NeXt**, que es la pregunta
 > que él hizo en la reunión del 1-sep.
+>
+> **Lo agregado el 3-sep** es la pregunta por `hnx_win`, y es la que más apura: el deck del 07/09
+> propone el **punto caliente por ventana de área fija** como tarea del próximo período, y sus dos
+> jobs corren eso mismo. **Preguntar antes de presentar esa fila**, o se lee como que proponemos
+> algo que él ya está haciendo.
 
 ---
 
@@ -24,7 +31,8 @@
 
 > Hola Sebastián,
 >
-> Tres cosas cortas sobre las láminas anotadas por el patólogo, para no pisarnos.
+> Unas cosas cortas sobre las láminas anotadas por el patólogo, para no pisarnos. Las tres
+> primeras son estado; las del final son preguntas, y la última es la que más me importa.
 >
 > **Una.** Corrimos HoVer-NeXt (pesos Lizard-Mitosis) sobre las **12** láminas con geojson, y
 > cruzamos sus detecciones de mitosis contra las marcas del patólogo. De las **94** marcas
@@ -68,16 +76,26 @@
 > todo: sobre la misma lámina la rama de la clase **verdadera** dio 0,899 de AUC y la **predicha**
 > dio 0,500 exacto. Si es deliberado me sirve entender el criterio.
 >
+> **Y una última, que es la que más me importa.** Vi que tenés corriendo `hnx_time` y `hnx_win`
+> con `lizard_convnextv2_tiny` sobre ventanas de estas mismas láminas, que es el mismo checkpoint
+> que usamos nosotros. **¿Qué cubre `hnx_win`?** Lo pregunto porque para el próximo período
+> teníamos anotado el punto caliente mitótico, la ventana de área fija que maximiza el conteo por
+> mm², y si eso ya está corriendo prefiero sumarme antes que abrirlo en paralelo.
+>
 > Gracias,
 > Ernesto
 
 ---
 
-## Las otras dos preguntas abiertas con él (NO van en este mensaje)
+## Las otras preguntas abiertas con él (NO van en este mensaje)
 
 Se dejan aparte a propósito: mezclarlas diluye el pedido de coordinación, que es el urgente.
 
 - **Sebastián habló de 30 láminas y hay 12.** Dónde están las otras 18.
 - **Quién es «GDT»**, el sufijo de los doce geojson.
-- **El paper de las 3 mm²** que citó en la reunión: falta la referencia. El número entra al deck
-  como objetivo a demostrar, atribuido a él, sin cita.
+- **El paper de las 3 mm²: la referencia ya NO falta.** Es `MitosisDetection/AreaMitosis.md`, en
+  su propio workspace: Ibrahim et al., *Defining the area of mitoses counting in invasive breast
+  cancer using whole slide image*, **Modern Pathology (2022) 35:739-748**. La fila de la lámina 13
+  **lleva la cita**. Lo que queda por preguntarle es sólo la **confirmación de que ése es el que
+  citó**, porque atribuírselo es una inferencia razonable nuestra y no una confirmación suya
+  ([[paper-3mm2-ibrahim-modern-pathology]]).

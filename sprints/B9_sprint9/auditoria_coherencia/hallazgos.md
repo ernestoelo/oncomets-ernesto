@@ -498,3 +498,107 @@ de s06 medían 1,7" para 0,9" de texto y ensuciaban la salida con falsos positiv
 - **`prereg.md` y los scripts de los dos ejes**: sin cambios, no hubo medición nueva. Los números
   del deck son los mismos de la sesión 33.
 - **La cuarta pasada**: se le pone ADDENDUM, no se reescribe.
+
+---
+
+# Sexta pasada — 3-sep-2026 (sesión 46, de PLAN)
+
+Alcance **muy acotado**: la sesión no tocó el deck ni midió nada. Verificó el plan de las cinco
+láminas contra el archivo, Ernesto lo aprobó y cortó antes de ejecutar. La pasada registra lo que
+esa verificación destapó, que **no** es sobre el plan sino sobre dos artefactos que quedaron
+atrás de la sesión 45.
+
+| id | hallazgo | tipo | severidad | acción |
+|---|---|---|---|---|
+| F1 | El aviso a `sgaete` pide una referencia que **ya tenemos** desde el 3-sep | stale | **alta** | reescribir esas líneas: lo abierto es su confirmación, no la referencia |
+| F2 | El aviso dice «**tres** solapes» y desde el 3-sep son **cuatro**, y el cuarto es el más directo | stale | **alta** | encabezado + una pregunta nueva en el mensaje |
+| F3 | `leer_atencion()` y `leer_escalera()` están escritos y **nunca se llaman**; los seis `PNG_*`/`JSON_*` de las cinco láminas, declarados y sin usar | — | media | anotarlo en el README y en el handoff: la sesión que ejecute tiene que cablearlos |
+| F2.a | El mensaje abría con «tres cosas cortas» y ya traía seis; y «las otras **dos** preguntas» eran tres | stale | baja | opener sin número + encabezado corregido |
+| F4 | Lo que NO se toca | — | — | — |
+
+---
+
+## F1 — El aviso pide el paper de las 3 mm², que apareció el mismo día
+
+**Dónde**: `sprints/B9_sprint9/atencion_12_laminas/aviso_sgaete.md:83`, en la sección de preguntas
+que **no** van en el mensaje.
+
+**Qué dice**: «**El paper de las 3 mm²** que citó en la reunión: falta la referencia. El número
+entra al deck como objetivo a demostrar, atribuido a él, **sin cita**.»
+
+**Qué es verdad hoy**: la referencia **está**. La sesión 45 la encontró en su propio workspace,
+`MitosisDetection/AreaMitosis.md`: Ibrahim, Lashen, Katayama, Mihai, Ball, Toss y Rakha,
+*Defining the area of mitoses counting in invasive breast cancer using whole slide image*,
+**Modern Pathology (2022) 35:739-748**, doi:10.1038/s41379-021-00981-w. Lo que sigue abierto es
+**su confirmación de que ése es el que citó**, que es otra pregunta y más chica.
+
+**Por qué importa y no es cosmético**: el aviso es un mensaje que **Ernesto va a mandar**. Tal
+como está le pide a Sebastián un dato que ya tenemos, que es justo lo que
+[[verificar-antes-de-pedir-dato]] existe para evitar, y encima delante de la persona que lo tenía
+guardado. La misma línea sostiene el «sin cita» de la fila de la lámina 13, que también cambió.
+
+**Acción**: reescribir el ítem — la referencia se da por encontrada, se pide confirmación, y se
+declara que atribuirla a su cita es una **inferencia** nuestra ([[paper-3mm2-ibrahim-modern-pathology]]).
+
+## F2 — El aviso cuenta tres solapes y son cuatro
+
+**Dónde**: `aviso_sgaete.md:4` («ahora hay **tres** solapes y no uno») y el cuerpo del mensaje,
+que pregunta por el pipeline de atención y por el `json_out` pero **no menciona** el cuarto.
+
+**Qué es verdad hoy**: son **cuatro** desde el 3-sep, y el cuarto es el más directo de todos. Sus
+jobs `5213 hnx_time` y `5249 hnx_win` corren **HoVer-NeXt con `lizard_convnextv2_tiny`, nuestro
+mismo checkpoint**, sobre **81 ventanas** de **nuestras mismas láminas**
+([[sgaete-yolo-mitosis-solapamiento]], ADDENDUM del 3-sep).
+
+**Por qué importa**: el aviso **es** el mensaje de coordinación sobre solapes, y el que falta toca
+de frente la **fila 2 de la lámina 13** del deck, el punto caliente por ventana de área fija. El
+handoff ya lo sabía y lo dejó anotado como pendiente; el artefacto que se manda, no. Presentar esa
+fila como tarea nueva delante de él, sabiendo que ya la corre, se lee mal, y ése es el riesgo
+concreto: no es técnico, es de reunión.
+
+**Acción**: encabezado a cuatro solapes y una pregunta nueva en el cuerpo, **¿qué cubre
+`hnx_win`?**, antes de presentar la fila. Las otras dos preguntas del 6-ago siguen **deliberadamente
+afuera**.
+
+## F3 — Los dos lectores están escritos y nadie los llama
+
+**Dónde**: `presentacion_b9/generate_b9_deck.py` — `leer_atencion()` en :722 y `leer_escalera()`
+en :766; `main()` (:1533-1535) sólo llama a `leer_datos`, `datos_eje4` y `datos_eje3`. Los seis
+constantes de las cinco láminas (`PNG_HOVERNEXT`, `PNG_ATENCION`, `PNG_REGIONES`, `PNG_NUCLEOS`,
+`JSON_REGIONES`, `JSON_NUCLEOS`, :91-97) están declarados y **sin una sola referencia** aguas abajo.
+
+**No es un defecto**: es exactamente lo que la sesión 44 dejó a propósito, y el deck compila limpio
+en ocho láminas porque nada de eso se usa todavía. Se registra porque **«los dos lectores ya existen
+y están verificados»** (handoff §1) se puede leer como «ya están conectados», y no lo están.
+
+**Verificado corriéndolos** en esta sesión, con el intérprete del deck: `leer_atencion()` devuelve
+**0,8086 ± 0,1273 · 0,7924 ± 0,1221 · 0,7701 ± 0,1279**, n = 9 en los tres brazos y **9 de 9 sobre
+el azar** en los tres; `leer_escalera()` devuelve los cinco peldaños y los seis conteos duros sin
+moverse. Los dos abortan solos si algo se corrió.
+
+**Acción**: una línea en `presentacion_b9/README.md` y el punto explícito en el handoff.
+
+## F2.a — Y el mensaje abría prometiendo tres cosas cuando ya traía seis
+
+**Dónde**: el opener del mensaje, «Tres cosas cortas sobre las láminas anotadas».
+
+**Qué pasaba**: ya el 2-sep el mensaje tenía Una / Dos / Tres **más** la respuesta al tamaño de
+parche y la pregunta por la rama predicha, o sea cinco; con la de `hnx_win` quedaban seis. El
+número del opener nunca se movió.
+
+**Por qué se anota aparte**: es el mismo síntoma que F2 en chico, y el barato de cazar. Un
+artefacto que **cuenta cosas** («tres solapes», «las otras dos preguntas» sobre una lista de tres,
+«tres cosas cortas») lleva un número que se desactualiza solo cada vez que alguien agrega un ítem,
+y ninguna capa automática lo mira. Los tres estaban mal en el mismo archivo.
+
+**Acción**: opener sin número, que además ordena la lectura («las tres primeras son estado; las
+del final son preguntas»), y el encabezado de la sección de abajo pasa de «las otras **dos**
+preguntas» a «las otras preguntas». Regla que se desprende: [[tracker-al-dia-artefacto-stale]].
+
+## F4 — Lo que NO se toca
+
+- **El plan aprobado** (`.handoffs/plan_B9_20260903_cinco_laminas_D4_D5.md`): es efímero y
+  gitignored. Su §«La lámina 13» dice «sin cita» y quedó atrás del handoff §6.3, que es posterior
+  y manda; se deja como está y la corrección vive en el handoff nuevo.
+- **El deck y la galería**: en ocho láminas, sin tocar. Cero medición nueva.
+- **Las cinco pasadas anteriores**: se les agrega abajo, no se reescriben.
