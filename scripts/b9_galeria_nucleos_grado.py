@@ -151,7 +151,10 @@ def hoja(filas, path):
         bx, by = x0 + 4 * (tile + pad) + tile - L10 - 8, y + tile - 12
         d.rectangle([bx, by, bx + L10, by + 4], fill=BLANCO)
         d.rectangle([bx, by, bx + L10, by + 4], outline=TITULO, width=1)
-        d.text((bx, by - 15), "10 µm", fill=BLANCO, font=f_min)
+        # Halo blanco: el rótulo en blanco a secas desaparece sobre el tejido pálido, y en
+        # negro a secas desaparece sobre el oscuro. Los doce recortes son de los dos tipos.
+        d.text((bx, by - 15), "10 µm", fill=TITULO, font=f_min,
+               stroke_width=2, stroke_fill=BLANCO)
         d.text((x0 + 5 * (tile + pad) + pad, y + tile // 2 - 8),
                "p%.0f" % pct, fill=TITULO, font=f_lab)
         y += tile + h_pie_fila + pad

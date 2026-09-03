@@ -1,0 +1,74 @@
+{
+  "que_es": "control positivo del eje 4: fracción de núcleos que HoVer-NeXt llama epiteliales dentro de las regiones que el patólogo marcó como epitelio y como estroma",
+  "f_epi": "del CSV, calculado sobre el ráster de celdas de 8 px del polígono. Los `n_*_dibujados` cuentan centroides dentro del mismo polígono: son dos caminos al mismo número, no dos números distintos",
+  "colores": {
+    "epitelial": [
+      0,
+      255,
+      0
+    ],
+    "conectivo": [
+      255,
+      179,
+      102
+    ],
+    "fuente": "hover_next_reference/src/constants.py, la paleta del propio HoVer-NeXt"
+  },
+  "seleccion": "las 2 regiones con más núcleos de cada grupo entre las de offset alineado, una por lámina",
+  "procedencia": {
+    "csv": "results/b9_nucleos/regiones_epi_estroma.csv",
+    "npz": "results/b9_nucleos/<slide>_nucleos.npz",
+    "poligonos": "cargar_regiones de scripts/b9_epitelio_estroma.py, join POSICIONAL contra el CSV",
+    "offsets": "sprints/B8_sprint8/anotaciones_patologo/offset_<slide>.json"
+  },
+  "paneles": [
+    {
+      "slide": "124806",
+      "clase": "Tumor",
+      "grupo": "epitelio",
+      "f_epi": 0.903316866619619,
+      "n_epi_csv": 1280,
+      "n_conn_csv": 137,
+      "n_epi_dibujados": 1250,
+      "n_conn_dibujados": 132,
+      "um_por_px_panel": 1.504,
+      "area_um2": 184521.22560000003
+    },
+    {
+      "slide": "124729",
+      "clase": "CDIS_solido",
+      "grupo": "epitelio",
+      "f_epi": 0.931967213114754,
+      "n_epi_csv": 1137,
+      "n_conn_csv": 83,
+      "n_epi_dibujados": 1135,
+      "n_conn_dibujados": 78,
+      "um_por_px_panel": 0.974,
+      "area_um2": 154062.90720000002
+    },
+    {
+      "slide": "129741",
+      "clase": "Stroma",
+      "grupo": "estroma",
+      "f_epi": 0.0,
+      "n_epi_csv": 0,
+      "n_conn_csv": 95,
+      "n_epi_dibujados": 0,
+      "n_conn_dibujados": 83,
+      "um_por_px_panel": 0.882,
+      "area_um2": 53983.59840000001
+    },
+    {
+      "slide": "128194",
+      "clase": "Stroma",
+      "grupo": "estroma",
+      "f_epi": 0.0,
+      "n_epi_csv": 0,
+      "n_conn_csv": 27,
+      "n_epi_dibujados": 0,
+      "n_conn_dibujados": 27,
+      "um_por_px_panel": 1.534,
+      "area_um2": 176771.72160000002
+    }
+  ]
+}

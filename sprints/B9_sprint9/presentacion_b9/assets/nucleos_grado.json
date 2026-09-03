@@ -1,0 +1,85 @@
+{
+  "lado_um": 29.76,
+  "mpp": 0.465,
+  "percentiles": [
+    25,
+    50,
+    75,
+    90
+  ],
+  "poblacion": "núcleos epithelial-cell de la propia lámina",
+  "filas": [
+    {
+      "slide": "103762",
+      "grado": "bajo",
+      "n_marcas": 9,
+      "pct_representante": 75.05527152134863
+    },
+    {
+      "slide": "110616",
+      "grado": "bajo",
+      "n_marcas": 7,
+      "pct_representante": 76.67771333885666
+    },
+    {
+      "slide": "109609",
+      "grado": "moderado",
+      "n_marcas": 10,
+      "pct_representante": 85.94548551959114
+    },
+    {
+      "slide": "164001",
+      "grado": "moderado",
+      "n_marcas": 4,
+      "pct_representante": 96.12151104136308
+    },
+    {
+      "slide": "129741",
+      "grado": "alto",
+      "n_marcas": 14,
+      "pct_representante": 98.57914634564207
+    },
+    {
+      "slide": "124729",
+      "grado": "alto",
+      "n_marcas": 13,
+      "pct_representante": 98.06940063091484
+    },
+    {
+      "slide": "128194",
+      "grado": "alto",
+      "n_marcas": 11,
+      "pct_representante": 99.34935167541944
+    },
+    {
+      "slide": "144317",
+      "grado": "alto",
+      "n_marcas": 11,
+      "pct_representante": 97.5404459991255
+    },
+    {
+      "slide": "124806",
+      "grado": "alto",
+      "n_marcas": 10,
+      "pct_representante": 99.9830378256488
+    },
+    {
+      "slide": "106552",
+      "grado": "alto",
+      "n_marcas": 8,
+      "pct_representante": 94.8917649753751
+    },
+    {
+      "slide": "126504",
+      "grado": "alto",
+      "n_marcas": 8,
+      "pct_representante": 99.72804631985262
+    },
+    {
+      "slide": "B25-158899",
+      "grado": "alto",
+      "n_marcas": 2,
+      "pct_representante": 52.59384775808133
+    }
+  ]
+}
