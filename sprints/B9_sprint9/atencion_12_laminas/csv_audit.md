@@ -40,7 +40,7 @@ Producido por: scripts/b9_atencion_12_laminas.py --fuente ckpt_limpio --folds {l
 Consumido por: resultados.md §4, y las dos láminas de atención del deck del 07/09
 ```
 
-**Trampas conocidas** (cuatro acá y una quinta abajo, que salió del cross-check).
+**Trampas conocidas** (cinco acá y una sexta abajo, que salió del cross-check).
 
 1. **`tier_fold` describe la LÁMINA, no el brazo.** Con `--folds todos` la lámina entra igual
    por sus folds de `train`, así que un `tier_fold = ausente` en el archivo `_todos` no
@@ -53,12 +53,20 @@ Consumido por: resultados.md §4, y las dos láminas de atención del deck del 0
    Son dos mapeos de la misma marca ([[escalera-punto-a-parche-geometria]]).
 4. **No se promedian contra `auc_por_lamina.csv`** (el primario `json_out`): otra familia, otra
    cabeza, otra definición de atención.
+5. **La columna `tarea` NO vale lo mismo en los tres archivos, y por eso el filtro va por
+   PREFIJO.** El primario trae `grado_histologico_mitotic_rate_pth_balance` y los dos brazos de
+   checkpoint traen `grado_histologico_mitotic_rate_combined_5fold`, porque el sufijo nombra la
+   familia. Un `tarea == "<nombre fijo>"` **devuelve cero filas en dos de los tres archivos, sin
+   error y sin aviso**: el promedio sale `nan` y parece un problema de datos. El filtro correcto
+   es `tarea.str.startswith("grado_histologico_mitotic_rate")`, y con él los tres dan **n = 9** y
+   **0,8086 / 0,7924 / 0,7701** sobre las mismas nueve láminas. Es la cara operativa de la trampa
+   4: la familia que impide promediarlos es la misma que rompe el filtro.
 
 **Cross-check hecho.** `n_parches` y `n_marcados` de los dos archivos coinciden lámina a
 lámina con `geometria_por_lamina.csv` del primario, y el gate de regresión reproduce los cuatro
 valores del B8 a **1e-6** con el mismo driver que escribió estos archivos.
 
-> **Quinta trampa, y la destapó este cross-check: estos dos archivos suman 107 parches
+> **Sexta trampa, y la destapó este cross-check: estos dos archivos suman 107 parches
 > marcados, no 113.** Los 113 son de las **doce** láminas; acá son **once**, porque la
 > B25-158899 (6 parches marcados) se salta por no tener cabeza verdadera. El 113 sigue siendo
 > el número del primario `json_out` y el 103 el de sus nueve. **Tres denominadores conviven en
