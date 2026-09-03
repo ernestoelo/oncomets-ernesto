@@ -17,6 +17,14 @@ Dos fuentes de atención, MISMO esquema de salida (prereg §2):
                         `results_modelo_combined_5fold/...` promediando SÓLO los folds donde la
                         lámina no estuvo en `train`, y reporta el tier (ausente > test > val).
 
+  --folds {limpios,todos}   Sólo para `ckpt_limpio`. `todos` promedia los CINCO checkpoints,
+                        o sea el mismo brazo pero CONTAMINADO. Misma familia, misma cabeza,
+                        misma definición de atención ⇒ el único delta entre los dos brazos es
+                        qué folds entran, y el ordenamiento pre-registrado
+                        («contaminado ≥ limpio», prereg §5) se vuelve interpretable. Contra
+                        `json_out` esa comparación está confundida por familia, cabeza y
+                        definición de atención a la vez.
+
 Estadísticos IMPORTADOS de los scripts del B8, no copiados (prereg §4). El `CKPTS` de
 `atencion_vs_anotaciones.py` está atado a otro pre-registro y NO se toca.
 
@@ -168,13 +176,18 @@ def atencion_json_out(slide: str, tarea: str, coords: np.ndarray) -> tuple:
     return w[orden], d.get("predicted_label"), float(d.get("confidence", float("nan")))
 
 
-def atencion_ckpt(slide: str, feats: np.ndarray, folds: dict, cabeza: str):
-    """Promedia la atención de los checkpoints 5fold LIMPIOS de esta lámina.
+def atencion_ckpt(slide: str, feats: np.ndarray, folds, cabeza: str, labs: dict):
+    """Promedia la atención de los checkpoints 5fold de esta lámina.
+
+    `folds` es el iterable de folds a promediar: los LIMPIOS de la lámina (brazo de control)
+    o los cinco (brazo contaminado de la misma familia, `--folds todos`).
 
     `cabeza` = 'verdadera' (la clase del CSV de labels) o 'predicha' (la del fold). Con la
     verdadera, una lámina sin fila en el CSV no se puede medir y se salta.
+
+    `labs` viene hoisteado desde `main`: `etiquetas()` releía el CSV en cada llamada.
     """
-    lab = etiquetas().get(slide)
+    lab = labs.get(slide)
     acc, usados = [], []
     for f in sorted(folds):
         ck = DIR_5FOLD / f"s_{f}_checkpoint.pt"
@@ -229,6 +242,9 @@ def main():
     ap.add_argument("--fuente", choices=["json_out", "ckpt_limpio"], default="json_out")
     ap.add_argument("--cabeza", choices=["verdadera", "predicha"], default=None,
                     help="sólo para ckpt_limpio; json_out trae la predicha por construcción")
+    ap.add_argument("--folds", choices=["limpios", "todos"], default="limpios",
+                    help="sólo para ckpt_limpio: qué folds se promedian. `todos` es el mismo "
+                         "brazo contaminado, y el prereg §5 espera que dé >= que `limpios`")
     ap.add_argument("--n-transl", type=int, default=2000)
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--out-dir", default=str(REPO / "results/b9_atencion_12"))
@@ -279,7 +295,8 @@ def main():
                                     predicha=pred, confianza=conf))
         else:
             cab = args.cabeza or "verdadera"
-            sc, usados, lab = atencion_ckpt(slide, feats, memb[slide], cab)
+            folds_in = sorted(memb[slide]) if args.folds == "limpios" else list(range(5))
+            sc, usados, lab = atencion_ckpt(slide, feats, folds_in, cab, labs)
             if sc is None:
                 print(f"[skip] {slide}: cabeza {cab} no disponible (label={lab})")
                 continue
@@ -287,18 +304,29 @@ def main():
                            dict(base, tarea=TAREA_MITOSIS.replace("_pth_balance",
                                                                   "_combined_5fold"),
                                 cabeza=cab, predicha=None, confianza=float("nan"),
+                                folds_variante=args.folds,
                                 folds_usados="+".join(str(f) for f in usados)))
         print(f"[ok] {slide}: N={len(coords)} paso={step} marcados={len(idx_pos)} "
               f"tier={'/'.join(tier)}")
 
     df = pd.DataFrame(filas)
     dg = pd.DataFrame(geo)
-    suf = "" if args.fuente == "json_out" else f"_{args.fuente}"
+    # El sufijo lleva la VARIANTE, no sólo la fuente: los dos brazos de control comparten
+    # familia y cabeza, así que un nombre por fuente los pisaría entre sí
+    # ([[agregador-nombre-fijo-pisa-referencia]]). `auc_por_lamina.csv` del primario
+    # tampoco se toca.
+    suf = "" if args.fuente == "json_out" else f"_ckpt_{args.folds}"
     df.to_csv(out / f"auc_por_lamina{suf}.csv", index=False)
-    dg.to_csv(out / "geometria_por_lamina.csv", index=False)
+    dg.to_csv(out / f"geometria_por_lamina{suf}.csv", index=False)
 
     meta = dict(
         fuente=args.fuente, seed=args.seed, n_transl=args.n_transl, grupo=GRUPO, mpp=MPP,
+        folds_variante=(args.folds if args.fuente == "ckpt_limpio" else None),
+        cabeza=(args.cabeza or "verdadera") if args.fuente == "ckpt_limpio"
+                else "predicha_ensemble",
+        nota_tier_fold="`tier_fold` describe la limpieza de la LÁMINA (ausente>test>val), no "
+                       "la del brazo: con --folds todos la lámina entra igual por sus folds "
+                       "de train. Qué folds se promediaron está en `folds_usados`.",
         prereg="sprints/B9_sprint9/atencion_12_laminas/prereg.md",
         conteos=dict(laminas=len(SLIDES), primario=int(dg["primario"].sum()),
                      parches_marcados=int(dg["n_marcados"].sum()),

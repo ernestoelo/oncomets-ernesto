@@ -1,0 +1,24 @@
+{
+  "fuente": "ckpt_limpio",
+  "seed": 1,
+  "n_transl": 2000,
+  "grupo": "Mitosis",
+  "mpp": 0.465,
+  "folds_variante": "todos",
+  "cabeza": "verdadera",
+  "nota_tier_fold": "`tier_fold` describe la limpieza de la LÁMINA (ausente>test>val), no la del brazo: con --folds todos la lámina entra igual por sus folds de train. Qué folds se promediaron está en `folds_usados`.",
+  "prereg": "sprints/B9_sprint9/atencion_12_laminas/prereg.md",
+  "conteos": {
+    "laminas": 12,
+    "primario": 9,
+    "parches_marcados": 113,
+    "parches_marcados_primario": 103
+  },
+  "declaracion_json_out": [
+    "ensemble de los CINCO folds ponderado por confianza: contaminado por construcción",
+    "lee la rama de la clase PREDICHA por cada fold, no la verdadera",
+    "familia _pth_balance, NO la _combined_5fold de los números del B8",
+    "su campo patch_size no se usa: da 127 y 64 donde la geometría del h5 da 256"
+  ],
+  "unidades": "parche (no marca, no detección, no lámina)"
+}
