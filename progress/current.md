@@ -4434,6 +4434,59 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 43 — 2-sep-2026 · sesión de PLAN: las cinco láminas, con su forma decidida
+
+**Misión**: retomar el handoff de la sesión 42 y ejecutar los pasos 4, 5 y la mitad del 6 del plan
+del 07/09, o sea el deck de ocho a trece láminas, el guion y `@humanizer-es`. **Ernesto frenó
+antes de ejecutar** y pidió que lo siga una sesión limpia, así que esta sesión **no tocó el deck,
+ni la galería, ni una línea de código**. Lo que dejó es el plan escrito y **tres decisiones
+suyas** que eran lo único abierto.
+
+### Las tres decisiones, y por qué había que preguntarlas
+
+| # | lámina | decidido |
+|---|---|---|
+| D1 | 7 · la atención | mosaico casi a todo el ancho más los **tres brazos como barras** sobre eje 0,5 a 1,0. No una tabla |
+| D2 | 8 · la escalera | **barras de área** con el conteo impreso a la derecha. No la tabla de cinco filas |
+| D3 | 12 · los núcleos | **dos columnas de seis**: se conservan las doce láminas |
+
+La 7 se preguntó porque **el mosaico solo ya llena la caja de figura**: aspecto 2,98 sobre una
+caja de 12,1 × 4,4 pulgadas, y el 0,809 no puede ir sin los tres brazos al lado. La 8, porque el
+plan pedía «nativa» y el README había dejado los números como tabla. La 12, porque recomponer a
+dos columnas conserva las doce pero deja cada recorte en ~1,5 cm, y la alternativa era mostrar
+tres láminas al doble de tamaño.
+
+### Dos cosas que la sesión verificó contra el archivo
+
+1. **`hoja()` de `scripts/b9_galeria_nucleos_grado.py` NO tiene el parámetro `n_col`** que el
+   handoff y el README de la presentación daban por existente. Hay que **agregarlo**, con el
+   llenado por columnas, la cabecera repetida por columna y el filete de grado evaluado dentro de
+   cada columna. La corrección quedó anotada donde estaba el error.
+2. **La columna `tarea` no vale lo mismo en los tres CSV de atención**, porque el sufijo nombra la
+   familia: el primario trae `…_pth_balance` y los dos brazos de checkpoint `…_combined_5fold`. Un
+   filtro por igualdad contra un nombre fijo **devuelve cero filas en dos de los tres, sin error y
+   sin aviso**, y el promedio sale `nan`. Con el filtro por prefijo los tres dan **n = 9** y
+   reproducen **0,8086 / 0,7924 / 0,7701** sobre las mismas nueve láminas. Va como trampa 5 de
+   `atencion_12_laminas/csv_audit.md` §1.
+
+### Tres cosas que el plan fija para que no se re-decidan
+
+- La lámina 7 **no lleva el AUC por lámina como tabla**: no hay sitio y el mosaico ya rotula cada
+  tile. Lo que sí lleva es el pie con las tres propiedades del `json_out` más la cuarta línea de
+  que **cuánto infla no se sabe**.
+- **`clam_combinado` no entra en la lámina 8**: es exploratorio y así está declarado.
+- La fila de los **3 mm² de la lámina 13 propone una ventana CONTIGUA, que sigue sin medir**. Lo
+  que la escalera midió es una máscara **no contigua** de top-k por atención.
+
+### Estado al cierre
+
+Rama `main`, **sincronizada con `origin`**: los cinco commits que el handoff de la sesión 42 daba
+por pendientes **ya estaban pusheados**. **Cero jobs propios** (los dos bajo `sdonoso`, 5197 y
+5238, tienen `WorkDir` en `Test_D/D_abs_cambiado`) y **cero procesos CPU propios**. El deck sigue
+en **ocho** láminas y **quedan cinco días** para la reunión del 07/09.
+
+---
+
 ## Sesión 42 — 2-sep-2026 · ejecutado el plan del 07/09 hasta el deck: los tres brazos, la escalera y las dos galerías
 
 **Misión**: ejecutar `.handoffs/plan_B9_20260902_terminar_deck_0709.md` en su orden. Se
