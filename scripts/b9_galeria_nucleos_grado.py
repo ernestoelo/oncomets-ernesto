@@ -107,36 +107,54 @@ def fila_de(slide, marcas, sl):
     return items, float(r["pct_area_um2"]), len(marcas), str(r["grado"])
 
 
-def hoja(filas, path):
-    """Una fila por lámina, agrupadas por grado, con barra de escala y percentil impreso."""
+def hoja(filas, path, n_col=2):
+    """Las láminas en `n_col` columnas, agrupadas por grado, con barra de escala y percentil.
+
+    Dos columnas y no una: apiladas, las doce filas dan aspecto 0,48 y en una lámina apaisada
+    el PNG queda de unas dos pulgadas de ancho, ilegible. Con dos columnas de seis el aspecto
+    pasa a 1,9 y **se conservan las doce láminas**, que es lo que Ernesto decidió el 2-sep
+    frente a la alternativa de dejar tres filas (una por grado) y perder nueve.
+    """
     tile = 240
     pad, w_lab, w_pct = 10, 190, 150
-    h_cab, h_pie_fila = 26, 22
+    h_cab, h_pie_fila, gap = 26, 22, 40
     n = len(filas)
-    W = w_lab + 5 * (tile + pad) + pad + w_pct
-    H = pad + n * (tile + h_pie_fila + pad) + h_cab
+    n_fil = -(-n // n_col)                        # ceil
+    w_col = w_lab + 5 * (tile + pad) + pad + w_pct
+    W = n_col * w_col + (n_col - 1) * gap
+    H = pad + n_fil * (tile + h_pie_fila + pad) + h_cab
     im = Image.new("RGB", (W, H), FONDO)
     d = ImageDraw.Draw(im)
     f_cab = fuente(15, bold=True)
     f_lab = fuente(14, bold=True)
     f_min = fuente(12)
 
-    x0 = w_lab
-    for k, txt in enumerate(["p25", "p50", "p75", "p90", "el que marcó el patólogo"]):
-        cxx = x0 + k * (tile + pad)
-        d.text((cxx, 4), txt, fill=TITULO if k == 4 else CUERPO, font=f_cab)
-    d.text((x0 + 5 * (tile + pad) + pad, 4), "percentil de la marca", fill=CUERPO, font=f_cab)
-    d.text((pad, 4), "lámina · grado", fill=CUERPO, font=f_cab)
+    # La cabecera se repite en CADA columna: sin eso, la columna de la derecha son cinco
+    # recortes sin decir de qué percentil es cada uno.
+    for c in range(n_col):
+        xc = c * (w_col + gap)
+        x0 = xc + w_lab
+        for k, txt in enumerate(["p25", "p50", "p75", "p90", "el que marcó el patólogo"]):
+            d.text((x0 + k * (tile + pad), 4), txt, fill=TITULO if k == 4 else CUERPO,
+                   font=f_cab)
+        d.text((x0 + 5 * (tile + pad) + pad, 4), "percentil de la marca", fill=CUERPO,
+               font=f_cab)
+        d.text((xc + pad, 4), "lámina · grado", fill=CUERPO, font=f_cab)
 
-    y = h_cab
     grado_prev = None
-    for slide, grado, items, pct, n_marcas in filas:
+    for i, (slide, grado, items, pct, n_marcas) in enumerate(filas):
+        xc = (i // n_fil) * (w_col + gap)
+        x0 = xc + w_lab
+        y = h_cab + (i % n_fil) * (tile + h_pie_fila + pad)
         col = ACENTO if grado_prev is not None and grado != grado_prev else CUERPO
+        # El filete separa GRADOS en el orden de lectura, que es por columnas: la primera
+        # fila de la columna 2 continúa el grado de la última de la 1 y por eso no lleva
+        # filete. Va ancho de columna, no ancho de hoja.
         if grado != grado_prev:
-            d.rectangle([0, y - 3, W, y - 1], fill=SEP)
+            d.rectangle([xc, y - 3, xc + w_col, y - 1], fill=SEP)
         grado_prev = grado
-        d.text((pad, y + tile // 2 - 20), slide, fill=TITULO, font=f_lab)
-        d.text((pad, y + tile // 2), "grado %s · %d marcas" % (grado, n_marcas),
+        d.text((xc + pad, y + tile // 2 - 20), slide, fill=TITULO, font=f_lab)
+        d.text((xc + pad, y + tile // 2), "grado %s · %d marcas" % (grado, n_marcas),
                fill=col, font=f_min)
         for k, (rec, _lab, area_um2, es_marca) in enumerate(items):
             cxx = x0 + k * (tile + pad)
@@ -157,7 +175,6 @@ def hoja(filas, path):
                stroke_width=2, stroke_fill=BLANCO)
         d.text((x0 + 5 * (tile + pad) + pad, y + tile // 2 - 8),
                "p%.0f" % pct, fill=TITULO, font=f_lab)
-        y += tile + h_pie_fila + pad
     im.save(path, optimize=True)
     return im.size
 
@@ -166,6 +183,8 @@ def main():
     import openslide
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(OUT))
+    ap.add_argument("--n-col", type=int, default=2,
+                    help="columnas de la hoja; 2 es lo que entra en una lámina apaisada")
     args = ap.parse_args()
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
 
@@ -184,7 +203,7 @@ def main():
         filas.append((slide, grado, items, pct, n_m))
         meta.append(dict(slide=slide, grado=grado, n_marcas=int(n_m), pct_representante=pct))
         print(f"[ok] {slide}: grado {grado}, {n_m} marcas, representante p{pct:.0f}")
-    size = hoja(filas, args.out)
+    size = hoja(filas, args.out, n_col=args.n_col)
     print(f"  escrito: {args.out}  {size[0]}x{size[1]}")
     Path(args.out).with_suffix(".json").write_text(json.dumps(dict(
         lado_um=LADO_PX0 * MPP, mpp=MPP, percentiles=PCTS,
