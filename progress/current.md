@@ -4434,6 +4434,50 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 45 — 3-sep-2026 · sesión de PLAN: D4 y D5, y apareció el paper de las 3 mm²
+
+**No tocó el deck ni la galería**: sigue en **ocho** láminas y `main` quedó como estaba al abrir
+(árbol limpio, sincronizada con `origin`, cero jobs propios). Lo que dejó es el plan de ejecución
+de las cinco láminas con **las dos decisiones que faltaban resueltas**, más dos hallazgos del
+preflight que cambian pendientes abiertos.
+
+### Las dos decisiones de Ernesto
+
+- **D4 · lámina 7**: las tres barras de los brazos van **al lado** del mosaico, no debajo. Apilado
+  el mosaico caía a 7,3" de ancho; al costado llega a **8,3"** (tile de 1,21" a 1,38") y sobra
+  holgura para una quinta línea de pie. Cierra [[figura-alto-lo-decide-el-pie]], que ya había
+  anticipado esta salida.
+- **D5 · lámina 12**: se entrega a dos columnas (D3) y, **si el QA visual muestra que a ~0,53" no se
+  lee, se pasa a `--n-col 3` sin volver a preguntar** y se reporta al entregar.
+
+### Verificado contra el archivo
+
+Los cinco títulos a 40 pt bold en la caja de 12,44": **6,74 · 12,98 · 9,83 · 9,63 · 11,38**, o sea
+que la corrección 1 de la sesión 44 se confirma y la 7 va con la reserva. Aspectos de las cuatro
+imágenes: 1,58 · 2,98 · 3,55 · **1,94**. `agregado.csv` trae los cinco peldaños y los dos controles
+tal como los espera `leer_escalera()`.
+
+### Dos hallazgos del preflight
+
+1. **El paper de las 3 mm² apareció, y cierra un pendiente con personas.** Es
+   `MitosisDetection/AreaMitosis.md`, en el workspace de `sgaete`: Ibrahim et al., *Defining the
+   area of mitoses counting in invasive breast cancer using whole slide image*, **Modern Pathology
+   (2022) 35:739-748**, doi:10.1038/s41379-021-00981-w. Contar en 3 mm² es lo más representativo;
+   bajo 2 mm² el conteo cae (P = 0,02); sobre 4 mm² se vuelve caro. La fila de la lámina 13 **puede
+   llevar la cita**, declarando que es inferencia y no confirmación suya.
+   [[paper-3mm2-ibrahim-modern-pathology]]
+2. **Cuarto solape con `sgaete`, y es el más directo.** Sus jobs `5213 hnx_time` y `5249 hnx_win`
+   corren **HoVer-NeXt con `lizard_convnextv2_tiny`, nuestro mismo checkpoint**, sobre **81
+   ventanas** de **nuestras mismas láminas**, para compararlo contra su YOLO+EfficientNet. Toca de
+   frente la **fila 2 de la lámina 13**, el punto caliente por ventana de área fija.
+   **Preguntarle qué cubre `hnx_win` antes de presentar esa fila.** `MitosisDetection/` queda
+   registrado como READ-ONLY en `CLAUDE.md`.
+
+Los dos jobs `sdonoso` de la cola (5197 `train`, 5238 `Dora`) son **ajenos**: `WorkDir` en
+`Test_D/D_abs_cambiado`, verificado con `scontrol`.
+
+---
+
 ## Sesión 44 — 3-sep-2026 · el paso 0 y los dos lectores, y tres cosas del plan que no cierran
 
 **Misión**: ejecutar de punta a punta el plan de las cinco láminas
