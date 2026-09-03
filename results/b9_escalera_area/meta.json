@@ -1,0 +1,45 @@
+{
+  "que_es": "cuánta ÁREA compra cada marca de mitosis retenida, al restringir las detecciones de HoVer-NeXt con la atención de CLAM, sobre las 12 anotadas",
+  "no_es": [
+    "una medida de si filtrar encuentra MÁS mitosis: no puede, HoVer-NeXt ya corrió sobre la lámina entera y todo filtro es un subconjunto",
+    "precisión, F1, recall ni PQ contra las marcas: son positivos parciales",
+    "una medida por lámina: seis láminas tienen <=3 marcas"
+  ],
+  "unidad_marca": "CENTROIDE (94 marcas). El eje de atención cuenta por SOLAPE (113 parches). Los dos números NO son el mismo ([[dos-numeros-iguales-denominador-distinto]])",
+  "contencion": "por intervalo y exacta: coords[j] <= p < coords[j]+step en los dos ejes. La grilla del h5 no es un retículo regular",
+  "presupuestos_mm2": [
+    "lamina_entera",
+    30.0,
+    10.0,
+    3.0,
+    1.0
+  ],
+  "area_parche_mm2": 0.014171,
+  "nota_area_parche": "derivada de la geometría del h5 (paso 256 px × 0,465 µm/px), no de la magnificación. Redondea a los 0,0142 mm² de la tesela de HoVer-NeXt, que mide exactamente lo mismo sobre estas láminas",
+  "brazos": {
+    "sin_filtro": "la lámina completa, tal como corrió el detector: 732 · 26. Su área no se reporta porque incluye tejido que el segmentador de CLAM descartó, así que no es comparable con la de los brazos enmascarados",
+    "teselado": "los N parches del h5: 707 · 26. Es el TECHO REAL de todo brazo enmascarado por parches, y contra él se lee el peldaño «lámina entera»",
+    "clam_mitosis": "grado_histologico_mitotic_rate_pth_balance",
+    "clam_gate": "invasion_carcinoma_gate_pth_balance",
+    "clam_combinado": "top-k por el PRODUCTO DE LOS RANGOS de las dos. EXPLORATORIO",
+    "azar": "k parches al azar, 200 repeticiones, media y p97.5"
+  },
+  "seed": 1,
+  "n_azar": 200,
+  "cuantil_azar": 97.5,
+  "mpp": 0.465,
+  "declaracion_json_out": [
+    "ensemble de los CINCO folds ponderado por confianza: contaminado por construcción",
+    "lee la rama de la clase PREDICHA por cada fold, no la verdadera",
+    "familia _pth_balance, NO la _combined_5fold de los números del B8",
+    "su campo patch_size no se usa: da 127 y 64 donde la geometría del h5 da 256"
+  ],
+  "procedencia": {
+    "atencion": "clam_ensemble/attn_batch/json_out/<slide>__<tarea>.json (sgaete, RO)",
+    "detecciones": "results/b8_hovernext_{129741,12laminas}/hovernext/lizard_mitosis/",
+    "acreditadas": "results/b9_cruce_94/pares_<slide>.csv (húngaro uno a uno, 30 µm)",
+    "teselacion": "clam_environ/environ/features/h5_files/<slide>.h5",
+    "prereg": "sprints/B9_sprint9/atencion_12_laminas/prereg.md §6 + ADDENDUM §6.a"
+  },
+  "chequeos_fallidos": []
+}
