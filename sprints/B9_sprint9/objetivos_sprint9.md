@@ -215,6 +215,15 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   mismo tamaño físico que un parche de CLAM, de donde **3 mm² ≈ 212 parches**; y **filtrar no puede
   subir el conteo**, sólo bajar el área, así que la medición es una **escalera de área** y no un
   top-K ([[carga-fija-no-k-fijo]]). **Nada de esto se ejecutó**: el plan lo toma una sesión limpia.
+- **La forma de las tres láminas que quedaban abiertas** (2-sep, sesión 43) — con los insumos ya
+  medidos, lo único sin decidir era **cómo se dibujan**. Ernesto eligió: la **7** lleva el mosaico
+  casi a todo el ancho más los **tres brazos como barras** (0,809 · 0,792 · 0,770) y no una tabla;
+  la **8** lleva **barras de área** con el conteo impreso y no la tabla de cinco filas; la **12**
+  recompone la galería de núcleos a **dos columnas de seis**, conservando las doce láminas. Detalle
+  y consecuencias en
+  [`presentacion_b9/README.md`](presentacion_b9/README.md) § Estado al 2-sep (sesión 43), y el plan
+  entero en `.handoffs/plan_B9_20260902_cinco_laminas_y_guion.md`. **Nada de esto se ejecutó**: lo
+  toma una sesión limpia, y quedan cinco días para la reunión del 07/09.
 - **La simetría de los dos juegos de pesos** (heredada del B8, se re-declara porque gobierna el
   objetivo 2) — Lizard-Mitosis tiene **mitosis y no necrosis**; PanNuke tiene **`dead` y no
   mitosis**. Las dos son verdaderas a la vez y **ninguna reabre nada**

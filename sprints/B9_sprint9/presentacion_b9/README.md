@@ -371,9 +371,14 @@ renderizado **todo lo que las cinco láminas nuevas necesitan**, que era el bloq
 Su aspecto es **0,48** (alto, doce filas apiladas) y la caja de figura del molde es apaisada:
 escalado a lo alto quedaría de unas **2,2 pulgadas de ancho** y sería ilegible. **Hay que
 rehacer su composición antes de insertarlo**, y la vía barata es un layout de **dos columnas de
-seis filas** (`hoja()` de `scripts/b9_galeria_nucleos_grado.py` acepta el cambio con un
-parámetro `n_col`: ancho por columna 1600, con dos da 3240×1658 y aspecto **1,95**, que sí
-entra). No se hizo en esta sesión.
+seis filas**: ancho por columna 1600, con dos da 3240×1658 y aspecto **1,95**, que sí entra. No se
+hizo en esta sesión.
+
+> **Corrección del 2-sep (sesión 43):** `hoja()` de `scripts/b9_galeria_nucleos_grado.py`
+> **no tiene** el parámetro `n_col` que esta sección daba por existente (lo verificó la sesión 43
+> leyendo la función, línea 110). Hay que **agregarlo**, y con él el llenado por columnas, la
+> cabecera repetida por columna y el filete separador de grado evaluado dentro de cada columna.
+> No es más trabajo del que la sección suponía, pero no es un flag que ya esté.
 
 Las otras cuatro imágenes tienen aspecto 1,58 · 2,98 · 3,55 y entran sin tocar nada.
 
@@ -425,3 +430,34 @@ leen como el mismo número ([[dos-numeros-iguales-denominador-distinto]]). Ahora
 Al borrar `lamina_ejes`, su tabla de los ocho ejes queda como **única fuente** en
 [`../hovernext_tareas/inventario_tareas.md`](../hovernext_tareas/inventario_tareas.md) §4. Es lo
 que el plan anticipó; queda anotado acá para que no se pierda.
+
+---
+
+## Estado al 2-sep-2026 (sesión 43) — el plan de las cinco láminas, con la forma DECIDIDA
+
+Sesión de plan: **no tocó el deck ni la galería**. Lo que dejó es
+`.handoffs/plan_B9_20260902_cinco_laminas_y_guion.md`, y **tres decisiones de Ernesto sobre la
+forma de tres láminas**, que eran lo único que el plan anterior dejaba abierto.
+
+| # | lámina | qué se decidió | por qué se preguntó |
+|---|---|---|---|
+| D1 | 7 · la atención | mosaico casi a todo el ancho (~3,1" de alto) y debajo los **tres brazos como barras** sobre eje 0,5 a 1,0, con su valor impreso. **No** una tabla | el mosaico solo (aspecto 2,98) ya llena la caja de figura, y el 0,809 no va sin los brazos al lado |
+| D2 | 8 · la escalera | **barras de área** con el conteo impreso a la derecha (`26 de 26 · azar 26,0` … `14 de 26 · azar 1,3`). **No** la tabla de cinco filas | el plan pedía «nativa» y este README había dejado los números como tabla |
+| D3 | 12 · los núcleos | **dos columnas de seis**: se conservan las doce láminas, cada recorte al doble de tamaño que hoy | la alternativa era tres filas (una por grado) con recortes al doble otra vez, perdiendo nueve láminas |
+
+Las cinco láminas quedan en las posiciones **3 · 7 · 8 · 10 · 12** de un deck de trece, y el
+orden completo está en el plan. Tres cosas que el plan fija y conviene no re-decidir:
+
+- **La lámina 7 no lleva el AUC por lámina como tabla**: no hay sitio, y el mosaico ya rotula
+  cada tile. Lo que sí lleva, obligatorio, es el pie con las tres propiedades del `json_out` más
+  la cuarta línea de que **cuánto infla no se sabe**.
+- **`clam_combinado` no entra en la lámina 8**: es exploratorio y así está declarado en
+  `../atencion_12_laminas/resultados.md` §5.
+- **La fila de los 3 mm² de la lámina 13 propone una ventana CONTIGUA, que sigue sin medir.** Lo
+  que la escalera midió es una máscara **no contigua** de top-k por atención. Confundirlas sería
+  presentar como hecho algo que no se midió.
+
+Y una trampa que la sesión verificó al escribir el lector de los tres brazos: la columna `tarea`
+trae el sufijo de familia, así que un filtro por igualdad contra un nombre fijo **devuelve cero
+filas en dos de los tres CSV, sin error**. Va por prefijo. Detalle en
+[`../atencion_12_laminas/csv_audit.md`](../atencion_12_laminas/csv_audit.md) §1, trampa 5.
