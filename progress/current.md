@@ -4434,6 +4434,71 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 44 — 3-sep-2026 · el paso 0 y los dos lectores, y tres cosas del plan que no cierran
+
+**Misión**: ejecutar de punta a punta el plan de las cinco láminas
+(`.handoffs/plan_B9_20260902_cinco_laminas_y_guion.md`). **Ernesto cortó a mitad** y pidió cierre
+para que siga una sesión limpia, así que quedó hecho el **paso 0 entero** y el **primer tercio del
+paso 1**: las cinco láminas no se escribieron.
+
+### 1. La galería a dos columnas, hecha
+
+`hoja()` de `scripts/b9_galeria_nucleos_grado.py` recibe `n_col` (más el flag `--n-col`, para que
+la elección quede auditable), llena **por columnas**, repite la cabecera en cada una y evalúa el
+filete de grado **en el orden de lectura**: la primera fila de la columna 2 continúa el grado de
+la última de la 1 y por eso no lleva filete. El PNG nuevo sale **3240 × 1668**, aspecto **1,94**,
+con las doce filas y los mismos `pct_representante`.
+
+**El plan predecía 3240 × 1658, y son 1668.** No es que el resultado difiera del plan: es que su
+propia fórmula da 1668 (`10 + 6·272 + 26`). Diez píxeles, pero el plan pedía verificar contra el
+número equivocado.
+
+### 2. Los dos lectores, escritos y verificados
+
+`leer_atencion()` y `leer_escalera()` en `generate_b9_deck.py`, con el mismo contrato que
+`leer_datos()`: si el CSV cambia, la lámina cambia sola.
+
+- **`leer_atencion`** filtra por **prefijo** (trampa 5) y da `n = 9` en los tres brazos, sobre las
+  mismas nueve láminas: **0,809 ± 0,127 · 0,792 ± 0,122 · 0,770 ± 0,128**. Aborta si algún brazo
+  no da nueve, si no coinciden las láminas, o si el ordenamiento pre-registrado se rompe. **Dato
+  que el lector deja servido para el guion: las nueve están sobre el azar en los TRES brazos**,
+  no sólo en el primario.
+- **`leer_escalera`** devuelve los cinco peldaños de las dos cabezas más el azar, aborta si las
+  acreditadas no bajan al bajar el presupuesto, y vuelve a chequear los seis conteos duros
+  (94 · 26 · 12 · 49.832 · 732/26 · 707/26). `clam_combinado` queda afuera por exploratorio.
+
+El deck **sigue compilando limpio en ocho láminas**, con `auditar()` y `barrer_rayas()` sin
+avisos: lo agregado todavía no lo consume ninguna lámina.
+
+### 3. Tres cosas del plan que no cierran, medidas contra el archivo
+
+1. **El título de la lámina 7 no entra.** «La atención de CLAM cae sobre las mitosis marcadas»
+   mide **12,98"** en una caja de **12,44"**, así que `set_titulo` abortaría. Va la reserva que el
+   propio plan dejó anotada, **«La atención cae sobre las mitosis marcadas»** (10,70"). Los otros
+   cuatro entran: 6,74 · 9,83 · 9,63 · 11,38.
+2. **El reparto vertical de la lámina 7 no cabe.** El plan asigna leyenda 0,20 + mosaico 3,10 +
+   barras 0,90, y entre el tope del cuerpo (1,639) y el fin de la zona útil (6,60) hay **4,96"**
+   para todo, pie incluido. Con cuerpo de una línea y pie de cuatro, al mosaico le quedan
+   **~2,44" de alto ⇒ ~7,3" de ancho**, no «casi a todo el ancho». Es aritmética, no opinión:
+   el ancho del mosaico lo decide el pie. [[figura-alto-lo-decide-el-pie]]
+3. **La leyenda nativa de la lámina 10 no es redundante**, aunque `regiones_epi.png` ya traiga
+   una quemada: a escala de lámina esos rótulos de 15 y 17 px caen a **5,7 y 6,4 pt**, debajo del
+   mínimo de 7 pt del template. Conviene además una fila nativa con los cuatro `f_epi`, que salen
+   del JSON. [[png-rotulos-quemados-pierden-pt]]
+
+### 4. Lo que queda del paso 1, sin empezar
+
+Las **cuatro primitivas** (`leyenda_mapa`, `barras_auc`, `barras_area`, `tira_dimensiones`), las
+**cinco láminas**, los cinco `clonar_s03`, el `reordenar()` a trece y la tercera fila de la 13.
+Después el guion, `@humanizer-es` y el QA visual, que **todavía no corrió sobre nada nuevo**.
+
+### 5. Estado al cierre
+
+Rama `main`, **cero jobs propios** (5197 y 5238 son de `Test_D/D_abs_cambiado`) y cero procesos
+CPU propios. El deck sigue en **ocho** láminas. **Quedan cuatro días** para la reunión del 07/09.
+
+---
+
 ## Sesión 43 — 2-sep-2026 · sesión de PLAN: las cinco láminas, con su forma decidida
 
 **Misión**: retomar el handoff de la sesión 42 y ejecutar los pasos 4, 5 y la mitad del 6 del plan

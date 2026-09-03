@@ -374,6 +374,11 @@ rehacer su composición antes de insertarlo**, y la vía barata es un layout de 
 seis filas**: ancho por columna 1600, con dos da 3240×1658 y aspecto **1,95**, que sí entra. No se
 hizo en esta sesión.
 
+> **RESUELTO el 3-sep (sesión 44):** `hoja()` ya recibe `n_col` (default 2, más el flag
+> `--n-col`) y el PNG nuevo sale **3240 × 1668**, aspecto **1,94**, con las doce filas. El
+> tamaño que el plan mandaba verificar, 3240 × 1658, estaba mal por diez píxeles: su propia
+> fórmula da `10 + 6·272 + 26 = 1668`.
+>
 > **Corrección del 2-sep (sesión 43):** `hoja()` de `scripts/b9_galeria_nucleos_grado.py`
 > **no tiene** el parámetro `n_col` que esta sección daba por existente (lo verificó la sesión 43
 > leyendo la función, línea 110). Hay que **agregarlo**, y con él el llenado por columnas, la
@@ -461,3 +466,52 @@ Y una trampa que la sesión verificó al escribir el lector de los tres brazos: 
 trae el sufijo de familia, así que un filtro por igualdad contra un nombre fijo **devuelve cero
 filas en dos de los tres CSV, sin error**. Va por prefijo. Detalle en
 [`../atencion_12_laminas/csv_audit.md`](../atencion_12_laminas/csv_audit.md) §1, trampa 5.
+
+
+---
+
+## Estado al 3-sep-2026 (sesión 44) — el paso 0 hecho, los dos lectores escritos, tres correcciones
+
+Sesión cortada a pedido de Ernesto con el **paso 0 completo** y el **primer tercio del paso 1**.
+**Las cinco láminas no se escribieron**: el deck sigue en **ocho** y compila limpio.
+
+### Lo que quedó hecho
+
+| # | qué | dónde |
+|---|---|---|
+| 1 | **`nucleos_grado.png` recompuesto a dos columnas**, 3240 × 1668, aspecto 1,94 | `scripts/b9_galeria_nucleos_grado.py`, `hoja(..., n_col=2)` + flag `--n-col` |
+| 2 | **`leer_atencion()`**, filtro por prefijo, `n = 9` en los tres brazos | `generate_b9_deck.py` |
+| 3 | **`leer_escalera()`**, cinco peldaños y los seis conteos duros | `generate_b9_deck.py` |
+
+Los dos lectores **abortan** en vez de dibujar mal: `leer_atencion` si algún brazo no da nueve
+láminas, si los tres no cubren las mismas, o si el ordenamiento `json_out ≥ todos ≥ limpios` se
+rompe; `leer_escalera` si las acreditadas no bajan al bajar el presupuesto o si se movió alguno de
+los conteos (94 · 26 · 12 · 49.832 · 732/26 · 707/26).
+
+**Un dato que el lector dejó servido para el guion:** las nueve láminas del primario están **sobre
+el azar en los TRES brazos**, no sólo en el primario.
+
+### Tres correcciones al plan, medidas contra el archivo
+
+1. **El título de la lámina 7 no entra.** «La atención de CLAM cae sobre las mitosis marcadas»
+   mide **12,98"** en una caja de **12,44"** ⇒ `set_titulo` aborta. Va la reserva del propio plan,
+   **«La atención cae sobre las mitosis marcadas»** (10,70"). Los otros cuatro entran holgados:
+   6,74 · 9,83 · 9,63 · 11,38.
+2. **El reparto vertical de la lámina 7 no cabe.** Entre el tope del cuerpo (1,639) y el fin de la
+   zona útil (6,60) hay **4,96"** para cuerpo, leyenda, mosaico, barras **y pie**. Con cuerpo de
+   una línea y pie de cuatro, al mosaico le quedan **~2,44" de alto ⇒ ~7,3" de ancho**. «Casi a
+   todo el ancho» (D1) **no es alcanzable apilado**; la salida que lo agranda a ~8,3" es poner las
+   tres barras **al lado** del mosaico y no debajo, y **eso lo decide Ernesto**, porque D1 dijo
+   «debajo». [[figura-alto-lo-decide-el-pie]]
+3. **La leyenda nativa de la lámina 10 no es redundante.** `regiones_epi.png` ya trae leyenda y
+   rótulos quemados, pero a escala de lámina caen a **5,7 y 6,4 pt**, bajo el mínimo de 7 pt del
+   template. Va nativa, y con ella una fila con los cuatro `f_epi` leídos del JSON.
+   [[png-rotulos-quemados-pierden-pt]]
+
+### Un dato para el QA visual de la lámina 12
+
+Con dos columnas (D3) el PNG entra limitado por el alto: **~7,1" de ancho**, y cada recorte queda
+en **~0,53"** de lado. Con **tres columnas de cuatro** el aspecto sería 4,34, entraría limitado por
+el **ancho** (los 12,097" completos) y el recorte subiría a **~0,60"**. Las doce láminas se
+conservan en las dos. **No se cambió nada**: D3 dice dos columnas y el flag `--n-col` deja probar
+la alternativa en un comando, si el QA visual muestra que a 0,53" no se lee.
