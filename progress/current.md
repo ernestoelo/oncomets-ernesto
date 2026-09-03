@@ -4434,6 +4434,48 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 46 — 3-sep-2026 · sesión de PLAN: el plan verificado y aprobado, y el aviso puesto al día
+
+**No tocó el deck ni la galería**: sigue en **ocho** láminas. Ernesto aprobó el plan de las cinco
+láminas y **cortó antes de ejecutar** (quinta vez seguida que la ejecución pasa a una sesión
+limpia; la maniobra sigue funcionando). Lo único que cambió en el repo son dos correcciones al
+aviso a `sgaete`, que estaba stale en los dos puntos que la sesión 45 movió.
+
+### Lo verificado corriendo, no leyendo
+
+Los dos lectores dan exactamente lo que el plan afirma: `leer_atencion()` devuelve **0,809 ·
+0,792 · 0,770** con n = 9 en los tres brazos y **9 de 9 sobre el azar** en los tres;
+`leer_escalera()` devuelve los cinco peldaños (706,1 → 360,2 → 120,1 → **36,0** → 12,1 mm²) y los
+seis conteos duros sin moverse. Los seis títulos medidos con Barlow: el largo de la lámina 7 da
+**12,98"** en una caja de 12,44" y `set_titulo` abortaría; la reserva de **10,70"** entra.
+
+### Un cable que falta y que el handoff no decía
+
+`leer_atencion()` y `leer_escalera()` están escritos y **nunca se llaman desde `main()`**, y los
+seis constantes `PNG_*`/`JSON_*` de las cinco láminas están declarados y sin usar. No es un
+defecto (es lo que la sesión 44 dejó a propósito, y por eso el deck compila limpio en ocho), pero
+«los dos lectores ya existen y están verificados» se puede leer como «ya están conectados» y no lo
+están. La sesión que ejecute tiene que cablearlos.
+
+### Dos correcciones al aviso a `sgaete`, que es lo que sale afuera
+
+Sexta pasada de la auditoría (`sprints/B9_sprint9/auditoria_coherencia/hallazgos.md`, F1 y F2):
+
+1. **Pedía el paper de las 3 mm², que ya tenemos.** El aviso decía «falta la referencia» y el
+   número entraba al deck «sin cita». Apareció el 3-sep en el workspace del propio Sebastián. Tal
+   como estaba, el mensaje le pedía un dato que ya teníamos, y delante de la persona que lo tenía
+   guardado. Ahora la referencia se da por encontrada y lo que se pide es la **confirmación**.
+2. **Contaba tres solapes y son cuatro.** El cuarto (`5213 hnx_time`, `5249 hnx_win`: HoVer-NeXt
+   con nuestro mismo checkpoint sobre 81 ventanas de nuestras láminas) **no estaba en el mensaje**,
+   y es el que toca la fila 2 de la lámina 13. Se agregó al encabezado y como pregunta explícita:
+   **¿qué cubre `hnx_win`?**, antes de presentar esa fila.
+
+### Estado del nodo
+
+Cero jobs propios: los tres bajo `sdonoso` (5197, 5238, **5260 `dataset`, corriendo 7h29**) tienen
+`WorkDir` en `Test_D/D_abs_cambiado`, verificado con `scontrol`. Operador **nuevo** en el nodo,
+`dbustama` (5262 `oncomets`). La GPU sigue tomada, así que **B2 sigue bloqueado**.
+
 ## Sesión 45 — 3-sep-2026 · sesión de PLAN: D4 y D5, y apareció el paper de las 3 mm²
 
 **No tocó el deck ni la galería**: sigue en **ocho** láminas y `main` quedó como estaba al abrir

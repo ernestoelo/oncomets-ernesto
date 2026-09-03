@@ -558,3 +558,38 @@ En el mismo directorio están sus jobs `5213 hnx_time` y `5249 hnx_win`, que cor
 nuestro mismo checkpoint** sobre 81 ventanas de **nuestras mismas láminas**. Es el **cuarto solape**
 con `sgaete` y toca la **fila 2 de la lámina 13** (el punto caliente por ventana de área fija).
 **Preguntarle qué cubre `hnx_win` antes de presentar esa fila.**
+
+---
+
+## Estado al 3-sep-2026 (sesión 46) — el plan verificado y aprobado, y un cable que falta
+
+**No tocó el deck**: sigue en **ocho** láminas. Sesión de plan: verificó el plan de la sesión 45
+contra el archivo, Ernesto lo aprobó y cortó antes de ejecutar. Lo único que cambió en el repo son
+dos correcciones al aviso a `sgaete` (`../auditoria_coherencia/hallazgos.md`, sexta pasada, F1 y F2).
+
+### Lo verificado corriendo, no leyendo
+
+| qué | resultado |
+|---|---|
+| `leer_atencion()` | **0,8086 ± 0,1273** · **0,7924 ± 0,1221** · **0,7701 ± 0,1279**, n = 9 en los tres, **9 de 9 sobre el azar** en los tres, conteos `12/9/113/103` |
+| `leer_escalera()` | 706,1 → 360,2 → 120,1 → **36,0** → 12,1 mm²; mitosis 26·26·23·**14**·11, gate 26·26·15·**5**·0, azar 26,0·12,6·4,2·**1,3**·0,4; los seis conteos duros sin moverse |
+| los seis títulos a 40 pt bold en 12,44" | 6,74 · **12,98 no entra** · **10,70** (la reserva) · 9,83 · 9,63 · 11,38 |
+| aspectos de las cuatro imágenes | 1,58 · 2,98 · 3,55 · **1,94** |
+
+### El cable que falta, y que «los lectores ya existen» no dice
+
+`leer_atencion()` (:722) y `leer_escalera()` (:766) están escritos y **no se llaman desde
+`main()`**, que sólo invoca `leer_datos`, `datos_eje4` y `datos_eje3` (:1533-1535). Los seis
+constantes de las cinco láminas (`PNG_HOVERNEXT`, `PNG_ATENCION`, `PNG_REGIONES`, `PNG_NUCLEOS`,
+`JSON_REGIONES`, `JSON_NUCLEOS`, :91-97) están declarados y **sin una sola referencia** aguas
+abajo. No es un defecto: es lo que la sesión 44 dejó a propósito, y por eso el deck compila limpio
+en ocho. Se anota porque la sesión que ejecute tiene que **cablearlos**, y el handoff decía «los
+dos lectores ya existen y están verificados», que se puede leer como «ya están conectados».
+
+### La fila de los 3 mm² SÍ lleva cita
+
+El plan del 3-sep §«La lámina 13» dice «sin cita, pedirle la referencia sigue pendiente». Quedó
+atrás: el paper apareció ese mismo día y el handoff §6.3 lo supersede. La fila cita a **Ibrahim
+et al., Modern Pathology 2022**, declarando que atribuírsela a la cita de Sebastián es una
+**inferencia** nuestra ([[paper-3mm2-ibrahim-modern-pathology]]). Lo que sigue abierto es su
+confirmación, no la referencia.
