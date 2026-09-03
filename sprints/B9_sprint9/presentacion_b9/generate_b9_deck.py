@@ -48,6 +48,7 @@ absoluto.)
 """
 import copy
 import csv
+import json
 import os
 import re
 import sys
@@ -84,6 +85,19 @@ PNG_ACIERTOS = os.path.join(AQUI, "assets", "mitosis_aciertos.png")
 PNG_FALLADAS = os.path.join(AQUI, "assets", "mitosis_falladas.png")
 LADO_RECORTE_UM = 59.5              # 128 px de nivel 0 a 0,465 µm/px (galeria_mitosis_12.py)
 
+# Las cinco láminas nuevas del 07/09. Las tres imágenes de resultado y la figura del paper son
+# la excepción declarada en CLAUDE.md §"Formato de entregables": una fotografía de tejido y una
+# figura publicada no son dibujables con shapes. Todo lo que las acompaña es NATIVO.
+PNG_HOVERNEXT = os.path.join(RAIZ, "papers", "presentations", "assets_branding",
+                             "paper_figs", "hovernext_fig1_pipeline.png")
+PNG_ATENCION = os.path.join(AQUI, "assets", "atencion_12_laminas.png")
+PNG_REGIONES = os.path.join(AQUI, "assets", "regiones_epi.png")
+PNG_NUCLEOS = os.path.join(AQUI, "assets", "nucleos_grado.png")
+JSON_REGIONES = os.path.join(AQUI, "assets", "regiones_epi.json")
+JSON_NUCLEOS = os.path.join(AQUI, "assets", "nucleos_grado.json")
+DIR_ATN = os.path.join(RAIZ, "results", "b9_atencion_12")
+CSV_ESCALERA = os.path.join(RAIZ, "results", "b9_escalera_area", "agregado.csv")
+
 # Los dos ejes nucleares de CPU. `CSV_NUM` es el único artefacto versionado de las cuatro
 # figuras (el `.pptx` es derivado y está gitignored), y **no se mueve de sitio**: es el path
 # que citan `ejes_nucleares/resultados.md` §4 y el envoltorio de la hoja suelta.
@@ -108,6 +122,18 @@ BLANCO = RGBColor(0xFF, 0xFF, 0xFF)
 # seguir siendo los mismos: la leyenda es nativa y los círculos están quemados en el PNG.
 BLANCO_ANILLO = BLANCO
 AMARILLO = RGBColor(0xFF, 0xC1, 0x07)
+
+# La rampa del mapa de atención. Es **turbo** y no un degradé cualquiera: es el colormap con
+# el que `build_overlay_rgba` pinta el mapa (`scripts/mammoth_interpretability.py:262`). Los
+# 24 stops van quemados en vez de importar matplotlib, que le agregaría al deck una
+# dependencia entera para dibujar una leyenda de dos pulgadas.
+TURBO = (0x30123B, 0x3C3286, 0x4451BF, 0x476EE6, 0x458AFC, 0x38A5FB, 0x25C0E7, 0x18D7CA,
+         0x20EAAC, 0x3FF68A, 0x69FD66, 0x92FF47, 0xB1F936, 0xCDEC34, 0xE5D938, 0xF6C33A,
+         0xFEA732, 0xFC8725, 0xF46617, 0xE7490C, 0xD43305, 0xBC2002, 0x9E1001, 0x7A0403)
+
+
+def _rgb(c):
+    return RGBColor(c >> 16, (c >> 8) & 0xFF, c & 0xFF)
 
 F = "Barlow"
 PT_TITULO, PT_CEJILLA, PT_CUERPO = 40, 12, 16
@@ -676,6 +702,113 @@ def leer_datos():
     d["resto_marcas"] = d["marcas"] - ref["marcas"]
     d["resto_recall"] = d["resto_tp"] / float(d["resto_marcas"])
     return datos, d
+
+
+# El prefijo y NO el nombre completo: el `json_out` trae la tarea con el sufijo
+# `_pth_balance` y los dos brazos de checkpoint con `_combined_5fold`. Un filtro por igualdad
+# contra un nombre fijo devuelve CERO filas en dos de los tres archivos, y sin error
+# (`atencion_12_laminas/csv_audit.md` §1, trampa 5).
+TAREA_ATN = "grado_histologico_mitotic_rate"
+BRAZOS_ATN = (
+    ("json_out", "auc_por_lamina.csv", "meta.json",
+     "ensemble de los cinco folds, rama predicha"),
+    ("ckpt_todos", "auc_por_lamina_ckpt_todos.csv", "meta_ckpt_todos.json",
+     "los cinco folds, rama verdadera"),
+    ("ckpt_limpios", "auc_por_lamina_ckpt_limpios.csv", "meta_ckpt_limpios.json",
+     "sólo los folds limpios de cada lámina"),
+)
+
+
+def leer_atencion():
+    """Los tres brazos sobre las NUEVE láminas del primario, con su media y su dispersión.
+
+    Aborta si algún brazo no da nueve láminas, si los tres no cubren exactamente las mismas, o
+    si el ordenamiento `json_out >= todos >= limpios` no se sostiene: ése es el ordenamiento
+    que el pre-registro fijó ANTES de correr, y si se rompiera sería bug de la tabla de
+    membresía y no resultado."""
+    brazos = []
+    for clave, arch, meta_arch, etiqueta in BRAZOS_ATN:
+        with open(os.path.join(DIR_ATN, arch)) as fh:
+            filas = [r for r in csv.DictReader(fh)
+                     if r["universo"] == "lamina" and r["primario"] == "True"
+                     and r["tarea"].startswith(TAREA_ATN)]
+        if len(filas) != 9:
+            raise SystemExit("%s: %d láminas del primario, se esperaban 9 (¿filtro por "
+                             "igualdad contra el nombre de la tarea?)" % (arch, len(filas)))
+        aucs = [float(r["auc"]) for r in filas]
+        med = sum(aucs) / len(aucs)
+        sd = (sum((a - med) ** 2 for a in aucs) / (len(aucs) - 1)) ** 0.5
+        with open(os.path.join(DIR_ATN, meta_arch)) as fh:
+            meta = json.load(fh)
+        brazos.append({"clave": clave, "rotulo": etiqueta, "media": med, "sd": sd,
+                       "n": len(filas), "meta": meta, "familia": filas[0]["tarea"],
+                       "slides": tuple(sorted(r["slide"] for r in filas)),
+                       "sobre_azar": sum(1 for a in aucs if a > 0.5)})
+    if len({b["slides"] for b in brazos}) != 1:
+        raise SystemExit("los tres brazos no cubren las mismas nueve láminas")
+    if not brazos[0]["media"] >= brazos[1]["media"] >= brazos[2]["media"]:
+        raise SystemExit("el ordenamiento pre-registrado no se sostiene: %s"
+                         % [num(b["media"], 3) for b in brazos])
+    c = brazos[0]["meta"]["conteos"]
+    for b in brazos:
+        if b["meta"]["conteos"] != c:
+            raise SystemExit("los tres meta*.json no declaran los mismos conteos")
+    return {"brazos": brazos, "conteos": c}
+
+
+# Los cinco peldaños, de más área a menos. El orden es el de la escalera, y el chequeo de
+# monotonía lo da por sentado.
+PELDANOS = (("lamina_entera", "lámina entera"), ("30.0", "30 mm² por lámina"),
+            ("10.0", "10 mm² por lámina"), ("3.0", "3 mm² por lámina"),
+            ("1.0", "1 mm² por lámina"))
+
+
+def leer_escalera():
+    """Los cinco peldaños de las dos cabezas y del azar, más los dos controles.
+
+    `clam_combinado` NO entra en la lámina: es exploratorio y así está declarado en
+    `atencion_12_laminas/resultados.md` §5. Aborta si las acreditadas no bajan al bajar el
+    presupuesto, o si alguno de los conteos duros se movió."""
+    with open(CSV_ESCALERA) as fh:
+        filas = list(csv.DictReader(fh))
+
+    def fila(brazo, pres):
+        r = [x for x in filas if x["brazo"] == brazo and x["presupuesto_mm2"] == pres]
+        if len(r) != 1:
+            raise SystemExit("agregado.csv: %d filas para %s / %s" % (len(r), brazo, pres))
+        return r[0]
+
+    peld = []
+    for pres, etiqueta in PELDANOS:
+        m, g, a = fila("clam_mitosis", pres), fila("clam_gate", pres), fila("azar", pres)
+        peld.append({"etiqueta": etiqueta, "area": float(m["area_real_mm2"]),
+                     "k": int(float(m["k_parches"])),
+                     "mitosis": int(float(m["acreditadas_dentro"])),
+                     "gate": int(float(g["acreditadas_dentro"])),
+                     "azar": float(a["acreditadas_dentro"]),
+                     "destacado": pres == "3.0"})
+    mit = [x["mitosis"] for x in peld]
+    if mit != sorted(mit, reverse=True):
+        raise SystemExit("las acreditadas no son monótonas al bajar el presupuesto: %s" % mit)
+    sf, te = fila("sin_filtro", "lamina_entera"), fila("teselado", "lamina_entera")
+    d = {"peldanos": peld,
+         "marcas": int(float(fila("azar", "lamina_entera")["marcas_dentro"])),
+         "acreditadas": int(float(te["acreditadas_dentro"])),
+         "laminas": int(te["n_laminas"]),
+         "parches": int(float(te["k_parches"])),
+         "area_total": float(te["area_real_mm2"]),
+         "sin_filtro": (int(float(sf["detecciones_dentro"])),
+                        int(float(sf["acreditadas_dentro"]))),
+         "teselado": (int(float(te["detecciones_dentro"])),
+                      int(float(te["acreditadas_dentro"])))}
+    duros = ((d["marcas"], 94), (d["acreditadas"], 26), (d["laminas"], 12),
+             (d["parches"], 49832), (d["sin_filtro"], (732, 26)), (d["teselado"], (707, 26)))
+    for visto, esperado in duros:
+        if visto != esperado:
+            raise SystemExit("conteo duro movido: %r, se esperaba %r" % (visto, esperado))
+    if abs(d["area_total"] - 706.1) > 0.1 or abs(peld[0]["area"] - d["area_total"]) > 1e-6:
+        raise SystemExit("el área total se movió: %.3f mm²" % d["area_total"])
+    return d
 
 
 def leer_guion():
