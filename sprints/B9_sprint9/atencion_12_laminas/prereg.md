@@ -207,6 +207,51 @@ que mide **exactamente lo mismo** que un parche de CLAM sobre estas láminas
 **Lo que se afirma con la escalera** es de la forma «bajar de X a Y mm² retiene Z de las 26
 acreditadas», con `sin_filtro` y `azar` al lado. Nunca «el filtro encuentra más mitosis».
 
+### 6.a ADDENDUM del 2-sep-2026 — la geometría punto→parche, medida antes de correr la escalera
+
+> **Aditivo.** No reescribe ninguna hipótesis ni ningún criterio de las §1 a §5. Lo que hace es
+> corregir **un número** del chequeo de arriba, y lo hace **antes** de que la escalera exista, no
+> después de leer su resultado.
+
+El chequeo del peldaño «lámina entera» daba por sentado que los brazos con filtro podían llegar a
+**732 detecciones**. Medida la contención punto→parche sobre las doce, no pueden:
+
+| unidad | dentro de la teselación | total | fuera |
+|---|---:|---:|---:|
+| marcas de `Mitosis` | **94** | 94 | **0** |
+| marcas **acreditadas** | **26** | 26 | **0** |
+| detecciones de HoVer-NeXt | **707** | 732 | **25** |
+
+Las 25 detecciones de afuera caen sobre tejido que el **segmentador de CLAM descartó**, así que
+ningún brazo enmascarado por parches puede alcanzarlas. Es exactamente lo que el tercer chequeo de
+arriba mandaba reportar; el hallazgo es que **el número que falla es el de detecciones y no el de
+marcas**.
+
+**Consecuencia: la escalera lleva DOS controles, no uno.**
+
+| control | qué es | lámina entera |
+|---|---|---|
+| `sin_filtro` | la lámina completa, tal como corrió el detector. Es lo que el patólogo mira hoy | **732 detecciones · 26 acreditadas** |
+| `teselado` | los N parches del h5, o sea `k` = todos. Es el **techo real** de todo brazo enmascarado por parches | **707 detecciones · 26 acreditadas** |
+
+**El chequeo del peldaño «lámina entera» pasa a ser contra `teselado`**, no contra `sin_filtro`: los
+brazos con filtro tienen que coincidir con **707 · 26**. `sin_filtro` se reporta igual, porque es
+contra él que se lee cuánta área compra el recorte, y su diferencia con `teselado` **es** el precio
+de teselar.
+
+**Dos reglas de implementación que salieron de la misma medición:**
+
+1. **La contención es por intervalo, exacta, nunca por hash de retículo.** La grilla del h5 **no es
+   regular**: hay de 7 a 29 valores distintos de `x mod 256` por lámina. Un parche contiene al punto
+   si `coords[j,0] <= x < coords[j,0] + step` y lo mismo en `y`; una prueba con `//256` da 166
+   detecciones donde la exacta da 168 en la 129741 sola. Es el mismo error de familia que
+   [[patch-size-desde-geometria-h5]] documenta para el paso.
+2. **Una marca tiene DOS mapeos a parche y dan dos números distintos.** Por **centroide**, las 94
+   marcas caen en 94 parches. Por **solape del polígono**, `parches_anotados_*.csv` cuenta **113
+   parches con `Mitosis`**, porque un polígono puede cruzar el borde. La escalera cuenta por
+   centroide (`marcas_dentro`, de 94) y el eje de atención cuenta por solape (`n_marcados`, de 113):
+   **cada tabla declara cuál usa** ([[dos-numeros-iguales-denominador-distinto]]).
+
 ---
 
 ## 7. Salidas

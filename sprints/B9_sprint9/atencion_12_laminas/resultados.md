@@ -116,13 +116,44 @@ doce (5,4 %). Tiene **2 parches marcados**, así que su IC cruza el azar de sobr
 
 ---
 
-## 3. Qué falta de este eje
+## 3. La geometría punto→parche, medida el 2-sep
+
+Antes de escribir la escalera de área se midió la contención exacta de cada punto en la
+teselación de CLAM sobre las doce. El resultado corrige un número del pre-registro y por eso
+va con ADDENDUM ([`prereg.md`](prereg.md) §6.a):
+
+| unidad | dentro de la teselación | total | fuera |
+|---|---:|---:|---:|
+| marcas de `Mitosis` | **94** | 94 | **0** |
+| marcas **acreditadas** | **26** | 26 | **0** |
+| detecciones de HoVer-NeXt | **707** | 732 | **25** |
+
+Las 25 de afuera están sobre tejido que el **segmentador de CLAM descartó**: ningún brazo
+enmascarado por parches puede alcanzarlas. Entonces la escalera lleva **dos controles** y no
+uno: `sin_filtro` (la lámina completa, **732 · 26**) y `teselado` (todos los parches,
+**707 · 26**), y el chequeo del peldaño «lámina entera» se lee contra el segundo.
+
+**Dos trampas que la misma medición dejó a la vista:**
+
+- La grilla del h5 **no es un retículo regular** (de 7 a 29 valores distintos de `x mod 256`
+  por lámina), así que la contención va **por intervalo y exacta**. Un hash con `//256` da 166
+  detecciones donde la exacta da 168 en la 129741.
+- **Una marca tiene dos mapeos a parche.** Por centroide, las 94 caen en 94 parches; por solape
+  del polígono, `parches_anotados_*.csv` cuenta **113**. Los 113 son los que usa la tabla §1.a
+  de este documento (`n_marcados`); los 94, los que va a usar la escalera
+  ([[dos-numeros-iguales-denominador-distinto]]).
+
+---
+
+## 4. Qué falta de este eje
 
 | # | qué | por qué importa |
 |---|---|---|
 | P1 | **El brazo `ckpt_limpio`** (`--fuente ckpt_limpio`) | Es el control de honestidad: sin él, el 0,809 no tiene con qué contrastarse. El pre-registro fija que el contaminado tiene que dar **más alto** que el limpio, y si no ordena así es bug de la tabla de membresía |
+| P1.bis | **El brazo contaminado de la MISMA familia** (`--folds todos`, que el driver todavía no tiene) | El ordenamiento pre-registrado es «contaminado > limpio». Contra `json_out` esa comparación está confundida por familia (`_pth_balance` vs `_combined_5fold`), cabeza (predicha vs verdadera) y definición de atención. Con los mismos checkpoints y la misma cabeza, el único delta pasa a ser qué folds entran |
 | P2 | **La escalera de área** (`scripts/b9_escalera_area.py`, §6 del prereg) | Es la pregunta de la reunión. Todavía no existe el script |
 | P3 | **`@csv-audit`** sobre `auc_por_lamina.csv` y `escalera.csv` | Son CSV nuevos del pipeline |
 
 El driver ya soporta `--fuente ckpt_limpio` y `--cabeza {verdadera, predicha}`; falta correrlo
-y cruzarlo. **No hay ningún resultado del brazo limpio en este documento.**
+y cruzarlo. **No hay ningún resultado del brazo limpio en este documento.** Tampoco de la escalera:
+lo único medido de ella es la geometría de §2.b.
