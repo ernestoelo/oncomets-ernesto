@@ -4434,6 +4434,90 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 42 — 2-sep-2026 · ejecutado el plan del 07/09 hasta el deck: los tres brazos, la escalera y las dos galerías
+
+**Misión**: ejecutar `.handoffs/plan_B9_20260902_terminar_deck_0709.md` en su orden. Se
+ejecutaron los **pasos 1 a 3 enteros** y la mitad del 6 (la auditoría de CSV). **El paso 4, el
+deck de ocho a trece láminas, no se empezó**, y con él quedan el guion y el pase por
+`@humanizer-es`. Todo CPU post-hoc, cero `sbatch`, cero descargas.
+
+### Paso 1 — los dos brazos de control, y el ordenamiento se sostiene
+
+`--folds {limpios, todos}` en `scripts/b9_atencion_12_laminas.py`. El único delta entre los dos
+brazos es qué folds entran: misma familia `_combined_5fold`, misma cabeza verdadera, misma
+definición de atención. Contra el `json_out` esa comparación estaba confundida por familia,
+cabeza y definición a la vez.
+
+| brazo | familia | cabeza | folds | AUC, nueve del primario |
+|---|---|---|---|---:|
+| `json_out` (primario) | `_pth_balance` | predicha, ensemble | los cinco | **0,809 ± 0,127** |
+| `ckpt --folds todos` | `_combined_5fold` | verdadera | los cinco | **0,792 ± 0,122** |
+| `ckpt --folds limpios` | `_combined_5fold` | verdadera | los limpios | **0,770 ± 0,128** |
+
+**Ordena como el prereg §5 fijó**: contaminado > limpio. Y el resultado primario **sobrevive al
+control**: en el brazo limpio las nueve siguen sobre 0,5, con `p` de traslación rígida de 0,002 ·
+0,001 · 0,002 · 0,007 en las cuatro de mayor `n`. El gate de regresión volvió a dar los cuatro
+valores del B8 a 1e-6 con el driver ya parcheado.
+
+**El hallazgo que no se buscaba, y es de método**: el contraste **sólo existe en cuatro de las
+once láminas**. Siete están ausentes de los cinco folds, así que sus dos brazos promedian los
+mismos checkpoints y su Δ es **cero por construcción**. El agregado (+0,022 ± 0,041) está diluido
+por cinco ceros estructurales; sobre las cuatro donde la comparación existe es **+0,050 ± 0,051 y
+positivo en las cuatro**. Memoria nueva:
+[[agregado-diluido-por-unidades-sin-contraste]].
+
+### Paso 2 — la escalera de área, que es la pregunta de la reunión
+
+`scripts/b9_escalera_area.py`, script nuevo. Mide cuánta **área** compra cada marca retenida,
+nunca si filtrar encuentra más mitosis: HoVer-NeXt ya corrió sobre la lámina entera y todo filtro
+es un subconjunto.
+
+| presupuesto | área total | % del área | `clam_mitosis` | `clam_gate` | azar |
+|---|---:|---:|---:|---:|---:|
+| lámina entera (`teselado`) | 706,1 mm² | 100 % | 26 de 26 | 26 | 26,0 |
+| 30 mm² por lámina | 360,2 mm² | 51 % | **26 de 26** | 26 | 12,6 |
+| 10 mm² por lámina | 120,1 mm² | 17 % | **23 de 26** | 15 | 4,2 |
+| **3 mm² por lámina** | **36,0 mm²** | **5,1 %** | **14 de 26** | 5 | 1,3 |
+| 1 mm² por lámina | 12,1 mm² | 1,7 % | **11 de 26** | 0 | 0,4 |
+
+Un factor 20 de recorte cuesta doce marcas; el primer factor 6 cuesta tres. Y **la cabeza
+decide**: el brazo del gate invasivo se desploma a 0 acreditadas en 1 mm² mientras el de tasa
+mitótica retiene 11. Los **trece chequeos** del prereg §6 y su ADDENDUM pasan, incluidos los dos
+controles del ADDENDUM (`sin_filtro` 732 · 26 y `teselado` 707 · 26). Memoria:
+[[escalera-area-compra-superficie]].
+
+### Paso 3 — las dos galerías
+
+- `b9_galeria_nucleos_grado.py`, que estaba escrita sin correr: **1600×3300**, doce filas.
+- `b9_galeria_regiones_epi.py`, que **no existía**: **2300×648**, cuatro recortes con los núcleos
+  de HoVer-NeXt pintados epitelial contra conectivo. 124729 `f_epi` 0,93 y 124806 0,90 contra
+  0,00 en las dos de estroma.
+
+**El QA visual temprano volvió a cazar lo que ningún chequeo automático ve**: el rótulo de la
+barra de escala en blanco desaparece sobre tejido pálido, y el contorno del polígono se pierde en
+la lámina de estroma clara. Los dos arreglados (halo y reborde oscuro).
+
+**Y destapó un bloqueo para el deck**: `nucleos_grado.png` tiene aspecto **0,48** y la caja de
+figura del molde es apaisada ⇒ escalada a lo alto quedaría de 2,2 pulgadas de ancho e ilegible.
+**Hay que recomponerla en dos columnas de seis filas antes de insertarla** (detalle y el número
+del layout que sí entra, en `presentacion_b9/README.md` § Estado al 2-sep, sesión 42).
+
+### Paso 6 (mitad) — la auditoría de los CSV
+
+`sprints/B9_sprint9/atencion_12_laminas/csv_audit.md`, con los cuatro CSV nuevos en el formato
+fijo de CLAUDE.md. El cross-check destapó una trampa que no estaba anotada: los dos brazos suman
+**107** parches marcados, no los 113 de las doce ni los 103 de las nueve, porque saltan la
+B25-158899. **Tres denominadores conviven en el mismo eje.**
+
+### Estado al cierre
+
+Rama `main`, árbol limpio, **cinco commits sin pushear** (tres de esta sesión, dos de la 41).
+**Cero jobs propios y cero procesos CPU propios.** El eje de atención queda **completo**
+(`atencion_12_laminas/resultados.md` §4 y §5); lo que falta del plan es el deck, su guion y
+`@humanizer-es`.
+
+---
+
 ## Sesión 41 — 2-sep-2026 · sesión de PLAN: el plan del 07/09 especificado, y tres correcciones de geometría
 
 **Misión**: terminar el plan del 07/09 (`.handoffs/handoff_B9_20260902_terminar_deck_0709.md`).

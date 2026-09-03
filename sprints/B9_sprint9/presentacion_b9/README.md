@@ -10,7 +10,7 @@ técnico de sprint.
 | Guion | `guion_b9.md`, que el generador **lee** y aplica con `notes()`. El `.md` es la fuente; las notas del `.pptx` son derivadas |
 | Figuras | `assets/mitosis_{aciertos,falladas}.png`, que produce `scripts/galeria_mitosis_12.py`. Las cuatro de los ejes nucleares son **nativas** y las dibuja el propio generador |
 | Molde | `papers/presentations/[AAAAMMDD] [Nombre Apellido] [Image-to-text].pptx`, **read-only** |
-| Salida | **8 láminas** desde el 2-sep, 13,333 × 7,5, Barlow embebida, 9,6 MB. **Van a trece**: faltan las cinco nuevas, ver §Estado al 2-sep |
+| Salida | **8 láminas** desde el 2-sep, 13,333 × 7,5, Barlow embebida, 9,6 MB. **Van a trece**: faltan las cinco nuevas, pero sus insumos ya están medidos y renderizados (§Estado al 2-sep, sesión 42) |
 
 ## Regenerar
 
@@ -350,6 +350,56 @@ Lo que la sesión 40 **sí** dejó hecho del plan del 07/09:
 escalera de área, las regiones epiteliales, los núcleos del grado), la **escalera de área** que
 las alimenta, las **dos galerías** que faltan renderizar, el **guion** de las cinco y el pase por
 `@humanizer-es`.
+
+---
+
+## Estado al 2-sep-2026 (sesión 42) — los INSUMOS de las cinco láminas están todos
+
+El deck sigue en **ocho** láminas: la sesión 42 no lo tocó. Lo que sí hizo fue dejar medido y
+renderizado **todo lo que las cinco láminas nuevas necesitan**, que era el bloqueo real.
+
+| lámina nueva | insumo | estado |
+|---|---|---|
+| 3 · Cómo funciona HoVer-NeXt | `paper_figs/hovernext_fig1_pipeline.png` (2332×1476) | **listo** desde la sesión 40 |
+| 7 · La atención sobre las doce | `assets/atencion_12_laminas.png` (2590×870) + los **tres brazos** de `results/b9_atencion_12/` | **listo** |
+| 8 · La escalera de área | `results/b9_escalera_area/agregado.csv` | **listo**, y con los trece chequeos en verde |
+| 10 · Una región epitelial y una de estroma | `assets/regiones_epi.png` (2300×648) | **listo**, script nuevo |
+| 12 · Los núcleos marcados | `assets/nucleos_grado.png` (1600×3300) | **renderizado, pero ver el aviso de abajo** |
+
+### El aviso: `nucleos_grado.png` NO entra en una lámina apaisada tal como está
+
+Su aspecto es **0,48** (alto, doce filas apiladas) y la caja de figura del molde es apaisada:
+escalado a lo alto quedaría de unas **2,2 pulgadas de ancho** y sería ilegible. **Hay que
+rehacer su composición antes de insertarlo**, y la vía barata es un layout de **dos columnas de
+seis filas** (`hoja()` de `scripts/b9_galeria_nucleos_grado.py` acepta el cambio con un
+parámetro `n_col`: ancho por columna 1600, con dos da 3240×1658 y aspecto **1,95**, que sí
+entra). No se hizo en esta sesión.
+
+Las otras cuatro imágenes tienen aspecto 1,58 · 2,98 · 3,55 y entran sin tocar nada.
+
+### Los números que van a la lámina de la atención, con el brazo limpio al lado
+
+| brazo | familia | cabeza | folds | AUC, nueve del primario |
+|---|---|---|---|---:|
+| `json_out` (primario) | `_pth_balance` | predicha, ensemble | los cinco | **0,809 ± 0,127** |
+| `ckpt --folds todos` | `_combined_5fold` | verdadera | los cinco | **0,792 ± 0,122** |
+| `ckpt --folds limpios` | `_combined_5fold` | verdadera | los limpios | **0,770 ± 0,128** |
+
+**El 0,809 no va sin esta tabla al lado**, y el pie declara las tres propiedades del `json_out`.
+
+### Los números que van a la lámina de la escalera
+
+| presupuesto | área total | `clam_mitosis` | `clam_gate` | azar |
+|---|---:|---:|---:|---:|
+| lámina entera | 706,1 mm² | 26 de 26 | 26 | 26,0 |
+| 30 mm² por lámina | 360,2 mm² | **26 de 26** | 26 | 12,6 |
+| 10 mm² por lámina | 120,1 mm² | **23 de 26** | 15 | 4,2 |
+| **3 mm² por lámina** | **36,0 mm²** | **14 de 26** | 5 | 1,3 |
+| 1 mm² por lámina | 12,1 mm² | **11 de 26** | 0 | 0,4 |
+
+Dos cosas que el pie tiene que decir o los números se leen mal: el **presupuesto es por lámina y
+el área es total** (3 mm² por lámina son 36,0 mm² sumados), y el control `sin_filtro` da **732
+detecciones · 26 acreditadas** contra las **707 · 26** del `teselado`.
 
 ### Un `26` que era ambiguo, y ahora no
 
