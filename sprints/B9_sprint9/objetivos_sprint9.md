@@ -235,6 +235,20 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   tarea del punto caliente que la lámina 13 propone. Detalle en
   [`presentacion_b9/README.md`](presentacion_b9/README.md) § Estado al 3-sep (sesión 45).
   **Las cinco láminas siguen sin escribirse.**
+- **Las cinco láminas ESCRITAS: el deck queda en trece** (3-sep, sesión 47) — ejecutado el plan
+  entero salvo el pase de `@humanizer-es`. Orden final
+  `s01 · s02 · sHN · sA · sB · sC · sAT · sES · sE · sRE · sG · sNU · s04`, código 0, `auditar()`
+  y `barrer_rayas()` sin avisos. La fila de los 3 mm² de la lámina 13 **lleva la cita** de Ibrahim
+  et al.; que ése sea el paper que citó Sebastián es **inferencia nuestra** y esa salvedad vive en
+  los docs, no en la lámina. El QA visual cazó **tres cosas que `auditar()` no ve**: los cuatro
+  rótulos de la lámina 10 salían **cruzados** porque el JSON de una figura lista sus paneles como
+  se midieron y el PNG los dibuja ordenados ([[sidecar-orden-no-es-el-de-la-figura]], corregido),
+  dos columnas pegadas en la cabecera de `barras_area` (corregido), y **dos PNG con los rótulos
+  quemados a 4,4 y 2,5 pt** que hay que regenerar con la fuente dimensionada para la lámina
+  (pendiente). Detalle en
+  [`presentacion_b9/README.md`](presentacion_b9/README.md) § Estado al 3-sep (sesión 47).
+  **Quedan abiertos**: `@humanizer-es` sobre el guion, el `--n-col 3` de D5 (cuya condición el QA
+  ya dio por cumplida) y las dos regeneraciones de PNG.
 - **La simetría de los dos juegos de pesos** (heredada del B8, se re-declara porque gobierna el
   objetivo 2) — Lizard-Mitosis tiene **mitosis y no necrosis**; PanNuke tiene **`dead` y no
   mitosis**. Las dos son verdaderas a la vez y **ninguna reabre nada**

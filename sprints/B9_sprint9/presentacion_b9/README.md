@@ -10,7 +10,7 @@ técnico de sprint.
 | Guion | `guion_b9.md`, que el generador **lee** y aplica con `notes()`. El `.md` es la fuente; las notas del `.pptx` son derivadas |
 | Figuras | `assets/mitosis_{aciertos,falladas}.png`, que produce `scripts/galeria_mitosis_12.py`. Las cuatro de los ejes nucleares son **nativas** y las dibuja el propio generador |
 | Molde | `papers/presentations/[AAAAMMDD] [Nombre Apellido] [Image-to-text].pptx`, **read-only** |
-| Salida | **8 láminas** desde el 2-sep, 13,333 × 7,5, Barlow embebida, 9,6 MB. **Van a trece**: faltan las cinco nuevas, pero sus insumos ya están medidos y renderizados (§Estado al 2-sep, sesión 42) |
+| Salida | **13 láminas** desde el 3-sep (sesión 47), 13,333 × 7,5, Barlow embebida. Las cinco nuevas están escritas y el deck compila limpio; lo que falta es el pase de `@humanizer-es` y dos figuras a regenerar (§Estado al 3-sep, sesión 47) |
 
 ## Regenerar
 
@@ -60,8 +60,9 @@ s08  Tareas del próximo período                 tabla 4x3 con DOS filas de cue
 ```
 
 **Cambió el 2-sep**: salieron las dos láminas de nulo y la tabla de los ocho ejes (§1 de la
-revisión). El orden de arriba es el que produce `reordenar()` HOY; las cinco láminas nuevas del
-plan **todavía no están**.
+revisión). **Ese bloque de ocho quedó atrás el 3-sep**: el orden vigente es el de trece, y está
+en §«Estado al 3-sep-2026 (sesión 47)». Se conserva acá porque es el estado contra el que se
+escribió el plan de las cinco láminas.
 
 ## Las dos láminas de recortes (s04 y s05)
 
@@ -593,3 +594,79 @@ atrás: el paper apareció ese mismo día y el handoff §6.3 lo supersede. La fi
 et al., Modern Pathology 2022**, declarando que atribuírsela a la cita de Sebastián es una
 **inferencia** nuestra ([[paper-3mm2-ibrahim-modern-pathology]]). Lo que sigue abierto es su
 confirmación, no la referencia.
+
+---
+
+## Estado al 3-sep-2026 (sesión 47) — las cinco láminas escritas, el deck en TRECE
+
+Sesión de ejecución pura: corrió el plan
+`.handoffs/plan_B9_20260903_cinco_laminas_D4_D5.md` de punta a punta con las correcciones
+del handoff de la sesión 46 encima. **El deck pasa de ocho a trece láminas**, sale con
+código 0 y `auditar()` y `barrer_rayas()` no reportan nada.
+
+### Lo que se escribió
+
+| # | qué | dónde |
+|---|---|---|
+| 0 | **El cable que faltaba**: `leer_atencion()` y `leer_escalera()` entran a `main()`, y los seis constantes de las cinco láminas quedan referenciados | `generate_b9_deck.py` |
+| 1 | **Cuatro primitivas**: `leyenda_mapa` (rampa turbo nativa + el anillo), `barras_auc` (eje truncado en 0,50 **y declarado**), `barras_area`, `tira_dimensiones` | ídem, §Primitivas |
+| 1.a | **`medir_figura()`**, que `poner_figura` usa por dentro: existe porque dos láminas alinean rótulos nativos con los paneles de un PNG y `poner_figura` centra | ídem |
+| 2 | **Las cinco láminas** 3 · 7 · 8 · 10 · 12 y `reordenar()` a trece | ídem |
+| 3 | **La fila de los 3 mm²** en la lámina 13, `min_h` de vuelta al default 0,76 | `lamina_tareas` |
+| 4 | **El guion a trece bloques**, con los tres huérfanos afuera y los dos números corregidos | `guion_b9.md` |
+
+### El orden final, trece
+
+```
+s01  portada                                     TAL CUAL, copy de la empresa
+s02  OBJETIVOS 25/08/2026 - 07/09/2026           tabla 4x4, 3 filas de cuerpo
+s03  Cómo funciona HoVer-NeXt                    figura del paper + tira NATIVA de 6 bloques
+s04  Mitosis: 26 de 94 marcas del patólogo       cuerpo + 12 barras NATIVAS
+s05  Las 26 marcas que el detector reencuentra   leyenda nativa + lámina de contacto
+s06  Las 68 marcas que se escapan                leyenda nativa + lámina de contacto
+s07  La atención cae sobre las mitosis marcadas  leyenda_mapa + mosaico 8,30" + barras_auc AL LADO
+s08  El recorte compra superficie, no marcas     barras_area, cinco peldaños
+s09  El control positivo separa epitelio…        8 barras de rango intercuartil NATIVAS
+s10  Una región de epitelio y una de estroma     figura + leyenda nativa + 4 rótulos nativos
+s11  Los tres grados ordenan sobre diez láminas  strip de 10 puntos + tabla NATIVA
+s12  Los núcleos marcados contra su propia lámina  galería a dos columnas
+s13  Tareas del próximo período                  tabla 4x3 con TRES filas de cuerpo
+```
+
+### Las decisiones, ejecutadas
+
+- **D4** (las barras al lado del mosaico) ejecutada tal cual. Con cuerpo de dos líneas y pie
+  de cinco, el techo del mosaico da **8,49"** y se usan los **8,30"** que fijó la decisión.
+- **D5** (los núcleos a dos columnas, con permiso de pasar a tres) **queda pendiente**: el QA
+  visual muestra que a ~0,55" los rótulos quemados no se leen, así que corresponde el
+  `--n-col 3`. No se ejecutó por falta de tiempo de sesión, y **no hay que volver a
+  preguntarlo**.
+- La fila de los 3 mm² **lleva la cita** (Ibrahim et al., *Modern Pathology* 2022). En la
+  lámina va la cita a secas, que es correcta; **la salvedad de que ése sea el paper que citó
+  Sebastián es una inferencia nuestra**, y por eso vive acá y no en la lámina.
+
+### Lo que encontró el QA visual, y `auditar()` no
+
+Se rasterizó con LibreOffice y `FONTCONFIG_FILE` apenas existieron las láminas, que es lo que
+pide [[image-api-qa-limit]]. Tres hallazgos, dos ya corregidos:
+
+1. **Los cuatro rótulos de la lámina 10 salían CRUZADOS.** `regiones_epi.json` lista los
+   paneles en el orden en que se **midieron** y el PNG los dibuja **ordenados**
+   (`b9_galeria_regiones_epi.main()` hace el `sort` después de armar el `meta`). **Corregido**
+   reproduciendo la misma clave de orden. Ningún chequeo de cajas podía verlo: las cajas
+   estaban bien y el texto era correcto, sólo que debajo del panel de al lado.
+   [[sidecar-orden-no-es-el-de-la-figura]]
+2. **«tasa mitótica» y «gate invasivo» quedaban pegadas** en la cabecera de `barras_area`.
+   **Corregido** ensanchando las dos columnas.
+3. **Dos PNG tienen los rótulos quemados muy por debajo de 7 pt** y no se corrigió:
+   `atencion_12_laminas.png` a **4,4 pt** y `nucleos_grado.png` a **2,5 pt**. En los dos el
+   rótulo está dentro de una grilla, así que el rótulo nativo de la lámina 10 **no** es la
+   salida: hay que **regenerar el PNG con la fuente dimensionada para la lámina**. Queda
+   pendiente, con la cuenta en [[png-rotulos-quemados-pierden-pt]].
+
+### Lo que NO alcanzó a hacerse
+
+- **`@humanizer-es` sobre el guion entero**, que era el paso 5 del plan.
+- **El `--n-col 3` de la galería** (D5) y las **dos regeneraciones de PNG** del punto 3.
+- **Darle el deck a leer a Ernesto** en su versión de trece. Al entregar hay que ofrecerle
+  las trece rasterizadas: el QA certifica corrección, no comprensión.
