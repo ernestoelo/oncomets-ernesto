@@ -1,4 +1,15 @@
-# Aviso a `sgaete` — lo manda Ernesto
+# Aviso a `sgaete` — DADO el 1-sep, en la reunión
+
+> **ESTADO (4-sep-2026, sesión 48): ya no es un pendiente.** Ernesto informó que **el contenido
+> de este aviso se lo dio a Sebastián verbalmente en la reunión pasada**, así que el mensaje
+> escrito no hay que mandarlo. El documento se conserva como **registro de qué se comunicó y de
+> las tres preguntas que quedaron planteadas** (qué cubre `hnx_win`, el esquema de salida, y si
+> leer la rama predicha es deliberado); lo que sigue abierto son **las respuestas**, no el envío.
+>
+> Deja de aparecer como pendiente en los handoffs. Lo que sí sigue vivo, y es otra cosa, es la
+> **coordinación de fondo**: repartir el terreno antes de escalar, que es lo que la última lámina
+> del deck plantea en voz alta.
+
 
 > Redactado el **1-sep-2026**, ampliado el **2-sep** y el **3-sep**. Es el aviso que el handoff
 > arrastra sin dar **desde el 17-ago**, y ahora hay **cuatro** solapes y no uno
