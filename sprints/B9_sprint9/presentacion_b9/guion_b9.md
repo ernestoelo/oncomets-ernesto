@@ -1,6 +1,6 @@
 # Guion hablado del deck del período (B9)
 
-> Las once láminas en un solo archivo, que es el método de `@humanizer-es`: se escribe
+> Las trece láminas en un solo archivo, que es el método de `@humanizer-es`: se escribe
 > entero, se pasa entero, y recién después `generate_b9_deck.py` lo lee y lo aplica con
 > `notes()`. **Este archivo es la fuente**; las notas del `.pptx` son derivadas.
 >
@@ -15,7 +15,7 @@
 ## [s01] Portada
 
 Buenos días. Les voy a contar en qué quedó el período, que fue corto y tuvo un solo eje: la
-detección de núcleos sobre las láminas que el patólogo ya nos anotó. Son diez láminas y la
+detección de núcleos sobre las láminas que el patólogo ya nos anotó. Son doce láminas y la
 idea es que la discusión quede para el final.
 
 ## [s02] OBJETIVOS
@@ -37,6 +37,30 @@ ejercicio no fue proponer métricas lindas sino separar cuáles se pueden calcul
 que ya está en disco, cuáles piden tarjeta y cuáles no se desbloquean con ningún
 presupuesto. Y de las que se podían calcular hoy, las dos que valían la pena están medidas
 y las van a ver en el medio de la presentación.
+
+## [s03hn] Cómo funciona el detector
+
+Antes del resultado, medio minuto sobre la herramienta, porque quedó una pregunta dando
+vueltas de la reunión pasada y es cuánto mide lo que el detector mira.
+
+El detector no clasifica la lámina entera de una vez. La recorre en teselas, y de cada tesela
+devuelve el contorno de cada núcleo y a qué clase pertenece. La cadena de la derecha es esa
+geometría, y la sacamos del código y no del paper, porque el paper describe el método y lo que
+hacía falta era el número exacto sobre nuestras láminas.
+
+Dos cosas conviene saber. La primera es que el parámetro que en su configuración se llama
+solapamiento no es un solapamiento sino un paso: define cada cuánto se planta la tesela
+siguiente, y lo que finalmente escribe es el centro, así que los bordes le sirven nada más de
+contexto. La segunda es la magnificación. Los pesos que usamos están entrenados a veinte
+aumentos y nuestras láminas están casi exactamente ahí, dentro de la tolerancia que él mismo
+declara, así que lee el nivel original sin reescalar nada. Eso importa porque un remuestreo
+silencioso habría cambiado el tamaño de todo lo que viene después.
+
+Y el último bloque es la razón de ser de la lámina. La tesela del detector, sobre estas
+láminas, mide lo mismo que un parche del modelo de atención. Exactamente lo mismo. Por eso más
+adelante vamos a poder recortar por parches de atención y hablar de lo que el detector encontró
+sin estar mezclando dos rejillas distintas. Si no midieran lo mismo, ese cruce habría que
+justificarlo; como miden lo mismo, no hay nada que justificar.
 
 ## [s03a] Mitosis sobre las doce láminas
 
@@ -101,6 +125,61 @@ lejísimos dentro de la misma lámina. Además, casi todas las que dan cero son 
 muy pocas detecciones en la lámina entera, y con esa densidad la distancia esperada a la
 detección más cercana es enorme aunque la alineación sea perfecta.
 
+## [s03at] La atención sobre las marcas
+
+Ahora el primero de los dos ejes que abrimos esta semana sobre el modelo de atención. La
+pregunta es simple: cuando el modelo mira una lámina y decide su nivel de mitosis, ¿le presta
+atención a los lugares donde el patólogo marcó mitosis, o mira otra cosa?
+
+Lo que ven son las doce láminas con el mapa de atención encima del tejido, y los anillos son
+los parches donde hay una marca de mitosis. La respuesta corta es que sí, y bastante bien, pero
+el número tiene una condición que quiero poner antes del número y no después.
+
+Ese mapa sale de un ensemble de los cinco pliegues del entrenamiento. Cada una de estas láminas
+estuvo en el entrenamiento de alguno de ellos, así que el modelo ya las vio. Está contaminado
+por construcción, y por eso no lo presento solo. Al lado están los otros dos brazos: el mismo
+cálculo con una familia de modelos limpia, y después el mismo cálculo quedándonos, para cada
+lámina, sólo con los pliegues que nunca la vieron.
+
+Lo importante es cómo quedan ordenados. El contaminado da más alto, el intermedio queda en el
+medio y el limpio queda abajo. Ese orden lo dejamos escrito antes de correr nada, precisamente
+porque es lo que tenía que pasar si el mecanismo es el que creemos. Si hubiera salido al revés
+no sería un descubrimiento, sería un error en la tabla de qué lámina estuvo en qué pliegue.
+
+Y aun con el brazo limpio, que es el honesto, las nueve láminas que se pueden medir quedan
+todas por encima del azar. O sea que el resultado no vive de la contaminación.
+
+Hay una cosa que no sabemos y está en el pie. Cuánto infla exactamente ese ensemble respecto de
+un modelo limpio de su propia familia no lo medimos. Lo que medimos es cuánto infla la
+contaminación dentro de una misma familia, y eso no se traslada. Prefiero decirlo a que quede
+la impresión de que el primer número ya está descontado.
+
+## [s03es] La escalera de área
+
+Y acá está para qué sirve eso. Si la atención señala dónde están las mitosis, entonces se puede
+usar para recortar: en vez de darle al patólogo la lámina entera, darle la parte que el modelo
+señala.
+
+La pregunta es cuánto se pierde al recortar, y la respuesta está en esta escalera. Cada barra es
+un presupuesto de superficie por lámina, desde la lámina completa hasta un milímetro cuadrado, y
+a la derecha está cuántas de las marcas acreditadas siguen adentro.
+
+Hay algo que tiene que quedar clarísimo porque es fácil leerlo al revés. Recortar no puede
+aumentar el conteo. El detector ya corrió sobre las láminas completas, así que cualquier recorte
+es un subconjunto de lo que ya encontró y el número sólo puede bajar. Lo que compra el recorte
+no son mitosis, es superficie: menos tejido para mirar.
+
+Y el trato es bueno. Bajando a un veinteavo de la superficie se conserva más de la mitad de las
+marcas, contra casi ninguna si el recorte fuera al azar con la misma cantidad de parches. Ése es
+el resultado.
+
+La otra lectura está en la columna del medio. Ahí hicimos el mismo ejercicio pero usando la
+atención de otra cabeza del modelo, la que decide si hay carcinoma invasivo. Esa se derrumba: en
+el mismo presupuesto retiene la tercera parte, y en el más chico no retiene ninguna. O sea que
+esto no es que la atención en general caiga sobre tejido interesante. Localizar mitosis lo hace
+la cabeza de mitosis. La cabeza decide, y elegirla mal es la diferencia entre que funcione y que
+no funcione.
+
 ## [s03d] El control positivo
 
 Antes de seguir, dos ejes que ya estaban pagados y que corrimos esta semana. Éste es el
@@ -125,29 +204,27 @@ de tejido conectivo por dentro, pero eso hay que preguntarlo, no afirmarlo.
 Procedencia: results/b9_nucleos/regiones_epi_estroma.csv, vía scripts/b9_epitelio_estroma.py.
 Unidad: región.
 
-## [s03e] El observado contra su nulo
+## [s03re] Las regiones sobre tejido
 
-El número que resume esa separación es un área bajo la curva de rangos, y sola no dice mucho,
-así que la puse contra su propio nulo, que es lo que contesta si podía haber salido por azar.
+Volvamos un momento al control positivo, pero mirado sobre el tejido en vez de sobre un gráfico,
+porque se entiende mejor así.
 
-El nulo se arma trasladando la máscara de cada región sobre el tejido de su propia lámina, y
-me quiero detener ahí un segundo porque es una decisión y no un detalle. Lo cómodo sería
-barajar las etiquetas de las regiones, pero las regiones son contiguas, así que barajarlas
-rompe la estructura espacial y el nulo sale demasiado fácil de vencer. Trasladar la conserva.
+Lo que hay que probar antes que ninguna otra cosa es que el detector sabe distinguir un núcleo
+de epitelio de uno de tejido conectivo. Eso es el control positivo: no es un resultado
+interesante en sí mismo, es la condición para que cualquier resultado posterior signifique algo.
+Si un segmentador de núcleos no acierta esto, no hay nada más que discutir.
 
-Ninguna traslación llega al observado. La marca de acento queda sola a la derecha y el
-percentil de arriba del nulo está más de veinte puntos por debajo.
+Acá están cuatro regiones que dibujó el patólogo, dos que él llamó epitelio y dos que llamó
+estroma, y encima cada núcleo que el detector encontró adentro, pintado del color de su clase.
+Son los colores del propio detector, no los nuestros.
 
-Dos cosas para leerlo bien. La primera es que el valor de significancia es un piso y no un
-valor exacto: con la cantidad de traslaciones que corrimos, lo mínimo que puede dar es uno
-sobre doscientos uno, y dio exactamente eso, así que se lee como por debajo de uno en
-doscientos uno. La segunda es que el nulo no se centra en la mitad sino un poco más abajo, y
-tiene explicación: las regiones de epitelio son más grandes que las de estroma, así que al
-trasladarlas no muestrean el mismo fondo. No invalida el contraste, pero conviene decirlo
-antes de que alguien lo pregunte.
+Las dos de la izquierda son casi todo verde. Las dos de la derecha no tienen un solo punto
+verde: cero exacto, no cero redondeado. Y quiero que se vea el tejido, porque en las de la
+derecha se nota a ojo que son haces de estroma y en las de la izquierda se ven las glándulas. O
+sea que el detector está de acuerdo con el patólogo sobre algo que se puede verificar mirando.
 
-Procedencia: results/b9_nucleos/regiones_nulo.npy, doscientas traslaciones por región, vía
-scripts/b9_epitelio_estroma.py. Unidad: región.
+Elegimos las que tenían más núcleos adentro, entre las regiones cuyo alineamiento está
+confirmado. La unidad acá es la región, no la lámina.
 
 ## [s03f] El grado nuclear
 
@@ -177,72 +254,28 @@ peor campo; lo que tenemos acá son núcleos que él eligió como ejemplares.
 Procedencia: results/b9_nucleos/marcas_grado.csv, columna del percentil intra lámina, vía
 scripts/b9_pleomorfismo.py. Unidad: lámina.
 
-## [s03g] El nulo exacto del grado
+## [s03nu] Los núcleos contra su lámina
 
-Con ese eje hicimos lo mismo que con el control positivo, ponerlo contra su nulo. Como son
-diez láminas no hace falta simularlo: se enumeran todas las formas de repartir los grados
-entre ellas y se cuentan. Es exacto.
+Y lo mismo con el otro eje, el del grado nuclear. Ahí el número era un percentil, y un percentil
+es abstracto, así que esto es el percentil hecho imagen.
 
-Las dos poblaciones estaban declaradas de antemano y las reporto juntas. Arriba está la
-limpia, que se queda solo con las marcas que cayeron sobre un núcleo epitelial. Abajo está la
-completa, con las ciento siete.
+Cada fila es una lámina. Los cuatro primeros recortes son núcleos de esa misma lámina ordenados
+por tamaño: uno chico, uno mediano, uno grande y uno muy grande, siempre dentro de su propia
+población. El quinto, el del recuadro, es el núcleo que el patólogo marcó. Todos a la misma
+escala y con la misma barra de referencia.
 
-La limpia despega del nulo y la completa no, y las dos cosas hay que decirlas con cuidado.
+Por qué el percentil se calcula dentro de cada lámina y no sobre todas juntas: porque entre
+láminas el tamaño nuclear medio cambia por un factor de dos. Si comparáramos micrones contra
+micrones estaríamos midiendo la lámina y no el núcleo. El percentil cancela esa diferencia, y por
+eso es la medida que usamos.
 
-Sobre la limpia: el valor que salió es el mínimo que este diseño puede dar. El reparto que
-observamos es el único de todos los posibles que ordena perfecto, así que no existe un
-resultado mejor disponible con estas láminas. Leerlo como un margen cómodo contra el corte de
-siempre sería un error. No hay margen, hay techo.
+Lo que se ve recorriendo la figura es que el núcleo marcado casi siempre queda a la altura de
+los dos últimos de su fila, o más allá. En los tres grados, el bajo incluido. Él marca núcleos
+grandes para su lámina siempre; lo que separa un grado de otro es cuánto más grandes.
 
-Sobre la completa, que uno esperaría que fuera mejor por tener más láminas: no la frena el
-diseño. Ahí sí había disponible un valor mucho más chico. Lo que la frena son dos láminas de
-grado alto que caen por debajo de las de grado bajo, y las dos tienen sus marcas resueltas a
-clases que no son epitelio. El tamaño que devuelve el detector no es comparable entre clases,
-porque el umbral con el que recorta cada núcleo está afinado por clase. O sea que la diferencia
-entre las dos poblaciones tiene mecanismo, no es ruido.
-
-Entonces la lectura honesta es que ordena, con esos dos valores y esos dos denominadores.
-Nada más fuerte que eso.
-
-Procedencia: la misma enumeración que produjo el número, permutacion_exacta de
-scripts/b9_pleomorfismo.py. Unidad: asignación.
-
-## [s03h] Los ocho ejes
-
-En la reunión pidieron mirar la herramienta más a fondo, así que en vez de quedarnos en
-mitosis listamos contra qué se puede medir, en total, y le pusimos precio a cada cosa. El
-contenido de esta lámina es la tabla; la línea de arriba dice cómo leerla.
-
-El vocabulario del patólogo sobre estas doce láminas tiene veintiún etiquetas distintas, y
-sólo dos aparecen en las doce. Todo lo demás vive en ocho láminas o menos, y siete etiquetas
-viven en tres o menos. Eso ya ordena la lista sin que uno tenga que opinar. Los nombres de la
-segunda columna están tal cual él los escribió, con sus mayúsculas y sus mezclas de idioma,
-porque son las etiquetas del archivo y no conviene traducirlas.
-
-Hay tres ejes que están pagados, y dos de ellos son los que acaban de ver. Cuando corrimos
-el detector no escribió sólo mitosis: escribió las siete clases y el polígono de cada
-núcleo, y eso quedó en disco para las doce. Por eso el grado nuclear y la separación entre
-epitelio y estroma, que a primera vista parecían pedir tarjeta, salieron con trabajo de
-procesador y de esta misma semana. El tercero es el infiltrado inmune, que cuesta lo mismo
-y no lo corrimos por otro motivo: son muy pocas marcas y en muy pocas láminas, así que no
-sostendría un número propio.
-
-Hay uno que sí pide tarjeta, que es necrosis, y ahí aparece una simetría incómoda entre los
-dos juegos de pesos: el que tiene mitosis no tiene necrosis, y el que tiene necrosis no
-tiene mitosis. Las dos cosas son ciertas a la vez y ninguna reabre lo que ya cerramos.
-
-Y hay tres que son no, y quiero ser preciso en por qué, porque no es por presupuesto. En
-esos tres el objeto de la tarea no es un núcleo. Uno pide reconocer una estructura, un
-émbolo dentro de una luz revestida, y lo que tenemos es una población de núcleos. Otro pide
-un depósito mineral, que además en su forma más frecuente es invisible en la tinción con la
-que trabajamos. Y el tercero pide la glándula y su luz, que es una unidad más grande que la
-célula. Correrlo más tiempo o con más láminas no los habilita: falta la clase, no el
-cómputo.
-
-Una cosa que atraviesa los ocho y que conviene dejar dicha. Contra este material no se
-puede calcular precisión, ni efe uno, ni las métricas de calidad de segmentación que se
-usan en los papers, en ningún eje. El archivo del patólogo no es una segmentación
-exhaustiva ni son contornos de núcleo: son marcas puestas donde la evidencia es clara.
+Y una precisión de honestidad. Lo que dibujamos es el núcleo que segmentó la herramienta debajo
+de la marca, no el contorno que trazó el patólogo. El área de ese contorno depende en parte del
+grosor del pincel con el que él lo dibujó, así que como medida de tamaño no serviría.
 
 ## [s04] Tareas del próximo período
 
