@@ -4434,6 +4434,99 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 48 — 4-sep-2026 · el deck PRESENTABLE: guion humanizado y las dos figuras legibles
+
+Sesión de ejecución. Cierra los tres puntos que la 47 dejó abiertos y **entrega**. El deck sigue
+en **trece**, sale con código 0 y los dos auditores limpios.
+
+### 1. `@humanizer-es` sobre el guion entero
+
+Trece bloques, **3092 → 2809 palabras**. El delta se reparte en dos mitades, que es lo que pide
+el ADDENDUM 23-ago de [[humanizer-es-skill]]:
+
+| | palabras | qué |
+|---|---:|---|
+| dedup de contenido | ~165 | dos repeticiones reales entre láminas contiguas, más los dos cierres |
+| pulido de prosa | ~118 | −3,8 % sobre las trece, en línea con el −1 % de referencia |
+
+**Los dos hallazgos fueron de ARCO, no de prosa**, otra vez, y los dos son la firma de un deck
+que creció de ocho a trece láminas ([[humanizer-es-skill]] ADDENDUM 22-ago):
+
+1. **`[s03d]` y `[s03re]` explicaban el control positivo dos veces**, con la frase «Si un
+   segmentador de núcleos no acierta esto, no hay nada más que discutir» **literal en las dos**,
+   a veinte segundos de distancia. `[s03re]` estaba escrita como si abriera el tema, y entra
+   **después**. Ahora `[s03d]` es dueña de la explicación y `[s03re]` continúa.
+2. **`[s03f]` y `[s03nu]` repetían el argumento del factor dos** (por qué el percentil es
+   intra-lámina), ~50 palabras cada una. Y **`[s03nu]` abría con «Y lo mismo con el otro eje, el
+   del grado nuclear»** cuando el bloque inmediatamente anterior **es** el grado nuclear: el
+   guion describía el recorrido de antes de la reestructura.
+
+Tells de ritmo, contados sobre el archivo extraído y después del pase:
+
+| tell | antes | después |
+|---|---:|---:|
+| párrafos que abren con «Y» | 11 | **1** |
+| metacomentario («quiero», «prefiero», «me parece») | 8 | **0** |
+| «Lo que…» / «Lo importante…» abriendo oración | 9 | **3** |
+| anunciar la honestidad en vez de serlo | 2 | **0** |
+
+Los cierres **«Procedencia: … Unidad: …» de `[s03d]` y `[s03f]` salieron**, decidido por Ernesto:
+leían paths de archivo en voz alta y la convención es prosa hablada. La unidad no se pierde, la
+declaran las dos láminas en su pie nativo. Se preservaron enteros los quiasmos «X, no Y» y la
+consigna sostenida de los positivos parciales.
+
+### 2. Las dos figuras, con la cuenta hecha contra la caja real
+
+| | antes | ahora |
+|---|---|---|
+| `atencion_12_laminas.png` | 19 px ⇒ **4,4 pt** | `TILE // 12` = 35 px ⇒ **8,1 pt** |
+| `nucleos_grado.png` | 15/14/12 px ⇒ **2,3 pt**, recorte 0,515" | 47/44/42 px ⇒ **7,9 / 7,4 / 7,1 pt**, recorte **0,561"** |
+
+El mosaico fue una línea: la fuente **no entra en `W` ni en `H`** (el rótulo se dibuja dentro del
+tile), así que el aspecto 2,98 y los 8,30" de render no se movieron. Salió 2590 × 870, idéntico,
+y volvió a verificar sus 113 parches.
+
+**La galería no era un cambio de fuente**, y ahí está el hallazgo de método (ADDENDUM nuevo en
+[[png-rotulos-quemados-pierden-pt]]). A 45 px `el que marcó el patólogo` mide 481 px en una lane
+de 250 y `grado moderado · 10 marcas` 434 en una de 190; ensanchar las lanes **agranda `W`, que
+es el denominador del pt efectivo**, y el punto fijo converge en un recorte de **0,518"**, más
+chico que el de partida. La salida fue **acortar los rótulos**: cabecera del quinto tile y de la
+lane a dos líneas, `percentil de la marca` → `percentil`, y el grado separado de las marcas.
+
+**Caja real de la lámina 12, medida con las propias funciones del generador: 12,097 × 3,577"
+(aspecto 3,38).** La figura sale 5171 × 1358, aspecto **3,81 > 3,38**, así que sigue limitada por
+el ancho, que es la condición que sostiene los 7,9 pt. El `--n-col 3` de **D5** queda ejecutado y
+su default cambiado en el script.
+
+**El precio, declarado:** el recorte llega a **0,561"** y no a los 0,595" que prometía el README,
+porque ese número suponía los rótulos ilegibles. Contra lo que había, mejora en los dos ejes a la
+vez (0,515" → 0,561" y 2,3 → 7,9 pt). Ernesto eligió este rework sabiendo el precio.
+
+### 3. Lo que encontró el QA visual, y `auditar()` no
+
+Cuarta vez seguida que es la única capa que encuentra algo. Un hallazgo, corregido:
+
+- **La barra de «10 µm» chocaba con el anillo blanco.** Con la fuente dimensionada para la lámina
+  el rótulo mide el doble, y estaba puesta sobre el **quinto** recorte, que es justo el que lleva
+  anillo. Pasa al **primero** (`p25`), el único de la fila que nunca lleva uno. Ningún chequeo de
+  cajas podía verlo: la barra y el anillo son dibujo dentro del PNG.
+
+Verificado además que los cuatro rótulos de la lámina 10 **siguen alineados con su panel** (la
+corrección de la sesión 47 aguanta) y que `tasa mitótica` y `gate invasivo` siguen separadas.
+
+### 4. Estado al cierre
+
+Rama `main`. **Cero jobs propios y cero procesos CPU propios.** Round-trip: trece láminas,
+notas en las trece con el conteo exacto de cada bloque del guion, las seis imágenes de contenido
+y las tres tablas, las dos del molde conservando su huella de 3,03". Se le mandaron a Ernesto las
+**trece rasterizadas**.
+
+**Lo que sigue abierto** es lo de §7 del handoff anterior, sin cambios: B2 sin lanzar (la GPU
+sigue tomada), el aviso a `sgaete` **sin mandar** y que conviene que salga antes del lunes, la
+réplica del 4589, los PNG huérfanos del B8 y el análisis B3.
+
+---
+
 ## Sesión 47 — 3-sep-2026 · EJECUCIÓN: las cinco láminas escritas, el deck en trece
 
 Sesión de ejecución pura, la primera después de cinco de plan seguidas. Corrió

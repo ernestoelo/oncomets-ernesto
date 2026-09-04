@@ -670,3 +670,75 @@ pide [[image-api-qa-limit]]. Tres hallazgos, dos ya corregidos:
 - **El `--n-col 3` de la galería** (D5) y las **dos regeneraciones de PNG** del punto 3.
 - **Darle el deck a leer a Ernesto** en su versión de trece. Al entregar hay que ofrecerle
   las trece rasterizadas: el QA certifica corrección, no comprensión.
+
+---
+
+## Estado al 4-sep-2026 (sesión 48) — el deck PRESENTABLE y entregado
+
+Cierra los tres puntos que la sesión 47 dejó abiertos. **El deck sigue en trece**, sale con
+código 0 y `auditar()` y `barrer_rayas()` no reportan nada. Se le mandaron a Ernesto las trece
+rasterizadas.
+
+### El guion, pasado por `@humanizer-es`
+
+**3092 → 2809 palabras.** El delta va en dos mitades, que es lo que pide el ADDENDUM 23-ago de
+[[humanizer-es-skill]]: ~165 palabras de **dedup de contenido** (dos repeticiones reales entre
+láminas contiguas, más los dos cierres) y ~118 de **pulido** (−3,8 %, en línea con el −1 % de
+referencia de las pasadas anteriores).
+
+**Los dos hallazgos mayores fueron de ARCO y ninguno de prosa**, que es la firma de un deck que
+creció de ocho a trece láminas:
+
+1. **s09 y s10 explicaban el control positivo dos veces**, con la frase «Si un segmentador de
+   núcleos no acierta esto, no hay nada más que discutir» **literal en las dos**. La lámina 10
+   estaba escrita como si abriera el tema y entra **después** de la 9. Ahora la 9 es dueña de la
+   explicación y la 10 continúa.
+2. **s11 y s12 repetían el argumento del factor dos**, y **s12 abría con «Y lo mismo con el otro
+   eje, el del grado nuclear»** cuando la lámina inmediatamente anterior **es** el grado nuclear.
+
+Tells de ritmo: párrafos que abren con «Y» **11 → 1**, metacomentario **8 → 0**, «Lo que…»
+abriendo oración **9 → 3**, anunciar la honestidad **2 → 0**. Se preservaron enteros los quiasmos
+«X, no Y» y la consigna sostenida de los positivos parciales.
+
+Los cierres **«Procedencia: … Unidad: …»** de los bloques del control positivo y del grado nuclear
+**salieron**, decidido por Ernesto: leían paths de archivo en voz alta. La unidad no se pierde,
+las dos láminas la declaran en su pie nativo.
+
+### Las dos figuras
+
+| | antes | ahora |
+|---|---|---|
+| `atencion_12_laminas.png` (s07) | 19 px ⇒ **4,4 pt** | `TILE // 12` = 35 px ⇒ **8,1 pt** |
+| `nucleos_grado.png` (s12) | 15/14/12 px ⇒ **2,3 pt**, recorte 0,515" | 47/44/42 px ⇒ **7,9 / 7,4 / 7,1 pt**, recorte **0,561"** |
+
+El mosaico fue **una línea**: la fuente no entra en `W` ni en `H` porque el rótulo se dibuja
+dentro del tile, así que el aspecto 2,98 y los 8,30" de render no se mueven. Salió 2590 × 870,
+idéntico, y volvió a verificar sus 113 parches.
+
+**La galería no era un cambio de fuente.** A 45 px `el que marcó el patólogo` mide 481 px en una
+lane de 250 y `grado moderado · 10 marcas` 434 en una de 190; ensanchar las lanes **agranda `W`,
+que es el denominador del pt efectivo**, y el punto fijo converge en un recorte de 0,518", más
+chico que el de partida. La salida fue **acortar los rótulos**: cabecera del quinto tile y de la
+lane a dos líneas, `percentil de la marca` → `percentil`, y el grado separado de las marcas. El
+razonamiento entero está en el docstring de `hoja()`, para que nadie lo rehaga.
+
+**La caja de la lámina 12 se midió con las propias funciones del generador: 12,097 × 3,577",
+aspecto 3,38.** La figura sale **5171 × 1358, aspecto 3,81**, así que sigue limitada por el
+**ancho** — y ésa es la condición que sostiene los 7,9 pt. Si se cambia un rótulo o una lane hay
+que rehacer la cuenta.
+
+**D5 queda ejecutado** (`--n-col 3`, y el default del script cambiado). **El precio, declarado:**
+el recorte llega a **0,561"** y no a los 0,595" que prometía este README más arriba, porque ese
+número suponía los rótulos ilegibles. Contra lo que había mejora en los dos ejes a la vez.
+
+### Lo que encontró el QA visual, y `auditar()` no
+
+Cuarta vez seguida que es la única capa que encuentra algo. Un hallazgo, corregido:
+
+- **La barra de «10 µm» chocaba con el anillo blanco de la marca.** Con la fuente dimensionada
+  para la lámina el rótulo mide el doble, y la barra estaba sobre el **quinto** recorte, que es
+  justo el que lleva anillo. Pasa al **primero** (`p25`), el único de la fila que nunca lleva
+  uno. Ningún chequeo de cajas podía verlo: la barra y el anillo son dibujo dentro del PNG.
+
+Verificado de paso que los cuatro rótulos de la lámina 10 **siguen alineados con su panel** y que
+`tasa mitótica` y `gate invasivo` siguen separadas en la cabecera de `barras_area`.
