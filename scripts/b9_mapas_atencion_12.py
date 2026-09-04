@@ -110,7 +110,12 @@ def mosaico(paneles, path):
     H = filas * (TILE + pad) + pad
     hoja = Image.new("RGB", (W, H), FONDO)
     d = ImageDraw.Draw(hoja)
-    f = fuente(max(13, TILE // 22), bold=True)
+    # TILE // 12 y no // 22: el rótulo va QUEMADO en el PNG, así que su tamaño en la
+    # lámina es px * ancho_en_pulgadas * 72 / W. A 8,30" sobre 2590 px, 19 px daban
+    # 4,4 pt, bajo el mínimo de 7 pt del template; 35 px dan 8,1
+    # ([[png-rotulos-quemados-pierden-pt]]). La fuente no entra en W ni en H (el rótulo
+    # se dibuja DENTRO del tile), así que el aspecto 2,98 y los 8,30" no se mueven.
+    f = fuente(max(13, TILE // 12), bold=True)
     for i, (slide, im, marcas, n) in enumerate(paneles):
         rr, cc = divmod(i, COLS)
         x, y = pad + cc * (TILE + pad), pad + rr * (TILE + pad)
