@@ -666,6 +666,165 @@ def leyenda_puntos(slide, l, t, items, fs=9, d=0.13):
     return t + 0.18
 
 
+def leyenda_mapa(slide, l, t, fs=9):
+    """Leyenda del mapa de atención: la rampa turbo y el anillo de la marca del patólogo.
+
+    La rampa es la MISMA del mapa (`TURBO`, los 24 stops quemados arriba), dibujada como 24
+    rectángulos contiguos: es la única forma de tenerla nativa sin traerle matplotlib al
+    deck. El anillo va sobre un cuadradito de la propia rampa porque un anillo blanco sobre
+    el fondo blanco de la lámina no se ve, que es el mismo motivo de `leyenda_circulos`."""
+    w_ramp, h_ramp, lado = 1.70, 0.145, 0.20
+    x = l
+    add_textbox(slide, x, t - 0.03, text_w("atención baja", fs) + 0.10, h_ramp + 0.06,
+                [("atención baja", fs, False, CUERPO)], anchor=MSO_ANCHOR.MIDDLE)
+    x += text_w("atención baja", fs) + 0.14
+    paso = w_ramp / float(len(TURBO))
+    for i, c in enumerate(TURBO):
+        _rect(slide, x + i * paso, t, paso + 0.005, h_ramp, _rgb(c))
+    x += w_ramp + 0.10
+    add_textbox(slide, x, t - 0.03, text_w("alta", fs) + 0.10, h_ramp + 0.06,
+                [("alta", fs, False, CUERPO)], anchor=MSO_ANCHOR.MIDDLE)
+    x += text_w("alta", fs) + 0.42
+
+    y = t + h_ramp / 2.0 - lado / 2.0
+    _rect(slide, x, y, lado, lado, _rgb(TURBO[16]))
+    # Dos anillos concéntricos, el oscuro por fuera: son los mismos dos que el mosaico
+    # dibuja sobre cada parche marcado (`b9_mapas_atencion_12.py`, el blanco solo
+    # desaparece sobre el amarillo de la rampa).
+    for d, col, ancho in ((lado - 0.045, TITULO, 2.0), (lado - 0.080, BLANCO, 1.25)):
+        ov = slide.shapes.add_shape(MSO_SHAPE.OVAL, Inches(x + (lado - d) / 2.0),
+                                    Inches(y + (lado - d) / 2.0), Inches(d), Inches(d))
+        ov.fill.background()
+        ov.line.color.rgb = col
+        ov.line.width = Pt(ancho)
+        ov.shadow.inherit = False
+    txt = "parche con Mitosis marcada"
+    add_textbox(slide, x + lado + 0.09, y - 0.02, text_w(txt, fs) + 0.10, lado + 0.04,
+                [(txt, fs, False, CUERPO)], anchor=MSO_ANCHOR.MIDDLE)
+    return t + max(h_ramp, lado)
+
+
+def barras_auc(slide, l, t, w, brazos, fs=9, w_val=0.80):
+    """Los tres brazos de atención apilados, con el eje TRUNCADO en 0,50.
+
+    Truncar es lo que vuelve visible la diferencia entre 0,809 y 0,770, y por eso el rótulo
+    del eje lo DECLARA: un eje truncado sin decirlo exagera el contraste entre los brazos.
+    El primario va en el celeste de acento y los dos controles en el azul del cuerpo."""
+    x_eje = l + 0.24
+    w_eje = w - 0.24 - w_val - 0.07
+    vmin, vmax = 0.50, 1.00
+    y = t
+    for b in brazos:
+        h_rot = wrap_lines(b["rotulo"], w - 0.10, fs) * fs * 1.22 / 72.0
+        add_textbox(slide, l, y, w, h_rot + 0.03, [(b["rotulo"], fs, False, CUERPO)])
+        y += h_rot + 0.05
+        largo = w_eje * (b["media"] - vmin) / (vmax - vmin)
+        _rect(slide, x_eje, y, largo, 0.20,
+              ACENTO if b["clave"] == "json_out" else CUERPO)
+        add_textbox(slide, x_eje + largo + 0.07, y - 0.02, w_val, 0.24,
+                    [("%s ± %s" % (num(b["media"], 3), num(b["sd"], 3)), fs, True, CUERPO)],
+                    anchor=MSO_ANCHOR.MIDDLE)
+        y += 0.20 + 0.22
+    fin = eje_x(slide, x_eje, y - 0.14, w_eje, vmin, vmax,
+                [0.50, 0.60, 0.70, 0.80, 0.90, 1.00], dec=2)
+    add_textbox(slide, l, fin + 0.03, w, 0.36,
+                [("AUC sobre los parches marcados · eje truncado en 0,50 = azar",
+                  8.5, False, CUERPO)])
+    return fin + 0.38
+
+
+def barras_area(slide, l, t, w, alto_max, peldanos, fs=9.5):
+    """Un peldaño por fila: cuánta superficie sobrevive al recorte y qué retiene cada cabeza.
+
+    El largo es proporcional al ÁREA y la escala es lineal a propósito: el mensaje de la
+    lámina es el derrumbe de superficie, y una escala logarítmica lo escondería. Los dos
+    peldaños chicos quedan casi invisibles, y por eso el área va impresa al final de la
+    barra y los conteos en columnas fijas, que es lo que se lee cuando la barra no se ve."""
+    w_lab, w_area, gap = 1.10, 0.66, 0.16
+    cols = (("tasa mitótica", 0.95), ("gate invasivo", 0.85), ("azar", 0.55))
+    w_num = sum(c[1] for c in cols)
+    x_bar = l + w_lab + gap
+    w_bar = w - w_lab - w_area - w_num - 3 * gap
+    x_num = l + w - w_num
+    amax = max(p["area"] for p in peldanos)
+
+    x = x_num
+    for txt, wc in cols:
+        add_textbox(slide, x, t, wc, 0.19, [(txt, 8.5, True, CUERPO, PP_ALIGN.RIGHT)],
+                    anchor=MSO_ANCHOR.MIDDLE)
+        x += wc
+    add_textbox(slide, x_bar, t, w_bar + w_area, 0.19,
+                [("área total de las doce láminas", 8.5, False, CUERPO)],
+                anchor=MSO_ANCHOR.MIDDLE)
+
+    y0 = t + 0.30
+    paso = (alto_max - 0.30) / len(peldanos)
+    h_b = min(0.26, paso - 0.16)
+    for i, p in enumerate(peldanos):
+        y = y0 + i * paso
+        yc = y + (paso - h_b) / 2.0
+        largo = w_bar * p["area"] / float(amax)
+        _rect(slide, x_bar, yc, w_bar, h_b, LINEA)
+        _rect(slide, x_bar, yc, max(largo, 0.02), h_b,
+              ACENTO if p["destacado"] else CUERPO)
+        add_textbox(slide, l, y, w_lab, paso,
+                    [(p["etiqueta"], fs, p["destacado"], CUERPO, PP_ALIGN.RIGHT)],
+                    anchor=MSO_ANCHOR.MIDDLE)
+        add_textbox(slide, x_bar + w_bar + 0.06, y, w_area, paso,
+                    [("%s mm²" % num(p["area"]), fs, p["destacado"], CUERPO)],
+                    anchor=MSO_ANCHOR.MIDDLE)
+        vals = ("%d de %d" % (p["mitosis"], peldanos[0]["mitosis"]),
+                "%d" % p["gate"], num(p["azar"]))
+        x = x_num
+        for (txt, wc), v in zip(cols, vals):
+            add_textbox(slide, x, y, wc, paso,
+                        [(v, fs, p["destacado"], CUERPO, PP_ALIGN.RIGHT)],
+                        anchor=MSO_ANCHOR.MIDDLE)
+            x += wc
+    return t + alto_max
+
+
+def tira_dimensiones(slide, l, t, w, bloques, vertical=True, fs=11, gap=0.13):
+    """Cadena de bloques con conector: la geometría de una herramienta, paso a paso.
+
+    Cada bloque es un `_rect` en el azul del cuerpo con su texto en blanco bold; el último
+    suele ir en el celeste de acento, que es la respuesta a la que apunta la cadena. El
+    conector es un filete, no una flecha de texto: Barlow **no trae** el glifo `\u2192` y
+    caería a otra tipografía ([[deck-template-fuentes-embebidas]])."""
+    x, y = l, t
+    for i, (txt, destacado) in enumerate(bloques):
+        if i:
+            if vertical:
+                _rect(slide, x + w / 2.0 - 0.015, y, 0.03, gap, SEP)
+                y += gap
+            else:
+                _rect(slide, x, y + 0.20, gap, 0.03, SEP)
+                x += gap
+        col = ACENTO if destacado else CUERPO
+        if vertical:
+            h = wrap_lines(txt, w - 0.24, fs, True) * fs * 1.22 / 72.0 + 0.20
+            _rect(slide, x, y, w, h, col)
+            add_textbox(slide, x + 0.12, y, w - 0.24, h, [(txt, fs, True, BLANCO)],
+                        anchor=MSO_ANCHOR.MIDDLE)
+            y += h
+        else:
+            wb = text_w(txt, fs, True) + 0.24
+            h = fs * 1.22 / 72.0 + 0.20
+            _rect(slide, x, y, wb, h, col)
+            add_textbox(slide, x + 0.12, y, wb - 0.24, h, [(txt, fs, True, BLANCO)],
+                        anchor=MSO_ANCHOR.MIDDLE)
+            x += wb
+    return y if vertical else x
+
+
+def alto_tira(w, bloques, fs=11, gap=0.13):
+    """Lo que va a medir `tira_dimensiones` vertical, para centrarla contra la figura."""
+    h = gap * (len(bloques) - 1)
+    for txt, _ in bloques:
+        h += wrap_lines(txt, w - 0.24, fs, True) * fs * 1.22 / 72.0 + 0.20
+    return h
+
+
 def caja_figura(fin_cuerpo, pie, w):
     """Reparte lo que queda entre el cuerpo y la zona de pie. Devuelve (top, alto, y_pie)."""
     h_pie = _alto_bloque(pie, w - 0.06, PT_PIE, space_after=1.5)
@@ -1122,19 +1281,28 @@ def leyenda_circulos(slide, l, t, items, fs=9.5, lado=0.20):
     return t + lado
 
 
+def medir_figura(png, w_max, h_max):
+    """Lo que va a ocupar el PNG dentro de la caja: (izquierda relativa, ancho, alto).
+
+    Existe porque dos láminas necesitan **alinear rótulos nativos con los paneles del PNG**
+    y `poner_figura` centra: sin saber el ancho real y el margen que dejó el centrado, los
+    rótulos caen corridos. La usa `poner_figura` misma, así que no hay dos cuentas."""
+    from PIL import Image
+    with Image.open(png) as im:
+        wi, hi = im.size
+    esc = min(w_max / float(wi), h_max / float(hi))
+    w, h = wi * esc, hi * esc
+    return (w_max - w) / 2.0, w, h
+
+
 def poner_figura(slide, png, l, t, w_max, h_max):
     """Inserta el PNG escalado para entrar entero en la caja, centrado en el ancho.
 
     La figura es una **fotografía de un resultado** y por eso va como imagen y no como
     shapes: es la excepción declarada en CLAUDE.md §"Formato de entregables". Lo que la
     acompaña (título, cuerpo, leyenda y pie) sí es nativo."""
-    from PIL import Image
-    with Image.open(png) as im:
-        wi, hi = im.size
-    esc = min(w_max / float(wi), h_max / float(hi))
-    w, h = wi * esc, hi * esc
-    slide.shapes.add_picture(png, Inches(l + (w_max - w) / 2.0), Inches(t),
-                             Inches(w), Inches(h))
+    dx, w, h = medir_figura(png, w_max, h_max)
+    slide.shapes.add_picture(png, Inches(l + dx), Inches(t), Inches(w), Inches(h))
     return t + h
 
 
@@ -1469,6 +1637,215 @@ def lamina_f4(s, d3, guion):
     notes(s, guion)
 
 
+def lamina_hovernext(s, guion):
+    """La geometría del detector, que es la pregunta que quedó abierta: cuánto mide su tesela.
+
+    La figura del paper va como IMAGEN (excepción declarada de CLAUDE.md §"Formato de
+    entregables": una figura publicada no se dibuja con shapes) y la cadena de la derecha es
+    NATIVA. El último bloque es la respuesta: la tesela del detector y el parche de CLAM
+    miden lo mismo sobre estas láminas, y por eso las dos cosas se pueden cruzar."""
+    set_cejilla(s, PROYECTO)
+    set_titulo(s, "Cómo funciona HoVer-NeXt", nombre="Text 1")
+    fin = set_cuerpo(s, [
+        ("El detector recorre la lámina en teselas y clasifica cada núcleo: ",
+         "a la derecha, su geometría sobre nuestras láminas, verificada contra el código y "
+         "no contra el paper."),
+    ])
+    l, _, w = G_CUERPO
+    pie = ["Los pesos que usamos están entrenados a 20×, que son 0,485 µm por píxel "
+           "nominales. Nuestras láminas están a 0,465, dentro de su tolerancia, así que se "
+           "lee el nivel 0 sin remuestrear.",
+           "Por eso enmascarar por parches de CLAM es enmascarar a la granularidad de la "
+           "tesela del detector: las dos rejillas tienen el mismo tamaño físico.",
+           "La figura es del paper de HoVer-NeXt y va como imagen; todo lo demás de la "
+           "lámina es nativo."]
+    top, alto, y_pie = caja_figura(fin, pie, w)
+
+    bloques = [("tesela de 256 × 256 px", False),
+               ("paso de 248 px entre teselas: su parámetro de solapamiento es un stride",
+                False),
+               ("de cada tesela escribe el centro, 248 × 248", False),
+               ("20× con los pesos de Lizard, 0,485 µm/px nominales", False),
+               ("nuestras láminas a 0,465 µm/px: sin remuestreo", False),
+               ("119 µm de lado = 0,0142 mm², el mismo tamaño físico que un parche de CLAM",
+                True)]
+    w_tira = 5.85
+    w_fig = w - w_tira - 0.32
+    _, _, h_real = medir_figura(PNG_HOVERNEXT, w_fig, alto)
+    poner_figura(s, PNG_HOVERNEXT, l, top + (alto - h_real) / 2.0, w_fig, alto)
+    h_tira = alto_tira(w_tira, bloques)
+    tira_dimensiones(s, l + w - w_tira, top + max(0.0, (alto - h_tira) / 2.0), w_tira,
+                     bloques)
+    pie_lineas(s, l, y_pie, w, pie)
+    notes(s, guion)
+
+
+def lamina_atencion(s, d_at, guion):
+    """Los doce mapas de atención con las marcas encima, y los tres brazos al lado (D1 + D4).
+
+    Las barras van AL LADO y no debajo porque las dos cosas no entraban: apilado, el mosaico
+    caía a 7,3" ([[figura-alto-lo-decide-el-pie]]). El pie declara las cuatro propiedades de
+    la fuente de atención, y la cuarta es que **cuánto infla no se sabe**."""
+    b = d_at["brazos"]
+    c = d_at["conteos"]
+    set_cejilla(s, PROYECTO)
+    set_titulo(s, "La atención cae sobre las mitosis marcadas", nombre="Text 1")
+    fin = set_cuerpo(s, [
+        ("La atención ordena los parches con mitosis por encima del resto: ",
+         "AUC %s en las %d láminas medibles, y las %d quedan sobre el azar en los tres "
+         "brazos." % (num(b[0]["media"], 3), b[0]["n"], b[0]["sobre_azar"])),
+    ])
+    l, _, w = G_CUERPO
+    pie = ["El mapa es un ensemble de los cinco folds, así que está contaminado por "
+           "construcción: cada una de estas láminas estuvo en el entrenamiento de alguno "
+           "de ellos.",
+           "Se lee la rama de la clase que el modelo predice, no la verdadera.",
+           "Es la familia de entrenamiento «_pth_balance», no la «_combined_5fold» que "
+           "produjo los números de referencia del período anterior.",
+           "Cuánto infla ese ensemble respecto de un modelo limpio de su misma familia no "
+           "se sabe: no está medido.",
+           "Unidad: PARCHE. Son %d parches con Mitosis en las %d láminas medibles, de %d en "
+           "las doce. El rótulo de cada recuadro dice cuántos aporta."
+           % (c["parches_marcados_primario"], c["primario"], c["parches_marcados"])]
+    top, alto, y_pie = caja_figura(fin, pie, w)
+
+    fin_leg = leyenda_mapa(s, l, top)
+    t_fig = fin_leg + 0.14
+    h_fig = top + alto - t_fig
+    w_mos = 8.30                        # D4: manda el mosaico y las barras van a su lado
+    poner_figura(s, PNG_ATENCION, l, t_fig, w_mos, h_fig)
+    barras_auc(s, l + w_mos + 0.30, t_fig + 0.10, w - w_mos - 0.30, b)
+    pie_lineas(s, l, y_pie, w, pie)
+    notes(s, guion)
+
+
+def lamina_escalera(s, d_es, guion):
+    """La escalera de área: bajar el presupuesto compra superficie, nunca marcas.
+
+    `clam_combinado` NO entra: es exploratorio y así está declarado en
+    `atencion_12_laminas/resultados.md` §5. El peldaño de 3 mm² va en el acento porque es el
+    que la lámina de tareas propone como ventana."""
+    p3 = [x for x in d_es["peldanos"] if x["destacado"]][0]
+    p0 = d_es["peldanos"][0]
+    set_cejilla(s, PROYECTO)
+    set_titulo(s, "El recorte compra superficie, no marcas", nombre="Text 1")
+    fin = set_cuerpo(s, [
+        ("Bajar de %s a %s mm² retiene %d de las %d marcas acreditadas: "
+         % (num(p0["area"]), num(p3["area"]), p3["mitosis"], p0["mitosis"]),
+         "un factor %d de superficie por %d marcas, contra %s que retendría el azar con la "
+         "misma carga de parches."
+         % (round(p0["area"] / p3["area"]), p0["mitosis"] - p3["mitosis"],
+            num(p3["azar"]))),
+    ])
+    l, _, w = G_CUERPO
+    pie = ["El presupuesto es POR LÁMINA y el largo de la barra es el área sumada de las "
+           "doce: 3 mm² por lámina son %s mm² en total." % num(p3["area"]),
+           "Filtrar no puede subir el conteo. El detector ya corrió sobre la lámina "
+           "completa, así que todo recorte es un subconjunto y el número sólo puede bajar.",
+           "Sobre la lámina entera el detector da %d detecciones y la teselación %d: las "
+           "%d de diferencia caen sobre tejido que el segmentador de CLAM descartó."
+           % (d_es["sin_filtro"][0], d_es["teselado"][0],
+              d_es["sin_filtro"][0] - d_es["teselado"][0]),
+           "Los tres brazos coinciden en %d sobre la lámina entera, que es el chequeo de "
+           "sanidad del barrido. Unidad: MARCA ACREDITADA por centroide, %d de las %d."
+           % (p0["mitosis"], d_es["acreditadas"], d_es["marcas"])]
+    top, alto, y_pie = caja_figura(fin, pie, w)
+    fin_bar = barras_area(s, l, top, w, alto - 0.30, d_es["peldanos"])
+    add_textbox(s, l, fin_bar + 0.04, w, 0.22,
+                [("Superficie que queda tras el recorte, y marcas acreditadas que "
+                  "sobreviven dentro de ella", 8.5, False, CUERPO, PP_ALIGN.CENTER)],
+                anchor=MSO_ANCHOR.MIDDLE)
+    pie_lineas(s, l, y_pie, w, pie)
+    notes(s, guion)
+
+
+def lamina_regiones(s, n_reg, guion):
+    """El control positivo mostrado sobre tejido: dos regiones de epitelio y dos de estroma.
+
+    La leyenda y los cuatro rótulos van NATIVOS aunque el PNG ya los traiga quemados: a
+    escala de lámina los quemados caen a 5,7 y 6,4 pt, bajo el mínimo de 7 pt del template
+    ([[png-rotulos-quemados-pierden-pt]]). Los dos colores son los del propio detector."""
+    meta = json.load(open(JSON_REGIONES, encoding="utf-8"))
+    col = meta["colores"]
+    # El `paneles` del JSON viene en el orden en que se MIDIERON, y el PNG los dibuja
+    # ordenados: `b9_galeria_regiones_epi.main()` hace `paneles.sort(...)` DESPUÉS de armar
+    # el `meta`. Sin reproducir esa misma clave acá los cuatro rótulos salen cruzados (el
+    # QA visual los cazó con 124729 y 124806 intercambiadas), y ningún chequeo de cajas lo
+    # ve. El `sort` de Python es estable, así que el empate de las dos de estroma (f_epi 0
+    # las dos) conserva el orden del JSON, igual que en el script que dibujó el PNG.
+    paneles = sorted(meta["paneles"],
+                     key=lambda p: (p["grupo"] != "epitelio", -p["f_epi"]))
+    set_cejilla(s, PROYECTO)
+    set_titulo(s, "Una región de epitelio y una de estroma", nombre="Text 1")
+    fin = set_cuerpo(s, [
+        ("Las dos regiones con más núcleos de cada grupo, una por lámina: ",
+         "cada punto es un núcleo que el detector encontró adentro del polígono que dibujó "
+         "el patólogo."),
+    ])
+    l, _, w = G_CUERPO
+    pie = ["Los dos colores son la paleta del propio detector, no la de la plantilla.",
+           "La fracción epitelial es la proporción de núcleos epiteliales dentro del "
+           "polígono. Las dos regiones de estroma dan cero exacto: ni un núcleo epitelial "
+           "adentro.",
+           "Unidad: REGIÓN. Son cuatro de las %d que el patólogo dibujó en las doce "
+           "láminas, elegidas por tener más núcleos entre las de offset alineado." % n_reg]
+    top, alto, y_pie = caja_figura(fin, pie, w)
+
+    fin_leg = leyenda_puntos(s, l, top,
+                             [(RGBColor(*col["epitelial"]), False, "núcleo epitelial"),
+                              (RGBColor(*col["conectivo"]), False, "núcleo conectivo")],
+                             fs=9.5, d=0.15)
+    t_fig = fin_leg + 0.14
+    # 0,40 y no 0,20: el rótulo va en DOS líneas. En una sola, «124729 · CDIS_solido ·
+    # fracción epitelial 0,932» pide 2,60" y el panel mide 2,54", y `auditar` lo ve.
+    h_rot = 0.40
+    h_fig = top + alto - t_fig - h_rot - 0.06
+    dx, w_real, h_real = medir_figura(PNG_REGIONES, w, h_fig)
+    poner_figura(s, PNG_REGIONES, l, t_fig, w, h_fig)
+    # Los cuatro rótulos se alinean con los paneles del PNG, cuya geometría es la de
+    # `b9_galeria_regiones_epi.hoja()`: pad de 12 px y paso de 572 sobre 2300 de ancho. Sin
+    # el `dx` del centrado caerían corridos, que es para lo que existe `medir_figura`.
+    PAD, PASO, TILE, W_PNG = 12.0, 572.0, 560.0, 2300.0
+    for k, p in enumerate(paneles):
+        x = l + dx + w_real * (PAD + PASO * k) / W_PNG
+        add_textbox(s, x, t_fig + h_real + 0.06, w_real * TILE / W_PNG, h_rot,
+                    [("%s · %s" % (p["slide"], p["clase"]), 9.5, True, CUERPO),
+                     ("fracción epitelial %s" % num(p["f_epi"], 3), 9.5, False, CUERPO)],
+                    anchor=MSO_ANCHOR.TOP, space_after=1)
+    pie_lineas(s, l, y_pie, w, pie)
+    notes(s, guion)
+
+
+def lamina_nucleos(s, guion):
+    """El percentil del eje del grado, mostrado como TAMAÑO: el núcleo marcado contra su lámina.
+
+    Las cuatro primeras columnas son percentiles de la población epitelial de la PROPIA
+    lámina, y por eso el pie insiste en que la escalera es intra-lámina: entre láminas el
+    tamaño nuclear medio cambia por un factor dos y el percentil cancela justo eso."""
+    meta = json.load(open(JSON_NUCLEOS, encoding="utf-8"))
+    set_cejilla(s, PROYECTO)
+    set_titulo(s, "Los núcleos marcados contra su propia lámina", nombre="Text 1")
+    fin = set_cuerpo(s, [
+        ("Cuatro núcleos de la propia lámina contra el que marcó el patólogo: ",
+         "los cuatro primeros están en los percentiles %s de área y el marcado va con "
+         "recuadro." % " · ".join(str(x) for x in meta["percentiles"])),
+    ])
+    l, _, w = G_CUERPO
+    pie = ["Los percentiles son de la población epitelial de la PROPIA lámina, no del "
+           "conjunto: entre láminas el tamaño nuclear medio cambia por un factor dos y el "
+           "percentil cancela esa diferencia.",
+           "Lo que se dibuja es el núcleo que segmentó el detector bajo la marca, no el "
+           "polígono del patólogo: el área de ese polígono es en parte el pincel con el que "
+           "lo dibujó.",
+           "Cada recorte mide %s µm de lado y los cinco de una fila comparten µm por píxel, "
+           "que es lo único que vuelve comparable un tamaño. Unidad: NÚCLEO."
+           % num(meta["lado_um"], 2)]
+    top, alto, y_pie = caja_figura(fin, pie, w)
+    poner_figura(s, PNG_NUCLEOS, l, top, w, alto)
+    pie_lineas(s, l, y_pie, w, pie)
+    notes(s, guion)
+
+
 def lamina_tareas(s, guion):
     set_cejilla(s, PROYECTO)
     set_titulo(s, "Tareas del próximo período")
@@ -1484,7 +1861,13 @@ def lamina_tareas(s, guion):
          "Conteo por mm², mapa de densidad y la ventana de área fija que lo maximiza: la "
          "primera versión de una zona para proponerle al patólogo",
          "15/09"),
-    ], min_h=1.14)
+        ("La ventana contigua de 3 mm²",
+         "Lo medido hasta acá es una máscara NO contigua de parches. Falta la ventana "
+         "contigua de área fija, con su nulo por posición y su máximo alcanzable. Los "
+         "3 mm² son el área de referencia para contar mitosis: Ibrahim et al., Modern "
+         "Pathology 2022",
+         "15/09"),
+    ])
     notes(s, guion)
 
 
@@ -1533,11 +1916,20 @@ def main():
     datos, agg = leer_datos()
     d4 = datos_eje4()
     d3 = datos_eje3()
+    d_at = leer_atencion()
+    d_es = leer_escalera()
     R = d3["restringida"]
     guion, _ = leer_guion()
     print("Deck del período · %s · %s" % (PROYECTO, PERIODO))
     print("  mitosis: %d láminas, %d marcas, %d detecciones, %d TP (%.1f %%)"
           % (agg["n_laminas"], agg["marcas"], agg["det"], agg["tp"], 100 * agg["recall"]))
+    print("  atención: %s sobre %d láminas, y los dos controles en %s y %s"
+          % (num(d_at["brazos"][0]["media"], 3), d_at["brazos"][0]["n"],
+             num(d_at["brazos"][1]["media"], 3), num(d_at["brazos"][2]["media"], 3)))
+    print("  escalera: %s -> %s mm² retiene %d de %d acreditadas (azar %s)"
+          % (num(d_es["peldanos"][0]["area"]), num(d_es["peldanos"][3]["area"]),
+             d_es["peldanos"][3]["mitosis"], d_es["acreditadas"],
+             num(d_es["peldanos"][3]["azar"])))
     print("  eje 4: %d regiones (%d epi / %d estroma), AUC %.3f, p %.4f"
           % (d4["n_reg"], d4["n_epi"], d4["n_est"], d4["obs"], d4["p"]))
     print("  eje 3: %d marcas en %d láminas, rho %.3f, p exacto %.4f sobre %d asignaciones"
@@ -1546,18 +1938,28 @@ def main():
     prs = Presentation(TPL)
     s01, s02, s03, s04 = list(prs.slides)
 
+    sHN = clonar_s03(prs, s03)      # cómo funciona el detector, y cuánto mide su tesela
     sA = clonar_s03(prs, s03)       # el número
     sB = clonar_s03(prs, s03)       # los 26 recortes acreditados
     sC = clonar_s03(prs, s03)       # las 68 que se escapan
+    sAT = clonar_s03(prs, s03)      # los doce mapas de atención y los tres brazos
+    sES = clonar_s03(prs, s03)      # la escalera de área
     sE = clonar_s03(prs, s03)       # F1  el control positivo por clase
+    sRE = clonar_s03(prs, s03)      # las cuatro regiones sobre tejido
     sG = clonar_s03(prs, s03)       # F3  los tres grados sobre diez láminas
+    sNU = clonar_s03(prs, s03)      # los núcleos marcados contra su propia lámina
 
     lamina_objetivos(s02, guion["s02"])
+    lamina_hovernext(sHN, guion["s03hn"])
     lamina_mitosis(sA, datos, agg, guion["s03a"])
     lamina_aciertos(sB, agg, guion["s03b"])
     lamina_falladas(sC, agg, guion["s03c"])
+    lamina_atencion(sAT, d_at, guion["s03at"])
+    lamina_escalera(sES, d_es, guion["s03es"])
     lamina_f1(sE, d4, guion["s03d"])
+    lamina_regiones(sRE, d4["n_reg"], guion["s03re"])
     lamina_f3(sG, d3, guion["s03f"])
+    lamina_nucleos(sNU, guion["s03nu"])
     lamina_tareas(s04, guion["s04"])
     notes(s01, guion["s01"])
 
@@ -1568,7 +1970,7 @@ def main():
     # que es el envoltorio que re-renderiza las cuatro figuras de los ejes para QA visual.
     # `lamina_ejes` sí se borró (nadie más la usa); su tabla de los ocho ejes queda como
     # única fuente en `hovernext_tareas/inventario_tareas.md` §4.
-    reordenar(prs, [s01, s02, sA, sB, sC, sE, sG, s04])
+    reordenar(prs, [s01, s02, sHN, sA, sB, sC, sAT, sES, sE, sRE, sG, sNU, s04])
 
     forzar_barlow(prs)
     problemas = auditar(prs)
