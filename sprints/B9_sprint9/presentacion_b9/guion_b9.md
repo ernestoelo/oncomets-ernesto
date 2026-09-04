@@ -11,6 +11,10 @@
 >
 > El separador de bloque es `## [sNN]` y el generador parsea por ahí. No cambiar el formato
 > sin tocar `leer_guion()`.
+>
+> Pasado por `@humanizer-es` el 4-sep. Los cierres «Procedencia: … Unidad: …» que tenían
+> `[s03d]` y `[s03f]` salieron: leían paths en voz alta, y las dos láminas ya declaran su
+> unidad en el pie nativo.
 
 ## [s01] Portada
 
@@ -20,7 +24,7 @@ idea es que la discusión quede para el final.
 
 ## [s02] OBJETIVOS
 
-Al abrir el período nos pusimos tres cosas y quiero pasar por las tres con el estado real,
+Al abrir el período nos pusimos tres cosas y voy a pasar por las tres con el estado real,
 no con el estado que me gustaría.
 
 La primera era escalar la detección de mitosis a más láminas anotadas, y ésa está cerrada.
@@ -32,11 +36,11 @@ con qué pesos hay que correrlo y sabemos cuánto cuesta, pero no está lanzado,
 tarjeta lleva más de un día tomada por otra persona del equipo y no hay forma de colarse
 antes. Está listo para salir el día que se libere.
 
-Y la tercera era evaluar métricas nuevas para mitosis, y ésa también quedó cerrada. El
-ejercicio no fue proponer métricas lindas sino separar cuáles se pueden calcular hoy con lo
-que ya está en disco, cuáles piden tarjeta y cuáles no se desbloquean con ningún
-presupuesto. Y de las que se podían calcular hoy, las dos que valían la pena están medidas
-y las van a ver en el medio de la presentación.
+La tercera era evaluar métricas nuevas para mitosis, y también quedó cerrada. El ejercicio
+no fue proponer métricas lindas sino separar cuáles se pueden calcular hoy con lo que ya
+está en disco, cuáles piden tarjeta y cuáles no se desbloquean con ningún presupuesto. De
+las que se podían calcular hoy, las dos que valían la pena están medidas y las van a ver en
+el medio de la presentación.
 
 ## [s03hn] Cómo funciona el detector
 
@@ -56,11 +60,11 @@ aumentos y nuestras láminas están casi exactamente ahí, dentro de la toleranc
 declara, así que lee el nivel original sin reescalar nada. Eso importa porque un remuestreo
 silencioso habría cambiado el tamaño de todo lo que viene después.
 
-Y el último bloque es la razón de ser de la lámina. La tesela del detector, sobre estas
-láminas, mide lo mismo que un parche del modelo de atención. Exactamente lo mismo. Por eso más
-adelante vamos a poder recortar por parches de atención y hablar de lo que el detector encontró
-sin estar mezclando dos rejillas distintas. Si no midieran lo mismo, ese cruce habría que
-justificarlo; como miden lo mismo, no hay nada que justificar.
+El último bloque es la razón de ser de la lámina. La tesela del detector, sobre estas láminas,
+mide lo mismo que un parche del modelo de atención. Exactamente lo mismo. Por eso más adelante
+vamos a poder recortar por parches de atención y hablar de lo que el detector encontró sin estar
+mezclando dos rejillas distintas. Si no midieran lo mismo, ese cruce habría que justificarlo;
+como miden lo mismo, no hay nada que justificar.
 
 ## [s03a] Mitosis sobre las doce láminas
 
@@ -79,16 +83,16 @@ resultado no depende del corte que elijamos: es plano en todo el rango con el qu
 literatura de mitosis trabaja. Mover la tolerancia no compra nada, y eso es bueno, porque
 quiere decir que no hay un número escondido detrás de una elección nuestra.
 
-Lo importante de la lámina es la segunda línea. La lámina que usamos todo el período
-anterior como caso de referencia aporta ella sola la mitad de los aciertos. Sacándola, las
-otras once dan diecinueve por ciento. O sea que el cincuenta por ciento con el que veníamos
-trabajando no era el caso típico: era el mejor de doce. Todo lo que construimos apoyado en
-esa lámina hereda ese sesgo, y prefiero decirlo acá antes de que aparezca más adelante.
+La segunda línea es lo importante de la lámina. La lámina que usamos todo el período anterior
+como caso de referencia aporta ella sola la mitad de los aciertos. Sacándola, las otras once dan
+diecinueve por ciento. O sea que el cincuenta por ciento con el que veníamos trabajando no era
+el caso típico: era el mejor de doce. Todo lo que construimos apoyado en esa lámina hereda ese
+sesgo, y va a reaparecer más adelante.
 
 ## [s03b] Las marcas reencontradas
 
-Las dos láminas que siguen son el mismo cruce, pero mirándolo una marca por vez. Me parece
-que el número solo no alcanza para saber si esto anda o no anda, así que las puse todas.
+Las dos láminas que siguen son el mismo cruce, pero mirándolo una marca por vez. El número
+solo no alcanza para saber si esto anda o no anda, así que las puse todas.
 
 Acá están las que sí. Cada recorte está centrado en una marca del patólogo, el anillo
 blanco es esa marca y el amarillo es la detección que la acredita. Están agrupadas por
@@ -104,11 +108,11 @@ siete no acreditan ninguna, así que acá no tienen ni un recorte.
 
 ## [s03c] Las marcas que se escapan
 
-Y acá están las que no, que son la parte que más informa, porque es la única que muestra en
-qué se equivoca.
+Éstas son las que no, y son la parte que más informa, porque es la única que muestra en qué
+se equivoca.
 
 Son las marcas para las que no hubo ninguna detección de mitosis dentro de la tolerancia.
-Sólo está el anillo blanco del patólogo, y les pido que las miren con calma: en muchas se ve
+Sólo está el anillo blanco del patólogo, y vale la pena mirarlas con calma: en muchas se ve
 perfectamente la figura mitótica que el detector no señaló. No es que la imagen sea mala ni
 que la marca esté puesta sobre nada.
 
@@ -131,9 +135,9 @@ Ahora el primero de los dos ejes que abrimos esta semana sobre el modelo de aten
 pregunta es simple: cuando el modelo mira una lámina y decide su nivel de mitosis, ¿le presta
 atención a los lugares donde el patólogo marcó mitosis, o mira otra cosa?
 
-Lo que ven son las doce láminas con el mapa de atención encima del tejido, y los anillos son
-los parches donde hay una marca de mitosis. La respuesta corta es que sí, y bastante bien, pero
-el número tiene una condición que quiero poner antes del número y no después.
+Las doce láminas están con el mapa de atención encima del tejido, y los anillos son los parches
+donde hay una marca de mitosis. La respuesta corta es que sí, y bastante bien. El número, eso
+sí, viene con una condición, y la condición va antes.
 
 Ese mapa sale de un ensemble de los cinco pliegues del entrenamiento. Cada una de estas láminas
 estuvo en el entrenamiento de alguno de ellos, así que el modelo ya las vio. Está contaminado
@@ -141,24 +145,24 @@ por construcción, y por eso no lo presento solo. Al lado están los otros dos b
 cálculo con una familia de modelos limpia, y después el mismo cálculo quedándonos, para cada
 lámina, sólo con los pliegues que nunca la vieron.
 
-Lo importante es cómo quedan ordenados. El contaminado da más alto, el intermedio queda en el
-medio y el limpio queda abajo. Ese orden lo dejamos escrito antes de correr nada, precisamente
-porque es lo que tenía que pasar si el mecanismo es el que creemos. Si hubiera salido al revés
-no sería un descubrimiento, sería un error en la tabla de qué lámina estuvo en qué pliegue.
+El orden en que quedan es lo que hay que mirar. El contaminado da más alto, el intermedio queda
+en el medio y el limpio queda abajo. Ese orden lo dejamos escrito antes de correr nada,
+precisamente porque es lo que tenía que pasar si el mecanismo es el que creemos. Si hubiera
+salido al revés no sería un descubrimiento, sería un error en la tabla de qué lámina estuvo en
+qué pliegue.
 
-Y aun con el brazo limpio, que es el honesto, las nueve láminas que se pueden medir quedan
-todas por encima del azar. O sea que el resultado no vive de la contaminación.
+Aun con el brazo limpio, que es el honesto, las nueve láminas que se pueden medir quedan todas
+por encima del azar. O sea que el resultado no vive de la contaminación.
 
 Hay una cosa que no sabemos y está en el pie. Cuánto infla exactamente ese ensemble respecto de
 un modelo limpio de su propia familia no lo medimos. Lo que medimos es cuánto infla la
-contaminación dentro de una misma familia, y eso no se traslada. Prefiero decirlo a que quede
-la impresión de que el primer número ya está descontado.
+contaminación dentro de una misma familia, y eso no se traslada. Lo digo para que no quede la
+impresión de que el primer número ya está descontado.
 
 ## [s03es] La escalera de área
 
-Y acá está para qué sirve eso. Si la atención señala dónde están las mitosis, entonces se puede
-usar para recortar: en vez de darle al patólogo la lámina entera, darle la parte que el modelo
-señala.
+Para esto sirve. Si la atención señala dónde están las mitosis, entonces se puede usar para
+recortar: en vez de darle al patólogo la lámina entera, darle la parte que el modelo señala.
 
 La pregunta es cuánto se pierde al recortar, y la respuesta está en esta escalera. Cada barra es
 un presupuesto de superficie por lámina, desde la lámina completa hasta un milímetro cuadrado, y
@@ -169,7 +173,7 @@ aumentar el conteo. El detector ya corrió sobre las láminas completas, así qu
 es un subconjunto de lo que ya encontró y el número sólo puede bajar. Lo que compra el recorte
 no son mitosis, es superficie: menos tejido para mirar.
 
-Y el trato es bueno. Bajando a un veinteavo de la superficie se conserva más de la mitad de las
+El trato es bueno. Bajando a un veinteavo de la superficie se conserva más de la mitad de las
 marcas, contra casi ninguna si el recorte fuera al azar con la misma cantidad de parches. Ése es
 el resultado.
 
@@ -187,8 +191,9 @@ primero y es el control positivo del método.
 
 El patólogo dibujó regiones y les puso nombre: unas son epitelio y otras son estroma. Nosotros
 contamos, dentro de cada una, qué fracción de los núcleos que el detector encontró ahí adentro
-son epiteliales. Si un segmentador de núcleos no acierta eso, no hay nada más que discutir, así
-que es lo mínimo exigible.
+son epiteliales. No es un resultado interesante en sí mismo: es la condición para que cualquier
+resultado posterior signifique algo. Si un segmentador de núcleos no acierta esto, no hay nada
+más que discutir.
 
 Y lo acierta. Las dos clases de estroma dan cero exacto en la mediana, o sea que en la mitad
 de esas regiones no aparece un solo núcleo epitelial, y las regiones sólidas de epitelio
@@ -198,84 +203,69 @@ marca.
 
 Hay una fila que se sale del patrón. Una de las clases de epitelio se comporta como estroma.
 Son seis marcas de una sola lámina, así que no aguanta un número propio: queda anotado y no lo
-interpreto. La sospecha razonable es que ese patrón tiene ejes
-de tejido conectivo por dentro, pero eso hay que preguntarlo, no afirmarlo.
-
-Procedencia: results/b9_nucleos/regiones_epi_estroma.csv, vía scripts/b9_epitelio_estroma.py.
-Unidad: región.
+interpreto. La sospecha razonable es que ese patrón tiene ejes de tejido conectivo por dentro,
+pero eso hay que preguntarlo, no afirmarlo.
 
 ## [s03re] Las regiones sobre tejido
 
-Volvamos un momento al control positivo, pero mirado sobre el tejido en vez de sobre un gráfico,
-porque se entiende mejor así.
+Lo mismo, ahora sobre el tejido en vez de sobre un gráfico, porque el gráfico dice que acierta
+y esto deja verlo.
 
-Lo que hay que probar antes que ninguna otra cosa es que el detector sabe distinguir un núcleo
-de epitelio de uno de tejido conectivo. Eso es el control positivo: no es un resultado
-interesante en sí mismo, es la condición para que cualquier resultado posterior signifique algo.
-Si un segmentador de núcleos no acierta esto, no hay nada más que discutir.
-
-Acá están cuatro regiones que dibujó el patólogo, dos que él llamó epitelio y dos que llamó
-estroma, y encima cada núcleo que el detector encontró adentro, pintado del color de su clase.
-Son los colores del propio detector, no los nuestros.
+Acá están cuatro de esas regiones, dos que él llamó epitelio y dos que llamó estroma, y encima
+cada núcleo que el detector encontró adentro, pintado del color de su clase. Son los colores del
+propio detector, no los nuestros.
 
 Las dos de la izquierda son casi todo verde. Las dos de la derecha no tienen un solo punto
-verde: cero exacto, no cero redondeado. Y quiero que se vea el tejido, porque en las de la
+verde: cero exacto, no cero redondeado. Y el tejido se ve, que es la gracia: en las de la
 derecha se nota a ojo que son haces de estroma y en las de la izquierda se ven las glándulas. O
 sea que el detector está de acuerdo con el patólogo sobre algo que se puede verificar mirando.
 
 Elegimos las que tenían más núcleos adentro, entre las regiones cuyo alineamiento está
-confirmado. La unidad acá es la región, no la lámina.
+confirmado.
 
 ## [s03f] El grado nuclear
 
 El segundo eje es el grado nuclear. Acá el patólogo marcó núcleos sueltos, no áreas, y les
 puso uno de tres niveles: bajo, moderado y alto.
 
-Lo que medimos es el tamaño del núcleo que la herramienta segmentó debajo de cada marca, pero
-no en micrones sino como percentil dentro de la población epitelial de la propia lámina. Eso
-es a propósito. Entre láminas el tamaño nuclear medio cambia por un factor dos, y el percentil
-cancela justamente esa diferencia.
+Medimos el tamaño del núcleo que la herramienta segmentó debajo de cada marca, pero no en
+micrones sino como percentil dentro de la población epitelial de la propia lámina. Eso es a
+propósito. Entre láminas el tamaño nuclear medio cambia por un factor dos, y el percentil
+cancela justamente esa diferencia. Si comparáramos micrones contra micrones estaríamos midiendo
+la lámina y no el núcleo.
 
 Los tres grados ordenan, y ordenan en la dirección esperada. Cada punto es una lámina, puesta
 en la mediana de sus marcas, y los dos puntos huecos son las dos láminas cuyo alineamiento
 quedó marcado como dudoso.
 
-Y ahora la parte incómoda, que es el tamaño real de esto. El grado está confundido con la
-lámina sin un solo cruce: cada lámina tiene un único grado. Entonces comparar grados es
-comparar láminas, y el número honesto de observaciones son diez láminas y no las marcas. La
-tabla de la derecha está para eso, para que se vea de dónde sale cada punto y con cuántas
-marcas.
+Ahora el tamaño real de esto. El grado está confundido con la lámina sin un solo cruce: cada
+lámina tiene un único grado. Entonces comparar grados es comparar láminas, y el número honesto
+de observaciones son diez láminas y no las marcas. La tabla de la derecha está para eso, para
+que se vea de dónde sale cada punto y con cuántas marcas.
 
-Falta decir otras dos. Los percentiles son altos en los tres grados, el bajo incluido: él
-marca núcleos grandes para su lámina en cualquier grado, y lo que separa es cuánto. Y esto no
-valida la escala de grado histológico. Esa escala puntúa la variación de una población entera en el
-peor campo; lo que tenemos acá son núcleos que él eligió como ejemplares.
-
-Procedencia: results/b9_nucleos/marcas_grado.csv, columna del percentil intra lámina, vía
-scripts/b9_pleomorfismo.py. Unidad: lámina.
+Falta una salvedad. Esto no valida la escala de grado histológico. Esa escala puntúa la
+variación de una población entera en el peor campo; lo que tenemos acá son núcleos que él eligió
+como ejemplares.
 
 ## [s03nu] Los núcleos contra su lámina
 
-Y lo mismo con el otro eje, el del grado nuclear. Ahí el número era un percentil, y un percentil
-es abstracto, así que esto es el percentil hecho imagen.
+Un percentil es abstracto, así que acá está el mismo percentil hecho imagen.
 
 Cada fila es una lámina. Los cuatro primeros recortes son núcleos de esa misma lámina ordenados
 por tamaño: uno chico, uno mediano, uno grande y uno muy grande, siempre dentro de su propia
 población. El quinto, el del recuadro, es el núcleo que el patólogo marcó. Todos a la misma
 escala y con la misma barra de referencia.
 
-Por qué el percentil se calcula dentro de cada lámina y no sobre todas juntas: porque entre
-láminas el tamaño nuclear medio cambia por un factor de dos. Si comparáramos micrones contra
-micrones estaríamos midiendo la lámina y no el núcleo. El percentil cancela esa diferencia, y por
-eso es la medida que usamos.
+Recorriendo la figura se ve que el núcleo marcado casi siempre queda a la altura de los dos
+últimos de su fila, o más allá. En los tres grados, el bajo incluido. Él marca núcleos grandes
+para su lámina siempre; lo que separa un grado de otro es cuánto más grandes. Eso también
+explica por qué el percentil se calcula dentro de cada lámina: si el grado bajo ya está arriba
+en la suya, el corte no puede ser un tamaño absoluto.
 
-Lo que se ve recorriendo la figura es que el núcleo marcado casi siempre queda a la altura de
-los dos últimos de su fila, o más allá. En los tres grados, el bajo incluido. Él marca núcleos
-grandes para su lámina siempre; lo que separa un grado de otro es cuánto más grandes.
-
-Y una precisión de honestidad. Lo que dibujamos es el núcleo que segmentó la herramienta debajo
-de la marca, no el contorno que trazó el patólogo. El área de ese contorno depende en parte del
-grosor del pincel con el que él lo dibujó, así que como medida de tamaño no serviría.
+Una cosa más, que es un límite de lo que están viendo. Lo que dibujamos es el núcleo que
+segmentó la herramienta debajo de la marca, no el contorno que trazó el patólogo. El área de ese
+contorno depende en parte del grosor del pincel con el que él lo dibujó, así que como medida de
+tamaño no serviría.
 
 ## [s04] Tareas del próximo período
 
@@ -289,14 +279,14 @@ patólogo dibujó áreas y la herramienta devuelve núcleos: se compara densidad
 fuera, y el nulo se construye trasladando la máscara, no permutando etiquetas, porque las
 regiones son contiguas.
 
-Y la segunda es la que tiene forma de entregable: el punto caliente mitótico. Conteo por
+La segunda es la que tiene forma de entregable: el punto caliente mitótico. Conteo por
 milímetro cuadrado, que es el número clínico con el que la escala de grado histológico
 trabaja y que hoy no tenemos, el mapa de densidad, y la ventana de área fija que lo
 maximiza. Eso es la primera versión de una zona que se le puede proponer al patólogo, que
 es lo que se pidió al abrir el período.
 
-Antes de cerrar, una cosa de coordinación que no está en la lámina y creo que hay que
-resolver primero. Hay dos solapamientos con otra persona del equipo sobre este mismo
-terreno: tiene un pipeline propio que compara atención contra anotaciones sobre varias
-tareas, y está corriendo detección de mitosis con otro detector. Antes de escalar esto
-conviene sentarse y repartir, porque si no vamos a medir dos veces lo mismo.
+Antes de cerrar, una cosa de coordinación que no está en la lámina y conviene resolver
+primero. Hay dos solapamientos con otra persona del equipo sobre este mismo terreno: tiene un
+pipeline propio que compara atención contra anotaciones sobre varias tareas, y está corriendo
+detección de mitosis con otro detector. Antes de escalar esto hay que sentarse y repartir, o
+vamos a medir dos veces lo mismo.
