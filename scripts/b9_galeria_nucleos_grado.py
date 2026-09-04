@@ -113,11 +113,31 @@ def hoja(filas, path, n_col=2):
     Dos columnas y no una: apiladas, las doce filas dan aspecto 0,48 y en una lámina apaisada
     el PNG queda de unas dos pulgadas de ancho, ilegible. Con dos columnas de seis el aspecto
     pasa a 1,9 y **se conservan las doce láminas**, que es lo que Ernesto decidió el 2-sep
-    frente a la alternativa de dejar tres filas (una por grado) y perder nueve.
+    frente a la alternativa de dejar tres filas (una por grado) y perder nueve. Con `n_col=3`
+    (D5, ejecutado el 4-sep) son cuatro filas de tres y se conservan igual.
+
+    **Las fuentes están dimensionadas para la lámina, no para el PNG.** El rótulo va quemado,
+    así que lo que el público ve es `px * ancho_en_pulgadas * 72 / W`. La caja de la lámina 12
+    mide 12,097 x 3,577" (aspecto 3,38), y con n_col=3 la figura entra limitada por el ANCHO,
+    así que el denominador es W. Con 15/14/12 px sobre W=4880 los rótulos daban 2,3 pt, muy
+    bajo el mínimo de 7 pt del template ([[png-rotulos-quemados-pierden-pt]]).
+
+    Subir la fuente **no alcanza**, y ésta es la trampa: a 45 px `el que marcó el patólogo`
+    mide 481 px en una lane de 250 y `grado moderado · 10 marcas` 434 en una de 190, así que
+    hay que ensanchar las lanes; pero ensancharlas agranda W, que es el denominador, y el
+    punto fijo converge en un recorte MÁS CHICO que el de partida (0,518" contra 0,515").
+    Por eso los rótulos se **acortan** en vez de crecer las lanes: la cabecera del quinto tile
+    y la de la lane van a dos líneas, `percentil de la marca` queda en `percentil`, y el grado
+    se separa de las marcas. Con eso el punto fijo cierra en 47/44/42 px sobre W=5171, o sea
+    7,9 / 7,4 / 7,1 pt, con el recorte en 0,561" (contra 0,515" de las dos columnas).
+
+    Si se cambia un rótulo o una lane hay que rehacer la cuenta: la condición que sostiene los
+    7,9 pt es que W/H siga por encima de 3,38, o la figura pasa a estar limitada por el alto y
+    el denominador deja de ser W.
     """
     tile = 240
-    pad, w_lab, w_pct = 10, 190, 150
-    h_cab, h_pie_fila, gap = 26, 22, 40
+    pad, w_lab, w_pct = 10, 237, 200
+    h_cab, h_pie_fila, gap = 124, 56, 40
     n = len(filas)
     n_fil = -(-n // n_col)                        # ceil
     w_col = w_lab + 5 * (tile + pad) + pad + w_pct
@@ -125,21 +145,24 @@ def hoja(filas, path, n_col=2):
     H = pad + n_fil * (tile + h_pie_fila + pad) + h_cab
     im = Image.new("RGB", (W, H), FONDO)
     d = ImageDraw.Draw(im)
-    f_cab = fuente(15, bold=True)
-    f_lab = fuente(14, bold=True)
-    f_min = fuente(12)
+    f_cab = fuente(47, bold=True)
+    f_lab = fuente(44, bold=True)
+    f_min = fuente(42)
 
     # La cabecera se repite en CADA columna: sin eso, la columna de la derecha son cinco
-    # recortes sin decir de qué percentil es cada uno.
+    # recortes sin decir de qué percentil es cada uno. Las de dos líneas van así porque a
+    # 47 px no entran en el ancho de un tile: `el que marcó el patólogo` mide 547 px de 250.
+    h_ln = int(f_cab.size * 1.25)
     for c in range(n_col):
         xc = c * (w_col + gap)
         x0 = xc + w_lab
-        for k, txt in enumerate(["p25", "p50", "p75", "p90", "el que marcó el patólogo"]):
-            d.text((x0 + k * (tile + pad), 4), txt, fill=TITULO if k == 4 else CUERPO,
-                   font=f_cab)
-        d.text((x0 + 5 * (tile + pad) + pad, 4), "percentil de la marca", fill=CUERPO,
-               font=f_cab)
-        d.text((xc + pad, 4), "lámina · grado", fill=CUERPO, font=f_cab)
+        for k, txt in enumerate(["p25", "p50", "p75", "p90"]):
+            d.text((x0 + k * (tile + pad), 4), txt, fill=CUERPO, font=f_cab)
+        for j, txt in enumerate(["marcado", "patólogo"]):
+            d.text((x0 + 4 * (tile + pad), 4 + j * h_ln), txt, fill=TITULO, font=f_cab)
+        d.text((x0 + 5 * (tile + pad) + pad, 4), "percentil", fill=CUERPO, font=f_cab)
+        for j, txt in enumerate(["lámina", "grado"]):
+            d.text((xc + pad, 4 + j * h_ln), txt, fill=CUERPO, font=f_cab)
 
     grado_prev = None
     for i, (slide, grado, items, pct, n_marcas) in enumerate(filas):
@@ -153,9 +176,15 @@ def hoja(filas, path, n_col=2):
         if grado != grado_prev:
             d.rectangle([xc, y - 3, xc + w_col, y - 1], fill=SEP)
         grado_prev = grado
-        d.text((xc + pad, y + tile // 2 - 20), slide, fill=TITULO, font=f_lab)
-        d.text((xc + pad, y + tile // 2), "grado %s · %d marcas" % (grado, n_marcas),
-               fill=col, font=f_min)
+        # Tres líneas y no dos: `grado moderado · 10 marcas` mide 434 px a 42 px de fuente y
+        # la lane son 237. El «grado» que pierde el sub-rótulo lo pone la cabecera de la lane,
+        # y el filete de arriba sigue marcando dónde cambia.
+        h_rot = int(f_lab.size * 1.20)
+        y_rot = y + tile // 2 - h_rot - int(f_min.size * 0.60)
+        d.text((xc + pad, y_rot), slide, fill=TITULO, font=f_lab)
+        d.text((xc + pad, y_rot + h_rot), grado, fill=col, font=f_min)
+        d.text((xc + pad, y_rot + h_rot + int(f_min.size * 1.20)),
+               "%d marcas" % n_marcas, fill=col, font=f_min)
         for k, (rec, _lab, area_um2, es_marca) in enumerate(items):
             cxx = x0 + k * (tile + pad)
             im.paste(rec.resize((tile, tile), Image.LANCZOS), (cxx, y))
@@ -165,13 +194,16 @@ def hoja(filas, path, n_col=2):
             d.text((cxx + 3, y + tile + 3), "%.0f µm²" % area_um2,
                    fill=TITULO if es_marca else CUERPO, font=f_min)
         # Barra de escala: 10 µm, la misma en los cinco recortes porque comparten µm/px.
+        # Va en el PRIMER recorte y no en el marcado: con la fuente dimensionada para la
+        # lámina, el rótulo mide el doble que antes y sobre el quinto chocaba con el anillo.
+        # El p25 es el único de la fila que nunca lleva anillo.
         L10 = int(round(10.0 / MPP / LADO_PX0 * tile))
-        bx, by = x0 + 4 * (tile + pad) + tile - L10 - 8, y + tile - 12
+        bx, by = x0 + tile - L10 - 8, y + tile - 12
         d.rectangle([bx, by, bx + L10, by + 4], fill=BLANCO)
         d.rectangle([bx, by, bx + L10, by + 4], outline=TITULO, width=1)
         # Halo blanco: el rótulo en blanco a secas desaparece sobre el tejido pálido, y en
         # negro a secas desaparece sobre el oscuro. Los doce recortes son de los dos tipos.
-        d.text((bx, by - 15), "10 µm", fill=TITULO, font=f_min,
+        d.text((bx, by - f_min.size - 4), "10 µm", fill=TITULO, font=f_min,
                stroke_width=2, stroke_fill=BLANCO)
         d.text((x0 + 5 * (tile + pad) + pad, y + tile // 2 - 8),
                "p%.0f" % pct, fill=TITULO, font=f_lab)
@@ -183,8 +215,8 @@ def main():
     import openslide
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(OUT))
-    ap.add_argument("--n-col", type=int, default=2,
-                    help="columnas de la hoja; 2 es lo que entra en una lámina apaisada")
+    ap.add_argument("--n-col", type=int, default=3,
+                    help="columnas de la hoja; 3 es lo que se entrega (D5), 2 el layout viejo")
     args = ap.parse_args()
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
 
