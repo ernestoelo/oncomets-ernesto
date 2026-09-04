@@ -4434,6 +4434,75 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 47 — 3-sep-2026 · EJECUCIÓN: las cinco láminas escritas, el deck en trece
+
+Sesión de ejecución pura, la primera después de cinco de plan seguidas. Corrió
+`.handoffs/plan_B9_20260903_cinco_laminas_D4_D5.md` de punta a punta con las correcciones del
+handoff de la sesión 46 encima. **Cero GPU, cero descargas, cero mediciones nuevas.**
+
+**El deck pasa de ocho a TRECE láminas**, sale con código 0 y `auditar()` y `barrer_rayas()`
+no reportan nada. Round-trip verificado: trece láminas en el orden fijado, cejilla, título y
+notas en las trece, las seis imágenes, y las dos tablas del molde con **tres** filas de cuerpo
+cada una conservando su huella de 3,03".
+
+### Lo hecho, en orden
+
+0. **El cable que faltaba** (§5.2 del handoff): `leer_atencion()` y `leer_escalera()` estaban
+   escritos y no se llamaban; los seis constantes de las cinco láminas no tenían ni una
+   referencia aguas abajo. Cableados en `main()`, que ahora imprime los dos resúmenes.
+1. **Cuatro primitivas nuevas** en la sección que ya usaban los ejes nucleares: `leyenda_mapa`
+   (la rampa turbo nativa con los 24 stops que ya estaban quemados, más el anillo sobre un
+   cuadradito de la propia rampa), `barras_auc` (eje **truncado en 0,50 y declarado en el
+   rótulo**), `barras_area` (escala **lineal** a propósito: el mensaje es el derrumbe de
+   superficie) y `tira_dimensiones` (conector de filete, porque Barlow no trae la flecha).
+   Más `medir_figura()`, que existe porque dos láminas alinean rótulos nativos con los paneles
+   de un PNG y `poner_figura` centra.
+2. **Las cinco láminas** y `reordenar()` a trece:
+   `s01 · s02 · sHN · sA · sB · sC · sAT · sES · sE · sRE · sG · sNU · s04`.
+3. **La lámina 13** suma la fila de la ventana contigua de 3 mm², `min_h` vuelve al default
+   0,76 y la fila **lleva la cita** de Ibrahim et al., *Modern Pathology* 2022.
+4. **El guion a trece bloques**: cinco nuevos (`[s03hn]`, `[s03at]`, `[s03es]`, `[s03re]`,
+   `[s03nu]`), fuera los tres huérfanos (`[s03e]`, `[s03g]`, `[s03h]`), y los dos números
+   corregidos («Son diez láminas» de `[s01]` a **doce**, y la cabecera de once a **trece**).
+
+### Lo que encontró el QA visual, y `auditar()` no
+
+Se rasterizó apenas existieron las láminas, que es lo que pide [[image-api-qa-limit]], y volvió
+a pasar lo de las sesiones 40 y 42: **los tres hallazgos son suyos y el chequeo automático no
+vio ninguno**.
+
+1. **Los cuatro rótulos de la lámina 10 salían CRUZADOS** (124729 y 124806 intercambiadas).
+   `regiones_epi.json` lista los paneles en el orden en que se **midieron** y el PNG los dibuja
+   **ordenados**: el script hace el `sort` **después** de armar el `meta`. **Corregido**
+   reproduciendo la misma clave de orden, con la cita del `sort` en un comentario. Memoria
+   nueva: [[sidecar-orden-no-es-el-de-la-figura]], que corrige el «los números se leen del
+   JSON» de [[png-rotulos-quemados-pierden-pt]].
+2. **La cabecera de `barras_area` tenía dos columnas pegadas.** Corregido.
+3. **Dos PNG con los rótulos quemados muy por debajo de 7 pt**, y esto **no se corrigió**:
+   `atencion_12_laminas.png` a **4,4 pt** y `nucleos_grado.png` a **2,5 pt**. En los dos el
+   rótulo vive dentro de una grilla, así que el rótulo nativo que salvó a la lámina 10 **no
+   sirve acá**: hay que regenerar el PNG con la fuente dimensionada para la lámina. La cuenta
+   quedó en el ADDENDUM de [[png-rotulos-quemados-pierden-pt]].
+
+### Lo que queda abierto del deck
+
+- **`@humanizer-es` sobre el guion entero** (paso 5 del plan). Es lo único del plan que no se
+  tocó.
+- **D5**: la galería a `--n-col 3`. El QA visual dejó la condición cumplida, así que
+  corresponde ejecutarlo **sin volver a preguntar**; no se hizo por tiempo de sesión.
+- **Las dos regeneraciones de PNG** del punto 3.
+- **El deck no ha vuelto a manos de Ernesto** en su versión de trece.
+
+### Estado del nodo
+
+Cero jobs propios y cero procesos CPU propios. El **5260 `dataset` terminó** (llevaba 7h29 en
+la sesión 46); siguen `5197 train` y `5238 Dora` bajo `sdonoso` con `WorkDir` en
+`Test_D/D_abs_cambiado`, verificado con `scontrol`, más `capstone`, `bcardenas`, `nschiaffi`,
+`dbustamante` y los dos de `sgaete` (`5213 hnx_time`, `5249 hnx_win`). **La GPU sigue tomada**
+por `5190 ALLE` de `nschiaffi`, corriendo hace más de dos días ⇒ **B2 sigue bloqueado**.
+
+---
+
 ## Sesión 46 — 3-sep-2026 · sesión de PLAN: el plan verificado y aprobado, y el aviso puesto al día
 
 **No tocó el deck ni la galería**: sigue en **ocho** láminas. Ernesto aprobó el plan de las cinco
