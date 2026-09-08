@@ -4434,6 +4434,61 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 49 — 8-sep-2026 · sesión de PLAN: la higiene del repo, especificada y sin ejecutar
+
+Sesión corta y sin GPU. Abrió sobre el handoff del 4-sep, que no dejaba misión heredada, y
+**cerró sin ejecutar nada**: lo que hay es un plan verificado y cinco decisiones de Ernesto. El
+trabajo lo hace una sesión limpia.
+
+### 1. La reunión del 07/09 YA OCURRIÓ, y esta sesión no supo qué salió
+
+El handoff del 4-sep ponía la reunión del lunes como lo único con fecha y como la fuente de la
+misión siguiente. **La sesión abrió el 8-sep**, o sea después, y no se registró qué se dijo ahí.
+Es lo primero que hay que preguntar, antes que cualquier cosa de §7.
+
+### 2. Las cinco decisiones de Ernesto
+
+| # | Decisión |
+|---|---|
+| D1 | La sesión va a **higiene del repo**, no a B2 ni al análisis B3 |
+| D2 | **`AreaMitosis.md` confirmado**: es el paper de las 3 mm² que citó Sebastián |
+| D3 | El eje de magnificación del B6 **se arrastra al mapa del B9**, y recién después B6 rueda a `history.md` |
+| D4 | Los tres PNG del B8 **se conservan**, y se anota la decisión para que deje de arrastrarse |
+| D5 | El log de sesiones **se recorta** al sprint vivo; lo anterior se mueve, no se borra |
+
+### 3. Tres de los cuatro pendientes estaban mal descritos en el handoff
+
+- **Los «18 PNG huérfanos» son TRES.** El directorio tiene 17 PNG + 1 JSON (21 MB) y
+  `generate_b8_deck.py` referencia **14**. Los huérfanos reales son `region0_129741.png`,
+  `region1_129741.png` y `registro_level0_129741.png`, **1,06 MB entre los tres**, regenerables por
+  `prep_assets_regiones.py`, y el README del deck B8 ya los nombraba bien en cuatro lugares
+  (`README.md:1237, 1388, 1441, 1547`). El handoff había contado el directorio entero.
+- **Rodar B6 a `history.md` enterraría un eje VIVO.** `current.md:532-663` no es narrativa
+  histórica: es el pipeline multi-escala **armado y estacionado** (pre-registro regla 9, reviewer
+  APRUEBA CON OBSERVACIONES, gates (a) y (c) cerrados, `extract_multiscale.slurm` y
+  `train_multiscale_stage3.slurm` en `sprints/B6_sprint6/magnificacion_microcalc/`, 45 runs paired
+  cableados). Y **`objetivos_sprint9.md` no lo menciona ni una vez** ⇒ hoy el eje sobrevive sólo
+  porque la sección sigue en `current.md`. De ahí D3, y de ahí que el orden importe.
+- **La confirmación de `AreaMitosis.md` no toca el deck.** El deck ya cita a Ibrahim et al. de
+  forma plana (`generate_b9_deck.py:1867`); el hedge «es inferencia nuestra» vive sólo en
+  `aviso_sgaete.md:109-111` y en la memoria. El deck queda intacto, que es lo que pedía §8 del
+  handoff.
+
+### 4. El encabezado de B6 se tragó log de sesiones de B7
+
+Bajo el encabezado de B6 hay, desde la línea **664**, cuatro bloques `### Sesión 23-jul` más «Lo
+que NO se reabre» y «Reglas que gobiernan el sprint», que son **B7** y no B6. El eje de
+magnificación propiamente dicho termina en la **663**, y ahí va el corte del roll-over.
+
+### 5. Estado al cierre
+
+Rama `main`, **árbol limpio**, sincronizada con `origin`. **Cero jobs propios y cero procesos CPU
+propios**: el `5197 train` y el `5238 Dora` son del operador ajeno de `Test_D/D_abs_cambiado`
+(workaround L.b). La GPU sigue tomada. **Nada del plan se ejecutó**; el plan entero, con los
+cortes anclados por encabezado y no por número de línea, está en el handoff de esta sesión.
+
+---
+
 ## Sesión 48 — 4-sep-2026 · el deck PRESENTABLE: guion humanizado y las dos figuras legibles
 
 Sesión de ejecución. Cierra los tres puntos que la 47 dejó abiertos y **entrega**. El deck sigue
@@ -4521,9 +4576,14 @@ notas en las trece con el conteo exacto de cada bloque del guion, las seis imág
 y las tres tablas, las dos del molde conservando su huella de 3,03". Se le mandaron a Ernesto las
 **trece rasterizadas**.
 
-**Lo que sigue abierto** es lo de §7 del handoff anterior, sin cambios: B2 sin lanzar (la GPU
-sigue tomada), el aviso a `sgaete` **sin mandar** y que conviene que salga antes del lunes, la
-réplica del 4589, los PNG huérfanos del B8 y el análisis B3.
+**Lo que sigue abierto** es lo de §7 del handoff anterior: B2 sin lanzar (la GPU sigue tomada),
+las **tres respuestas** de `sgaete`, la réplica del 4589, los PNG huérfanos del B8 y el análisis B3.
+
+> **CORRECCIÓN (sesión 49, 8-sep).** Esta línea decía que el aviso a `sgaete` seguía «sin mandar»
+> y que convenía que saliera antes del lunes. **Era falso**: Ernesto lo había dado verbalmente en
+> la reunión del 1-sep. El commit `dde804d` lo corrigió ese mismo 4-sep en `aviso_sgaete.md`, pero
+> no acá, así que el log de sesiones quedó stale mientras el handoff estaba al día. Lo que sigue
+> abierto son las **respuestas**, no el envío. [[pendiente-con-persona-se-pregunta]].
 
 ---
 
