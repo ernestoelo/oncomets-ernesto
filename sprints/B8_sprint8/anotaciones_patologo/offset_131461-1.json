@@ -1,0 +1,26 @@
+{
+  "slide_id": "131461-1",
+  "dx": 8396,
+  "dy": -146,
+  "patch_size": 256,
+  "offset_adoptado_por": "criterio (c), optimo empirico por area",
+  "n_parches": 7839,
+  "n_anotaciones": 39,
+  "criterio_a_mejor": 39,
+  "criterio_b_mejor": 39,
+  "verif_a_en_offset_adoptado": 39,
+  "verif_b_en_offset_adoptado": 39,
+  "alineada": true,
+  "parches_bajo_anotacion": 181,
+  "parches_por_clase": {
+    "Tumor": 46,
+    "CDIS_cribiforme": 16,
+    "Nucleos mod grado": 9,
+    "AreaSolida": 30,
+    "Mitosis": 6,
+    "AreaTubular": 21,
+    "CDIS_micropapilar": 53
+  },
+  "aviso": "un parche sin anotacion NO es un negativo: el patologo marca solo la evidencia clara",
+  "geojson": "/media/administrador/Storage1/sdonoso/anotaciones/131461-1.bif GDT.geojson"
+}

@@ -1,0 +1,27 @@
+{
+  "slide_id": "132844",
+  "dx": 6195,
+  "dy": -1892,
+  "patch_size": 256,
+  "offset_adoptado_por": "criterio (c), optimo empirico por area",
+  "n_parches": 2292,
+  "n_anotaciones": 32,
+  "criterio_a_mejor": 32,
+  "criterio_b_mejor": 32,
+  "verif_a_en_offset_adoptado": 32,
+  "verif_b_en_offset_adoptado": 32,
+  "alineada": true,
+  "parches_bajo_anotacion": 94,
+  "parches_por_clase": {
+    "AreaTubular": 48,
+    "Tumor": 19,
+    "Permeaciones vasculares": 6,
+    "AreaSolida": 4,
+    "(sin clase)": 1,
+    "Nucleos mod grado": 4,
+    "CDIS_solido": 12,
+    "Mitosis": 1
+  },
+  "aviso": "un parche sin anotacion NO es un negativo: el patologo marca solo la evidencia clara",
+  "geojson": "/media/administrador/Storage1/sdonoso/anotaciones/132844.bif - GDT.geojson"
+}

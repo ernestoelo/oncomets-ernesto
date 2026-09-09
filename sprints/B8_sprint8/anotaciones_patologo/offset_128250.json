@@ -1,0 +1,25 @@
+{
+  "slide_id": "128250",
+  "dx": 8434,
+  "dy": 0,
+  "patch_size": 256,
+  "offset_adoptado_por": "geometria del contenedor (el area no separa los candidatos)",
+  "n_parches": 4489,
+  "n_anotaciones": 38,
+  "criterio_a_mejor": 38,
+  "criterio_b_mejor": 38,
+  "verif_a_en_offset_adoptado": 38,
+  "verif_b_en_offset_adoptado": 35,
+  "alineada": true,
+  "parches_bajo_anotacion": 267,
+  "parches_por_clase": {
+    "CDIS_cribiforme": 105,
+    "microcalcificaciones": 34,
+    "Comedonecrosis": 76,
+    "Mitosis": 1,
+    "Nucleos mod grado": 10,
+    "Tumor": 43
+  },
+  "aviso": "un parche sin anotacion NO es un negativo: el patologo marca solo la evidencia clara",
+  "geojson": "/media/administrador/Storage1/sdonoso/anotaciones/128250.bif GDT.geojson"
+}

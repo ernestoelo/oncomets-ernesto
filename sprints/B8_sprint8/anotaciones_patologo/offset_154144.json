@@ -1,0 +1,22 @@
+{
+  "slide_id": "154144",
+  "dx": 3119,
+  "dy": 17,
+  "patch_size": 256,
+  "offset_adoptado_por": "criterio (c), optimo empirico por area",
+  "n_parches": 3987,
+  "n_anotaciones": 19,
+  "criterio_a_mejor": 19,
+  "criterio_b_mejor": 19,
+  "verif_a_en_offset_adoptado": 19,
+  "verif_b_en_offset_adoptado": 19,
+  "alineada": true,
+  "parches_bajo_anotacion": 56,
+  "parches_por_clase": {
+    "Tumor": 52,
+    "Mitosis": 1,
+    "Nucleos mod grado": 9
+  },
+  "aviso": "un parche sin anotacion NO es un negativo: el patologo marca solo la evidencia clara",
+  "geojson": "/media/administrador/Storage1/sdonoso/anotaciones/154144.bif GDT.geojson"
+}

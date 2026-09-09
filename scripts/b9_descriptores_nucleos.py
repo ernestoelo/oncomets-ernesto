@@ -98,7 +98,18 @@ DIMS_LEVEL0 = {
     "109609": (36910, 32000), "110616": (42261, 29440), "124729": (46638, 30720),
     "124806": (38330, 26880), "126504": (49941, 30720), "128194": (52231, 33280),
     "144317": (47469, 34560), "164001": (49661, 30720), "B25-158899": (50868, 58880),
+    # Las NUEVE del 27-ago-2026, que el B9 nunca vio. Medidas con openslide el 8-sep desde
+    # `clam_latest` igual que las doce de arriba. Las nueve dan driver `ventana` y mpp 0,465,
+    # o sea la misma cohorte privada a 20x, asi que MPP no cambia.
+    "110962": (46873, 30720), "128250": (50674, 40960), "131461-1": (42948, 56320),
+    "132208": (44050, 57600), "132844": (42587, 39680), "133677": (50495, 58880),
+    "141426-1": (46498, 37120), "142541-1": (51225, 38400), "154144": (49180, 43520),
 }
+
+# Las nueve nuevas, para `--slides "${SLIDES_B10[@]}"`. No entran a SLIDES por defecto: eso
+# cambiaria en silencio el denominador de todo lo que el B9 dejo medido.
+SLIDES_B10 = ["110962", "128250", "131461-1", "132208", "132844", "133677",
+              "141426-1", "142541-1", "154144"]
 MARGEN_RECORTE = 256          # px: HoVer-NeXt recorta a multiplo de la grilla de teselas
 
 # El rango que el pre-registro habia declarado como sanidad de escala. NO se cumple, y la causa
@@ -113,7 +124,9 @@ def paths_de(slide: str) -> Path:
     """El barrido de las once anido el slide_id dos veces; la 129741 corrio sola y quedo plana."""
     a = REPO / f"results/b8_hovernext_12laminas/hovernext/lizard_mitosis/{slide}/{slide}"
     b = REPO / f"results/b8_hovernext_129741/hovernext/lizard_mitosis/{slide}"
-    d = a if a.is_dir() else b
+    # El barrido del B10 (job 5402, 9-sep) sobre las nueve nuevas: mismo anidado doble que a.
+    c = REPO / f"results/b10_hovernext_9laminas/hovernext/lizard_mitosis/{slide}/{slide}"
+    d = a if a.is_dir() else (b if b.is_dir() else c)
     if not d.is_dir():
         sys.exit(f"no encuentro la salida de HoVer-NeXt de {slide}")
     return d
