@@ -11,6 +11,10 @@
 > **Roll-over 25-ago-2026:** **B8 CERRADO**, resumen en `history.md` §"Sprint 8 (B8)"; abre
 > **B9** sobre HoVer-NeXt (`sprints/B9_sprint9/objetivos_sprint9.md`). El log de sesiones de
 > abajo **se conserva entero**: recortarlo es decisión de Ernesto, aparte.
+> **Roll-over 8-sep-2026:** **B9 CERRADO** (deck de trece presentado a Benjamín el 7-sep);
+> abre **B10** sobre grado nuclear sin la marca del patólogo
+> (`sprints/B10_sprint10/objetivos_sprint10.md`). El traspaso del detalle del B9 a
+> `history.md` **no se hizo**: lo decide Ernesto, igual que B6 y B7.
 
 ---
 
@@ -4433,6 +4437,52 @@ Rama `main`, sincronizada con `origin`, **sin jobs propios**. El nodo lo ocupan 
 Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
+
+## Sesión 50 — 8-sep-2026 · sesión de PLAN: abre el B10, y el set de anotaciones creció
+
+**Misión**: convertir en plan la reunión con Sebastián posterior a la presentación del B9 ante
+Benjamín (7-sep). Transcripción literal en `sprints/B9_sprint9/reunion_sebastian.txt`.
+**No se ejecutó nada**: el plan lo toma una sesión limpia. Mapa nuevo en
+`sprints/B10_sprint10/objetivos_sprint10.md`.
+
+### 1. El reparto de tareas, que es lo primero que fijó la reunión
+
+**Sebastián toma la región de la tasa mitótica, Ernesto toma el grado nuclear.** Resuelve, **para
+ese eje**, el solape que `CLAUDE.md` arrastra desde el 3-sep. Los otros tres siguen abiertos.
+
+### 2. Cuatro hechos verificados contra el archivo, antes de planificar
+
+- **El set de anotaciones creció y el B9 nunca lo vio**: **23 geojson / 22 láminas**, con **10
+  archivos del 27-ago**. Los números que citó Sebastián son de ese set y cuadran exacto (99 alto ·
+  84 moderado · 30 CDIS en 10 láminas). Tres correcciones para llevarle: `NucleosBajoGrado` son
+  **16 y no 25**, el grado vive en **20 láminas y no en 12**, y de las 30 que mencionó **faltan 8**,
+  no 18.
+- **Las marcas de grado siguen la etiqueta de PLEOMORFISMO de la lámina, no el grado nuclear del
+  CDIS**: 10 de 10 láminas con marcas `moderado` son `score_2`, y **8 de las 21 con marcas de grado
+  tienen `CDIS_presente = no`**. Reordena el eje: la máscara `Tumor` ya existe y desbloquea el
+  experimento hoy. [[marcas-grado-son-pleomorfismo-de-lamina]]
+- **La pregunta del score se contesta con `papers/Breast.Invasive.Bx_1.2.0.0.REL_CAPCP.pdf`**, que
+  ya estaba en el repo: **no hay regla de cantidad**, el pleomorfismo es tamaño contra epitelio
+  **normal** más **dispersión**, y el grado de CDIS son 6 rasgos con cortes **1,5-2×** y **>2,5×**.
+  Corrige el descriptor del B9 (percentil intra-lámina) por uno con respaldo de protocolo.
+  [[cap-scoring-pleomorfismo-y-grado-cdis]]
+- **Los costos, medidos**: HoVer-NeXt **~103 min** de GPU por 11 láminas, offsets **~22 min** de
+  CPU por 11. El `.slurm` acepta `SLIDES_OVERRIDE` y el alineador recibe `--geojson`, así que solo
+  el driver de shell necesita fix (5 de 9 geojson nuevos no llevan el ` - `).
+
+### 3. Las cuatro decisiones de Ernesto
+
+**D1** encolar HoVer-NeXt de las nuevas ya y medir sobre las 12 mientras corre · **D2** el
+experimento sin la marca se restringe a la máscara `Tumor` · **D3** el primario es el **núcleo**
+(recall de las marcas en los N más grandes, escalera de carga) y la zona es secundaria · **D4** el
+eje CDIS se limita a medir la atención **ya en disco**, sin BRACS y sin entrenar.
+
+### 4. Estado al cierre
+
+Rama `main`, en sincronía con `origin`, **cero jobs propios**. La GPU la ocupan `capstone` y
+`dbustama` con **9 pendientes en cola**. **Nada se ejecutó**: no se lanzó el `sbatch`, no se
+derivaron offsets, no se escribió ningún pre-registro ni script del B10. Sigue sin ejecutar el plan
+de higiene del repo de la sesión 49.
 
 ## Sesión 49 — 8-sep-2026 · sesión de PLAN: la higiene del repo, especificada y sin ejecutar
 
