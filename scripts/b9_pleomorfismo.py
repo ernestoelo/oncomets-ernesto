@@ -59,7 +59,8 @@ import zarr
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "scripts"))
-from b9_descriptores_nucleos import CLASES, EPITELIAL, MPP, SLIDES, paths_de   # noqa: E402
+from b9_descriptores_nucleos import (CLASES, EPITELIAL, MPP, SLIDES,   # noqa: E402
+                                     geojson_de, paths_de)
 
 ANOTACIONES = Path("/media/administrador/Storage1/sdonoso/anotaciones")
 OFFSETS = REPO / "sprints/B8_sprint8/anotaciones_patologo"
@@ -94,7 +95,7 @@ def marcas_de_grado(slide, dx, dy):
 
     Primer anillo del primer sub-poligono, igual que alinear_anotaciones_qupath.py:59-61.
     """
-    js = json.loads((ANOTACIONES / f"{slide}.bif - GDT.geojson").read_text())
+    js = json.loads(geojson_de(slide).read_text())
     out = []
     for ft in js.get("features", []):
         cl = ft.get("properties", {}).get("classification", {})

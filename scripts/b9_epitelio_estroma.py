@@ -62,7 +62,9 @@ def cargar_regiones(slide, dx, dy):
     Los 131 extras de MultiPolygon son astillas de digitalizacion (mediana 0,4 um2, 105 de 131
     bajo 10 um2) y se descartan a proposito.
     """
-    js = json.load(open(os.path.join(AN, f"{slide}.bif - GDT.geojson")))
+    sys.path.insert(0, os.path.join(REPO, "scripts"))
+    from b9_descriptores_nucleos import geojson_de
+    js = json.load(open(geojson_de(slide)))
     out = []
     for ft in js.get("features", []):
         cl = ft.get("properties", {}).get("classification", {})

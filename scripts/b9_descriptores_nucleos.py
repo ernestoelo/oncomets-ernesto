@@ -72,7 +72,6 @@ import time
 from pathlib import Path
 
 import numpy as np
-import zarr
 
 REPO = Path(__file__).resolve().parents[1]
 
@@ -120,6 +119,27 @@ MARGEN_RECORTE = 256          # px: HoVer-NeXt recorta a multiplo de la grilla d
 AREA_EPI_MIN, AREA_EPI_MAX = 30.0, 120.0
 
 
+ANOTACIONES = Path("/media/administrador/Storage1/sdonoso/anotaciones")
+
+
+def geojson_de(slide: str) -> Path:
+    """El geojson del patologo, probando los DOS patrones de nombre que uso.
+
+    Las doce del 5-ago se llaman `<id>.bif - GDT.geojson`. De las diez del 27-ago, CINCO se
+    llaman `<id>.bif GDT.geojson`, sin el ` - ` (128250, 131461-1, 133677, 142541-1, 154144),
+    asi que un filtro por `- GDT.geojson` descarta cinco laminas REALES. Deduplicar por
+    slide_id, nunca por sufijo ([[anotaciones-patologo-qupath]] ADDENDUM 18).
+
+    El duplicado a excluir sigue siendo `103762.bif - Series 0-full.geojson`, que es una
+    segunda exportacion de la misma lamina y que inflaba cuatro clases.
+    """
+    for nombre in (f"{slide}.bif - GDT.geojson", f"{slide}.bif GDT.geojson"):
+        q = ANOTACIONES / nombre
+        if q.is_file():
+            return q
+    sys.exit(f"no encuentro el geojson de {slide} con ninguno de los dos patrones")
+
+
 def paths_de(slide: str) -> Path:
     """El barrido de las once anido el slide_id dos veces; la 129741 corrio sola y quedo plana."""
     a = REPO / f"results/b8_hovernext_12laminas/hovernext/lizard_mitosis/{slide}/{slide}"
@@ -151,6 +171,8 @@ def momentos(pinst: Path, n: int, filas: int):
     `n` = nmax+1 de class_inst.json. Si el mapa trae un id que no esta ahi, se aborta: seria
     un desajuste entre los dos artefactos y cualquier descriptor saldria corrido.
     """
+    import zarr          # perezoso: `clam_latest` no lo tiene y solo hace falta aca
+
     z = zarr.open(zarr.storage.ZipStore(str(pinst), mode="r"), mode="r")
     H, W = z.shape
     blk = max(z.chunks[0], (filas // z.chunks[0]) * z.chunks[0])   # alineado al chunk
