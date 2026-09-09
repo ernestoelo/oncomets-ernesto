@@ -1,0 +1,191 @@
+**Hablante 1**: la marca el patologo
+
+**Hablante 2**: No, en un principio no vamos a tener la marca del patólogo, entonces la única forma de segmentar los otros núcleos que... que vendrían siendo los más pequeñitos, los más pequeñitos entre comillas, eh, sería con HoVer-Net y su clase especial de... de, claro, de de núcleos.
+
+**Hablante 1**: entonces ella habría como que... como que anclarse a alguno de ellos.
+
+**Hablante 2**: Sí. El tema es... como identificar, hay que identificar como unos núcleos más grandes eh de alguna forma, eh y de ahí como hacer ese ese mismo, o sea habría que hacer lo mismo que hiciste pero solamente con con HoVer-Net. Claro. Y claro, sí. Ya igual estaría, eso aún, aún no lo hací, ¿cierto?
+
+**Hablante 1**: No, eso no, no lo he hecho.
+
+**Hablante 2**: Podríai como replicar el experimento eh solamente con HoVer-Net y... y ver si te da lo mismo las como las mismas anotaciones del patólogo al final.
+
+**Hablante 1**: Son los núcleos más grandes por área.
+
+**Hablante 2**: Porque en esa slide el patólogo marcó como... los núcleos más grandes solamente.
+
+**Hablante 1**: Sí, eh, y están todos confinados en una zona.
+
+**Hablante 2**: Y están todos confinados en una zona, claro. Ya, claro, esa es como la zona que identificó el patólogo de mayor atipia, entonces marcó todos los los núcleos más más grandes eh... Y olvidé cómo... cómo determinaba el score.
+
+**Hablante 1**: El score era con respecto a, bueno, qué tan grande era el núcleo con respecto al resto.
+
+**Hablante 2**: Claro, pero... Eh... Sí, pero tiene como... tenía un parámetro para decir como, tiene que haber como una cierta cantidad de núcleos grandes para decir ya este es score... en 3. Y no es score 2, suponiendo que... eh, hay una cantidad mayor de score 3, eh, si uno cuenta un unos núcleos con, con alto, con harta área, tiene que haber como una cantidad para que él diga ya esto es score 3.
+
+**Hablante 1**: Mmm, ya. No sabía que existía eso.
+
+**Hablante 2**: Sí. Y cómo se calcula el score 2.
+
+**Hablante 1**: Ya, ya, no sabía.
+
+**Hablante 2**: Porque si tú... si hay un score 3, o sea uno que caería en el score 3 y 20 que caen en el score 2, ahí supongo que el patólogo determina qué grado darle si tiene un score 2. Déjame... déjame ver si lo encuentro porque creo que eso lo, lo tenía anotado.
+
+**Hablante 1**: Y eso fue como que, ¿de las reuniones con el patólogo? ¿O de dónde salió?
+
+**Hablante 2**: Eh... claro, en el... creo que fue una de las preguntas que yo le había hecho en que tuvimos una reunión. Y creo que me... no sé si me me habrá dicho al ojo así... así como "oh veo muchas células que corresponden a score 3 por lo tanto pongo score 3".
+
+**Hablante 1**: Pero no sé si había como una... algo más... más objetivo.
+
+**Hablante 2**: Claro, claro.
+
+**Hablante 1**: Está interesante eso, saberlo. Tenerlo en consideración.
+
+**Hablante 2**: Claro, porque si identificai un, un núcleo que es muy muy muy grande y muchos que son intermedios, probablemente vaya a marcar la docencia como score 2. A ver si... Si tengo la nota, no se aparece... Ya, no sé, eso tendríai que investigarlo.
+
+**Hablante 1**: Mmm, investigar... eh... como qué determina el score de... de si hay una cantidad o... y determina como terminar clasificando el el grado nuclear o pleomorfismo que en esencia es casi lo mismo.
+
+**Hablante 2**: Ya. ¿O sea eso va a quedar como tarea?
+
+**Hablante 1**: Claro.
+
+**Hablante 2**: Ya. Hay una... Esta sí... No, eso tendríai que verlo en la WSI porque el... los grados nucleares eh, están... es parte del carcinoma ductal in situ, por lo tanto, eh, tení que identificar el carcinoma ductal in situ para determinar el grado nuclear.
+
+**Hablante 1**: Claro.
+
+**Hablante 2**: Entonces... Claro, es como una... es más en cadena, hay que identificar el grado nuclear prime..., o sea, el el CDIS. Y una vez identificado el CDIS, es como que el grado nuclear sí o sí va a depender de la tarea de localización del CDIS.
+
+**Hablante 1**: Y viceversa, ¿también o no?
+
+**Hablante 2**: Eh...
+
+**Hablante 1**: ¿O no? En este contexto.
+
+**Hablante 2**: En este contexto el procedimiento entiendo que es: identifico el carcinoma ductal in situ, ¿está presente o no primero? Si está presente, bueno. El patólogo anota todo lo que tiene el CDIS, que es necrosis, grado nuclear y patrón arquitectónico. Si lo identificai, entonces tení que decir qué patrón arquitectónico tiene, el grado su grado nuclear y el... y la necrosis. Entonces... entiendo yo que primero habría que detectarlo. Identificar dónde está y después hacer las gradaciones.
+
+**Hablante 1**: Mmm.
+
+**Hablante 2**: Por lo... por lo que estaba pensando en cómo automatizar e identificar la zona. Pero la zona es al final el carcinoma ductal in situ. Entonces hay que tener bien localizado el carcinoma ductal in situ para hacer la, la gradación. Entonces... si pensamos en automatizarlo, necesitamos sí o sí la tarea del carcinoma ductal in situ.
+
+**Hablante 1**: Pero me imagino que a eso hace referencia como ya, okay, vamos a entrenar un modelo de CLAM solamente en carcinoma ductal in situ y ese va a ser nuestro checkpoint que usemos como filtro en caso de usarlo, eh, luego para para el siguiente paso, que en este caso estamos usando HoVer-Net pero me imagino que claro, puede ser cualquier cosa.
+
+**Hablante 2**: Claro sí. Sí, esa es como la idea, pero en vez de CLAM eh que ya vimos que a CLAM a veces le costaba identificar el... lo el carcinoma ductal in situ.
+
+**Hablante 1**: Cierto, cierto. Sí, me lo me lo mencionaste.
+
+**Hablante 2**: Como para esta tarea, tengo que estar 100% seguro de dónde está para poder hacer el el ejecutar la tarea de grado nuclear. Entonces... Lo que podríamos hacer es... por mientras como evaluar solamente con las slides anotadas. Y ver si encontramos algún dataset también público donde, eh creo que BRACS eh hay he encontrado dataset de carcinoma ductal in situ eh segmentado. Entonces eso nos podría servir también para ir evaluando el grado nuclear en ciertas zonas, las zonas del carcinoma ductal in situ, porque corremos el riesgo de evaluar el grado nuclear en... en una zona random del... tumor.
+
+**Hablante 1**: Sí, claro. No, y en las slides que tenemos entonces... eh hay carcinoma ductal in situ. Y... pero ¿cuánto hay? Como pa empezar a hacer pruebas antes del otro de de recurrir al otro dataset.
+
+**Hablante 2**: Tenemos 30 eh carcinomas ductal in situ. En 10 slides... Ya, esa es la distinción. Tenemos 30 anotaciones de carcinoma ductal in situ en 10 slides.
+
+**Hablante 1**: Es harto. O sea, sufic... eh bastante.
+
+**Hablante 2**: Sí, y... Con respecto al... Al grado nuclear... Ah igual tenemos hartas anotaciones de grado nuclear. Tenemos 99 de alto grado y de moderado 84, en 12 slides.
+
+**Hablante 1**: Buena.
+
+**Hablante 2**: Y de y de bajo grado tenemos 25, en 12 slides.
+
+**Hablante 1**: 25 en 12 slides. Guau, en 12 slides hay caleta.
+
+**Hablante 2**: Bueno, ya con eso se se pueden hacer las dos pruebas que dijimos, po. Como la primera era de... ver si es cómo el modelo se se comporta en los scores eh en el grado nuclear sin la marca del patólogo, ¿cierto?
+
+**Hablante 1**: Claro.
+
+**Hablante 2**: Comprobarlo con... con la misma técnica que hiciste sin la marca del patólogo a ver si logramos identificar los mismos núcleos de mayor área y marcar el patólogo.
+
+**Hablante 1**: Claro. Claro.
+
+**Hablante 2**: Ya, genial. Eh... Sí, eh... Y bueno me imagino, bueno, como el pleomorfismo nuclear es prácticamente lo mismo pero en en la zona del tumor, en la zona invasiva... habría que simplemente... la marca del tumor ya la tenemos así que quedaría hacer algo similar a lo de a lo de mitosis que es como identificar la zona de mayor atipia en el tumor... eh para ahí poder evaluar el pleomorfismo nuclear en el en el caso de... grado nuclear en el carcinoma ductal in situ.
+
+**Hablante 1**: ¿Cómo fue eso?
+
+**Hablante 2**: Que en el... para pleomorfismo nuclear, que es prácticamente lo mismo que grado nuclear pero en el tumor, en la parte invasiva... y de grado nuclear es... lo mismo pero en el carcinoma ductal in situ. Ah okey.
+
+**Hablante 1**: Ya, ya te entiendo, te entiendo.
+
+**Hablante 2**: Entonces... claro, podriai centrarte en esa tarea ya que la teni eh más o menos bien eh al menos teni una parte experimental.
+
+**Hablante 1**: Entonces en carcinoma ductal in situ.
+
+**Hablante 2**: Claro, porque la tarea de grado nuclear eh depende del carcinoma ductal in situ.
+
+**Hablante 1**: Ya. Eh... entonces...
+
+**Hablante 2**: Pero, pero por ahora, por ahora yo me centraría en identificar bien el... las células eh...
+
+**Hablante 2**: ...lato grado. Y el grado, o sea, poder identificarla primero... porque con la marca del patólogo tú sabí dónde están.
+
+**Hablante 1**: Sí.
+
+**Hablante 2**: Entonces puede sin la marca el patólogo identificar eso esa esos núcleos de alto grado y poder contrastarlo, si efectivamente coinciden o no con la marca el patólogo.
+
+**Hablante 1**: Ya, perfecto, perfecto.
+
+**Hablante 2**: Primero hacer como ese ese chequeo y ya después pensémoslo en extrapolarlo a otras WSI donde no donde no tenemos la marca el patólogo pero sí tenemos la etiqueta. Pero eso va a ser un poco más complicado porque vamos a tener que identificar bien donde está el carcinoma ductal in situ que es lo que está faltando ahora.
+
+**Hablante 1**: Claro. Así es, sí.
+
+**Hablante 1**: Ya entonces, eh, voy a hacer justamente esa prueba de, ver si es que es capaz el modelo de identificar, eh, los núcleos que marcó el patólogo.
+
+**Hablante 2**: Claro.
+
+**Hablante 1**: Entonces, eh... Y junto con investigar, había que investigar también el tema de como funcionaba lo de score de grado nuclear, ¿cierto?
+
+**Hablante 2**: Claro, investigar como se determina determinando el el score de tanto de pleomorfismo nuclear como de grado nuclear cuando en una WSI podí tener como grado, núcleos de grado medio, de grado alto, de grado bajo. Ahora uno intuitivamente piensa en ya sí la mayoría gana. Pero pueden haber sutilezas o reglas en el al momento de hacer el scoring.
+
+**Hablante 1**: Sí, sí. Te entiendo, te entiendo.
+
+**Hablante 1**: Ya. Entonces eso va a quedar como para estudiar.
+
+**Hablante 2**: Claro, eso principalmente como para no repetir la tarea de, o sea para dividirnos bien las tareas. Porque el tema de la, eh, de la región para la tasa mitótica es algo que igual iba a estar viendo. Entonces, como ya había revisado el tema de grado nuclear, mejor nos dividimos bien el el el cargo.
+
+**Hablante 1**: Ya.
+
+**Hablante 2**: Porque de alguna forma igual ya encontramos los dos en en la tarea de mitosis una estrategia medianamente, eh, una estrategia en la que tenemos ya dos modelos que con los cuales poder tomar una decisión en cuanto a la tasa mitótica.
+
+**Hablante 1**: Claro.
+
+**Hablante 1**: Sí, me parece.
+
+**Hablante 1**: Ya. Eh...
+
+**Hablante 2**: Mira, eh HoverNet la clase que tiene que es...
+
+**Transcripción de audio_2.ogg**
+
+**Hablante 2**: Esa es la que vaya a ocupar para determinar el... el... el CDI... vaya a medir el área.
+
+**Hablante 1**: Claro.
+
+**Hablante 2**: Sí.
+
+**Hablante 1**: Ya.
+
+**Hablante 2**: Eh... Ya, sí, veamos cómo cómo te va con eso. Y y bueno, si tení más, y el tema de de esta tarea eh se te ocurren más objetivos también, o sea...
+
+**Hablante 1**: Mmm.
+
+**Hablante 2**: Y vamos viendo. Sí, yo creo que igual por lo mismo va a ser útil quizás eh definir objetivos como cortos pa reunirnos y ir revisando prontamente como hacia dónde apuntar pa cerrar.
+
+**Hablante 1**: Claro.
+
+**Hablante 2**: En este caso, ahora siento que ya, esas dos tareas, como investigar bien lo del score y probar la segmentación de HoVer-Net comparado a las marcas del patólogo para grado nuclear. Y lo relacionado con CDIS también.
+
+**Hablante 1**: Claro.
+
+**Hablante 2**: Ya.
+
+**Hablante 1**: Claro, eh... Entonces nos podríamos reunir la otra semana, el otro martes.
+
+**Hablante 2**: Sí. Para... Ya, ahí te comento cómo cómo va yendo lo de mitosis y tú me comentái cómo va yendo lo de grado nuclear.
+
+**Hablante 1**: Ya, po.
+
+**Hablante 2**: Ya, deja deja pensar si si no se me queda nada antes de partir. Eh...
+
+**Hablante 1**: Igual si sale algo en la semana te comento también, po.
+
+**Hablante 2**: Ya.
+
+**Hablante 1**: Mhm.
