@@ -93,6 +93,20 @@ Acceso: **VPN oficial Environ + SSH**. Stack registrado el 19 may 2026
 > `sprints/B8_sprint8/atencion_vs_patologo/` ⇒ **riesgo de trabajo duplicado: coordinar antes de
 > barrer las 12.**
 
+> **ADDENDUM 8-sep-2026 — ahora son 23 geojson y 22 láminas, y las doce quedaron chicas.** Diez
+> archivos con fecha **27-ago** que ninguna sesión había mirado: `110962 128250 131461-1 132208
+> 132844 133677 141426-1 142541-1 154144` más una `.svs` (`Br0244 …`). Contra ese set los números
+> que citó Sebastián cuadran exacto: `Nucleos alto grado` **99** en 10 láminas, `Nucleos mod grado`
+> **84** en 10, y **CDIS 30 en 10 láminas** sumando cinco clases, dos de ellas nuevas
+> (`CDIS_cribiforme`, `CDIS_micropapilar`). **De las 30 láminas que mencionó ahora faltan 8, no
+> 18.** Tres cosas que cambian la operación: `NucleosBajoGrado` son **16 y no 25** (el duplicado de
+> la 103762 sigue ahí), **5 de los 9 nuevos se llaman `<id>.bif GDT.geojson` sin el ` - `** ⇒ el
+> filtro por `- GDT.geojson` que el B9 adoptó **ahora descarta cinco láminas reales** y hay que
+> deduplicar por `slide_id`, y las nuevas **no tienen HoVer-NeXt ni offset** (sí `.bif` y features).
+> Y el hallazgo que reordena el eje: **las marcas de grado siguen la etiqueta de pleomorfismo de la
+> lámina, no el grado nuclear del CDIS** ([[marcas-grado-son-pleomorfismo-de-lamina]]). Detalle en
+> `sprints/B10_sprint10/objetivos_sprint10.md`.
+
 > **`MitosisDetection/` (READ-ONLY, descubierto el 3-sep-2026).** Es el detector de mitosis de `sgaete`
 > y el **CUARTO solape** con él en nuestro eje, el más directo de los cuatro: su
 > `hotspot/run_hnx_windows.slurm` corre **HoVer-NeXt con `lizard_convnextv2_tiny`, exactamente nuestro
