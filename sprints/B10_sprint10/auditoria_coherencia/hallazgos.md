@@ -115,3 +115,22 @@ memorias. Quedan dos `add_chart` en `B5_sprint5/presentacion_b5/convenciones_dec
 `B6_sprint6/presentacion_viernes/convenciones_deck_b6.md`, que cuentan cómo se hicieron esos decks
 y **no se tocan**. Los «inglés» de `pathpt-testing-necrosis-mitotic` y de
 `fixing-opus5-evaluacion-y-cosecha` hablan de otra cosa.
+
+---
+
+# Pasada acotada — sesión 55 (11-sep-2026)
+
+> **Alcance**: lo que salió al preparar la construcción del deck de la reunión del martes. La
+> sesión leyó el plan, el precedente del B9 y los datos, y cerró por contexto **antes de escribir
+> el generador**. Hecha con `@knowledge-audit` dentro de `@session-close`. No se auditó el resto.
+
+| id | hallazgo | tipo | acción |
+|---|---|---|---|
+| I1 | El plan de la sesión 54 pide que el guion de s02 diga que la región mitótica «pasó a otra persona del equipo». Según `reunion_martes.md:70` el mitótico «quedó para Sebastián en el reparto», y Sebastián es quien escucha. Además `CLAUDE.md` nombra supervisor a Sebastián Gaete y el `docProps` de la plantilla lo firma `sgaete` (`docs/plantilla_oficial.md`) | premisa errada del plan | el guion usa una forma que no nombra a nadie («quedó en la línea de mitosis con el reparto de la reunión pasada»). El plan vive en `.handoffs/`, que no se versiona: la corrección va en el handoff |
+| I2 | `auditar()` y `barrer_rayas()` de `generate_b9_deck.py` (:1117 y :1215) recorren `slide.shapes` y no entran en los group shapes: de un grupo sólo miden la caja contra el pie. El plan del B10 mete cada gráfico en un grupo, así que su texto quedaría sin medir (desborde, menos de 7 pt, rayas). Y en una celda de tabla con dos párrafos `auditar` toma el máximo de líneas y no la suma | punto ciego del QA | el generador del B10 lleva su propio auditor recursivo (el del B9 está cerrado y no se edita); ADDENDUM en [[deck-qa-puntos-ciegos-chequeo]] |
+| I3 | El deck sigue **sin construir**. Insumos verificados: `datos_o1()` y `datos_o3()` corren en `envs/pruebas` y coinciden fila a fila con `figuras/*.csv`; el **187** del pie de O1 se lee de `escalera.csv` (suma de `n_marcas` sobre las 21 láminas) en vez de transcribirse; Barlow trae `≥ ≤ † µ ² · « » ×`; los tres encargos cerraron el 9-sep, así que la columna Fecha lleva `09/09` | pendiente abierto | H3 sigue abierto; el diseño lámina por lámina va en el handoff |
+
+**Propagación verificada**: `grep` de «otra persona del equipo» sobre `reunion_martes.md` y el plan:
+en el B10 la frase está sólo en el plan. El bloque de Tareas del guion del B9 la usa para los dos
+solapes de `sgaete` (el pipeline de atención contra anotaciones y el detector de mitosis). Es un
+deck ya presentado y **no se toca**; si `sgaete` es Sebastián, queda como pregunta para Ernesto.

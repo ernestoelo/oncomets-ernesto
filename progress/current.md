@@ -4438,6 +4438,43 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 55 — 11-sep-2026 · el deck de la reunión, diseñado y sin construir
+
+**Misión**: construir el deck de la reunión del martes con el plan de la sesión 54. La sesión leyó
+el plan, el precedente del B9 y los datos, dejó el diseño cerrado lámina por lámina en el handoff y
+cerró por contexto **antes de escribir el generador**. `presentacion_b10/` sigue sin existir.
+
+### 1. Verificado
+
+- `datos_o1()` y `datos_o3()` corren en `envs/pruebas` (pptx 1.0.2) y coinciden fila a fila con
+  `figuras/*.csv`.
+- El 187 del pie de O1 se lee de `escalera.csv`: suma de `n_marcas` sobre las 21 láminas (brazo
+  `A_lamina_entera`, `desc == percentil`), y `n_resueltas` suma 145.
+- Barlow trae `≥ ≤ † µ ² · « » ×`, así que el forest plot puede escribir «p ≥ 0,05» y «†».
+- Los tres encargos cerraron el 9-sep («O1, O2 y O3 EJECUTADOS» en el mapa): la columna Fecha de
+  OBJETIVOS lleva `09/09`.
+- `soffice` y `pdftoppm` están en `/usr/bin`.
+
+### 2. Auditoría acotada (I1-I3)
+
+- El guion de s02 no puede decir «otra persona del equipo» para la región mitótica: según
+  `reunion_martes.md` quedó para Sebastián, que es quien escucha. Va una forma que no nombra a
+  nadie. Si `sgaete` es Sebastián, como sostienen `CLAUDE.md` y el `docProps` de la plantilla, el
+  bloque de Tareas del guion del B9 le habló de sus propios pipelines como de otra persona; queda
+  como pregunta para Ernesto.
+- `auditar()` y `barrer_rayas()` del B9 no entran en los group shapes, y el plan agrupa cada
+  gráfico: el generador del B10 necesita su propio auditor recursivo.
+
+Detalle: `sprints/B10_sprint10/auditoria_coherencia/hallazgos.md`, sesión 55.
+
+### 3. Estado al cierre
+
+Rama `main`, sin jobs propios. En el nodo corren `nschiaff` 5524, `capstone` 5544 y `dbustama`
+5547; esperan `sgaete` 5525 y 5536 `Dora`, que es de otro operador. Pendiente: construir el deck
+antes del martes.
+
+---
+
 ## Sesión 54 — 11-sep-2026 · el plan del deck de la reunión del martes, sin construir
 
 **Misión**: Ernesto pidió el `.pptx` de la reunión del martes 15-sep, que el handoff dejaba «solo si
