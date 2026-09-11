@@ -133,6 +133,35 @@ De las 21, **13 tienen recall por encima de su nulo medio** y 8 dan cero. Las 8 
 La carga por lámina en N=500 va de **2,2 a 5,8 mm²**, o sea que el peldaño es comparable entre
 láminas pese a que su tamaño varía por un factor 40 en número de candidatos.
 
+## 6.a Dos cosas que el pre-registro no declaró (medidas el 10-sep)
+
+Ninguna mueve el titular (N=500). Las dos salieron al re-medir la B25-158899 de O3, que tiene
+las dos propiedades a la vez ([`../cdis_localizacion/resultados.md`](../cdis_localizacion/resultados.md) §3.b).
+
+**1. El universo de las dos láminas con dos regiones de escaneo.** La 129741 y la B25-158899 tienen
+la anotación en una sola de sus dos regiones, y el driver ordenó los núcleos de la lámina entera,
+sin el `REGION_ANOTADA` que el B9 aplicó en su escalera (`scripts/b9_escalera_area.py:269`). La
+lámina entera es lo que tendría una lámina nueva sin anotar, así que es un default defendible,
+pero no estaba declarado. Confinadas a su región con `scripts/b10_grado_region_diag.py`, cuya
+fila de lámina entera reproduce `escalera.csv`:
+
+| lámina | universo | candidatos | N=200 | N=500 | N=2000 |
+|---|---|---|---|---|---|
+| 129741 (14 alcanzables) | lámina entera (publicado) | 87.553 | 2 (2,2 mm²) | 4 (4,4 mm²) | 8 (10,2 mm²) |
+| 129741 | región anotada | 43.957 | 4 (1,9 mm²) | 4 (3,6 mm²) | 11 (7,5 mm²) |
+| B25-158899 (1 alcanzable) | lámina entera (publicado) | 30.688 | 0 | 0 | 0 |
+| B25-158899 | región anotada | 13.666 | 0 | 0 | 0 |
+
+Unidad: marcas recuperadas entre los N núcleos más grandes, con la carga en mm² entre paréntesis.
+En `alto`, la fila del §4 pasaría de 27 · 41 · 57 a **29 · 41 · 60**. El titular no se mueve, y
+N=200 y N=2000 se mueven en 2 y 3 marcas de 76. **Queda declarado y el driver no se re-corre.**
+
+**2. Las dos láminas con `alineada: false`.** La 164001 (`moderado`, 4 alcanzables, recupera 1 en
+N=500) y la B25-158899 (`alto`, 1 alcanzable, 0). El B9 las había declarado como control de sanidad
+para reportar aparte (`../../B9_sprint9/ejes_nucleares/prereg.md` §2), y el pre-registro de O1 no.
+Sin ellas, N=500 da **52 de 140** alcanzables (37,1 %) contra 53 de 145 (36,6 %): `alto` 41 de 75 y
+`moderado` 11 de 49. Nada cambia de lado.
+
 ## 7. Qué NO dice este resultado
 
 - **Ni precisión, ni F1, ni PQ.** Positivos parciales. Ningún núcleo grande sin marca es un falso
@@ -158,3 +187,4 @@ láminas pese a que su tamaño varía por un factor 40 en número de candidatos.
 | Las 200 traslaciones del nulo, por lámina y brazo | `results/b10_grado_sin_marca/nulo.npz` |
 | Log | `logs/b10_grado_sin_marca.log` |
 | Driver | `scripts/b10_grado_sin_marca.py` |
+| Diagnóstico de universo de las dos láminas con dos regiones (§6.a) | `scripts/b10_grado_region_diag.py`, log `logs/b10_grado_region_diag.log` |
