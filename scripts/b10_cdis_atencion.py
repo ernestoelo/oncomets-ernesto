@@ -14,6 +14,10 @@ mismo esquema aplicado a Mitosis.
 Dos brazos, y el segundo NO es opcional: `json_out` lee la rama de la clase PREDICHA, y eso ya
 produjo un 0,500 exacto en otro eje ([[rama-de-atencion-decide-el-resultado]]).
 
+Universo REGIÓN (agregado el 10-sep, resultados §3.a): en las láminas con más de una región de
+escaneo se mide además confinado al intervalo de `REGION_ANOTADA`, con el `medir` del B9. Sale
+en `auc_cdis_region.csv` y no mueve ni un bit de `auc_cdis.csv` (regresión byte a byte).
+
   /home/sdonoso/miniconda3/envs/clam_latest/bin/python scripts/b10_cdis_atencion.py
 """
 from __future__ import annotations
@@ -36,6 +40,8 @@ from scripts.atencion_vs_anotaciones import (       # noqa: E402
     build_clam, get_attention, p_traslacion, rank_auc, ranks_of)
 from scripts.auc_atencion_fold4 import ic_hanley_mcneil                     # noqa: E402
 from scripts.b9_atencion_12_laminas import leer_h5, paso_de_grilla          # noqa: E402
+from scripts.b9_atencion_12_laminas import medir as medir_por_universo      # noqa: E402
+from scripts.cruce_94_marcas import REGION_ANOTADA                          # noqa: E402
 from b9_descriptores_nucleos import geojson_de                              # noqa: E402
 
 # Los offsets viven junto a los del B8 a proposito (un offset es por lamina, no por sprint) y
@@ -252,7 +258,50 @@ def main():
     print(f"\n  positivos NO anotados (etiqueta `si`, cero polígonos), fuera de los dos grupos: "
           f"{', '.join(SI_SIN_POLIGONO)}")
 
+    # --- universo REGIÓN (agregado el 10-sep, resultados §3.a). Sólo las láminas con más de una
+    #     región de escaneo, con el `medir` y el `universos_de` del B9 sin tocar: el intervalo
+    #     viene fijado desde el B9 en `cruce_94_marcas.REGION_ANOTADA`, no se elige acá. RNG
+    #     propio, para que las filas de arriba, ya publicadas, no se muevan ni un bit.
+    rng_reg = np.random.default_rng(SEMILLA)
+    reg = []
+    multi = [s for s in con_pol if s in REGION_ANOTADA]
+    if multi:
+        print(f"\n  universo REGIÓN (láminas con más de una región de escaneo): {', '.join(multi)}")
+    for slide in multi:
+        feats, coords = leer_h5(slide)
+        step = paso_de_grilla(coords)
+        idx_pos, n_pol = parches_cdis(slide, coords, step)
+        lab, tr = labs.get(slide), tier.get(slide, "fuera")
+        sc, pred, conf = atencion_json_out(slide, coords)
+        brazos = [(sc, "json_out_ensemble", f"predicha:{pred}", conf)]
+        for cabeza in ("verdadera", "predicha"):
+            A, rama = atencion_ckpt(feats, cabeza, lab)
+            if A is not None:
+                brazos.append((A, f"ckpt_1fold_{cabeza}", f"{cabeza}:{rama}", float("nan")))
+        for v, fuente, rama, cf in brazos:
+            extra = dict(fuente=fuente, rama=rama, tier=tr, etiqueta=str(lab),
+                         n_poligonos=n_pol, confianza=cf)
+            ref = [g["auc"] for g in filas if g["slide"] == slide and g["fuente"] == fuente]
+            for f in medir_por_universo(slide, v, coords, idx_pos, step, a.n_transl, rng_reg,
+                                        extra):
+                # Chequeo gratis: en el universo `lamina` el AUC tiene que ser el de la tabla
+                # principal, que salió por el otro camino (`medir` de este archivo). La fila NO
+                # se guarda: su `p` sale de otro RNG, y dos `p` para la misma celda confunden.
+                if f["universo"] == "lamina":
+                    if not ref or abs(ref[0] - f["auc"]) > 1e-12:
+                        raise AssertionError(f"{slide}/{fuente}: AUC lamina {f['auc']} != {ref}")
+                    continue
+                reg.append(dict(f, auc_lamina_entera=ref[0] if ref else float("nan")))
+                print(f"  {slide:<12} {f['universo']:<7} {f['n_parches']:>6} parches "
+                      f"{f['n_marcados']:>3} CDIS  {fuente:<22} {rama:<16} "
+                      f"AUC {f['auc']:.3f} [{f['ic95_lo']:.3f} · {f['ic95_hi']:.3f}]  "
+                      f"p {f['p_nulo']:.4f} ({f['n_iter_nulo']} trasl.)  "
+                      f"lámina entera {ref[0] if ref else float('nan'):.3f}")
+
     pd.DataFrame(filas).to_csv(Path(a.out) / "auc_cdis.csv", index=False)
+    if reg:
+        pd.DataFrame(reg).to_csv(Path(a.out) / "auc_cdis_region.csv", index=False)
+        print(f"escrito: {a.out}/auc_cdis_region.csv ({len(reg)} filas)")
     pd.DataFrame(neg).to_csv(Path(a.out) / "control_negativo.csv", index=False)
     if saltadas:
         pd.DataFrame(saltadas).to_csv(Path(a.out) / "saltadas.csv", index=False)

@@ -9,7 +9,9 @@
 
 ## 1. El resultado
 
-**H_O3 se cumple en la dirección pre-registrada**, con la salvedad del §3.
+**H_O3 se cumple en la rama verdadera** (9 de 9 por encima de 0,5), con dos salvedades: la
+evidencia fuera de `train` es chica (§2), y la única lámina que el fold nunca vio va al revés,
+también confinada a su región (§3.b).
 
 | fuente | `n` | AUC mediana | rango | AUC > 0,5 | `p` < 0,05 |
 |---|---|---|---|---|---|
@@ -33,8 +35,11 @@ mínimo es 0,704.
 | 131461-1 | train | `si` | 4 | 7839 | 28 | 0,852 | **0,715** | 0,715 |
 | 132844 | val | `si` | 1 | 2292 | 3 | 0,872 | **0,755** | 0,919 |
 | 142541-1 | train | `si` | 1 | 5875 | 4 | 0,840 | **0,722** | 0,722 |
-| 164001 | val | `si` | 3 | 3796 | 6 | 0,999 | **0,926** | 0,741 |
-| B25-158899 | fuera | (sin fila) | 3 | 4697 | 7 | **0,236** | (sin etiqueta) | 0,198 |
+| 164001 † | val | `si` | 3 | 3796 | 6 | 0,999 | **0,926** | 0,741 |
+| B25-158899 † | fuera | (sin fila) | 3 | 4697 | 7 | **0,236** | (sin etiqueta) | 0,198 |
+
+† `alineada: false` en su offset desde el B8. Son las dos únicas de las diez (§3.b), y el
+pre-registro no lo declaró. Sin la 164001, la rama verdadera da **8 de 8** por encima de 0,5.
 
 ## 2. Lo que el resultado NO alcanza a sostener, y estaba declarado antes
 
@@ -45,6 +50,22 @@ traslación da 0,31. **La evidencia limpia de este eje es una lámina, y esa lá
 
 El resto del reparto es el del pre-registro §1.c: 5 en `train`, 3 en `val`, 1 fuera del split.
 El agregado de arriba **no es evidencia limpia** y no se presenta como tal.
+
+**Con la B25-158899 medida (§3.b), la lectura por tier queda así**, con el orden de limpieza
+ausente > test > val que fijó el B9 ([[atencion-doce-laminas-folds-limpios]]):
+
+| tier | qué tan limpia | láminas | AUC > 0,5 | `p` < 0,05 |
+|---|---|---|---|---|
+| `train` | nada: el fold se entrenó con ellas | 5 | 5 de 5 | 3 |
+| `val` | débil: eligió el checkpoint | 3 | 3 de 3 | 2 (una es la 164001 †) |
+| `test` | fuerte | 1 | 1 de 1 (0,704, IC contiene 0,5) | 0 |
+| ausente | la más fuerte | 1 (rama `si`) | **0 de 1** (0,201 confinada) † | 0 |
+
+**Las dos láminas que el fold no usó ni para entrenar ni para elegir el checkpoint no muestran
+localización**: una no mide y la otra va al revés. Fuera de `train`, lo que se separa del nulo es
+`val`, el tier más débil, y la mitad de eso viene de la 164001, que no está alineada. **No se afirma
+que esta atención localice el CDIS en láminas nuevas**: el material no lo sostiene ni en un sentido
+ni en el otro.
 
 **La segunda incertidumbre es la que manda** ([[auc-atencion-dos-incertidumbres]]): la dispersión
 entre fuentes es chica (0,74 a 0,86 de mediana), y el IC de Hanley-McNeil es enorme donde el
@@ -90,6 +111,47 @@ se elige ahora**:
     separa del nulo, con 7 parches positivos.
   - **Ninguna de las dos lecturas mueve el resultado principal** (rama verdadera, 9 de 9), porque
     la B25-158899 no está en esa fila.
+
+**Corrección, escrita después de medir (10-sep).** El primer punto de la lectura dice «fuera del
+split y por lo tanto sin valor de evidencia limpia». **Es al revés**: una lámina que no está en el
+split es **ausente**, el tier más limpio del orden ausente > test > val del B9. El error no cambia
+qué lectura se aplica, que dependía sólo del signo, pero sí el peso de la B25-158899 en la
+conclusión (§2).
+
+### 3.b El resultado: confinar no cambia nada
+
+Unidad: parche. Rama `si` en las dos fuentes (§3.a). Lámina entera, de `auc_cdis.csv`; región, de
+`auc_cdis_region.csv`.
+
+| fuente | universo | parches | CDIS | AUC | IC 95 % (Hanley-McNeil) | `p` traslación |
+|---|---|---|---|---|---|---|
+| `json_out` | lámina entera | 4697 | 7 | 0,236 | 0,099 · 0,374 | 0,920 |
+| `json_out` | **región anotada** | **2404** | 7 | **0,239** | 0,100 · 0,379 | 0,915 |
+| checkpoint 1 fold | lámina entera | 4697 | 7 | 0,198 | 0,078 · 0,318 | 0,995 |
+| checkpoint 1 fold | **región anotada** | **2404** | 7 | **0,201** | 0,079 · 0,323 | 0,995 |
+
+La región anotada tiene la mitad de los parches y los mismos 7 positivos, y el AUC se mueve en la
+tercera cifra. **Por la regla del §3.a, la hipótesis del universo queda refutada**: la B25-158899 es
+la única de las diez donde la atención no cae sobre el CDIS dibujado. Pone esos parches por debajo
+del 76 al 80 % de los de su propia región, y el nulo la supera en más del 90 % de las traslaciones.
+El fold acierta la clase con esa misma rama (predice `si`): localización y decisión se disocian, en
+el sentido opuesto al de la necrosis del B8 ([[rama-de-atencion-decide-el-resultado]]).
+
+**Lo que la pre-declaración no tenía y había que decir.** El offset de esta lámina tiene
+**`alineada: false`** desde el B8. Se vio **después de medir**, al verificar el tier, y **no se usa
+para rescatar el número**. Qué significa el flag, según el A3 del B8
+(`sprints/B8_sprint8/encargos_sebastian/a3_offsets_11_laminas.md` §3): menos del 80 % de **todas**
+las anotaciones cae sobre tejido (acá 27 de 38, 71 %). Lo que se cae son polígonos grandes cuyo
+centroide queda sobre fondo, y las 6 marcas de `Mitosis` caen las 6. O sea que el flag **no prueba**
+que el offset esté mal, y **tampoco** lo verifica para los polígonos de CDIS. La otra lámina con el
+flag es la **164001**, que da 0,926, así que el flag solo no ordena el resultado. El B9 lo había
+declarado como control de sanidad para estas mismas dos
+(`../../B9_sprint9/ejes_nucleares/prereg.md` §2). El pre-registro de O3 no lo hizo, y ése es un
+hueco del pre-registro, no del dato.
+
+**Estado de la fila**: medida y al revés. Lo que no se afirma es el mecanismo: con el offset sin
+verificar, «la atención no cae sobre el polígono» y «el polígono no está donde se lo dibujó» no se
+distinguen.
 
 ## 4. La rama que se lee decide el resultado, otra vez
 
@@ -145,7 +207,10 @@ descriptiva y su rango dice que el modelo no tiene un comportamiento único cuan
 - **No se compara contra los números del B8**, que son de la familia `_combined_5fold`.
 - **El `no_identificado` de la 110616 no se lee como ausencia**, y su AUC 0,775 entra al agregado
   con esa etiqueta declarada.
-- **La B25-158899 no está medida** (§3), no está midiendo mal.
+- **No se afirma que la atención evite el CDIS en la B25-158899.** Está medida y va al revés
+  (§3.b), pero con `alineada: false` eso no se distingue de un polígono corrido.
+- **No se afirma que la atención localice el CDIS en láminas nuevas** (§2): las dos que el fold
+  no vio no lo muestran.
 
 ## 7. Artefactos
 
@@ -154,5 +219,7 @@ descriptiva y su rango dice que el modelo no tiene un comportamiento único cuan
 | AUC por lámina, fuente y tier (29 filas) | `results/b10_cdis/auc_cdis.csv` |
 | Control negativo (8 filas) | `results/b10_cdis/control_negativo.csv` |
 | Lo que se saltó, con motivo | `results/b10_cdis/saltadas.csv` |
+| Re-medición confinada de la B25-158899 (2 filas, universo `region`, 10-sep) | `results/b10_cdis/auc_cdis_region.csv` |
+| Log de la corrida con la re-medición (el de arriba queda intacto) | `logs/b10_cdis_atencion_region.log` |
 | Log | `logs/b10_cdis_atencion.log` |
 | Driver | `scripts/b10_cdis_atencion.py` |
