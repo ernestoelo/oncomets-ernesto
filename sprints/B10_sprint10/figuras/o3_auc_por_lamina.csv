@@ -1,0 +1,11 @@
+orden_figura,tier,slide,fuente,rama,universo,etiqueta,n_parches,n_marcados,auc,ic95_lo,ic95_hi,ic_lo_dibujado,ic_hi_dibujado,ic_recortado,p_nulo,n_iter_nulo,relleno,alineada
+1,train,124729,ckpt_1fold_verdadera,verdadera:si,lamina,si,4334,32,0.9292,0.8675,0.9909,0.8675,0.9909,False,0.0050,200,True,True
+2,train,110616,ckpt_1fold_verdadera,verdadera:no_identificado,lamina,no_identificado,2933,44,0.7752,0.6934,0.8570,0.6934,0.8570,False,0.0169,58,True,True
+3,train,128250,ckpt_1fold_verdadera,verdadera:si,lamina,si,4489,33,0.7452,0.6479,0.8426,0.6479,0.8426,False,0.1095,200,False,True
+4,train,142541-1,ckpt_1fold_verdadera,verdadera:si,lamina,si,5875,4,0.7221,0.4377,1.0064,0.4377,1.0000,True,0.3035,200,False,True
+5,train,131461-1,ckpt_1fold_verdadera,verdadera:si,lamina,si,7839,28,0.7147,0.6066,0.8228,0.6066,0.8228,False,0.0050,200,True,True
+6,val,164001,ckpt_1fold_verdadera,verdadera:si,lamina,si,3796,6,0.9264,0.7814,1.0713,0.7814,1.0000,True,0.0050,200,True,False
+7,val,124806,ckpt_1fold_verdadera,verdadera:si,lamina,si,2705,9,0.9254,0.8064,1.0445,0.8064,1.0000,True,0.0050,200,True,True
+8,val,132844,ckpt_1fold_verdadera,verdadera:si,lamina,si,2292,3,0.7554,0.4361,1.0746,0.4361,1.0000,True,0.2886,200,False,True
+9,test,126504,ckpt_1fold_verdadera,verdadera:si,lamina,si,4410,2,0.7037,0.2969,1.1105,0.2969,1.0000,True,0.3085,200,False,True
+10,fuera,B25-158899,ckpt_1fold_predicha,predicha:si,region,,2404,7,0.2011,0.0791,0.3232,0.0791,0.3232,False,0.9950,200,False,False
