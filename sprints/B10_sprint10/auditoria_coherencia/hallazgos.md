@@ -77,3 +77,21 @@ encabezado por fusión.
 `grep -rn` de «0,755», «9 de 9» y «no medida» sobre todo el repo y el directorio de memorias. Los
 otros «9 de 9» son de otros ejes (atención sobre mitosis del B9, offsets de las 9 nuevas).
 `CLAUDE.md` no cita O3. Sí se tocó por F6, sólo para re-apuntar enlaces a las memorias fusionadas.
+
+---
+
+# Pasada acotada — sesión 53 (11-sep-2026)
+
+> **Alcance**: lo que tocó la sesión 53 (figuras de O1 y O3 y el doc de la reunión). Hecha con
+> `@knowledge-audit` dentro de `@session-close`. No se auditó el resto de la base.
+
+| id | hallazgo | tipo | acción |
+|---|---|---|---|
+| G1 | «El grado vive en **20** láminas» (8-sep) es **22**: sumaba alto (10) y moderado (10) sin las 2 de bajo. Recontado sobre los 23 geojson | error de conteo | mapa (corrección fechada), memoria `anotaciones-patologo-qupath`, ADDENDUM en `conteo-de-grupo-es-union`, P3 del doc de la reunión |
+| G2 | El IC de la 126504 se publicó como [0,297 · 1,110]; el artefacto da `ic95_hi` = 1,1105, que redondea a **1,111** | error de redondeo | `cdis_localizacion/resultados.md` §2; la assert del script de figuras lo fija |
+| G3 | O1 y O3 no tenían forma presentable | pendiente cerrado | `figuras/` + `reunion_martes.md`; línea nueva en el mapa |
+| G4 | El node de `envs/pruebas` está roto y Barlow no trae `●` | gotcha de entorno | `figuras/README.md` + ADDENDUM en `hallazgo-necesita-forma-presentable` |
+
+**Propagación verificada**: `grep` de «20 láminas» sobre el repo y las memorias. Los demás «20
+láminas» cuentan diapositivas de decks, no láminas anotadas. Conservan el número viejo la entrada de
+la Sesión 50 de `progress/current.md` y tres handoffs, que son historia y no se reescriben.

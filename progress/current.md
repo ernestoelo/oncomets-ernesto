@@ -4438,6 +4438,45 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 53 — 11-sep-2026 · O1 y O3 con forma presentable, y el doc de la reunión del martes
+
+**Misión** (handoff del 11-sep): figuras y tablas de O1 y O3 y el doc con que Ernesto va a la
+reunión del martes 15-sep. Todo CPU, nada re-medido. **Hecho.**
+
+### 1. Dos figuras que se verifican contra lo publicado
+
+`scripts/b10_figuras_o1_o3.py` → `sprints/B10_sprint10/figuras/{o1_apertura_grado,o3_auc_por_lamina}.{png,csv}`
+más un `README.md` con el esquema de los CSV, la paleta validada y qué muestra cada figura. No
+recalcula: lee `escalera.csv`, `nulo.npz`, `auc_cdis.csv` y `auc_cdis_region.csv`, importa
+`ESCALERA` y `cargar_offset()` del driver de O1, y aborta si algún número no reproduce los
+`resultados.md`. **O1**: % de alcanzables por grado contra N (10 a 2000, escala log) con la carga en
+mm² debajo y el p97,5 del nulo punteado; N = 500 da 41 · 12 · 0. **O3**: forest plot por tier con el
+IC recortado a [0, 1], relleno si p < 0,05 y † en las dos `alineada: false`. Paleta ordinal de un
+solo azul, validada con la skill `dataviz`; Barlow.
+
+### 2. El doc de la reunión
+
+`sprints/B10_sprint10/reunion_martes.md`: una línea por encargo, las dos figuras con pie y tabla, lo
+que dice el CAP del score, las cinco preguntas para Sebastián (P1-P5), la decisión pendiente de
+Ernesto y qué no se afirma. Prosa pasada por `@humanizer-es`.
+
+### 3. Dos números mal publicados, corregidos
+
+- **El grado vive en 22 láminas, no en 20** (21 medibles más la Br0244). El «20» del 8-sep sumaba
+  alto y moderado sin las 2 de bajo. Corregido en el mapa y en [[anotaciones-patologo-qupath]];
+  ADDENDUM en [[conteo-de-grupo-es-union]]. La entrada de la Sesión 50 de este archivo y los
+  handoffs quedan como estaban, porque son historia.
+- **El IC de la 126504 cierra en 1,111, no en 1,110** (`ic95_hi` = 1,1105). Corregido en
+  `cdis_localizacion/resultados.md` §2.
+
+### 4. Estado al cierre
+
+Rama `main`, cero jobs propios (corrían `capstone` 5520 y 5522). Pendiente: la reunión del martes y
+lo que salga de P1-P5. Auditoría acotada: `sprints/B10_sprint10/auditoria_coherencia/hallazgos.md`
+(G1-G4).
+
+---
+
 ## Sesión 52 — 10 y 11-sep-2026 · la B25-158899 re-medida, y dos caveats por lámina que O1 y O3 no declararon
 
 **Misión** (handoff del 9-sep): darle forma presentable a O1 y O3 y preparar la reunión del
