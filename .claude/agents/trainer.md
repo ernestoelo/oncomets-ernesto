@@ -28,7 +28,7 @@ si está en cola).
 > promedio → `[N,512]`, CLAM intacto). Paired k=5 vs CLAM single-scale reusando splits.
 > Bloqueador previo: confirmar la magnificación **física** de las cohortes.
 > **Antes de la GPU: Tier 0 calibración post-hoc (gratis, CPU)** sobre los 230 `.pkl`
-> en disco ([[calibracion-tier0-pendiente-ejecutar]]). Mammoth = **cerrado en
+> en disco ([[calibracion-operating-point-palanca-b5]]). Mammoth = **cerrado en
 > rendimiento** (12 tareas, 0 palancas, [[mammoth-investigacion-integracion]]); solo
 > queda el sign-off de interpretabilidad (OBJ-A, [[mammoth-interpretabilidad-objA]]).
 

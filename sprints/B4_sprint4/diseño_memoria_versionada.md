@@ -54,7 +54,7 @@ corresponden ir a GitHub público.
 |---|---|---|
 | `git-main-shared-pushes` | project | B4 / shared GPU + main account |
 | `microcalc-dataset-decision` | project | B4 / reunión 22-may |
-| `microcalc-hierarchical-proposal` | project | B4 / reunión 26-may |
+| `microcalc-fusion-objetivo5` | project | B4 / reunión 26-may |
 | `microcalc-fusion-objetivo5` | project | B4 / Obj 5 + ANEXO |
 | `equipo-arquitecturas-mammoth-longnet` | project | B4 / reunión 26-may |
 | `surface-premise-discrepancies` | feedback | B4 / interacción general |
@@ -114,7 +114,7 @@ oncomets-ernesto/
 │   ├── MEMORY.md                ← índice filtrado (solo project + reference)
 │   ├── git-main-shared-pushes.md
 │   ├── microcalc-dataset-decision.md
-│   ├── microcalc-hierarchical-proposal.md
+│   ├── microcalc-fusion-objetivo5.md
 │   ├── microcalc-fusion-objetivo5.md
 │   └── equipo-arquitecturas-mammoth-longnet.md
 └── .gitignore                   ← excluye explícitamente .claude/projects/

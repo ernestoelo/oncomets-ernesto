@@ -19,7 +19,7 @@
 
 ### F1 — Tier 0 ejecutada (era stale como "pendiente")
 - **Antes:** CLAUDE.md L732-734 "palanca viva post-cierre = Tier 0" (implica no corrida);
-  memoria `calibracion-tier0-pendiente-ejecutar` = "descrita y nunca ejecutada".
+  memoria `calibracion-operating-point-palanca-b5` = "descrita y nunca ejecutada".
 - **Ahora (canónico = memoria + `sprints/B6_sprint6/tier0_calibracion/resultados.md`):** ejecutada
   10-jul. **mitotic Δbal_acc +0.046 ± 0.029 (5/5+)** win; **invasión null** (+0.009); **necrosis null**
   (−0.005). Palanca real task-dependiente (rinde donde hay colapso a la mayoritaria).

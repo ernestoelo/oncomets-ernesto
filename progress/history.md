@@ -96,7 +96,7 @@
   [[notas-presentador-guion-didactico]].
 - **Palanca viva sin ejecutar al cierre**: Tier 0 calibración post-hoc del
   operating-point — la más barata (CPU, 230 `.pkl` en disco) y nunca corrida.
-  [[calibracion-tier0-pendiente-ejecutar]].
+  [[calibracion-operating-point-palanca-b5]].
 - **Reunión con Sebastián (2-jul)**: aprobó la magnificación multi-escala,
   **acotada a microcalcificaciones** (pocas WSI) y a un **fin de semana**;
   Ernesto decide las magnificaciones y la estrategia de fusión. → arranca B6.

@@ -259,7 +259,7 @@ contradicción con su scoping.
    para alcanzar el target µm/px → CONCH 512 c/u → **promedio** → `.pt [N,512]`. Reusar `create_patches_fp.py`
    (soporta `patch_level`/`custom_downsample`) sin tocar `clam_environ` (wrapper en mi workspace, regla 2).
 5. **Entrenar CLAM paired** vs single-scale sobre los mismos splits k=5, las 3 binarias.
-6. **Tier 0 (calibración post-hoc) va ANTES de la GPU** ([[calibracion-tier0-pendiente-ejecutar]]) — palanca
+6. **Tier 0 (calibración post-hoc) va ANTES de la GPU** ([[calibracion-operating-point-palanca-b5]]) — palanca
    más barata, independiente de la magnificación.
 
 ---

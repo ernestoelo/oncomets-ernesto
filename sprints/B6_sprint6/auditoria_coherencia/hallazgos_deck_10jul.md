@@ -12,7 +12,7 @@
 | id | hallazgo | tipo | severidad | acción |
 |----|----------|------|-----------|--------|
 | F1 | `progress/current.md` entrada del deck describe solo la ronda 9-jul (stale tras ronda 2) | stale | media | actualizar la entrada del deck |
-| F2 | `deck-molde-fiel-referencia` no cubre los patrones de la ronda 2 (estados del B3, objetivos en infinitivo sin resultados, figura del paper grande+limpia con SUS variables, `dim_pipeline`) | gap | media | ADDENDUM a la memoria + línea en index |
+| F2 | `deck-gramatica-diagrama-deep-llm-v` no cubre los patrones de la ronda 2 (estados del B3, objetivos en infinitivo sin resultados, figura del paper grande+limpia con SUS variables, `dim_pipeline`) | gap | media | ADDENDUM a la memoria + línea en index |
 | F3 | Assets nuevos (`check_verde.png`, `mammoth_fig2_arch.png`) gitignoreados | info | baja | ninguna (por diseño: `papers/presentations/` entero está gitignoreado, línea 60) |
 | F4 | `convenciones_deck_b6.md` §7 | OK | — | ya documenta la ronda 2 (hecho esta sesión) |
 | F5 | agentes `trainer`/`reviewer` y otras skills | OK | — | no tocados; sin acción |
@@ -33,7 +33,7 @@ PowerPoint + ensayo.
 
 **Fix**: actualizar la entrada del deck en `progress/current.md`.
 
-## F2 — memoria deck-molde-fiel-referencia (gap)
+## F2 — memoria deck-gramatica-diagrama-deep-llm-v (gap)
 
 La ronda 2 aporta patrones durables NO cubiertos por la memoria:
 
@@ -54,7 +54,7 @@ La ronda 2 aporta patrones durables NO cubiertos por la memoria:
    de la propia figura (W, x̄, s, Φ, W_low, cross-head concat, slide embed). Se
    armó un `dim_pipeline` (bloques variable+dimensión) al pie con esa notación.
 
-**Fix**: ADDENDUM 10-jul a `deck-molde-fiel-referencia` (cabe: misma familia de
+**Fix**: ADDENDUM 10-jul a `deck-gramatica-diagrama-deep-llm-v` (cabe: misma familia de
 feedback de formato de deck) + refrescar la línea de `MEMORY.md`.
 
 ## F3 — assets nuevos gitignoreados (info, sin fix)

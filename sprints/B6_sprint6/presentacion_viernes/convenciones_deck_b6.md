@@ -177,7 +177,7 @@ Ernesto revisó el build de las 15:25 y pidió una ronda de cambios; aplicados y
 - **s2 NUEVA "Recapitulación de objetivos"**: molde **B4 exacto** = lista numerada en UN
   cuadro (título 32pt Barlow ExtraBold `#217589`; cuerpo `1.…2.…` 24pt Barlow bold `#595959`,
   línea entre ítems), **NO tarjetas** (Ernesto rechazó la versión con tarjetas →
-  [[deck-molde-fiel-referencia]]).
+  [[deck-gramatica-diagrama-deep-llm-v]]).
 - **s4 "qué es y por qué"**: título = **acrónimo completo** ("MAtrix-factorized Mixture Module
   of Transformation Heads", 17pt); quitada la tarjeta 4; **Fig 1 + Fig 3** del paper apiladas
   a la derecha (Fig 3 = colores↔expertos).

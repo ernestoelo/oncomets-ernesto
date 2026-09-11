@@ -790,7 +790,7 @@ nota del grid).
 
 La pidió para mirar los mapas de calor y los parches sin el guion encima.
 `sin_notas.py`, al lado del generador: **cirugía de zip, no python-pptx**
-([[pptx-quitar-notas-y-respaldo]]). Saca `ppt/notesSlides/*`, la `<Relationship>` de tipo
+([[deck-completo-pptx-buildable]]). Saca `ppt/notesSlides/*`, la `<Relationship>` de tipo
 notesSlide de cada `slideN.xml.rels` y su `<Override>` de `[Content_Types].xml`. Resultado:
 **14 notesSlides eliminados, 15 partes reescritas, 82 byte-idénticas** (fuentes embebidas,
 imágenes y theme intactos) y 0 láminas con notas. Se versionó el script y no el `.pptx`,

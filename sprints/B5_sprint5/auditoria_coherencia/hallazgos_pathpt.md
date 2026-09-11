@@ -23,7 +23,7 @@ c180e60, d92e170, efd8f90.
 | id | hallazgo | tipo | severidad | acción |
 |---|---|---|---|---|
 | F1 | CLAUDE.md no registra el hilo PathPT (los Hallazgos llegan al 12 = mammoth) | falta de registro | **alta** | agregar **Hallazgo 13** (cierre PathPT) tras el 12 (CLAUDE.md:746) |
-| F2 | `retrieval-investigacion-b5` ADDENDUM 10-jun predijo "CONCH en régimen favorable" para PathPT; el resultado lo contradijo | stale | media | **ADDENDUM 2 (11-jun)** cerrando el resultado (sin reescribir el addendum 1) |
+| F2 | `pathpt-testing-necrosis-mitotic` ADDENDUM 10-jun predijo "CONCH en régimen favorable" para PathPT; el resultado lo contradijo | stale | media | **ADDENDUM 2 (11-jun)** cerrando el resultado (sin reescribir el addendum 1) |
 | F3 | `MEMORY.md` línea de retrieval refleja sólo la predicción optimista 10-jun | stale | media | actualizar la línea del índice (PathPT probado → no aporta) |
 | F4 | `pathpt-testing-necrosis-mitotic` (canónica del detalle) — ya actualizada hoy con los 3 resultados | verificación | baja | confirmar canónica + coherente (OK, sin cambios) |
 | F5 | D/CBIR (retrieval) vuelve a ser candidato "alto brillo / bajo riesgo" para la presentación, ahora que PathPT cerró | nota (no contradicción) | info | mencionar en el ADDENDUM 2; la re-priorización es decisión de Ernesto |
@@ -40,7 +40,7 @@ c180e60, d92e170, efd8f90.
   NO-GO; cierre = cuello CONCH/datos, converge 11/12; punteros a `pathpt-testing-necrosis-mitotic`
   y `sprints/B5_sprint5/pathpt/{resultados_necrosis,resultados_mitotic}.md`.
 
-### F2 — ADDENDUM 2 en retrieval-investigacion-b5
+### F2 — ADDENDUM 2 en pathpt-testing-necrosis-mitotic
 - **Qué dice:** el ADDENDUM 10-jun (líneas 48-56) elevó PathPT (variante B) a prueba activa y predijo
   *"en nuestras 2–4 clases CONCH está en su régimen favorable… el riesgo real = grounding zero-shot de
   nuestra morfología (testeable barato)"*.

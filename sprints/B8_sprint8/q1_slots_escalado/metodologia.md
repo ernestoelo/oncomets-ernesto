@@ -17,7 +17,7 @@ Los resultados están en [`resultados.md`](resultados.md). Este documento es el 
   reparte parejo entre los 300 slots y 1 si colapsa en uno solo. Se usa porque la softmax
   da peso positivo a todos los slots: contar «los que reciben algo» daría siempre 300.
 - **Cota del uniforme** = 1/300 = 0.333 %, el único corte sin parámetro libre
-  ([[cota-softmax-slots-uniforme]]): cuántos slots la superan y qué masa concentran.
+  ([[mammoth-slot-routing-weight]]): cuántos slots la superan y qué masa concentran.
 
 ## 2. Qué se barre
 

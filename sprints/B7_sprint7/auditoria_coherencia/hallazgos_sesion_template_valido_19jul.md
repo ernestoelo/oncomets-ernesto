@@ -11,8 +11,8 @@
 | id | hallazgo | tipo | severidad | acción |
 |---|---|---|---|---|
 | T1 | El template válido es `Modelo OncoMets Spatial V1 Deep-LLM-V.pptx`, no `Plantilla.pptx` | error | **alta** | ADDENDUM en CLAUDE.md §Formato de entregables |
-| T2 | La causa raíz del deck "fuera de template" eran las **fuentes embebidas**, no las cabeceras | error | **alta** | memoria nueva + ADDENDUM en [[plantilla-dos-cabeceras]] |
-| T3 | El "How to apply" de [[plantilla-dos-cabeceras]] quedó superseded (banda compactada, tope de títulos) | stale | media | ADDENDUM fechado, no reescritura |
+| T2 | La causa raíz del deck "fuera de template" eran las **fuentes embebidas**, no las cabeceras | error | **alta** | memoria nueva + ADDENDUM en [[deck-template-fuentes-embebidas]] |
+| T3 | El "How to apply" de [[deck-template-fuentes-embebidas]] quedó superseded (banda compactada, tope de títulos) | stale | media | ADDENDUM fechado, no reescritura |
 | T4 | Pendiente §7.2 del handoff ("confirmar que Barlow está instalada") quedó resuelto estructuralmente | stale | media | cerrar, NO arrastrar al handoff nuevo |
 | T5 | Los diagramas reusados referencian Carlito (354 veces), que no existe en Windows | reference | baja | registrar como gotcha conocido, sin acción |
 
@@ -40,7 +40,7 @@ OncoMets Spatial V1 Deep-LLM-V"*.
 La cabecera técnica es literalmente la misma en los dos: mismos nombres de shape
 (`Google Shape;115;p13`, `197;p29`, `198;p29`) y misma geometría (logo `0.750/0.437/
 1.471×0.884`, título 25pt Barlow bold `3E6877`, línea a `1.421`). **Las geometrías
-documentadas en [[plantilla-dos-cabeceras]] siguen siendo correctas** — no hay que
+documentadas en [[deck-template-fuentes-embebidas]] siguen siendo correctas** — no hay que
 re-medir nada.
 
 Lo que **sí** cambia: Deep-LLM-V no tiene cabecera Environ en ninguna lámina, así que la
@@ -54,7 +54,7 @@ Plantilla es real; se le encadena la aclaración de cuál archivo es el template
 
 ## T2 — La causa raíz eran las fuentes embebidas
 
-**Qué se creía** (sesión de la mañana, memoria [[plantilla-dos-cabeceras]] §Why): el deck
+**Qué se creía** (sesión de la mañana, memoria [[deck-template-fuentes-embebidas]] §Why): el deck
 se veía fuera de template porque usaba la cabecera Environ en todas sus láminas.
 
 **Qué se verificó hoy**: los templates **embeben sus fuentes** en el paquete
@@ -89,7 +89,7 @@ generalizable a cualquier deck futuro, no específico del B7).
 
 ## T3 — El "How to apply" de la memoria quedó superseded
 
-Dos ítems de [[plantilla-dos-cabeceras]] §How to apply ya no son lo implementado:
+Dos ítems de [[deck-template-fuentes-embebidas]] §How to apply ya no son lo implementado:
 
 - *"Compactar la banda"* (1.17 → 0.785 `HDR`): hoy se usa la **banda literal** del
   template. El argumento de la mañana ("reescribir 20 layouts para ganar 0.28" es mal
@@ -136,7 +136,7 @@ tipográfica total — sería un cambio aparte, con QA visual propio. Ernesto es
 |---|---|---|
 | T1 | `CLAUDE.md` §Formato de entregables | ADDENDUM: cuál es el template válido y qué implica |
 | T2 | `memory/deck-template-fuentes-embebidas.md` | memoria NUEVA + línea en `MEMORY.md` |
-| T2,T3 | `memory/plantilla-dos-cabeceras.md` | ADDENDUM fechado (causa raíz + qué quedó superseded) |
+| T2,T3 | `memory/deck-template-fuentes-embebidas.md` | ADDENDUM fechado (causa raíz + qué quedó superseded) |
 | T4 | — | se cierra; no entra al handoff nuevo |
 | T5 | este doc | registrado, sin acción — **superseded por T8** (se recreó el diagrama) |
 

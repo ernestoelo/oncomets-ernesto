@@ -44,7 +44,7 @@ el QA fino de OMML sigue yendo a PowerPoint.
 de una auditoría pasada**: reescribirlo falsificaría el acta, igual que no se reescribe
 una hipótesis pre-registrada. Se le encadenó un **ADDENDUM fechado** que marca qué quedó
 superado y qué sigue en pie. Mismo criterio con el que esa acta trató a
-`plantilla-dos-cabeceras`.
+`deck-template-fuentes-embebidas`.
 
 ## A4 — `DejaVu` en `pdffonts` no es un defecto
 

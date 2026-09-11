@@ -113,7 +113,7 @@ progress/current.md):
 
 - `CLAUDE.md` sección "Hallazgos vigentes" (11 ítems) solapaba con
   `microcalc-dataset-decision`, `microcalc-fusion-objetivo5`,
-  `microcalc-hierarchical-proposal`.
+  `microcalc-fusion-objetivo5`.
 - **Tensión de diseño**: CLAUDE.md y MEMORY.md se cargan AMBOS en cada sesión →
   el detalle microcalc se pagaba dos veces en contexto.
 - **Aplicado** (Ernesto aprobó "aplica todas las recomendaciones"): condensados
@@ -181,7 +181,7 @@ requería acción.
 | # | Hallazgo | Severidad | Acción |
 |---|---|---|---|
 | H | Conteo de features CONCH **2935** en 4 fuentes canónicas, pero el conteo vivo es **3013** `.pt` (y 3013 `.h5`) — el dataset creció desde el recon (19-may) | stale/error | **FIX** (CLAUDE.md + skill `@environ-server` + `trainer.md` + `docs/environ_server.md`; B4 recon = histórico, NO se toca) |
-| I | Dirección **retrieval** (variantes A/B/C/D, recomendación D primario / B secundario) sin captura descubrible: no hay memoria, `progress/current.md` no la menciona | captura | **FIX** (nueva memoria `retrieval-investigacion-b5` + línea en `MEMORY.md` + nota en `progress/current.md`) |
+| I | Dirección **retrieval** (variantes A/B/C/D, recomendación D primario / B secundario) sin captura descubrible: no hay memoria, `progress/current.md` no la menciona | captura | **FIX** (nueva memoria `pathpt-testing-necrosis-mitotic` + línea en `MEMORY.md` + nota en `progress/current.md`) |
 | J | Cierre mammoth/invasión: coherente entre `progress/current.md`, CLAUDE.md Hallazgo 12 y memoria `mammoth-investigacion-integracion` | verificado, sin issue | sin acción (el handoff lo predijo: "el cierre de invasión ya se auditó") |
 
 ---
@@ -217,7 +217,7 @@ con `ls … | wc -l`)**. Severidad baja: lo que define qué slides se usan es el
 razonada) vive solo en `investigacion_retrieval/analisis.md`. Sin memoria ni
 puntero en `progress/current.md`, una sesión futura no la "descubre".
 
-**Fix:** (a) memoria `retrieval-investigacion-b5` (type project) con el veredicto
+**Fix:** (a) memoria `pathpt-testing-necrosis-mitotic` (type project) con el veredicto
 + punteros; (b) línea en `MEMORY.md`; (c) nota en `progress/current.md`
 ligándola al Eje B (parches útiles = variante C) y marcando D como entregable
 lucible. Captura análoga a la de CAP (Hallazgo cap-fuente-clases-tareas).
@@ -233,7 +233,7 @@ contradicción** — el cierre ya estaba auditado (commit `0dd32f4`). Confirmado
 
 1. **H** — reconciliar conteo en CLAUDE.md + `@environ-server` + `trainer.md` +
    `docs/environ_server.md` (B4 recon NO se toca).
-2. **I** — memoria `retrieval-investigacion-b5` + `MEMORY.md` + `progress/current.md`.
+2. **I** — memoria `pathpt-testing-necrosis-mitotic` + `MEMORY.md` + `progress/current.md`.
 
 Edits aplicados en el working-tree (rama `main`). **Commit / branch destino:
 los decide Ernesto** (default CLAUDE.md = commits locales, push lo hace Ernesto;
@@ -353,7 +353,7 @@ ajenos sin commitear (no se toca).
 ## N. Stale — dirección retrieval (5-jun) superada por la reunión 10-jun
 
 - **Dice (stale):** `progress/current.md` §"Nueva dirección (5-jun)" y memoria
-  `retrieval-investigacion-b5` → "**D (CBIR) primario** para la presentación; **B
+  `pathpt-testing-necrosis-mitotic` → "**D (CBIR) primario** para la presentación; **B
   (PathPT) secundario para research trimestre siguiente**".
 - **Realidad (10-jun):** Sebastián validó PathPT y pidió **probarlo ahora**
   (necrosis → mitotic rate). B sube de "no quick-win" a **candidato activo en prueba**.
@@ -361,7 +361,7 @@ ajenos sin commitear (no se toca).
   era una recomendación **point-in-time** → **no se reescribe**; se le agrega un
   **addendum dated** (preservar integridad histórica, criterio del skill).
 - **Fix:** update `progress/current.md` (sección dirección + tabla plan) + addendum a
-  `retrieval-investigacion-b5` + línea en `MEMORY.md`.
+  `pathpt-testing-necrosis-mitotic` + línea en `MEMORY.md`.
 
 ## O. Reconciliación — el caveat "CONCH≠KEEP / null #2" era demasiado pesimista
 
@@ -434,7 +434,7 @@ Verificado read-only contra `clam_environ/environ/csv/` (10-jun):
 
 1. **N** — `progress/current.md`: nueva subsección dated (reunión 10-jun, PathPT activo,
    necrosis→mitotic, deliverable lunes) + tabla del plan. Addendum a memoria
-   `retrieval-investigacion-b5` + línea `MEMORY.md`.
+   `pathpt-testing-necrosis-mitotic` + línea `MEMORY.md`.
 2. **O** — NOTA dated aditiva en `analisis.md` §4.2 (refina caveat, no reescribe).
 3. **P** — nuevo `sprints/B5_sprint5/pathpt/funcionamiento_pathpt.md` + memoria
    `pathpt-testing-necrosis-mitotic` + línea `MEMORY.md`.

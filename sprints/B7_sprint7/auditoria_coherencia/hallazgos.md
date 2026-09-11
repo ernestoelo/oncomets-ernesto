@@ -14,7 +14,7 @@
 | S2 | **CRÍTICO / LOAD-BEARING — factibilidad de checkpoints:** de las 3 tareas del sprint 7, solo `invasion_linfatica_vascular` tiene checkpoint mammoth nuestro (obj2/obj3). `tipo_histologico` y `carcinoma_ductal_insitu_presente` NO → sus mapas de expertos requieren entrenar mammoth = **GPU (gate d/b + regla 9)** | hallazgo crítico | documentado en `objetivos_sprint7.md` + slurm draft con prereqs + memoria |
 | S3 | **Q1 resuelta contra código:** "peso de cada slot en el ruteo" = `combine_weights` (2ª softmax sobre los 300 slots, `mammoth.py:411`), **≠ el top-k de parches por experto** que ya existía. Script extendido (`slot_usage.csv`) | reference/error-de-terminología | memoria [[mammoth-slot-routing-weight]] + `preguntas_resueltas.md` §Q1 |
 | S4 | **Gotchas de datos nuevos** (interpretabilidad/CSV): (a) `dataset_invasion_linfovascular_label.csv` tiene **CRLF de Windows** → `$3=="presente"` en awk falla por el `\r` final; (b) el CSV `_pth` se llama `linfovascular`, NO `linfatica_vascular` (el task); (c) el `slide_id` TCGA del CSV trae el **UUID completo**, pero el dir del WSI usa la **forma corta** (`${sid%%.*}`) | gotcha nuevo | memoria nueva `data-gotchas-csv-wsi-interp` |
-| S5 | **Técnica de re-base del deck:** el deck B4 (10×5.625) YA usa la paleta/fuentes de Plantilla → re-base = construir a 10×5.625 y **escalar ×1.3333** al final; los diagramas reusados se auto-corrigen; portada extraída de Plantilla s00 | reference | memoria [[deck-rebase-plantilla-1610]] |
+| S5 | **Técnica de re-base del deck:** el deck B4 (10×5.625) YA usa la paleta/fuentes de Plantilla → re-base = construir a 10×5.625 y **escalar ×1.3333** al final; los diagramas reusados se auto-corrigen; portada extraída de Plantilla s00 | reference | memoria [[deck-template-fuentes-embebidas]] |
 | S6 | **Matemática de magnificación de Sebastián** (interpretación de Ernesto, **A VERIFICAR**): igualar campo físico, 224@×20 (104µm) ≡ 448@×40 → `lado=P×MPP`, consistente con [[cohortes-magnificacion-fisica]] | contexto | `contexto_magnificacion.md` + ADDENDUM [[magnificacion-cpathagent-proxima-direccion]] |
 | S7 | **Deck corregido y re-basado** (17 slides, 13.333×7.5): honestidad §2.3 (nombres de tejido = inspección visual, sin sign-off), 2 slides nuevas (cabezas/expertos/slots + matemática magnif), estilo (cero «—», 3ª persona, sin diálogo), subíndices s,e en slide 7 | progreso | `correcciones_deck.md` + `generate_b7_deck.py` (hecho) |
 | S8 | **Agentes/skills:** `@mammoth` menciona la interpretabilidad pero no el peso de slots → clause concisa. `reviewer`/`trainer` sin cambios (sesión documental + análisis CPU, sin modelo/training/GPU) | OK/annotate | clause en `.claude/skills/mammoth/SKILL.md` |
@@ -52,7 +52,7 @@ Registrado en memoria nueva para no re-tropezar en futuras corridas de interpret
 1. Clause concisa en `.claude/skills/mammoth/SKILL.md` (interpretabilidad ahora incluye peso de slots).
 2. Memoria nueva `data-gotchas-csv-wsi-interp` (S4) + línea en `MEMORY.md`.
 3. Memorias `sprint7-interpretabilidad-clam-vs-mammoth`, `mammoth-slot-routing-weight`,
-   `deck-rebase-plantilla-1610` (creadas antes del audit) + ADDENDUM en la de magnificación.
+   `deck-template-fuentes-embebidas` (creadas antes del audit) + ADDENDUM en la de magnificación.
 4. `current.md` roll-over B6→B7 (hecho).
 
 ## Guardarraíles respetados

@@ -10,7 +10,7 @@
 
 | id | hallazgo | tipo | severidad | acción |
 |---|---|---|---|---|
-| F1 | Recap "Recapitulación de objetivos" debía usar el molde B4 (lista numerada), no tarjetas | feedback | media | RESUELTO — memoria [[deck-molde-fiel-referencia]] + slide corregida |
+| F1 | Recap "Recapitulación de objetivos" debía usar el molde B4 (lista numerada), no tarjetas | feedback | media | RESUELTO — memoria [[deck-gramatica-diagrama-deep-llm-v]] + slide corregida |
 | F2 | `convenciones_deck_b6.md` §5: mapa de slides + diagramas reusados quedaron stale | stale | baja | RESUELTO — ADDENDUM 9-jul en §5 |
 | F3 | `MEMORY.md`: link `humanizer-es.md` roto (archivo real = `humanizer-es-skill.md`) | error | baja | RESUELTO — link corregido en el índice |
 
@@ -21,7 +21,7 @@ Armé el recap con tarjetas; Ernesto pidió *"el mismo formato que el sprint B4"
 volcado real de `CLAM_Sprint_B4.pptx` slide 2 = **lista numerada en un cuadro** (título
 32pt Barlow ExtraBold `#217589`; cuerpo 24pt Barlow bold `#595959`, línea entre ítems).
 Corregido. Lección durable (reusable en cualquier deck): **replicar el molde real, no
-reinventarlo** → memoria [[deck-molde-fiel-referencia]]. Refuerza el ítem 6 de
+reinventarlo** → memoria [[deck-gramatica-diagrama-deep-llm-v]]. Refuerza el ítem 6 de
 [[feedback-benjamin-entender-mammoth]] ("fuente"=tipografía, match del template).
 
 ### F2 — Mapa de slides de convenciones stale

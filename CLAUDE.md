@@ -1152,7 +1152,7 @@ re-validar y actualizar `docs/codebase_map.md`.
       ausencia confirmada). HOY **excluido** de los 3 binarios (default, no
       oversight); incluirlo como negativo **dispara la mayoritaria** → propuesta
       abierta de jerarquía presencia/ausencia, adoptada PARCIAL como Obj 5
-      ([[microcalc-hierarchical-proposal]]).
+      ([[microcalc-fusion-objetivo5]]).
     - **Mapeo multi-label → binarios**: WSI con menciones de tejido(s) → `si`
       en el binario de cada tejido mencionado, `no` en los demás.
     - **Early stopping**: `stop_epoch=50` HARDCODEADO; runs cortos `--max_epochs`<50.
@@ -1166,7 +1166,7 @@ re-validar y actualizar `docs/codebase_map.md`.
 > los sprint docs + memorias enlazadas; acá solo el veredicto durable + punteros.
 > La numeración 11-14 se preserva porque memorias y otros docs la citan. La palanca
 > viva post-cierre = calibración post-hoc del operating-point (Tier 0,
-> [[calibracion-operating-point-palanca-b5]] / [[calibracion-tier0-pendiente-ejecutar]]).
+> [[calibracion-operating-point-palanca-b5]]).
 > **Tier 0 EJECUTADA 10-jul** (`scripts/tier0_calibration.py`, `sprints/B6_sprint6/tier0_calibracion/`):
 > mitotic Δbal_acc **+0.046 ± 0.029 (5/5 folds+)** = win donde el modelo colapsa al argmax (Hallazgo 13);
 > invasión/necrosis **null**. Palanca real pero **task-dependiente** (rinde solo si hay colapso a la mayoritaria).
@@ -1254,7 +1254,7 @@ re-validar y actualizar `docs/codebase_map.md`.
     **Precisión 23-jul (2):** tampoco lo captura la **cabeza** — las 16 cabezas son un *corte* del
     query de 256 en 16 tramos de 16, no miradas semánticas, y los prototipos son **300 cortados
     igual** (NO uno por cabeza) ⇒ **16 tablas de N×300**, 4800 parecidos por parche.
-    [[mammoth-cabezas-son-tramos]].
+    [[mammoth-dispatch-softmax-sobre-parches]].
     **Precisión 23-jul (3) — slots no redundantes + heatmap por slot:** medido en nuestras láminas,
     la correlación espacial entre los **top-8 slots** es **−0.00** de media y el #1 vs #2 da **−0.62**
     (regiones opuestas) → slots distintos se concentran en tejido distinto (qué tejido = lectura
@@ -1271,7 +1271,7 @@ re-validar y actualizar `docs/codebase_map.md`.
     sin parámetro libre (a ojo la respuesta va de 25 a 300 slots): deja **63–96 slots por lámina**
     que concentran el **73 %** del peso, estable entre tareas. Los 85 (concentran) y el `N_eff` 159
     (cuenta cada slot en proporción a su peso) **no se contradicen**, miden cosas distintas. Detalle:
-    `sprints/B7_sprint7/resultados_interpretabilidad.md` §5.3 + [[cota-softmax-slots-uniforme]]. **Eje de trabajo abierto (NO reabre rendimiento):** afinar **E y S**
+    `sprints/B7_sprint7/resultados_interpretabilidad.md` §5.3 + [[mammoth-slot-routing-weight]]. **Eje de trabajo abierto (NO reabre rendimiento):** afinar **E y S**
     para mama reduciendo uno con el otro fijo a igual total (27×10 vs 30×9), regla 9 + reviewer +
     paired sobre los splits del 4589 — [[mammoth-grid-expertos-slots]].
     **ADDENDUM 4-ago-2026 — ese eje EJECUTADO y CERRADO en H_nula (job 4774, 8 brazos × 5 folds,
@@ -1381,7 +1381,7 @@ plano. Estilo visual: `Modelo_OncoMets_Spatial_V1.pdf`. Estructura:
 > s05 ("Patch Encoder"). Un deck que use la Environ en todo se lee como fuera
 > de template (le pasó al B7 hasta el commit `42280de`). Geometrías, extracción
 > del logo desde el `blipFill` y gotchas de banda/títulos:
-> [[plantilla-dos-cabeceras]].
+> [[deck-template-fuentes-embebidas]].
 >
 > **ADDENDUM 19-jul-2026 (tarde) — el template VÁLIDO es `Modelo OncoMets
 > Spatial V1 Deep-LLM-V.pptx`**, fijado por Ernesto. `Plantilla.pptx` sirvió para

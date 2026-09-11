@@ -133,7 +133,7 @@ costo/riesgo:
   la expectativa honesta: sube recall minoritaria; puede hundir la mayoritaria (como el
   cb H_reg) → decidir por **balanced_acc neta**, no por una sola clase.
 - **Entregable presentable:** curva "bal-acc vs umbral" + matriz de confusión antes/después,
-  paired k=5. Hermana del CBIR/D como entregable lúcido ([[retrieval-investigacion-b5]]).
+  paired k=5. Hermana del CBIR/D como entregable lúcido ([[pathpt-testing-necrosis-mitotic]]).
 
 ### Palanca #2 (GPU, señal nueva) — Magnificación / fusión multi-escala = Obj 2
 - **Qué:** re-extraer CONCH a ≥2 escalas y fusionar por región (promedio, mantiene
@@ -177,7 +177,7 @@ todos son honestos sobre eso.
 2. **Condensar CLAUDE.md** (plan A3): −~120 líneas sin perder una cita, moviendo detalle a
    los sprint docs que ya lo tienen. Es la mayor ganancia de mantenibilidad.
 3. **Memoria nueva** de la palanca Tier 0 como *next-action* (creada esta sesión:
-   [[calibracion-tier0-pendiente-ejecutar]]) para que ninguna sesión futura la vuelva a
+   [[calibracion-operating-point-palanca-b5]]) para que ninguna sesión futura la vuelva a
    "descubrir" sin ejecutarla.
 4. **Skills sanas**: `@mammoth`, `@mil-model-integration`, `@slurm-submission` vigentes;
    `@knowledge-audit` recibió la cláusula branch/main (A4).

@@ -1,6 +1,6 @@
 # Tier 0 — calibración post-hoc del operating-point (resultados)
 
-> **Palanca #1 de la escalera de palancas vivas** ([[calibracion-tier0-pendiente-ejecutar]]):
+> **Palanca #1 de la escalera de palancas vivas** ([[calibracion-operating-point-palanca-b5]]):
 > gratis, CPU, sin GPU, sin reviewer (post-hoc, no toca training → regla 9 trivial).
 > Re-umbraliza el operating-point de checkpoints CLAM ya entrenados SIN reentrenar.
 > Ejecutado 10-jul-2026. Script: `scripts/tier0_calibration.py`. Datos: `tier0_results.json`.
@@ -74,7 +74,7 @@ intencional? ¿ligada a `features_tcga_224x40` / la magnificación x40?). No se 
 
 - **Entregable presentable** para Sebastián (lunes): "calibración post-hoc sube bal_acc de mitotic
   +0.046 (5/5) sin reentrenar; null en invasión/necrosis — la palanca rinde donde el modelo colapsa".
-  Hermana del CBIR/retrieval ([[retrieval-investigacion-b5]]).
+  Hermana del CBIR/retrieval ([[pathpt-testing-necrosis-mitotic]]).
 - **NO cierra** con umbral rígido GO/NO-GO (regla 9.a). La dirección esperada (sube recall minoritaria,
   puede hundir mayoritaria, neto positivo solo si hay colapso) **se cumplió**.
 - Pendiente opcional: extender a las 3 binarias de microcalc (target del B6) para tener el baseline
