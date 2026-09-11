@@ -44,7 +44,7 @@ pre-registro no lo declaró. Sin la 164001, la rama verdadera da **8 de 8** por 
 ## 2. Lo que el resultado NO alcanza a sostener, y estaba declarado antes
 
 **Una sola lámina cae en `test`, y es la peor medida de las diez.** La 126504 tiene **1 polígono
-y 2 parches positivos**: su AUC 0,704 viene con IC de Hanley-McNeil **[0,297 · 1,110]**, que
+y 2 parches positivos**: su AUC 0,704 viene con IC de Hanley-McNeil **[0,297 · 1,111]**, que
 contiene 0,5 y se sale del rango de un AUC. Con `n` = 2 el punto no significa nada y el `p` por
 traslación da 0,31. **La evidencia limpia de este eje es una lámina, y esa lámina no mide.**
 

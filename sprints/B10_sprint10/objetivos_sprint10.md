@@ -73,8 +73,9 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   (`CDIS_solido` 10 + `DCIS` 6 + `CDIS_papilar` 6 + `CDIS_cribiforme` 5 + `CDIS_micropapilar` 3)
   = **30 en 10 láminas**. Tres correcciones para llevarle: `NucleosBajoGrado` son **16 y no 25**
   (los 25 cuentan la segunda exportación de la 103762, el duplicado que el B9 ya había cazado), el
-  grado vive en **20 láminas y no en 12**, y de las 30 láminas que mencionó ahora **faltan 8**, no
-  18. Detalle en [[anotaciones-patologo-qupath]].
+  grado vive en **22 láminas y no en 12** (21 medibles más la Br0244), y de las 30 láminas que
+  mencionó ahora **faltan 8**, no 18. *Corregido el 11-sep: decía «20 láminas», que sumaba alto
+  (10) y moderado (10) y dejaba fuera las 2 de bajo ([[conteo-de-grupo-es-union]]).* Detalle en [[anotaciones-patologo-qupath]].
 - **Las marcas de grado siguen la etiqueta de PLEOMORFISMO de la lámina, no el grado nuclear del
   CDIS** (8-sep, verificado contra `environ/csv/`) — las **10** láminas con marcas `moderado` son
   **10 de 10 `score_2`**; la única con marcas `bajo` que tiene etiqueta es **`score_1`**; 6 de 8 con
@@ -128,6 +129,12 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   las dos con `alineada: false` (164001 y B25-158899). Confinar lleva `alto` de 27 · 41 · 57 a
   29 · 41 · 60 en N = 200 · 500 · 2000; sacar las no alineadas deja N=500 en 52 de 140. Declarado,
   sin re-correr ([`grado_sin_marca/resultados.md`](grado_sin_marca/resultados.md) §6.a).
+- **O1 y O3 tienen forma presentable, y el doc de la reunión está escrito** (11-sep): dos figuras
+  con sus CSV, dibujadas por `scripts/b10_figuras_o1_o3.py`, que verifica cada número contra los
+  `resultados.md` antes de dibujar, y [`reunion_martes.md`](reunion_martes.md) con las cinco
+  preguntas para Sebastián. Al armarlo se corrigieron dos números: el grado vive en **22** láminas
+  y no en 20, y el IC de la 126504 cierra en **1,111** y no en 1,110
+  ([`figuras/`](figuras/README.md)).
 - **D2 no se pudo ejecutar y no se reemplazó** (9-sep) — **0 de 187** marcas de grado caen dentro de
   ninguna anotación, de ninguna clase. El brazo con máscara queda declarado **degenerado por
   construcción** y qué región corresponde es **pregunta para Sebastián**.
