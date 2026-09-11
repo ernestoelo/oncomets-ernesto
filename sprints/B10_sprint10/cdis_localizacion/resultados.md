@@ -66,6 +66,31 @@ que el nulo la supera casi siempre). Dos cosas la separan de las demás:
 confinada al intervalo de su región anotada, que es una corrida de segundos, y hasta entonces la
 fila se lee como no medida. Sin ella, la rama predicha da **9 de 9 por encima de 0,5**.
 
+### 3.a Lo que se declara ANTES de re-medirla (10-sep)
+
+Escrito y commiteado antes de correr. El número de lámina entera ya se vio (0,236), así que lo
+único que protege la re-medición de ser una búsqueda a posteriori es que **nada de lo que sigue
+se elige ahora**:
+
+- **Universo**: `y ∈ [0, 25600)`, el intervalo que el B9 fijó para esta lámina en
+  `scripts/cruce_94_marcas.py:71` (`REGION_ANOTADA`). Se aplica con `universos_de()` y `medir()`
+  de `scripts/b9_atencion_12_laminas.py`, importados **sin tocarlos**. No se prueba ningún otro
+  intervalo.
+- **Nulo**: el mismo, traslación rígida con 200 iteraciones, restringida a la región.
+- **Rama**: la verdadera no existe, porque la lámina no tiene fila en el CSV. Los polígonos de
+  `DCIS` implican la clase `si`, que es además la que el fold predice, así que la fila «predicha»
+  **es** la rama `si`. Se reporta con ese nombre y **no** se la llama «verdadera».
+- **Lectura, fijada antes**:
+  - AUC confinado **> 0,5**: el 0,236 era del universo, no de la atención. La B25-158899 se suma a
+    las que localizan, **fuera del split** y por lo tanto sin valor de evidencia limpia.
+  - AUC confinado **≤ 0,5**: la hipótesis del universo queda refutada y la B25-158899 pasa a ser
+    la única lámina donde la atención no cae sobre el CDIS. Se reporta así, **sin buscar una
+    tercera causa**.
+  - El signo y el `p` se leen por separado: un AUC > 0,5 con `p` alto va en la dirección y no se
+    separa del nulo, con 7 parches positivos.
+  - **Ninguna de las dos lecturas mueve el resultado principal** (rama verdadera, 9 de 9), porque
+    la B25-158899 no está en esa fila.
+
 ## 4. La rama que se lee decide el resultado, otra vez
 
 Las dos ramas coinciden en 7 de las 10 láminas, porque el fold predice la clase verdadera. En las
