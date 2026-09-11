@@ -1370,6 +1370,10 @@ plano. Estilo visual: `Modelo_OncoMets_Spatial_V1.pdf`. Estructura:
 > notas como guion hablado. **El `.pptx` NO está versionado** (`papers/presentations/`
 > es gitignored): la especificación completa y verificada, que es lo que permite
 > reconstruirlo, vive en **`docs/plantilla_oficial.md`**.
+> **Precisión 11-sep-2026:** «inglés» y «4 láminas» describen el **molde**, no el deck. Los dos
+> decks construidos sobre él van **en español** por decisión de Ernesto (B9 desde el 27-ago, B10
+> el 11-sep), con la portada tal cual porque es copy de la empresa, y con tantas láminas de
+> contenido como haga falta (13 y 7). [[plantilla-oficial-image-to-text]]
 
 > **Aclaración 19-jul-2026 — no son dos plantillas, son dos CABECERAS de la
 > misma.** `Plantilla.pptx` (30 láminas) contiene las dos: la **Environ**
@@ -1520,6 +1524,11 @@ duplicar trabajo. **NO** intentar editar el `.pptx` ni el PDF del deck
 > branding completos: `sprints/B5_sprint5/presentacion_b5/convenciones_deck_b5.md` +
 > memoria [[deck-completo-pptx-buildable]]. Diagramas de arquitectura: estilo
 > `Diagrama_CLAM.pptx` (fórmula + dimensiones por bloque, sin bullets, sin solapes).
+> **Precisión 11-sep-2026:** «nativo» no quiere decir `add_chart`. Desde el B8 los gráficos se
+> dibujan con **shapes** (ejes, barras, puntos, polilíneas), y para el B10 Ernesto lo eligió frente
+> a `add_chart`: un forest plot con rótulos por fila, un eje logarítmico o un punto hueco piden XML
+> a mano dentro del gráfico y se dibujan distinto según el visor. Lo que la regla prohíbe es el
+> PNG. [[deck-completo-pptx-buildable]]
 
 **READMEs de resultados (`results/README_*.md` y la copia derivada en `clam_testing/`)** —
 formato **minimalista estilo Sebastián** (fijado 18-jun-2026): secciones **Tareas / Dataset /

@@ -22,6 +22,10 @@
 | Paleta | teal `#3E6877` / `#CDDFE1` / `#B7B7B7` | azul `#1B4F8C` / `#5293DE`, título `#1A1A2E`, teal `#28D5C1` |
 | Nombre | libre | `[AAAAMMDD] [Nombre Apellido] [Proyecto].pptx` |
 
+> **La tabla describe el molde, no el deck** (precisión del 11-sep-2026). Los decks del proyecto
+> van en español por decisión de Ernesto (B9 desde el 27-ago, B10 el 11-sep), con la portada tal
+> cual, y con tantas láminas de contenido como haga falta. Ver §7.c punto 4.
+
 Lo que **no** cambia y sigue vigente: construir el deck **sobre el `.pptx` de la plantilla**
 (abrirlo y borrarle las láminas), nunca con `Presentation()`, porque la plantilla **embebe sus
 fuentes** y un deck construido desde cero las pierde ([[deck-template-fuentes-embebidas]]); todo
