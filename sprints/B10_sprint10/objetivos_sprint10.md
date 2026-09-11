@@ -106,6 +106,23 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   folds limpios para CDIS sin entrenar**. El brazo con cabeza verdadera **no es opcional**: el
   `json_out` lee la rama de la clase *predicha* y eso ya produjo un 0,500 exacto en otro eje
   ([[rama-de-atencion-decide-el-resultado]]).
+- **O1, O2 y O3 EJECUTADOS** (9-sep) — los tres cerrados a tiempo para la reunión del martes.
+  **O2**: el CAP contesta el score y corrige el descriptor
+  ([`score_grado/estudio_score.md`](score_grado/estudio_score.md)); no hay regla de cantidad, el eje
+  es la **dispersión**, y el protocolo **no dice** qué hacer cuando el grado varía dentro del mismo
+  carcinoma. **O1**: el tamaño reencuentra el **alto** grado y no el **bajo** (en ~4 mm²/lámina, 41
+  de 76 alcanzables en `alto`, 12 de 53 en `moderado`, **0 de 16** en `bajo`), muy por encima del
+  nulo, con denominador alcanzable **145 de 187** y los dos descriptores dando idéntico por ser
+  monótonos entre sí ([`grado_sin_marca/resultados.md`](grado_sin_marca/resultados.md)). **O3**: la
+  atención **sí** cae sobre el CDIS (AUC mediana **0,755** con la rama verdadera, 9 de 9 por encima
+  de 0,5), pero la única lámina en `test` tiene 2 parches positivos y su IC contiene 0,5
+  ([`cdis_localizacion/resultados.md`](cdis_localizacion/resultados.md)).
+- **D2 no se pudo ejecutar y no se reemplazó** (9-sep) — **0 de 187** marcas de grado caen dentro de
+  ninguna anotación, de ninguna clase. El brazo con máscara queda declarado **degenerado por
+  construcción** y qué región corresponde es **pregunta para Sebastián**.
+  [[marcas-grado-fuera-de-toda-region-anotada]].
+- **Las 9 láminas nuevas quedaron instrumentadas** (9-sep) — HoVer-NeXt job 5402 (OK=9, 116 min) y
+  offsets **9 de 9 con `alineada: true`**. Hay 21 láminas medibles y 187 de las 199 marcas.
 - **El plan del sprint, escrito y sin ejecutar** (8-sep) — cuatro decisiones de Ernesto: **D1**
   encolar HoVer-NeXt de las nuevas ya y medir sobre las 12 mientras corre; **D2** el experimento sin
   la marca se restringe a la **máscara `Tumor`**; **D3** el primario es **el núcleo** (recall de las
@@ -137,6 +154,9 @@ algo de acá **no es poder responderlo, es poder enunciarlo**.
   Sebastián, heredado del B9. Unidad región contra punto, nulo por traslación, prerrequisito
   bloqueante de unificar el vocabulario (`necrosis` / `Necrosis` / `Comedonecrosis`). **7 a 9 h** de
   GPU estimadas por área de canvas. Exige que Ernesto lo pida y que la GPU se libere.
+- **Re-medir la B25-158899 de O3 confinada a su región anotada.** Es la única lámina bajo 0,5
+  (0,236) y tiene dos regiones de escaneo con la anotación en la de arriba; el driver midió sobre la
+  lámina entera. Corrida de segundos, y hasta hacerla esa fila se lee como **no medida**.
 - **El brazo `ckpt_limpio` de la atención sobre mitosis**, que el B9 dejó pendiente y que es el
   control de honestidad del 0,809.
 - **¿El Δ del job 4589 en CDIS `_ci_reform` sobrevive a semillas nuevas?** Arrastrado del B8.
