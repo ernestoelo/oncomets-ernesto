@@ -107,6 +107,18 @@ Acceso: **VPN oficial Environ + SSH**. Stack registrado el 19 may 2026
 > lámina, no el grado nuclear del CDIS** ([[marcas-grado-son-pleomorfismo-de-lamina]]). Detalle en
 > `sprints/B10_sprint10/objetivos_sprint10.md`.
 
+> **ADDENDUM 9-sep-2026 — las nueve nuevas ya estan instrumentadas, y la mascara que se daba por
+> hecha NO existe.** HoVer-NeXt corrio sobre las 9 numericas (job 5402, OK=9, 116 min) y los
+> offsets salieron **9 de 9 con `alineada: true`**, asi que hay **21 laminas** medibles y 187 de
+> las 199 marcas de grado. El filtro por nombre dejo de ser trampa suelta: `geojson_de(slide)` en
+> `scripts/b9_descriptores_nucleos.py` prueba los dos patrones y lo usan todos los consumidores.
+> **El hallazgo que reordena el eje otra vez: 0 de 187 marcas de grado caen dentro de NINGUNA
+> anotacion, de ninguna clase.** `Tumor` no delimita el tumor: son parches ejemplares que suman
+> menos del 0,1 % de la lamina y estan a **mediana 2,9 mm** de las marcas (maximo 13,1 mm). Es
+> independiente del offset, porque marcas y poligonos reciben el mismo. Consecuencia: **D2 del B10
+> queda sin ejecutar**, O1 corre solo el brazo sin restringir, y **que region corresponde es
+> pregunta para Sebastian**. [[marcas-grado-fuera-de-toda-region-anotada]]
+
 > **`MitosisDetection/` (READ-ONLY, descubierto el 3-sep-2026).** Es el detector de mitosis de `sgaete`
 > y el **CUARTO solape** con él en nuestro eje, el más directo de los cuatro: su
 > `hotspot/run_hnx_windows.slurm` corre **HoVer-NeXt con `lizard_convnextv2_tiny`, exactamente nuestro

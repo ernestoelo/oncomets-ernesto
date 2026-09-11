@@ -1,0 +1,17 @@
+{
+  "alto": {
+    "connective-tissue-cell": 11,
+    "epithelial-cell": 74,
+    "lymphocyte": 2
+  },
+  "bajo": {
+    "epithelial-cell": 15,
+    "lymphocyte": 1
+  },
+  "moderado": {
+    "connective-tissue-cell": 18,
+    "epithelial-cell": 49,
+    "lymphocyte": 5,
+    "plasma-cell": 12
+  }
+}
