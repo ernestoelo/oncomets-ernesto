@@ -135,6 +135,11 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   preguntas para Sebastián. Al armarlo se corrigieron dos números: el grado vive en **22** láminas
   y no en 20, y el IC de la 126504 cierra en **1,111** y no en 1,110
   ([`figuras/`](figuras/README.md)).
+- **El deck de la reunión del martes, planificado y sin construir** (11-sep) — decisiones de
+  Ernesto: **español** salvo la portada, **7 láminas** (portada · OBJETIVOS · O1 · O2 · O3 · cinco
+  preguntas · Tareas), gráficos con **shapes nativas** y una sola fila de tareas, **dispersión contra
+  epitelio normal**. Los números salen de `datos_o1()` y `datos_o3()` del script de figuras, que ya
+  verifican contra los `resultados.md`. Lo construye una sesión limpia con el plan del handoff.
 - **D2 no se pudo ejecutar y no se reemplazó** (9-sep) — **0 de 187** marcas de grado caen dentro de
   ninguna anotación, de ninguna clase. El brazo con máscara queda declarado **degenerado por
   construcción** y qué región corresponde es **pregunta para Sebastián**.

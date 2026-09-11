@@ -95,3 +95,23 @@ otros «9 de 9» son de otros ejes (atención sobre mitosis del B9, offsets de l
 **Propagación verificada**: `grep` de «20 láminas» sobre el repo y las memorias. Los demás «20
 láminas» cuentan diapositivas de decks, no láminas anotadas. Conservan el número viejo la entrada de
 la Sesión 50 de `progress/current.md` y tres handoffs, que son historia y no se reescriben.
+
+---
+
+# Pasada acotada — sesión 54 (11-sep-2026)
+
+> **Alcance**: las dos premisas del handoff de la sesión 53 que chocaron con el precedente al
+> planificar el deck de la reunión del martes. Hecha con `@knowledge-audit` dentro de
+> `@session-close`. No se auditó el resto de la base.
+
+| id | hallazgo | tipo | acción |
+|---|---|---|---|
+| H1 | `CLAUDE.md` (ADDENDUM 25-ago) dice «el deck va en **inglés**, son **4 láminas**», y `docs/plantilla_oficial.md` §1 lo mismo. Describen el **molde**: los dos decks construidos sobre él van en español (B9 desde el 27-ago, B10 por decisión de Ernesto del 11-sep) y llevan 13 y 7 láminas. El ADDENDUM 27-ago que ya lo decía vivía sólo en la memoria y nunca llegó a `CLAUDE.md`, así que el handoff copió la regla vieja | stale | precisión aditiva en `CLAUDE.md` y nota bajo la tabla del §1; ADDENDUM y descripción en [[plantilla-oficial-image-to-text]]; hook de `MEMORY.md` |
+| H2 | `CLAUDE.md` (ADDENDUM B5) lista «gráficos reales (`add_chart`)», y la memoria del deck también. Desde el B8 los gráficos se dibujan con shapes, el B9 no usó `add_chart` ni una vez, y Ernesto eligió shapes para el B10. La regla prohíbe el PNG, no las shapes | reconciliación | precisión aditiva en `CLAUDE.md`; ADDENDUM en [[deck-completo-pptx-buildable]] |
+| H3 | El deck de la reunión quedó **planificado y sin construir**, con cuatro decisiones de Ernesto: español, 7 láminas, shapes, una fila de tareas | pendiente abierto | línea en el mapa, Sesión 54 del progress, plan en `.handoffs/` |
+
+**Propagación verificada**: `grep -rn` de «add_chart» y de «inglés» sobre todo el repo y las
+memorias. Quedan dos `add_chart` en `B5_sprint5/presentacion_b5/convenciones_deck_b5.md` y
+`B6_sprint6/presentacion_viernes/convenciones_deck_b6.md`, que cuentan cómo se hicieron esos decks
+y **no se tocan**. Los «inglés» de `pathpt-testing-necrosis-mitotic` y de
+`fixing-opus5-evaluacion-y-cosecha` hablan de otra cosa.

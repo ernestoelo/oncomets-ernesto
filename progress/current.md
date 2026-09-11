@@ -4438,6 +4438,41 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 54 — 11-sep-2026 · el plan del deck de la reunión del martes, sin construir
+
+**Misión**: Ernesto pidió el `.pptx` de la reunión del martes 15-sep, que el handoff dejaba «solo si
+lo pide». Fue una sesión de **plan** y no se construyó nada. Cerró con `@session-close` para que una
+sesión limpia lo ejecute.
+
+### 1. Cuatro decisiones de Ernesto
+
+| | decisión |
+|---|---|
+| Idioma | español, salvo la portada |
+| Láminas | 7: portada · OBJETIVOS · O1 · O2 · O3 · cinco preguntas · Tareas |
+| Gráficos | shapes nativas, como el B9 |
+| Tareas del próximo período | una fila: dispersión contra epitelio normal |
+
+El plan completo, con lo que se reusa del generador del B9 y de `scripts/b10_figuras_o1_o3.py`,
+quedó en `.handoffs/plan_B10_20260911_deck_reunion_martes.md` (gitignored).
+
+### 2. Dos premisas del handoff que el precedente contradecía
+
+El handoff pedía el deck **en inglés** y los gráficos con **`add_chart`**. Las dos salían de
+`CLAUDE.md`, que describía el molde y la receta del B5, y ninguna era lo que se venía haciendo: el
+B9 va en español desde el 27-ago y no usó `add_chart` ni una vez. Precisión aditiva en `CLAUDE.md` y
+en `docs/plantilla_oficial.md`, más ADDENDUM en dos memorias. Auditoría acotada:
+`sprints/B10_sprint10/auditoria_coherencia/hallazgos.md` (H1-H3).
+
+### 3. Estado al cierre
+
+Rama `main`, sin jobs propios. En el nodo corren `nschiaff` 5524 y `capstone` 5544. Esperan
+`sgaete` 5525 (`Resources`) y 5536 `Dora`, que sale de la cuenta `sdonoso` pero es de otro operador
+(`WorkDir` en `Test_D/`). Pendiente: construir el deck antes del martes y, después de la reunión,
+llevar las respuestas a P1-P5.
+
+---
+
 ## Sesión 53 — 11-sep-2026 · O1 y O3 con forma presentable, y el doc de la reunión del martes
 
 **Misión** (handoff del 11-sep): figuras y tablas de O1 y O3 y el doc con que Ernesto va a la
