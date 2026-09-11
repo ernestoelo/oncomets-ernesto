@@ -117,6 +117,17 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   atención **sí** cae sobre el CDIS (AUC mediana **0,755** con la rama verdadera, 9 de 9 por encima
   de 0,5), pero la única lámina en `test` tiene 2 parches positivos y su IC contiene 0,5
   ([`cdis_localizacion/resultados.md`](cdis_localizacion/resultados.md)).
+- **La B25-158899 re-medida: el universo no era la causa** (10-sep) — confinada a su región
+  anotada da **0,201** (rama `si`) contra 0,198 en la lámina entera, así que la hipótesis cae por la
+  regla pre-declarada. Es la única de las diez al revés y **la única que el fold nunca vio**, y su
+  offset tiene `alineada: false` desde el B8, igual que la 164001, que da 0,926. Consecuencia: **la
+  localización de O3 descansa en `train` y `val`**; en láminas nuevas no está mostrada
+  ([`cdis_localizacion/resultados.md`](cdis_localizacion/resultados.md) §2 y §3.b).
+- **O1 no declaró dos cosas, y ninguna mueve el titular** (10-sep) — el universo de las dos
+  láminas con dos regiones de escaneo (129741 y B25-158899 se ordenaron sobre la lámina entera) y
+  las dos con `alineada: false` (164001 y B25-158899). Confinar lleva `alto` de 27 · 41 · 57 a
+  29 · 41 · 60 en N = 200 · 500 · 2000; sacar las no alineadas deja N=500 en 52 de 140. Declarado,
+  sin re-correr ([`grado_sin_marca/resultados.md`](grado_sin_marca/resultados.md) §6.a).
 - **D2 no se pudo ejecutar y no se reemplazó** (9-sep) — **0 de 187** marcas de grado caen dentro de
   ninguna anotación, de ninguna clase. El brazo con máscara queda declarado **degenerado por
   construcción** y qué región corresponde es **pregunta para Sebastián**.
@@ -154,9 +165,6 @@ algo de acá **no es poder responderlo, es poder enunciarlo**.
   Sebastián, heredado del B9. Unidad región contra punto, nulo por traslación, prerrequisito
   bloqueante de unificar el vocabulario (`necrosis` / `Necrosis` / `Comedonecrosis`). **7 a 9 h** de
   GPU estimadas por área de canvas. Exige que Ernesto lo pida y que la GPU se libere.
-- **Re-medir la B25-158899 de O3 confinada a su región anotada.** Es la única lámina bajo 0,5
-  (0,236) y tiene dos regiones de escaneo con la anotación en la de arriba; el driver midió sobre la
-  lámina entera. Corrida de segundos, y hasta hacerla esa fila se lee como **no medida**.
 - **El brazo `ckpt_limpio` de la atención sobre mitosis**, que el B9 dejó pendiente y que es el
   control de honestidad del 0,809.
 - **¿El Δ del job 4589 en CDIS `_ci_reform` sobrevive a semillas nuevas?** Arrastrado del B8.
@@ -195,5 +203,7 @@ esfuerzo nuevo.
   está afinado por clase y `epithelial-cell` es el más erosionado de las siete
   (`ejes_nucleares/resultados.md` §2.d).
 - Que las 12 ni las 21 láminas alcancen. El grado sigue confundido con la lámina.
+- Que la atención de CLAM localice el CDIS en láminas que el modelo no vio. Las dos que hay no lo
+  muestran: una no mide y la otra va al revés con el offset sin verificar.
 - Que `sgaete` no esté haciendo esto mismo. El reparto de la reunión cubre **mitosis**; los otros
   tres solapes siguen abiertos.

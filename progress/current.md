@@ -154,7 +154,7 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
 - **RESUELTO (13-jul, commit `8926e5f`)**: la migración al template de Sebastián y las
   correcciones §2 de `correcciones_deck.md` **ya están aplicadas** en
   `presentacion_b7/generate_b7_deck.py` (re-base por construir a 10×5.625 y escalar
-  ×1.3333, [[deck-rebase-plantilla-1610]]). Los checkboxes del checklist quedaron sin
+  ×1.3333, [[deck-template-fuentes-embebidas]]). Los checkboxes del checklist quedaron sin
   marcar pero el código los cumple: verificado 18-jul (cero «—» en texto de slide, sin
   nombres de guías, recap con layout de `Plantilla`).
 - **Sección nueva agregada 18-jul (17 → 21 slides)**, commit `1c90b7f`: divisoria +
@@ -180,7 +180,7 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   en fondo teal con logo blanco, portada de Plantilla. De paso se resolvió el título de la
   lámina 16 (los títulos se toparon a 25pt, el tamaño de Plantilla; con los heredados los
   largos caían a 2 líneas y la 2ª quedaba cortada por la línea). Dos títulos se acortaron
-  para entrar en una línea: la 14 y la 18. Detalle: [[plantilla-dos-cabeceras]].
+  para entrar en una línea: la 14 y la 18. Detalle: [[deck-template-fuentes-embebidas]].
 - **✅ Re-basado el 19-jul (tarde) sobre el template VÁLIDO** (commit `170f7bd`). Ernesto
   volvió a abrirlo y **seguía viendo la plantilla anterior**, y fijó cuál es el archivo a
   respetar: **`Modelo OncoMets Spatial V1 Deep-LLM-V.pptx`**. La causa raíz resultó ser
@@ -270,7 +270,7 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   - **s08: notación que no se podía seguir.** El pie bautizaba los subíndices como `e`/`s`,
     letras que **no aparecen en la figura**: el paper usa **z_j^(k)** con *j* = slot (S=10) y
     *k* = experto (E=30). Verificado ampliando la figura a 200 DPI antes de corregir.
-    Alineado a las variables del paper ([[deck-molde-fiel-referencia]]).
+    Alineado a las variables del paper ([[deck-gramatica-diagrama-deep-llm-v]]).
   - Chequeo final: 22 láminas · fills fuera de paleta **ninguno** · **colores de fuente fuera
     de paleta ninguno** (auditoría nueva) · runs <10 pt **0** · rayas largas **0** · Barlow +
     Cambria Math embebidas, 5 `.fntdata`.
@@ -459,7 +459,7 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   prototipos, uno por cabeza?»*. La respuesta, verificada contra `mammoth.py`: **no**. `slot_embeds`
   es `(e,h,s,d)=(30,16,10,16)` ⇒ **300 prototipos, cada uno cortado en los mismos 16 tramos** que el
   parche, y el `einsum` de `get_logits` deja `h` compartido ⇒ **16 tablas de N×300, no una** ⇒
-  **4800 parecidos por parche**. Nueva memoria [[mammoth-cabezas-son-tramos]] + ADDENDUM en
+  **4800 parecidos por parche**. Nueva memoria [[mammoth-dispatch-softmax-sobre-parches]] + ADDENDUM en
   [[mammoth-slot-routing-weight]] (`combine` normaliza **por parche Y por tramo**, no globalmente).
 - ⚠️ **Dos defectos del guion que esa pregunta destapó**, ambos corregidos: (1) decir «una tabla de
   parecidos contra los 300» **después** de explicar el corte en tramos **se contradice solo**;
@@ -495,7 +495,7 @@ Comparar **mapas de calor / atención de CLAM vs Mammoth** en 3 tareas y respond
   slots = 300»). Verificado: `slot_embeds = nn.Parameter(torch.randn(num_experts, num_heads,
   num_slots, head_dim_input))` = `(30,16,10,16)`, `mammoth.py:281`. Los prototipos son **300**
   (`e × s`); los otros dos ejes describen a cada uno **por dentro**, cortado en los mismos 16 tramos
-  de 16 que el parche. ADDENDUM en [[mammoth-cabezas-son-tramos]].
+  de 16 que el parche. ADDENDUM en [[mammoth-dispatch-softmax-sobre-parches]].
 - ⚠️ **HALLAZGO — el guion cruzaba `dispatch` con `combine`.** Decía que el dispatch «reparte cada
   parche entre los slots»; eso es el combine. Verificado `mammoth.py:410`:
   `dispatch_weights = F.softmax(logits, dim=1)` sobre `(b,n,e,h,s)`, o sea el eje **n**. Corregido.
@@ -652,7 +652,7 @@ nada commiteado/pusheado (pendiente OK + pase formal del reviewer).**
   agrandadas; **notas del presentador humanizadas** en las 11 slides. Convenciones +
   mapa vigente en `convenciones_deck_b6.md` **§7**; hallazgos ronda 2 en
   `auditoria_coherencia/hallazgos_deck_10jul.md`. **Pendiente**: QA fino en
-  **PowerPoint** (OMML del diagrama s5) + ensayo del guion. [[deck-molde-fiel-referencia]].
+  **PowerPoint** (OMML del diagrama s5) + ensayo del guion. [[deck-gramatica-diagrama-deep-llm-v]].
   **EXTENDIDO 12-jul (pedido de Ernesto)**: se anexó la **sección MAGNIFICACIÓN multi-escala**
   para la reunión con Sebastián (lunes) — estudio + referencias microcalc + imágenes didácticas
   (esquema nativo + crop real 2 escalas vía `render_multiscale_crop.py`) + **la decisión de
@@ -718,7 +718,7 @@ Todo CPU post-hoc, read-only sobre artefactos ya existentes (regla 9 no aplica).
 - **Cota sobre la softmax definida: el reparto uniforme, 1/300 = 0.333 %** (único corte sin
   parámetro libre). Da **63 a 96 slots por lámina** que concentran el **73 %** del peso;
   estable entre las 3 tareas. Nuevo `scripts/slot_cota_softmax.py` +
-  `slot_softmax/slot_cota_por_lamina.csv`. [[cota-softmax-slots-uniforme]].
+  `slot_softmax/slot_cota_por_lamina.csv`. [[mammoth-slot-routing-weight]].
 - **Deck: 22 → 24 láminas.** Nuevas **18** («Dónde se concentra cada slot»: las 3 tiras +
   tabla nativa al lado, con el % y el 15 % explicados) y **19** («Una cota para decidir qué
   slot aporta»: corte a ojo vs cota, tabla por tarea, idea general de entropía y el efecto
@@ -918,7 +918,7 @@ diferencias inesperadas en los 6.
 > B3, B4, B6 y B7 sobreviven en sus carpetas de sprint (el del B6 como
 > `CLAM_Reunion_Mammoth.pptx`) y el del B5 existe en otra versión en
 > `papers/presentations/`, pero **el del B2 no tiene copia en ningún lado del servidor y su
-> guion se perdió**. La lección durable, en [[pptx-quitar-notas-y-respaldo]]: los `.pptx`
+> guion se perdió**. La lección durable, en [[deck-completo-pptx-buildable]]: los `.pptx`
 > no están versionados por diseño (`.gitignore`, «Precedente: 0 pptx trackeados»), así que
 > no hay red de git, y **un respaldo hermano comparte el radio de acción de un borrado de
 > carpeta**. El respaldo va a otro árbol.
@@ -4435,6 +4435,48 @@ cuenta.
 Rama `main`, sincronizada con `origin`, **sin jobs propios**. El nodo lo ocupan `sgaete` 5052
 (`phase3_s`, corriendo hace 6 h 20) y `capstone` 5063; `nschiaff` 5061 en cola por `Resources`.
 Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
+
+---
+
+## Sesión 52 — 10 y 11-sep-2026 · la B25-158899 re-medida, y dos caveats por lámina que O1 y O3 no declararon
+
+**Misión** (handoff del 9-sep): darle forma presentable a O1 y O3 y preparar la reunión del
+martes, empezando por la re-medición pendiente de la B25-158899. Se hizo la re-medición y lo que
+salió de ella. **Las figuras, las tablas y las preguntas para Sebastián NO se hicieron**: la sesión
+cerró con el contexto lleno. La sesión 51 (9-sep) no dejó entrada acá; lo suyo está en el mapa del
+B10.
+
+### 1. O3: la B25-158899 confinada da 0,201, y el universo no era la causa
+
+Lectura pre-declarada y commiteada antes de correr (`c3d5647`). Bloque aditivo en
+`scripts/b10_cdis_atencion.py` que importa `medir()` y `universos_de()` del B9 sin tocarlos, con
+**regresión byte a byte** de los tres CSV publicados. Confinada: 0,239 (`json_out`) y **0,201**
+(checkpoint, rama `si`), contra 0,236 y 0,198 en la lámina entera. Es la única de las diez al revés
+y **la única que el fold nunca vio**. Detalle: `sprints/B10_sprint10/cdis_localizacion/resultados.md`
+§2 y §3.b.
+
+### 2. Dos láminas de O3 con `alineada: false`, sin declarar
+
+La 164001 (0,926, dentro del «9 de 9») y la B25-158899. El flag estaba en el offset desde el B8 y el
+B9 lo había declarado como control de sanidad; O3 no. Abierta por tier, la localización de O3
+descansa en `train` y `val`: en láminas nuevas no está mostrada.
+
+### 3. O1 tenía los mismos dos huecos, y ninguno mueve el titular
+
+`scripts/b10_grado_region_diag.py`: confinar la 129741 lleva `alto` de 27 · 41 · 57 a 29 · 41 · 60
+en N = 200 · 500 · 2000, y sacar las no alineadas deja N=500 en 52 de 140. Declarado en
+`grado_sin_marca/resultados.md` §6.a, sin re-correr el driver.
+
+### 4. Conocimiento
+
+Auditoría acotada en `sprints/B10_sprint10/auditoria_coherencia/hallazgos.md` (F1-F6). Memoria nueva
+[[caveat-por-lamina-no-viaja-solo]], ADDENDUM en [[rama-de-atencion-decide-el-resultado]], y el
+índice de memorias compactado a 138 líneas con **10 fusiones** (F6).
+
+### 5. Estado al cierre
+
+Rama `main`, cero jobs propios. Pendiente principal: figuras y tablas de O1 y O3 y las preguntas
+para Sebastián, antes del martes.
 
 ---
 
