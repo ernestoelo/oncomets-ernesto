@@ -134,3 +134,22 @@ y **no se tocan**. Los «inglés» de `pathpt-testing-necrosis-mitotic` y de
 en el B10 la frase está sólo en el plan. El bloque de Tareas del guion del B9 la usa para los dos
 solapes de `sgaete` (el pipeline de atención contra anotaciones y el detector de mitosis). Es un
 deck ya presentado y **no se toca**; si `sgaete` es Sebastián, queda como pregunta para Ernesto.
+
+---
+
+# Pasada acotada — sesión 56 (14-sep-2026)
+
+> **Alcance**: las dos preguntas que el handoff de la 55 dejó abiertas con Ernesto, contestadas al
+> abrir la sesión. No se escribió código: la sesión verificó el estado, escribió el plan de
+> construcción del deck y cerró para que una limpia lo ejecute. No se auditó el resto.
+
+| id | hallazgo | tipo | acción |
+|---|---|---|---|
+| J1 | **`sgaete` ES Sebastián**, contestado por Ernesto. Y son **dos Sebastianes distintos**: `sgaete` = Sebastián Gaete, el supervisor de las reuniones; `sdonoso` = Sebastián Donoso, dueño de `clam_environ/` y nombre de la cuenta unix compartida. «Sebastián» a secas en los docs es Gaete | premisa confirmada, con una distinción que faltaba | **cierra I1**. Nota aditiva en `CLAUDE.md` §«Quién soy y dónde estoy» + memoria [[sgaete-es-sebastian-gaete-supervisor]]. Los cuatro directorios ajenos read-only son del supervisor ⇒ los solapes se resuelven preguntándole. El guion del B9 queda como está (deck presentado) |
+| J2 | **O1 confinado a la región anotada: NO**, decidido por Ernesto | decisión pendiente, cerrada | `reunion_martes.md` §6 pasa de recomendación a decisión. El deck se construye sobre la lámina entera, con lo ya medido |
+| J3 | El deck **sigue sin construir**, y ahora tiene plan aprobado punta a punta (archivos, qué se importa, gotchas, orden, verificación) en `/home/sdonoso/.claude/plans/handoff-b10-20260911-deck-disenado-md-fizzy-rabin.md`. El diseño lámina por lámina sigue siendo el del handoff de la 55 §5 | pendiente abierto | H3 e I3 siguen abiertos. La reunión es el **martes 15-sep**: es lo único urgente del sprint |
+
+**Verificado en vivo, no heredado**: `main` limpio y sincronizado con `origin` en `9211429`;
+ningún job propio en `squeue`; `datos_o1()` y `datos_o3()` corren en `envs/pruebas` con `.pylibs`
+y pasan sus asserts contra los `resultados.md` (32 y 10 filas); `python-pptx` 1.0.2 y PIL
+disponibles; la plantilla oficial está en `papers/presentations/`.

@@ -149,11 +149,11 @@ no trae regla de cantidad (§3).
 está mostrada en láminas que el fold no usó (§4). De yapa: la B25-158899 no tiene fila en el CSV de
 CDIS, y conviene saber si es un olvido o si la lámina está fuera de la cohorte.
 
-## 6. Una decisión que es de Ernesto
+## 6. Una decisión que era de Ernesto, y ya está tomada
 
 Re-correr O1 confinado a la región anotada en las dos láminas con dos regiones de escaneo.
-**Recomendación: no.** El titular no se mueve (§2) y la lámina entera es lo que tendría una lámina
-nueva sin anotar.
+**Decidido el 14-sep: no.** El titular no se mueve (§2) y la lámina entera es lo que tendría una
+lámina nueva sin anotar. Todo lo que sigue, el deck incluido, se lee sobre la lámina entera.
 
 ## 7. Qué no se afirma
 

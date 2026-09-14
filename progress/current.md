@@ -4438,6 +4438,51 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 56 — 14-sep-2026 · las dos preguntas de Ernesto, contestadas; el plan, aprobado
+
+**Misión**: construir el deck de la reunión del martes con el plan y el diseño de la 55. Ernesto
+cortó la sesión antes del código y pidió cerrarla para que una limpia lo ejecute. Lo que sí quedó:
+las **dos preguntas abiertas con él, contestadas**, y el plan de construcción aprobado punta a
+punta. `presentacion_b10/` sigue sin existir.
+
+### 1. Las dos respuestas
+
+- **O1 confinado a la región anotada: NO.** La recomendación de `reunion_martes.md` §6 pasa a
+  decisión: el titular no se mueve y la lámina entera es lo que tendría una lámina nueva sin
+  anotar. El deck se construye con lo ya medido.
+- **`sgaete` ES Sebastián**, y son **dos Sebastianes distintos**: `sgaete` = Sebastián **Gaete**,
+  el supervisor que escucha el deck y da los encargos; `sdonoso` = Sebastián **Donoso**, dueño de
+  `clam_environ/` y nombre de la cuenta unix compartida. «Sebastián» a secas en los docs es Gaete.
+  Consecuencia: los cuatro directorios ajenos read-only (`hover_net/`, `anotaciones/`,
+  `clam_ensemble/`, `MitosisDetection/`) son **del supervisor**, así que los cuatro solapes del eje
+  nuclear se resuelven **preguntándole**, no midiendo alrededor. Cierra I1.
+  [[sgaete-es-sebastian-gaete-supervisor]].
+
+### 2. Verificado en vivo (no heredado del handoff)
+
+`main` limpio y sincronizado con `origin` en `9211429`; ningún job propio; `datos_o1()` y
+`datos_o3()` corren en `envs/pruebas` con `.pylibs` y pasan sus asserts contra los `resultados.md`
+(32 y 10 filas); `python-pptx` 1.0.2 y PIL disponibles; la plantilla oficial en su sitio. Se leyeron
+además las firmas del generador del B9 que el deck del B10 importa, así que el plan las cita
+verificadas y no de memoria.
+
+### 3. El plan aprobado
+
+`/home/sdonoso/.claude/plans/handoff-b10-20260911-deck-disenado-md-fizzy-rabin.md`: archivos,
+qué se importa en vez de reimplementar, los ocho gotchas técnicos, el orden de ejecución con
+rasterizado temprano, y la verificación en cinco capas. El **diseño lámina por lámina** no está ahí:
+sigue siendo el del handoff de la 55 §5, que manda.
+
+Detalle: `sprints/B10_sprint10/auditoria_coherencia/hallazgos.md`, sesión 56 (J1-J3).
+
+### 4. Estado al cierre
+
+Rama `main`, sin jobs propios. El nodo lo ocupan `nschiaff` 5552, `capstone` 5620 y 5628, con cola
+de `sgaete` (5621, 5622) y varios de `capstone`. **La reunión es el martes 15-sep**: construir el
+deck es lo único urgente del sprint.
+
+---
+
 ## Sesión 55 — 11-sep-2026 · el deck de la reunión, diseñado y sin construir
 
 **Misión**: construir el deck de la reunión del martes con el plan de la sesión 54. La sesión leyó
