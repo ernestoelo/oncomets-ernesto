@@ -4438,6 +4438,43 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 58 — 14-sep-2026 · el deck del martes, construido; mirarlo queda para Ernesto
+
+**Misión**: construir el deck de la reunión del martes 15-sep con el handoff de la 57. Hecho:
+`sprints/B10_sprint10/presentacion_b10/` con generador, guion, README y un chequeo geométrico. Sale
+con código 0, y el `.pptx` y su PDF se le mandaron a Ernesto.
+
+### 1. Lo que quedó
+
+- `generate_b10_deck.py`: siete láminas sobre la plantilla oficial, las tres figuras nativas en
+  group shapes, los datos leídos de `datos_o1()` y `datos_o3()` y comparados contra
+  `figuras/*.csv`, y dos auditores propios (dentro de los grupos y sobre el XML guardado) además
+  de los del B9.
+- `guion_b10.md`: siete bloques. `@humanizer-es` no se corrió porque la medición previa dio limpia;
+  la relectura corrigió una premisa falsa (los mm² son de los parches, no de los núcleos) y tres
+  costuras.
+- `qa_geometria.py`: tinta por renglón y colisiones dentro de los grupos. Sin avisos.
+
+### 2. Lo que no se pudo hacer
+
+**Mirar las láminas.** Desde el primer archivo, el hook que precede a `Write` y `Read` no respondió
+(«host client may be unreachable»). Los archivos se escribieron con `Bash` y el QA visual quedó en
+las capas automáticas. **Falta que Ernesto las mire antes del martes.**
+
+### 3. Un hallazgo que toca un deck ya presentado
+
+El round-trip mostró las notas partidas por renglón: el `.md` va envuelto y `notes()` hace un
+párrafo por salto de línea. Se corrigió en `leer_guion()` del B10. **El `.pptx` del B9 tiene el
+mismo defecto** (11 a 22 párrafos por lámina) y no se tocó. Detalle:
+`sprints/B10_sprint10/auditoria_coherencia/hallazgos.md`, sesión 58 (L1-L4).
+
+### 4. Estado
+
+Rama `main`, commit local sin push. Sin jobs propios. Pendiente inmediato: que Ernesto mire las
+siete láminas; después de la reunión, las respuestas a P1-P5 y si el B10 cierra.
+
+---
+
 ## Sesión 57 — 14-sep-2026 · cierre por contexto, antes del código
 
 **Misión**: construir el deck de la reunión del martes con el handoff de la 56. La sesión releyó lo

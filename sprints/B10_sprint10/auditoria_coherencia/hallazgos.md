@@ -175,3 +175,16 @@ inventario de formas de la plantilla coincide con `docs/plantilla_oficial.md` §
 `Text 1`, `CuadroTexto 6`, `Text 2` vacío, `Google Shape;286;p7` y `287;p7`, `Imagen 4`; s02 y
 s04: `Text 2`, `Google Shape;409;p22`, `Google Shape;196;p29`). En `squeue -u` aparecen `Eval`,
 `Eval2` y `Eval3` (5647-5649, `PD`) de la cuenta compartida: esta sesión no lanzó nada.
+
+---
+
+# Pasada acotada — sesión 58 (14-sep-2026)
+
+> **Alcance**: la construcción del deck del martes. Se auditó lo que el deck produjo, no el resto.
+
+| id | hallazgo | tipo | acción |
+|---|---|---|---|
+| L1 | **Las notas del `.pptx` salen partidas por renglón.** `leer_guion()` del B9 (`generate_b9_deck.py:973`) devuelve cada bloque con los saltos del envuelto a cien columnas, y `notes()` convierte cada `\n` en un párrafo del panel. En el B10 daba 17 a 23 párrafos por lámina para 3 a 6 de guion. **El `.pptx` del B9 lo tiene**: 11 a 22 párrafos por lámina, 7 a 16 de ellos sin puntuación final | defecto de formato, latente desde el B9 | corregido en `leer_guion()` del B10, que junta las líneas de cada párrafo. El B9 no se toca (cerrado y presentado). Lo caza el round-trip **contando párrafos de notas**, no notas |
+| L2 | El guion de O1 decía que los mm² eran «la superficie que ocupan esos núcleos». Son la **unión de los parches de 256 px** que los contienen, que es lo que escribe el eje | premisa falsa en la prosa | corregido; misma familia que [[parametro-necesita-su-semantica]] |
+| L3 | El rótulo del eje de O2 quedaba a **0,03"** de la punta de la flecha (tinta por renglón: banda 4,05-4,14 y rótulo desde 4,17). La punta de `tailEnd` baja ~0,04" bajo la línea y ningún chequeo de cajas la ve | proximidad | hueco de 0,05 a 0,09 |
+| L4 | **El QA visual no corrió.** El hook que precede a `Write` y `Read` no respondió en toda la sesión («host client may be unreachable»): los archivos se escribieron por `Bash` y las láminas no se miraron. Lo sustituyó en parte `presentacion_b10/qa_geometria.py` (texto/texto, línea/texto y forma/texto dentro de los grupos), sin avisos | capa de QA faltante | el `.pptx` y su PDF se le mandaron a Ernesto; **mirarlos es el pendiente** |

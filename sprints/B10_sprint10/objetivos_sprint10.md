@@ -142,12 +142,13 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   Gaete, el supervisor que escucha el deck, mientras que `sdonoso` es la cuenta compartida y
   Sebastián Donoso; los cuatro directorios ajenos read-only son **del supervisor**
   ([[sgaete-es-sebastian-gaete-supervisor]]).
-- **El deck de la reunión del martes, planificado y sin construir** (11-sep, plan aprobado el
+- **El deck de la reunión del martes, construido** (11-sep, plan aprobado y deck construido el
   14-sep) — decisiones de Ernesto: **español** salvo la portada, **7 láminas** (portada ·
   OBJETIVOS · O1 · O2 · O3 · cinco preguntas · Tareas), gráficos con **shapes nativas** y una sola
   fila de tareas, **dispersión contra epitelio normal**. Los números salen de `datos_o1()` y
-  `datos_o3()` del script de figuras, que ya verifican contra los `resultados.md`. Lo construye una
-  sesión limpia con el plan aprobado del 14-sep y el diseño lámina por lámina del handoff.
+  `datos_o3()` del script de figuras, que ya verifican contra los `resultados.md`. Vive en
+  [`presentacion_b10/`](presentacion_b10/README.md), con el QA automático en cero y **las láminas
+  sin mirar** por la sesión que lo construyó (L4, sesión 58): se le mandaron a Ernesto.
 - **D2 no se pudo ejecutar y no se reemplazó** (9-sep) — **0 de 187** marcas de grado caen dentro de
   ninguna anotación, de ninguna clase. El brazo con máscara queda declarado **degenerado por
   construcción** y qué región corresponde es **pregunta para Sebastián**.

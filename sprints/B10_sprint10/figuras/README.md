@@ -70,7 +70,8 @@ Schema (columnas y tipos):
   - carga_media_mm2_lamina: float, 4.0655, carga media en N de LAS 21 LÁMINAS
 Filas: 32 (8 peldaños × 4 grupos; dentro de cada N, alto, moderado, bajo, total)
 Producido por: scripts/b10_figuras_o1_o3.py, desde results/b10_grado_sin_marca/{escalera.csv,nulo.npz}
-Consumido por: la figura y ../reunion_martes.md
+Consumido por: la figura, ../reunion_martes.md y ../presentacion_b10/generate_b10_deck.py, que lo
+  compara contra lo que devuelve el script y aborta si difieren (no lo escribe)
 Ejemplo (head -3):
   grupo,N,n_laminas,alcanzables,recall,pct_alcanzables,nulo_media,nulo_p975,pct_nulo_p975,carga_media_mm2_lamina
   alto,10,9,76,8,10.5263,0.0100,0.0000,0.0000,0.1329
@@ -103,7 +104,8 @@ Schema (columnas y tipos):
   - alineada: bool, leído de sprints/B8_sprint8/anotaciones_patologo/offset_<slide>.json
 Filas: 10, en el orden de la figura (tier y, dentro del tier, AUC descendente)
 Producido por: scripts/b10_figuras_o1_o3.py, desde results/b10_cdis/{auc_cdis.csv,auc_cdis_region.csv}
-Consumido por: la figura y ../reunion_martes.md
+Consumido por: la figura, ../reunion_martes.md y ../presentacion_b10/generate_b10_deck.py, que lo
+  compara contra lo que devuelve el script y aborta si difieren (no lo escribe)
 Ejemplo (head -3):
   orden_figura,tier,slide,fuente,rama,universo,etiqueta,n_parches,n_marcados,auc,ic95_lo,ic95_hi,ic_lo_dibujado,ic_hi_dibujado,ic_recortado,p_nulo,n_iter_nulo,relleno,alineada
   1,train,124729,ckpt_1fold_verdadera,verdadera:si,lamina,si,4334,32,0.9292,0.8675,0.9909,0.8675,0.9909,False,0.0050,200,True,True
