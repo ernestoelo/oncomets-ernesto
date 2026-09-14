@@ -153,3 +153,25 @@ deck ya presentado y **no se toca**; si `sgaete` es Sebastián, queda como pregu
 ningún job propio en `squeue`; `datos_o1()` y `datos_o3()` corren en `envs/pruebas` con `.pylibs`
 y pasan sus asserts contra los `resultados.md` (32 y 10 filas); `python-pptx` 1.0.2 y PIL
 disponibles; la plantilla oficial está en `papers/presentations/`.
+
+---
+
+# Pasada acotada — sesión 57 (14-sep-2026)
+
+> **Alcance**: cierre por contexto, pedido por Ernesto, antes de escribir el generador. La sesión
+> releyó lo mínimo del handoff, verificó cuatro cosas que el deck necesita y no escribió código.
+> No se auditó el resto.
+
+| id | hallazgo | tipo | acción |
+|---|---|---|---|
+| K1 | **Barlow no trae `● ○ ▬ ■ □ ↑ ◦ ∘`** (cmap leído con `fontTools`, `getBestCmap()`); `→` ya estaba anotado. Y `text_w()` de `generate_b9_deck.py:183` **no puede detectar un glifo faltante**: reemplaza por «n» los caracteres sin `getbbox`, pero PIL devuelve la caja del `.notdef`, así que la sustitución nunca ocurre y los que se midieron dan todos lo mismo (16,77 a 40 pt) | gotcha de medición | la leyenda de O3 que el diseño escribe como «● p < 0,05 · ○ p ≥ 0,05» y «▬ IC 95 %» va **dibujada con shapes**, igual que toda flecha; el auditor del B10 chequea el cmap sobre todo el texto. ADDENDUM en [[deck-template-fuentes-embebidas]] |
+| K2 | `FreeformBuilder.convert_to_shape()` de python-pptx 1.0.2 (`pptx/shapes/freeform.py:96-109`) **no** llama `_recalculate_extents()`; los `add_*` de `pptx/shapes/shapetree.py` sí (líneas 257, 275, 350, 372, 386 y 395) | gotcha verificado en fuente | el gotcha 5 del handoff pasa de leído a verificado: `grp._element.recalculate_extents()` al terminar cada figura que lleve polilíneas |
+| K3 | `results/b10_grado_sin_marca/escalera.csv` (columnas `slide brazo desc grados n_marcas n_resueltas n_candidatos alineada N recall carga_mm2`), brazo `A_lamina_entera` con `desc == percentil`: 21 láminas, **187** = suma de `n_marcas`, **145** = suma de `n_resueltas`. En N = 5000 quedan **19** (faltan la 109609 y la 110616) y los alcanzables de bajo caen de **16 a 9** | insumo verificado | el pie de s03 lee los cuatro números del CSV en vez de transcribirlos |
+| K4 | `CUERPO` de la plantilla (`#1B4F8C`, `generate_b9_deck.py:116`) es **el mismo color** que `RAMPA[2]` de `b10_figuras_o1_o3.py:66`, que pinta **alto** en O1 y **test** en O3. Los helpers del B9 escriben los rótulos de figura en `CUERPO` (`eje_x`, `eje_y`, `pie_lineas`) | riesgo de lectura | dentro de las figuras nativas del B10 el texto va en tinta (`TITULO`) o gris neutro, nunca en `CUERPO`: un rótulo en el color de una serie se lee como parte de ella (skill `dataviz`). Cuerpo y pie de la lámina siguen en `CUERPO`, que es la gramática del molde |
+
+**Verificado en vivo, no heredado**: `main` limpio y sincronizado con `origin` en `99562a1`;
+`generate_b9_deck` y `b10_figuras_o1_o3` se importan juntos en `envs/pruebas` (1,9 s); el
+inventario de formas de la plantilla coincide con `docs/plantilla_oficial.md` §5 (s03: `Text 0`,
+`Text 1`, `CuadroTexto 6`, `Text 2` vacío, `Google Shape;286;p7` y `287;p7`, `Imagen 4`; s02 y
+s04: `Text 2`, `Google Shape;409;p22`, `Google Shape;196;p29`). En `squeue -u` aparecen `Eval`,
+`Eval2` y `Eval3` (5647-5649, `PD`) de la cuenta compartida: esta sesión no lanzó nada.

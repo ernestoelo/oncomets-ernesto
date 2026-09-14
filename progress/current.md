@@ -4438,6 +4438,30 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 57 — 14-sep-2026 · cierre por contexto, antes del código
+
+**Misión**: construir el deck de la reunión del martes con el handoff de la 56. La sesión releyó lo
+mínimo, verificó los insumos que el generador necesita y cerró por pedido de Ernesto antes de
+escribir código. `presentacion_b10/` **sigue sin existir**.
+
+### 1. Lo que se verificó y cambia cómo se escribe el generador
+
+- Barlow no trae `● ○ ▬ ■ □ ↑ ◦ ∘` (cmap con `fontTools`), y `text_w()` del B9 no puede
+  detectarlo porque PIL devuelve la caja del `.notdef`: leyendas y flechas van dibujadas (K1).
+- `convert_to_shape()` no recalcula la caja del grupo, verificado en la fuente de python-pptx (K2).
+- `escalera.csv` da 187, 145, 19 láminas en N = 5000 y bajo de 16 a 9: el pie los lee (K3).
+- `CUERPO` es el color de alto en O1 y de test en O3: el texto de las figuras va en tinta (K4).
+
+Detalle: `sprints/B10_sprint10/auditoria_coherencia/hallazgos.md`, sesión 57.
+
+### 2. Estado al cierre
+
+Rama `main`, sin jobs propios. En la cola de la cuenta compartida hay `Eval`, `Eval2` y `Eval3`
+(5647-5649) que no son de esta sesión; el nodo lo ocupan `nschiaff` 5552 y `capstone` 5620, 5633
+y 5642. **La reunión es mañana, martes 15-sep**: el deck es lo único urgente.
+
+---
+
 ## Sesión 56 — 14-sep-2026 · las dos preguntas de Ernesto, contestadas; el plan, aprobado
 
 **Misión**: construir el deck de la reunión del martes con el plan y el diseño de la 55. Ernesto
