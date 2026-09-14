@@ -24,6 +24,15 @@ Este repo (`oncomets-ernesto`) es mi **control center** sobre el servidor
 Environ. NO contiene el código de CLAM — ese es de Sebastián Donoso
 (`clam_environ/`) y es **read-only**.
 
+> **Hay DOS Sebastianes, y `sgaete` es el supervisor** (confirmado por Ernesto el 14-sep-2026,
+> cierra I1 del B10). El usuario **`sgaete` = Sebastián Gaete**, el de las reuniones de los martes
+> y el que da los encargos; **`sdonoso` = Sebastián Donoso**, dueño de `clam_environ/`, y además
+> la cuenta unix **compartida** con la que corremos todos. «Sebastián» a secas en los docs del
+> proyecto es **Gaete**. Consecuencia: los cuatro directorios ajenos read-only (`hover_net/`,
+> `anotaciones/`, `clam_ensemble/`, `MitosisDetection/`) son **del supervisor**, así que los
+> «solapes» de esos ejes se resuelven **preguntándole**, no midiendo alrededor.
+> [[sgaete-es-sebastian-gaete-supervisor]]
+
 ## Entorno actual (servidor Environ)
 
 Acceso: **VPN oficial Environ + SSH**. Stack registrado el 19 may 2026
