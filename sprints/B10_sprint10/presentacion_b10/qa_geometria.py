@@ -42,7 +42,14 @@ def bandas(png, x0=0.0, x1=13.333):
                 out.append((s, p)); s = r
             p = r
         out.append((s, p))
-    return [(s / DPI, (e + 1) / DPI) for s, e in out]
+    # Cada banda con su extensión HORIZONTAL: el hueco entre dos bandas no dice nada si los
+    # objetos están en columnas distintas (en O3, «parches» y «azar» quedan a 0,009" y a cuatro
+    # pulgadas de distancia).
+    res = []
+    for s, e in out:
+        cols = np.where((a[s:e + 1] < 200).sum(axis=0) > 0)[0]
+        res.append((s / DPI, (e + 1) / DPI, x0 + cols.min() / DPI, x0 + (cols.max() + 1) / DPI))
+    return res
 
 def hijos(shapes, z=[0]):
     for sh in shapes:
@@ -105,13 +112,12 @@ prs = Presentation(PPTX)
 for idx, slide in enumerate(prs.slides, start=1):
     png = "%s/%s-%d.png" % (SP, PREF, idx)
     b = bandas(png)
-    print("\n== s%02d  tinta por renglón (pulgadas, alto, hueco previo)" % idx)
+    print("\n== s%02d  tinta por renglón: y0-y1 [x0, x1] (hueco con la banda previa)" % idx)
     prev = None
-    lin = []
-    for s, e in b:
-        lin.append("%.2f-%.2f(%.2f|%s)" % (s, e, e - s, "-" if prev is None else "%.2f" % (s - prev)))
-        prev = e
-    print("  " + "  ".join(lin))
+    for y0, y1, x0, x1 in b:
+        print("   %.2f-%.2f [%5.2f, %5.2f]  %s" % (y0, y1, x0, x1,
+              "-" if prev is None else "hueco %.3f" % (y0 - prev)))
+        prev = y1
     if idx == 1:
         continue
     textos, segs, cajas = [], [], []

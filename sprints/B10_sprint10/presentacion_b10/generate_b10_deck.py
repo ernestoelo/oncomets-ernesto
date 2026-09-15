@@ -344,7 +344,7 @@ def figura_o1(s, l, t, w, h, o1):
     x0 = l + (w - (W_TICK + W_PLOT + W_LAB)) / 2.0 + W_TICK
     x1 = x0 + W_PLOT
     H_BANDA = 0.40
-    H_EJE = 0.07 + 2 * (_lt(FS_T) + 0.03) + 0.05 + _lt(FS_R)
+    H_EJE = 0.10 + 2 * (_lt(FS_T) + 0.03) + 0.05 + _lt(FS_R)
     y_top = t + H_BANDA
     y_base = t + h - H_EJE
     PH = y_base - y_top
@@ -413,7 +413,8 @@ def figura_o1(s, l, t, w, h, o1):
         rotulo(g, x0 - 0.08, Y(v), "0" if v == 0 else "%d %%" % v, FS_T, GRIS,
                alin=PP_ALIGN.RIGHT)
     # eje x en tres renglones: N, mm² y el título, con «N» y «mm²» en la columna de ticks
-    y_n = y_base + 0.07 + _lt(FS_T) / 2.0
+    # 0,10 y no 0,07: los ticks bajan 0,06 y a 0,07 los números quedaban a 0,018" de ellos
+    y_n = y_base + 0.10 + _lt(FS_T) / 2.0
     y_mm = y_n + _lt(FS_T) + 0.03
     rotulo(g, x0 - 0.08, y_n, "N", FS_T, GRIS, bold=True, alin=PP_ALIGN.RIGHT)
     rotulo(g, x0 - 0.08, y_mm, "mm²", FS_T, GRIS, bold=True, alin=PP_ALIGN.RIGHT)
@@ -574,7 +575,8 @@ def figura_o3(s, l, t, w, h, d):
            "AUC: probabilidad de que la atención ponga un parche con CDIS por encima de uno "
            "sin CDIS", FS_R, GRIS, alin=PP_ALIGN.CENTER)
     rotulo(g, xc, t + 0.08, "parches", FS_T, GRIS, alin=PP_ALIGN.CENTER)
-    rotulo(g, xc, t + 0.08 + _lt(FS_T), "con CDIS", FS_T, GRIS, alin=PP_ALIGN.CENTER)
+    # +0,02 sobre el interlineado: los dos renglones quedaban a 0,009" de tinta a tinta
+    rotulo(g, xc, t + 0.10 + _lt(FS_T), "con CDIS", FS_T, GRIS, alin=PP_ALIGN.CENTER)
 
     # columna de tier: punto, título y filete del color del tier, centrados en su grupo
     for tier, y0, y1 in grupos:

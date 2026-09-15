@@ -79,7 +79,8 @@ Barlow, las maniobras de la plantilla, el relleno en sitio y `auditar` / `barrer
 | Datos | `datos_o1()` y `datos_o3()` reproducen los `resultados.md`, y lo que devuelven coincide con `figuras/*.csv` (32 y 10 filas). `escalera.csv` da 21 láminas, 187 marcas, 145 alcanzables, 19 láminas en N = 5000 y bajo de 16 a 9 |
 | Auditores del generador | los cuatro sin avisos, código 0 |
 | Geometría dentro de los grupos (`qa_geometria.py`) | sin colisiones texto/texto, línea/texto ni forma/texto en O1 (34 textos, 60 segmentos), O2 (15, 7) ni O3 (37, 10) |
-| Tinta por renglón | una corrección: el rótulo del eje de O2 quedaba a 0,03" de la punta de la flecha |
+| Tinta por renglón | tres correcciones: el rótulo del eje de O2 a 0,03" de la punta de la flecha, los números del eje x de O1 a 0,018" de sus ticks y los dos renglones de «parches con CDIS» a 0,009". Después, el hueco mínimo de cada lámina es interlineado normal |
+| Solapes de primer nivel | ninguno entre cuerpo, figura, tabla y pie; la tinta de las siete cae dentro del área del molde |
 | Round-trip | 7 láminas en orden, notas en las 7 (1 a 6 párrafos), 301 `typeface="Barlow"` y ninguna otra tipografía en las láminas, 4 `.fntdata` en el paquete |
 | Cruce de contenido | las 24 cadenas esperadas presentes (22 láminas · 145 de 187 · 41 de 76 · 12 de 53 · 0 de 16 · no pasa de 3 · 0,755 · 0,704 · 0,201 …) y ninguna de las prohibidas («20 láminas», «9 de 9», «evita el CDIS», precisión, F1, «otra persona») |
 | **Mirar las láminas** | **PENDIENTE.** La sesión que lo construyó no pudo abrir imágenes: el hook que precede a `Read` no respondió en toda la sesión. Los rasterizados se le mandaron a Ernesto |
@@ -95,7 +96,11 @@ Barlow, las maniobras de la plantilla, el relleno en sitio y `auditar` / `barrer
 2. **Una premisa falsa en el guion de O1**: decía que los mm² eran la superficie de los núcleos, y
    son la de los parches que los contienen, que es lo que dice el eje
    ([[parametro-necesita-su-semantica]]).
-3. **Costuras del guion**: tres láminas seguidas abrían con «La … pregunta era», la de preguntas
+3. **La tinta por renglón no se lee sin la columna.** Mide filas completas del rasterizado, así
+   que junta objetos que están en la misma altura y lejos entre sí: el hueco mínimo de O3 (0,009")
+   es entre dos rótulos separados por cuatro pulgadas. `qa_geometria.py` imprime la extensión
+   horizontal de cada banda por eso.
+4. **Costuras del guion**: tres láminas seguidas abrían con «La … pregunta era», la de preguntas
    decía «Cierro con» y detrás viene Tareas, la tabla escribe «set completo» y el guion decía
    «conjunto», y «ensemble» iba sin glosar. Corregidos.
 
