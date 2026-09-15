@@ -218,3 +218,13 @@ test y ausente en O3 (`#1B4F8C` y `#0D366B`, distintos y rotulados).
 colisiones en las tres figuras y 0 `effectRef` distintos de 0. Entre la versión entregada y la
 final cambian s02, s03, s04, s05 y s07; la portada, las preguntas y las notas no. El `.pptx`
 entregado quedó respaldado en el scratchpad de la sesión (md5 `c96e5f3d`).
+
+**Propagación verificada**: `grep -rn` sobre todo el repo y el directorio de memorias de «sin
+mirar», «shadow», «effectLst», «lumMod» y «un solo corte». Los «sin mirar» que quedan del deck son
+de la entrada de la sesión 58 en `progress/current.md`, que es historia y no se reescribe; la línea
+del mapa se corrigió. Ningún documento ni memoria afirmaba que `shadow.inherit = False` alcanzara.
+`reunion_martes.md:73` dice «un solo corte numérico, el de tamaño», que trae la aclaración y queda.
+`CLAUDE.md:1421` («el rasterizado de LibreOffice ya sirve para juzgar tipografía») **no se toca**:
+habla de tipografía, y la infidelidad con los efectos vive en `docs/plantilla_oficial.md` §7.b.
+Puntero nuevo en [[plantilla-oficial-image-to-text]] y descripción de [[deck-qa-puntos-ciegos-chequeo]]
+actualizada en `MEMORY.md`.

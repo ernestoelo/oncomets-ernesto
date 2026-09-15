@@ -4468,8 +4468,10 @@ le mandó a Ernesto tiene esas sombras.**
 
 El `.pptx` regenerado reemplaza al entregado, que quedó respaldado en el scratchpad de la sesión
 (md5 `c96e5f3d`). Cambian s02, s03, s04, s05 y s07; la portada, las preguntas y las notas no. El PDF
-nuevo no se versiona y sale con el comando del README. Rama `main`, commit local. Pendiente
-inmediato, sin cambios: la reunión, y después las respuestas a P1-P5 y si el B10 cierra.
+nuevo no se versiona y sale con el comando del README. Rama `main`: `090a4e3` (el QA) y el commit
+de cierre, pusheados al cerrar la sesión. Sin jobs propios; los `Eval*` de la cola corren desde
+`sdonoso/Test_D/`, fuera de `clam_testing2`. Pendiente inmediato, sin cambios: la reunión, y después
+las respuestas a P1-P5 y si el B10 cierra.
 
 ---
 
