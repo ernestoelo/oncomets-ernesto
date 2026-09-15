@@ -1490,6 +1490,12 @@ emojis ni corchetes de gesto, destacados en línea propia (`Punto clave:` /
 > `sprints/B5_sprint5/presentacion_b5/convenciones_deck_b5.md` §3.b + memoria
 > [[notas-presentador-guion-didactico]]. Reconcilia "notas concisas" de Benjamín
 > ([[presentacion-convenciones-benjamin]]): mismo objetivo con prosa en vez de densidad.
+> **Precisión 15-sep-2026 — un guion envuelto sale PARTIDO en las notas.** `notes()` aplica el
+> texto con `text_frame.text`, que hace **un párrafo por cada salto de línea**, así que un `.md`
+> envuelto a cien columnas deja las notas cortadas a mitad de frase. El deck del B9 las tiene
+> así (11 a 22 párrafos por lámina). El lector del guion junta las líneas de cada párrafo, como
+> `leer_guion()` de `generate_b10_deck.py`, y el round-trip **cuenta párrafos de notas**, que es
+> la consulta que lo caza. [[notas-presentador-guion-didactico]]
 
 **Assets PNG insertables para slides (patrón Obj 5)**. Cuando el deck vive
 en OnlyOffice (o cualquier herramienta con branding Environ — logo, header
