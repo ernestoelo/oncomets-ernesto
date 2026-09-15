@@ -147,8 +147,10 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   OBJETIVOS · O1 · O2 · O3 · cinco preguntas · Tareas), gráficos con **shapes nativas** y una sola
   fila de tareas, **dispersión contra epitelio normal**. Los números salen de `datos_o1()` y
   `datos_o3()` del script de figuras, que ya verifican contra los `resultados.md`. Vive en
-  [`presentacion_b10/`](presentacion_b10/README.md), con el QA automático en cero y **las láminas
-  sin mirar** por la sesión que lo construyó (L4, sesión 58): se le mandaron a Ernesto.
+  [`presentacion_b10/`](presentacion_b10/README.md), con el QA automático en cero. **Las láminas se
+  miraron en la sesión 59** (M1-M6 de `auditoria_coherencia/hallazgos.md`): seis defectos
+  corregidos, uno de ellos del visor (LibreOffice dibuja una sombra del theme que PowerPoint no), y
+  el `.pptx` regenerado reemplaza al que se le mandó a Ernesto.
 - **D2 no se pudo ejecutar y no se reemplazó** (9-sep) — **0 de 187** marcas de grado caen dentro de
   ninguna anotación, de ninguna clase. El brazo con máscara queda declarado **degenerado por
   construcción** y qué región corresponde es **pregunta para Sebastián**.

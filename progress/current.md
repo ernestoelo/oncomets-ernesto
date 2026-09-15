@@ -4438,6 +4438,41 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 59 — 15-sep-2026 · las siete láminas miradas: seis defectos corregidos, y uno era del visor
+
+**Misión**: la capa que la 58 no pudo correr, mirar el deck del martes. Esta sesión tuvo `Read`
+sano: se rasterizaron las siete, se miraron una por una y todo lo sospechoso se midió a 300 dpi
+antes de tocar el generador.
+
+### 1. Lo que se corrigió
+
+Seis defectos, ninguno visible para las cuatro capas automáticas (detalle:
+`sprints/B10_sprint10/auditoria_coherencia/hallazgos.md`, sesión 59, M1-M6):
+
+- la cejilla de las dos láminas de tabla salía en un celeste que no está en la paleta, por un
+  aclarado que trae el molde y que `set_cejilla()` del B9 no saca;
+- 35 conectores con la sombra del theme, porque `recta()` no la anulaba;
+- el subtítulo del grado nuclear de CDIS, que se leía al revés contra su propio eje;
+- una palabra huérfana en el pie de O3;
+- el título del eje y la leyenda de O1, pegados a la línea del 100 %.
+
+### 2. El instrumento de QA mentía
+
+LibreOffice dibuja la sombra del theme aunque la forma la anule con un `effectLst` vacío, y
+PowerPoint no. El PDF de `soffice` y el rasterizado mostraban sombra en las 115 formas de las
+figuras, y arreglar los conectores no cambió un píxel. Un experimento sobre una copia lo separó, y
+`sin_efectos()` pone los `effectRef` en 0 para que los visores dibujen lo mismo. **El PDF que se
+le mandó a Ernesto tiene esas sombras.**
+
+### 3. Estado
+
+El `.pptx` regenerado reemplaza al entregado, que quedó respaldado en el scratchpad de la sesión
+(md5 `c96e5f3d`). Cambian s02, s03, s04, s05 y s07; la portada, las preguntas y las notas no. El PDF
+nuevo no se versiona y sale con el comando del README. Rama `main`, commit local. Pendiente
+inmediato, sin cambios: la reunión, y después las respuestas a P1-P5 y si el B10 cierra.
+
+---
+
 ## Sesión 58 — 14-sep-2026 · el deck del martes, construido; mirarlo queda para Ernesto
 
 **Misión**: construir el deck de la reunión del martes 15-sep con el handoff de la 57. Hecho:

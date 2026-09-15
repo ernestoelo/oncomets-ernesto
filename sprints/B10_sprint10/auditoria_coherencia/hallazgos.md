@@ -189,3 +189,32 @@ s04: `Text 2`, `Google Shape;409;p22`, `Google Shape;196;p29`). En `squeue -u` a
 | L3 | El rótulo del eje de O2 quedaba a **0,03"** de la punta de la flecha (tinta por renglón: banda 4,05-4,14 y rótulo desde 4,17). La punta de `tailEnd` baja ~0,04" bajo la línea y ningún chequeo de cajas la ve | proximidad | hueco de 0,05 a 0,09 |
 | L4 | **El QA visual no corrió.** El hook que precede a `Write` y `Read` no respondió en toda la sesión («host client may be unreachable»): los archivos se escribieron por `Bash` y las láminas no se miraron. Lo sustituyó en parte `presentacion_b10/qa_geometria.py` (texto/texto, línea/texto y forma/texto dentro de los grupos), sin avisos | capa de QA faltante | el `.pptx` y su PDF se le mandaron a Ernesto; **mirarlos es el pendiente** |
 | L5 | **La tinta por renglón no se puede leer sin la columna.** Mide filas completas del rasterizado: el hueco mínimo de O3 (**0,009"**) es entre «parches», en x ≈ 11,7, y «azar», en x ≈ 7,9, que no se tocan. Los que sí están en la misma columna quedaron en 0,04" | falso positivo del método | `qa_geometria.py` imprime la extensión horizontal de cada banda. Con eso, el método cazó dos apretados reales: los números del eje x de O1 a 0,018" de sus ticks y los dos renglones de la cabecera de O3 |
+
+---
+
+# Pasada acotada — sesión 59 (15-sep-2026)
+
+> **Alcance**: la capa de QA visual que la sesión 58 no pudo correr (L4). Se miraron las siete
+> láminas rasterizadas y se midió a 300 dpi todo lo sospechoso antes de tocar el generador. No se
+> auditó el resto de la base.
+
+| id | hallazgo | tipo | acción |
+|---|---|---|---|
+| M1 | La cejilla de s02 y s07 salía **`#97BEEB`** y no `5293DE`. En el molde el tema de esas dos láminas va en dos runs, el primero en `1B4F8C` aclarado con `lumMod`/`lumOff`; `set_cejilla()` del B9 escribe sobre él, y `font.color.rgb` cambia el `val` pero conserva los hijos | defecto de color, latente desde el B9 | `cejilla()` del B10 saca los hijos del `srgbClr`. El `.pptx` del B9 lo tiene en s2 y s13 y no se toca. Gotcha en `docs/plantilla_oficial.md` §7.b |
+| M2 | **35 conectores con la sombra del theme** (18 en O1, 7 en O2, 10 en O3). Las tres `effectStyle` del theme traen `outerShdw` y el conector de python-pptx apunta a la primera; `recta()` era la única primitiva sin `shadow.inherit = False` | regresión del B10 (B8 y B9 la anulaban en cada helper) | agregado en `recta()` |
+| M3 | **LibreOffice dibuja la sombra del theme aunque haya `<a:effectLst/>` vacío**, que es lo que escribe `shadow.inherit = False`, y PowerPoint no. El PDF y el rasterizado de QA mostraban sombra en las 115 formas de las figuras, y M2 no cambió un píxel. Una copia con `effectRef idx="0"` deja la grilla en 4 px limpios, contra ~20 px de cola | el instrumento de QA mentía | `sin_efectos()` pone `idx="0"` en los tres grupos; censo final 0. ADDENDUM en [[deck-qa-puntos-ciegos-chequeo]] y gotcha en `docs/plantilla_oficial.md` §7.b |
+| M4 | «Grado nuclear de CDIS: seis rasgos y un solo corte numérico» sobre un eje que dibuja **dos** cortes. Quería decir que el único rasgo con número es el tamaño (`score_grado/estudio_score.md` §4, guion de s04) | lectura invertida | «seis rasgos, y solo el tamaño tiene corte numérico» |
+| M5 | El pie de O3 envolvía y dejaba «anotada.» sola en un renglón | huérfana | unidad y AUC en dos párrafos, mismos tres renglones |
+| M6 | En O1 el título del eje y el titular de N = 500 quedaban a **0,04"** de la línea del 100 %, y el borde de la leyenda tapaba media línea. Sin la sombra, además, la leyenda quedaba sin marco y la línea del 75 % parecía cortada | proximidad | banda de cabecera 0,40 → 0,44; la leyenda baja y lleva filete del color de la grilla. Queda a 0,08" del 100 % y a 0,09" del 50 % |
+
+**Descartado al medir a 300 dpi**: el separador de filas de s02 que se veía más claro (los tres son
+de 4 px y negros: antialiasing); el renglón más ajustado de s02 (0,080" y 0,097" del filete) y el
+de s07 (0,063", pasa la banda de guarda por 0,003"); la cabecera de las láminas de tabla, 0,10" más
+abajo que en las de contenido (la trae el molde: T=0,77 contra 0,67); las dos filas de O2 con
+anchos distintos (cada una va centrada, y alinearlas cerraría a 0,25" el hueco entre sus bloques);
+test y ausente en O3 (`#1B4F8C` y `#0D366B`, distintos y rotulados).
+
+**Verificado**: generador en código 0 con sus cuatro auditores sin avisos, `qa_geometria.py` sin
+colisiones en las tres figuras y 0 `effectRef` distintos de 0. Entre la versión entregada y la
+final cambian s02, s03, s04, s05 y s07; la portada, las preguntas y las notas no. El `.pptx`
+entregado quedó respaldado en el scratchpad de la sesión (md5 `c96e5f3d`).

@@ -217,6 +217,9 @@ def recta(g, x1, y1, x2, y2, color, ancho_pt=0.75, dash=None, flecha=False):
     c.line.width = Pt(ancho_pt)
     if dash is not None:
         c.line.dash_style = dash
+    # el conector trae `effectRef idx="1"` y el theme del molde tiene sombra en las tres
+    # `effectStyle`: sin esto cada recta sale con una cola gris de ~0,07" hacia abajo
+    c.shadow.inherit = False
     if flecha:
         # la punta va DIBUJADA en el `a:ln`: Barlow no trae la flecha como glifo (K1)
         te = etree.SubElement(c.line._get_or_add_ln(), qn("a:tailEnd"))
@@ -224,6 +227,17 @@ def recta(g, x1, y1, x2, y2, color, ancho_pt=0.75, dash=None, flecha=False):
         te.set("w", "med")
         te.set("len", "med")
     return c
+
+
+def sin_efectos(g):
+    """Anula la referencia al efecto del theme en todo lo que haya dentro del grupo.
+
+    Las tres `effectStyle` del theme del molde traen sombra, y las formas de python-pptx la
+    referencian (`effectRef` 1 o 2). `shadow.inherit = False` escribe un `<a:effectLst/>` vacío,
+    que PowerPoint respeta y LibreOffice no: el PDF y el rasterizado de QA salían con sombra en
+    cada recta, bloque y marcador. Con `idx="0"` los visores dibujan lo mismo."""
+    for er in g._element.iter(qn("a:effectRef")):
+        er.set("idx", "0")
 
 
 def polilinea(g, pts, color, ancho_pt, dash=None):
@@ -343,7 +357,8 @@ def figura_o1(s, l, t, w, h, o1):
     W_TICK, W_PLOT, W_LAB = 0.62, 8.4, 1.45
     x0 = l + (w - (W_TICK + W_PLOT + W_LAB)) / 2.0 + W_TICK
     x1 = x0 + W_PLOT
-    H_BANDA = 0.40
+    # 0,44 y no 0,40: el título del eje y el titular de N = 500 quedaban a 0,04" del 100 %
+    H_BANDA = 0.44
     H_EJE = 0.10 + 2 * (_lt(FS_T) + 0.03) + 0.05 + _lt(FS_R)
     y_top = t + H_BANDA
     y_base = t + h - H_EJE
@@ -376,13 +391,18 @@ def figura_o1(s, l, t, w, h, o1):
             circulo(g, X(f["N"]), Y(f["pct_alcanzables"]), 0.095, COL_GRADO[gr], BLANCO, 1.0)
 
     # leyenda interna arriba a la izquierda: ahí las curvas no pasan del 20 %. Un rectángulo
-    # blanco detrás, para que la grilla no la cruce.
+    # blanco detrás, para que la grilla no la cruce, con filete del color de la grilla: sin él la
+    # línea del 75 % parecía cortada a mitad de eje. El filete queda a 0,09" del 100 % y del 50 %;
+    # con 0,02 el borde tapaba media línea de grilla.
     items = [(gr, "%s (%d alcanzables)" % (gr, f500[gr]["alcanzables"])) for gr in GRADOS]
     items.append((None, "p97,5 del nulo, en el color de su grado"))
     paso, w_m = 0.165, 0.34
-    lx, ly = x0 + 0.12, y_top + 0.05
+    lx, ly = x0 + 0.12, y_top + 0.14
     w_txt = max(text_w(txt, FS_L) for _, txt in items) + 0.20
-    _rect(g, lx - 0.06, ly - 0.03, w_m + 0.08 + w_txt + 0.06, paso * len(items) + 0.06, BLANCO)
+    caja = _rect(g, lx - 0.06, ly - 0.05, w_m + 0.08 + w_txt + 0.06, paso * len(items) + 0.10,
+                 BLANCO)
+    caja.line.color.rgb = LINEA
+    caja.line.width = Pt(0.75)
     for i, (gr, txt) in enumerate(items):
         yc = ly + paso * (i + 0.5)
         if gr is None:
@@ -425,6 +445,7 @@ def figura_o1(s, l, t, w, h, o1):
     rotulo(g, (x0 + x1) / 2.0, y_mm + _lt(FS_T) / 2.0 + 0.05 + _lt(FS_R) / 2.0,
            "N: núcleos epiteliales más grandes de cada lámina · mm²: superficie de los parches "
            "que los contienen, en promedio por lámina", FS_R, GRIS, alin=PP_ALIGN.CENTER)
+    sin_efectos(g)
     g._element.recalculate_extents()
     return g
 
@@ -439,7 +460,8 @@ def diagrama_o2(s, l, t, w, h):
     g = s.shapes.add_group_shape()
     FS_TIT, FS_Q, FS_N, FS_T = 11, 9.5, 9, 8.5
     tit_a = "Pleomorfismo nuclear del carcinoma invasivo: tres scores"
-    tit_bi = "Grado nuclear de CDIS: seis rasgos y un solo corte numérico"
+    # «un solo corte numérico» se leía contra el eje, que dibuja dos cortes: el único es el rasgo
+    tit_bi = "Grado nuclear de CDIS: seis rasgos, y solo el tamaño tiene corte numérico"
     tit_bd = "Componente mitótico: el único que es un conteo"
     eje_a = "más variación de tamaño y forma nuclear, contra el epitelio mamario normal"
     nota_bi = ("veces un núcleo epitelial ductal normal o un glóbulo rojo · el protocolo no dice "
@@ -515,6 +537,7 @@ def diagrama_o2(s, l, t, w, h):
         circulo(g, xr + col * (D_C + G_C) + D_C / 2.0, yc0 + fila * (D_C + G_C) + D_C / 2.0,
                 D_C, LINEA, SEP, 1.0)
     rotulo(g, xr, yc0 + 2 * D_C + G_C + 0.08 + _lt(FS_N) / 2.0, cap_bd, FS_N, GRIS)
+    sin_efectos(g)
     g._element.recalculate_extents()
     return g
 
@@ -611,6 +634,7 @@ def figura_o3(s, l, t, w, h, d):
     ly2 = ly + _lt(FS_T) + 0.07
     _rect(g, xt, ly2 - H_IC / 2.0, 0.26, H_IC, GRIS)
     rotulo(g, xt + 0.32, ly2, "IC 95 %, recortado a [0, 1]", FS_T, GRIS)
+    sin_efectos(g)
     g._element.recalculate_extents()
     return g
 
@@ -672,8 +696,22 @@ def tabla_preguntas(s, l, t, w, filas, fracs, fs=11):
 # ===========================================================================
 # Las láminas
 # ===========================================================================
+def cejilla(slide, tema):
+    """`set_cejilla` del B9, y además les saca a los colores de sus runs las transformaciones.
+
+    En s02 y s04 del molde el tema viene aclarado (`lumMod`/`lumOff` dentro del `srgbClr`), y
+    `font.color.rgb` cambia el `val` pero conserva los hijos: la cejilla de las dos tablas salía
+    `#97BEEB` y no `5293DE`. El B9 está cerrado y tiene el mismo tinte en su s2 y su s13."""
+    sh = set_cejilla(slide, tema)
+    for r in sh.text_frame.paragraphs[0].runs:
+        for clr in r._r.iter(qn("a:srgbClr")):
+            for hijo in list(clr):
+                clr.remove(hijo)
+    return sh
+
+
 def lamina_objetivos(s, o1, o3, guion):
-    set_cejilla(s, PROYECTO)
+    cejilla(s, PROYECTO)
     set_titulo(s, "OBJETIVOS " + PERIODO)
     gf = _shape(s, "Google Shape;196;p29")
     set_encabezado(gf, ["Objetivo", "Entregable", "Fecha", "Estado"])
@@ -701,7 +739,7 @@ def lamina_objetivos(s, o1, o3, guion):
 
 
 def lamina_o1(s, o1, esc, guion):
-    set_cejilla(s, "Grado nuclear")
+    cejilla(s, "Grado nuclear")
     set_titulo(s, "El tamaño solo reencuentra el alto grado", nombre="Text 1")
     f = {g: _o1(o1, 500, g) for g in GRADOS + ["total"]}
     fin = set_cuerpo(s, [
@@ -739,7 +777,7 @@ def lamina_o1(s, o1, esc, guion):
 
 
 def lamina_o2(s, guion):
-    set_cejilla(s, "Protocolo CAP")
+    cejilla(s, "Protocolo CAP")
     set_titulo(s, "El CAP no cuenta núcleos: mide variación", nombre="Text 1")
     fin = set_cuerpo(s, [
         ("Sin regla de cantidad ni de mayoría: ",
@@ -763,7 +801,7 @@ def lamina_o2(s, guion):
 
 
 def lamina_o3(s, d, guion):
-    set_cejilla(s, "Localización del CDIS")
+    cejilla(s, "Localización del CDIS")
     set_titulo(s, "La atención cae sobre el CDIS ya visto", nombre="Text 1")
     etq = d[d.tier != "fuera"]
     test = d[d.tier == "test"].iloc[0]
@@ -782,10 +820,12 @@ def lamina_o3(s, d, guion):
     ])
     n_it = int(d.n_iter_nulo.mode().iloc[0])
     n110 = int(d[d.slide == "110616"].n_iter_nulo.iloc[0])
+    # Unidad y AUC en dos párrafos: juntos envolvían y dejaban «anotada.» sola en un renglón
     pie = [
         "Unidad: parche. Un parche vale 1 si su centro cae dentro de un polígono de CDIS del "
-        "patólogo. AUC con la rama de la clase verdadera del checkpoint de un fold; la "
-        "B25-158899, sin etiqueta, con la rama si y confinada a su región anotada.",
+        "patólogo.",
+        "AUC con la rama de la clase verdadera del checkpoint de un fold; la B25-158899, sin "
+        "etiqueta, con la rama si y confinada a su región anotada.",
         "Relleno: p < 0,05 contra %d traslaciones rígidas (%d en la 110616, cuyo p queda en el "
         "piso de ese nulo). †: offset sin verificar." % (n_it, n110),
     ]
@@ -797,7 +837,7 @@ def lamina_o3(s, d, guion):
 
 
 def lamina_preguntas(s, esc, guion):
-    set_cejilla(s, "Preguntas abiertas")
+    cejilla(s, "Preguntas abiertas")
     set_titulo(s, "Cinco preguntas para decidir cómo seguir", nombre="Text 1")
     fin = set_cuerpo(s, [
         ("En orden de lo que cuesta si se contestan tarde: ",
@@ -841,7 +881,7 @@ def lamina_preguntas(s, esc, guion):
 
 
 def lamina_tareas(s, guion):
-    set_cejilla(s, PROYECTO)
+    cejilla(s, PROYECTO)
     set_titulo(s, "Tareas del próximo período")
     gf = _shape(s, "Google Shape;196;p29")
     set_encabezado(gf, ["Objetivo", "Entregable", "Fecha"])

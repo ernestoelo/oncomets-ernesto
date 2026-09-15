@@ -71,6 +71,9 @@ Barlow, las maniobras de la plantilla, el relleno en sitio y `auditar` / `barrer
   **`barrer_xml()`**, que barre el `.pptx` ya guardado: rayas, punto decimal, nombres y glifos
   fuera del cmap de Barlow.
 - **`leer_guion()` desenvuelve los párrafos** (§QA, hallazgo 1).
+- **`cejilla()`**, que envuelve la del B9 y le saca al color del tema el aclarado del molde (§QA, 5).
+- **`sin_efectos()`**, que anula la sombra del theme en las tres figuras, para PowerPoint y para
+  LibreOffice (§QA, 6 y 7).
 
 ## QA
 
@@ -83,7 +86,7 @@ Barlow, las maniobras de la plantilla, el relleno en sitio y `auditar` / `barrer
 | Solapes de primer nivel | ninguno entre cuerpo, figura, tabla y pie; la tinta de las siete cae dentro del área del molde |
 | Round-trip | 7 láminas en orden, notas en las 7 (1 a 6 párrafos), 301 `typeface="Barlow"` y ninguna otra tipografía en las láminas, 4 `.fntdata` en el paquete |
 | Cruce de contenido | las 24 cadenas esperadas presentes (22 láminas · 145 de 187 · 41 de 76 · 12 de 53 · 0 de 16 · no pasa de 3 · 0,755 · 0,704 · 0,201 …) y ninguna de las prohibidas («20 láminas», «9 de 9», «evita el CDIS», precisión, F1, «otra persona») |
-| **Mirar las láminas** | **PENDIENTE.** La sesión que lo construyó no pudo abrir imágenes: el hook que precede a `Read` no respondió en toda la sesión. Los rasterizados se le mandaron a Ernesto |
+| **Mirar las láminas** | Sesión 59, a 110 dpi y midiendo a 300 dpi lo sospechoso: seis defectos corregidos (5 a 10 abajo). Después, 0 formas con `effectRef` distinto de 0 y `qa_geometria.py` sin colisiones |
 
 ### Lo que encontró el QA
 
@@ -103,6 +106,25 @@ Barlow, las maniobras de la plantilla, el relleno en sitio y `auditar` / `barrer
 4. **Costuras del guion**: tres láminas seguidas abrían con «La … pregunta era», la de preguntas
    decía «Cierro con» y detrás viene Tareas, la tabla escribe «set completo» y el guion decía
    «conjunto», y «ensemble» iba sin glosar. Corregidos.
+5. **La cejilla de s02 y s07 salía `#97BEEB`**, no `5293DE`: en el molde el tema de esas láminas
+   viene aclarado con `lumMod`/`lumOff`, y `set_cejilla()` del B9 cambia el `val` sin sacarlos.
+   `cejilla()` los saca. El `.pptx` del B9 lo tiene en s2 y s13.
+6. **35 conectores con la sombra del theme**, cuyas tres `effectStyle` traen `outerShdw`: `recta()`
+   era la única primitiva sin `shadow.inherit = False`.
+7. **El rasterizado no mostraba el arreglo de 6**: LibreOffice dibuja la sombra del theme aunque la
+   forma traiga `<a:effectLst/>` vacío, así que el PDF y el QA tenían sombra en las 115 formas de
+   las figuras. `sin_efectos()` pone `effectRef idx="0"` en los tres grupos. Lo separó una copia
+   con los `effectRef` en 0: la grilla pasó de ~20 px de cola a 4 px.
+8. **«seis rasgos y un solo corte numérico»** se leía contra un eje que dibuja dos cortes. Dice
+   ahora «seis rasgos, y solo el tamaño tiene corte numérico», como el guion.
+9. **El pie de O3 dejaba «anotada.» sola en un renglón.** Unidad y AUC van en dos párrafos, con los
+   mismos tres renglones.
+10. **O1**: el título del eje y el titular de N = 500 quedaban a 0,04" de la línea del 100 % y la
+    leyenda tapaba media línea. La banda de cabecera pasa de 0,40 a 0,44, y la leyenda baja y
+    lleva filete del color de la grilla, porque sin sombra quedaba sin marco y la línea del 75 %
+    parecía cortada. Queda a 0,08" del 100 % y a 0,09" del 50 %.
+
+Lo descartado al medir está en `auditoria_coherencia/hallazgos.md`, sesión 59.
 
 `@humanizer-es` **no se corrió**: medido antes, el guion dio 1699 palabras, oración de 16,7 ± 7,8,
 cero párrafos que abren con «Y», cero vocabulario del clúster, cero dígitos y cero rayas. Es el

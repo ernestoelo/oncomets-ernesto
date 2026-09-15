@@ -155,6 +155,13 @@ plantilla **embebe Barlow** y un deck construido desde cero la pierde
 - La portada trae un «—» en el titular de la empresa. Es copy ajeno y no se edita, así que
   cualquier barrido de rayas ([[deck-estilo-sin-rayas-ni-palanca]]) **tiene que excluir s01** o
   reporta un falso positivo en cada corrida.
+- La cejilla de s02 y s04 trae el tema en **dos runs**: `LLM ` en `1B4F8C` aclarado con
+  `lumMod`/`lumOff` y `Spatial` en `5293DE` (verificado el 15-sep). `set_cejilla()` del B9 escribe
+  el tema sobre el primero, y cambiar el `val` **conserva el aclarado**: sale `#97BEEB`. Hay que
+  sacarle los hijos al `srgbClr` (`cejilla()` de `generate_b10_deck.py`).
+- **El theme trae sombra en sus tres `effectStyle`**, y las formas de python-pptx la referencian.
+  `shadow.inherit = False` alcanza para PowerPoint pero no para LibreOffice, que es el que hace el
+  PDF y el rasterizado de QA: además hay que poner `effectRef idx="0"` (`sin_efectos()` del B10).
 
 ### 7.c Tres restricciones que sólo aparecen al rellenarla de verdad
 
