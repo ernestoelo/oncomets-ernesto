@@ -4454,6 +4454,11 @@ con código 0, y el `.pptx` y su PDF se le mandaron a Ernesto.
   la relectura corrigió una premisa falsa (los mm² son de los parches, no de los núcleos) y tres
   costuras.
 - `qa_geometria.py`: tinta por renglón y colisiones dentro de los grupos. Sin avisos.
+- Dos apretados más, cazados por la tinta por renglón después del primer commit: los números
+  del eje x de O1 a 0,018" de sus ticks y los dos renglones de la cabecera de O3 a 0,009".
+  El método mostró además su propio falso positivo (L5): mide filas completas, así que junta
+  objetos que están a cuatro pulgadas de distancia, y ahora imprime la extensión horizontal
+  de cada banda.
 
 ### 2. Lo que no se pudo hacer
 
@@ -4466,12 +4471,14 @@ las capas automáticas. **Falta que Ernesto las mire antes del martes.**
 El round-trip mostró las notas partidas por renglón: el `.md` va envuelto y `notes()` hace un
 párrafo por salto de línea. Se corrigió en `leer_guion()` del B10. **El `.pptx` del B9 tiene el
 mismo defecto** (11 a 22 párrafos por lámina) y no se tocó. Detalle:
-`sprints/B10_sprint10/auditoria_coherencia/hallazgos.md`, sesión 58 (L1-L4).
+`sprints/B10_sprint10/auditoria_coherencia/hallazgos.md`, sesión 58 (L1-L5).
 
 ### 4. Estado
 
-Rama `main`, commit local sin push. Sin jobs propios. Pendiente inmediato: que Ernesto mire las
-siete láminas; después de la reunión, las respuestas a P1-P5 y si el B10 cierra.
+Rama `main`, **pusheada**: `3713c6d` (el deck), `aeb3fd0` (los dos apretados) y el commit de
+cierre. Sin jobs propios; los `Eval*` de la cola son de la cuenta compartida. Pendiente
+inmediato: que Ernesto mire las siete láminas; después de la reunión, las respuestas a P1-P5 y
+si el B10 cierra.
 
 ---
 
