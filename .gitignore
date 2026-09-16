@@ -163,3 +163,8 @@ results/**/hovernext/**/pred_*.tsv
 # en disco. Lo que se versiona es la verdad de campo chica: `marcas_grado.csv`, las 107 marcas
 # resueltas. Declarado asi en `sprints/B9_sprint9/ejes_nucleares/prereg.md` §5.
 results/b9_nucleos/*_nucleos.npz
+
+# Ventanas de `pinst_pp` para las laminas de imagen del deck del 15-sep
+# (`scripts/b10_deck_seleccion.py`): un recorte de la salida de HoVer-NeXt, que ya esta
+# gitignored, y se regeneran en 22 s. Se versiona `seleccion.json`.
+results/b10_deck_imagenes/*.npz
