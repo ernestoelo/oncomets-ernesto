@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 """generate_b10_deck.py — el deck de la reunión del martes 15-sep, sobre la plantilla oficial.
 
-Siete láminas: la portada tal cual, OBJETIVOS con los tres encargos del 7-sep, una lámina por
-encargo (O1, O2, O3), las cinco preguntas y Tareas. El método es el del B9: la plantilla se
+Once láminas: la portada tal cual, OBJETIVOS con los tres encargos del 7-sep, una lámina por
+encargo (O1, O2, O3), cuatro de imagen (qué detecta HoVer-NeXt, la carga de O1 sobre dos láminas,
+la galería de núcleos y los mapas de atención de O3), las cinco preguntas y Tareas. El método es el del B9: la plantilla se
 RELLENA en sitio (`docs/plantilla_oficial.md` §7) y el deck se construye sobre el `.pptx` del
 molde, que embebe Barlow ([[deck-template-fuentes-embebidas]]).
 

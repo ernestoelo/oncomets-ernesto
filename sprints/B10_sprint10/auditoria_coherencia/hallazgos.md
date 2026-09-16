@@ -259,7 +259,7 @@ ejecución agregado al plan, la fila del README del deck, la línea del mapa y `
 | S1 | La selección reproduce O1 **lámina por lámina**, no sólo en la suma: recall, `n_resueltas`, `n_candidatos`, carga y `alineada` de las 21 contra `escalera.csv` en N = 500 | verificación | gate 1 del script, más estricto que el 41 · 12 · 0 del plan |
 | S2 | La regla de s05 eligió la **129741** para alto (4 de 14 recuperadas), como anticipaba el handoff de la sesión 60 | declaración | no se cambió la regla; va declarada en el plan y tiene que ir en el pie |
 | S3 | El recorte de contexto de s03 trae **una instancia de clase mitosis** y tres neutrófilos | trampa de contenido | propuesta en el plan: «otras clases» en gris con conteo, para no nombrar mitosis |
-| S4 | El `node` de `envs/pruebas` no arranca (`libnode.so.141: undefined symbol: sqlite3session_attach`) y la skill `dataviz` trae sólo `validate_palette.js`; `figuras/README.md:43` cita un `validate_palette.py` que ya no viene | gotcha de entorno | memoria [[dataviz-validador-sin-node]]; la paleta de s03 queda sin validar |
+| S4 | El `node` de `envs/pruebas` no arranca (`libnode.so.141: undefined symbol: sqlite3session_attach`) y la skill `dataviz` trae sólo `validate_palette.js`; `figuras/README.md:43` cita un `validate_palette.py` que ya no viene | gotcha de entorno | memoria [[dataviz-validador-sin-node]]; la paleta de s03 queda sin validar. **Corregido en T1 (sesión 62): el `.py` sí viene** |
 | S5 | Con ventanas de 160 px la galería de s06 dibuja 1 a 3 núcleos del top 500 por panel | aviso de diseño | anotado en el plan como parámetro de dibujo, no de selección |
 
 **Enlaces**: los `[[...]]` nuevos resuelven. **Coherencia**: plan, README, mapa y `progress/`
@@ -290,3 +290,17 @@ el plan, el README del deck, el mapa y `progress/`.
 **Enlaces**: los `[[...]]` nuevos resuelven. **Coherencia**: plan, README, mapa y `progress/` dicen
 lo mismo (deck de 11 hecho y mirado; falta que lo mire Ernesto) y las decisiones de ejecución viven
 sólo en el plan.
+
+### Pasada de cierre (`@knowledge-audit`, acotada a la sesión 62)
+
+| id | hallazgo | tipo | acción |
+|---|---|---|---|
+| K1 | El docstring de `generate_b10_deck.py` seguía diciendo «Siete láminas» | stale | reescrito a once, con las cuatro de imagen |
+| K2 | `CLAUDE.md:1389` cuenta los decks sobre la plantilla oficial como «13 y 7» | stale | precisión aditiva: el del B10 pasó a 11 el 16-sep |
+| K3 | La fila S4 (sesión 61) y el plan §Estado, líneas de la 61, afirman que la skill no trae `validate_palette.py` | stale histórico | se conservan como registro; S4 lleva el puntero a T1 y el plan ya lo corrige en su encabezado |
+| K4 | Un PNG por panel, sin texto quemado, elimina **por construcción** el cruce de rótulos de [[sidecar-orden-no-es-el-de-la-figura]] | lección durable | ADDENDUM en esa memoria |
+| K5 | La rampa turbo de s09 contradice el «nunca arcoíris» de la skill `dataviz` | reconciliación | decisión declarada (continuidad con el mosaico del B9) en el plan; la confirma o la cambia Ernesto |
+| K6 | `[[humanizer-es]]` y `[[...]]` salían «rotos» al chequear por nombre de archivo | falso positivo | el primero resuelve por el `name` de `humanizer-es-skill.md`; el segundo es texto literal |
+
+Nada de esta sesión pide una regla nueva en `CLAUDE.md`: los dos gotchas (el vidrio teñido y el
+validador en Python) son de una función y de una skill, y viven en su memoria.

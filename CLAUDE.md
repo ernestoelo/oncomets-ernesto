@@ -1386,7 +1386,7 @@ plano. Estilo visual: `Modelo_OncoMets_Spatial_V1.pdf`. Estructura:
 > **Precisión 11-sep-2026:** «inglés» y «4 láminas» describen el **molde**, no el deck. Los dos
 > decks construidos sobre él van **en español** por decisión de Ernesto (B9 desde el 27-ago, B10
 > el 11-sep), con la portada tal cual porque es copy de la empresa, y con tantas láminas de
-> contenido como haga falta (13 y 7). [[plantilla-oficial-image-to-text]]
+> contenido como haga falta (13 y 7; el del B10 pasó a 11 el 16-sep). [[plantilla-oficial-image-to-text]]
 
 > **Aclaración 19-jul-2026 — no son dos plantillas, son dos CABECERAS de la
 > misma.** `Plantilla.pptx` (30 láminas) contiene las dos: la **Environ**
