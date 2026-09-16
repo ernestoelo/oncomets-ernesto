@@ -156,7 +156,8 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   y mismo archivo, **11 láminas** (las 7 intactas más cuatro de imagen: qué detecta HoVer-NeXt, O1
   sobre una lámina, O1 núcleo a núcleo y los mapas de atención de O3), todo en CPU y con gates
   contra los números ya medidos. Plan en
-  [`presentacion_b10/plan_deck_visual.md`](presentacion_b10/plan_deck_visual.md).
+  [`presentacion_b10/plan_deck_visual.md`](presentacion_b10/plan_deck_visual.md). Sesión 61: la
+  selección de recortes corrió con sus gates en verde; el render y las cuatro láminas siguen sin hacer.
 - **D2 no se pudo ejecutar y no se reemplazó** (9-sep) — **0 de 187** marcas de grado caen dentro de
   ninguna anotación, de ninguna clase. El brazo con máscara queda declarado **degenerado por
   construcción** y qué región corresponde es **pregunta para Sebastián**.

@@ -51,7 +51,7 @@ s07  Tareas del próximo período                tabla del molde, 1 fila (min_h 
 |---|---|
 | De Ernesto, 11-sep | español salvo la portada · 7 láminas · gráficos con shapes y no `add_chart` · una fila de tareas |
 | De Ernesto, 14-sep | O1 se queda en la lámina entera: no se re-corre confinado a la región anotada |
-| De Ernesto, 16-sep | **más visual**: se suman cuatro láminas de imagen (HoVer-NeXt, O1 sobre una lámina, O1 núcleo a núcleo, atención de O3) y el deck pasa a 11. Mismo período y mismo archivo. **Sin ejecutar**: [`plan_deck_visual.md`](plan_deck_visual.md). Hasta que se ejecute, la Estructura de abajo describe el deck de 7 |
+| De Ernesto, 16-sep | **más visual**: se suman cuatro láminas de imagen (HoVer-NeXt, O1 sobre una lámina, O1 núcleo a núcleo, atención de O3) y el deck pasa a 11. Mismo período y mismo archivo. **A medio ejecutar**: la selección de recortes corrió con sus gates en verde (sesión 61); el render y las cuatro láminas no. Estado y plan en [`plan_deck_visual.md`](plan_deck_visual.md). Hasta que se ejecute, la Estructura de abajo describe el deck de 7 |
 | La región mitótica | se dice sin nombrar a nadie, porque el dueño de esa línea es quien escucha: «quedó en la línea de mitosis con el reparto de la reunión pasada, y la necrosis sigue en espera» (cierra I1) |
 | Defaults del plan | nombre de archivo, período, fecha 22/09 y el diseño lámina por lámina del handoff de la sesión 55 §5 |
 

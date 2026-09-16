@@ -4438,6 +4438,37 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 61 — 16-sep-2026 · el deck visual, paso 1.a: la selección de recortes, con gates en verde
+
+**Misión**: ejecutar `sprints/B10_sprint10/presentacion_b10/plan_deck_visual.md`. La sesión escribió
+y corrió el primer script del plan y cerró por contexto, a pedido de Ernesto, antes del render.
+
+### 1. Lo hecho
+
+`scripts/b10_deck_seleccion.py` (env `pruebas`, 22 s) re-corre el orden por tamaño de O1 y elige
+los recortes con las reglas deterministas del plan, escritas en su docstring. Los dos gates pasan:
+las 21 láminas reproducen su fila de `escalera.csv` en N = 500, la suma da **41 · 12 · 0** y
+**76 · 53 · 16**, y en las 13 ventanas el píxel del centroide devuelve su id con la clase correcta.
+Salida en `results/b10_deck_imagenes/` (`seleccion.json` versionado, ventanas `.npz` gitignored).
+Qué eligió cada regla: tabla en el plan, §Estado de ejecución.
+
+### 2. Lo que queda abierto para la sesión siguiente
+
+- **Paleta de s03 sin validar**: el validador de `dataviz` es `.js` y el `node` de `pruebas` no
+  arranca ([[dataviz-validador-sin-node]]). Propuesta en el plan: tres clases con color y «otras»
+  en gris, que absorbe la única instancia de clase mitosis del recorte.
+- La galería de s06 queda rala a 160 px (1 a 3 núcleos del top 500 por panel).
+- Sin hacer: `scripts/b10_deck_imagenes.py` (paso 1.b, incluido el gate de los tres AUC de O3), los
+  cuatro builders y el guion (paso 2) y la verificación.
+
+### 3. Estado
+
+Rama `main`, sin jobs propios; los `Eval*` de la cola son de `sdonoso/Test_D/` y `sgaete` 5622
+corre. El `.pptx` en disco sigue siendo el de 7 láminas (md5 `b6217dcb`). Sigue sin preguntarse
+cómo salió la reunión del 15-sep y qué se contestó a P1-P5.
+
+---
+
 ## Sesión 60 — 16-sep-2026 · sesión de PLAN: el deck del 15-sep, más visual
 
 **Misión**: Ernesto miró el deck y no le gustó. Le faltan imágenes de los núcleos que detectó

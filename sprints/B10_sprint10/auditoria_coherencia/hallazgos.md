@@ -248,3 +248,20 @@ entrada en `progress/current.md`, K.a en `CLAUDE.md` y dos ADDENDUM de memoria.
 `progress/current.md` resuelve por el `name` de `humanizer-es-skill.md`, no por el archivo.
 **Coherencia**: el mapa, el README y `progress/` dicen lo mismo (11 láminas, cuatro imágenes, sin
 ejecutar) y apuntan al plan, que es el único lugar con el detalle.
+
+## Sesión 61 (16-sep-2026): pasada acotada al cierre, con el paso 1.a del plan ejecutado
+
+Alcance: `scripts/b10_deck_seleccion.py`, su salida en `results/b10_deck_imagenes/`, el estado de
+ejecución agregado al plan, la fila del README del deck, la línea del mapa y `.gitignore`.
+
+| id | hallazgo | tipo | acción |
+|---|---|---|---|
+| S1 | La selección reproduce O1 **lámina por lámina**, no sólo en la suma: recall, `n_resueltas`, `n_candidatos`, carga y `alineada` de las 21 contra `escalera.csv` en N = 500 | verificación | gate 1 del script, más estricto que el 41 · 12 · 0 del plan |
+| S2 | La regla de s05 eligió la **129741** para alto (4 de 14 recuperadas), como anticipaba el handoff de la sesión 60 | declaración | no se cambió la regla; va declarada en el plan y tiene que ir en el pie |
+| S3 | El recorte de contexto de s03 trae **una instancia de clase mitosis** y tres neutrófilos | trampa de contenido | propuesta en el plan: «otras clases» en gris con conteo, para no nombrar mitosis |
+| S4 | El `node` de `envs/pruebas` no arranca (`libnode.so.141: undefined symbol: sqlite3session_attach`) y la skill `dataviz` trae sólo `validate_palette.js`; `figuras/README.md:43` cita un `validate_palette.py` que ya no viene | gotcha de entorno | memoria [[dataviz-validador-sin-node]]; la paleta de s03 queda sin validar |
+| S5 | Con ventanas de 160 px la galería de s06 dibuja 1 a 3 núcleos del top 500 por panel | aviso de diseño | anotado en el plan como parámetro de dibujo, no de selección |
+
+**Enlaces**: los `[[...]]` nuevos resuelven. **Coherencia**: plan, README, mapa y `progress/`
+dicen lo mismo (selección hecha, render y láminas pendientes) y el detalle vive sólo en el plan.
+

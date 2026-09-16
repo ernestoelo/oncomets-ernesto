@@ -1,7 +1,42 @@
 # Plan: el deck del 15-sep, más visual
 
-> Escrito el 16-sep-2026, sesión 60 (sesión de PLAN). **Nada de esto está ejecutado.** Lo toma una
-> sesión limpia. Fuente única del plan: el handoff apunta acá.
+> Escrito el 16-sep-2026, sesión 60 (sesión de PLAN). Lo toma una sesión limpia. Fuente única del
+> plan: el handoff apunta acá.
+
+## Estado de ejecución
+
+**Sesión 61 (16-sep): paso 1.a EJECUTADO, con los dos gates en verde.** Falta todo lo demás: 1.b,
+el paso 2 y la verificación.
+
+`scripts/b10_deck_seleccion.py` (env `pruebas`, 22 s) escribió `results/b10_deck_imagenes/`:
+`seleccion.json` y 13 ventanas `.npz` (las ventanas están gitignored; se regeneran corriendo el
+script). Gate 1: cada una de las 21 láminas reproduce su fila de `escalera.csv` en N = 500 (recall,
+`n_resueltas`, `n_candidatos`, carga y `alineada`), y la suma da 41 · 12 · 0 y 76 · 53 · 16. Gate 2:
+en las 13 ventanas el píxel del centroide de `class_inst.json` devuelve su id y la clase coincide.
+
+Lo que eligieron las reglas, sin tocarlas:
+
+| lámina | elección |
+|---|---|
+| s03 | **124806**, marca 0 de alto grado: 112 núcleos epiteliales en su parche, recuperada en el puesto 8. Ventana de contexto 1076 px con 1801 núcleos: epitelial 1497 · conectivo 166 · linfocito 115 · plasmática 19 · neutrófilo 3 · **mitosis 1** · eosinófilo 0. El centro de 256 px: 110 epiteliales, 7 linfocitos, 3 conectivos |
+| s05 | alto **129741** (14 alcanzables, 4 recuperadas, 314 parches = 4,45 mm²) · bajo **103762** (9 alcanzables, 0 recuperadas, 271 parches = 3,84 mm²). La 129741 no es un ejemplo lucido y se declara |
+| s06 alto | recuperadas: 124806 puesto 1 · 106552 puesto 95 · 128194 puesto 477; no recuperadas: 129741 puesto 1085 · 124729 puesto 1517 |
+| s06 moderado | recuperadas: 141426-1 puesto 25 · 132208 puesto 285 · 128250 puesto 485; no recuperadas: 131461-1 puesto 1194 · 133677 puesto 4756 |
+| s06 bajo | no recuperadas: 110616 puesto 1145 · 103762 puesto 3097 |
+
+Decisiones abiertas para 1.b, que esta sesión no alcanzó a tomar:
+
+- **Paleta de s03.** La propuesta es tres clases con color (epitelial, linfocito, conectivo) y
+  «otras clases» en gris, que junta plasmática, neutrófilo y **la única de clase mitosis**: así la
+  imagen no dice «mitosis», que es la línea del supervisor, y la leyenda lleva los conteos. Colores
+  candidatos sobre tejido (`--surface "#e6c3d8"`, `--pairs all`): `#1baf7a,#eda100,#2a78d6`. **El
+  validador no corrió**: la skill `dataviz` trae sólo `validate_palette.js` y el `node` de
+  `envs/pruebas` revienta al cargar (`libnode.so.141: undefined symbol: sqlite3session_attach`).
+  El B10 validó sus rampas con un `validate_palette.py` que ya no viene en la skill.
+- **La galería queda rala.** Con 160 px (74 µm) cada ventana trae entre 1 y 3 núcleos del top 500,
+  contando el marcado. El contorno fino de «los demás del top 500» casi no aparece; si se quiere
+  más contexto, agrandar `LADO_GALERIA` es cambiar un parámetro de dibujo, no una regla de
+  selección, y el gate 2 se vuelve a correr.
 
 ## Por qué
 
