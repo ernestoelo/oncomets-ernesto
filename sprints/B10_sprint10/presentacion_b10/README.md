@@ -1,19 +1,30 @@
 # Deck de la reunión del 15-sep — `[20260915] [Ernesto Gamero] [Detección Nuclear].pptx`
 
 Deck del período 08/09 a 15/09 sobre la **plantilla oficial** (`docs/plantilla_oficial.md`), en
-español salvo la portada, que es copy de la empresa. Siete láminas: qué se pidió, los tres
-resultados, cinco preguntas y qué sigue. El contenido es el de
-[`../reunion_martes.md`](../reunion_martes.md) §1-§5.
+español salvo la portada, que es copy de la empresa. Once láminas: qué se pidió, qué detecta
+HoVer-NeXt, los tres resultados con sus imágenes, cinco preguntas y qué sigue. El contenido es el
+de [`../reunion_martes.md`](../reunion_martes.md) §1-§5; las cuatro láminas de imagen, de
+[`plan_deck_visual.md`](plan_deck_visual.md).
 
 | | |
 |---|---|
 | Fuente de verdad | `generate_b10_deck.py`. El `.pptx` es derivado y está gitignored (`.gitignore:55`) |
 | Guion | `guion_b10.md`, que el generador lee y aplica con `notes()`. El `.md` es la fuente |
 | Datos | `datos_o1()` y `datos_o3()` de `scripts/b10_figuras_o1_o3.py`, más `results/b10_grado_sin_marca/{escalera.csv,nulo.npz}` para el pie de O1 |
+| Imágenes | `assets/`: 24 PNG y `deck_imagenes.json`, de `scripts/b10_deck_seleccion.py` (env `pruebas`, elige y verifica contra O1) y `scripts/b10_deck_imagenes.py` (env `clam_latest`, dibuja y verifica los tres AUC de O3). El generador cruza el JSON contra O1 y O3 antes de dibujar |
 | Molde | `papers/presentations/[AAAAMMDD] [Nombre Apellido] [Image-to-text].pptx`, read-only |
 | QA geométrico | `qa_geometria.py` (§QA) |
 
 ## Regenerar
+
+Las imágenes, sólo si cambia la selección o el dibujo (22 s y ~100 s):
+
+```bash
+/home/sdonoso/miniconda3/envs/pruebas/bin/python scripts/b10_deck_seleccion.py
+CUDA_VISIBLE_DEVICES="" /home/sdonoso/miniconda3/envs/clam_latest/bin/python scripts/b10_deck_imagenes.py
+```
+
+El deck:
 
 ```bash
 cd sprints/B10_sprint10/presentacion_b10
@@ -36,14 +47,22 @@ pdftoppm -r 110 -png "<dir>/[20260915] [Ernesto Gamero] [Detección Nuclear].pdf
 ## Estructura
 
 ```
-s01  portada                                   TAL CUAL, sólo guion
-s02  OBJETIVOS 08/09/2026 - 15/09/2026         tabla del molde, 3 filas, Cerrado el 09/09
-s03  El tamaño solo reencuentra el alto grado  3 puntos + escalera O1 NATIVA (group shape)
-s04  El CAP no cuenta núcleos: mide variación  2 puntos + diagrama O2 NATIVO (group shape)
-s05  La atención cae sobre el CDIS ya visto    2 puntos + forest plot O3 NATIVO (group shape)
-s06  Cinco preguntas para decidir cómo seguir  1 punto + tabla de 5 filas, celdas de 2 párrafos
-s07  Tareas del próximo período                tabla del molde, 1 fila (min_h 1,0), fecha 22/09
+s01  portada                                      TAL CUAL, sólo guion
+s02  OBJETIVOS 08/09/2026 - 15/09/2026            tabla del molde, 3 filas, Cerrado el 09/09
+s03  HoVer-NeXt encuentra y clasifica cada núcleo 1 punto + contexto 500 µm y centro 119 µm + leyenda con conteos
+s04  El tamaño solo reencuentra el alto grado     3 puntos + escalera O1 NATIVA (group shape)
+s05  La carga de N = 500 sobre dos láminas        2 puntos + miniatura y zoom por lámina, leyenda de símbolos
+s06  Las marcas, núcleo a núcleo                  2 puntos + 12 paneles de 74 µm en dos filas por grado
+s07  El CAP no cuenta núcleos: mide variación     2 puntos + diagrama O2 NATIVO (group shape)
+s08  La atención cae sobre el CDIS ya visto       2 puntos + forest plot O3 NATIVO (group shape)
+s09  Dónde mira la atención en tres láminas       2 puntos + mapa y zoom de 1,9 mm por lámina, leyenda turbo
+s10  Cinco preguntas para decidir cómo seguir     1 punto + tabla de 5 filas, celdas de 2 párrafos
+s11  Tareas del próximo período                   tabla del molde, 1 fila (min_h 1,0), fecha 22/09
 ```
+
+Las cuatro de imagen (s03, s05, s06, s09) llevan todo lo que tiene letras o números nativo, y cada
+figura en un group shape. Los marcadores del guion son `## [s01]` a `## [s11]`, por número de
+lámina.
 
 ## Decisiones
 
@@ -51,7 +70,7 @@ s07  Tareas del próximo período                tabla del molde, 1 fila (min_h 
 |---|---|
 | De Ernesto, 11-sep | español salvo la portada · 7 láminas · gráficos con shapes y no `add_chart` · una fila de tareas |
 | De Ernesto, 14-sep | O1 se queda en la lámina entera: no se re-corre confinado a la región anotada |
-| De Ernesto, 16-sep | **más visual**: se suman cuatro láminas de imagen (HoVer-NeXt, O1 sobre una lámina, O1 núcleo a núcleo, atención de O3) y el deck pasa a 11. Mismo período y mismo archivo. **A medio ejecutar**: la selección de recortes corrió con sus gates en verde (sesión 61); el render y las cuatro láminas no. Estado y plan en [`plan_deck_visual.md`](plan_deck_visual.md). Hasta que se ejecute, la Estructura de abajo describe el deck de 7 |
+| De Ernesto, 16-sep | **más visual**: se suman cuatro láminas de imagen (HoVer-NeXt, O1 sobre una lámina, O1 núcleo a núcleo, atención de O3) y el deck pasa a 11. Mismo período y mismo archivo. **Ejecutado** en las sesiones 61 (selección) y 62 (render, láminas, guion y QA). Lo que se decidió al ejecutar está en [`plan_deck_visual.md`](plan_deck_visual.md) §Estado de ejecución |
 | La región mitótica | se dice sin nombrar a nadie, porque el dueño de esa línea es quien escucha: «quedó en la línea de mitosis con el reparto de la reunión pasada, y la necrosis sigue en espera» (cierra I1) |
 | Defaults del plan | nombre de archivo, período, fecha 22/09 y el diseño lámina por lámina del handoff de la sesión 55 §5 |
 
@@ -75,8 +94,25 @@ Barlow, las maniobras de la plantilla, el relleno en sitio y `auditar` / `barrer
 - **`cejilla()`**, que envuelve la del B9 y le saca al color del tema el aclarado del molde (§QA, 5).
 - **`sin_efectos()`**, que anula la sombra del theme en las tres figuras, para PowerPoint y para
   LibreOffice (§QA, 6 y 7).
+- **Las cuatro láminas de imagen** (`lamina_hovernext`, `lamina_o1_mapa`, `lamina_o1_galeria`,
+  `lamina_o3_mapas`): un PNG por panel puesto con su aspecto exacto (`foto()`), las líneas de
+  expansión desde el recuadro que guarda el JSON, y `leer_imagenes()`, que cruza ese JSON contra
+  O1 y O3 antes de dibujar.
 
 ## QA
+
+**Sesión 62, el deck de 11.** Imágenes: los gates de los dos scripts en verde (41 · 12 · 0,
+76 · 53 · 16, ids de `pinst_pp`, marcas dentro de su zoom y los tres AUC de O3 iguales a 1e-9).
+Generador: código 0, los cuatro auditores sin avisos, y el JSON de imágenes cruzado contra O1 y O3.
+Round-trip: 11 láminas en orden, notas en las 11 (1 a 6 párrafos), 441 `typeface="Barlow"` y
+ninguna otra, 4 `.fntdata`, las 26 cadenas esperadas de las láminas nuevas presentes, «mitosis»
+sólo en la cita del CAP de s07 y ningún dígito ni identificador de lámina en los bloques nuevos
+del guion. `qa_geometria.py` sin colisiones en las once (O1, O2 y O3 con los mismos conteos de la
+sesión 59). **Se miraron las once a 110 dpi**: cuatro correcciones antes de dar el deck por hecho,
+en `auditoria_coherencia/hallazgos.md`, sesión 62. `@humanizer-es` corrió sobre los párrafos
+nuevos; la lectura en voz alta es de Ernesto.
+
+La tabla de abajo es la del deck de 7 (sesión 59), y sigue valiendo para esas siete láminas.
 
 | Capa | Resultado |
 |---|---|

@@ -5,8 +5,27 @@
 
 ## Estado de ejecución
 
-**Sesión 61 (16-sep): paso 1.a EJECUTADO, con los dos gates en verde.** Falta todo lo demás: 1.b,
-el paso 2 y la verificación.
+**Sesión 62 (16-sep): paso 1.b, paso 2 y verificación EJECUTADOS.** El deck tiene 11 láminas,
+el generador sale con código 0 y las once se miraron rasterizadas. Lo que falta es de Ernesto:
+mirarlas y leer en voz alta los cuatro bloques nuevos del guion. Qué se decidió al ejecutar, que
+el plan no fijaba o fijaba de otra forma:
+
+| | decisión | por qué |
+|---|---|---|
+| Paleta de s03 | `#1baf7a` epitelial · `#eda100` linfocito · `#2a78d6` conectivo · `#555555` otras | **validada**: la skill `dataviz` 2.1.272 sí trae `validate_palette.py`, y corrió (PASS en banda, croma, CVD 9,1 y normal 22,9; WARN de contraste, que obliga a la leyenda nativa con conteos). El gris es el pliegue, a ΔE 20,6 de los tres |
+| Un PNG por panel | 24 PNG, sin texto quemado, con `deck_imagenes.json` | rótulo e imagen salen del mismo registro: no pueden cruzarse ni perder puntos al escalar |
+| s03 | contexto con el núcleo pintado, centro con contorno | a 3,4" un contorno de un píxel nativo del contexto mide 0,2 pt |
+| s05 | miniatura más zoom de 1,19 mm por lámina | las 14 marcas de la 129741 ocupan 1,8 × 1,0 mm: en la miniatura son un solo punto |
+| s06 | dos filas (recuperadas y no) con los grados como columnas; `LADO_GALERIA` sigue en 160 | paneles de ~1,2" y no ~0,9"; con eso el contorno fino es un píxel nativo (0,56 pt) y la galería no necesita más contexto |
+| s09 | mapa como localizador más zoom de 16 parches (1,9 mm) centrado en el polígono con más parches | los polígonos miden 0,2 a 0,5 mm y a escala de lámina no se ven |
+| s09 | percentil dentro del universo medido; rampa turbo del B9 | es el conjunto del AUC que se rotula, y la misma rampa del mosaico que ya vio la audiencia |
+
+Dos defectos de funciones reusadas, arreglados **afuera** sin tocarlas: `read_region` deja el
+perfil ICC del `.bif` (1,8 MB) colgado de la imagen, y `build_overlay_rgba` pinta el vidrio con el
+color de la atención cero. El segundo **está en el mosaico del B9**, que no se toca
+(`auditoria_coherencia/hallazgos.md`, sesión 62).
+
+**Sesión 61 (16-sep): paso 1.a EJECUTADO, con los dos gates en verde.**
 
 `scripts/b10_deck_seleccion.py` (env `pruebas`, 22 s) escribió `results/b10_deck_imagenes/`:
 `seleccion.json` y 13 ventanas `.npz` (las ventanas están gitignored; se regeneran corriendo el
@@ -24,7 +43,7 @@ Lo que eligieron las reglas, sin tocarlas:
 | s06 moderado | recuperadas: 141426-1 puesto 25 · 132208 puesto 285 · 128250 puesto 485; no recuperadas: 131461-1 puesto 1194 · 133677 puesto 4756 |
 | s06 bajo | no recuperadas: 110616 puesto 1145 · 103762 puesto 3097 |
 
-Decisiones abiertas para 1.b, que esta sesión no alcanzó a tomar:
+Decisiones que la sesión 61 dejó abiertas, **resueltas en la 62** (tabla de arriba; el validador en Python sí viene en la skill):
 
 - **Paleta de s03.** La propuesta es tres clases con color (epitelial, linfocito, conectivo) y
   «otras clases» en gris, que junta plasmática, neutrófilo y **la única de clase mitosis**: así la

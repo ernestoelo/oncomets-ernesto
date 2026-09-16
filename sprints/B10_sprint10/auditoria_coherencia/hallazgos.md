@@ -265,3 +265,28 @@ ejecución agregado al plan, la fila del README del deck, la línea del mapa y `
 **Enlaces**: los `[[...]]` nuevos resuelven. **Coherencia**: plan, README, mapa y `progress/`
 dicen lo mismo (selección hecha, render y láminas pendientes) y el detalle vive sólo en el plan.
 
+
+## Sesión 62 (16-sep-2026): el deck visual ejecutado, con las once láminas miradas
+
+Alcance: `scripts/b10_deck_imagenes.py`, `assets/` del deck, los cuatro builders de
+`generate_b10_deck.py`, `guion_b10.md` (cuatro bloques nuevos y dos costuras), `qa_geometria.py`,
+el plan, el README del deck, el mapa y `progress/`.
+
+| id | hallazgo | tipo | acción |
+|---|---|---|---|
+| T1 | La skill `dataviz` 2.1.272 **sí** trae `validate_palette.py`; la sesión 61 dijo que no | corrección de memoria | la paleta de s03 se validó con él; memoria [[dataviz-validador-sin-node]] actualizada |
+| T2 | `build_overlay_rgba` (`mammoth_interpretability.py`) marca como cubierto **todo** píxel (`max(c, 1)` antes de `c > 0`), así que el vidrio recibe turbo(0) al 45 %. El mosaico de atención del **B9** tiene el vidrio en (150, 135, 154), que es exactamente eso | defecto en función compartida | arreglado **afuera**, en `overlay_mapa()`; el B9 está cerrado y no se toca. También la usan `overlay_anotaciones_atencion.py` y `slot_heatmaps_contraste.py`. Memoria [[overlay-atencion-tine-el-vidrio]] |
+| T3 | `read_region` le cuelga a la imagen el perfil ICC del `.bif` (1,8 MB) y `resize` lo arrastra: sólo los dos zooms de s05 lo traían | gotcha | `guardar()` lo saca; todos los assets en RGB crudo, como los del B9 |
+| T4 | Redondear el origen del zoom de s05 a la grilla le comía hasta medio parche al margen; el gate lo cazó en la 129741 | gate | un tercer parche de holgura, que garantiza uno por lado |
+| T5 | De los 314 parches de la carga de la 129741, **161** caen en la región de escaneo con marcas y el resto en la otra | declaración | pie y guion de s05 |
+| T6 | En la B25-158899 uno de los tres polígonos de CDIS no contiene el centro de ningún parche, y en el zoom cae sobre el vidrio | observación | cuerpo y guion de s09, como compatible con un dibujo corrido y sin afirmar la causa |
+| M1 | s06 truncaba los percentiles (98,7) y el guion y la selección los redondean (98,8) | inconsistencia, mirando | redondeo, con un aborto si algo menor que 100 se leyera como 100,0 |
+| M2 | Los zooms de s09 salían de 1,85": cuerpo de tres renglones, pie de tres y mapa de 0,8" | layout, mirando | un renglón por punto, pie a dos, mapa a 0,62": ~2,5" |
+| M3 | En la leyenda de s09 el texto tocaba el óvalo del polígono | colisión, mirando | texto a 0,34" |
+| M4 | Los cuerpos de s03 y s05 dejaban una palabra sola en el último renglón, y los símbolos de marca de los PNG eran más chicos que los de la leyenda | layout, mirando | cuerpos recortados; marcas de radio 9 a 14 (s03) y 13 a 18 (s05) |
+| M5 | Con paneles de ~1" el rótulo «puesto · lámina · percentil» no entraba | layout | la lámina sale del rótulo de s06 (queda en el JSON y el pie dice una por panel) |
+| Q1 | `qa_geometria.py` buscaba `r-1.png` y `pdftoppm` numera `r-01` desde diez páginas | herramienta | acepta el ancho con ceros |
+
+**Enlaces**: los `[[...]]` nuevos resuelven. **Coherencia**: plan, README, mapa y `progress/` dicen
+lo mismo (deck de 11 hecho y mirado; falta que lo mire Ernesto) y las decisiones de ejecución viven
+sólo en el plan.

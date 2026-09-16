@@ -151,13 +151,14 @@ Una línea por asunto cerrado. El detalle está en el enlace.
   miraron en la sesión 59** (M1-M6 de `auditoria_coherencia/hallazgos.md`): seis defectos
   corregidos, uno de ellos del visor (LibreOffice dibuja una sombra del theme que PowerPoint no), y
   el `.pptx` regenerado reemplaza al que se le mandó a Ernesto.
-- **El deck del 15-sep se rehace más visual, planificado y sin ejecutar** (16-sep) — a Ernesto le
+- **El deck del 15-sep se rehizo más visual: 11 láminas** (16-sep) — a Ernesto le
   faltaban imágenes de los núcleos de HoVer-NeXt y resultados a la vista. Decisiones: mismo período
   y mismo archivo, **11 láminas** (las 7 intactas más cuatro de imagen: qué detecta HoVer-NeXt, O1
   sobre una lámina, O1 núcleo a núcleo y los mapas de atención de O3), todo en CPU y con gates
   contra los números ya medidos. Plan en
   [`presentacion_b10/plan_deck_visual.md`](presentacion_b10/plan_deck_visual.md). Sesión 61: la
-  selección de recortes corrió con sus gates en verde; el render y las cuatro láminas siguen sin hacer.
+  selección de recortes; sesión 62: el render (`scripts/b10_deck_imagenes.py`, gates en verde), las
+  cuatro láminas, el guion y el QA mirando las once. Falta que Ernesto las mire.
 - **D2 no se pudo ejecutar y no se reemplazó** (9-sep) — **0 de 187** marcas de grado caen dentro de
   ninguna anotación, de ninguna clase. El brazo con máscara queda declarado **degenerado por
   construcción** y qué región corresponde es **pregunta para Sebastián**.

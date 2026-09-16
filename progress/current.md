@@ -4438,6 +4438,37 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 62 — 16-sep-2026 · el deck visual ejecutado: once láminas, con las cuatro de imagen miradas
+
+**Misión**: seguir `sprints/B10_sprint10/presentacion_b10/plan_deck_visual.md` desde el paso 1.b.
+
+### 1. Lo hecho
+
+`scripts/b10_deck_imagenes.py` (env `clam_latest`, ~100 s) dibuja 24 PNG, uno por panel y sin
+texto quemado, con `deck_imagenes.json` en `presentacion_b10/assets/`. Sus gates pasan: ventanas
+iguales a la selección, marcas dentro de su zoom y los tres AUC de O3 (0,929 · 0,704 · 0,201)
+reproducidos a 1e-9 con los mismos scores que se dibujan. El generador suma cuatro láminas
+(s03 HoVer-NeXt, s05 carga sobre dos láminas, s06 galería, s09 mapas con zoom), sale con código 0 y
+cruza el JSON contra O1 y O3. El guion se renumeró por lámina (`[s01]` a `[s11]`), con cuatro
+bloques nuevos pasados por `@humanizer-es`. Las once se miraron a 110 dpi y salieron cinco
+correcciones de layout; decisiones de ejecución en el plan, §Estado de ejecución.
+
+### 2. Lo que encontró
+
+- La paleta de s03 **sí** se pudo validar: la skill trae el gemelo en Python.
+- `build_overlay_rgba` tiñe el vidrio de violeta, y el mosaico del B9 lo tiene
+  ([[overlay-atencion-tine-el-vidrio]]); arreglado afuera, el B9 no se tocó.
+- En la 129741, 161 de los 314 parches de la carga caen en la región con marcas; en la
+  B25-158899, un polígono de CDIS cae sobre el vidrio. Los dos van declarados en su lámina.
+
+### 3. Estado
+
+Rama `main`, sin jobs propios. El `.pptx` de 7 láminas quedó en el scratchpad de la sesión
+(md5 `b6217dcb`); el de 11 está en disco (gitignored). Falta que Ernesto mire las cuatro láminas
+nuevas y lea en voz alta sus bloques. Sigue sin preguntarse cómo salió la reunión del 15-sep.
+
+---
+
 ## Sesión 61 — 16-sep-2026 · el deck visual, paso 1.a: la selección de recortes, con gates en verde
 
 **Misión**: ejecutar `sprints/B10_sprint10/presentacion_b10/plan_deck_visual.md`. La sesión escribió
