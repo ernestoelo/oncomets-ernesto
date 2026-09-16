@@ -4438,6 +4438,38 @@ Nada del plan se ejecutó: la sesión siguiente arranca por la Fase A.
 
 ---
 
+## Sesión 60 — 16-sep-2026 · sesión de PLAN: el deck del 15-sep, más visual
+
+**Misión**: Ernesto miró el deck y no le gustó. Le faltan imágenes de los núcleos que detectó
+HoVer-NeXt, y quiere algo más visual y con más resultados a la vista. La sesión estudió qué se puede
+dibujar con lo que hay en disco y dejó el plan escrito. **No se ejecutó nada**; el cierre lo pidió
+Ernesto para que lo tome una sesión limpia.
+
+### 1. Lo decidido
+
+Se rehace el deck del 15-sep con el mismo período y el mismo archivo, y pasa de 7 a **11 láminas**:
+las siete quedan intactas y se suman cuatro de imagen, que son qué detecta HoVer-NeXt, O1 sobre una
+lámina, O1 núcleo a núcleo y los mapas de atención de O3. Todo corre en CPU, sin medición nueva y con
+gates contra los números ya publicados. Plan: `sprints/B10_sprint10/presentacion_b10/plan_deck_visual.md`.
+
+### 2. Tres hechos verificados que el plan hereda
+
+- **`envs/pruebas` no abre los `.bif`**: su openslide es el wheel `openslide-bin` 4.0.1 stock, que
+  carga su propia biblioteca. Con zarr en un env y los `.bif` en otro, el trabajo se parte en dos
+  scripts ([[openslide-parchado-bif-env-nuevo]]).
+- **`results/b9_nucleos/marcas_grado.csv` trae sólo las 12 láminas del B9**: las marcas de las 9
+  nuevas salen del geojson, como en O1.
+- **Con los pesos de Lizard, HoVer-NeXt pinta el epitelial en rojo**, no en verde:
+  `viz_utils.create_geojson` usa `COLORS_LIZARD[clase - 1]`. El docstring de
+  `scripts/b9_galeria_regiones_epi.py:10-11` lo atribuye mal; el B9 está cerrado y no se tocó.
+
+### 3. Estado
+
+Rama `main`, sin jobs propios; los `Eval*` de la cola son de `sdonoso/Test_D/`. Siguen abiertos,
+sin cambios, las respuestas de la reunión a P1-P5 y si el B10 cierra.
+
+---
+
 ## Sesión 59 — 15-sep-2026 · las siete láminas miradas: seis defectos corregidos, y uno era del visor
 
 **Misión**: la capa que la 58 no pudo correr, mirar el deck del martes. Esta sesión tuvo `Read`

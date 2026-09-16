@@ -228,3 +228,23 @@ del mapa se corrigió. Ningún documento ni memoria afirmaba que `shadow.inherit
 habla de tipografía, y la infidelidad con los efectos vive en `docs/plantilla_oficial.md` §7.b.
 Puntero nuevo en [[plantilla-oficial-image-to-text]] y descripción de [[deck-qa-puntos-ciegos-chequeo]]
 actualizada en `MEMORY.md`.
+
+---
+
+## Sesión 60 (16-sep-2026): pasada acotada al cierre de una sesión de plan
+
+Alcance: lo que tocó la sesión, que no ejecutó nada. El plan del deck más visual
+(`presentacion_b10/plan_deck_visual.md`), su línea en el mapa, su fila en el README del deck, la
+entrada en `progress/current.md`, K.a en `CLAUDE.md` y dos ADDENDUM de memoria.
+
+| id | hallazgo | tipo | acción |
+|---|---|---|---|
+| N1 | **`envs/pruebas` no abre los `.bif`**. Su openslide es el wheel `openslide-bin` 4.0.1 stock, verificado sobre la 129741. [[hovernext-salida-geometria-y-clases]] lo recomendaba por traer zarr, pandas «y openslide», que invita a leer la WSI desde el mismo proceso | error por omisión | precisión en esa memoria, ADDENDUM en [[openslide-parchado-bif-env-nuevo]], K.a en `CLAUDE.md` e índice actualizado |
+| N2 | [[atencion-doce-laminas-folds-limpios]]:117 ya decía el 1-sep que `pruebas` no tiene la `libopenslide` parchada | reconciliación | no contradice N1: lo nuevo es el mecanismo del wheel. Puntero cruzado desde la memoria de openslide |
+| N3 | `scripts/b9_galeria_regiones_epi.py:10-11` atribuye a HoVer-NeXt «verde `epi`, naranja `con`». Con Lizard, `viz_utils.create_geojson` pinta `COLORS_LIZARD[clase - 1]`, así que epitelial es rojo; el verde es de PanNuke | error de atribución en un script cerrado | no se toca (B9 cerrado). Declarado en el plan para que el script nuevo no lo copie |
+| N4 | `results/b9_nucleos/marcas_grado.csv` trae sólo las 12 láminas del B9 | trampa para el plan | declarada en el plan: las marcas de las 9 nuevas salen de `marcas_de_grado` |
+
+**Enlaces**: todos los `[[...]]` de los archivos tocados resuelven. El `[[humanizer-es]]` de
+`progress/current.md` resuelve por el `name` de `humanizer-es-skill.md`, no por el archivo.
+**Coherencia**: el mapa, el README y `progress/` dicen lo mismo (11 láminas, cuatro imágenes, sin
+ejecutar) y apuntan al plan, que es el único lugar con el detalle.

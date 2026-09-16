@@ -338,6 +338,10 @@ aplicar el fix correspondiente sin investigar de nuevo.
   resuelve sus deps dentro del env nuevo, así que no arrastra nada de
   `clam_latest` en runtime. Cazado por el preflight de la fase 2 del B8, en
   segundos y antes de pedir GPU. Memoria [[openslide-parchado-bif-env-nuevo]].
+- **K.a: `envs/pruebas` tampoco abre los `.bif`** (16-sep-2026). Tiene zarr, pandas y
+  openslide, pero es el wheel `openslide-bin` 4.0.1 stock, que carga su propia
+  biblioteca: copiar la `.so` a `$ENVP/lib` no garantiza el arreglo. Para cruzar
+  `pinst_pp` con el tejido, dos procesos: zarr en `pruebas`, la lámina en `clam_latest`.
 
 ### L. Un job `PD (Priority)` puede NO estar esperando su turno
 
