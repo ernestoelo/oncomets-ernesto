@@ -1,0 +1,492 @@
+{
+ "plan": "sprints/B10_sprint10/presentacion_b10/plan_deck_visual.md",
+ "seleccion": "results/b10_deck_imagenes/seleccion.json",
+ "mpp": 0.465,
+ "n_carga": 500,
+ "paleta": {
+  "grupos": [
+   {
+    "grupo": "epitelial",
+    "color": "#1baf7a"
+   },
+   {
+    "grupo": "linfocito",
+    "color": "#eda100"
+   },
+   {
+    "grupo": "conectivo",
+    "color": "#2a78d6"
+   },
+   {
+    "grupo": "otras",
+    "color": "#555555"
+   }
+  ],
+  "validacion": "validate_palette.py --mode light --surface #e6c3d8 --pairs all sobre los tres tonos: PASS banda, croma, CVD 9,1, normal 22,9; WARN contraste (leyenda nativa)"
+ },
+ "s03": {
+  "slide": "124806",
+  "marca": {
+   "slide": "124806",
+   "marca": 0,
+   "grado": "alto",
+   "x": 22187.797872340427,
+   "y": 8378.574468085106,
+   "alineada": true,
+   "estado": "recuperada",
+   "inst_pos": 72308,
+   "inst_id": 96428,
+   "puesto": 8,
+   "percentil": 99.99301550557762,
+   "area_um2": 275.90310000000005
+  },
+  "grupos": [
+   {
+    "grupo": "epitelial",
+    "clases": [
+     "epithelial-cell"
+    ],
+    "color": "#1baf7a"
+   },
+   {
+    "grupo": "linfocito",
+    "clases": [
+     "lymphocyte"
+    ],
+    "color": "#eda100"
+   },
+   {
+    "grupo": "conectivo",
+    "clases": [
+     "connective-tissue-cell"
+    ],
+    "color": "#2a78d6"
+   },
+   {
+    "grupo": "otras",
+    "clases": [
+     "neutrophil",
+     "plasma-cell",
+     "eosinophil",
+     "mitosis"
+    ],
+    "color": "#555555"
+   }
+  ],
+  "orden_dibujo": [
+   {
+    "png": "s03_contexto.png",
+    "que": "contexto",
+    "lado_px": 1076,
+    "lado_um": 500.34000000000003,
+    "n_nucleos": 1801,
+    "por_grupo": {
+     "epitelial": 1497,
+     "linfocito": 115,
+     "conectivo": 166,
+     "otras": 23
+    },
+    "recuadro_centro_px": [
+     410,
+     410,
+     256
+    ],
+    "recuadro_px": [
+     405,
+     405,
+     671,
+     671
+    ]
+   },
+   {
+    "png": "s03_centro.png",
+    "que": "centro",
+    "lado_px": 256,
+    "lado_um": 119.04,
+    "ampliacion": 4,
+    "n_nucleos": 120,
+    "por_grupo": {
+     "epitelial": 110,
+     "linfocito": 7,
+     "conectivo": 3,
+     "otras": 0
+    }
+   }
+  ],
+  "conteo": "núcleos con al menos un píxel dentro de la ventana"
+ },
+ "s05": {
+  "orden_dibujo": [
+   {
+    "grado": "alto",
+    "slide": "129741",
+    "carga_mm2": 4.4495437824,
+    "n_parches": 314,
+    "cuenta": {
+     "recuperada": 4,
+     "no_recuperada": 10,
+     "no_alcanzable": 0
+    },
+    "n_marcas": 14,
+    "miniatura": {
+     "png": "s05_alto_miniatura.png",
+     "recuadro_px": [
+      68.93308994318049,
+      1057.294705227402,
+      120.35459519087965,
+      1108.716210475101
+     ],
+     "lado_mm": [
+      16.12157835365854,
+      36.23605925304878
+     ]
+    },
+    "zoom": {
+     "png": "s05_alto_zoom.png",
+     "origen_px": [
+      8192,
+      70400
+     ],
+     "lado_px": 2560,
+     "lado_mm": 1.1904000000000001,
+     "parches_en_zoom": 10
+    }
+   },
+   {
+    "grado": "bajo",
+    "slide": "103762",
+    "carga_mm2": 3.8402113536000004,
+    "n_parches": 271,
+    "cuenta": {
+     "recuperada": 0,
+     "no_recuperada": 9,
+     "no_alcanzable": 0
+    },
+    "n_marcas": 9,
+    "miniatura": {
+     "png": "s05_bajo_miniatura.png",
+     "recuadro_px": [
+      800.1357734595114,
+      218.76736852678536,
+      905.7888436790053,
+      324.4204387462793
+     ],
+     "lado_mm": [
+      15.25289023255814,
+      13.094807441860464
+     ]
+    },
+    "zoom": {
+     "png": "s05_bajo_zoom.png",
+     "origen_px": [
+      41216,
+      6144
+     ],
+     "lado_px": 2560,
+     "lado_mm": 1.1904000000000001,
+     "parches_en_zoom": 17
+    }
+   }
+  ],
+  "lado_zoom_px": 2560
+ },
+ "s06": {
+  "orden_dibujo": [
+   {
+    "png": "s06_alto_0.png",
+    "grado": "alto",
+    "columna": "recuperada:mínimo",
+    "slide": "124806",
+    "estado": "recuperada",
+    "puesto": 1,
+    "percentil": 100.0,
+    "area_um2": 337.52722500000004,
+    "n_top500_en_ventana": 2,
+    "lado_px": 160,
+    "lado_um": 74.4
+   },
+   {
+    "png": "s06_alto_1.png",
+    "grado": "alto",
+    "columna": "recuperada:mediano",
+    "slide": "106552",
+    "estado": "recuperada",
+    "puesto": 95,
+    "percentil": 98.92325315005728,
+    "area_um2": 61.407900000000005,
+    "n_top500_en_ventana": 2,
+    "lado_px": 160,
+    "lado_um": 74.4
+   },
+   {
+    "png": "s06_alto_2.png",
+    "grado": "alto",
+    "columna": "recuperada:máximo",
+    "slide": "128194",
+    "estado": "recuperada",
+    "puesto": 477,
+    "percentil": 98.89387214463319,
+    "area_um2": 93.625425,
+    "n_top500_en_ventana": 2,
+    "lado_px": 160,
+    "lado_um": 74.4
+   },
+   {
+    "png": "s06_alto_3.png",
+    "grado": "alto",
+    "columna": "no_recuperada:primer cuartil",
+    "slide": "129741",
+    "estado": "no_recuperada",
+    "puesto": 1085,
+    "percentil": 98.76187865497076,
+    "area_um2": 126.05917500000002,
+    "n_top500_en_ventana": 0,
+    "lado_px": 160,
+    "lado_um": 74.4
+   },
+   {
+    "png": "s06_alto_4.png",
+    "grado": "alto",
+    "columna": "no_recuperada:mediano",
+    "slide": "124729",
+    "estado": "no_recuperada",
+    "puesto": 1517,
+    "percentil": 97.60879509140523,
+    "area_um2": 74.59762500000001,
+    "n_top500_en_ventana": 0,
+    "lado_px": 160,
+    "lado_um": 74.4
+   },
+   {
+    "png": "s06_moderado_0.png",
+    "grado": "moderado",
+    "columna": "recuperada:mínimo",
+    "slide": "141426-1",
+    "estado": "recuperada",
+    "puesto": 25,
+    "percentil": 99.94090853133079,
+    "area_um2": 134.708175,
+    "n_top500_en_ventana": 1,
+    "lado_px": 160,
+    "lado_um": 74.4
+   },
+   {
+    "png": "s06_moderado_1.png",
+    "grado": "moderado",
+    "columna": "recuperada:mediano",
+    "slide": "132208",
+    "estado": "recuperada",
+    "puesto": 285,
+    "percentil": 98.75219683655536,
+    "area_um2": 62.27280000000001,
+    "n_top500_en_ventana": 0,
+    "lado_px": 160,
+    "lado_um": 74.4
+   },
+   {
+    "png": "s06_moderado_2.png",
+    "grado": "moderado",
+    "columna": "recuperada:máximo",
+    "slide": "128250",
+    "estado": "recuperada",
+    "puesto": 485,
+    "percentil": 99.44740026944946,
+    "area_um2": 115.03170000000001,
+    "n_top500_en_ventana": 0,
+    "lado_px": 160,
+    "lado_um": 74.4
+   },
+   {
+    "png": "s06_moderado_3.png",
+    "grado": "moderado",
+    "columna": "no_recuperada:primer cuartil",
+    "slide": "131461-1",
+    "estado": "no_recuperada",
+    "puesto": 1194,
+    "percentil": 98.83217823720584,
+    "area_um2": 85.84132500000001,
+    "n_top500_en_ventana": 0,
+    "lado_px": 160,
+    "lado_um": 74.4
+   },
+   {
+    "png": "s06_moderado_4.png",
+    "grado": "moderado",
+    "columna": "no_recuperada:mediano",
+    "slide": "133677",
+    "estado": "no_recuperada",
+    "puesto": 4756,
+    "percentil": 78.90604205483098,
+    "area_um2": 31.56885,
+    "n_top500_en_ventana": 1,
+    "lado_px": 160,
+    "lado_um": 74.4
+   },
+   {
+    "png": "s06_bajo_0.png",
+    "grado": "bajo",
+    "columna": "no_recuperada:primer cuartil",
+    "slide": "110616",
+    "estado": "no_recuperada",
+    "puesto": 1145,
+    "percentil": 76.29997928319868,
+    "area_um2": 40.217850000000006,
+    "n_top500_en_ventana": 1,
+    "lado_px": 160,
+    "lado_um": 74.4
+   },
+   {
+    "png": "s06_bajo_1.png",
+    "grado": "bajo",
+    "columna": "no_recuperada:mediano",
+    "slide": "103762",
+    "estado": "no_recuperada",
+    "puesto": 3097,
+    "percentil": 89.3045911493419,
+    "area_um2": 33.731100000000005,
+    "n_top500_en_ventana": 2,
+    "lado_px": 160,
+    "lado_um": 74.4
+   }
+  ]
+ },
+ "s09": {
+  "orden_dibujo": [
+   {
+    "slide": "124729",
+    "tier": "train",
+    "rama": "verdadera:si",
+    "universo": "lamina",
+    "alineada": true,
+    "auc": 0.9292117038586704,
+    "ic95_lo": 0.8675017159664684,
+    "ic95_hi": 0.9909216917508724,
+    "p_nulo": 0.0049751243781094,
+    "n_parches": 4334,
+    "n_marcados": 32,
+    "n_poligonos": 5,
+    "mapa": {
+     "png": "s09_train_124729_mapa.png",
+     "recuadro_px": [
+      481.3740000600531,
+      1000.7838093766409,
+      653.3595091850812,
+      1172.7693185016687
+     ],
+     "lado_mm": [
+      14.0150104875,
+      14.2860938625
+     ]
+    },
+    "zoom": {
+     "png": "s09_train_124729_zoom.png",
+     "origen_px": [
+      27507,
+      25776
+     ],
+     "lado_px": 4096,
+     "lado_mm": 1.90464,
+     "poligono": 1,
+     "parches_positivos_del_poligono": 10,
+     "parches_por_poligono": [
+      9,
+      10,
+      8,
+      3,
+      2
+     ],
+     "parches_en_zoom": 173
+    }
+   },
+   {
+    "slide": "126504",
+    "tier": "test",
+    "rama": "verdadera:si",
+    "universo": "lamina",
+    "alineada": true,
+    "auc": 0.7037205081669692,
+    "ic95_lo": 0.2969118936243138,
+    "ic95_hi": 1.1105291227096246,
+    "p_nulo": 0.308457711442786,
+    "n_parches": 4410,
+    "n_marcados": 2,
+    "n_poligonos": 1,
+    "mapa": {
+     "png": "s09_test_126504_mapa.png",
+     "recuadro_px": [
+      926.878520187199,
+      96.15093864705058,
+      1071.6096540512544,
+      240.8820725111059
+     ],
+     "lado_mm": [
+      17.219531947500002,
+      13.033664606250003
+     ]
+    },
+    "zoom": {
+     "png": "s09_test_126504_zoom.png",
+     "origen_px": [
+      38564,
+      4688
+     ],
+     "lado_px": 4096,
+     "lado_mm": 1.90464,
+     "poligono": 0,
+     "parches_positivos_del_poligono": 2,
+     "parches_por_poligono": [
+      2
+     ],
+     "parches_en_zoom": 161
+    }
+   },
+   {
+    "slide": "B25-158899",
+    "tier": "fuera",
+    "rama": "predicha:si",
+    "universo": "region",
+    "alineada": false,
+    "auc": 0.20114428750223493,
+    "ic95_lo": 0.0790950797839134,
+    "ic95_hi": 0.3231934952205564,
+    "p_nulo": 0.9950248756218906,
+    "n_parches": 2404,
+    "n_marcados": 7,
+    "n_poligonos": 3,
+    "mapa": {
+     "png": "s09_fuera_B25-158899_mapa.png",
+     "recuadro_px": [
+      605.0286962813525,
+      153.17079829910998,
+      803.9013326965094,
+      352.0434347142669
+     ],
+     "lado_mm": [
+      12.23061890625,
+      10.868619375
+     ]
+    },
+    "zoom": {
+     "png": "s09_fuera_B25-158899_zoom.png",
+     "origen_px": [
+      35265,
+      5520
+     ],
+     "lado_px": 4096,
+     "lado_mm": 1.90464,
+     "poligono": 1,
+     "parches_positivos_del_poligono": 4,
+     "parches_por_poligono": [
+      0,
+      4,
+      3
+     ],
+     "parches_en_zoom": 128
+    }
+   }
+  ],
+  "rampa": "turbo por percentil dentro del universo",
+  "alfa": 0.45,
+  "fuente_ckpt": "results_modelo_pth_balance/carcinoma_ductal_insitu_presente_pth_balance_s1/s_0_checkpoint.pt"
+ }
+}

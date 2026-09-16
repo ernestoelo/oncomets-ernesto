@@ -110,7 +110,8 @@ def dist(A, B):
 
 prs = Presentation(PPTX)
 for idx, slide in enumerate(prs.slides, start=1):
-    png = "%s/%s-%d.png" % (SP, PREF, idx)
+    # pdftoppm numera con ceros a la izquierda desde diez páginas: r-01 en el deck de 11
+    png = "%s/%s-%0*d.png" % (SP, PREF, len(str(len(prs.slides))), idx)
     b = bandas(png)
     print("\n== s%02d  tinta por renglón: y0-y1 [x0, x1] (hueco con la banda previa)" % idx)
     prev = None

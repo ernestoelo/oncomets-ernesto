@@ -39,6 +39,7 @@ Uso (workaround B; `envs/pruebas` porque el driver de O1 importa zarr al tope):
       /home/sdonoso/miniconda3/envs/pruebas/bin/python generate_b10_deck.py
 """
 import html
+import json
 import math
 import os
 import re
@@ -63,13 +64,14 @@ sys.path.insert(0, os.path.join(RAIZ, "sprints", "B9_sprint9", "presentacion_b9"
 sys.path.insert(0, os.path.join(RAIZ, "scripts"))
 
 from generate_b9_deck import (  # noqa: E402
-    BARLOW_DIR, BLANCO, CUERPO, F, G_CUERPO, LINEA, SEP, SH, SW, TITULO, _rect, _shape,
+    BARLOW_DIR, BLANCO, CUERPO, F, G_CUERPO, LINEA, SEP, SH, SW, TITULO, TURBO, _rect, _rgb, _shape,
     _util, add_textbox, auditar, barrer_rayas, borrar_slide, caja_figura, clonar_s03,
     forzar_barlow, llenar_tabla, notes, num, pie_lineas, reordenar, set_cejilla, set_cuerpo,
     set_encabezado, set_titulo, text_w, wrap_lines, wrap_lines_mixto)
 from b10_figuras_o1_o3 import (  # noqa: E402
     GRADO_COLOR, TIER_COLOR, TIER_TITULO, datos_o1, datos_o3)
 from b9_pleomorfismo import TOL_VECINDAD_UM  # noqa: E402
+from cruce_94_marcas import REGION_ANOTADA  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Constantes del período
@@ -89,7 +91,10 @@ FIG = os.path.join(RAIZ, "sprints", "B10_sprint10", "figuras")
 CSV_O1 = os.path.join(FIG, "o1_apertura_grado.csv")
 CSV_O3 = os.path.join(FIG, "o3_auc_por_lamina.csv")
 RES_O1 = os.path.join(RAIZ, "results", "b10_grado_sin_marca")
-CLAVES = ["s01", "s02", "s03a", "s03b", "s03c", "s03d", "s04"]
+ASSETS = os.path.join(AQUI, "assets")
+JSON_IMG = os.path.join(ASSETS, "deck_imagenes.json")        # lo escribe scripts/b10_deck_imagenes.py
+SEL_IMG = os.path.join(RAIZ, "results", "b10_deck_imagenes", "seleccion.json")
+CLAVES = ["s%02d" % i for i in range(1, 12)]
 
 GRADOS = ["alto", "moderado", "bajo"]
 TIERS = ["train", "val", "test", "fuera"]
@@ -899,6 +904,473 @@ def lamina_tareas(s, guion):
 
 
 # ===========================================================================
+# Las cuatro láminas de imagen (plan_deck_visual.md, paso 2)
+# ===========================================================================
+# Cada panel es un PNG propio, sin texto quemado, con su registro en `deck_imagenes.json`. El
+# rótulo y la imagen salen del MISMO registro, así que no pueden cruzarse
+# ([[sidecar-orden-no-es-el-de-la-figura]]); y como el PNG no trae letras, ningún rótulo pierde
+# puntos al escalar ([[png-rotulos-quemados-pierden-pt]]). Cada figura va en un group shape,
+# para que `auditar_grupos()` la mida y la zona de pie la vigile.
+def leer_imagenes(o1, o3):
+    """El JSON del render, verificado contra los números de las láminas que ya existen: los
+    gates de la selección contra O1 en N = 500, y cada mapa de s09 contra su fila de O3."""
+    d = json.load(open(JSON_IMG, encoding="utf-8"))
+    sel = json.load(open(SEL_IMG, encoding="utf-8"))
+    for g in GRADOS:
+        f = _o1(o1, 500, g)
+        if (sel["gates"]["recuperadas"][g], sel["gates"]["alcanzables"][g]) != \
+                (f["recall"], f["alcanzables"]):
+            raise SystemExit("imágenes: la selección no es la de O1 en N = 500 (%s)" % g)
+    for r in d["s09"]["orden_dibujo"]:
+        f = o3[o3.slide == r["slide"]]
+        if len(f) != 1 or f.tier.iloc[0] != r["tier"] or abs(f.auc.iloc[0] - r["auc"]) > 6e-5 \
+                or int(f.n_marcados.iloc[0]) != r["n_marcados"] \
+                or bool(f.alineada.iloc[0]) != r["alineada"]:
+            raise SystemExit("imágenes: el mapa de %s no es la fila de O3" % r["slide"])
+    pngs = re.findall(r'"png": "([^"]+)"', json.dumps(d))
+    faltan = [p for p in pngs if not os.path.isfile(os.path.join(ASSETS, p))]
+    if faltan:
+        raise SystemExit("imágenes: faltan %s; correr scripts/b10_deck_imagenes.py" % faltan)
+    d["seleccion"] = sel
+    print("  imágenes: %d PNG, gates de O1 y los tres AUC de O3 iguales" % len(pngs))
+    return d
+
+
+def tam_png(nombre):
+    from PIL import Image
+    with Image.open(os.path.join(ASSETS, nombre)) as im:
+        return im.size
+
+
+def foto(g, nombre, l, t, w=None, h=None):
+    """PNG con su aspecto EXACTO: se da el ancho o el alto y el otro sale de la imagen, así que
+    la caja nunca centra la foto con aire a los costados. Devuelve (ancho, alto, pulgadas por
+    píxel del PNG)."""
+    W, H = tam_png(nombre)
+    if w is None:
+        w = h * W / float(H)
+    h = w * H / float(W)
+    g.shapes.add_picture(os.path.join(ASSETS, nombre), Inches(l), Inches(t), Inches(w),
+                         Inches(h))
+    return w, h, w / float(W)
+
+
+def marco(g, l, t, w, h, borde, ancho_pt=1.5, relleno=None):
+    sp = g.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(l), Inches(t), Inches(w), Inches(h))
+    if relleno is None:
+        sp.fill.background()
+    else:
+        sp.fill.solid()
+        sp.fill.fore_color.rgb = relleno
+    sp.line.color.rgb = borde
+    sp.line.width = Pt(ancho_pt)
+    sp.shadow.inherit = False
+    return sp
+
+
+def simbolo_marca(g, cx, cy, d, recuperada):
+    """El símbolo de marca de los PNG (`anillo()` del render de s05: tinta de radio 23, blanco
+    de 18 y tinta de 13), dibujado nativo para la leyenda."""
+    circulo(g, cx, cy, d, TITULO)
+    circulo(g, cx, cy, d * 18 / 23.0, BLANCO)
+    if recuperada:
+        circulo(g, cx, cy, d * 13 / 23.0, TITULO)
+
+
+def leyenda_fila(g, cx, y, items, fs=9):
+    """Items `(dibujar(x, y), texto)` en una fila centrada en `cx`. Cada dibujo ocupa 0,20"."""
+    anchos = [0.28 + text_w(t, fs) for _, t in items]
+    total = sum(anchos) + 0.34 * (len(items) - 1)
+    x = cx - total / 2.0
+    for (dib, txt), a in zip(items, anchos):
+        dib(x + 0.10, y)
+        # el texto de `rotulo` empieza 0,02" a la derecha de su x (margen del cuadro)
+        rotulo(g, x + 0.26, y, txt, fs, GRIS)
+        x += a + 0.34
+
+
+def expansion(g, pares):
+    """Las rectas punteadas que abren un recuadro en su zoom (gramática del molde)."""
+    for (x1, y1), (x2, y2) in pares:
+        recta(g, x1, y1, x2, y2, TITULO, 1.0, MSO_LINE_DASH_STYLE.DASH)
+
+
+def pct_txt(p):
+    """Percentil con un decimal, redondeado como en la selección y el guion. Un 100,0 sólo si
+    es el núcleo más grande de la lámina: 99,97 redondeado también daría 100,0."""
+    t = num(p, 1)
+    if t == "100,0" and p < 100.0:
+        raise SystemExit("percentil %r se leería como el máximo de la lámina" % p)
+    return t
+
+
+def lamina_hovernext(s, img, guion):
+    """s03: una ventana de 500 µm con cada núcleo pintado por clase, y su centro de 119 µm (un
+    parche de CLAM) con los contornos. Los conteos van en una leyenda nativa a la derecha."""
+    r = img["s03"]
+    ctx, cen = r["orden_dibujo"]
+    if (ctx["que"], cen["que"]) != ("contexto", "centro"):
+        raise SystemExit("s03: el JSON no trae contexto y centro en ese orden")
+    col = {x["grupo"]: _hex(x["color"]) for x in r["grupos"]}
+    cejilla(s, "Detección de núcleos")
+    set_titulo(s, "HoVer-NeXt encuentra y clasifica cada núcleo", nombre="Text 1")
+    fin = set_cuerpo(s, [
+        ("Cada núcleo es una instancia con su clase: ",
+         "en %s µm hay %d, y %d son epiteliales, la clase que mide el grado."
+         % (num(ctx["lado_um"], 0), ctx["n_nucleos"],
+                        ctx["por_grupo"]["epitelial"])),
+    ])
+    pie = [
+        "Clases del detector con los pesos de Lizard, sin validar en estas láminas. «Otras» junta "
+        "sus cuatro clases minoritarias. Los colores son propios, no los del detector.",
+        "Conteo: núcleos con al menos un píxel dentro del cuadrado. La ventana está centrada en "
+        "la marca de alto grado con más núcleos epiteliales en su parche.",
+        "El área no se compara entre clases: el detector corta cada clase con su propio umbral, "
+        "y una plasmática sale más grande que una epitelial.",
+    ]
+    l, _, w = G_CUERPO
+    top, alto, y_pie = caja_figura(fin, pie, w)
+    g = s.shapes.add_group_shape()
+    FS = 9
+    nombres = {"epitelial": "epitelial", "linfocito": "linfocito", "conectivo": "conectivo",
+               "otras": "otras"}
+    t_marca = "marca de alto grado del patólogo"
+    t_rec = "un parche de CLAM, centrado en la marca"
+    W_NUM = text_w("119 µm", FS, True) + 0.20
+    W_LEG = max(0.26 + max(text_w(v, FS, True) for v in nombres.values()) + 0.25 + 2 * W_NUM,
+                0.30 + max(text_w(t_marca, FS), text_w(t_rec, FS)) + 0.10)
+    G_PAN, G_LEG = 0.55, 0.45
+    lab_ctx = "ventana de %s µm" % num(ctx["lado_um"], 0)
+    lab_cen = "centro de %s µm: un parche de CLAM" % num(cen["lado_um"], 0)
+    H_LAB = 0.08 + _lt(FS)
+    P = min(alto - H_LAB, (w - W_LEG - G_PAN - G_LEG) / 2.0)
+    x0 = l + (w - (2 * P + G_PAN + G_LEG + W_LEG)) / 2.0
+    xb = x0 + P + G_PAN
+    _, _, k = foto(g, ctx["png"], x0, top, w=P)
+    foto(g, cen["png"], xb, top, w=P)
+    rx0, ry0, rx1, ry1 = ctx["recuadro_px"]
+    expansion(g, [((x0 + rx1 * k, top + ry0 * k), (xb, top)),
+                  ((x0 + rx1 * k, top + ry1 * k), (xb, top + P))])
+    yl = top + P + 0.08 + _lt(FS) / 2.0
+    rotulo(g, x0 + P / 2.0, yl, lab_ctx, FS, GRIS, alin=PP_ALIGN.CENTER)
+    rotulo(g, xb + P / 2.0, yl, lab_cen, FS, GRIS, alin=PP_ALIGN.CENTER)
+
+    # leyenda: tabla de conteos con muestra de color, y los dos símbolos
+    xl = xb + P + G_LEG
+    PASO = 0.25
+    filas = len(nombres) + 1
+    h_leg = PASO * (filas + 1) + 0.16 + 2 * PASO
+    y = top + max(0.0, (P - h_leg) / 2.0) + PASO / 2.0
+    xr2 = xl + W_LEG
+    xr1 = xr2 - W_NUM
+    rotulo(g, xr1, y, lab_ctx.split(" de ")[1], FS, GRIS, bold=True, alin=PP_ALIGN.RIGHT)
+    rotulo(g, xr2, y, "%s µm" % num(cen["lado_um"], 0), FS, GRIS, bold=True,
+           alin=PP_ALIGN.RIGHT)
+    for grupo, nombre in nombres.items():
+        y += PASO
+        _rect(g, xl, y - 0.08, 0.16, 0.16, col[grupo])
+        rotulo(g, xl + 0.26, y, nombre, FS, TITULO)
+        rotulo(g, xr1, y, "%d" % ctx["por_grupo"][grupo], FS, TITULO, alin=PP_ALIGN.RIGHT)
+        rotulo(g, xr2, y, "%d" % cen["por_grupo"][grupo], FS, TITULO, alin=PP_ALIGN.RIGHT)
+    for c in (ctx, cen):
+        if sum(c["por_grupo"].values()) != c["n_nucleos"]:
+            raise SystemExit("s03: los grupos no suman el total de la ventana %s" % c["que"])
+    y += PASO
+    recta(g, xl, y - PASO / 2.0, xr2, y - PASO / 2.0, LINEA, 0.75)
+    rotulo(g, xl + 0.26, y, "total", FS, TITULO, bold=True)
+    rotulo(g, xr1, y, "%d" % ctx["n_nucleos"], FS, TITULO, bold=True, alin=PP_ALIGN.RIGHT)
+    rotulo(g, xr2, y, "%d" % cen["n_nucleos"], FS, TITULO, bold=True, alin=PP_ALIGN.RIGHT)
+    y += PASO + 0.16
+    simbolo_marca(g, xl + 0.08, y, 0.17, True)
+    rotulo(g, xl + 0.26, y, t_marca, FS, GRIS)
+    y += PASO
+    marco(g, xl, y - 0.08, 0.16, 0.16, TITULO, 1.5)
+    rotulo(g, xl + 0.26, y, t_rec, FS, GRIS)
+    sin_efectos(g)
+    g._element.recalculate_extents()
+    pie_lineas(s, l, y_pie, w, pie)
+    notes(s, guion)
+
+
+def lamina_o1_mapa(s, img, guion):
+    """s05: las dos láminas que eligió la regla, cada una con su miniatura y el zoom sobre sus
+    marcas. Las cuentas de la carga y de las marcas van nativas debajo de cada par."""
+    pares = img["s05"]["orden_dibujo"]
+    if [p["grado"] for p in pares] != ["alto", "bajo"]:
+        raise SystemExit("s05: el JSON no trae alto y bajo en ese orden")
+    if any(p["cuenta"]["no_alcanzable"] for p in pares):
+        raise SystemExit("s05: el pie dice que todas las marcas son alcanzables y no lo son")
+    sel = {p["slide"]: p for p in img["seleccion"]["s05"]}
+    a, b = pares
+    cejilla(s, "Grado nuclear")
+    set_titulo(s, "La carga de N = 500 sobre dos láminas", nombre="Text 1")
+    fin = set_cuerpo(s, [
+        ("En verde, la carga de N = 500: ",
+         "los parches con los 500 núcleos epiteliales más grandes de la lámina."),
+        ("Alto grado, %d de %d marcas dentro de la carga; bajo grado, %d de %d, "
+         % (a["cuenta"]["recuperada"], a["n_marcas"], b["cuenta"]["recuperada"], b["n_marcas"]),
+         "aunque %d parches de la carga caen en su zona ampliada."
+         % b["zoom"]["parches_en_zoom"]),
+    ])
+    # la 129741 tiene dos regiones de escaneo: cuántos parches de la carga caen en la que tiene
+    # las marcas, con el mismo intervalo que usó O3
+    reg = []
+    for p in pares:
+        if p["slide"] in REGION_ANOTADA:
+            lo, hi = REGION_ANOTADA[p["slide"]]
+            en = sum(lo <= gy * img["seleccion"]["lado_parche_px"] < hi
+                     for _gx, gy in sel[p["slide"]]["parches"])
+            if not all(lo <= m["y"] < hi for m in sel[p["slide"]]["marcas"]):
+                raise SystemExit("s05: %s tiene marcas fuera de su región anotada" % p["slide"])
+            reg.append("la %s tiene dos regiones de escaneo del mismo tejido, y %d de sus %d "
+                       "parches caen en la que tiene las marcas" % (p["slide"], en, p["n_parches"]))
+    if len(reg) != 1:
+        raise SystemExit("s05: el pie espera exactamente una lámina con dos regiones")
+    pie = [
+        "Carga: parches de 256 px que contienen al menos uno de los 500 núcleos. Unidad de las "
+        "cuentas: marca del patólogo; las %d marcas de estas dos láminas son alcanzables."
+        % (a["n_marcas"] + b["n_marcas"]),
+        reg[0][0].upper() + reg[0][1:] + ".",
+        "Las dos láminas salen de una regla: la de cada grado con más marcas alcanzables y "
+        "alineación verificada. Un núcleo grande sin marca no es un falso positivo: el patólogo "
+        "marca ejemplares.",
+    ]
+    l, _, w = G_CUERPO
+    top, alto, y_pie = caja_figura(fin, pie, w)
+    g = s.shapes.add_group_shape()
+    FS, FS_H = 9, 9.5
+    H_LEG = 0.30
+    H_HEAD = _lt(FS_H) + 0.08
+    H_LAB = 0.06 + 2 * _lt(FS)
+    G_IN, G_PAR = 0.35, 0.60
+    asp = []
+    for p in pares:
+        W, H = tam_png(p["miniatura"]["png"])
+        Wz, Hz = tam_png(p["zoom"]["png"])
+        asp += [W / float(H), Wz / float(Hz)]
+    H = min(alto - H_LEG - H_HEAD - H_LAB, (w - 2 * G_IN - G_PAR) / sum(asp))
+    total = H * sum(asp) + 2 * G_IN + G_PAR
+    verde = {x["grupo"]: _hex(x["color"]) for x in img["s03"]["grupos"]}["epitelial"]
+
+    leyenda_fila(g, l + w / 2.0, top + H_LEG / 2.0 - 0.04, [
+        (lambda x, y: marco(g, x - 0.08, y - 0.08, 0.16, 0.16, verde, 1.25, verde),
+         "parche de la carga"),
+        (lambda x, y: simbolo_marca(g, x, y, 0.17, True), "marca recuperada"),
+        (lambda x, y: simbolo_marca(g, x, y, 0.17, False), "marca no recuperada"),
+        (lambda x, y: marco(g, x - 0.08, y - 0.08, 0.16, 0.16, TITULO, 1.5),
+         "zona ampliada, %s mm de lado" % num(a["zoom"]["lado_mm"], 2)),
+    ])
+    x = l + (w - total) / 2.0
+    y_img = top + H_LEG + H_HEAD
+    for p, nombre in zip(pares, ("alto grado", "bajo grado")):
+        xp = x
+        circulo(g, xp + 0.055, top + H_LEG + H_HEAD / 2.0 - 0.02, 0.11, COL_GRADO[p["grado"]])
+        rotulo(g, xp + 0.14, top + H_LEG + H_HEAD / 2.0 - 0.02, "%s · %s" % (nombre, p["slide"]),
+               FS_H, TITULO, bold=True)
+        wm, hm, km = foto(g, p["miniatura"]["png"], x, y_img, h=H)
+        xz = x + wm + G_IN
+        foto(g, p["zoom"]["png"], xz, y_img, h=H)
+        rx0, ry0, rx1, ry1 = p["miniatura"]["recuadro_px"]
+        expansion(g, [((x + rx1 * km, y_img + ry0 * km), (xz, y_img)),
+                      ((x + rx1 * km, y_img + ry1 * km), (xz, y_img + H))])
+        y1 = y_img + H + 0.06 + _lt(FS) / 2.0
+        rotulo(g, xp, y1, "carga: %d parches = %s mm²" % (p["n_parches"], num(p["carga_mm2"], 2)),
+               FS, GRIS)
+        rotulo(g, xp, y1 + _lt(FS), "marcas recuperadas: %d de %d"
+               % (p["cuenta"]["recuperada"], p["n_marcas"]), FS, TITULO, bold=True)
+        x = xz + H + G_PAR
+    sin_efectos(g)
+    g._element.recalculate_extents()
+    pie_lineas(s, l, y_pie, w, pie)
+    notes(s, guion)
+
+
+def lamina_o1_galeria(s, img, o1, guion):
+    """s06: los doce núcleos de la selección, en dos filas (recuperadas y no recuperadas) y con
+    los grados como columnas, que es lo que deja los paneles a ~1,2" en vez de ~0,9"."""
+    pan = img["s06"]["orden_dibujo"]
+    esperado = {"alto": ["recuperada:mínimo", "recuperada:mediano", "recuperada:máximo",
+                         "no_recuperada:primer cuartil", "no_recuperada:mediano"],
+                "moderado": ["recuperada:mínimo", "recuperada:mediano", "recuperada:máximo",
+                             "no_recuperada:primer cuartil", "no_recuperada:mediano"],
+                "bajo": ["no_recuperada:primer cuartil", "no_recuperada:mediano"]}
+    for gr, cols in esperado.items():
+        if [p["columna"] for p in pan if p["grado"] == gr] != cols:
+            raise SystemExit("s06: los paneles de %s no vienen en el orden de la regla" % gr)
+    nr = {gr: [p for p in pan if p["grado"] == gr and p["estado"] == "no_recuperada"]
+          for gr in GRADOS}
+    cejilla(s, "Grado nuclear")
+    set_titulo(s, "Las marcas, núcleo a núcleo", nombre="Text 1")
+    fin = set_cuerpo(s, [
+        ("Recuperadas y no recuperadas se parecen: ",
+         "las no recuperadas de alto grado quedan en los percentiles %s y %s."
+         % tuple(pct_txt(p["percentil"]) for p in nr["alto"])),
+        ("Bajo grado no tiene ninguna recuperada: ",
+         "las dos del panel quedan en los percentiles %s y %s."
+         % tuple(pct_txt(p["percentil"]) for p in nr["bajo"])),
+    ])
+    pie = [
+        "Cada panel mide %s µm de lado, todos a la misma escala. Contorno grueso: el núcleo bajo "
+        "la marca; fino: los demás de los 500 más grandes que caen en el panel."
+        % num(pan[0]["lado_um"], 0),
+        "Recuperadas: puestos mínimo, mediano y máximo; no recuperadas: primer cuartil y "
+        "mediana; una lámina por panel. Puesto y percentil de área son dentro de la propia lámina.",
+        "Sólo marcas alcanzables de láminas con alineación verificada. Un núcleo grande sin marca "
+        "no es un falso positivo: el patólogo marca ejemplares.",
+    ]
+    l, _, w = G_CUERPO
+    top, alto, y_pie = caja_figura(fin, pie, w)
+    g = s.shapes.add_group_shape()
+    FS, FS_H, FS_R = 8.5, 9.5, 9.5
+    slots = {"alto": 3, "moderado": 3, "bajo": 2}
+    G_S, G_GR, G_FILA = 0.08, 0.34, 0.12
+    W_ROW = max(text_w("no recuperadas", FS_R, True), text_w("recuperadas", FS_R, True),
+                text_w("en N = 500", FS_R)) + 0.30
+    H_HEAD = _lt(FS_H) + 0.14
+    H_LAB = 0.05 + 2 * _lt(FS)
+    n_s = sum(slots.values())
+    n_gap = sum(v - 1 for v in slots.values())
+    T = min((w - W_ROW - 2 * G_GR - n_gap * G_S) / n_s, (alto - H_HEAD - 2 * H_LAB - G_FILA) / 2)
+    total = W_ROW + n_s * T + n_gap * G_S + 2 * G_GR
+    x = l + (w - total) / 2.0
+    ys = [top + H_HEAD, top + H_HEAD + T + H_LAB + G_FILA]
+    rotulo(g, x + W_ROW - 0.14, ys[0] + T / 2.0 - _lt(FS_R) / 2.0, "recuperadas", FS_R, TITULO,
+           bold=True, alin=PP_ALIGN.RIGHT)
+    rotulo(g, x + W_ROW - 0.14, ys[0] + T / 2.0 + _lt(FS_R) / 2.0, "en N = 500", FS_R, GRIS,
+           alin=PP_ALIGN.RIGHT)
+    rotulo(g, x + W_ROW - 0.14, ys[1] + T / 2.0, "no recuperadas", FS_R, TITULO, bold=True,
+           alin=PP_ALIGN.RIGHT)
+    x += W_ROW
+    for gr in GRADOS:
+        f = _o1(o1, 500, gr)
+        ancho = slots[gr] * T + (slots[gr] - 1) * G_S
+        circulo(g, x + 0.055, top + _lt(FS_H) / 2.0, 0.11, COL_GRADO[gr])
+        rotulo(g, x + 0.14, top + _lt(FS_H) / 2.0, "%s · %d de %d recuperadas"
+               % (gr, f["recall"], f["alcanzables"]), FS_H, TITULO, bold=True)
+        _rect(g, x, top + _lt(FS_H) + 0.05, ancho, 0.03, COL_GRADO[gr])
+        for fila, estado in enumerate(("recuperada", "no_recuperada")):
+            ps = [p for p in pan if p["grado"] == gr and p["estado"] == estado]
+            if not ps:
+                rotulo(g, x + ancho / 2.0, ys[fila] + T / 2.0, "ninguna", FS_R, GRIS, italic=True,
+                       alin=PP_ALIGN.CENTER)
+                continue
+            for j, p in enumerate(ps):
+                xt = x + j * (T + G_S)
+                foto(g, p["png"], xt, ys[fila], w=T)
+                # sin la lámina: a ~1" por panel no entra junto al puesto, y el pie ya dice que
+                # es una por panel (queda en `deck_imagenes.json`)
+                l1 = "puesto %d" % p["puesto"]
+                l2 = "percentil %s" % pct_txt(p["percentil"])
+                if max(text_w(l1, FS, True), text_w(l2, FS)) + 0.20 > T + G_S:
+                    raise SystemExit("s06: el rótulo «%s» no entra bajo su panel" % l1)
+                yl = ys[fila] + T + 0.05 + _lt(FS) / 2.0
+                rotulo(g, xt - 0.02, yl, l1, FS, TITULO, bold=True)
+                rotulo(g, xt - 0.02, yl + _lt(FS), l2, FS, GRIS)
+        x += ancho + G_GR
+    sin_efectos(g)
+    g._element.recalculate_extents()
+    pie_lineas(s, l, y_pie, w, pie)
+    notes(s, guion)
+
+
+def lamina_o3_mapas(s, img, guion):
+    """s09: por lámina, el mapa entero como localizador y un zoom de 1,9 mm sobre su polígono
+    de CDIS con más parches. La leyenda va en una columna a la derecha: en una fila arriba le
+    robaba alto a los zooms, que es lo que la lámina existe para mostrar."""
+    r = img["s09"]["orden_dibujo"]
+    if [x["tier"] for x in r] != ["train", "test", "fuera"]:
+        raise SystemExit("s09: el JSON no trae train, test y fuera en ese orden")
+    tr, te, fu = r
+    sin_parches = sum(1 for n in fu["zoom"]["parches_por_poligono"] if n == 0)
+    if sin_parches != 1 or fu["alineada"]:
+        raise SystemExit("s09: el cuerpo dice que un polígono de la %s, sin verificar, no contiene "
+                         "parches" % fu["slide"])
+    cejilla(s, "Localización del CDIS")
+    set_titulo(s, "Dónde mira la atención en tres láminas", nombre="Text 1")
+    fin = set_cuerpo(s, [
+        ("En la de train, AUC %s: " % num(tr["auc"], 3),
+         "los parches dentro del CDIS están entre los de más atención de la lámina."),
+        ("En las que el fold no usó no se lee: ",
+         "test tiene %d parches con CDIS, y un polígono de la de fuera del split no contiene "
+         "ninguno." % te["n_marcados"]),
+    ])
+    # dos renglones y no tres: el alto que se ahorra va a los zooms
+    pie = [
+        "Atención del checkpoint de un fold, rama de la clase verdadera; la %s, sin etiqueta, con "
+        "la rama si y sólo su región anotada. Color: percentil de atención dentro de la lámina."
+        % fu["slide"],
+        "Train: el modelo ya la vio. †: alineación sin verificar. Unidad del AUC: parche, positivo "
+        "si su centro cae dentro de un polígono de CDIS. Zoom de %d parches, centrado en el "
+        "polígono con más parches." % round(tr["zoom"]["lado_px"] / 256.0),
+    ]
+    l, _, w = G_CUERPO
+    top, alto, y_pie = caja_figura(fin, pie, w)
+    g = s.shapes.add_group_shape()
+    FS = 9
+    TIER = {"train": "train", "test": "test", "fuera": "fuera del split"}
+    t_pol = "polígono de CDIS del patólogo"
+    t_zona = "zona ampliada, %s mm de lado" % num(tr["zoom"]["lado_mm"], 1)
+    W_LEG = 0.38 + max(text_w(t_pol, FS), text_w(t_zona, FS),
+                       text_w("percentil dentro de la lámina", FS)) + 0.10
+    G_COL, G_LEG, H_MAP, G_EXP = 0.40, 0.45, 0.62, 0.22
+    H_LAB = 0.06 + 2 * _lt(FS)
+    Z = min((w - W_LEG - G_LEG - 2 * G_COL) / 3.0, alto - H_MAP - G_EXP - H_LAB)
+    total = 3 * Z + 2 * G_COL + G_LEG + W_LEG
+    x = l + (w - total) / 2.0
+    yz = top + H_MAP + G_EXP
+    for p in r:
+        Wm, Hm = tam_png(p["mapa"]["png"])
+        if Wm / float(Hm) > Z / H_MAP:
+            wm, hm, km = Z, Z * Hm / float(Wm), Z / float(Wm)
+        else:
+            wm, hm, km = H_MAP * Wm / float(Hm), H_MAP, H_MAP / float(Hm)
+        xm, ym = x + (Z - wm) / 2.0, top + (H_MAP - hm)
+        foto(g, p["mapa"]["png"], xm, ym, w=wm)
+        foto(g, p["zoom"]["png"], x, yz, w=Z)
+        rx0, ry0, rx1, ry1 = p["mapa"]["recuadro_px"]
+        expansion(g, [((xm + rx0 * km, ym + ry1 * km), (x, yz)),
+                      ((xm + rx1 * km, ym + ry1 * km), (x + Z, yz))])
+        y1 = yz + Z + 0.06 + _lt(FS) / 2.0
+        circulo(g, x + 0.055, y1, 0.11, COL_TIER[p["tier"]])
+        rotulo(g, x + 0.14, y1, "%s · %s%s" % (TIER[p["tier"]], p["slide"],
+                                               "" if p["alineada"] else "  †"),
+               FS, TITULO, bold=True)
+        rotulo(g, x + 0.14, y1 + _lt(FS), "AUC %s · %d parches con CDIS"
+               % (num(p["auc"], 3), p["n_marcados"]), FS, GRIS)
+        x += Z + G_COL
+    # leyenda: la rampa del B9, el polígono y el recuadro
+    xl = x - G_COL + G_LEG
+    y = yz + Z / 2.0 - 0.55
+    rotulo(g, xl - 0.02, y, "atención", FS, TITULO, bold=True)
+    y += 0.24
+    W_R = W_LEG - 0.10
+    paso = W_R / float(len(TURBO))
+    for i, c in enumerate(TURBO):
+        _rect(g, xl + i * paso, y - 0.07, paso + 0.005, 0.14, _rgb(c))
+    y += 0.20
+    rotulo(g, xl - 0.02, y, "baja", FS, GRIS)
+    rotulo(g, xl + W_R + 0.02, y, "alta", FS, GRIS, alin=PP_ALIGN.RIGHT)
+    y += _lt(FS)
+    rotulo(g, xl - 0.02, y, "percentil dentro de la lámina", FS, GRIS)
+    y += 0.34
+    for dd, colr, ancho in ((0.0, TITULO, 2.5), (0.035, BLANCO, 1.0)):
+        ov = g.shapes.add_shape(MSO_SHAPE.OVAL, Inches(xl + dd), Inches(y - 0.09 + dd),
+                                Inches(0.26 - 2 * dd), Inches(0.18 - 2 * dd))
+        ov.fill.background()
+        ov.line.color.rgb = colr
+        ov.line.width = Pt(ancho)
+        ov.shadow.inherit = False
+    rotulo(g, xl + 0.34, y, t_pol, FS, GRIS)
+    y += 0.28
+    marco(g, xl + 0.05, y - 0.08, 0.16, 0.16, TITULO, 1.5)
+    rotulo(g, xl + 0.34, y, t_zona, FS, GRIS)
+    sin_efectos(g)
+    g._element.recalculate_extents()
+    pie_lineas(s, l, y_pie, w, pie)
+    notes(s, guion)
+
+
+# ===========================================================================
 # QA propio: lo que el del B9 no ve
 # ===========================================================================
 def _todas(shapes):
@@ -1042,20 +1514,26 @@ def main():
           % (len(etq), num(etq.auc.median(), 3), num(etq.auc.min(), 3),
              num(o3[o3.tier == "fuera"].auc.iloc[0], 3)))
 
+    img = leer_imagenes(o1, o3)
+
     prs = Presentation(TPL)
     s01, s02, s03, s04 = list(prs.slides)
-    sO1, sO2, sO3, sPR = [clonar_s03(prs, s03) for _ in range(4)]
+    sHN, sO1, sMA, sGA, sO2, sO3, sMP, sPR = [clonar_s03(prs, s03) for _ in range(8)]
 
     lamina_objetivos(s02, o1, o3, guion["s02"])
-    lamina_o1(sO1, o1, esc, guion["s03a"])
-    lamina_o2(sO2, guion["s03b"])
-    lamina_o3(sO3, o3, guion["s03c"])
-    lamina_preguntas(sPR, esc, guion["s03d"])
-    lamina_tareas(s04, guion["s04"])
+    lamina_hovernext(sHN, img, guion["s03"])
+    lamina_o1(sO1, o1, esc, guion["s04"])
+    lamina_o1_mapa(sMA, img, guion["s05"])
+    lamina_o1_galeria(sGA, img, o1, guion["s06"])
+    lamina_o2(sO2, guion["s07"])
+    lamina_o3(sO3, o3, guion["s08"])
+    lamina_o3_mapas(sMP, img, guion["s09"])
+    lamina_preguntas(sPR, esc, guion["s10"])
+    lamina_tareas(s04, guion["s11"])
     notes(s01, guion["s01"])
 
     borrar_slide(prs, s03)                      # trae el ejemplo de otra persona
-    reordenar(prs, [s01, s02, sO1, sO2, sO3, sPR, s04])
+    reordenar(prs, [s01, s02, sHN, sO1, sMA, sGA, sO2, sO3, sMP, sPR, s04])
 
     forzar_barlow(prs)
     problemas = auditar(prs)
